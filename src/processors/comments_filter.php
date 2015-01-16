@@ -15,7 +15,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'icwp-processor-basedb.php' );
+require_once( 'basedb.php' );
 
 if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter', false ) ):
 
@@ -29,13 +29,13 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		if ( $this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
-			require_once( 'icwp-processor-commentsfilter_antibotspam.php' );
+			require_once( 'commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
 		}
 
 		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
-			require_once( 'icwp-processor-commentsfilter_humanspam.php' );
+			require_once( 'commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
 		}

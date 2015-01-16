@@ -8,7 +8,7 @@ class ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_DataProcessor
 	 */
 	public function loadDataProcessor() {
-		require_once( 'icwp-data-processor.php' );
+		require_once( 'icwp-data.php' );
 		return ICWP_WPSF_DataProcessor::GetInstance();
 	}
 
@@ -40,7 +40,7 @@ class ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_YamlProcessor
 	 */
 	public function loadYamlProcessor() {
-		require_once( 'icwp-processor-yaml.php' );
+		require_once( 'icwp-yaml.php' );
 		return ICWP_WPSF_YamlProcessor::GetInstance();
 	}
 

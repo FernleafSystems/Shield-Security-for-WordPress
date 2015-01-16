@@ -2,7 +2,6 @@
 if ( class_exists( 'ICWP_WPSF_OptionsVO', false ) ) {
 	return;
 }
-require_once( 'icwp-foundation.php' );
 
 class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 

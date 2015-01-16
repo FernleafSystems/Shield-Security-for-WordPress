@@ -44,8 +44,11 @@ if ( !function_exists( '_wpsf__' ) ) {
 	}
 }
 
-require_once( dirname(__FILE__).ICWP_DS.'src'.ICWP_DS.'icwp-foundation.php' );
+// By requiring this file here, we assume we wont need to require it anywhere else.
+require_once( 'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
+
 if ( !class_exists('ICWP_Wordpress_Simple_Firewall') ):
+
 
 	class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 

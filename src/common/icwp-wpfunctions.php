@@ -833,8 +833,8 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 * @return ICWP_WPSF_DataProcessor
 		 */
 		public function loadDataProcessor() {
-			if ( !class_exists('ICWP_WPSF_DataProcessor') ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-data-processor.php' );
+			if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ) {
+				require_once( 'icwp-data.php' );
 			}
 			return ICWP_WPSF_DataProcessor::GetInstance();
 		}

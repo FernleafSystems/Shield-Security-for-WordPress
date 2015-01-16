@@ -15,7 +15,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'icwp-processor-base.php' );
+require_once( 'base.php' );
 
 if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement_V4', false ) ):
 
@@ -42,7 +42,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 		}
 
 		if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
-			require_once( 'icwp-processor-usermanagement_adminloginnotification.php' );
+			require_once( 'usermanagement_adminloginnotification.php' );
 			$oNotificationProcessor = new ICWP_WPSF_Processor_UserManagement_AdminLoginNotification( $this->getFeatureOptions() );
 			$oNotificationProcessor->run();
 		}
@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
-			require_once( 'icwp-processor-usermanagement_sessions.php' );
+			require_once( 'usermanagement_sessions.php' );
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $this->getFeatureOptions() );
 		}
 		return $this->oProcessorSessions;

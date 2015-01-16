@@ -16,7 +16,7 @@
  *
  */
 
-require_once( 'icwp-processor-base.php' );
+require_once( 'base.php' );
 
 if ( !class_exists('ICWP_WPSF_BaseDbProcessor') ):
 

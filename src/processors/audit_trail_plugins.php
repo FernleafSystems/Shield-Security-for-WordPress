@@ -15,36 +15,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'icwp-processor-base.php' );
+require_once( 'base.php' );
 
-if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Themes') ):
+if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Plugins') ):
 
-	class ICWP_WPSF_Processor_AuditTrail_Themes extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_Processor_AuditTrail_Plugins extends ICWP_WPSF_Processor_Base {
 
 		/**
 		 */
 		public function run() {
-			if ( $this->getIsOption( 'enable_audit_context_themes', 'Y' ) ) {
-				add_action( 'switch_theme', array( $this, 'auditSwitchTheme' ) );
-				add_action( 'check_admin_referer', array( $this, 'auditEditedThemeFile' ), 10, 2 );
-//				add_action( 'upgrader_process_complete', array( $this, 'auditInstalledTheme' ) );
+			if ( $this->getIsOption( 'enable_audit_context_plugins', 'Y' ) ) {
+				add_action( 'deactivated_plugin', array( $this, 'auditDeactivatedPlugin' ) );
+				add_action( 'activated_plugin', array( $this, 'auditActivatedPlugin' ) );
+				add_action( 'check_admin_referer', array( $this, 'auditEditedPluginFile' ), 10, 2 );
 			}
 		}
 
 		/**
-		 * @param string $sThemeName
+		 * @param string $sPlugin
 		 */
-		public function auditSwitchTheme( $sThemeName ) {
-			if ( empty( $sThemeName ) ) {
+		public function auditActivatedPlugin( $sPlugin ) {
+			if ( empty( $sPlugin ) ) {
 				return;
 			}
 
 			$oAuditTrail = $this->getAuditTrailEntries();
 			$oAuditTrail->add(
-				'themes',
-				'theme_activated',
+				'plugins',
+				'plugin_activated',
 				1,
-				sprintf( _wpsf__( 'Theme "%s" was activated.' ), $sThemeName )
+				sprintf( _wpsf__( 'Plugin "%s" was activated.' ), $sPlugin )
+			);
+		}
+
+		/**
+		 * @param string $sPlugin
+		 */
+		public function auditDeactivatedPlugin( $sPlugin ) {
+			if ( empty( $sPlugin ) ) {
+				return;
+			}
+
+			$oAuditTrail = $this->getAuditTrailEntries();
+			$oAuditTrail->add(
+				'plugins',
+				'plugin_deactivated',
+				1,
+				sprintf( _wpsf__( 'Plugin "%s" was deactivated.' ), $sPlugin )
 			);
 		}
 
@@ -52,9 +69,9 @@ if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Themes') ):
 		 * @param string $sAction
 		 * @param boolean $bResult
 		 */
-		public function auditEditedThemeFile( $sAction, $bResult ) {
+		public function auditEditedPluginFile( $sAction, $bResult ) {
 
-			$sStub = 'edit-theme_';
+			$sStub = 'edit-plugin_';
 			if ( strpos( $sAction, $sStub ) !== 0 ) {
 				return;
 			}
@@ -63,10 +80,10 @@ if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Themes') ):
 
 			$oAuditTrail = $this->getAuditTrailEntries();
 			$oAuditTrail->add(
-				'themes',
+				'plugins',
 				'file_edited',
 				2,
-				sprintf( _wpsf__( 'An attempt was made to edit the theme file "%s" directly through the WordPress editor.' ), $sFileName )
+				sprintf( _wpsf__( 'An attempt was made to edit the plugin file "%s" directly through the WordPress editor.' ), $sFileName )
 			);
 		}
 
