@@ -161,7 +161,7 @@ class ICWP_WPSF_Processor_LoginProtect_V5 extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getProcessorCooldown() {
 		if ( !isset( $this->oProcessorCooldown ) ) {
-			require_once('icwp-processor-loginprotect_cooldown.php');
+			require_once( 'icwp-processor-loginprotect_cooldown.php' );
 			$this->oProcessorCooldown = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeatureOptions() );
 		}
 		return $this->oProcessorCooldown;
@@ -205,7 +205,7 @@ class ICWP_WPSF_Processor_LoginProtect_V5 extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getProcessorYubikey() {
 		if ( !isset( $this->oProcessorYubikey ) ) {
-			require_once('icwp-processor-loginprotect_yubikey.php');
+			require_once( 'icwp-processor-loginprotect_yubikey.php' );
 			$this->oProcessorYubikey = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
 		}
 		return $this->oProcessorYubikey;

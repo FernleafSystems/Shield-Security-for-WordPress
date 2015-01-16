@@ -296,7 +296,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 */
 		public function getPlugins() {
 			if ( !function_exists( 'get_plugins' ) ) {
-				require_once ( ABSPATH . 'wp-admin/includes/plugin.php' );
+				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			}
 			return function_exists( 'get_plugins' ) ? get_plugins() : array();
 		}

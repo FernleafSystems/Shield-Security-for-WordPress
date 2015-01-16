@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		if ( $this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
-			require_once('icwp-processor-commentsfilter_antibotspam.php');
+			require_once( 'icwp-processor-commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
 		}
