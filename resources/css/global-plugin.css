@@ -1,0 +1,44 @@
+@CHARSET "ISO-8859-1";
+
+.wrap .icwp-admin-notice {
+	padding: 13px 20px;
+	border: 1px solid rgba(240, 165, 4, 0.56);
+	background-color: rgba(255, 227, 167, 0.25);
+	border-right-width: 5px;
+	border-left-width: 5px;
+}
+
+.wrap .icwp-admin-notice p {
+	text-shadow: -1px -1px 0px rgba(255,255,255,0.4);
+}
+.wrap .icwp-admin-notice.updated p {
+	color: rgba(155, 107, 5, 1);
+}
+.wrap .icwp-admin-notice form {
+	margin: 0;
+}
+.wrap .icwp-admin-notice .button {
+	margin: 10px 0 7px;
+}
+.wrap .icwp-admin-notice .button:hover {
+	text-decoration: none;
+}
+
+.wrap .error.icwp-admin-notice {
+	border-color: rgba(240, 51, 4, 0.56);
+	background-color: rgba(255, 185, 167, 0.25);
+}
+.wrap .error.icwp-admin-notice h3 {
+	color: rgba(199, 41, 0, 1);
+}
+
+td.icwp_autoupdate, th#icwp_autoupdate {
+	text-align: center;
+	vertical-align: middle;
+}
+td.icwp_autoupdate span.icwp-pluginautoupdateicon.dashicons-update {
+	color: #559c6a;
+}
+td.icwp_autoupdate span.icwp-pluginautoupdateicon.dashicons-hammer {
+	color: #87492e;
+}
