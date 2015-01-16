@@ -54,10 +54,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
 			}
 
-			// ensures they have values
-			$this->setKeys();
-			$this->getLastLoginTimeFilePath();
-
 			$this->setOpt( 'ips_whitelist', '' );
 		}
 
@@ -271,14 +267,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		/**
 		 * @return string
 		 */
-		public function setKeys() {
-			$this->getTwoAuthSecretKey();
-			$this->getGaspKey();
-		}
-
-		/**
-		 * @return string
-		 */
 		public function getCustomLoginPath() {
 			return $this->getOpt( 'rename_wplogin_path', '' );
 		}
@@ -287,7 +275,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return bool
 		 */
 		public function getIsCustomLoginPathEnabled() {
-			$sPath = $this->getOpt( 'rename_wplogin_path', '' );
+			$sPath = $this->getCustomLoginPath();
 			return !empty( $sPath );
 		}
 
