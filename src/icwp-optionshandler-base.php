@@ -113,7 +113,9 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 			$this->doPostConstruction();
 		}
 
-		protected function doPostConstruction() {}
+		protected function doPostConstruction() {
+			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'aDoCheckForForceOffFile' ) );
+		}
 
 		/**
 		 * A action added to WordPress 'plugins_loaded' hook
@@ -243,7 +245,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
-			$bOverride = $this->getIfOverride();
+			$bOverride = $this->getIfOverrideOff();
 			if ( $bOverride ) {
 				return !$bOverride;
 			}
@@ -254,21 +256,25 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 		}
 
 		/**
+		 * @param $bOverrideOff
+		 *
+		 * @return boolean
+		 */
+		public function aDoCheckForForceOffFile( $bOverrideOff ) {
+			if ( $bOverrideOff ) {
+				return $bOverrideOff;
+			}
+			return $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
+		}
+
+		/**
 		 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
 		 */
-		public function getIfOverride() {
-
+		public function getIfOverrideOff() {
 			if ( !is_null( $this->bOverrideState ) ) {
 				return $this->bOverrideState;
 			}
-
-			$oWpFs = $this->loadFileSystemProcessor();
-			if ( $oWpFs->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false ) ) {
-				$this->bOverrideState = true;
-			}
-			else {
-				$this->bOverrideState = false;
-			}
+			$this->bOverrideState = apply_filters( $this->doPluginPrefix( 'override_off' ), false );
 			return $this->bOverrideState;
 		}
 

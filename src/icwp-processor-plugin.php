@@ -52,7 +52,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function adminNoticeForceOffActive( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
-			$fOverride = $oFO->getIfOverride();
+			$fOverride = $oFO->getIfOverrideOff();
 			if ( $fOverride ) {
 				ob_start();
 				include( $oFO->getViewSnippet( 'admin_notice_override' ) );

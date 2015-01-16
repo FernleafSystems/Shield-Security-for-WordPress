@@ -29,7 +29,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		protected function doPostConstruction() {
+			parent::doPostConstruction();
 			add_filter( $this->doPluginPrefix( 'ip_whitelist' ), array( $this, 'getIpWhitelistOption' ) );
+			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'aIsPluginGloballyEnabled' ) );
+		}
+
+		/**
+		 * @param $bOverrideOff
+		 *
+		 * @return boolean
+		 */
+		public function aIsPluginGloballyEnabled( $bOverrideOff ) {
+			if ( $bOverrideOff ) {
+				return $bOverrideOff;
+			}
+			return !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
 		}
 
 		/**
@@ -231,6 +245,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 			$sKey = $aOptionsParams['key'];
 			switch( $sKey ) {
+
+				case 'global_enable_plugin_features' :
+					$sName = _wpsf__( 'Enable Features' );
+					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
+					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all WordPress Simple Firewall features.' ) );
+					break;
 
 				case 'ip_whitelist' :
 					$sName = _wpsf__( 'IP Whitelist' );
