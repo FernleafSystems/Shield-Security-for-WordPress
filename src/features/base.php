@@ -698,6 +698,16 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 		protected function doExtraSubmitProcessing() { }
 
 		/**
+		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from
+		 * the admin access restriction feature.
+		 */
+		protected function doSaveByPassAdminProtection() {
+			add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			$this->savePluginOptions();
+			remove_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+		}
+
+		/**
 		 * @param string $sAllOptionsInput - comma separated list of all the input keys to be processed from the $_POST
 		 * @return void|boolean
 		 */

@@ -108,12 +108,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			}
 		}
 
-		public function getFullIpWhitelist() {
-			$aIpWhitelist = apply_filters( $this->doPluginPrefix( 'ip_whitelist' ), array() );
-			if ( !is_array( $aIpWhitelist ) ) {
-				$aIpWhitelist = array();
-			}
+		/**
+		 * @return array
+		 */
+		protected function buildFullIpWhitelist() {
 
+			$aWhitelistFromOptions = $this->getIpWhitelistOption();
+
+			$aIpWhitelist = array();
 			$aOldWhitelists = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
 			if ( is_array( $aOldWhitelists ) ) {
 				foreach( $aOldWhitelists as $mKey => $sValue ) {
@@ -121,7 +123,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				}
 			}
 
-			$aWhitelistFromOptions = $this->getIpWhitelistOption();
 			$aDifference = array_diff( $aIpWhitelist, $aWhitelistFromOptions );
 			if ( empty( $aDifference ) ) { // there's nothing new
 				return $aWhitelistFromOptions;
@@ -158,11 +159,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 *
 		 * @return bool
 		 */
-		public function setIpWhitelistOption( $aList ) {
+		private function setIpWhitelistOption( $aList ) {
 			if ( empty( $aList ) || !is_array( $aList ) ){
 				$aList = array();
 			}
-			return $this->setOpt( 'ip_whitelist', $aList );
+			$this->setOpt( 'ip_whitelist', $aList );
+			$this->doSaveByPassAdminProtection();
 		}
 
 		/**
@@ -296,7 +298,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'installation_time', time() );
 			}
 
-			$this->getFullIpWhitelist();
+			$this->buildFullIpWhitelist();
 		}
 
 		protected function updateHandler() {
