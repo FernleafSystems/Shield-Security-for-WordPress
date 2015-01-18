@@ -188,7 +188,7 @@ if ( !class_exists('ICWP_WPSF_Processor_AuditTrail') ):
 	class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_Processor_AuditTrail_V1 { }
 endif;
 
-class ICWP_WPSF_AuditTrail_Entries {
+class ICWP_WPSF_AuditTrail_Entries extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @var ICWP_WPSF_AuditTrail_Entries
@@ -258,34 +258,5 @@ class ICWP_WPSF_AuditTrail_Entries {
 			$this->aEntries = array();
 		}
 		return $aEntries;
-	}
-
-
-	/**
-	 * @return ICWP_WPSF_DataProcessor
-	 */
-	public function loadDataProcessor() {
-		if ( !class_exists('ICWP_WPSF_DataProcessor') ) {
-			require_once( dirname(__FILE__).'/icwp-data-processor.php' );
-		}
-		return ICWP_WPSF_DataProcessor::GetInstance();
-	}
-
-	/**
-	 * @return ICWP_WPSF_WpFilesystem
-	 */
-	public function loadFileSystemProcessor() {
-		if ( !class_exists('ICWP_WPSF_WpFilesystem') ) {
-			require_once( dirname(__FILE__) . '/icwp-wpfilesystem.php' );
-		}
-		return ICWP_WPSF_WpFilesystem::GetInstance();
-	}
-
-	/**
-	 * @return ICWP_WPSF_WpFunctions
-	 */
-	public function loadWpFunctionsProcessor() {
-		require_once( dirname(__FILE__) . '/icwp-wpfunctions.php' );
-		return ICWP_WPSF_WpFunctions::GetInstance();
 	}
 }
