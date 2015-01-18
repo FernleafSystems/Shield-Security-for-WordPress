@@ -48,7 +48,7 @@ class ICWP_WPSF_Foundation {
 	 * @return ICWP_Stats_WPSF
 	 */
 	public function loadStatsProcessor() {
-		require_once( 'icwp-wpsf-stats.php' );
+		require_once( 'icwp-stats.php' );
 	}
 }
 

@@ -43,14 +43,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'ips_whitelist'
-    section: 'section_bypass_login_protection'
-    default: ''
-    type: 'ip_addresses'
-    link_info: 'http://icwp.io/52'
-    link_blog: ''
-    hidden: true
-  -
     key: 'rename_wplogin_path'
     section: 'section_rename_wplogin'
     default: ''

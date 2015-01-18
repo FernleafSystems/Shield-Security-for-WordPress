@@ -262,8 +262,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 		/**
 		 * Lets you remove certain plugin conflicts that might interfere with this plugin
-		 *
-		 * @see ICWP_Pure_Base_V1::removePluginConflicts()
 		 */
 		protected function removePluginConflicts() {
 			if ( class_exists('AIO_WP_Security') && isset( $GLOBALS['aio_wp_security'] ) ) {

@@ -117,14 +117,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'ips_whitelist'
-    section: 'section_whitelist'
-    default: ''
-    type: 'ip_addresses'
-    link_info: ''
-    link_blog: ''
-    hidden: true
-  -
     key: 'page_params_whitelist'
     section: 'section_whitelist'
     default: ''
