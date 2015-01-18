@@ -707,6 +707,13 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getPhpVersion() {
+			return ( defined( 'PHP_VERSION' ) ? PHP_VERSION : phpversion() );
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getCanOpensslSign() {

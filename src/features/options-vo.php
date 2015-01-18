@@ -432,7 +432,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	private function readYamlConfiguration( $sName ) {
 		$aConfig = array();
-		$sConfigFile = dirname( __FILE__ ).ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
+		$sConfigFile = dirname( __FILE__ ).ICWP_DS.'..'.ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
 		$sContents = include( $sConfigFile );
 		if ( !empty( $sContents ) ) {
 			$oYaml = $this->loadYamlProcessor();
