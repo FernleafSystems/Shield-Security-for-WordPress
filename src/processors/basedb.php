@@ -96,14 +96,17 @@ if ( !class_exists('ICWP_WPSF_BaseDbProcessor') ):
 		}
 
 		/**
-		 * @param boolean $bIncludeDeleted
-		 * @param $nFormat
+		 * Returns all active, non-deleted rows
 		 *
-		 * @return array|boolean
+		 * @return array|boolean (always an associative array format)
 		 */
-		public function selectAllRows( $bIncludeDeleted = false, $nFormat = ARRAY_A ) {
-			$sQuery = sprintf( "SELECT * FROM `%s` WHERE %s ( `deleted_at` = '0' )", $this->getTableName(), $bIncludeDeleted ? 'NOT' : '' );
-			return $this->selectCustom( $sQuery, $nFormat );
+		public function selectAllRows() {
+			$sQuery = sprintf(
+				"SELECT * FROM `%s` %s",
+				$this->getTableName(),
+				$this->getHasColumn( 'deleted_at' ) ? "WHERE `deleted_at` = '0'" : ''
+			);
+			return $this->selectCustom( $sQuery );
 		}
 
 		/**
@@ -208,6 +211,16 @@ if ( !class_exists('ICWP_WPSF_BaseDbProcessor') ):
 		 */
 		protected function deleteCleanupCron() {
 			wp_clear_scheduled_hook( $this->getDbCleanupHookName() );
+		}
+
+		/**
+		 * @param string $sColumnName
+		 *
+		 * @return bool
+		 */
+		protected function getHasColumn( $sColumnName ) {
+			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
+			return in_array( $sColumnName, $aColumnsByDefinition );
 		}
 
 		/**

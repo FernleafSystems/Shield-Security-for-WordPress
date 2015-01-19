@@ -21,15 +21,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_Base {
 
-		public function __construct( $oPluginController, $aFeatureProperties = array() ) {
-			parent::__construct( $oPluginController, $aFeatureProperties );
-
-			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
-			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
-		}
-
 		protected function doPostConstruction() {
 			parent::doPostConstruction();
+			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
+			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
 			add_filter( $this->doPluginPrefix( 'ip_whitelist' ), array( $this, 'getIpWhitelistOption' ) );
 			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'aIsPluginGloballyEnabled' ) );
 		}
@@ -303,44 +298,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 		protected function updateHandler() {
 			parent::updateHandler();
-
 			if ( $this->getVersion() == '0.0' ) {
 				return;
 			}
 
 			$oDb = $this->loadDbProcessor();
-			$sPrefix = $oDb->getPrefix();
-
-			if ( version_compare( $this->getVersion(), '3.0.0', '<' ) ) {
-				$aAllOptions = apply_filters( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array() );
-				$this->setOpt( 'block_send_email_address', $aAllOptions['block_send_email_address'] );
-			}
-
-			// clean out old database tables as we've changed the naming prefix going forward.
-			if ( version_compare( $this->getVersion(), '3.5.0', '<' ) ) {
-				$aOldTables = array(
-					'icwp_wpsf_log',
-					'icwp_login_auth',
-					'icwp_comments_filter',
-					'icwp_user_management'
-				);
-				foreach( $aOldTables as $sTable ) {
-					$oDb->doDropTable( $sPrefix.$sTable );
-				}
-			}
-
-			// clean out old database tables as we've moved to the audit trail now.
-			if ( version_compare( $this->getVersion(), '4.0.0', '<' ) ) {
-				$aOldTables = array(
-					'icwp_wpsf_general_logging'
-				);
-				foreach( $aOldTables as $sTable ) {
-					$oDb->doDropTable( $sPrefix.$sTable );
-				}
-
-				// remove old database cleanup crons
-				wp_clear_scheduled_hook( 'icwp_wpsf_cron_cleanupactionhook' );
-			}
+			if ( version_compare( $this->getVersion(), '4.3.0', '<' ) ) { }
 		}
 	}
 

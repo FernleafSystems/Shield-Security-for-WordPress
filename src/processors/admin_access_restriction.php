@@ -17,7 +17,7 @@
 
 require_once( 'base.php' );
 
-if ( !class_exists('ICWP_WPSF_Processor_AdminAccessRestriction') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 	class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Base {
 

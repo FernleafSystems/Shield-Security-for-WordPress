@@ -17,7 +17,7 @@
 
 require_once( 'base.php' );
 
-if ( !class_exists('ICWP_WPSF_FeatureHandler_AuditTrail_V1') ):
+if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_AuditTrail_V1 extends ICWP_WPSF_FeatureHandler_Base {
 

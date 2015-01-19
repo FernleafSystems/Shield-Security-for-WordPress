@@ -476,7 +476,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 		}
 
 		/**
-		 * @param $aAggregatedOptions
+		 * @param array $aAggregatedOptions
 		 * @return array
 		 */
 		public function aggregateOptionsValues( $aAggregatedOptions ) {
@@ -780,9 +780,8 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 		 */
 		protected function updateHandler() {
 			if ( version_compare( $this->getVersion(), '3.0.0', '<' ) ) {
-				$oWpFunctions = $this->loadWpFunctionsProcessor();
 				$sKey = $this->doPluginPrefix( $this->getFeatureSlug().'_processor', '_' );
-				$oWpFunctions->deleteOption( $sKey );
+				$this->loadWpFunctionsProcessor()->deleteOption( $sKey );
 			}
 		}
 
