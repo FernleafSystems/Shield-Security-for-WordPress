@@ -17,7 +17,7 @@
 
 require_once( 'base.php' );
 
-if ( !class_exists('ICWP_EmailProcessor_V1') ):
+if ( !class_exists( 'ICWP_EmailProcessor_V1', false ) ):
 
 class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 
@@ -180,8 +180,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	 * @return string
 	 */
 	public function getSiteName() {
-		$oWpFunctions = $this->loadWpFunctionsProcessor();
-		return $oWpFunctions->getSiteName();
+		return $this->loadWpFunctionsProcessor()->getSiteName();
 	}
 	
 	public function getThrottleLimit() {
@@ -194,6 +193,6 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 
 endif;
 
-if ( !class_exists('ICWP_WPSF_Processor_Email') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Email', false ) ):
 	class ICWP_WPSF_Processor_Email extends ICWP_EmailProcessor_V1 { }
 endif;

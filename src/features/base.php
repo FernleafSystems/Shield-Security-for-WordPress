@@ -17,9 +17,9 @@
 
 require_once( 'options-vo.php' );
 
-if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
+if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
-	abstract class ICWP_WPSF_FeatureHandler_Base_V2 extends ICWP_WPSF_Foundation {
+	abstract class ICWP_WPSF_FeatureHandler_Base_V3 extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_Plugin_Controller
@@ -973,4 +973,4 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Base_V2') ):
 
 endif;
 
-abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_FeatureHandler_Base_V2 { }
+abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_FeatureHandler_Base_V3 { }

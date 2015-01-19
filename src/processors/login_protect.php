@@ -17,9 +17,9 @@
 
 require_once( 'base.php' );
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_V5', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_V6', false ) ):
 
-class ICWP_WPSF_Processor_LoginProtect_V5 extends ICWP_WPSF_Processor_Base {
+class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * @var ICWP_WPSF_Processor_LoginProtect_Gasp
@@ -214,5 +214,5 @@ class ICWP_WPSF_Processor_LoginProtect_V5 extends ICWP_WPSF_Processor_Base {
 endif;
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect', false ) ):
-	class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_LoginProtect_V5 { }
+	class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_LoginProtect_V6 { }
 endif;
