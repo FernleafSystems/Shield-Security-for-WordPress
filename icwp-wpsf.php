@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Simple Firewall
  * Plugin URI: http://icwp.io/2f
  * Description: A Simple WordPress Firewall
- * Version: 4.3.1
+ * Version: 4.3.2
  * Text Domain: wp-simple-firewall
  * Author: iControlWP
  * Author URI: http://icwp.io/2e
@@ -34,17 +34,19 @@ if ( !defined('ICWP_DS') ) {
 }
 
 if ( !function_exists( '_wpsf_e' ) ) {
-	function _wpsf_e( $insStr ) {
-		_e( $insStr, 'wp-simple-firewall' );
+	function _wpsf_e( $sStr ) {
+		_e( $sStr, 'wp-simple-firewall' );
 	}
 }
 if ( !function_exists( '_wpsf__' ) ) {
-	function _wpsf__( $insStr ) {
-		return __( $insStr, 'wp-simple-firewall' );
+	function _wpsf__( $sStr ) {
+		return __( $sStr, 'wp-simple-firewall' );
 	}
 }
 
-require_once( dirname(__FILE__).ICWP_DS.'src'.ICWP_DS.'icwp-foundation.php' );
+// By requiring this file here, we assume we wont need to require it anywhere else.
+require_once( 'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
+
 if ( !class_exists('ICWP_Wordpress_Simple_Firewall') ):
 
 	class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {

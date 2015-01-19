@@ -19,6 +19,13 @@ sections:
 # Define Options
 options:
   -
+    key: 'global_enable_plugin_features'
+    section: 'section_global_security_options'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'ip_whitelist'
     section: 'section_global_security_options'
     default: ''
