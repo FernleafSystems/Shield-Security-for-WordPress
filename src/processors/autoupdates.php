@@ -15,11 +15,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V6', false ) ):
+if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_WPSF_AutoupdatesProcessor_V6 extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_AutoupdatesProcessor_V7 extends ICWP_WPSF_Processor_Base {
 
 		/**
 		 * @var boolean
@@ -100,11 +100,11 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V6', false ) ):
 		 * @return boolean
 		 */
 		public function autoupdate_core_major( $bUpdate ) {
-			if ( $this->getIsOption('autoupdate_core', 'core_never') ) {
+			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
 				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
 				return false;
 			}
-			else if ( $this->getIsOption('autoupdate_core', 'core_major') ) {
+			else if ( $this->getIsOption( 'autoupdate_core', 'core_major' ) ) {
 				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
 				return true;
 			}
@@ -157,7 +157,7 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V6', false ) ):
 		public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
 
 			// first, is global auto updates for plugins set
-			if ( $this->getIsOption('enable_autoupdate_plugins', 'Y') ) {
+			if ( $this->getIsOption( 'enable_autoupdate_plugins', 'Y' ) ) {
 				$this->doStatIncrement( 'autoupdates.plugins.all' );
 				return true;
 			}
@@ -173,14 +173,13 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V6', false ) ):
 				return $bDoAutoUpdate;
 			}
 
+			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+			$oFO = $this->getFeatureOptions();
 			// If it's this plugin and autoupdate this plugin is set...
-			if ( $sItemFile === $this->getFeatureOptions()->getPluginBaseFile() ) {
+			if ( $sItemFile === $oFO->getPluginBaseFile() ) {
 				if ( $this->getIsOption('autoupdate_plugin_self', 'Y') ) {
 					$this->doStatIncrement( 'autoupdates.plugins.self' );
 					$bDoAutoUpdate = true;
-				}
-				else {
-					$bDoAutoUpdate = false;
 				}
 			}
 
@@ -351,5 +350,5 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V6', false ) ):
 endif;
 
 if ( !class_exists('ICWP_WPSF_Processor_Autoupdates') ):
-	class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_AutoupdatesProcessor_V6 { }
+	class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_AutoupdatesProcessor_V7 { }
 endif;
