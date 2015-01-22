@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
+
+	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -302,7 +302,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				return;
 			}
 
-			$oDb = $this->loadDbProcessor();
 			if ( version_compare( $this->getVersion(), '4.3.0', '<' ) ) { }
 		}
 	}

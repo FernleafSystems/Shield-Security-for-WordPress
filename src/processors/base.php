@@ -16,7 +16,7 @@
  *
  */
 
-if ( !class_exists('ICWP_WPSF_BaseProcessor_V3') ):
+if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
 	abstract class ICWP_WPSF_BaseProcessor_V3 extends ICWP_WPSF_Foundation {
 

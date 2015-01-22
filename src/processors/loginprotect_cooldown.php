@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ):
+
+require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Base {
 

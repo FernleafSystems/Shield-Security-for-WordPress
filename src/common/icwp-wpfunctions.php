@@ -834,7 +834,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 */
 		public function loadDataProcessor() {
 			if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ) {
-				require_once( 'icwp-data.php' );
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
 			}
 			return ICWP_WPSF_DataProcessor::GetInstance();
 		}
@@ -843,7 +843,9 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 * @return ICWP_WPSF_WpDb
 		 */
 		public function loadDbProcessor() {
-			require_once( 'icwp-wpdb.php' );
+			if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
+			}
 			return ICWP_WPSF_WpDb::GetInstance();
 		}
 	}

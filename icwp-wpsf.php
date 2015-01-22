@@ -45,7 +45,7 @@ if ( !function_exists( '_wpsf__' ) ) {
 }
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
-require_once( 'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
+require_once( dirname(__FILE__).ICWP_DS.'src'.ICWP_DS.'common'.ICWP_DS.'icwp-foundation.php' );
 
 if ( !class_exists('ICWP_Wordpress_Simple_Firewall') ):
 
@@ -169,7 +169,7 @@ if ( !class_exists('ICWP_Wordpress_Simple_Firewall') ):
 
 endif;
 
-require_once( 'icwp-plugin-controller.php' );
+require_once( dirname(__FILE__).ICWP_DS.'icwp-plugin-controller.php' );
 
 $oICWP_Wpsf_Controller = ICWP_WPSF_Plugin_Controller::GetInstance( __FILE__ );
 if ( !is_null( $oICWP_Wpsf_Controller ) ) {

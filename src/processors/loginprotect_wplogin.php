@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ):
+
+require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base {
 
@@ -169,7 +169,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 	 */
 	public function aLoadWpLogin() {
 		if ( $this->isRealLogin() ) {
-//			wp_login_form();
 			@require_once( ABSPATH . 'wp-login.php' );
 			die();
 		}
