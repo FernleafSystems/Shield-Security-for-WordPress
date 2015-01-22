@@ -252,6 +252,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *   IMPROVED:   Firewall processing code is simplified and more efficient.
 *   FIXES:      Fixes to global IP whitelist.
 *   IMPROVED:   Refactoring for better code organisation.
+*   FIXES:      Work around for cases where PHP can't successfully run parse_url().
 
 = 4.2.1 =
 *Released: 22th December, 2014*

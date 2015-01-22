@@ -133,7 +133,18 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		 */
 		public function getRequestUriParts() {
 			if ( !isset( $this->aRequestUriParts ) ) {
-				$this->aRequestUriParts = parse_url( $this->getRequestUri() );
+				$aParts = parse_url( $this->getRequestUri() );
+				if ( empty( $aParts ) ) { //we failed so we'll try manually.
+					$aParts = array();
+					$aExploded = explode( '?', $this->getRequestUri() );
+					if ( !empty( $aExploded[0] ) ) {
+						$aParts['path'] = $aExploded[0];
+					}
+					if ( !empty( $aExploded[1] ) ) {
+						$aParts['query'] = $aExploded[1];
+					}
+				}
+				$this->aRequestUriParts = $aParts;
 			}
 			return $this->aRequestUriParts;
 		}
