@@ -250,9 +250,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
 *   CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the "Dashboard" area
 *   IMPROVED:   Firewall processing code is simplified and more efficient.
-*   FIXES:      Fixes to global IP whitelist.
-*   IMPROVED:   Refactoring for better code organisation.
-*   FIXES:      Work around for cases where PHP can't successfully run parse_url().
+*   IMPROVED:   Refactoring for better code organisation. (v.2)
+*   FIXES:      Fixes to global IP whitelist. (v.2)
+*   FIXES:      Work around for cases where PHP can't successfully run parse_url(). (v.4)
+*   CHANGED:    Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted.
+*   FIXES:      Some hosting environments need absolute file paths for PHP include()/require() (v.5)
 
 = 4.2.1 =
 *Released: 22th December, 2014*
