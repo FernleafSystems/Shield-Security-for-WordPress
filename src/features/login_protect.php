@@ -29,12 +29,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		protected function doExecuteProcessor() {
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
-			$aIpWhitelist = apply_filters( $this->doPluginPrefix( 'ip_whitelist' ), array() );
-			if ( is_array( $aIpWhitelist ) && ( in_array( $sIp, $aIpWhitelist )  ) ) {
-				return;
+			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+				parent::doExecuteProcessor();
 			}
-			parent::doExecuteProcessor();
 		}
 
 		public function doPrePluginOptionsSave() {
@@ -123,15 +120,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sName = _wpsf__( 'XML-RPC Compatibility' );
 					$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Login Protection Rules' );
 					$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
-					break;
-
-				case 'ips_whitelist' :
-					$sName = _wpsf__( 'Whitelist IP Addresses' );
-					$sSummary = _wpsf__( 'Specify IP Addresses that by-pass all Login Protect rules' );
-					$sDescription = sprintf(
-						_wpsf__( 'Take a new line per address. Your IP address is: %s' ),
-						'<span class="code">'.( $oDp->getVisitorIpAddress( true ) ).'</span>'
-					);
 					break;
 
 				case 'rename_wplogin_path' :

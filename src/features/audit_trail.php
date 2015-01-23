@@ -29,12 +29,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 		}
 
 		protected function doExecuteProcessor() {
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
-			$aIpWhitelist = apply_filters( $this->doPluginPrefix( 'ip_whitelist' ), array() );
-			if ( is_array( $aIpWhitelist ) && ( in_array( $sIp, $aIpWhitelist )  ) ) {
-				return;
+			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+				parent::doExecuteProcessor();
 			}
-			parent::doExecuteProcessor();
 		}
 
 		/**

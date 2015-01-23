@@ -21,7 +21,7 @@ require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_Base {
 
-	private $fHasPermissionToSubmit;
+	private $bHasPermissionToSubmit;
 
 	/**
 	 * @return string
@@ -31,12 +31,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	protected function doExecuteProcessor() {
-		$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
-		$aIpWhitelist = apply_filters( $this->doPluginPrefix( 'ip_whitelist' ), array() );
-		if ( is_array( $aIpWhitelist ) && ( in_array( $sIp, $aIpWhitelist )  ) ) {
-			return;
+		if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			parent::doExecuteProcessor();
 		}
-		parent::doExecuteProcessor();
 	}
 
 	/**
@@ -48,26 +45,26 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// We don't use setPermissionToSubmit() here because of timing with headers - we just for now manually
 		// checking POST for the submission of the key and if it fits, we say "yes"
 		if ( $this->checkAdminAccessKeySubmission() ) {
-			$this->fHasPermissionToSubmit = true;
+			$this->bHasPermissionToSubmit = true;
 		}
 
-		if ( isset( $this->fHasPermissionToSubmit ) ) {
-			return $this->fHasPermissionToSubmit;
+		if ( isset( $this->bHasPermissionToSubmit ) ) {
+			return $this->bHasPermissionToSubmit;
 		}
 
 		$oDp = $this->loadDataProcessor();
 
-		$this->fHasPermissionToSubmit = $fHasPermission;
+		$this->bHasPermissionToSubmit = $fHasPermission;
 		if ( $this->getIsMainFeatureEnabled() )  {
 
 			$sAccessKey = $this->getOpt( 'admin_access_key' );
 			if ( !empty( $sAccessKey ) ) {
 				$sHash = md5( $sAccessKey );
 				$sCookieValue = $oDp->FetchCookie( $this->getAdminAccessKeyCookieName() );
-				$this->fHasPermissionToSubmit = ( $sCookieValue === $sHash );
+				$this->bHasPermissionToSubmit = ( $sCookieValue === $sHash );
 			}
 		}
-		return $this->fHasPermissionToSubmit;
+		return $this->bHasPermissionToSubmit;
 	}
 
 	/**

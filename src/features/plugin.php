@@ -22,11 +22,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 	class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_Base {
 
 		protected function doPostConstruction() {
-			parent::doPostConstruction();
 			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
 			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
-			add_filter( $this->doPluginPrefix( 'ip_whitelist' ), array( $this, 'getIpWhitelistOption' ) );
-			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'aIsPluginGloballyEnabled' ) );
+			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fIsPluginGloballyEnabled' ) );
 		}
 
 		/**
@@ -34,11 +32,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 *
 		 * @return boolean
 		 */
-		public function aIsPluginGloballyEnabled( $bOverrideOff ) {
-			if ( $bOverrideOff ) {
-				return $bOverrideOff;
-			}
-			return !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
+		public function fIsPluginGloballyEnabled( $bOverrideOff ) {
+			return $bOverrideOff || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
 		}
 
 		/**
@@ -94,13 +89,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		public function getIsMainFeatureEnabled() {
 			return true;
-		}
-
-		protected function doExecuteProcessor() {
-			$oProcessor = $this->getProcessor();
-			if ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base ) {
-				$oProcessor->run();
-			}
 		}
 
 		/**
@@ -252,7 +240,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'ip_whitelist' :
 					$sName = _wpsf__( 'IP Whitelist' );
 					$sSummary = _wpsf__( 'IP Address White List' );
-					$sDescription = sprintf( _wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' ) );
+					$sDescription = sprintf( _wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' ) )
+									.'<br />'.sprintf( _wpsf__( 'Your IP address is: %s' ), '<span class="code">'.( $this->loadDataProcessor()->getVisitorIpAddress() ).'</span>' );
 					break;
 
 				case 'block_send_email_address' :
@@ -262,9 +251,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					break;
 
 				case 'enable_upgrade_admin_notice' :
-					$sName = _wpsf__( 'Plugin Notices' );
-					$sSummary = _wpsf__( 'Display Notices For Updates' );
-					$sDescription = _wpsf__( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices' );
+					$sName = _wpsf__( 'In-Plugin Notices' );
+					$sSummary = _wpsf__( 'Display Plugin Specific Notices' );
+					$sDescription = _wpsf__( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.' );
 					break;
 
 				case 'delete_on_deactivate' :
