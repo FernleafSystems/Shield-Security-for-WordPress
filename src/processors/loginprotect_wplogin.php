@@ -104,27 +104,26 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 
 	/**
 	 */
-	public function doBlockPossibleAutoRedirection(){
+	public function doBlockPossibleAutoRedirection() {
 
-		$fDoBlock = false;
-		if ( is_admin() && !is_user_logged_in() && !defined( 'DOING_AJAX' ) ) {
-			$fDoBlock = true;
+		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
+		$bDoBlock = ( is_admin() && !is_user_logged_in() && !defined( 'DOING_AJAX' ) );
+
+		// Next block option is where it's a direct attempt to access the old login URL
+		if ( !$bDoBlock ) {
+			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
+			$sPath = isset( $aRequestParts[ 'path' ] ) ? trim( $aRequestParts[ 'path' ], '/' ) : '';
+			$aPossiblePaths = array(
+				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
+				trim( site_url( 'wp-login.php', 'relative' ), '/' ),
+				trim( home_url( 'login', 'relative' ), '/' ),
+				trim( site_url( 'login', 'relative' ), '/' )
+			);
+
+			$bDoBlock = in_array( $sPath, $aPossiblePaths );
 		}
 
-		$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-		$sPath = trim( $aRequestParts[ 'path' ], '/' );
-		$aPossiblePaths = array(
-			trim( home_url( 'wp-login.php', 'relative' ), '/' ),
-			trim( site_url( 'wp-login.php', 'relative' ), '/' ),
-			trim( home_url( 'login', 'relative' ), '/' ),
-			trim( site_url( 'login', 'relative' ), '/' )
-		);
-
-		if ( in_array( $sPath, $aPossiblePaths ) ) {
-			$fDoBlock = true;
-		}
-
-		if ( $fDoBlock ) {
+		if ( $bDoBlock ) {
 			$this->do404();
 		}
 	}
@@ -157,10 +156,13 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		return $sUrl;
 	}
 
+	/**
+	 * @return bool
+	 */
 	protected function isRealLogin() {
 		$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
+		$sRequestPath = isset( $aRequestParts[ 'path' ] ) ? $aRequestParts[ 'path' ] : '';
 		$sLoginPath = $this->getLoginPath();
-		$sRequestPath = $aRequestParts[ 'path' ];
 		return trim( $sLoginPath, '/' ) === trim( $sRequestPath, '/' ) ;
 	}
 

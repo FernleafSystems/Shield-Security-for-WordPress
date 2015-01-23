@@ -535,8 +535,8 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 */
 		public function getIsLoginUrl() {
 			$sLoginUrl = wp_login_url();
-			$aRequestPart = $this->loadDataProcessor()->getRequestUriParts();
-			return ( $aRequestPart['path'] == str_replace( home_url(), '', $sLoginUrl ) );
+			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
+			return ( !empty( $aRequestParts['path'] ) && ( $aRequestParts['path'] == str_replace( home_url(), '', $sLoginUrl ) ) );
 		}
 
 		/**
