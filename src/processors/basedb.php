@@ -16,9 +16,9 @@
  *
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists('ICWP_WPSF_BaseDbProcessor') ):
+
+	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_Base {
 

@@ -15,11 +15,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
+	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+
 	class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_Base {
+
+		/**
+		 * @var bool
+		 */
+		protected $bVisitorIsWhitelisted;
 
 		/**
 		 */
@@ -30,8 +35,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			$this->removePluginConflicts();
 			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
+			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 
-			if ( $this->getController()->getIsValidAdminArea() ) {
+			$oCon = $this->getController();
+			if ( $oCon->getIsValidAdminArea() ) {
 
 				// always show this notice
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
@@ -42,8 +49,43 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePluginUpgradeAvailable' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePostPluginUpgrade' ) );
 				}
-
+				if ( $oCon->getIsPage_PluginAdmin() ) {
+					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
+				}
 			}
+		}
+
+		/**
+		 * @param $bIsWhitelisted
+		 * @return boolean
+		 */
+		public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
+			if ( !isset( $this->bVisitorIsWhitelisted ) ) {
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeatureOptions();
+				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$aIpWhitelist = $oFO->getIpWhitelistOption();
+				$this->bVisitorIsWhitelisted = ( is_array( $aIpWhitelist ) && ( in_array( $sIp, $aIpWhitelist ) ) );
+			}
+			return $this->bVisitorIsWhitelisted;
+		}
+
+		/**
+		 * @param array $aAdminNotices
+		 * @return array
+		 */
+		public function adminNoticeYouAreWhitelisted( $aAdminNotices ) {
+			$oFO = $this->getFeatureOptions();
+			$bWhitelisted = $this->fGetIsVisitorWhitelisted( false );
+			if ( $bWhitelisted ) {
+				$sIpAddress = $this->loadDataProcessor()->getVisitorIpAddress();
+				ob_start();
+				include( $oFO->getViewSnippet( 'admin_notice_vistor_whitelisted' ) );
+				$sNoticeMessage = ob_get_contents();
+				ob_end_clean();
+				$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			}
+			return $aAdminNotices;
 		}
 
 		/**

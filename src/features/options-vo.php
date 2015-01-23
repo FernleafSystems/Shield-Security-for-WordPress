@@ -1,7 +1,6 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_OptionsVO', false ) ) {
-	return;
-}
+
+if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 
 class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
@@ -444,3 +443,4 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		return $aConfig;
 	}
 }
+endif;

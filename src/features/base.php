@@ -15,8 +15,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'options-vo.php' );
-
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 	abstract class ICWP_WPSF_FeatureHandler_Base_V3 extends ICWP_WPSF_Foundation {
@@ -61,9 +59,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected $sFeatureSlug;
 
 		/**
-		 * @var string
+		 * @var boolean
 		 */
-		protected static $sPluginBaseFile;
+		protected static $bForceOffFileExists;
 
 		/**
 		 * @var ICWP_WPSF_FeatureHandler_Email
@@ -109,13 +107,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
 			add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
+			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
 
 			$this->doPostConstruction();
 		}
 
-		protected function doPostConstruction() {
-			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'aDoCheckForForceOffFile' ) );
-		}
+		protected function doPostConstruction() { }
 
 		/**
 		 * A action added to WordPress 'plugins_loaded' hook
@@ -167,6 +164,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
 				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
 			}
@@ -260,11 +258,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 *
 		 * @return boolean
 		 */
-		public function aDoCheckForForceOffFile( $bOverrideOff ) {
+		public function fDoCheckForForceOffFile( $bOverrideOff ) {
 			if ( $bOverrideOff ) {
 				return $bOverrideOff;
 			}
-			return $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
+			if ( !isset( self::$bForceOffFileExists ) ) {
+				self::$bForceOffFileExists = $this->loadFileSystemProcessor()
+					->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
+			}
+			return self::$bForceOffFileExists;
 		}
 
 		/**
