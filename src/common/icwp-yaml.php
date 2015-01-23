@@ -35,10 +35,10 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor_V1', false ) ):
 		/**
 		 */
 		protected function loadYamlParser() {
-			if ( !class_exists( 'Spyc' ) ) {
-				require_once( 'yaml/Spyc.php' );
+			if ( !class_exists( 'Spyc', false ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'yaml/Spyc.php' );
 			}
-			return class_exists( 'Spyc' );
+			return class_exists( 'Spyc', false );
 		}
 	}
 endif;

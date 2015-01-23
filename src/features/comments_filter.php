@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
+
+	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -29,12 +29,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		}
 
 		protected function doExecuteProcessor() {
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
-			$aIpWhitelist = apply_filters( $this->doPluginPrefix( 'ip_whitelist' ), array() );
-			if ( is_array( $aIpWhitelist ) && ( in_array( $sIp, $aIpWhitelist )  ) ) {
-				return;
+			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+				parent::doExecuteProcessor();
 			}
-			parent::doExecuteProcessor();
 		}
 
 		/**

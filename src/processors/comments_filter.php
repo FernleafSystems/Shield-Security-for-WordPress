@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'basedb.php' );
-
 if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter', false ) ):
+
+require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 

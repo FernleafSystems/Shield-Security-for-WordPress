@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require_once( 'base.php' );
-
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
+
+	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -29,12 +29,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		}
 
 		protected function doExecuteProcessor() {
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
-			$aIpWhitelist = apply_filters( $this->doPluginPrefix( 'ip_whitelist' ), array() );
-			if ( is_array( $aIpWhitelist ) && ( in_array( $sIp, $aIpWhitelist )  ) ) {
-				return;
+			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+				parent::doExecuteProcessor();
 			}
-			parent::doExecuteProcessor();
 		}
 
 		/**
@@ -181,13 +178,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sName = _wpsf__( 'Send Email Report' );
 					$sSummary = _wpsf__( 'When a visitor is blocked the firewall will send an email to the configured email address' );
 					$sDescription = _wpsf__( 'Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host' );
-					break;
-
-				case 'ips_whitelist' :
-					$sName = _wpsf__( 'Whitelist IP Addresses' );
-					$sSummary = _wpsf__( 'Choose IP Addresses that are never subjected to Firewall Rules' );
-					$sDescription = _wpsf__( 'Take a new line per address.' )
-									.'<br />'.sprintf( _wpsf__( 'Your IP address is: %s' ), '<span class="code">'.( $oDp->getVisitorIpAddress( true ) ).'</span>' );
 					break;
 
 				case 'page_params_whitelist' :
