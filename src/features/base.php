@@ -243,14 +243,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
-			$bOverride = $this->getIfOverrideOff();
-			if ( $bOverride ) {
-				return !$bOverride;
+			if ( $this->getIfOverrideOff() ) {
+				return false;
 			}
-			if ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true ) {
-				return true;
-			}
-			return $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' ) || $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true ) ;
+
+			$bEnabled = $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' ) || $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true );
+			// we have the option to auto-enable a feature
+			$bEnabled = $bEnabled || ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
+			return $bEnabled;
 		}
 
 		/**
