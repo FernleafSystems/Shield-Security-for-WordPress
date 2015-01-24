@@ -21,24 +21,81 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor_V1', false ) ):
 
 	class ICWP_WPSF_YamlProcessor_V1 {
 
+		protected static $oYaml;
+
 		/**
 		 * @param string $sYamlString
-		 * @return array
+		 * @return array|null
 		 */
 		public function parseYamlString( $sYamlString ) {
-			if ( ! $this->loadYamlParser() ) {
-				return null;
+			$aParsedResult = $this->parseSymfony( $sYamlString );
+			if ( is_null( $aParsedResult ) ) {
+				$aParsedResult = $this->parseSpyc( $sYamlString );
 			}
-			return Spyc::YAMLLoadString( $sYamlString );
+			return $aParsedResult;
+		}
+
+		/**
+		 * @param string $sYamlString
+		 * @return array|null
+		 */
+		protected function parseSymfony( $sYamlString ) {
+
+			$aData = null;
+			$oParser = $this->getSymfonyYamlParser();
+			if ( $oParser != false ) {
+				try {
+					$aData = $oParser->load( $sYamlString );
+				}
+				catch( Exception $oE ) {
+					$aData = null;
+				}
+			}
+			return $aData;
+		}
+
+		/**
+		 * @param string $sYamlString
+		 * @return array|null
+		 */
+		protected function parseSpyc( $sYamlString ) {
+			$aData = null;
+			if ( $this->loadSpycYamlParser() ) {
+				$aData = Spyc::YAMLLoadString( $sYamlString );
+			}
+			return $aData;
 		}
 
 		/**
 		 */
-		protected function loadYamlParser() {
+		protected function loadSpycYamlParser() {
 			if ( !class_exists( 'Spyc', false ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'yaml/Spyc.php' );
 			}
 			return class_exists( 'Spyc', false );
+		}
+		/**
+		 */
+		protected function loadSymfonyYamlParser() {
+			if ( !class_exists( 'sfYaml', false ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'yaml/symfony/sfYaml.php' );
+			}
+			return class_exists( 'sfYaml', false );
+		}
+
+		/**
+		 * @return bool|sfYaml
+		 */
+		protected function getSymfonyYamlParser() {
+			if ( !isset( self::$oYaml ) ) {
+				if ( $this->loadSymfonyYamlParser() ) {
+					self::$oYaml = new sfYaml();
+				}
+				else {
+					self::$oYaml = false;
+				}
+			}
+			return self::$oYaml;
 		}
 	}
 endif;

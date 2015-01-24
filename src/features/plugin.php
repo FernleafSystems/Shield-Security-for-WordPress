@@ -106,24 +106,33 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				}
 			}
 
-			$aDifference = array_diff( $aIpWhitelist, $aWhitelistFromOptions );
-			if ( empty( $aDifference ) ) { // there's nothing new
-				return $aWhitelistFromOptions;
-			}
-
-			// If there is anything new, we merge them, find uniques, and verify everything
 			$aFullIpWhitelist = array_merge( $aWhitelistFromOptions, $aIpWhitelist );
-			$aUniques = array_unique( preg_replace( '#[^0-9a-zA-Z:.-]#', '', $aFullIpWhitelist ) );
-
-			$oDp = $this->loadDataProcessor();
-			foreach( $aUniques as $nPos => $sIp ) {
-				if ( !$oDp->verifyIp( $sIp ) ) {
-					unset( $aUniques[$nPos] );
+			$aFinalPreChecking = array();
+			foreach( $aFullIpWhitelist as $sItem ) {
+				if ( strpos( $sItem, ' ' ) !== false ) {
+					$aParts = explode( ' ', $sItem );
+					$aFinalPreChecking = array_merge( $aFinalPreChecking, $aParts );
+				}
+				else {
+					$aFinalPreChecking[] = $sItem;
 				}
 			}
 
-			$this->setIpWhitelistOption( $aUniques );
-			return $aUniques;
+			$aFinalUnique = array_unique( preg_replace( '#[^0-9a-zA-Z:.-]#', '', $aFinalPreChecking ) );
+
+			$oDp = $this->loadDataProcessor();
+			foreach( $aFinalUnique as $nPos => $sIp ) {
+				if ( !$oDp->verifyIp( $sIp ) ) {
+					unset( $aFinalUnique[$nPos] );
+				}
+			}
+
+			$aDifference = array_diff( $aFinalUnique, $aWhitelistFromOptions );
+			if ( !empty( $aDifference ) ) { // there's nothing new
+				$this->setIpWhitelistOption( $aFinalUnique );
+			}
+
+			return $aFinalUnique;
 		}
 
 		/**
@@ -282,6 +291,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'installation_time', time() );
 			}
 
+			// we only rebuild and verify the white list IP address in the admin area
 			$this->buildFullIpWhitelist();
 		}
 

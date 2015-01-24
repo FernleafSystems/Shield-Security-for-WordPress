@@ -45,11 +45,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function doOptionsSave() {
-		$this->cleanOptions();
-		$this->verifyImmutableOptions();
 		if ( !$this->getNeedSave() ) {
 			return true;
 		}
+		$this->cleanOptions();
+		$this->verifyImmutableOptions();
 		$this->setNeedSave( false );
 		return $this->loadWpFunctionsProcessor()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
 	}
@@ -265,6 +265,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getRawData_FullFeatureConfig() {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
