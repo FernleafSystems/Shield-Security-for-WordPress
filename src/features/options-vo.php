@@ -265,6 +265,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getRawData_FullFeatureConfig() {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
