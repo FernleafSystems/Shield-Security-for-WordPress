@@ -143,8 +143,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			if ( empty( $aList ) || !is_array( $aList ) ){
 				$aList = array();
 			}
-			else {
-			}
 			return $aList;
 		}
 
