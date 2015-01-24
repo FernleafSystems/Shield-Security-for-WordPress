@@ -42,12 +42,50 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 		}
 
 		if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'usermanagement_adminloginnotification.php' );
-			$oNotificationProcessor = new ICWP_WPSF_Processor_UserManagement_AdminLoginNotification( $this->getFeatureOptions() );
-			$oNotificationProcessor->run();
+			add_action( 'wp_login', array( $this, 'sendLoginEmailNotification' ) );
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param $sUsername
+	 * @return mixed
+	 */
+	public function sendLoginEmailNotification( $sUsername ) {
+		if ( empty( $sUsername ) ) {
+			return false;
+		}
+
+		$oUser = get_user_by( 'login', $sUsername );
+		if ( !( $oUser instanceof WP_User ) ) {
+			return false;
+		}
+
+		$fIsAdministrator = isset( $oUser->caps['administrator'] ) && $oUser->caps['administrator'];
+
+		if ( !$fIsAdministrator ) {
+			return false;
+		}
+
+		$oDp = $this->loadDataProcessor();
+		$oEmailer = $this->getFeatureOptions()->getEmailProcessor();
+
+		$aMessage = array(
+			_wpsf__( 'As requested, the WordPress Simple Firewall is notifying you of an administrator login to a WordPress site that you manage.' ),
+			_wpsf__( 'Details for this user are below:' ),
+			'- '.sprintf( _wpsf__( 'Site URL: %s' ), home_url() ),
+			'- '.sprintf( _wpsf__( 'Username: %s' ), $sUsername ),
+			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $oDp->getVisitorIpAddress( true ) ),
+			_wpsf__( 'Thanks.' )
+		);
+
+		$fResult = $oEmailer->sendEmailTo(
+			$this->getOption( 'enable_admin_login_email_notification' ),
+			sprintf( 'Email Notice: An Administrator Just Logged Into %s', home_url() ),
+			$aMessage
+		);
+		return $fResult;
 	}
 
 	/**

@@ -90,35 +90,12 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	/**
 	 */
 	public function run() {
-
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-
-		$oDp = $this->loadDataProcessor();
-		$oWp = $this->loadWpFunctionsProcessor();
-
-		if ( $oDp->GetIsRequestPost() && $oWp->getIsCurrentPage( 'wp-comments-post.php' ) ) {
-			add_filter( 'preprocess_comment',			array( $this, 'doCommentChecking' ), 1, 1 );
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
-		}
-	}
-
-	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {
-		$oWp = $this->loadWpFunctionsProcessor();
-
-		$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
-		if ( $sActivePluginFile ) {
-			$sMessage = _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the Simple Firewall Anti-SPAM.' )
-				.' <strong>'._wpsf__('This is not recommended and you should disable Akismet.').'</strong>';
-			$sMessage .= '<br />'.sprintf(
-					'<a href="%s" id="fromIcwp" class="button">%s</a>',
-					$oWp->getPluginDeactivateLink( $sActivePluginFile ),
-					_wpsf__( 'Click to deactivate Akismet now' )
-				);
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sMessage, 'error' );
-		}
-		return $aAdminNotices;
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeatureOptions();
+		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
+		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $oFO->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
+		add_filter( $oFO->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
 	}
 
 	/**
@@ -167,13 +144,14 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	 * @param $aCommentData
 	 */
 	protected function doBlacklistSpamCheck( $aCommentData ) {
+		$oDp = $this->loadDataProcessor();
 		$this->doBlacklistSpamCheck_Action(
 			$aCommentData['comment_author'],
 			$aCommentData['comment_author_email'],
 			$aCommentData['comment_author_url'],
 			$aCommentData['comment_content'],
-			$this->loadDataProcessor()->getVisitorIpAddress( true ),
-			isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 ) : ''
+			$oDp->getVisitorIpAddress( true ),
+			substr( $oDp->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
 		);
 	}
 

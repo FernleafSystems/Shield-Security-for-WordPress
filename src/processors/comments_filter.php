@@ -29,20 +29,45 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		if ( $this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
-			require_once( 'commentsfilter_antibotspam.php' );
+			require_once( dirname(__FILE__).ICWP_DS.'commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
 		}
 
-		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
-			require_once( 'commentsfilter_humanspam.php' );
+		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->loadWpFunctionsProcessor()->comments_getIsCommentPost() ) {
+			require_once( dirname(__FILE__).ICWP_DS.'commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
 		}
 
+		// Warning notice about akismet clashing
+		add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
+
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );
+	}
+
+	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {
+		// We only warn when the human spam filter is running
+		if ( !$this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
+			return $aAdminNotices;
+		}
+
+		$oWp = $this->loadWpFunctionsProcessor();
+
+		$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
+		if ( $sActivePluginFile ) {
+			$sMessage = _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the Simple Firewall Anti-SPAM.' )
+						.' <strong>'._wpsf__('This is not recommended and you should disable Akismet.').'</strong>';
+			$sMessage .= '<br />'.sprintf(
+					'<a href="%s" id="fromIcwp" class="button">%s</a>',
+					$oWp->getPluginDeactivateLink( $sActivePluginFile ),
+					_wpsf__( 'Click to deactivate Akismet now' )
+				);
+			$aAdminNotices[] = $this->getAdminNoticeHtml( $sMessage, 'error' );
+		}
+		return $aAdminNotices;
 	}
 
 	/**
