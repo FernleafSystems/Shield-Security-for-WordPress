@@ -56,8 +56,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 				$sBlockResponse = 'redirect_die_message';
 				$this->setOpt( 'block_response', $sBlockResponse );
 			}
-
-			$this->setOpt( 'ips_whitelist', '' );
 		}
 
 		/**
@@ -219,54 +217,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
 		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doExtraSubmitProcessing() {
-			$oDp = $this->loadDataProcessor();
-
-			$this->addRawIpsToFirewallList( 'ips_whitelist', array( $oDp->FetchGet( 'whiteip' ) ) );
-			$this->removeRawIpsFromFirewallList( 'ips_whitelist', array( $oDp->FetchGet( 'unwhiteip' ) ) );
-			$this->addRawIpsToFirewallList( 'ips_blacklist', array( $oDp->FetchGet( 'blackip' ) ) );
-			$this->removeRawIpsFromFirewallList( 'ips_blacklist', array( $oDp->FetchGet( 'unblackip' ) ) );
-			return true;
-		}
-
-		/**
-		 * @param $insListName
-		 * @param $inaNewIps
-		 */
-		public function addRawIpsToFirewallList( $insListName, $inaNewIps ) {
-			if ( empty( $inaNewIps ) ) {
-				return;
-			}
-
-			$aIplist = $this->getOpt( $insListName );
-			if ( empty( $aIplist ) ) {
-				$aIplist = array();
-			}
-			$aNewList = array();
-			foreach( $inaNewIps as $sAddress ) {
-				$aNewList[ $sAddress ] = '';
-			}
-			$oDp = $this->loadDataProcessor();
-			$this->setOpt( $insListName, $oDp->addNewRawIps( $aIplist, $aNewList ) );
-		}
-
-		public function removeRawIpsFromFirewallList( $insListName, $inaRemoveIps ) {
-			if ( empty( $inaRemoveIps ) ) {
-				return;
-			}
-
-			$aIplist = $this->getOpt( $insListName );
-			if ( empty( $aIplist ) || empty( $inaRemoveIps ) ) {
-				return;
-			}
-			$oDp = $this->loadDataProcessor();
-			$this->setOpt( $insListName, $oDp->removeRawIps( $aIplist, $inaRemoveIps ) );
-		}
-
 	}
 
 endif;
