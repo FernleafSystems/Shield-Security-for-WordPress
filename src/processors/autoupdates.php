@@ -176,7 +176,7 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 			$oFO = $this->getFeatureOptions();
 			// If it's this plugin and autoupdate this plugin is set...
-			if ( $sItemFile === $oFO->getPluginBaseFile() ) {
+			if ( $sItemFile === $oFO->getController()->getPluginBaseFile() ) {
 				if ( $this->getIsOption('autoupdate_plugin_self', 'Y') ) {
 					$this->doStatIncrement( 'autoupdates.plugins.self' );
 					$bDoAutoUpdate = true;
