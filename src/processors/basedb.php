@@ -16,7 +16,7 @@
  *
  */
 
-if ( !class_exists('ICWP_WPSF_BaseDbProcessor') ):
+if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 

@@ -332,6 +332,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
 endif;
 
-if ( !class_exists('ICWP_WPSF_Processor_Base') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 	abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_BaseProcessor_V3 { }
 endif;

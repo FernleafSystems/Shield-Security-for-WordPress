@@ -293,13 +293,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		/**
 		 * @return string
 		 */
-		public function getPluginBaseFile() {
-			return $this->getController()->getPluginBaseFile();
-		}
-
-		/**
-		 * @return string
-		 */
 		public function getFeatureSlug() {
 			if ( !isset( $this->sFeatureSlug ) ) {
 				$this->sFeatureSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );

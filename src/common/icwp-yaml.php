@@ -17,9 +17,9 @@
  *
  */
 
-if ( !class_exists( 'ICWP_WPSF_YamlProcessor_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_YamlProcessor_V2', false ) ):
 
-	class ICWP_WPSF_YamlProcessor_V1 {
+	class ICWP_WPSF_YamlProcessor_V2 {
 
 		protected static $oYaml;
 
@@ -102,7 +102,7 @@ endif;
 
 if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
 
-	class ICWP_WPSF_YamlProcessor extends ICWP_WPSF_YamlProcessor_V1 {
+	class ICWP_WPSF_YamlProcessor extends ICWP_WPSF_YamlProcessor_V2 {
 
 		/**
 		 * @var ICWP_WPSF_YamlProcessor
