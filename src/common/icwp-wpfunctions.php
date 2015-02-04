@@ -18,6 +18,10 @@
 if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 
 	class ICWP_WPSF_WpFunctions_V6 {
+		/**
+		 * @var ICWP_WPSF_WpDb
+		 */
+		private static $oWpDb;
 
 		/**
 		 * @var WP_Automatic_Updater
@@ -91,6 +95,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 				$sAuthorEmail
 			);
 			return $oDb->getVar( $sQuery ) == 1;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function comments_getIsCommentPost() {
+			return $this->loadDataProcessor()->GetIsRequestPost() && $this->getIsCurrentPage( 'wp-comments-post.php' );
 		}
 
 		/**
@@ -833,9 +844,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 * @return ICWP_WPSF_DataProcessor
 		 */
 		public function loadDataProcessor() {
-			if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
-			}
+			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
 			return ICWP_WPSF_DataProcessor::GetInstance();
 		}
 
@@ -843,10 +852,11 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		 * @return ICWP_WPSF_WpDb
 		 */
 		public function loadDbProcessor() {
-			if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ) {
+			if ( !isset( self::$oWpDb ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
+				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
 			}
-			return ICWP_WPSF_WpDb::GetInstance();
+			return self::$oWpDb;
 		}
 	}
 endif;

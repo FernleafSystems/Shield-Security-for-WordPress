@@ -163,15 +163,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function adminNoticePluginUpgradeAvailable( $aAdminNotices ) {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$sBaseFile = $oFO->getController()->getPluginBaseFile();
 
 			$oWp = $this->loadWpFunctionsProcessor();
 			// Don't show on the update page
-			if ( $oWp->getIsPage_Updates() || !$oWp->getIsPluginUpdateAvailable( $oFO->getPluginBaseFile() ) ) {
+			if ( $oWp->getIsPage_Updates() || !$oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) {
 				return $aAdminNotices;
 			}
 
 			$sNoticeMessage = '<p>'.sprintf( _wpsf__( 'There is an update available for your WordPress Security plugin: %s.' ), '<strong>'.$this->getController()->getHumanName().'</strong>' ).'</p>';
-			$sNoticeMessage .= sprintf( '<a href="%s" class="button">'._wpsf__( 'Please click to update immediately' ).'</a>', $oWp->getPluginUpgradeLink( $oFO->getPluginBaseFile() ) );
+			$sNoticeMessage .= sprintf( '<a href="%s" class="button">'._wpsf__( 'Please click to update immediately' ).'</a>', $oWp->getPluginUpgradeLink( $sBaseFile ) );
 
 			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
 			return $aAdminNotices;

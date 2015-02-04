@@ -20,21 +20,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
 	abstract class ICWP_WPSF_BaseProcessor_V3 extends ICWP_WPSF_Foundation {
 
-		const PcreDelimiter = '/';
-
-		/**
-		 * @var int
-		 */
-		protected static $nRequestIp;
-		/**
-		 * @var int
-		 */
-		protected static $nRequestPostId;
-		/**
-		 * @var integer
-		 */
-		protected static $nRequestTimestamp;
-
 		/**
 		 * @var array
 		 */
@@ -133,20 +118,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
 			$mOptionValue = $this->getOption( $sKey );
 			return $bStrict? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
-		}
-
-		/**
-		 * @return bool|int
-		 */
-		public function getRequestPostId() {
-			if ( !isset( self::$nRequestPostId ) ) {
-				global $post;
-				if ( empty( $post ) ) {
-					return false;
-				}
-				self::$nRequestPostId = $post->ID;
-			}
-			return self::$nRequestPostId;
 		}
 
 		/**
@@ -311,27 +282,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		}
 
 		/**
-		 * Checks the $aData contains valid key values as laid out in $inaChecks
-		 *
-		 * @param array $aData
-		 * @param array $inaChecks
-		 * @return boolean
-		 */
-		protected function validateParameters( $aData, $inaChecks ) {
-
-			if ( !is_array( $aData ) ) {
-				return false;
-			}
-
-			foreach( $inaChecks as $sCheck ) {
-				if ( !array_key_exists( $sCheck, $aData ) || empty( $aData[ $sCheck ] ) ) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		/**
 		 * @param $sStatKey
 		 */
 		protected function doStatIncrement( $sStatKey ) {
@@ -369,25 +319,19 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 * @return bool|int
 		 */
 		protected function ip() {
-			if ( empty( self::$nRequestIp ) ) {
-				self::$nRequestIp = $this->loadDataProcessor()->getVisitorIpAddress( false );
-			}
-			return self::$nRequestIp;
+			return $this->loadDataProcessor()->getVisitorIpAddress( false );
 		}
 
 		/**
 		 * @return int
 		 */
 		protected function time() {
-			if ( !isset( self::$nRequestTimestamp ) ) {
-				self::$nRequestTimestamp = $this->loadDataProcessor()->GetRequestTime();
-			}
-			return self::$nRequestTimestamp;
+			return $this->loadDataProcessor()->GetRequestTime();
 		}
 	}
 
 endif;
 
-if ( !class_exists('ICWP_WPSF_Processor_Base') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 	abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_BaseProcessor_V3 { }
 endif;

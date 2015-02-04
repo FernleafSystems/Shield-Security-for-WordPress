@@ -66,18 +66,15 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-
-		$oDp = $this->loadDataProcessor();
-		$fIsPost = $oDp->GetIsRequestPost();
-
 		$oWp = $this->loadWpFunctionsProcessor();
+
 		// XML-RPC Compatibility
 		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
 			return true;
 		}
 
 		// check for remote posting before anything else.
-		if ( $fIsPost && $this->getIsOption( 'enable_prevent_remote_post', 'Y' ) ) {
+		if ( $oWp->getIsLoginRequest() && $this->getIsOption( 'enable_prevent_remote_post', 'Y' ) ) {
 			add_filter( 'authenticate', array( $this, 'checkRemotePostLogin_Filter' ), 9, 3);
 		}
 
@@ -90,7 +87,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorWpLogin()->run();
 		}
 
-		if ( $fIsPost && $this->getOption( 'login_limit_interval' ) > 0 ) {
+		if ( ( $this->getOption( 'login_limit_interval' ) > 0 ) && $oWp->getIsLoginRequest() ) {
 			$this->getProcessorCooldown()->run();
 		}
 

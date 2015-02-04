@@ -460,7 +460,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function deleteOldPostCommentTokens( $sPostId = null ) {
 		$aWhere = array(
 			'ip'        => $this->loadDataProcessor()->getVisitorIpAddress( true ),
-			'post_id'   => empty( $sPostId ) ? $this->getRequestPostId() : $sPostId
+			'post_id'   => empty( $sPostId ) ? $this->loadWpFunctionsProcessor()->getCurrentPostId() : $sPostId
 		);
 		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 	}
@@ -470,7 +470,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function insertUniquePostCommentToken() {
 		$aData = array(
-			'post_id'       => $this->getRequestPostId(),
+			'post_id'       => $this->loadWpFunctionsProcessor()->getCurrentPostId(),
 			'unique_token'  => $this->getUniqueCommentToken(),
 			'ip'            => $this->loadDataProcessor()->getVisitorIpAddress( true ),
 			'created_at'    => $this->time()
@@ -482,7 +482,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	protected function generateUniqueToken() {
-		$sToken = uniqid( $this->ip().$this->time().$this->getRequestPostId() );
+		$sToken = uniqid( $this->ip().$this->time().$this->loadWpFunctionsProcessor()->getCurrentPostId() );
 		return md5( $sToken );
 	}
 
