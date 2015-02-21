@@ -28,10 +28,11 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 			return 'ICWP_WPSF_Processor_Autoupdates';
 		}
 
+		/**
+		 * this feature doesn't need to consider IP whitelists - it has no security implications.
+		 */
 		protected function doExecuteProcessor() {
-			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
-				parent::doExecuteProcessor();
-			}
+			parent::doExecuteProcessor();
 		}
 
 		/**

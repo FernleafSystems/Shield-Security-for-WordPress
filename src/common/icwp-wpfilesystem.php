@@ -68,11 +68,66 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * @param string $sNeedle
 		 * @param string $sDir
+		 * @param boolean $bIncludeExtension
 		 * @param boolean $bCaseSensitive
 		 *
-		 * @return boolean
+		 * @return bool|null
 		 */
-		public function fileExistsInDir( $sNeedle, $sDir, $bCaseSensitive = true ) {
+		public function fileExistsInDir( $sNeedle, $sDir, $bIncludeExtension = true, $bCaseSensitive = false ) {
+			if ( empty( $sNeedle ) || empty( $sDir ) ) {
+				return false;
+			}
+
+			if ( !$bCaseSensitive ) {
+				$sNeedle = strtolower( $sNeedle );
+			}
+
+			$oDirIt = null;
+			$bUseDirectoryIterator = class_exists( 'DirectoryIterator', false );
+			if ( $bUseDirectoryIterator ) {
+				try {
+					$oDirIt = new DirectoryIterator( $sDir );
+				}
+				catch( Exception $oE ) { //  UnexpectedValueException, RuntimeException, Exception
+					$bUseDirectoryIterator = false; // Path doesn't exist or don't have access to open
+				}
+			}
+
+			if ( $bUseDirectoryIterator && $oDirIt ) {
+
+				//if the file you're searching for doesn't have an extension, then we don't include extensions in search
+				$nDotPosition = strpos( $sNeedle, '.' );
+				$bHasExtension = $nDotPosition !== false;
+				$bIncludeExtension = $bIncludeExtension && $bHasExtension;
+
+				$sNeedlePreExtension = $bHasExtension ? substr( $sNeedle, 0, $nDotPosition ) : $sNeedle;
+
+				$bFound = false;
+				foreach ( $oDirIt as $oFileItem ) {
+					if ( !$oFileItem->isFile() ) {
+						continue;
+					}
+					$sFilename = $oFileItem->getFilename();
+					if ( !$bCaseSensitive ) {
+						$sFilename = strtolower( $sFilename );
+					}
+
+					if ( $bIncludeExtension ) {
+						$bFound = ( $sFilename == $sNeedle );
+					}
+					else {
+						// This is not entirely accurate as it only finds whether a file "starts" with needle, ignoring subsequent characters
+						$bFound = ( strpos( $sFilename, $sNeedlePreExtension ) === 0 );
+					}
+
+					if ( $bFound ) {
+						break;
+					}
+				}
+
+				return $bFound;
+			}
+
 			if ( $bCaseSensitive ) {
 				return $this->exists( $this->pathJoin( $sDir, $sNeedle ) );
 			}

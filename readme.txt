@@ -3,16 +3,16 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: WordPress Firewall, audit trail, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
+Tags: WordPress Firewall, security, easy, audit trail, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
 Requires at least: 3.2.0
 Tested up to: 4.1
-Stable tag: 4.3.6
+Stable tag: 4.4.0
 
-Complete and Simple WordPress Security. Unrestricted. No Premium Features.
+Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
 == Description ==
 
-The WordPress Simple Firewall is the ultimate **professional** [ WordPress Security System](http://icwp.io/wpsf09).
+The WordPress Simple Firewall is the ultimate **professional** [WordPress Security System](http://icwp.io/wpsf09).
 
 What makes the Simple Firewall different?
 
@@ -243,8 +243,15 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.4 Series =
+*Released: 21st February, 2015*
+
+*   CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
+*   CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
+*   CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
+
 = 4.3 Series =
-*Released: 15h January, 2015*
+*Released: 15th January, 2015*
 
 *   ADDED:      New Feature - [Rename WP Login Page](http://icwp.io/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.

@@ -17,7 +17,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
-	protected $fNeedSave;
+	protected $bNeedSave;
 
 	/**
 	 * @var string
@@ -184,7 +184,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getNeedSave() {
-		return $this->fNeedSave;
+		return $this->bNeedSave;
 	}
 
 	/**
@@ -223,12 +223,12 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @param $sKey
 	 * @param mixed $mValueToTest
-	 * @param boolean $fStrict
+	 * @param boolean $bStrict
 	 * @return bool
 	 */
-	public function getOptIs( $sKey, $mValueToTest, $fStrict = false ) {
+	public function getOptIs( $sKey, $mValueToTest, $bStrict = false ) {
 		$mOptionValue = $this->getOpt( $sKey );
-		return $fStrict? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
+		return $bStrict? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
 	/**
@@ -326,21 +326,21 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param boolean $fNeed
+	 * @param boolean $bNeed
 	 */
-	public function setNeedSave( $fNeed ) {
-		$this->fNeedSave = $fNeed;
+	public function setNeedSave( $bNeed ) {
+		$this->bNeedSave = $bNeed;
 	}
 
 	/**
 	 * @param string $sOptionKey
 	 * @param mixed $mValue
-	 * @param boolean $fForce
+	 * @param boolean $bForce
 	 * @return mixed
 	 */
-	public function setOpt( $sOptionKey, $mValue, $fForce = false ) {
+	public function setOpt( $sOptionKey, $mValue, $bForce = false ) {
 
-		if ( $fForce || $this->getOpt( $sOptionKey ) !== $mValue ) {
+		if ( $bForce || $this->getOpt( $sOptionKey ) !== $mValue ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
@@ -401,14 +401,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool $fReload
+	 * @param bool $bReload
 	 *
 	 * @return array|mixed
 	 * @throws Exception
 	 */
-	private function loadOptionsValuesFromStorage( $fReload = false ) {
+	private function loadOptionsValuesFromStorage( $bReload = false ) {
 
-		if ( $fReload || empty( $this->aOptionsValues ) ) {
+		if ( $bReload || empty( $this->aOptionsValues ) ) {
 
 			$sStorageKey = $this->getOptionsStorageKey();
 			if ( empty( $sStorageKey ) ) {

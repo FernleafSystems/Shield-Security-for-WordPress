@@ -36,6 +36,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 		public function doPrePluginOptionsSave() {
 
+			// Prevent incompatibility
+			if ( $this->getOptIs( 'enable_prevent_remote_post', 'Y' ) && $this->getController()->getIsValidAdminArea() ) {
+				$sHttpRef = $this->loadDataProcessor()->FetchServer( 'HTTP_REFERER' );
+				if ( empty( $sHttpRef ) ) {
+					$this->setOpt( 'enable_prevent_remote_post', 'N' );
+				}
+			}
+
 			$sCustomLoginPath = $this->getOpt( 'rename_wplogin_path', '' );
 			if ( !empty( $sCustomLoginPath ) ) {
 				$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
@@ -50,8 +58,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			if ( empty($aTwoFactorAuthRoles) || !is_array( $aTwoFactorAuthRoles ) ) {
 				$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
 			}
-
-			$this->setOpt( 'ips_whitelist', '' );
 		}
 
 		/**
@@ -168,13 +174,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				case 'enable_login_gasp_check' :
 					$sName = _wpsf__( 'G.A.S.P Protection' );
 					$sSummary = _wpsf__( 'Use G.A.S.P. Protection To Prevent Login Attempts By Bots' );
-					$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON' );
+					$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.' )
+									.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__('ON') );
 					break;
 
 				case 'enable_prevent_remote_post' :
 					$sName = _wpsf__( 'Prevent Remote Login' );
 					$sSummary = _wpsf__( 'Prevents Remote Login Attempts From Anywhere Except Your Site' );
-					$sDescription = _wpsf__( 'Prevents any login attempts that do not originate from your website. This prevent bots from attempting to login remotely. Recommended: ON' );
+					$sDescription = _wpsf__( 'Prevents login by bots attempting to login remotely to your site.' )
+									.' '._wpsf__( 'You will not be able to enable this option if your web server does not support it.' )
+									.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__('ON') );
 					break;
 
 				case 'enable_yubikey' :
@@ -324,15 +333,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				default:
 					return $fIp || $fCookie;
 					break;
-			}
-		}
-
-		/**
-		 */
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( version_compare( $this->getVersion(), '4.1.0', '<' ) ) {
-				$this->setOpt( 'recreate_database_table', true );
 			}
 		}
 	}

@@ -299,15 +299,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * Given a unique ID and a corresponding WordPress username, will update the authentication table so that it is active (pending=0).
+		 * Must provide "unique_id" and "wp_username".
+		 *
+		 * Will update the authentication table so that it is active (pending=0).
 		 *
 		 * @param array $aWhere - unique_id, wp_username
 		 * @return boolean
 		 */
-		public function query_DoMakePendingLoginAuthActive( $aWhere ) {
+		protected function query_DoMakePendingLoginAuthActive( $aWhere ) {
 
-			$aChecks = array( 'unique_id', 'wp_username' );
-			if ( !$this->validateParameters( $aWhere, $aChecks ) ) {
+			if ( empty( $aWhere['unique_id'] ) || empty( $aWhere['wp_username'] ) ) {
 				return false;
 			}
 

@@ -5,53 +5,71 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 	class ICWP_WPSF_Foundation {
 
 		/**
+		 * @var ICWP_WPSF_DataProcessor
+		 */
+		private static $oDp;
+		/**
+		 * @var ICWP_WPSF_WpFilesystem
+		 */
+		private static $oFs;
+		/**
+		 * @var ICWP_WPSF_WpFilesystem
+		 */
+		private static $oWp;
+		/**
+		 * @var ICWP_WPSF_YamlProcessor
+		 */
+		private static $oYaml;
+
+		/**
 		 * @return ICWP_WPSF_DataProcessor
 		 */
 		static public function loadDataProcessor() {
-			if ( ! class_exists( 'ICWP_WPSF_DataProcessor', false ) ) {
+			if ( !isset( self::$oDp ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
+				self::$oDp = ICWP_WPSF_DataProcessor::GetInstance();
 			}
-			return ICWP_WPSF_DataProcessor::GetInstance();
+			return self::$oDp;
 		}
 
 		/**
 		 * @return ICWP_WPSF_WpFilesystem
 		 */
 		static public function loadFileSystemProcessor() {
-			if ( ! class_exists( 'ICWP_WPSF_WpFilesystem', false ) ) {
+			if ( !isset( self::$oFs ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfilesystem.php' );
+				self::$oFs = ICWP_WPSF_WpFilesystem::GetInstance();
 			}
-			return ICWP_WPSF_WpFilesystem::GetInstance();
+			return self::$oFs;
 		}
 
 		/**
 		 * @return ICWP_WPSF_WpFunctions
 		 */
 		static public function loadWpFunctionsProcessor() {
-			if ( ! class_exists( 'ICWP_WPSF_WpFunctions', false ) ) {
+			if ( !isset( self::$oWp ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions.php' );
+				self::$oWp = ICWP_WPSF_WpFunctions::GetInstance();
 			}
-			return ICWP_WPSF_WpFunctions::GetInstance();
+			return self::$oWp;
 		}
 
 		/**
 		 * @return ICWP_WPSF_WpDb
 		 */
 		static public function loadDbProcessor() {
-			if ( ! class_exists( 'ICWP_WPSF_WpDb', false ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
-			}
-			return ICWP_WPSF_WpDb::GetInstance();
+			return self::loadWpFunctionsProcessor()->loadDbProcessor();
 		}
 
 		/**
 		 * @return ICWP_WPSF_YamlProcessor
 		 */
 		static public function loadYamlProcessor() {
-			if ( ! class_exists( 'ICWP_WPSF_YamlProcessor', false ) ) {
+			if ( !isset( self::$oYaml ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'icwp-yaml.php' );
+				self::$oYaml = ICWP_WPSF_YamlProcessor::GetInstance();
 			}
-			return ICWP_WPSF_YamlProcessor::GetInstance();
+			return self::$oYaml;
 		}
 
 		/**
