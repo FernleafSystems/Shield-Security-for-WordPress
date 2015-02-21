@@ -1,9 +1,9 @@
 <?php
 /*
- * Plugin Name: WordPress Simple Firewall
+ * Plugin Name: WordPress Simple Security Firewall
  * Plugin URI: http://icwp.io/2f
- * Description: A Simple WordPress Firewall
- * Version: 4.3.6
+ * Description: Easy-To-Use WordPress Security System
+ * Version: 4.4.0
  * Text Domain: wp-simple-firewall
  * Author: iControlWP
  * Author URI: http://icwp.io/2e
@@ -13,7 +13,7 @@
  * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
- * "WordPress Simple Firewall" is distributed under the GNU General Public License, Version 2,
+ * "WordPress Simple Security Firewall" is distributed under the GNU General Public License, Version 2,
  * June 1991. Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin
  * St, Fifth Floor, Boston, MA 02110, USA
  *

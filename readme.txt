@@ -3,16 +3,16 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: WordPress Firewall, audit trail, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
+Tags: WordPress Firewall, security, easy, audit trail, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
 Requires at least: 3.2.0
 Tested up to: 4.1
-Stable tag: 4.3.6
+Stable tag: 4.4.0
 
-Complete and Simple WordPress Security. Unrestricted. No Premium Features.
+Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
 == Description ==
 
-The WordPress Simple Firewall is the ultimate **professional** [ WordPress Security System](http://icwp.io/wpsf09).
+The WordPress Simple Firewall is the ultimate **professional** [WordPress Security System](http://icwp.io/wpsf09).
 
 What makes the Simple Firewall different?
 
