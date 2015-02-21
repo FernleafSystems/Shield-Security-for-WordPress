@@ -243,8 +243,15 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.4 Series =
+*Released: 21st February, 2015*
+
+*   CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
+*   CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
+*   CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
+
 = 4.3 Series =
-*Released: 15h January, 2015*
+*Released: 15th January, 2015*
 
 *   ADDED:      New Feature - [Rename WP Login Page](http://icwp.io/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
