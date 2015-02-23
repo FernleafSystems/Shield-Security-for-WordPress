@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: WordPress Firewall, security, easy, audit trail, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
 Requires at least: 3.2.0
 Tested up to: 4.1
-Stable tag: 4.4.0
+Stable tag: 4.4.1
 
 Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
@@ -246,6 +246,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.4 Series =
 *Released: 21st February, 2015*
 
+*   ADDED:      **Significant** performance enhancement in plugin loading times (up to 50% reduction). (v.1)
 *   CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
 *   CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
 *   CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
