@@ -664,7 +664,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 			return setcookie(
 				$sKey,
 				$mValue,
-				$this->GetRequestTime() + $nExpireLength,
+				$this->time() + $nExpireLength,
 				( is_null( $sPath ) && defined( 'COOKIEPATH' ) ) ? COOKIEPATH : $sPath,
 				( is_null( $sDomain ) && defined( 'COOKIE_DOMAIN' ) ) ? COOKIE_DOMAIN : $sDomain,
 				$bSsl
