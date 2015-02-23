@@ -457,7 +457,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				if ( is_null( $aConfig ) ) {
 					throw new Exception( 'YAML parser could not load to process the options configuration.' );
 				}
-				$oWp->setTransient( $sTransientKey, $aConfig );
+				$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 			}
 		}
 		return $aConfig;
@@ -467,7 +467,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	private function getSpecTransientStorageKey() {
-		return md5( 'icwp_'.get_class().$this->getOptionsName() );
+		return 'icwp_'.md5( get_class().$this->getOptionsName() );
 	}
 }
 endif;
