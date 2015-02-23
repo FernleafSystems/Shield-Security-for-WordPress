@@ -444,12 +444,12 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	private function readYamlConfiguration() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		$sName = $this->getOptionsName();
-		$sTransientKey = $this->getSpecTransientStorageKey();
 
+		$sTransientKey = $this->getSpecTransientStorageKey();
 		$aConfig = $oWp->getTransient( $sTransientKey );
+
 		if ( empty( $aConfig ) ) {
-			$sConfigFile = dirname( __FILE__ ).ICWP_DS.'..'.ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
+			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {
 				$oYaml = $this->loadYamlProcessor();
@@ -467,7 +467,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	private function getSpecTransientStorageKey() {
-		return 'icwp_'.md5( get_class().$this->getOptionsName() );
+		return 'icwp_'.md5( $this->getConfigFilePath() );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getConfigFilePath() {
+		return dirname( __FILE__ ) . ICWP_DS . '..' . ICWP_DS . sprintf( 'config' . ICWP_DS . 'feature-%s.php', $this->getOptionsName() );
 	}
 }
 endif;
