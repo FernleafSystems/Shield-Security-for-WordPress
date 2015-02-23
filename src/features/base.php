@@ -588,7 +588,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		/**
 		 */
 		protected function updateOptionsVersion() {
-			$this->setOpt( self::PluginVersionKey, $this->getController()->getVersion() );
+			if ( $this->getIsUpgrading() ) {
+				$this->setOpt( self::PluginVersionKey, $this->getController()->getVersion() );
+				$this->getOptionsVo()->cleanTransientStorage();
+			}
 		}
 
 		/**

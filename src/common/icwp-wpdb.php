@@ -15,7 +15,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists('ICWP_WPSF_WpDb_V1') ):
+if ( !class_exists( 'ICWP_WPSF_WpDb_V1', false ) ):
 
 	class ICWP_WPSF_WpDb_V1 {
 
@@ -236,7 +236,7 @@ if ( !class_exists('ICWP_WPSF_WpDb_V1') ):
 	}
 endif;
 
-if ( !class_exists('ICWP_WPSF_WpDb') ):
+if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 
 	class ICWP_WPSF_WpDb extends ICWP_WPSF_WpDb_V1 {
 		/**

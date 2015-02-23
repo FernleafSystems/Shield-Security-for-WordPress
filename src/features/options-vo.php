@@ -44,6 +44,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
+	public function cleanTransientStorage() {
+		return $this->loadWpFunctionsProcessor()->deleteTransient( $this->getSpecTransientStorageKey() );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function doOptionsSave() {
 		if ( !$this->getNeedSave() ) {
 			return true;
@@ -247,6 +254,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
+	public function getOptionsName() {
+		return $this->sOptionsName;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getOptionsStorageKey() {
 		return $this->sOptionsStorageKey;
 	}
@@ -269,7 +283,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getRawData_FullFeatureConfig() {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
-			$this->aRawOptionsConfigData = $this->readYamlConfiguration( $this->sOptionsName );
+			$this->aRawOptionsConfigData = $this->readYamlConfiguration();
 		}
 		return $this->aRawOptionsConfigData;
 	}
@@ -425,23 +439,42 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sName
-	 *
 	 * @return array
 	 * @throws Exception
 	 */
-	private function readYamlConfiguration( $sName ) {
-		$aConfig = array();
-		$sConfigFile = dirname( __FILE__ ).ICWP_DS.'..'.ICWP_DS.sprintf( 'config'.ICWP_DS.'feature-%s.php', $sName );
-		$sContents = include( $sConfigFile );
-		if ( !empty( $sContents ) ) {
-			$oYaml = $this->loadYamlProcessor();
-			$aConfig = $oYaml->parseYamlString( $sContents );
-			if ( is_null( $aConfig ) ) {
-				throw new Exception( 'YAML parser could not load to process the options configuration.' );
+	private function readYamlConfiguration() {
+		$oWp = $this->loadWpFunctionsProcessor();
+
+		$sTransientKey = $this->getSpecTransientStorageKey();
+		$aConfig = $oWp->getTransient( $sTransientKey );
+
+		if ( empty( $aConfig ) ) {
+			$sConfigFile = $this->getConfigFilePath();
+			$sContents = include( $sConfigFile );
+			if ( !empty( $sContents ) ) {
+				$oYaml = $this->loadYamlProcessor();
+				$aConfig = $oYaml->parseYamlString( $sContents );
+				if ( is_null( $aConfig ) ) {
+					throw new Exception( 'YAML parser could not load to process the options configuration.' );
+				}
+				$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 			}
 		}
 		return $aConfig;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getSpecTransientStorageKey() {
+		return 'icwp_'.md5( $this->getConfigFilePath() );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getConfigFilePath() {
+		return dirname( __FILE__ ) . ICWP_DS . '..' . ICWP_DS . sprintf( 'config' . ICWP_DS . 'feature-%s.php', $this->getOptionsName() );
 	}
 }
 endif;
