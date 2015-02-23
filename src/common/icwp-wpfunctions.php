@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
+if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 
-	class ICWP_WPSF_WpFunctions_V6 {
+	class ICWP_WPSF_WpFunctions_V7 {
 		/**
 		 * @var ICWP_WPSF_WpDb
 		 */
@@ -29,12 +29,12 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 		protected $oWpAutomaticUpdater;
 
 		/**
-		 * @var ICWP_WPSF_WpFunctions_V6
+		 * @var ICWP_WPSF_WpFunctions_V7
 		 */
 		protected static $oInstance = NULL;
 
 		/**
-		 * @return ICWP_WPSF_WpFunctions_V6
+		 * @return ICWP_WPSF_WpFunctions_V7
 		 */
 		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
@@ -338,6 +338,15 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 			}
 
 			return apply_filters( 'site_transient_'.$sKey, get_option( '_site_transient_'.$sKey ) );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param mixed $mValue
+		 * @param int $nExpire
+		 */
+		public function setTransient( $sKey, $mValue, $nExpire = 0 ) {
+			set_site_transient( $sKey, $mValue, $nExpire );
 		}
 
 		/**
@@ -861,9 +870,9 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V6', false ) ):
 	}
 endif;
 
-if ( !class_exists('ICWP_WPSF_WpFunctions') ):
+if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 
-	class ICWP_WPSF_WpFunctions extends ICWP_WPSF_WpFunctions_V6 {
+	class ICWP_WPSF_WpFunctions extends ICWP_WPSF_WpFunctions_V7 {
 		/**
 		 * @return ICWP_WPSF_WpFunctions
 		 */
