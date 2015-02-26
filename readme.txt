@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== WordPress Simple Security Firewall ===
 Contributors: paultgoodchild, dlgoodchild 
 Donate link: http://icwp.io/q
 License: GPLv3
@@ -242,6 +242,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Screenshots ==
 
 == Changelog ==
+
+= Unreleased =
+
+*   ADDED:      Minimum plugin requirements processing.
+*   IMPROVED:   The WordPress admin interface code to be simpler and cleaner.
 
 = 4.4 Series =
 *Released: 21st February, 2015*

@@ -49,48 +49,124 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private $sPluginBaseFile;
 
 	/**
+	 * @var array
+	 */
+	private $aRequirementsMessages;
+
+	/**
 	 * @param $sRootFile
 	 *
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
 	public static function GetInstance( $sRootFile ) {
 		if ( !isset( self::$oInstance ) ) {
-			self::$oInstance = new self( $sRootFile );
+			try {
+				self::$oInstance = new self( $sRootFile );
+			}
+			catch( Exception $oE ) {
+				return null;
+			}
 		}
 		return self::$oInstance;
 	}
 
 	/**
 	 * @param string $sRootFile
+	 * @throws Exception
 	 */
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		if ( empty( self::$aPluginSpec ) ) {
-			try {
-				self::$aPluginSpec = $this->readPluginConfiguration();
-				if ( empty( self::$aPluginSpec ) ) {
-					return null;
-				}
-			}
-			catch( Exception $oE ) {
-				return null;
-			}
+			self::$aPluginSpec = $this->readPluginConfiguration();
+			$this->checkMinimumRequirements();
 			$this->doRegisterHooks();
 		}
+	}
+
+	/**
+	 * @param bool $bCheckOnlyFrontEnd
+	 * @throws Exception
+	 */
+	private function checkMinimumRequirements( $bCheckOnlyFrontEnd = true ) {
+		if ( $bCheckOnlyFrontEnd && !is_admin() ) {
+			return;
+		}
+
+		$bMeetsRequirements = true;
+		$aRequirementsMessages = $this->getRequirementsMessages();
+
+		$sMinimumPhp = $this->getPluginSpec_Requirement( 'php' );
+		if ( !empty( $sMinimumPhp ) ) {
+			if ( version_compare( phpversion(), $sMinimumPhp, '<' ) ) {
+				$aRequirementsMessages[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $sMinimumPhp );
+				$bMeetsRequirements = false;
+			}
+		}
+
+		$sMinimumWp = $this->getPluginSpec_Requirement( 'wordpress' );
+		if ( !empty( $sMinimumWp ) ) {
+			$sWpVersion = $this->loadWpFunctionsProcessor()->getWordpressVersion();
+			if ( version_compare( $sWpVersion, $sMinimumWp, '<' ) ) {
+				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
+				$bMeetsRequirements = false;
+			}
+		}
+
+		if ( !$bMeetsRequirements ) {
+			$this->aRequirementsMessages = $aRequirementsMessages;
+			add_action(	'admin_menu', array( $this, 'adminNoticeDoesNotMeetRequirements' ) );
+			add_action(	'network_admin_notices', array( $this, 'adminNoticeDoesNotMeetRequirements' ) );
+			throw new Exception( 'Plugin does not meet minimum requirements' );
+		}
+	}
+
+	/**
+	 */
+	public function adminNoticeDoesNotMeetRequirements() {
+		$sMessage = sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.',
+			'<strong>'.$this->getHumanName().'</strong>'
+		);
+		$aMessages = $this->getRequirementsMessages();
+		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
+			$sMessage .= sprintf( '<ul style="list-style: inside none disc;"><li>%s</li></ul>', implode( '</li><li>', $aMessages ) );
+		}
+		$sMessage .= sprintf( '<a href="https://wordpress.org/plugins/%s/faq" target="_blank">Click here for more information on requirements</a>.', $this->getTextDomain() );
+		echo $this->wrapAdminNoticeHtml( $sMessage, 'error' );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getRequirementsMessages() {
+		if ( !isset( $this->aRequirementsMessages ) ) {
+			$this->aRequirementsMessages = array();
+		}
+		return $this->aRequirementsMessages;
 	}
 
 	/**
 	 */
 	protected function doRegisterHooks() {
 		$this->registerActivationHooks();
-		add_action( 'plugins_loaded',			array( $this, 'onWpPluginsLoaded' ) );
-		add_action( 'admin_init',				array( $this, 'onWpAdminInit' ) );
-		add_filter( 'plugin_action_links',		array( $this, 'onWpPluginActionLinks' ), 10, 4 );
-		add_action( 'admin_menu',				array( $this, 'onWpAdminMenu' ) );
-		add_action(	'network_admin_menu',		array( $this, 'onWpAdminMenu' ) );
-		add_action( 'wp_loaded',			    array( $this, 'onWpLoaded' ) );
-		add_action( 'init',			        	array( $this, 'onWpInit' ) );
+		add_action( 'plugins_loaded',					array( $this, 'onWpPluginsLoaded' ) );
+
+		add_action( 'init',			        			array( $this, 'onWpInit' ) );
+		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
+		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
+
+		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
+		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
+		add_action( 'admin_notices',					array( $this, 'onWpAdminNotices' ) );
+		add_action( 'network_admin_notices',			array( $this, 'onWpAdminNotices' ) );
+
+		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
+		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
+		add_filter( 'plugin_action_links',				array( $this, 'onWpPluginActionLinks' ), 10, 4 );
+		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+
 		add_filter( 'auto_update_plugin',		array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+
 		add_action( 'shutdown',					array( $this, 'onWpShutdown' ) );
 	}
 
@@ -117,24 +193,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Hooked to 'plugins_loaded'
 	 */
 	public function onWpPluginsLoaded() {
+		$this->doLoadTextDomain();
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ) );
-		if ( $this->getIsValidAdminArea() ) {
-			add_action( 'admin_notices',			array( $this, 'onWpAdminNotices' ) );
-			add_action( 'network_admin_notices',	array( $this, 'onWpAdminNotices' ) );
-			add_filter( 'all_plugins', 				array( $this, 'filter_hidePluginFromTableList' ) );
-			add_filter( 'all_plugins',				array( $this, 'doPluginLabels' ) );
-			add_filter( 'site_transient_update_plugins', array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-			add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
-		}
-		$this->doLoadTextDomain();
 	}
 
 	/**
-	 * Hooked to 'plugins_loaded'
 	 */
 	public function onWpAdminInit() {
 		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminCss' ), 99 );
@@ -144,7 +210,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpLoaded() {
-		$this->doPluginFormSubmit();
+		if ( $this->getIsValidAdminArea() ) {
+			$this->doPluginFormSubmit();
+		}
 	}
 
 	/**
@@ -268,12 +336,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		}
 		$aAdminNotices = apply_filters( $this->doPluginPrefix( 'admin_notices' ), array() );
 		if ( !empty( $aAdminNotices ) && is_array( $aAdminNotices ) ) {
-
 			foreach( $aAdminNotices as $sAdminNotice ) {
 				echo $sAdminNotice;
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Provides the basic HTML template for printing a WordPress Admin Notices
+	 *
+	 * @param $sNotice - The message to be displayed.
+	 * @param $sMessageClass - either error or updated
+	 * @return string
+	 */
+	protected function wrapAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated' ) {
+		$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
+		$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
+		return $sFullNotice;
 	}
 
 	public function onWpEnqueueFrontendCss() {
@@ -600,6 +680,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return mixed|null
+	 */
+	protected function getPluginSpec_Requirement( $sKey ) {
+		return isset( self::$aPluginSpec['requirements'][$sKey] ) ? self::$aPluginSpec['requirements'][$sKey] : null;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getBasePermissions() {
@@ -881,6 +969,16 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Get the path to a library source file
+	 *
+	 * @param string $sLibFile
+	 * @return string
+	 */
+	public function getPath_LibFile( $sLibFile = '' ) {
+		return $this->getPath_Source().'lib'.ICWP_DS.$sLibFile;
+	}
+
+	/**
 	 * get the root directory for the plugin with the trailing slash
 	 *
 	 * @return string
@@ -938,6 +1036,22 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getVersion() {
 		return $this->getPluginSpec_Property( 'version' );
+	}
+
+	/**
+	 * @param string $sPathToLib
+	 * @return mixed
+	 */
+	public function loadLib( $sPathToLib ) {
+		return include( $this->getPath_LibFile( $sPathToLib ) );
+	}
+
+	/**
+	 */
+	public function deactivateSelf() {
+		if ( $this->getIsValidAdminArea() && function_exists( 'deactivate_plugins' ) ) {
+			deactivate_plugins( $this->getPluginBaseFile() );
+		}
 	}
 
 	/**
