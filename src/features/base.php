@@ -904,29 +904,32 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 		/**
 		 * @param array $aData
-		 * @param string $sView
+		 * @param string $sSubView
 		 * @return bool
 		 */
-		protected function display( $aData = array(), $sView = '' ) {
+		protected function display( $aData = array(), $sSubView = '' ) {
 
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
 			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
 
 			if ( !$bPermissionToView ) {
-				$sView = 'access_restricted_index';
+				$sSubView = 'subfeature-access_restricted';
 			}
 
-			if ( empty( $sView ) ) {
+			if ( empty( $sSubView ) ) {
 				$oWpFs = $this->loadFileSystemProcessor();
-				$sCustomViewSource = $this->getController()->getPath_ViewsFile( 'config_'.$this->getFeatureSlug().'_index' );
-				$sNormalViewSource = $this->getController()->getPath_ViewsFile( 'config_index' );
-				$sFile = $oWpFs->exists( $sCustomViewSource ) ? $sCustomViewSource : $sNormalViewSource;
+				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
+				if ( $oWpFs->exists( $this->getController()->getPath_ViewsFile( $sFeatureInclude ) ) ) {
+					$sSubView = $sFeatureInclude;
+				}
+				else {
+					$sSubView = 'feature-default';
+				}
 			}
-			else {
-				$sFile = $this->getController()->getPath_ViewsFile( $sView );
-			}
+			$aData[ 'sFeatureInclude' ] = $sSubView;
 
+			$sFile = $this->getController()->getPath_ViewsFile( 'config_index' );
 			if ( !is_file( $sFile ) ) {
 				echo "View not found: ".$sFile;
 				return false;

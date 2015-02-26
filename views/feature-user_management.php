@@ -1,6 +1,4 @@
 <?php
-$sBaseDirName = dirname(__FILE__).ICWP_DS;
-include_once( $sBaseDirName.'config_header.php' );
 include_once( $sBaseDirName.'config-options-table.php' );
 
 function printSessionTable( $aSessionsData ) {
@@ -29,31 +27,29 @@ function printSessionTable( $aSessionsData ) {
 			</tr>
 		<?php endforeach; ?>
 	</table>
-	<?php
+<?php
 }
 
 ?>
-	<div class="row">
-		<div class="span12">
-			<h2><?php _wpsf_e('Current User Sessions'); ?>
-				<small>(<?php echo sprintf( _wpsf__( 'now: %s' ), date( 'Y/m/d H:i:s', time() ) ) ?>)</small>
-			</h2>
-			<?php if ( !empty($icwp_aActiveSessions) ) : ?>
-				<?php printSessionTable($icwp_aActiveSessions); ?>
-			<?php else : ?>
-				<?php _wpsf_e('You need to enable the User Management feature to view and manage user sessions.'); ?>
-			<?php endif; ?>
-		</div>
+<div class="row">
+	<div class="span12">
+		<h2><?php _wpsf_e('Current User Sessions'); ?>
+			<small>(<?php echo sprintf( _wpsf__( 'now: %s' ), date( 'Y/m/d H:i:s', time() ) ) ?>)</small>
+		</h2>
+		<?php if ( !empty($icwp_aActiveSessions) ) : ?>
+			<?php printSessionTable($icwp_aActiveSessions); ?>
+		<?php else : ?>
+			<?php _wpsf_e('You need to enable the User Management feature to view and manage user sessions.'); ?>
+		<?php endif; ?>
 	</div>
-	<div class="row">
-		<div class="span12">
-			<h2><?php _wpsf_e('Failed or Pending User Sessions');?> (48hrs)</h2>
-			<?php if ( !empty($icwp_aFailedSessions) ) : ?>
-				<?php printSessionTable($icwp_aFailedSessions); ?>
-			<?php else : ?>
-				<?php _wpsf_e('There are currently no failed or pending sessions to review.'); ?>
-			<?php endif; ?>
-		</div>
+</div>
+<div class="row">
+	<div class="span12">
+		<h2><?php _wpsf_e('Failed or Pending User Sessions');?> (48hrs)</h2>
+		<?php if ( !empty($icwp_aFailedSessions) ) : ?>
+			<?php printSessionTable($icwp_aFailedSessions); ?>
+		<?php else : ?>
+			<?php _wpsf_e('There are currently no failed or pending sessions to review.'); ?>
+		<?php endif; ?>
 	</div>
-<?php
-include_once( $sBaseDirName.'config_footer.php' );
+</div>
