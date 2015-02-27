@@ -3,10 +3,10 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: WordPress Firewall, security, easy, audit trail, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
+Tags: WordPress Firewall, security, easy, audit trail, ithemes, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
 Requires at least: 3.2.0
-Tested up to: 4.1
-Stable tag: 4.4.1
+Tested up to: 4.2
+Stable tag: 4.4.2
 
 Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
@@ -143,30 +143,33 @@ This plugin should install as any other WordPress.org respository plugin.
 1.	Click Install
 1.	Click to Activate.
 
-Alternatively using FTP:
-
-1.	Download the zip file using the download link to the right.
-1.	Extract the contents of the file and locate the folder called 'wp-simple-firewall' containing the plugin files.
-1.	Upload this whole folder to your '/wp-content/plugins/' directory
-1.	From the plugins page within Wordpress locate the plugin 'WordPress Simple Firewall' and click Activate
-
 A new menu item will appear on the left-hand side called 'Simple Firewall'.
 
 == Frequently Asked Questions ==
 
-Please see the new [help centre](http://icwp.io/firewallhelp) for details on features and some FAQs.
+Please see the dedicated [help centre](http://icwp.io/firewallhelp) for details on features and some FAQs.
+
+= How does the Simple Security Firewall compare with other WordPress Security Plugins? =
+
+Simple, we're just better! ;)
+
+We don't have a pay-wall - there is no premium version. You get everything that we develop on this plugin.
+
+Secondly, we don't modify a single core WordPress or web hosting file. This is important and explains why randomly you upgrade your security plugin and your site dies.
+
+Ideally you shouldn't use this along side other Anti-SPAM plugins or security plugins. If there is a feature you need, please feel free to suggest it in the support forums.
 
 = My server has a firewall, why do I need this plugin? =
 
-This plugin is more of an application firewall, rather than a server/network firewall.  It is designed to interpret web calls to your site to
-look for and find attempts to circumvent it and gain unauthorized access or cause damage.
+This plugin is an application layer firewall, not a server/network firewall.  It is designed to interpret web calls to your site to
+look for attempts to circumvent it and gain unauthorized access.
 
 Your network firewall is designed to restrict access to your server based on certain types of network traffic.  The WordPress Simple Firewall
 is designed to restrict access to your site, based on certain type of web calls.
 
 = How does the IP Whitelist work? =
 
-Any IP address that is on the whitelist will not be subject to any of the firewall scanning/processing.  This setting takes priority over all other settings.
+Any IP address that is on the whitelist will not be subject to **any of the firewall processing**.  This setting takes priority over all other settings.
 
 = Does the IP Whitelist/Blacklist support IP ranges? =
 
@@ -195,6 +198,15 @@ Remember: If you leave one of these files on the server, it will override your o
 = Which takes precedence... whitelist or blacklist? =
 
 Whitelist. So if you have the same address in both lists, it'll be whitelisted and allowed to pass before the blacklist comes into effect.
+
+= What changes go into each version? =
+
+The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
+ using **(v.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(v.1)**
+
+= Can I assist with development? =
+
+Yes! We actively [develop our plugin on Github](https://github.com/FernleafSystems/wp-simple-firewall) and the best thing you can do is submit pull request and bug reports which we'll review.
 
 = How does the pages/parameters whitelist work? =
 
@@ -243,15 +255,13 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Unreleased =
-
-*   ADDED:      Minimum plugin requirements processing.
-*   IMPROVED:   The WordPress admin interface code to be simpler and cleaner.
-
 = 4.4 Series =
 *Released: 21st February, 2015*
 
-*   ADDED:      **Significant** performance enhancement in plugin loading times (up to 50% reduction). (v.1)
+*   ADDED:      Romanian Translation. **(v.2)**
+*   ADDED:      A plugin minimum-requirements processing system. **(v.2)**
+*   IMPROVED:   The WordPress admin-UI code is simpler and cleaner. **(v.2)**
+*   ADDED:      **Significant** performance enhancement in plugin loading times (up to 50% reduction). **(v.1)**
 *   CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
 *   CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
 *   CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
@@ -259,15 +269,15 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.3 Series =
 *Released: 15th January, 2015*
 
+*   FIXES:      More thorough validation of whitelisted IP addresses (v.6)
+*   FIXES:      Some hosting environments need absolute file paths for PHP include()/require() (v.5)
+*   CHANGED:    Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted. (v.5)
+*   FIXES:      Work around for cases where PHP can't successfully run parse_url(). (v.4)
+*   IMPROVED:   Refactoring for better code organisation. (v.2)
 *   ADDED:      New Feature - [Rename WP Login Page](http://icwp.io/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
 *   CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the "Dashboard" area
 *   IMPROVED:   Firewall processing code is simplified and more efficient.
-*   IMPROVED:   Refactoring for better code organisation. (v.2)
-*   FIXES:      Work around for cases where PHP can't successfully run parse_url(). (v.4)
-*   CHANGED:    Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted. (v.5)
-*   FIXES:      Some hosting environments need absolute file paths for PHP include()/require() (v.5)
-*   FIXES:      More thorough validation of whitelisted IP addresses (v.6)
 
 = 4.2.1 =
 *Released: 22th December, 2014*
