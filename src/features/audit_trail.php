@@ -59,7 +59,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 				'aAuditDataEmails'	=> $oAuditTrail->getAuditEntriesForContext( 'emails' ),
 				'aAuditDataWpsf'	=> $oAuditTrail->getAuditEntriesForContext( 'wpsf' )
 			);
-			$this->display( $aData, $this->doPluginPrefix( 'audit_trail_viewer_index' ) );
+			$this->display( $aData, 'subfeature-audit_trail_viewer' );
 		}
 		/**
 		 * @return string
