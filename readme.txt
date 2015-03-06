@@ -255,6 +255,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.5 Series =
+*Released: 6th March, 2015*
+
+*   ADDED:      New feature- GASP Login Protection can now be applied to user registrations (not enabled by default)
+
 = 4.4 Series =
 *Released: 21st February, 2015*
 
