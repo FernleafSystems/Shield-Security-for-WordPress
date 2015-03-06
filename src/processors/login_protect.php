@@ -47,14 +47,6 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 	protected $oProcessorYubikey;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_LoginProtect $oFeatureOptions
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_LoginProtect $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions );
-		$this->reset();
-	}
-
-	/**
 	 * @return bool|void
 	 */
 	public function getIsLogging() {
@@ -74,8 +66,8 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		}
 
 		// check for remote posting before anything else.
-		if ( $oWp->getIsLoginRequest() && $this->getIsOption( 'enable_prevent_remote_post', 'Y' ) ) {
-			add_filter( 'authenticate', array( $this, 'checkRemotePostLogin_Filter' ), 9, 3);
+		if ( $this->getIsOption( 'enable_prevent_remote_post', 'Y' ) && ( $oWp->getIsLoginRequest() || $oWp->getIsRegisterRequest() ) ) {
+			add_filter( 'authenticate', array( $this, 'checkRemotePostLogin_Filter' ), 9, 2 );
 		}
 
 		// Add GASP checking to the login form.
@@ -87,7 +79,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorWpLogin()->run();
 		}
 
-		if ( ( $this->getOption( 'login_limit_interval' ) > 0 ) && $oWp->getIsLoginRequest() ) {
+		if ( $this->getOption( 'login_limit_interval' ) > 0 && ( $oWp->getIsLoginRequest() || $oWp->getIsRegisterRequest() ) ) {
 			$this->getProcessorCooldown()->run();
 		}
 
@@ -123,14 +115,12 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @param $oUser
-	 * @param $sUsername
-	 * @param $sPassword
+	 * @param WP_User|WP_Error $oUserOrError
+	 * @param string $sUsername
 	 * @return mixed
 	 */
-	public function checkRemotePostLogin_Filter( $oUser, $sUsername, $sPassword ) {
-		$oDp = $this->loadDataProcessor();
-		$sHttpRef = $oDp->FetchServer( 'HTTP_REFERER' );
+	public function checkRemotePostLogin_Filter( $oUserOrError, $sUsername ) {
+		$sHttpRef = $this->loadDataProcessor()->FetchServer( 'HTTP_REFERER' );
 
 		if ( !empty( $sHttpRef ) ) {
 			$aHttpRefererParts = parse_url( $sHttpRef );
@@ -138,12 +128,17 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 
 			if ( !empty( $aHttpRefererParts['host'] ) && !empty( $aHomeUrlParts['host'] ) && ( $aHttpRefererParts['host'] === $aHomeUrlParts['host'] ) ) {
 				$this->doStatIncrement( 'login.remotepost.success' );
-				return $oUser;
+				return $oUserOrError;
 			}
 		}
 
 		$this->doStatIncrement( 'login.remotepost.fail' );
-		$sAuditMessage = sprintf( _wpsf__( 'Blocked Remote Login Attempt by user "%s", where HTTP_REFERER was "%s".' ), $sUsername, $sHttpRef );
+		$sAuditMessage = sprintf(
+			_wpsf__( 'Blocked remote %s attempt by user "%s", where HTTP_REFERER was "%s".' ),
+			$this->loadWpFunctionsProcessor()->getIsLoginRequest() ? _wpsf__('login') : _wpsf__('register'),
+			$sUsername,
+			$sHttpRef
+		);
 		$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_block_remote' );
 
 		wp_die(
@@ -151,6 +146,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 			.' '._wpsf__( 'Remote login is not supported.' )
 			.'<br /><a href="http://icwp.io/4n" target="_blank">&rarr;'._wpsf__('More Info').'</a>'
 		);
+		return $oUserOrError;
 	}
 
 	/**
@@ -170,7 +166,9 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 	protected function getProcessorTwoFactor() {
 		if ( !isset( $this->oProcessorTwoFactor ) ) {
 			require_once( dirname(__FILE__).ICWP_DS.'loginprotect_twofactorauth.php' );
-			$this->oProcessorTwoFactor = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $this->getFeatureOptions() );
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			$this->oProcessorTwoFactor = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
 		}
 		return $this->oProcessorTwoFactor;
 	}

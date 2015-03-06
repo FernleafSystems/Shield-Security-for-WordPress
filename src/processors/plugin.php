@@ -31,13 +31,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oCon = $this->getController();
 
 			$this->removePluginConflicts();
 			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 
-			$oCon = $this->getController();
 			if ( $oCon->getIsValidAdminArea() ) {
 
 				// always show this notice

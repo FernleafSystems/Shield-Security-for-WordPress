@@ -29,6 +29,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private static $aPluginSpec;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bRebuildOptions;
+
+	/**
 	 * @var string
 	 */
 	private static $sRootFile;
@@ -500,6 +505,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpShutdown() {
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
+		$this->deleteRebuildFlag();
+	}
+
+	/**
+	 */
+	protected function deleteRebuildFlag() {
+		if ( $this->getIsRebuildOptionsFromFile() ) {
+			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		}
 	}
 
 	/**
@@ -787,6 +801,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return boolean
 	 */
+	public function getIsRebuildOptionsFromFile() {
+		if ( !isset( $this->bRebuildOptions ) ) {
+			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'rebuild' ) );
+			$this->bRebuildOptions = is_null( $bExists ) ? false : $bExists;
+		}
+		return $this->bRebuildOptions;
+	}
+
+	/**
+	 * @return boolean
+	 */
 	public function getIsWpmsNetworkAdminOnly() {
 		return $this->getPluginSpec_Property( 'wpms_network_admin_only' );
 	}
@@ -892,7 +917,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
@@ -900,8 +924,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sFlag
+	 * @return string
+	 */
+	public function getPath_Flags( $sFlag = '' ) {
+		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).ICWP_DS.$sFlag;
+	}
+
+	/**
 	 * @param string $sTmpFile
-	 *
 	 * @return string
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
@@ -915,7 +946,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_AssetCss( $sAsset = '' ) {
@@ -924,7 +954,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_AssetJs( $sAsset = '' ) {
@@ -933,7 +962,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_AssetImage( $sAsset = '' ) {

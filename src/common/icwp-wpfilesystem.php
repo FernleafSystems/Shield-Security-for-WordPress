@@ -354,7 +354,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		 * @param string|null $sBaseDir
 		 * @param string $sPrefix
 		 * @param string $outsRandomDir
-		 *
 		 * @return bool|string
 		 */
 		public function getTempDir( $sBaseDir = null, $sPrefix = '', &$outsRandomDir = '' ) {
@@ -398,8 +397,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * Recursive delete
 		 *
-		 * @param $sDir
-		 *
+		 * @param string $sDir
 		 * @return bool
 		 */
 		public function deleteDir( $sDir ) {
@@ -411,8 +409,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		}
 
 		/**
-		 * @param $sFilePath
-		 *
+		 * @param string $sFilePath
 		 * @return boolean|null
 		 */
 		public function deleteFile( $sFilePath ) {
@@ -426,7 +423,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * @param string $sFilePathSource
 		 * @param string $sFilePathDestination
-		 *
 		 * @return bool|null
 		 */
 		public function move( $sFilePathSource, $sFilePathDestination ) {
@@ -451,7 +447,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 
 		/**
 		 * @param $sDirPath
-		 *
 		 * @return bool
 		 */
 		public function mkdir( $sDirPath ) {

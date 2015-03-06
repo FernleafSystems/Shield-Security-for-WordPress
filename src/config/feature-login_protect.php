@@ -98,6 +98,13 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'enable_user_register_checking'
+    section: 'section_brute_force_login_protection'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'login_limit_interval'
     section: 'section_brute_force_login_protection'
     default: '10'

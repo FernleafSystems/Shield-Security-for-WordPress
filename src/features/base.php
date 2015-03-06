@@ -166,6 +166,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			if ( !isset( $this->oOptions ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
 				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
+				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
 			}
 			return $this->oOptions;

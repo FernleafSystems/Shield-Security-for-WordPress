@@ -3,10 +3,10 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: WordPress Firewall, security, easy, audit trail, ithemes, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
+Tags: security, firewall, simple, audit trail, ithemes, better wp security, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
 Requires at least: 3.2.0
 Tested up to: 4.2
-Stable tag: 4.4.2
+Stable tag: 4.5.0
 
 Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
@@ -254,6 +254,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Screenshots ==
 
 == Changelog ==
+
+= 4.5 Series =
+*Released: 6th March, 2015*
+
+*   ADDED:      New feature- GASP Login Protection can now be applied to user registrations - enabled by default **(v.0)**
 
 = 4.4 Series =
 *Released: 21st February, 2015*
