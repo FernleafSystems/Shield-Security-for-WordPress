@@ -553,6 +553,18 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		/**
 		 * @return bool
 		 */
+		public function getIsRegisterRequest() {
+			$oDp = $this->loadDataProcessor();
+			return
+				$oDp->GetIsRequestPost()
+				&& !is_null( $oDp->FetchPost( 'user_login' ) )
+				&& !is_null( $oDp->FetchPost( 'user_email' ) )
+				&& $this->getIsLoginUrl();
+		}
+
+		/**
+		 * @return bool
+		 */
 		public function getIsLoginUrl() {
 			$sLoginUrl = wp_login_url();
 			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();

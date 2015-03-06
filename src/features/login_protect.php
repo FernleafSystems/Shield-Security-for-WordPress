@@ -111,8 +111,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @throws Exception
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
-
-			$oDp = $this->loadDataProcessor();
 			$sKey = $aOptionsParams['key'];
 			switch( $sKey ) {
 
@@ -161,6 +159,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sName = _wpsf__( 'By-Pass On Failure' );
 					$sSummary = _wpsf__( 'If Sending Verification Email Sending Fails, Two-Factor Login Authentication Is Ignored' );
 					$sDescription = _wpsf__( 'If you enable two-factor authentication and sending the email with the verification link fails, turning this setting on will by-pass the verification step. Use with caution.' );
+					break;
+
+				case 'enable_user_register_checking' :
+					$sName = _wpsf__( 'User Registration' );
+					$sSummary = _wpsf__( 'Apply Brute Force Protection To User Registration' );
+					$sDescription = _wpsf__( 'When enabled, settings in this section will also apply to registrations for new users.' );
 					break;
 
 				case 'login_limit_interval' :
@@ -230,6 +234,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			$aOptionsParams['summary'] = $sSummary;
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIsCheckingUserRegistrations() {
+			return $this->getOptIs( 'enable_user_register_checking', 'Y' );
 		}
 
 		/**
