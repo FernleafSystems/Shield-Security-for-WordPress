@@ -100,7 +100,7 @@ options:
   -
     key: 'enable_user_register_checking'
     section: 'section_brute_force_login_protection'
-    default: 'N'
+    default: 'Y'
     type: 'checkbox'
     link_info: ''
     link_blog: ''

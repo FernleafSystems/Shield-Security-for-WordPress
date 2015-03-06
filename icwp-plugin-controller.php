@@ -29,6 +29,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private static $aPluginSpec;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bRebuildOptions;
+
+	/**
 	 * @var string
 	 */
 	private static $sRootFile;
@@ -506,10 +511,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function deleteRebuildFlag() {
-		$sRebuildFlag = $this->getPath_Flags( 'rebuild' );
-		$oWp = $this->loadFileSystemProcessor();
-		if ( $oWp->isFile( $sRebuildFlag ) ) {
-			$oWp->deleteFile( $sRebuildFlag );
+		if ( $this->getIsRebuildOptionsFromFile() ) {
+			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
 	}
 
@@ -793,6 +796,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsRebuildOptionsFromFile() {
+		if ( !isset( $this->bRebuildOptions ) ) {
+			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'rebuild' ) );
+			$this->bRebuildOptions = is_null( $bExists ) ? false : $bExists;
+		}
+		return $this->bRebuildOptions;
 	}
 
 	/**

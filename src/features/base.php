@@ -64,11 +64,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected static $bForceOffFileExists;
 
 		/**
-		 * @var boolean
-		 */
-		protected static $bRebuildOptionsFromFile;
-
-		/**
 		 * @var ICWP_WPSF_FeatureHandler_Email
 		 */
 		protected static $oEmailHandler;
@@ -171,7 +166,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			if ( !isset( $this->oOptions ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
 				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
-				$this->oOptions->setRebuildFromFile( $this->getRebuildOptionsFromFile() );
+				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
 			}
 			return $this->oOptions;
@@ -273,17 +268,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 					->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
 			}
 			return self::$bForceOffFileExists;
-		}
-
-		/**
-		 * @return boolean
-		 */
-		protected function getRebuildOptionsFromFile() {
-			if ( !isset( self::$bRebuildOptionsFromFile ) ) {
-				self::$bRebuildOptionsFromFile =
-					$this->loadFileSystemProcessor()->isFile( $this->getController()->getPath_Flags( 'rebuild' ) );
-			}
-			return self::$bRebuildOptionsFromFile;
 		}
 
 		/**
