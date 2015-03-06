@@ -20,6 +20,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	protected $bNeedSave;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bRebuildFromFile = false;
+
+	/**
 	 * @var string
 	 */
 	protected $aOptionsKeys;
@@ -325,6 +330,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return boolean
+	 */
+	public function getRebuildFromFile() {
+		return $this->bRebuildFromFile;
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @return boolean
 	 */
@@ -344,6 +356,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function setNeedSave( $bNeed ) {
 		$this->bNeedSave = $bNeed;
+	}
+
+	/**
+	 * @param boolean $bRebuild
+	 */
+	public function setRebuildFromFile( $bRebuild ) {
+		$this->bRebuildFromFile = $bRebuild;
 	}
 
 	/**
@@ -448,7 +467,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$sTransientKey = $this->getSpecTransientStorageKey();
 		$aConfig = $oWp->getTransient( $sTransientKey );
 
-		if ( empty( $aConfig ) ) {
+		if ( $this->getRebuildFromFile() || empty( $aConfig ) ) {
 			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {

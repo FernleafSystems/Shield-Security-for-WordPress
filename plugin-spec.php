@@ -16,6 +16,7 @@ paths:
   assets: 'resources'
   languages: 'languages'
   views: 'views'
+  flags: 'flags'
 includes:
   admin:
     css:

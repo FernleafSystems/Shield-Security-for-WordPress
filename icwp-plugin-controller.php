@@ -500,6 +500,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpShutdown() {
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
+		$this->deleteRebuildFlag();
+	}
+
+	/**
+	 */
+	protected function deleteRebuildFlag() {
+		$sRebuildFlag = $this->getPath_Flags( 'rebuild' );
+		$oWp = $this->loadFileSystemProcessor();
+		if ( $oWp->isFile( $sRebuildFlag ) ) {
+			$oWp->deleteFile( $sRebuildFlag );
+		}
 	}
 
 	/**
@@ -892,7 +903,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
@@ -900,8 +910,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sFlag
+	 * @return string
+	 */
+	public function getPath_Flags( $sFlag = '' ) {
+		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).ICWP_DS.$sFlag;
+	}
+
+	/**
 	 * @param string $sTmpFile
-	 *
 	 * @return string
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
@@ -915,7 +932,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_AssetCss( $sAsset = '' ) {
@@ -924,7 +940,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_AssetJs( $sAsset = '' ) {
@@ -933,7 +948,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAsset
-	 *
 	 * @return string
 	 */
 	public function getPath_AssetImage( $sAsset = '' ) {
