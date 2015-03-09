@@ -200,17 +200,29 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 
 		/**
 		 * @param string $sPluginFile
+		 * @return stdClass|null
+		 */
+		public function getPluginUpdateInfo( $sPluginFile ) {
+			$aUpdates = $this->getWordpressUpdates();
+			return ( !empty( $aUpdates ) && isset( $aUpdates[ $sPluginFile ] ) ) ? $aUpdates[ $sPluginFile ] : null;
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @return string
+		 */
+		public function getPluginUpdateNewVersion( $sPluginFile ) {
+			$oInfo = $this->getPluginUpdateInfo( $sPluginFile );
+			return ( !is_null( $oInfo ) && isset( $oInfo->new_version ) ) ? $oInfo->new_version : '';
+		}
+
+		/**
+		 * @param string $sPluginFile
 		 * @return boolean|stdClass
 		 */
 		public function getIsPluginUpdateAvailable( $sPluginFile ) {
-			$aUpdates = $this->getWordpressUpdates();
-			if ( empty( $aUpdates ) ) {
-				return false;
-			}
-			if ( isset( $aUpdates[ $sPluginFile ] ) ) {
-				return $aUpdates[ $sPluginFile ];
-			}
-			return false;
+			$oInfo = $this->getPluginUpdateInfo( $sPluginFile );
+			return !is_null( $oInfo );
 		}
 
 		/**
@@ -302,6 +314,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @param string $sType - plugins, themes
 		 * @return array
 		 */
 		public function getWordpressUpdates( $sType = 'plugins' ) {

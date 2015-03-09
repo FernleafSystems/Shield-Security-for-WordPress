@@ -3,7 +3,7 @@
  * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
- * "WordPress Simple Firewall" is distributed under the GNU General Public License, Version 2,
+ * "iControlWP" is distributed under the GNU General Public License, Version 2,
  * June 1991. Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin
  * St, Fifth Floor, Boston, MA 02110, USA
  *
@@ -166,12 +166,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links',				array( $this, 'onWpPluginActionLinks' ), 10, 4 );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
 		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
 		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
-		add_filter( 'pre_set_site_transient_update_plugins',	array( $this, 'setUpdateFirstDetectedAt' ) );
+		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',					array( $this, 'onWpShutdown' ) );
 	}
@@ -309,14 +309,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onDisplayTopMenu() { }
 
 	/**
-	 * @param $aActionLinks
-	 * @param $sPluginFile
-	 *
-	 * @return mixed
+	 * @param array $aActionLinks
+	 * @return array
 	 */
-	public function onWpPluginActionLinks( $aActionLinks, $sPluginFile ) {
+	public function onWpPluginActionLinks( $aActionLinks ) {
 
-		if ( $this->getIsValidAdminArea() && $sPluginFile == $this->getPluginBaseFile() ) {
+		if ( $this->getIsValidAdminArea() ) {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( !empty( $aLinksToAdd ) && is_array( $aLinksToAdd ) ) {
@@ -450,20 +448,19 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response ) ) {
 
-			$oOptions = $this->getPluginControllerOptions();
-
 			// i.e. there's an update available
 			if ( isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
-				if ( !isset( $oOptions->new_update_first_detected ) ) {
-					$oOptions->new_update_first_detected = $this->loadDataProcessor()->time();
+
+				$sNewVersion = $this->loadWpFunctionsProcessor()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+				if ( !empty( $sNewVersion ) ) {
+					$sKey = 'update_first_detected_'.$sNewVersion;
+					$oOptions = $this->getPluginControllerOptions();
+					if ( !isset( $oOptions->{$sKey} ) ) {
+						$oOptions->{$sKey} = $this->loadDataProcessor()->time();
+					}
+					$this->setPluginControllerOptions( $oOptions );
 				}
 			}
-			else {
-				if ( isset( $oOptions->new_update_first_detected ) ) {
-					unset( $oOptions->new_update_first_detected );
-				}
-			}
-			$this->setPluginControllerOptions( $oOptions );
 		}
 		return $oPluginUpdateData;
 	}
@@ -494,7 +491,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $sItemFile === $this->getPluginBaseFile() ) {
 			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
 
-			if ( !$this->loadWpFunctionsProcessor()->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
+			$oWp = $this->loadWpFunctionsProcessor();
+
+			if ( !$oWp->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
 				$sAutoupdateSpec = 'yes';
 			}
 
@@ -509,14 +508,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					break;
 
 				case 'confidence' :
-					$oOptions = $this->getPluginControllerOptions();
-					$nFirstDetected = isset( $oOptions->new_update_first_detected ) ? $oOptions->new_update_first_detected : 0;
-					$nTimeUpdateAvailable =  $this->loadDataProcessor()-> time() - $nFirstDetected;
-					if ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) ) {
-						$bDoAutoUpdate = true;
-					}
-					else {
-						$bDoAutoUpdate = false;
+					$bDoAutoUpdate = false;
+					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+					if ( !empty( $sNewVersion ) ) {
+						$oOptions = $this->getPluginControllerOptions();
+						$sNewVersionKey = 'update_first_detected_'.$sNewVersion;
+						$nFirstDetected = isset( $oOptions->{$sNewVersionKey} ) ? $oOptions->{$sNewVersionKey} : 0;
+						$nTimeUpdateAvailable =  $this->loadDataProcessor()->time() - $nFirstDetected;
+						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) );
 					}
 					break;
 
@@ -1154,7 +1153,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	private function getPluginControllerOptionsKey() {
-		return $this->doPluginPrefix( 'controller' );
+		return $this->doPluginOptionPrefix( 'controller' );
 	}
 
 	/**
