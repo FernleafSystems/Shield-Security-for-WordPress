@@ -170,7 +170,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
 		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
-		add_filter( 'auto_update_plugin',		array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+		add_filter( 'pre_set_site_transient_update_plugins',	array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',					array( $this, 'onWpShutdown' ) );
 	}
@@ -189,6 +190,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpDeactivatePlugin() {
 		if ( current_user_can( $this->getBasePermissions() ) && apply_filters( $this->doPluginPrefix( 'delete_on_deactivate' ), false ) ) {
 			do_action( $this->doPluginPrefix( 'delete_plugin' ) );
+			$this->deletePluginControllerOptions();
 		}
 	}
 
@@ -438,6 +440,35 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * This will hook into the saving of plugin update information and if there is an update for this plugin, it'll add
+	 * a data stamp to state when the update was first detected.
+	 *
+	 * @param stdClass $oPluginUpdateData
+	 * @return stdClass
+	 */
+	public function setUpdateFirstDetectedAt( $oPluginUpdateData ) {
+
+		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response ) ) {
+
+			$oOptions = $this->getPluginControllerOptions();
+
+			// i.e. there's an update available
+			if ( isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
+				if ( !isset( $oOptions->new_update_first_detected ) ) {
+					$oOptions->new_update_first_detected = $this->loadDataProcessor()->time();
+				}
+			}
+			else {
+				if ( isset( $oOptions->new_update_first_detected ) ) {
+					unset( $oOptions->new_update_first_detected );
+				}
+			}
+			$this->setPluginControllerOptions( $oOptions );
+		}
+		return $oPluginUpdateData;
+	}
+
+	/**
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.
 	 *
@@ -459,13 +490,40 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return $bDoAutoUpdate;
 		}
 
+		// The item in question is this plugin...
 		if ( $sItemFile === $this->getPluginBaseFile() ) {
 			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
-			if ( $sAutoupdateSpec == 'yes' ) {
-				$bDoAutoUpdate = true;
+
+			if ( !$this->loadWpFunctionsProcessor()->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
+				$sAutoupdateSpec = 'yes';
 			}
-			else if ( $sAutoupdateSpec == 'block' ) {
-				$bDoAutoUpdate = false;
+
+			switch( $sAutoupdateSpec ) {
+
+				case 'yes' :
+					$bDoAutoUpdate = true;
+					break;
+
+				case 'block' :
+					$bDoAutoUpdate = false;
+					break;
+
+				case 'confidence' :
+					$oOptions = $this->getPluginControllerOptions();
+					$nFirstDetected = isset( $oOptions->new_update_first_detected ) ? $oOptions->new_update_first_detected : 0;
+					$nTimeUpdateAvailable =  $this->loadDataProcessor()-> time() - $nFirstDetected;
+					if ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) ) {
+						$bDoAutoUpdate = true;
+					}
+					else {
+						$bDoAutoUpdate = false;
+					}
+					break;
+
+				case 'pass' :
+				default:
+					break;
+
 			}
 		}
 		return $bDoAutoUpdate;
@@ -1064,6 +1122,39 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getVersion() {
 		return $this->getPluginSpec_Property( 'version' );
+	}
+
+	/**
+	 * @return stdClass
+	 */
+	protected function getPluginControllerOptions() {
+		$oOptions = $this->loadWpFunctionsProcessor()->getOption( $this->getPluginControllerOptionsKey() );
+		if ( !is_object( $oOptions ) ) {
+			$oOptions = new stdClass();
+		}
+		return $oOptions;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	protected function deletePluginControllerOptions() {
+		return $this->loadWpFunctionsProcessor()->deleteOption( $this->getPluginControllerOptionsKey() );
+	}
+
+	/**
+	 * @param $oOptions
+	 * @return bool
+	 */
+	protected function setPluginControllerOptions( $oOptions ) {
+		return $this->loadWpFunctionsProcessor()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getPluginControllerOptionsKey() {
+		return $this->doPluginPrefix( 'controller' );
 	}
 
 	/**
