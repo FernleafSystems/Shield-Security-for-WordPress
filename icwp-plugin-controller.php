@@ -3,7 +3,7 @@
  * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
- * "iControlWP" is distributed under the GNU General Public License, Version 2,
+ * "WordPress Simple Firewall" is distributed under the GNU General Public License, Version 2,
  * June 1991. Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin
  * St, Fifth Floor, Boston, MA 02110, USA
  *
