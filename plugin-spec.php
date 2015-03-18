@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '4.5.0'
+  version: '4.5.1'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
   human_name: 'WordPress Simple Firewall'
@@ -10,7 +10,7 @@ properties:
   base_permissions: 'manage_options'
   wpms_network_admin_only: true
   logging_enabled: true
-  autoupdate: 'confidence' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
+  autoupdate: 'yes' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
 paths:
   source: 'src'
   assets: 'resources'
