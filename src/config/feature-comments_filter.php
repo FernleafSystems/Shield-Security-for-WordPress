@@ -5,6 +5,7 @@ properties:
   name: 'Comments Filter'
   show_feature_menu_item: true
   storage_key: 'commentsfilter' # should correspond exactly to that in the plugin.yaml
+  use_sessions: true
 # Options Sections
 sections:
   -
