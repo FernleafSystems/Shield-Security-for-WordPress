@@ -59,6 +59,16 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private $aRequirementsMessages;
 
 	/**
+	 * @var string
+	 */
+	protected static $sSessionId;
+
+	/**
+	 * @var string
+	 */
+	protected static $sRequestId;
+
+	/**
 	 * @param $sRootFile
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
@@ -1205,6 +1215,45 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsValidAdminArea() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSessionId() {
+		if ( !isset( self::$sSessionId ) ) {
+			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
+			if ( empty( self::$sSessionId ) ) {
+				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
+				$this->setSessionCookie();
+			}
+		}
+		return self::$sSessionId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUniqueRequestId() {
+		if ( !isset( self::$sRequestId ) ) {
+			$oDp = $this->loadDataProcessor();
+			self::$sRequestId = md5( $this->getSessionId().$oDp->getVisitorIpAddress().$oDp->time() );
+		}
+		return self::$sRequestId;
+	}
+
+	/**
+	 */
+	protected function setSessionCookie() {
+		$oWp = $this->loadWpFunctionsProcessor();
+		setcookie(
+			$this->getPluginPrefix(),
+			$this->getSessionId(),
+			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
+			$oWp->getCookiePath(),
+			$oWp->getCookieDomain(),
+			false
+		);
 	}
 
 	/**

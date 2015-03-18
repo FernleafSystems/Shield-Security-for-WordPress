@@ -116,9 +116,6 @@ options:
     section: 'section_non_ui'
     value: 'wpsf_sesh_id'
   -
-    key: 'user_management_table_created'
-    section: 'section_non_ui'
-  -
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false

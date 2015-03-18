@@ -247,7 +247,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getUniqueFormId() {
 		if ( !isset( $this->sUniqueFormId ) ) {
 			$oDp = $this->loadDataProcessor();
-			$this->sUniqueFormId = $oDp->GenerateRandomLetter().$oDp->GenerateRandomString( rand(7, 23), true );
+			$this->sUniqueFormId = $oDp->GenerateRandomLetter().$oDp->GenerateRandomString( rand(7, 23), 7 );
 		}
 		return $this->sUniqueFormId;
 	}
@@ -268,7 +268,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getGaspCommentsHookHtml() {
 		$sReturn = '<p id="'.$this->getUniqueFormId().'"></p>'; // we use this unique <p> to hook onto using javascript
 		$sReturn .= '<input type="hidden" id="_sugar_sweet_email" name="sugar_sweet_email" value="" />';
-		$sReturn .= '<input type="hidden" id="_comment_token" name="comment_token" value="'.$this->getUniqueCommentToken().'" />';
+		$sReturn .= sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />', $this->getUniqueCommentToken() );
 		return $sReturn;
 	}
 	
@@ -479,21 +479,11 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function generateUniqueToken() {
-		$sToken = uniqid( $this->ip().$this->time().$this->loadWpFunctionsProcessor()->getCurrentPostId() );
-		return md5( $sToken );
-	}
-
-	/**
+	 * @alias $this->getController()->getUniqueRequestId();
 	 * @return string
 	 */
 	protected function getUniqueCommentToken() {
-		if ( empty( $this->sUniqueCommentToken ) ) {
-			$this->sUniqueCommentToken = $this->generateUniqueToken();
-		}
-		return $this->sUniqueCommentToken;
+		return $this->getController()->getUniqueRequestId();
 	}
 
 	/**

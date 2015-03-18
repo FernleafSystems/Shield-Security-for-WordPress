@@ -35,8 +35,13 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_Base {
 
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
+			//print the checkbox code:
 			add_action( 'register_form',		array( $this, 'printGaspLoginCheck_Action' ) );
+			add_action( 'lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ) );
+			
+			//verify the checkbox is present:
 			add_action( 'register_post',		array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
+			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10, 1 );
 		}
 	}
 
@@ -77,6 +82,18 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_Base {
 	 */
 	public function checkRegisterForGasp_Action( $sSanitizedUsername ) {
 		if ( $this->doGaspChecks( $sSanitizedUsername, _wpsf__( 'register' ) ) ) {
+			return $sSanitizedUsername;
+		}
+		//This doesn't actually ever get returned because we die() within doGaspChecks()
+		return new WP_Error( 'wpsf_gaspfail', _wpsf__( 'G.A.S.P. Checking Failed.' ) );
+	}
+
+	/**
+	 * @param string $sSanitizedUsername
+	 * @return WP_Error
+	 */
+	public function checkResetPasswordForGasp_Action( $sSanitizedUsername ) {
+		if ( $this->doGaspChecks( $sSanitizedUsername, _wpsf__( 'reset-password' ) ) ) {
 			return $sSanitizedUsername;
 		}
 		//This doesn't actually ever get returned because we die() within doGaspChecks()
