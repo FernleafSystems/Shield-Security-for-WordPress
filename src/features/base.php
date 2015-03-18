@@ -402,6 +402,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
+		 * @return boolean
+		 */
+		public function getIfUseSessions() {
+			return $this->getOptionsVo()->getFeatureProperty( 'use_sessions' );
+		}
+
+		/**
 		 * @param string $sOptionKey
 		 * @param mixed $mDefault
 		 * @return mixed
