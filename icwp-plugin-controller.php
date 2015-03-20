@@ -243,6 +243,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
 		}
+		$this->getSessionId();
 	}
 
 	/**
