@@ -76,6 +76,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		parent::reset();
 		$this->sCommentStatus = '';
 		$this->sCommentStatusExplanation = '';
+		$this->getUniqueCommentToken(); //ensures the necessary cookie is set early
 	}
 	
 	/**
