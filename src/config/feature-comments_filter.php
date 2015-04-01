@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'comments_filter'
 properties:
-  name: 'Comments Filter'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'commentsfilter' # should correspond exactly to that in the plugin.yaml
   use_sessions: true
@@ -187,4 +189,6 @@ options:
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
-";
+",
+		_wpsf__( 'Comments Filter' )
+	);

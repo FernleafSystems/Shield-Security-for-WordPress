@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'user_management'
 properties:
-  name: 'User Management'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'user_management' # should correspond exactly to that in the plugin.yaml
   storag
@@ -119,4 +121,6 @@ options:
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
-";
+",
+		_wpsf__( 'User Management' )
+	);

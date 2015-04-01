@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'login_protect'
 properties:
-  name: 'Login Protection'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'loginprotect' # should correspond exactly to that in the plugin.yaml
 # Options Sections
@@ -206,4 +208,6 @@ options:
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
-";
+",
+		_wpsf__( 'Login Protection' )
+	);
