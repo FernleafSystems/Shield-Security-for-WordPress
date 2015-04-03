@@ -1,11 +1,13 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'admin_access_restriction'
 properties:
-  name: 'Admin Access Restriction'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'admin_access_restriction' # should correspond exactly to that in the plugin.yaml
-  menu_title: 'Admin Access'
+  menu_title: '%s'
 # Options Sections
 sections:
   -
@@ -48,4 +50,7 @@ options:
     key: 'admin_access_key_cookie_name'
     section: 'section_non_ui'
     value: 'icwp_wpsf_aakcook'
-";
+",
+		_wpsf__( 'Admin Access Restriction' ),
+		_wpsf__( 'Admin Access' )
+	);

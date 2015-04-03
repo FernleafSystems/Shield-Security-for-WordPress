@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'audit_trail'
 properties:
-  name: 'Audit Trail'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'audit_trail' # should correspond exactly to that in the plugin.yaml
 # Options Sections
@@ -111,6 +113,9 @@ options:
 menu_items:
   -
     slug: 'audit_trail_viewer'
-    title: 'Audit Trail Viewer'
+    title: '%s'
     callback: 'displayAuditTrailViewer'
-";
+",
+		_wpsf__( 'Audit Trail' ),
+		_wpsf__( 'Audit Trail Viewer' )
+	);

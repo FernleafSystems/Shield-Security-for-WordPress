@@ -258,6 +258,8 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.5 Series =
 *Released: 6th March, 2015*
 
+*   ADDED:      New and updated language translations including Polish (100%), Finnish **(v.4)**
+*   FIX:        Better string translation coverage for menus etc. **(v.4)**
 *   ADDED:      New and updated language translations including Polish, Czech and German **(v.3)**
 *   CHANGED:    Only set the plugin cookie if necessary **(v.3)**
 *   CHANGED:    Attempt to resolve DB errors related to transient options reported on WP Engine **(v.2)**
