@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'autoupdates'
 properties:
-  name: 'Automatic Updates'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'autoupdates' # should correspond exactly to that in the plugin.yaml
 # Options Sections
@@ -111,4 +113,6 @@ options:
     key: 'action_hook_priority'
     section: 'section_non_ui'
     default: 1000
-";
+",
+		_wpsf__( 'Automatic Updates' )
+	);

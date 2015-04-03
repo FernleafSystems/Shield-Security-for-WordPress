@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'lockdown'
 properties:
-  name: 'Lockdown'
+  name: '%s'
   show_feature_menu_item: true
   storage_key: 'lockdown' # should correspond exactly to that in the plugin.yaml
 # Options Sections
@@ -65,4 +67,6 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-";
+",
+		_wpsf__( 'Lockdown' )
+	);

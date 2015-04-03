@@ -139,7 +139,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		switch( $aOptionsParams['section_slug'] ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__('Admin Access Restriction') );
+				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
 				break;
 
 			case 'section_admin_access_restriction_settings' :

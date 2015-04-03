@@ -1,8 +1,10 @@
 <?php
-return "---
+return
+	sprintf(
+	"---
 slug: 'email'
 properties:
-  name: 'Email'
+  name: '%s'
   show_feature_menu_item: false
   storage_key: 'email' # should correspond exactly to that in the plugin.yaml
 # Options Sections
@@ -33,4 +35,6 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-";
+",
+		_wpsf__( 'Email' )
+	);

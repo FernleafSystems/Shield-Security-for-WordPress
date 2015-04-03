@@ -78,7 +78,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 			switch( $sKey ) {
 
 				case 'enable_comments_filter' :
-					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__('Comments Filter') );
+					$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
 					$sSummary = _wpsf__( 'Enable (or Disable) The SPAM Comments Protection Filter Feature' );
 					$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), _wpsf__('SPAM Comments Protection Filter') );
 					break;

@@ -164,7 +164,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				case 'enable_user_register_checking' :
 					$sName = _wpsf__( 'User Registration' );
 					$sSummary = _wpsf__( 'Apply Brute Force Protection To User Registration And Lost Passwords' );
-					$sDescription = _wpsf__( 'When enabled, settings in this section will also apply to registrations for new users and users trying to reset passwords.' );
+					$sDescription = _wpsf__( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.' );
 					break;
 
 				case 'login_limit_interval' :
