@@ -3,10 +3,10 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, firewall, simple, audit trail, ithemes, better wp security, ddos, brute force, protection, activity monitor, whitelist, blacklist, two-factor authentication, GASP, comment spam, automatic updates, lockdown, login, hack
+Tags: security, firewall, audit trail, ithemes, better wp security, ddos, brute force, whitelist, blacklist, two-factor authentication, GASP, spam, automatic updates, lockdown, login, hack
 Requires at least: 3.2.0
 Tested up to: 4.2
-Stable tag: 4.5.4
+Stable tag: 4.5.5
 
 Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
@@ -14,7 +14,7 @@ Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Fea
 
 The WordPress Simple Firewall is the ultimate **professional** [WordPress Security System](http://icwp.io/wpsf09).
 
-What makes the Simple Firewall different?
+What makes the Simple Security Firewall different?
 
 * All Features available to everyone - no premium version.
 * It's for everyone - beginners and professionals alike.
@@ -36,27 +36,27 @@ The **only** WordPress security plugin with a WordPress-independent security key
 With the Audit Trail you can review all major actions that have taken place on your WordPress site, by all users.
 
 = Firewall Protection =
-Blocks all web requests to the site that violate the firewall rules with easy setup! [more info](http://icwp.io/wpsf06)
+Blocks all web requests to the site that violate the firewall security rules! [more info](http://icwp.io/wpsf06)
 
 = Brute Force Login Protection and Two-Factor Authentication =
-Provides highly effective Brute Force Hacking Protection and email based Two-Factor Authenticated login. [more info](http://icwp.io/wpsf07)
+Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](http://icwp.io/wpsf07)
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
 Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](http://icwp.io/wpsf08)
 
 = WordPress Lock Down =
-Numerous mechanisms to lock down your WordPress admin area, such as blocking file edits and enforcing SSL.
+Numerous security and protection mechanisms to lock down your WordPress admin area, such as blocking file edits and enforcing SSL.
 
 = Automatic Updates =
 Take back control of your WordPress Automatic Updates.
 
 [youtube http://www.youtube.com/watch?v=r307fu3Eqbo]
 
-= A Simple Firewall Explained =
+= The Simple Security Firewall Explained =
 
-The WordPress Simple Firewall is built to be reliable, and easy to use by **anyone**.  Seriously, the interface is simple! :)
+The WordPress Simple Security Firewall is built to be highly reliable, and easy to use by **anyone**!
 
-It adds extra features over WordPress Firewall 2, including:
+Originally built off the WordPress Firewall 2, it now includes much more:
 
 *	7 Simple, clear, Firewall blocking options - pick and choose for ultimate protection and compatibility.
 *	Option: Ignore already logged-in Administrators so you don't firewall yourself as you work on the site.
@@ -76,23 +76,22 @@ It adds extra features over WordPress Firewall 2, including:
  
 Basic functionality is based on the principles employed by the [WordPress Firewall 2 plugin](http://wordpress.org/plugins/wordpress-firewall-2/).
 
-= Login and Identity Protection - Stops Brute Force Attacks =
+= Login and Identity Security Protection - Stops Brute Force Attacks =
 
-Note: Login Protection is a completely independent feature to the Firewall. IP Address whitelists are not shared.
+Note: Login Protection is a completely independent feature to the Firewall.
 
-With our Login Protection features this plugin will single-handling prevent brute force login attack on all your WordPress sites.
+With the Login Protection features this plugin will single-handedly prevent brute force login attacks on all your WordPress sites.
 
 It doesn't need IP Address Ban Lists (which are actually useless anyway), and instead puts hard limits on your WordPress site,
 and force users to verify themselves when they login.
 
-As of version 1.2.0+ you now have several ways to add simple protection to your WordPress Login system.
+Three core security features provide layers to protect the WordPress Login system.
 
 1.	[Email-based 2-Factor Login Authentication](http://icwp.io/2v) based on IP address! (prevents brute force login attacks)
 1.	[Login Cooldown Interval](http://icwp.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
 1.	[GASP Anti-Bot Login Form Protection](http://icwp.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
 
-These options alone will protect your WordPress sites from nearly all forms of Brute Force
-login attacks.
+These options alone will protect and secure your WordPress sites from nearly all forms of Brute Force login attacks.
 
 And you hardly need to configure anything! Simply check the options to turn them on, set a cooldown interval and you're instantly protected.
 
@@ -258,33 +257,36 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.5 Series =
 *Released: 6th March, 2015*
 
-*   ADDED:      New and updated language translations including Polish (100%), Finnish **(v.4)**
-*   FIX:        Better string translation coverage for menus etc. **(v.4)**
-*   ADDED:      New and updated language translations including Polish, Czech and German **(v.3)**
-*   CHANGED:    Only set the plugin cookie if necessary **(v.3)**
-*   CHANGED:    Attempt to resolve DB errors related to transient options reported on WP Engine **(v.2)**
-*   ADDED:      New feature- GASP Login Protection can now be applied to lost password form - enabled by default **(v.1)**
-*   ADDED:      New feature- GASP Login Protection can now be applied to user registrations - enabled by default **(v.0)**
+* **(v.5)**  CHANGED:    Updated Finnish (100%), Czech (16%) translations
+* **(v.5)**  CHANGED:    Change logs now more clearly display changes between versions
+* **(v.5)**  FIX:        Small translation coverage
+* **(v.4)**  ADDED:      New and updated language translations including Polish (100%), Finnish
+* **(v.4)**  FIX:        Better string translation coverage for menus etc.
+* **(v.3)**  ADDED:      New and updated language translations including Polish, Czech and German
+* **(v.3)**  CHANGED:    Only set the plugin cookie if necessary
+* **(v.2)**  CHANGED:    Attempt to resolve DB errors related to transient options reported on WP Engine
+* **(v.1)**  ADDED:      New feature- GASP Login Protection can now be applied to lost password form - enabled by default
+* **(v.0)**  ADDED:      New feature- GASP Login Protection can now be applied to user registrations - enabled by default
 
 = 4.4 Series =
 *Released: 21st February, 2015*
 
-*   ADDED:      Romanian Translation. **(v.2)**
-*   ADDED:      A plugin minimum-requirements processing system. **(v.2)**
-*   IMPROVED:   The WordPress admin-UI code is simpler and cleaner. **(v.2)**
-*   ADDED:      **Significant** performance enhancement in plugin loading times (up to 50% reduction). **(v.1)**
-*   CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
-*   CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
-*   CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
+* **(v.2)**  ADDED:      Romanian Translation.
+* **(v.2)**  ADDED:      A plugin minimum-requirements processing system.
+* **(v.2)**  IMPROVED:   The WordPress admin-UI code is simpler and cleaner.
+* **(v.1)**  ADDED:      **Significant** performance enhancement in plugin loading times (up to 50% reduction).
+* **(v.0)**  CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
+* **(v.0)**  CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
+* **(v.0)**  CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
 
 = 4.3 Series =
 *Released: 15th January, 2015*
 
-*   FIXES:      More thorough validation of whitelisted IP addresses (v.6)
-*   FIXES:      Some hosting environments need absolute file paths for PHP include()/require() (v.5)
-*   CHANGED:    Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted. (v.5)
-*   FIXES:      Work around for cases where PHP can't successfully run parse_url(). (v.4)
-*   IMPROVED:   Refactoring for better code organisation. (v.2)
+* **(v.6)**  FIXES:      More thorough validation of whitelisted IP addresses
+* **(v.5)**  FIXES:      Some hosting environments need absolute file paths for PHP include()/require()
+* **(v.5)**  CHANGED:    Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted
+* **(v.4)**  FIXES:      Work around for cases where PHP can't successfully run parse_url()
+* **(v.2)**  IMPROVED:   Refactoring for better code organisation
 *   ADDED:      New Feature - [Rename WP Login Page](http://icwp.io/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
 *   CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the "Dashboard" area
