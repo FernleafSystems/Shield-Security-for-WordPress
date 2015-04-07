@@ -18,12 +18,12 @@ function printFeatureSummaryBlock( $fOn, $sName, $sSettingsHref= '', $sInnerSpan
 				<div class="span8 offset1">
 					<a class="btn btn-<?php echo $fOn?'success':'warning';?>"
 						<?php echo empty($sSettingsHref)? 'disabled="disabled"': sprintf('href="%s"',$sSettingsHref);?>>
-						<?php echo empty($sSettingsHref)? _wpsf_e('See Below') : _wpsf_e('Go To Settings');?>
+						<?php empty($sSettingsHref)? _wpsf_e('See Below') : _wpsf_e('Go To Settings'); ?>
 					</a>
 				</div>
 		</div>
 		<div class="feature-name">
-			<?php echo sprintf( $sFeatureSummaryBlockNameTemplates, $sName, $fOn? 'ON':'OFF' ); ?>
+			<?php echo sprintf( $sFeatureSummaryBlockNameTemplates, $sName, $fOn? _wpsf__( 'ON' ) : _wpsf__( 'OFF' ) ); ?>
 		</div>
 	</div>
 <?php
