@@ -265,6 +265,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sDescription = _wpsf__( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.' );
 					break;
 
+				case 'display_plugin_badge' :
+					$sName = _wpsf__( 'Show Plugin Badge' );
+					$sSummary = _wpsf__( 'Display Plugin Badge On Your Site' );
+					$sDescription = _wpsf__( 'Enabling this option helps support the plugin by spreading the word about it on your website.' )
+						.' '._wpsf__('The plugin badge also lets visitors know your are taking your website security seriously.')
+						.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'http://icwp.io/wpsf20', _wpsf__('Read this carefully before enabling this option.') );
+					break;
+
 				case 'delete_on_deactivate' :
 					$sName = _wpsf__( 'Delete Plugin Settings' );
 					$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );

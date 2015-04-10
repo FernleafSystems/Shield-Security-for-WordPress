@@ -46,7 +46,7 @@
 </style>
 <div id="icwpWpsfSiteBadge">
 	<a id="icwpWpsfCloseButton" onclick="getElementById('icwpWpsfSiteBadge').remove();">x</a>
-	<a href="https://www.icontrolwp.com" target="_blank" alt="WordPress Simple Security Firewall">
+	<a href="http://icwp.io/wpsecurityfirewall" target="_blank" alt="WordPress Simple Security Firewall">
 		<img src="%s" /> <div class="badge-text">Site Protected By The Simple Security Firewall &rarr;</div>
 	</a>
 </div>

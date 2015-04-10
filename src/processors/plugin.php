@@ -54,12 +54,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				}
 			}
 
-			if ( $this->getIsOption( 'display_site_badge', 'Y' ) ) {
-				add_action( 'wp_footer', array( $this, 'printBadge' ) );
+			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
+				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
 			}
 		}
 
-		public function printBadge() {
+		public function printPluginBadge() {
 			$oCon = $this->getController();
 			ob_start();
 			include( $oCon->getPath_ViewsSnippet( 'site_badge' ) );
