@@ -49,6 +49,13 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'display_plugin_badge'
+    section: 'section_general_plugin_options'
+    default: 'N'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/5v'
+    link_blog: 'http://icwp.io/wpsf20'
+  -
     key: 'delete_on_deactivate'
     section: 'section_general_plugin_options'
     default: 'N'

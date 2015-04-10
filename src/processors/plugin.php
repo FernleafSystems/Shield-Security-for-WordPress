@@ -53,6 +53,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
 				}
 			}
+
+			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
+				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
+			}
+		}
+
+		public function printPluginBadge() {
+			$oCon = $this->getController();
+			ob_start();
+			include( $oCon->getPath_ViewsSnippet( 'site_badge' ) );
+			$sContents = ob_get_contents();
+			ob_end_clean();
+			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ) );
 		}
 
 		/**
