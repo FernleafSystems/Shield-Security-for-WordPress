@@ -254,39 +254,46 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.6 Series =
+*Released: 10th April, 2015*
+
+* **(v.0)**  ADDED:     New feature that displays the last login time for all users on the users listing page.
+* **(v.0)**  ADDED:     **Completely optional** promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. [Learn More](http://icwp.io/5x)
+* **(v.0)**  UPDATED:   Updated Czech(38%) translations
+
 = 4.5 Series =
 *Released: 6th March, 2015*
 
-* **(v.5)**  CHANGED:    Updated Finnish (100%), Czech (16%) translations
-* **(v.5)**  CHANGED:    Change logs now more clearly display changes between versions
-* **(v.5)**  FIX:        Small translation coverage
-* **(v.4)**  ADDED:      New and updated language translations including Polish (100%), Finnish
-* **(v.4)**  FIX:        Better string translation coverage for menus etc.
-* **(v.3)**  ADDED:      New and updated language translations including Polish, Czech and German
-* **(v.3)**  CHANGED:    Only set the plugin cookie if necessary
-* **(v.2)**  CHANGED:    Attempt to resolve DB errors related to transient options reported on WP Engine
-* **(v.1)**  ADDED:      New feature- GASP Login Protection can now be applied to lost password form - enabled by default
-* **(v.0)**  ADDED:      New feature- GASP Login Protection can now be applied to user registrations - enabled by default
+* **(v.5)**  CHANGED:   Updated Finnish (100%), Czech (16%) translations
+* **(v.5)**  CHANGED:   Change logs now more clearly display changes between versions
+* **(v.5)**  FIX:       Small translation coverage
+* **(v.4)**  ADDED:     New and updated language translations including Polish (100%), Finnish
+* **(v.4)**  FIX:       Better string translation coverage for menus etc.
+* **(v.3)**  ADDED:     New and updated language translations including Polish, Czech and German
+* **(v.3)**  CHANGED:   Only set the plugin cookie if necessary
+* **(v.2)**  CHANGED:   Attempt to resolve DB errors related to transient options reported on WP Engine
+* **(v.1)**  ADDED:     New feature- GASP Login Protection can now be applied to lost password form - enabled by default
+* **(v.0)**  ADDED:     New feature- GASP Login Protection can now be applied to user registrations - enabled by default
 
 = 4.4 Series =
 *Released: 21st February, 2015*
 
-* **(v.2)**  ADDED:      Romanian Translation.
-* **(v.2)**  ADDED:      A plugin minimum-requirements processing system.
-* **(v.2)**  IMPROVED:   The WordPress admin-UI code is simpler and cleaner.
-* **(v.1)**  ADDED:      **Significant** performance enhancement in plugin loading times (up to 50% reduction).
-* **(v.0)**  CHANGED:    The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
-* **(v.0)**  CHANGED:    More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
-* **(v.0)**  CHANGED:    Parsing the URL no longer outputs warnings that might interfere with response headers.
+* **(v.2)**  ADDED:     Romanian Translation.
+* **(v.2)**  ADDED:     A plugin minimum-requirements processing system.
+* **(v.2)**  IMPROVED:  The WordPress admin-UI code is simpler and cleaner.
+* **(v.1)**  ADDED:     **Significant** performance enhancement in plugin loading times (up to 50% reduction).
+* **(v.0)**  CHANGED:   The 'Prevent Remote Login' option now tries to detect web hosting server compatibility before allowing it to be enabled.
+* **(v.0)**  CHANGED:   More lax in finding the 'forceOff' file when users are trying to turn off the firewall.
+* **(v.0)**  CHANGED:   Parsing the URL no longer outputs warnings that might interfere with response headers.
 
 = 4.3 Series =
 *Released: 15th January, 2015*
 
-* **(v.6)**  FIXES:      More thorough validation of whitelisted IP addresses
-* **(v.5)**  FIXES:      Some hosting environments need absolute file paths for PHP include()/require()
-* **(v.5)**  CHANGED:    Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted
-* **(v.4)**  FIXES:      Work around for cases where PHP can't successfully run parse_url()
-* **(v.2)**  IMPROVED:   Refactoring for better code organisation
+* **(v.6)**  FIXES:     More thorough validation of whitelisted IP addresses
+* **(v.5)**  FIXES:     Some hosting environments need absolute file paths for PHP include()/require()
+* **(v.5)**  CHANGED:   Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted
+* **(v.4)**  FIXES:     Work around for cases where PHP can't successfully run parse_url()
+* **(v.2)**  IMPROVED:  Refactoring for better code organisation
 *   ADDED:      New Feature - [Rename WP Login Page](http://icwp.io/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
 *   CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the "Dashboard" area

@@ -41,23 +41,80 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorSessions()->run();
 		}
 
-		if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
-			add_action( 'wp_login', array( $this, 'sendLoginEmailNotification' ) );
-		}
+		// Adds automatic update indicator column to all plugins in plugin listing.
+		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
+		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
+
+		// Handles login notification emails and setting last user login
+		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		return true;
 	}
 
-	/**
-	 * @param $sUsername
-	 * @return mixed
-	 */
-	public function sendLoginEmailNotification( $sUsername ) {
-		if ( empty( $sUsername ) ) {
+	public function onWpLogin( $sUsername ) {
+		$oUser = $this->loadWpFunctionsProcessor()->getUserByUsername( $sUsername );
+		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
 
-		$oUser = get_user_by( 'login', $sUsername );
+		if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
+			$this->sendLoginEmailNotification( $oUser );
+		}
+
+		$this->setUserLastLoginTime( $oUser );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 */
+	protected function setUserLastLoginTime( $oUser ) {
+		$this->loadWpFunctionsProcessor()->updateUserMeta( $this->getUserLastLoginKey(), $this->time(), $oUser->ID );
+	}
+
+	/**
+	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
+	 *
+	 * @param array $aColumns
+	 * @return array
+	 */
+	public function fAddUserListLastLoginColumn( $aColumns ) {
+
+		$sLastLoginColumnName = $this->getUserLastLoginKey();
+		if ( !isset( $aColumns[ $sLastLoginColumnName ] ) ) {
+			$aColumns[ $sLastLoginColumnName ] = _wpsf__( 'Last Login' );
+			add_filter( 'manage_users_custom_column', array( $this, 'aPrintUsersListLastLoginColumnContent' ), 10, 3 );
+		}
+		return $aColumns;
+	}
+
+	/**
+	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
+	 *
+	 * @param string $sContent
+	 * @param string $sColumnName
+	 * @param int $nUserId
+	 * @return string
+	 */
+	public function aPrintUsersListLastLoginColumnContent( $sContent, $sColumnName, $nUserId ) {
+		$sLastLoginKey = $this->getUserLastLoginKey();
+		if ( $sColumnName != $sLastLoginKey ) {
+			return $sContent;
+		}
+		$oWp = $this->loadWpFunctionsProcessor();
+		$nLastLoginTime = $oWp->getUserMeta( $sLastLoginKey, $nUserId );
+
+		$sLastLoginText = _wpsf__( 'Not Recorded' );
+		if ( !empty( $nLastLoginTime ) && is_numeric( $nLastLoginTime ) ) {
+			$sLastLoginText = date_i18n( $oWp->getOption( 'time_format' ).' '.$oWp->getOption( 'date_format' ), $nLastLoginTime );
+		}
+		return $sLastLoginText;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	public function sendLoginEmailNotification( $oUser ) {
 		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
@@ -75,17 +132,17 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 			_wpsf__( 'As requested, the WordPress Simple Firewall is notifying you of an administrator login to a WordPress site that you manage.' ),
 			_wpsf__( 'Details for this user are below:' ),
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), home_url() ),
-			'- '.sprintf( _wpsf__( 'Username: %s' ), $sUsername ),
+			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $oDp->getVisitorIpAddress( true ) ),
 			_wpsf__( 'Thanks.' )
 		);
 
-		$fResult = $oEmailer->sendEmailTo(
+		$bResult = $oEmailer->sendEmailTo(
 			$this->getOption( 'enable_admin_login_email_notification' ),
 			sprintf( 'Email Notice: An Administrator Just Logged Into %s', home_url() ),
 			$aMessage
 		);
-		return $fResult;
+		return $bResult;
 	}
 
 	/**
@@ -113,6 +170,13 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	 */
 	public function getPendingOrFailedUserSessionRecordsSince( $nTime = 0 ) {
 		return $this->getProcessorSessions()->getPendingOrFailedUserSessionRecordsSince( $nTime );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUserLastLoginKey() {
+		return $this->getController()->doPluginOptionPrefix( 'userlastlogin' );
 	}
 }
 endif;
