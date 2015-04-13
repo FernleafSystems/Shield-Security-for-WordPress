@@ -52,7 +52,7 @@
 </style>
 <div id="icwpWpsfSiteBadge">
 	<a id="icwpWpsfCloseButton" onclick="getElementById('icwpWpsfSiteBadge').remove();">x</a>
-	<a href="http://icwp.io/wpsecurityfirewall" target="_blank" alt="WordPress Security Firewall">
+	<a href="http://icwp.io/wpsecurityfirewall" target="_blank" title="WordPress Security Firewall">
 		<img src="%s" alt="WordPress Security Firewall Logo"/> <div class="badge-text">This Site Is Protected By <span style="font-style: italic;">The</span><br/>WordPress Security Firewall &rarr;</div>
 	</a>
 </div>
