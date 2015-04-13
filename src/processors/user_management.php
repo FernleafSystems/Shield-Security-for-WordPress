@@ -32,25 +32,33 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	public function run() {
 		$oWp = $this->loadWpFunctionsProcessor();
 
-		// XML-RPC Compatibility
-		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
-			return true;
-		}
-
-		if ( $this->getIsOption( 'enable_user_management', 'Y' ) ) {
-			$this->getProcessorSessions()->run();
-		}
-
-		// Adds automatic update indicator column to all plugins in plugin listing.
+		// Adds last login indicator column to all plugins in plugin listing.
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
 
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
+		// XML-RPC Compatibility
+		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
+			return true;
+		}
+
+		/** Everything from this point on must consider XMLRPC compatibility **/
+
+		if ( $this->getIsOption( 'enable_user_management', 'Y' ) ) {
+			$this->getProcessorSessions()->run();
+		}
+
 		return true;
 	}
 
+	/**
+	 * Hooked to action wp_login
+	 *
+	 * @param $sUsername
+	 * @return bool
+	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpFunctionsProcessor()->getUserByUsername( $sUsername );
 		if ( !( $oUser instanceof WP_User ) ) {
@@ -114,7 +122,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	public function sendLoginEmailNotification( $oUser ) {
+	protected function sendLoginEmailNotification( $oUser ) {
 		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
