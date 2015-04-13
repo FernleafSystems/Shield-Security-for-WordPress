@@ -4,9 +4,9 @@ Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, audit trail, ithemes, better wp security, ddos, brute force, whitelist, blacklist, two-factor authentication, GASP, spam, automatic updates, lockdown, login, hack
-Requires at least: 3.2.0
+Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.6.0
+Stable tag: 4.6.1
 
 Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
@@ -257,6 +257,9 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.6 Series =
 *Released: 10th April, 2015*
 
+* **(v.1)**  FIX:       XMLRPC compatibility logic was preventing other non-XMLRPC related code from running.
+* **(v.1)**  UPDATED:   Plugin Badge styling
+* **(v.1)**  UPDATED:   Updated Czech(41%) and Spanish (60%) translations
 * **(v.0)**  ADDED:     New feature that displays the last login time for all users on the users listing page (User Management feature must be enabled).
 * **(v.0)**  ADDED:     **Completely optional** promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. [Learn More](http://icwp.io/5x)
 * **(v.0)**  UPDATED:   Updated Czech(38%) translations
