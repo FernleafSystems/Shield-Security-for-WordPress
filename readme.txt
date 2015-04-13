@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, audit trail, ithemes, better wp security, ddos, brute force, whitelist, blacklist, two-factor authentication, GASP, spam, automatic updates, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.6.0
+Stable tag: 4.6.1
 
 Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
 
