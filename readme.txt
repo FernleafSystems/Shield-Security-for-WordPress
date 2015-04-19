@@ -257,6 +257,8 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.6 Series =
 *Released: 10th April, 2015*
 
+* **(v.2)**  FIX:       Bug with the database table verification logic.
+* **(v.2)**  TRANSLATIONS: Updated Romanian (100%), Turkish (85%), Czech (53%)
 * **(v.1)**  FIX:       XMLRPC compatibility logic was preventing other non-XMLRPC related code from running.
 * **(v.1)**  UPDATED:   Plugin Badge styling
 * **(v.1)**  UPDATED:   Updated Czech(41%) and Spanish (60%) translations
