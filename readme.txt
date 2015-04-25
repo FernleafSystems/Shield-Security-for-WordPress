@@ -3,30 +3,35 @@ Contributors: paultgoodchild, dlgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, firewall, audit trail, ithemes, better wp security, ddos, brute force, whitelist, blacklist, two-factor authentication, GASP, spam, automatic updates, lockdown, login, hack
+Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.6.1
+Stable tag: 4.6.2
 
-Complete and Easy-To-Use WordPress Security. Unrestricted Access. No Premium Features.
+Complete, Easy-To-Use WordPress Security - Business grade user support, but with no "premium" restrictions
 
 == Description ==
 
-The WordPress Simple Firewall is the ultimate **professional** [WordPress Security System](http://icwp.io/wpsf09).
+The WordPress Security Firewall is the easiest to use, most reliable (it wont break your site!) [WordPress Security System](http://icwp.io/wpsf09) available today.
 
 What makes the Simple Security Firewall different?
 
 * All Features available to everyone - no premium version.
-* It's for everyone - beginners and professionals alike.
-* It protects itself - no-one can deactivate it, uninstall it, or change settings unless you allow it.
+* It won't ever break your website - you'll never get that horrible,
+	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
+* Plugin Self Protection - the only WordPress Security Plugin that protects against tampering.
+* Exclusive (free!) membership of a private security group where you can learn more about WordPress security.
+
+Don't let 'Simple Security' fool you - simple doesn't mean soft, it means easy to implement and uncomplicated protection.
+
 * It blocks malicious URLs and requests to your site.
 * It blocks **ALL** automated spambot comments.
-* It hides your login pages.
+* It hides your login page.
 * It prevents brute force attacks on your login and also any attempted automatic bot logins.
-* It forces users to truly identify themselves using 2-Factor Authentication.
-* It creates true WordPress User Sessions so you can monitor user activity and restrict username sharing.
-* It displays an audit trail so you can see exactly what's going on with your site.
-* It lets you properly manage WordPress Automatic Updates.
+* You can be sure that users are who they say they are (with Two-Factor Authentication)
+* You can monitor user login activity and restrict username sharing (with User Sessions Management)
+* You can see exactly what's going on with your site (with a detailed Audit Trail Log)
+* You can turn on and turn off WordPress Automatic Updates.
 * Easy to use kill switch to temporarily turn off all Firewall Features without disabling the plugin or even logging into WordPress.
 
 = Plugin Admin Access Protection =
@@ -150,9 +155,9 @@ Please see the dedicated [help centre](http://icwp.io/firewallhelp) for details 
 
 = How does the Simple Security Firewall compare with other WordPress Security Plugins? =
 
-Simple, we're just better! ;)
+Easy - we're just better! ;)
 
-We don't have a pay-wall - there is no premium version. You get everything that we develop on this plugin.
+We don't have a premium version and we offer full support - see our [Reviews for our users' opinions](https://wordpress.org/support/view/plugin-reviews/wp-simple-firewall)!
 
 Secondly, we don't modify a single core WordPress or web hosting file. This is important and explains why randomly you upgrade your security plugin and your site dies.
 
@@ -258,7 +263,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *Released: 10th April, 2015*
 
 * **(v.2)**  FIX:       Bug with the database table verification logic.
-* **(v.2)**  TRANSLATIONS: Updated Romanian (100%), Turkish (85%), Czech (53%)
+* **(v.2)**  TRANSLATIONS: Russian (New- 54%), Romanian (100%), Turkish (89%), Czech (53%)
 * **(v.1)**  FIX:       XMLRPC compatibility logic was preventing other non-XMLRPC related code from running.
 * **(v.1)**  UPDATED:   Plugin Badge styling
 * **(v.1)**  UPDATED:   Updated Czech(41%) and Spanish (60%) translations
