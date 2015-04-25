@@ -165,12 +165,8 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 			$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
-			foreach( $aColumnsByDefinition as $sDefinedColumns ) {
-				if ( !in_array( $sDefinedColumns, $aActualColumns ) ) {
-					return false;
-				}
-			}
-			return true;
+			return ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
+					 && ( count( array_diff( $aColumnsByDefinition, $aActualColumns ) ) <= 0 ) );
 		}
 
 		abstract protected function getTableColumnsByDefinition();

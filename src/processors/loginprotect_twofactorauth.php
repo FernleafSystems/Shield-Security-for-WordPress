@@ -83,7 +83,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @param WP_User $oUser
 		 * @return boolean
 		 */
-		public function getUserHasValidAuth( $oUser ) {
+		protected function getUserHasValidAuth( $oUser ) {
 
 			$fVerified = false;
 			$aUserAuthData = $this->query_GetActiveAuthForUser( $oUser );
@@ -228,7 +228,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				'wp_username'	=> $sUsername
 			);
 			$this->query_DoMakePendingLoginAuthActive( $aWhere );
-
 			// 3. Set Auth Cookie
 			$this->setAuthActiveCookie( $sUniqueId );
 
