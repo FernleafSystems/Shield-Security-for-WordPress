@@ -499,6 +499,9 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 				$oDp->setCookie( 'icwp-isredirect', 'yes', 7 );
 			}
 
+			// based on: https://make.wordpress.org/plugins/2015/04/20/fixing-add_query_arg-and-remove_query_arg-usage/
+			// we now escape the URL to be absolutely sure since we can't guarantee the URL coming through there
+			$sUrl = esc_url_raw( $sUrl );
 			$bSafe ? wp_safe_redirect( $sUrl ) : wp_redirect( $sUrl );
 			exit();
 		}
