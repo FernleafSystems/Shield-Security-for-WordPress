@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.6.2
+Stable tag: 4.6.3
 
 Complete, Easy-To-Use WordPress Security - Business grade user support, but with no "premium" restrictions
 
@@ -262,6 +262,9 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.6 Series =
 *Released: 10th April, 2015*
 
+* **(v.3)**  SECURITY:  Added protection against XSS vulnerability in WordPress comments. [Learn More](http://icwp.io/63) - Note: This is not a vulnerability with the Firewall plugin.
+* **(v.3)**  SECURITY:  Added extra precautions to WordPress URL redirects. [Learn More](http://icwp.io/64).
+* **(v.3)**  TRANSLATIONS: Russian (70%), Czech (67%)
 * **(v.2)**  FIX:       Bug with the database table verification logic.
 * **(v.2)**  TRANSLATIONS: Russian (New- 54%), Romanian (100%), Turkish (89%), Czech (53%)
 * **(v.1)**  FIX:       XMLRPC compatibility logic was preventing other non-XMLRPC related code from running.
