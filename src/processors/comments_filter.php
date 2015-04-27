@@ -46,31 +46,6 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );
-
-		add_filter( 'pre_comment_content',				array( $this, 'applyContentSecurityFilters' ), 0, 1 );
-	}
-
-	/**
-	 * @param string $sCommentContent
-	 * @return string
-	 */
-	public function applyContentSecurityFilters( $sCommentContent ) {
-		$sCommentContent = $this->secXss64kb( $sCommentContent );
-		return $sCommentContent;
-	}
-
-	/**
-	 * Addresses this vulnerability: http://klikki.fi/adv/wordpress2.html
-	 *
-	 * @param string $sCommentContent
-	 * @return string
-	 */
-	protected function secXss64kb( $sCommentContent ) {
-		// Comments shouldn't be any longer than 64KB
-		if ( strlen( $sCommentContent ) >= ( 64 * 1024 - 1 ) ) {
-			$sCommentContent = 'WordPress Simple Firewall escaped HTML for this comment due to its size: '. esc_html( $sCommentContent );
-		}
-		return $sCommentContent;
 	}
 
 	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {
