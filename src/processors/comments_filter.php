@@ -68,7 +68,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 	protected function secXss64kb( $sCommentContent ) {
 		// Comments shouldn't be any longer than 64KB
 		if ( strlen( $sCommentContent ) >= ( 64 * 1024 - 1 ) ) {
-			$sCommentContent = 'WordPress Simple Firewall escaped JS for this comment due to its size: '. esc_js( $sCommentContent );
+			$sCommentContent = 'WordPress Simple Firewall escaped HTML for this comment due to its size: '. esc_html( $sCommentContent );
 		}
 		return $sCommentContent;
 	}
