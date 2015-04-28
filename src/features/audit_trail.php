@@ -41,18 +41,38 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 			/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 			$oAuditTrail = $this->loadFeatureProcessor();
-			$aData = array(
-				'nYourIp'			=> $this->loadDataProcessor()->getVisitorIpAddress( true ),
-				'sFeatureName'		=> _wpsf__('Audit Trail Viewer'),
-				'aAuditDataUsers'	=> $oAuditTrail->getAuditEntriesForContext( 'users' ),
-				'aAuditDataPlugins'	=> $oAuditTrail->getAuditEntriesForContext( 'plugins' ),
-				'aAuditDataThemes'	=> $oAuditTrail->getAuditEntriesForContext( 'themes' ),
-				'aAuditDataWordpress'	=> $oAuditTrail->getAuditEntriesForContext( 'wordpress' ),
-				'aAuditDataPosts'	=> $oAuditTrail->getAuditEntriesForContext( 'posts' ),
-				'aAuditDataEmails'	=> $oAuditTrail->getAuditEntriesForContext( 'emails' ),
-				'aAuditDataWpsf'	=> $oAuditTrail->getAuditEntriesForContext( 'wpsf' )
+
+			$aContexts = array(
+				'users',
+				'plugins',
+				'themes',
+				'wordpress',
+				'posts',
+				'emails',
+				'wpsf'
 			);
-			$this->display( $aData, 'subfeature-audit_trail_viewer' );
+
+			$aDisplayData = array(
+				'nYourIp'			=> $this->loadDataProcessor()->getVisitorIpAddress( true ),
+				'sFeatureName'		=> _wpsf__('Audit Trail Viewer')
+			);
+
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sTimeFormat = $oWp->getOption( 'time_format' );
+			$sDateFormat = $oWp->getOption( 'date_format' );
+
+			foreach( $aContexts as $sContext ) {
+				$aAuditData = $oAuditTrail->getAuditEntriesForContext( $sContext );
+
+				if ( is_array( $aAuditData ) ) {
+					foreach( $aAuditData as $aAuditEntry ) {
+						$aAuditEntry[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aAuditEntry[ 'created_at' ] );
+					}
+				}
+				$aDisplayData[ 'aAuditData' . ucfirst( $sContext ) ] = $aAuditData;
+			}
+
+			$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
 		}
 		/**
 		 * @return string

@@ -19,7 +19,7 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 		</tr>
 		<?php foreach( $aAuditData as $aAuditEntry ) : ?>
 			<tr>
-				<td><?php echo date( 'Y/m/d', $aAuditEntry['created_at'] ).'<br />'.date( 'H:i:s', $aAuditEntry['created_at'] ); ?></td>
+				<td><?php echo $aAuditEntry['created_at']; ?></td>
 				<td><?php echo $aAuditEntry['event']; ?></td>
 				<td><?php echo $aAuditEntry['message']; ?></td>
 				<td><?php echo $aAuditEntry['wp_username']; ?></td>
