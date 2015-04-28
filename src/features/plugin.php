@@ -37,13 +37,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_Plugin';
-		}
-
-		/**
 		 */
 		public function doClearAdminFeedback() {
 			$this->setOpt( 'feedback_admin_notice', array() );

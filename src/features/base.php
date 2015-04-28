@@ -157,7 +157,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * Override this and adapt per feature
 		 * @return string
 		 */
-		abstract protected function getProcessorClassName();
+		protected function getProcessorClassName() {
+			return ucwords( $this->getController()->getOptionStoragePrefix() ).'Processor_'.
+				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
+		}
 
 		/**
 		 * @return ICWP_WPSF_OptionsVO

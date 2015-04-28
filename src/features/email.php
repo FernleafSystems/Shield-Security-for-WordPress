@@ -22,13 +22,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 	class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_Base {
 
 		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_Email';
-		}
-
-		/**
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {

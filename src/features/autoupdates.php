@@ -22,13 +22,6 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 	class ICWP_WPSF_FeatureHandler_Autoupdates_V3 extends ICWP_WPSF_FeatureHandler_Base {
 
 		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_Autoupdates';
-		}
-
-		/**
 		 * this feature doesn't need to consider IP whitelists - it has no security implications.
 		 */
 		protected function doExecuteProcessor() {

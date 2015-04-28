@@ -23,13 +23,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	private $bHasPermissionToSubmit;
 
-	/**
-	 * @return string
-	 */
-	protected function getProcessorClassName() {
-		return 'ICWP_WPSF_Processor_AdminAccessRestriction';
-	}
-
 	protected function doExecuteProcessor() {
 		if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 			parent::doExecuteProcessor();

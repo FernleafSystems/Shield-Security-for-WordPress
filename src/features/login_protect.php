@@ -21,13 +21,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Base {
 
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_LoginProtect';
-		}
-
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();

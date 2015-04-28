@@ -21,13 +21,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_Base {
 
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_CommentsFilter';
-		}
-
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
