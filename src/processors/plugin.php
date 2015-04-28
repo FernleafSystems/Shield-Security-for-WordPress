@@ -31,15 +31,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oCon = $this->getController();
 
 			$this->removePluginConflicts();
 			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 
-			if ( $oCon->getIsValidAdminArea() ) {
+			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
+				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
+			}
+		}
 
+		/**
+		 */
+		public function addToAdminNotices() {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( $oFO->getController()->getIsValidAdminArea() ) {
+				$oCon = $this->getController();
 				// always show this notice
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeFeedback' ) );
@@ -52,10 +62,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				if ( $oCon->getIsPage_PluginAdmin() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
 				}
-			}
-
-			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
-				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
 			}
 		}
 

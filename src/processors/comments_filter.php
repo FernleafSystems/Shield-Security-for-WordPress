@@ -40,12 +40,21 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 			$oHumanSpamProcessor->run();
 		}
 
-		// Warning notice about akismet clashing
-		add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
-
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );
+	}
+
+	/**
+	 */
+	public function addToAdminNotices() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeatureOptions();
+
+		// Warning notice about akismet clashing
+		if ( $oFO->getController()->getIsValidAdminArea() ) {
+			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
+		}
 	}
 
 	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {
