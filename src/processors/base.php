@@ -147,7 +147,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 				}
 
 				$this->aAuditEntry = array(
-					'created_at' => $this->loadDataProcessor()->GetRequestTime(),
+					'created_at' => $this->time(),
 					'wp_username' => $sWpUsername,
 					'context' => 'wpsf',
 					'event' => $sEvent,
@@ -198,7 +198,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$oWp = $this->loadWpFunctionsProcessor();
 			$oCurrentUser = $oWp->getCurrentWpUser();
 			$this->aAuditEntry = array(
-				'created_at' => $this->loadDataProcessor()->GetRequestTime(),
+				'created_at' => $this->time(),
 				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),
 				'context' => 'wpsf',
 				'event' => $sEvent,
