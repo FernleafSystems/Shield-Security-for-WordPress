@@ -71,6 +71,94 @@ function printAllPluginOptionsForm( $inaAllPluginOptions, $insVarPrefix = '', $i
 
 }
 
+function printAllPluginOptionsFormTabs( $inaAllPluginOptions, $insVarPrefix = '', $iOptionsPerRow = 1 ) {
+
+	if ( empty($inaAllPluginOptions) ) {
+		return;
+	}
+
+
+	$iRowWidth = 8; //8 spans.
+	$iOptionWidth = $iRowWidth / $iOptionsPerRow;
+
+	$nTabCount = 1;
+	//Take each Options Section in turn
+	?><ul class="nav nav-tabs"><?php
+	foreach ( $inaAllPluginOptions as $sOptionSection ) {
+		?>
+		<li class="<?php echo ( $nTabCount == 1 )? 'active' : '' ?>">
+			<a href="#<?php echo $sOptionSection['section_slug'] ?>" data-toggle="tab" >
+				<?php echo $sOptionSection['section_title_short']; ?>
+			</a>
+		</li>
+		<?php
+		$nTabCount++;
+	}
+	?></ul><?php
+
+	$nTabCount = 1;
+	?><div class="tab-content"><?php
+	foreach ( $inaAllPluginOptions as $sOptionSection ) {
+
+		$aTabClasses = array( 'tab-pane', 'fade' );
+		if ( $nTabCount == 1 ) {
+			$aTabClasses[] = 'active';
+			$aTabClasses[] = 'in';
+		}
+		if ( isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'] ) {
+			$aTabClasses[] = ( isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'] ) ? 'primary_section' : 'non_primary_section';
+		}
+
+		?><div class="tab-pane <?php echo implode( ' ', $aTabClasses ); ?>" id="<?php echo $sOptionSection['section_slug'] ?>"><?php
+
+		$fIsPrimarySection = isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'];
+
+		$sRowId = str_replace( array(' ',':'), '', $sOptionSection['section_title'] );
+		//Print the Section Title
+		echo '
+				<div class="row option_section_row '.( $fIsPrimarySection? 'primary_section' : 'non_primary_section' ).'" id="'.$sRowId.'">
+					<div class="span'.( $fIsPrimarySection? '9' : '9' ).'">
+						<fieldset>
+							<legend>'.$sOptionSection['section_title'].'</legend>
+		';
+
+		$rowCount = 1;
+		$iOptionCount = 0;
+		//Print each option in the option section
+		foreach ( $sOptionSection['section_options'] as $aOption ) {
+
+			$iOptionCount = $iOptionCount % $iOptionsPerRow;
+
+			if ( $iOptionCount == 0 ) {
+				echo '
+				<div class="row row_number_'.$rowCount.'">';
+			}
+
+			echo getPluginOptionSpan( $aOption, $iOptionWidth, $insVarPrefix );
+
+			$iOptionCount++;
+
+			if ( $iOptionCount == $iOptionsPerRow ) {
+				echo '
+				</div> <!-- / options row -->';
+				$rowCount++;
+			}
+
+		}//foreach option
+
+		echo '
+					</fieldset>
+				</div>
+			</div>
+		';
+
+		?></div><?php
+		$nTabCount++;
+	}
+	?></div><?php
+
+}
+
 function getPluginOptionSpan( $aOption, $nSpanSize, $insVarPrefix = '' ) {
 	
 	$sOptionKey = $aOption['key'];

@@ -1,32 +1,10 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Base {
-
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_LoginProtect';
-		}
 
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
@@ -72,36 +50,44 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 				case 'section_enable_plugin_feature_login_protection' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_bypass_login_protection' :
 					$sTitle = _wpsf__( 'By-Pass Login Protection' );
+					$sTitleShort = _wpsf__( 'By-Pass' );
 					break;
 
 				case 'section_rename_wplogin' :
 					$sTitle = _wpsf__( 'Rename WP Login Page' );
+					$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 					break;
 
 				case 'section_two_factor_authentication' :
 					$sTitle = _wpsf__('Two-Factor Authentication');
+					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					break;
 
 				case 'section_brute_force_login_protection' :
 					$sTitle = _wpsf__('Brute Force Login Protection');
+					$sTitleShort = _wpsf__( 'Brute Force' );
 					break;
 
 				case 'section_yubikey_authentication' :
 					$sTitle = _wpsf__('Yubikey Authentication');
+					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
 				case 'section_login_logging' :
-					$sTitle = _wpsf__('Logging');
+					$sTitle = _wpsf__( 'Logging' );
+					$sTitleShort = _wpsf__( 'Logging' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

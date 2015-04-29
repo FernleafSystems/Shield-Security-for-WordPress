@@ -1,19 +1,4 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
@@ -34,13 +19,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		public function fIsPluginGloballyEnabled( $bOverrideOff ) {
 			return $bOverrideOff || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
-		}
-
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_Plugin';
 		}
 
 		/**
@@ -217,16 +195,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 				case 'section_global_security_options' :
 					$sTitle = _wpsf__( 'Global Plugin Security Options' );
+					$sTitleShort = _wpsf__( 'Global Options' );
 					break;
 
 				case 'section_general_plugin_options' :
 					$sTitle = _wpsf__( 'General Plugin Options' );
+					$sTitleShort = _wpsf__( 'General Options' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

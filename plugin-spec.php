@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '4.6.3'
+  version: '4.7.0'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
   human_name: 'WordPress Simple Firewall'
@@ -26,6 +26,8 @@ includes:
       - bootstrap-wpadmin-legacy
       - bootstrap-wpadmin-fixes
       - plugin
+    js:
+      - bootstrap.min
   frontend:
     css:
 

@@ -1,32 +1,10 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_Autoupdates_V3 extends ICWP_WPSF_FeatureHandler_Base {
-
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_Autoupdates';
-		}
 
 		/**
 		 * this feature doesn't need to consider IP whitelists - it has no security implications.
@@ -61,28 +39,34 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 
 				case 'section_enable_plugin_feature_automatic_updates_control' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_disable_all_wordpress_automatic_updates' :
-					$sTitle = _wpsf__('Disable ALL WordPress Automatic Updates');
+					$sTitle = _wpsf__( 'Disable ALL WordPress Automatic Updates' );
+					$sTitleShort = _wpsf__( 'Turn Off' );
 					break;
 
 				case 'section_automatic_plugin_self_update' :
-					$sTitle = _wpsf__('Automatic Plugin Self-Update');
+					$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
+					$sTitleShort = _wpsf__( 'Self-Update' );
 					break;
 
 				case 'section_automatic_updates_for_wordpress_components' :
-					$sTitle = _wpsf__('Automatic Updates For WordPress Components');
+					$sTitle = _wpsf__( 'Automatic Updates For WordPress Components' );
+					$sTitleShort = _wpsf__( 'WordPress Components' );
 					break;
 
 				case 'section_automatic_update_email_notifications' :
-					$sTitle = _wpsf__('Automatic Update Email Notifications');
+					$sTitle = _wpsf__( 'Automatic Update Email Notifications' );
+					$sTitleShort = _wpsf__( 'Notifications' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

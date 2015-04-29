@@ -1,19 +1,4 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
@@ -31,15 +16,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oCon = $this->getController();
 
 			$this->removePluginConflicts();
 			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 
-			if ( $oCon->getIsValidAdminArea() ) {
+			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
+				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
+			}
+		}
 
+		/**
+		 */
+		public function addToAdminNotices() {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( $oFO->getController()->getIsValidAdminArea() ) {
+				$oCon = $this->getController();
 				// always show this notice
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeFeedback' ) );
@@ -52,10 +47,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				if ( $oCon->getIsPage_PluginAdmin() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
 				}
-			}
-
-			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
-				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
 			}
 		}
 

@@ -1,20 +1,4 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
 
 if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
@@ -43,8 +27,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'admin_notices' ), array( $this, 'fGetAdminNotices' ) );
+			add_action( 'init', array( $this, 'addToAdminNotices' ) );
 			$this->reset();
 		}
+
+		public function addToAdminNotices() { }
 
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
@@ -147,7 +134,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 				}
 
 				$this->aAuditEntry = array(
-					'created_at' => $this->loadDataProcessor()->GetRequestTime(),
+					'created_at' => $this->time(),
 					'wp_username' => $sWpUsername,
 					'context' => 'wpsf',
 					'event' => $sEvent,
@@ -198,7 +185,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$oWp = $this->loadWpFunctionsProcessor();
 			$oCurrentUser = $oWp->getCurrentWpUser();
 			$this->aAuditEntry = array(
-				'created_at' => $this->loadDataProcessor()->GetRequestTime(),
+				'created_at' => $this->time(),
 				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),
 				'context' => 'wpsf',
 				'event' => $sEvent,

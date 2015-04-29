@@ -398,11 +398,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
 			if ( isset( $aAdminJs['js'] ) && !empty( $aAdminJs['js'] ) && is_array( $aAdminJs['js'] ) ) {
+				$sDependent = false;
 				foreach( $aAdminJs['js'] as $sJsAsset ) {
-					$sUnique = $this->doPluginPrefix( $sJsAsset );
-					wp_register_script( $sUnique, $this->getPluginUrl_Js( $sJsAsset.'.js' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
-					wp_enqueue_script( $sUnique );
-					$sDependent = $sUnique;
+					$sUrl = $this->getPluginUrl_Js( $sJsAsset . '.js' );
+					if ( !empty( $sUrl ) ) {
+						$sUnique = $this->doPluginPrefix( $sJsAsset );
+						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_enqueue_script( $sUnique );
+						$sDependent = $sUnique;
+					}
 				}
 			}
 		}
@@ -415,11 +419,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminCss['css'] ) && !empty( $aAdminCss['css'] ) && is_array( $aAdminCss['css'] ) ) {
+				$sDependent = false;
 				foreach( $aAdminCss['css'] as $sCssAsset ) {
-					$sUnique = $this->doPluginPrefix( $sCssAsset );
-					wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
-					wp_enqueue_style( $sUnique );
-					$sDependent = $sUnique;
+					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
+					if ( !empty( $sUrl ) ) {
+						$sUnique = $this->doPluginPrefix( $sCssAsset );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_enqueue_style( $sUnique );
+						$sDependent = $sUnique;
+					}
 				}
 			}
 		}
@@ -427,11 +435,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'plugin_admin' );
 			if ( isset( $aAdminCss['css'] ) && !empty( $aAdminCss['css'] ) && is_array( $aAdminCss['css'] ) ) {
+				$sDependent = false;
 				foreach( $aAdminCss['css'] as $sCssAsset ) {
-					$sUnique = $this->doPluginPrefix( $sCssAsset );
-					wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
-					wp_enqueue_style( $sUnique );
-					$sDependent = $sUnique;
+					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
+					if ( !empty( $sUrl ) ) {
+						$sUnique = $this->doPluginPrefix( $sCssAsset );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_enqueue_style( $sUnique );
+						$sDependent = $sUnique;
+					}
 				}
 			}
 		}

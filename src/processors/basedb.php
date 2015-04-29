@@ -1,20 +1,4 @@
 <?php
-/**
- * Copyright (c) 2015 iControlWP <support@icontrolwp.com>
- * All rights reserved.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
 
 if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
@@ -44,12 +28,12 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 			$this->setTableName( $sTableName );
 			$this->createCleanupCron();
 			$this->initializeTable();
-			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteDatabase' )  );
+			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteTable' )  );
 		}
 
 		/**
 		 */
-		public function deleteDatabase() {
+		public function deleteTable() {
 			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true ) && $this->getTableExists() ) {
 				$this->deleteCleanupCron();
 				$this->loadDbProcessor()->doDropTable( $this->getTableName() );
@@ -88,7 +72,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 		/**
 		 * @param array $aData
-		 *
 		 * @return bool|int
 		 */
 		public function insertData( $aData ) {
@@ -162,7 +145,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		 * @return bool
 		 */
 		protected function tableIsValid() {
-
 			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 			$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
 			return ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
