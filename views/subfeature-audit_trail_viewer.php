@@ -19,12 +19,12 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 		</tr>
 		<?php foreach( $aAuditData as $aAuditEntry ) : ?>
 			<tr>
-				<td><?php echo $aAuditEntry['created_at']; ?></td>
-				<td><?php echo $aAuditEntry['event']; ?></td>
-				<td><?php echo $aAuditEntry['message']; ?></td>
-				<td><?php echo $aAuditEntry['wp_username']; ?></td>
-				<td><?php echo $aAuditEntry['category']; ?></td>
-				<td>
+				<td class="cell-time"><?php echo $aAuditEntry['created_at']; ?></td>
+				<td class="cell-event"><?php echo $aAuditEntry['event']; ?></td>
+				<td class="cell-message"><?php echo $aAuditEntry['message']; ?></td>
+				<td class="cell-username"><?php echo $aAuditEntry['wp_username']; ?></td>
+				<td class="cell-category"><?php echo $aAuditEntry['category']; ?></td>
+				<td class="cell-ip">
 					<?php echo $aAuditEntry['ip']; ?>
 					<?php echo ( $nYourIp == $aAuditEntry['ip'] ) ? '<br />('._wpsf__('You').')' : ''; ?>
 				</td>
@@ -35,7 +35,7 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 }
 ?>
 <div class="row">
-	<div class="<?php echo $icwp_fShowAds? 'span9' : 'span12'; ?>">
+	<div class="<?php echo $icwp_fShowAds? 'span10' : 'span12'; ?>">
 
 		<?php printAuditTrailTable( _wpsf__( 'WordPress Simple Firewall' ), $icwp_aAuditDataWpsf, $icwp_nYourIp ); ?>
 		<?php printAuditTrailTable( _wpsf__( 'Users' ), $icwp_aAuditDataUsers, $icwp_nYourIp ); ?>
@@ -66,28 +66,6 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 	h4.table-title {
 		font-size: 20px;
 		margin: 20px 0 10px 5px;
-	}
-	table.table.table-audit_trail {
-		border: 2px solid #777777;
-		margin-bottom: 40px;
-	}
-	th.cell-time {
-		width: 90px;
-		max-width: 90px;
-	}
-	th.cell-username {
-		width: 120px;
-		max-width: 120px;
-	}
-	th.cell-event {
-		width: 150px;
-		max-width: 150px;
-	}
-	th.cell-category {
-		width: 80px;
-		max-width: 80px;
-	}
-	th.cell-message {
 	}
 	th {
 		background-color: white;

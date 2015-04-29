@@ -65,7 +65,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 				$aAuditData = $oAuditTrail->getAuditEntriesForContext( $sContext );
 
 				if ( is_array( $aAuditData ) ) {
-					foreach( $aAuditData as $aAuditEntry ) {
+					foreach( $aAuditData as &$aAuditEntry ) {
+						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', $aAuditEntry[ 'event' ] );
 						$aAuditEntry[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aAuditEntry[ 'created_at' ] );
 					}
 				}
