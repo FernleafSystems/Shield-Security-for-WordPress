@@ -44,12 +44,12 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 			$this->setTableName( $sTableName );
 			$this->createCleanupCron();
 			$this->initializeTable();
-			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteDatabase' )  );
+			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteTable' )  );
 		}
 
 		/**
 		 */
-		public function deleteDatabase() {
+		public function deleteTable() {
 			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true ) && $this->getTableExists() ) {
 				$this->deleteCleanupCron();
 				$this->loadDbProcessor()->doDropTable( $this->getTableName() );
@@ -88,7 +88,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 		/**
 		 * @param array $aData
-		 *
 		 * @return bool|int
 		 */
 		public function insertData( $aData ) {
@@ -162,7 +161,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		 * @return bool
 		 */
 		protected function tableIsValid() {
-
 			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 			$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
 			return ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0

@@ -17,7 +17,7 @@ $sOff = _wpsf__( 'Off' );
 ?>
 
 <div class="wrap">
-	<div class="bootstrap-wpadmin <?php echo isset($icwp_sFeatureSlug) ? $icwp_sFeatureSlug : ''; ?>">
+	<div class="bootstrap-wpadmin <?php echo isset($icwp_sFeatureSlug) ? $icwp_sFeatureSlug : ''; ?> icwp-options-page">
 		<div class="row">
 			<div class="span12">
 				<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>

@@ -40,37 +40,21 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 			$oHumanSpamProcessor->run();
 		}
 
-		// Warning notice about akismet clashing
-		add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
-
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );
-
-		add_filter( 'pre_comment_content',				array( $this, 'applyContentSecurityFilters' ), 0, 1 );
 	}
 
 	/**
-	 * @param string $sCommentContent
-	 * @return string
 	 */
-	public function applyContentSecurityFilters( $sCommentContent ) {
-		$sCommentContent = $this->secXss64kb( $sCommentContent );
-		return $sCommentContent;
-	}
+	public function addToAdminNotices() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeatureOptions();
 
-	/**
-	 * Addresses this vulnerability: http://klikki.fi/adv/wordpress2.html
-	 *
-	 * @param string $sCommentContent
-	 * @return string
-	 */
-	protected function secXss64kb( $sCommentContent ) {
-		// Comments shouldn't be any longer than 64KB
-		if ( strlen( $sCommentContent ) >= ( 64 * 1024 - 1 ) ) {
-			$sCommentContent = 'WordPress Simple Firewall escaped HTML for this comment due to its size: '. esc_html( $sCommentContent );
+		// Warning notice about akismet clashing
+		if ( $oFO->getController()->getIsValidAdminArea() ) {
+			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
 		}
-		return $sCommentContent;
 	}
 
 	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {

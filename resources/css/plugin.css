@@ -8,10 +8,10 @@
 	margin-left: 0;
 }
 #pluginlogo_32 {
-	background: url("../images/pluginlogo_32x32.png") no-repeat 0px 3px transparent;
+	background: url("../images/pluginlogo_32x32.png") no-repeat 0 3px transparent;
 }
 .pluginlogo_16 {
-	background: url("../images/pluginlogo_16x16.png") no-repeat 0px 3px transparent;
+	background: url("../images/pluginlogo_16x16.png") no-repeat 0 3px transparent;
 }
 .page-header .header-icon32 {
 	display: inline-block;
@@ -26,6 +26,73 @@
 .wrap .icon32 {
 	width: 32px;
 }
+
+.icwp-options-page ul.nav-tabs {
+	margin: 0;
+}
+.icwp-options-page ul.nav-tabs li a {
+	background-color: #e3e3e3;
+	border: 1px solid transparent;
+	border-bottom: 0 none;
+	margin-left: 5px;
+}
+.icwp-options-page ul.nav-tabs li a:focus {
+	box-shadow: none;
+}
+.icwp-options-page ul.nav-tabs li a:hover {
+	background-color: #dddddd;
+	border-color: #999999;
+}
+.icwp-options-page .tab-content {
+	background-color: #ffffff;
+	border: 1px solid #dddddd;
+	border-top: 0 none;
+}
+
+.icwp-options-page .form-actions {
+	background-color: #d8d8d8;
+	border: 0 none;
+	border-radius: 0 0 10px 10px;
+	margin: 0;
+	padding: 27px;
+}
+.icwp-options-page .form-actions .btn {
+	padding: 16px 40px;
+}
+
+table.table-audit_trail {
+	border: 2px solid #777777;
+	margin-bottom: 40px;
+	width: auto;
+}
+
+table.table-audit_trail .cell-time {
+	width: 90px;
+	max-width: 90px;
+}
+table.table-audit_trail .cell-username {
+	width: 120px;
+	max-width: 120px;
+}
+table.table-audit_trail .cell-event {
+	width: 100px;
+	max-width: 100px;
+}
+table.table-audit_trail .cell-category {
+	width: 80px;
+	max-width: 80px;
+}
+table.table-audit_trail .cell-message {
+	width: 200px;
+	max-width: 250px;
+}
+table.table-audit_trail .cell-ip {
+	width: 200px;
+	max-width: 240px;
+}
+
+
+
 .bootstrap-wpadmin .page-header {
 	padding-bottom: 17px;
 	margin: 18px 0 0;
@@ -55,7 +122,7 @@ p.code-description {
 	height: 190px;
 }
 #worpit_button:hover {
-	box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
 	border: 1px solid transparent;
 }
 .row#developer_channel_promo #developer_channel_description .well {
@@ -71,13 +138,12 @@ p.code-description {
 }
 
 .row.option_section_row {
-	margin-left: 0px;
+	margin-left: 0;
+	padding-bottom: 24px;
 }
 .row.option_section_row.primary_section {
-	background-color: #f9f9f9;
 	border: 1px solid transparent;
 	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-	margin-bottom: 20px;
 	padding-bottom: 30px;
 }
 /*
@@ -179,7 +245,6 @@ table.tbl_tbs_options tr td {
 select#hlt_bootstrap_option {
 	padding: 5px;
 	border-radius:6px 6px 6px 6px;
-	line-height: auto;
 	height: 30px;
 	width: 200px;
 }

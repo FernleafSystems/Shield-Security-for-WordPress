@@ -184,10 +184,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		if ( empty( $this->sSessionId ) ) {
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oDp = $this->loadDataProcessor();
-			$this->sSessionId = $oDp->FetchCookie( $oFO->getUserSessionCookieName() );
+			$this->sSessionId = $this->loadDataProcessor()->FetchCookie( $oFO->getUserSessionCookieName() );
 			if ( empty( $this->sSessionId ) ) {
-				$this->sSessionId = md5( uniqid() );
+				$this->sSessionId = $oFO->getController()->getSessionId();
 				$this->setSessionCookie();
 			}
 		}

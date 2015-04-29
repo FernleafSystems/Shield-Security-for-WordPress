@@ -43,8 +43,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'admin_notices' ), array( $this, 'fGetAdminNotices' ) );
+			add_action( 'init', array( $this, 'addToAdminNotices' ) );
 			$this->reset();
 		}
+
+		public function addToAdminNotices() { }
 
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
@@ -147,7 +150,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 				}
 
 				$this->aAuditEntry = array(
-					'created_at' => $this->loadDataProcessor()->GetRequestTime(),
+					'created_at' => $this->time(),
 					'wp_username' => $sWpUsername,
 					'context' => 'wpsf',
 					'event' => $sEvent,
@@ -198,7 +201,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$oWp = $this->loadWpFunctionsProcessor();
 			$oCurrentUser = $oWp->getCurrentWpUser();
 			$this->aAuditEntry = array(
-				'created_at' => $this->loadDataProcessor()->GetRequestTime(),
+				'created_at' => $this->time(),
 				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),
 				'context' => 'wpsf',
 				'event' => $sEvent,

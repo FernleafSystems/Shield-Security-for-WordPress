@@ -21,13 +21,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_AuditTrail_V1 extends ICWP_WPSF_FeatureHandler_Base {
 
-		/**
-		 * @return string
-		 */
-		protected function getProcessorClassName() {
-			return 'ICWP_WPSF_Processor_AuditTrail';
-		}
-
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
@@ -48,18 +41,39 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 			/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 			$oAuditTrail = $this->loadFeatureProcessor();
-			$aData = array(
-				'nYourIp'			=> $this->loadDataProcessor()->getVisitorIpAddress( true ),
-				'sFeatureName'		=> _wpsf__('Audit Trail Viewer'),
-				'aAuditDataUsers'	=> $oAuditTrail->getAuditEntriesForContext( 'users' ),
-				'aAuditDataPlugins'	=> $oAuditTrail->getAuditEntriesForContext( 'plugins' ),
-				'aAuditDataThemes'	=> $oAuditTrail->getAuditEntriesForContext( 'themes' ),
-				'aAuditDataWordpress'	=> $oAuditTrail->getAuditEntriesForContext( 'wordpress' ),
-				'aAuditDataPosts'	=> $oAuditTrail->getAuditEntriesForContext( 'posts' ),
-				'aAuditDataEmails'	=> $oAuditTrail->getAuditEntriesForContext( 'emails' ),
-				'aAuditDataWpsf'	=> $oAuditTrail->getAuditEntriesForContext( 'wpsf' )
+
+			$aContexts = array(
+				'users',
+				'plugins',
+				'themes',
+				'wordpress',
+				'posts',
+				'emails',
+				'wpsf'
 			);
-			$this->display( $aData, 'subfeature-audit_trail_viewer' );
+
+			$aDisplayData = array(
+				'nYourIp'			=> $this->loadDataProcessor()->getVisitorIpAddress( true ),
+				'sFeatureName'		=> _wpsf__('Audit Trail Viewer')
+			);
+
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sTimeFormat = $oWp->getOption( 'time_format' );
+			$sDateFormat = $oWp->getOption( 'date_format' );
+
+			foreach( $aContexts as $sContext ) {
+				$aAuditData = $oAuditTrail->getAuditEntriesForContext( $sContext );
+
+				if ( is_array( $aAuditData ) ) {
+					foreach( $aAuditData as &$aAuditEntry ) {
+						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', $aAuditEntry[ 'event' ] );
+						$aAuditEntry[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aAuditEntry[ 'created_at' ] );
+					}
+				}
+				$aDisplayData[ 'aAuditData' . ucfirst( $sContext ) ] = $aAuditData;
+			}
+
+			$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
 		}
 		/**
 		 * @return string
@@ -80,20 +94,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 				case 'section_enable_plugin_feature_audit_trail' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_audit_trail_options' :
 					$sTitle = _wpsf__( 'Audit Trail Options' );
+					$sTitleShort = _wpsf__( 'Options' );
 					break;
 
 				case 'section_enable_audit_contexts' :
 					$sTitle = _wpsf__( 'Enable Audit Contexts' );
+					$sTitleShort = _wpsf__( 'Audit Contexts' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

@@ -26,6 +26,8 @@ includes:
       - bootstrap-wpadmin-legacy
       - bootstrap-wpadmin-fixes
       - plugin
+    js:
+      - bootstrap.min
   frontend:
     css:
 
