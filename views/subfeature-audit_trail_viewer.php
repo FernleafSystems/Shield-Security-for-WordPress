@@ -35,7 +35,7 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 }
 ?>
 <div class="row">
-	<div class="<?php echo $icwp_fShowAds? 'span10' : 'span12'; ?>">
+	<div class="span12">
 
 		<?php printAuditTrailTable( _wpsf__( 'WordPress Simple Firewall' ), $icwp_aAuditDataWpsf, $icwp_nYourIp ); ?>
 		<?php printAuditTrailTable( _wpsf__( 'Users' ), $icwp_aAuditDataUsers, $icwp_nYourIp ); ?>
@@ -46,12 +46,6 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 		<?php printAuditTrailTable( _wpsf__( 'Emails' ), $icwp_aAuditDataEmails, $icwp_nYourIp ); ?>
 
 	</div><!-- / span9 -->
-
-	<?php if ( $icwp_fShowAds ) : ?>
-		<div class="span3" id="side_widgets">
-			<?php echo getWidgetIframeHtml('side-widgets-wtb'); ?>
-		</div>
-	<?php endif; ?>
 </div><!-- / row -->
 
 <div class="row">
