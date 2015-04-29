@@ -1,2 +1,1 @@
-<?php
-include_once( $sBaseDirName.'config-options-table.php' );
+<?php include_once( $sBaseDirName.'config-options-table.php' ); ?>
