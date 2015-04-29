@@ -463,7 +463,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 			if ( $oFs && $oFs->touch( $sFilePath, $nTime ) ) {
 				return true;
 			}
-			return function_exists( 'touch' ) ? touch( $sFilePath, $nTime ) : null;
+			return function_exists( 'touch' ) ? @touch( $sFilePath, $nTime ) : null;
 		}
 
 		/**
