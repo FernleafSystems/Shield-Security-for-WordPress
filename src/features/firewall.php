@@ -63,32 +63,39 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 
 				case 'section_enable_plugin_feature_wordpress_firewall' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_firewall_blocking_options' :
-					$sTitle = _wpsf__('Firewall Blocking Options');
+					$sTitle = _wpsf__( 'Firewall Blocking Options' );
+					$sTitleShort = _wpsf__( 'Firewall Blocking' );
 					break;
 
 				case 'section_choose_firewall_block_response' :
 					$sTitle = _wpsf__('Choose Firewall Block Response');
+					$sTitleShort = _wpsf__( 'Firewall Response' );
 					break;
 
 				case 'section_whitelist' :
 					$sTitle = _wpsf__('Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall');
+					$sTitleShort = _wpsf__( 'Whitelist' );
 					break;
 
 				case 'section_blacklist' :
 					$sTitle = _wpsf__('Choose IP Addresses To Blacklist');
+					$sTitleShort = _wpsf__( 'Blacklist' );
 					break;
 
 				case 'section_firewall_logging' :
-					$sTitle = _wpsf__('Firewall Logging Options');
+					$sTitle = _wpsf__( 'Firewall Logging Options' );
+					$sTitleShort = _wpsf__( 'Logging' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

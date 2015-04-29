@@ -69,28 +69,29 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 
 				case 'section_enable_plugin_feature_user_accounts_management' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_bypass_user_accounts_management' :
 					$sTitle = _wpsf__('By-Pass User Accounts Management');
+					$sTitleShort = _wpsf__( 'By-Pass' );
 					break;
 
 				case 'section_admin_login_notification' :
 					$sTitle = _wpsf__('Admin Login Notification');
+					$sTitleShort = _wpsf__( 'Notifications' );
 					break;
 
 				case 'section_user_session_management' :
 					$sTitle = _wpsf__('User Session Management');
-					break;
-
-				case 'section_automatic_update_email_notifications' :
-					$sTitle = _wpsf__('Automatic Update Email Notifications');
+					$sTitleShort = _wpsf__( 'Session Options' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

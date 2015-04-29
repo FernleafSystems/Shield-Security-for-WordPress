@@ -93,20 +93,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 				case 'section_enable_plugin_feature_audit_trail' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_audit_trail_options' :
 					$sTitle = _wpsf__( 'Audit Trail Options' );
+					$sTitleShort = _wpsf__( 'Options' );
 					break;
 
 				case 'section_enable_audit_contexts' :
 					$sTitle = _wpsf__( 'Enable Audit Contexts' );
+					$sTitleShort = _wpsf__( 'Audit Contexts' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

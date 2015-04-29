@@ -133,16 +133,19 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_admin_access_restriction_settings' :
 				$sTitle = _wpsf__( 'Admin Access Restriction Settings' );
+				$sTitleShort = _wpsf__( 'Access Restriction Settings' );
 				break;
 
 			default:
 				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams['section_title'] = $sTitle;
+		$aOptionsParams['section_title_short'] = $sTitleShort;
 		return $aOptionsParams;
 	}
 

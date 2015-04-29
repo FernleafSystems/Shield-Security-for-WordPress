@@ -65,36 +65,44 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 				case 'section_enable_plugin_feature_login_protection' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_bypass_login_protection' :
 					$sTitle = _wpsf__( 'By-Pass Login Protection' );
+					$sTitleShort = _wpsf__( 'By-Pass' );
 					break;
 
 				case 'section_rename_wplogin' :
 					$sTitle = _wpsf__( 'Rename WP Login Page' );
+					$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 					break;
 
 				case 'section_two_factor_authentication' :
 					$sTitle = _wpsf__('Two-Factor Authentication');
+					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					break;
 
 				case 'section_brute_force_login_protection' :
 					$sTitle = _wpsf__('Brute Force Login Protection');
+					$sTitleShort = _wpsf__( 'Brute Force' );
 					break;
 
 				case 'section_yubikey_authentication' :
 					$sTitle = _wpsf__('Yubikey Authentication');
+					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
 				case 'section_login_logging' :
-					$sTitle = _wpsf__('Logging');
+					$sTitle = _wpsf__( 'Logging' );
+					$sTitleShort = _wpsf__( 'Logging' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

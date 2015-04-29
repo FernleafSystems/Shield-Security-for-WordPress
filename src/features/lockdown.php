@@ -39,20 +39,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 
 				case 'section_enable_plugin_feature_wordpress_lockdown' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_permission_access_options' :
-					$sTitle = _wpsf__('Permissions and Access Options');
+					$sTitle = _wpsf__( 'Permissions and Access Options' );
+					$sTitleShort = _wpsf__( 'Permissions' );
 					break;
 
 				case 'section_wordpress_obscurity_options' :
-					$sTitle = _wpsf__('WordPress Obscurity Options');
+					$sTitle = _wpsf__( 'WordPress Obscurity Options' );
+					$sTitleShort = _wpsf__( 'Obscurity' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

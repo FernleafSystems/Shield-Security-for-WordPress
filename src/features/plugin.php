@@ -210,16 +210,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 				case 'section_global_security_options' :
 					$sTitle = _wpsf__( 'Global Plugin Security Options' );
+					$sTitleShort = _wpsf__( 'Global Options' );
 					break;
 
 				case 'section_general_plugin_options' :
 					$sTitle = _wpsf__( 'General Plugin Options' );
+					$sTitleShort = _wpsf__( 'General Options' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 
