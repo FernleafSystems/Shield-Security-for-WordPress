@@ -26,6 +26,45 @@
 .wrap .icon32 {
 	width: 32px;
 }
+
+.icwp-options-page ul.nav-tabs {
+	margin: 0;
+}
+.icwp-options-page ul.nav-tabs li a {
+	background-color: #e3e3e3;
+	border: 1px solid transparent;
+	border-bottom: 0 none;
+	margin-right: 5px;
+}
+.icwp-options-page ul.nav-tabs li a:focus {
+	box-shadow: none;
+}
+.icwp-options-page ul.nav-tabs li a:hover {
+	background-color: #dddddd;
+	border-color: #999999;
+}
+.icwp-options-page .tab-content {
+	background-color: #ffffff;
+	border: 1px solid #dddddd;
+	border-top: 0 none;
+}
+
+.icwp-options-page .form-actions {
+	background-color: #d8d8d8;
+	border: 0 none;
+	border-radius: 0 0 10px 10px;
+	margin: 0;
+	padding: 27px;
+}
+.icwp-options-page .form-actions .btn {
+	padding: 16px 40px;
+}
+
+
+
+
+
+
 .bootstrap-wpadmin .page-header {
 	padding-bottom: 17px;
 	margin: 18px 0 0;
@@ -71,13 +110,12 @@ p.code-description {
 }
 
 .row.option_section_row {
-	margin-left: 0px;
+	margin-left: 0;
+	padding-bottom: 24px;
 }
 .row.option_section_row.primary_section {
-	background-color: #f9f9f9;
 	border: 1px solid transparent;
 	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-	margin-bottom: 20px;
 	padding-bottom: 30px;
 }
 /*
