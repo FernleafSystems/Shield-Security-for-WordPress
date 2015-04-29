@@ -269,6 +269,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 * **(v.0)**  FIX:       Audit trail time now reflects the user's timezone correctly.
 * **(v.0)**  FIX:       Better compatibility with BBPress.
 * **(v.0)**  UPDATED:   Underlying plugin code improvements.
+* **(v.0)**  TRANSLATIONS: Russian (100%), Czech (70%), Polish (97%)
 
 = 4.6 Series =
 *Released: 10th April, 2015*
