@@ -1,4 +1,4 @@
-=== WordPress Simple Security Firewall ===
+=== Simple Security Firewall ===
 Contributors: paultgoodchild, dlgoodchild 
 Donate link: http://icwp.io/q
 License: GPLv3
@@ -6,23 +6,26 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.6.3
+Stable tag: 4.7.0
 
-Complete, Easy-To-Use WordPress Security - Business grade user support, but with no "premium" restrictions
+Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
 == Description ==
 
-The WordPress Security Firewall is the easiest to use, most reliable (it wont break your site!) [WordPress Security System](http://icwp.io/wpsf09) available today.
+Are you looking to secure your WordPress site but without getting overwhelmed?
+
+The WordPress Security Firewall is the easiest to use, most reliable [WordPress Security System](http://icwp.io/wpsf09) available today.
 
 What makes the Simple Security Firewall different?
 
+* Easy-To-Setup Interface.
 * All Features available to everyone - no premium version.
 * It won't ever break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
 * Plugin Self Protection - the only WordPress Security Plugin that protects against tampering.
-* Exclusive (free!) membership of a private security group where you can learn more about WordPress security.
+* Exclusive membership to a private security group where you can learn more about WordPress security.
 
-Don't let 'Simple Security' fool you - simple doesn't mean soft, it means easy to implement and uncomplicated protection.
+Don't let **Simple** Security fool you - simple doesn't mean *soft*, it means easy to use, uncomplicated protection.
 
 * It blocks malicious URLs and requests to your site.
 * It blocks **ALL** automated spambot comments.
@@ -258,6 +261,14 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Screenshots ==
 
 == Changelog ==
+
+= 4.7 Series =
+*Released: 29th April, 2015*
+
+* **(v.0)**  UPDATED:   Options page user interface re-design.
+* **(v.0)**  FIX:       Audit trail time now reflects the user's timezone correctly.
+* **(v.0)**  FIX:       Better compatibility with BBPress.
+* **(v.0)**  UPDATED:   Underlying plugin code improvements.
 
 = 4.6 Series =
 *Released: 10th April, 2015*
