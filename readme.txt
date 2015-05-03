@@ -262,14 +262,20 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= Point Release 4.7.1 =
+*Released: 4th May, 2015*
+
+* **(v.1)**  FIX:           Silence warning from filesystem touch() command.
+* **(v.1)**  TRANSLATIONS:  Polish (100%), Finnish (100%), Czech (73%)
+
 = 4.7 Series =
 *Released: 29th April, 2015*
 
-* **(v.0)**  UPDATED:   Options page user interface re-design.
-* **(v.0)**  FIX:       Audit trail time now reflects the user's timezone correctly.
-* **(v.0)**  FIX:       Better compatibility with BBPress.
-* **(v.0)**  UPDATED:   Underlying plugin code improvements.
-* **(v.0)**  TRANSLATIONS: Russian (100%), Czech (70%), Polish (97%)
+* **(v.0)**  UPDATED:       Options page user interface re-design.
+* **(v.0)**  FIX:           Audit trail time now reflects the user's timezone correctly.
+* **(v.0)**  FIX:           Better compatibility with BBPress.
+* **(v.0)**  UPDATED:       Underlying plugin code improvements.
+* **(v.0)**  TRANSLATIONS:  Russian (100%), Czech (70%), Polish (97%)
 
 = 4.6 Series =
 *Released: 10th April, 2015*
