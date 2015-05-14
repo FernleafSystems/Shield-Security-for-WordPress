@@ -10,6 +10,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 		 */
 		public function run() {
 			add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
+			$this->revSliderPatch_LFI();
 		}
 
 		/**
@@ -24,6 +25,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 				$sCommentContent = 'WordPress Simple Firewall escaped HTML for this comment due to its size: '. esc_html( $sCommentContent );
 			}
 			return $sCommentContent;
+		}
+
+		protected function revSliderPatch_LFI() {
+			$oDp = $this->loadDataProcessor();
+
+			$sAction = $oDp->FetchGet( 'action', '' );
+			$sFileExt = strtolower( $oDp->getExtension( $oDp->FetchGet( 'img', '' ) ) ) ;
+			if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
+				$sPath = $oDp->getRequestPath();
+				if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
+					if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
+						die( 'RevSlider Local File Inclusion Attempt' );
+					}
+				}
+			}
 		}
 	}
 

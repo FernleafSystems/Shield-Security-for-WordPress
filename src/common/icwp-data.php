@@ -122,6 +122,14 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @return string URI Path in lowercase
+		 */
+		public function getRequestPath() {
+			$aParts = $this->getRequestUriParts();
+			return isset( $aParts[ 'path' ] ) ? strtolower( $aParts[ 'path' ] ) : '';
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getRequestUri() {
@@ -156,6 +164,15 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		public function getRawRequestParams( $bIncludeCookie = true ) {
 			$aParams = array_merge( $_GET, $_POST );
 			return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
+		}
+
+		/**
+		 * @param string $sPath
+		 * @return string
+		 */
+		public function getExtension( $sPath ) {
+			$nLastPeriod = strrpos( $sPath, '.' );
+			return ( $nLastPeriod === false ) ? $sPath : str_replace( '.', '', substr( $sPath, $nLastPeriod ) );
 		}
 
 		/**
