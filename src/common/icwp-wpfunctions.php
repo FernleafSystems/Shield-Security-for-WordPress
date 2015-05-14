@@ -871,6 +871,17 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * Flushes the Rewrite rules and forces a re-commit to the .htaccess where applicable
+		 */
+		public function resavePermalinks() {
+			/** @var WP_Rewrite $wp_rewrite */
+			global $wp_rewrite;
+			if ( is_object( $wp_rewrite ) ) {
+				$wp_rewrite->flush_rules( true );
+			}
+		}
+
+		/**
 		 * Updates the user meta data for the current (or supplied user ID)
 		 *
 		 * @param string $sKey
