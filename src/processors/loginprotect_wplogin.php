@@ -142,27 +142,17 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function isRealLogin() {
-		$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-		$sRequestPath = isset( $aRequestParts[ 'path' ] ) ? $aRequestParts[ 'path' ] : '';
-		$sLoginPath = $this->getLoginPath();
-		return trim( $sLoginPath, '/' ) === trim( $sRequestPath, '/' ) ;
-	}
-
-	/**
 	 * @return string|void
 	 */
 	public function aLoadWpLogin() {
-		if ( $this->isRealLogin() ) {
+		if ( $this->loadWpFunctionsProcessor()->getIsLoginUrl() ) {
 			@require_once( ABSPATH . 'wp-login.php' );
 			die();
 		}
 	}
 
 	public function aLoginFormAction() {
-		if ( !$this->isRealLogin() ) {
+		if ( !$this->loadWpFunctionsProcessor()->getIsLoginUrl() ) {
 			$this->do404();
 			die();
 		}

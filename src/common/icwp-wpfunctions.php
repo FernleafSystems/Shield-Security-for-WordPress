@@ -597,7 +597,9 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		public function getIsLoginUrl() {
 			$sLoginUrl = wp_login_url();
 			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-			return ( !empty( $aRequestParts['path'] ) && ( $aRequestParts['path'] == str_replace( home_url(), '', $sLoginUrl ) ) );
+
+			$aLoginUrlParts = @parse_url( $sLoginUrl );
+			return ( !empty( $aRequestParts['path'] ) && ( $aRequestParts['path'] == $aLoginUrlParts['path'] ) );
 		}
 
 		/**
@@ -868,6 +870,17 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 				}
 			}
 			return $this->oWpAutomaticUpdater;
+		}
+
+		/**
+		 * Flushes the Rewrite rules and forces a re-commit to the .htaccess where applicable
+		 */
+		public function resavePermalinks() {
+			/** @var WP_Rewrite $wp_rewrite */
+			global $wp_rewrite;
+			if ( is_object( $wp_rewrite ) ) {
+				$wp_rewrite->flush_rules( true );
+			}
 		}
 
 		/**

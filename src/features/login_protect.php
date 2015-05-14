@@ -22,10 +22,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				}
 			}
 
-			$sCustomLoginPath = $this->getOpt( 'rename_wplogin_path', '' );
+			$sCustomLoginPath = $this->getCustomLoginPath();
 			if ( !empty( $sCustomLoginPath ) ) {
 				$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
 				$this->setOpt( 'rename_wplogin_path', $sCustomLoginPath );
+				if ( strlen( $sCustomLoginPath ) > 0 ) {
+					$this->loadWpFunctionsProcessor()->resavePermalinks();
+				}
 			}
 
 			if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
@@ -36,6 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			if ( empty($aTwoFactorAuthRoles) || !is_array( $aTwoFactorAuthRoles ) ) {
 				$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
 			}
+
 		}
 
 		/**
