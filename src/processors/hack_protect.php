@@ -9,8 +9,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 		 * Override to set what this processor does when it's "run"
 		 */
 		public function run() {
+			$oDp = $this->loadDataProcessor();
+
+			$sPath = $oDp->getRequestPath();
+			if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
+				$this->revSliderPatch_LFI();
+				$this->revSliderPatch_AFU();
+			}
+
+			// not probably necessary any longer since it's patched in the Core
 			add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
-			$this->revSliderPatch_LFI();
 		}
 
 		/**
@@ -33,12 +41,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 			$sAction = $oDp->FetchGet( 'action', '' );
 			$sFileExt = strtolower( $oDp->getExtension( $oDp->FetchGet( 'img', '' ) ) ) ;
 			if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
-				$sPath = $oDp->getRequestPath();
-				if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
-					if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
-						die( 'RevSlider Local File Inclusion Attempt' );
-					}
+				if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
+					die( 'RevSlider Local File Inclusion Attempt' );
 				}
+			}
+		}
+
+		protected function revSliderPatch_AFU() {
+			$oDp = $this->loadDataProcessor();
+
+			$sAction = strtolower( $oDp->FetchRequest( 'action', '' ) );
+			$sClientAction = strtolower( $oDp->FetchRequest( 'client_action', '' ) );
+			if ( ( strpos( $sAction, 'revslider_ajax_action' ) !== false || strpos( $sAction, 'showbiz_ajax_action' ) !== false ) && $sClientAction == 'update_plugin' ) {
+				die( 'RevSlider Arbitrary File Upload Attempt' );
 			}
 		}
 	}
