@@ -12,6 +12,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 		}
 
+		/**
+		protected function doExtraSubmitProcessing() {
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sCustomLoginPath = $this->cleanLoginUrlPath();
+			if ( !empty( $sCustomLoginPath ) && $oWp->getIsPermalinksEnabled() ) {
+				$oWp->resavePermalinks();
+			}
+		}
+		 */
+
 		public function doPrePluginOptionsSave() {
 
 			// Prevent incompatibility
@@ -22,14 +32,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				}
 			}
 
-			$sCustomLoginPath = $this->getCustomLoginPath();
-			if ( !empty( $sCustomLoginPath ) ) {
-				$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
-				$this->setOpt( 'rename_wplogin_path', $sCustomLoginPath );
-				if ( strlen( $sCustomLoginPath ) > 0 ) {
-					$this->loadWpFunctionsProcessor()->resavePermalinks();
-				}
-			}
+			$this->cleanLoginUrlPath();
 
 			if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
 				$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
@@ -39,7 +42,18 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			if ( empty($aTwoFactorAuthRoles) || !is_array( $aTwoFactorAuthRoles ) ) {
 				$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
 			}
+		}
 
+		/**
+		 * @return string
+		 */
+		private function cleanLoginUrlPath() {
+			$sCustomLoginPath = $this->getCustomLoginPath();
+			if ( !empty( $sCustomLoginPath ) ) {
+				$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
+				$this->setOpt( 'rename_wplogin_path', $sCustomLoginPath );
+			}
+			return $sCustomLoginPath;
 		}
 
 		/**
