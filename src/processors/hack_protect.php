@@ -30,7 +30,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 		public function secXss64kb( $sCommentContent ) {
 			// Comments shouldn't be any longer than 64KB
 			if ( strlen( $sCommentContent ) >= ( 64 * 1024 ) ) {
-				$sCommentContent = 'WordPress Simple Firewall escaped HTML for this comment due to its size: '. esc_html( $sCommentContent );
+				$sCommentContent = sprintf( _wpsf__( '%s escaped HTML the following comment due to its size: %s' ), $this->getController()->getHumanName(), esc_html( $sCommentContent ) );
 			}
 			return $sCommentContent;
 		}
