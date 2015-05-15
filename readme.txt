@@ -262,11 +262,10 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Point Release 4.7.3 =
+= Point Release 4.7.4 =
 *Released: 15th May, 2015*
 
-* **(v.3)**  ADDED:         Integrated protection against 2x RevSlider vulnerabilities (Local File Include and Arbitrary File Upload)
-* **(v.3)**  CHANGED:       Reverted the flushing of Permalinks/Rewrite rules in case this is a problem for some.
+* **(v.4)**  CHANGED:       The Admin Access Key input is now a password field.
 
 = 4.7 Series =
 *Released: 29th April, 2015*

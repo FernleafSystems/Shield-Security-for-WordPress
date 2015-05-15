@@ -25,7 +25,7 @@
 						<div class="controls">
 							<div class="option_section selected_item active" id="option_section_icwp_wpsf_admin_access_key">
 								<label>
-									<input type="text" name="<?php echo $icwp_var_prefix; ?>admin_access_key_request" value="" autocomplete="off" />
+									<input type="password" name="<?php echo $icwp_var_prefix; ?>admin_access_key_request" value="" autocomplete="off" />
 								</label>
 								<p class="help-block"><?php _wpsf_e( 'To manage this plugin you must enter the access key.');?></p>
 							</div>
