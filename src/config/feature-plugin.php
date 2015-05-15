@@ -112,6 +112,9 @@ options:
         load_priority: 10
         hidden: false
       -
+        slug: 'hack_protect'
+        storage_key: 'hack_protect'
+      -
         slug: 'email'
         storage_key: 'email'
 ",
