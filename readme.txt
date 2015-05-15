@@ -266,6 +266,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *Released: 15th May, 2015*
 
 * **(v.4)**  CHANGED:       The Admin Access Key input is now a password field.
+* **(v.4)**  CHANGED:       Custom Login URL now works with or without trailing slash.
 
 = 4.7 Series =
 *Released: 29th April, 2015*
