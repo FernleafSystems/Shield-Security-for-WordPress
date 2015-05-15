@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.7.2
+Stable tag: 4.7.3
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,15 +262,17 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Point Release 4.7.2 =
-*Released: 14th May, 2015*
+= Point Release 4.7.3 =
+*Released: 15th May, 2015*
 
-* **(v.2)**  UPDATED/FIX:   Major fixes and improvements to the rename wp-login.php feature.
-* **(v.2)**  TRANSLATIONS:  Mexican-Spanish (61%), Arabic (38%)
+* **(v.3)**  ADDED:         Integrated protection against 2x RevSlider vulnerabilities (Local File Include and Arbitrary File Upload)
+* **(v.3)**  CHANGED:       Reverted the flushing of Permalinks/Rewrite rules in case this is a problem for some.
 
 = 4.7 Series =
 *Released: 29th April, 2015*
 
+* **(v.3)**  ADDED:         Integrated protection against 2x RevSlider vulnerabilities (Local File Include and Arbitrary File Upload)
+* **(v.3)**  CHANGED:       Reverted the addition of Permalinks/Rewrite rules flushing, in case this is a problem for some.
 * **(v.2)**  UPDATED/FIX:   Major fixes and improvements to the rename wp-login.php feature.
 * **(v.2)**  TRANSLATIONS:  Mexican-Spanish (61%), Arabic (38%)
 * **(v.1)**  FIX:           Silence warnings from filesystem touch() command.

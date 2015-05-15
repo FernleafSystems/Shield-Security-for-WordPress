@@ -13,7 +13,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 */
 		protected function doExtraSubmitProcessing() {
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sCustomLoginPath = $this->cleanLoginUrlPath();
@@ -21,6 +20,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$oWp->resavePermalinks();
 			}
 		}
+		 */
 
 		public function doPrePluginOptionsSave() {
 
