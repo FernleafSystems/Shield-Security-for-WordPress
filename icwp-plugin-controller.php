@@ -1106,13 +1106,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
-	}
-
-	/**
 	 * Retrieve the full path to the plugin view
 	 *
 	 * @param string $sView
@@ -1120,6 +1113,20 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_ViewsFile( $sView ) {
 		return $this->getPath_Views().$sView.'.php';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_Templates() {
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_TemplatesFile( $sTemplate ) {
+		return $this->getPath_Templates().$sTemplate.'.twig';
 	}
 
 	/**

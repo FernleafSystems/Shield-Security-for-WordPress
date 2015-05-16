@@ -35,11 +35,37 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 		public function displayFeatureConfigPage( ) {
 			/** @var ICWP_WPSF_Processor_UserManagement $oProcessor */
 			$oProcessor = $this->getProcessor();
+			$aActiveSessions = $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
+
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sTimeFormat = $oWp->getOption( 'time_format' );
+			$sDateFormat = $oWp->getOption( 'date_format' );
+			foreach( $aActiveSessions as &$aSession ) {
+				$aSession[ 'logged_in_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aSession[ 'logged_in_at' ] );
+				$aSession[ 'last_activity_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aSession[ 'last_activity_at' ] );
+			}
+
 			$aData = array(
-				'aActiveSessions'		=> $this->getIsMainFeatureEnabled()? $oProcessor->getActiveUserSessionRecords() : array(),
-				'aFailedSessions'		=> $this->getIsMainFeatureEnabled()? $oProcessor->getPendingOrFailedUserSessionRecordsSince() : array()
+				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
+				'aActiveSessions' => $aActiveSessions
 			);
 			$this->displayByTemplate( $aData );
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getDisplayStrings() {
+			return array(
+				'um_current_user_settings' => _wpsf__( 'Current User Sessions' ),
+				'um_username' => _wpsf__( 'Username' ),
+				'um_logged_in_at' => _wpsf__( 'Logged In At' ),
+				'um_last_activity_at' => _wpsf__( 'Last Activity At' ),
+				'um_last_activity_uri' => _wpsf__( 'Last Activity URI' ),
+				'um_login_ip' => _wpsf__( 'Login IP' ),
+				'um_login_attempts' => _wpsf__( 'Login Attempts' ),
+				'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
+			);
 		}
 
 		/**

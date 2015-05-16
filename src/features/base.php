@@ -995,7 +995,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			if ( empty( $sSubView ) ) {
 				$oWpFs = $this->loadFileSystemProcessor();
 				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
-				if ( $oWpFs->exists( $this->getController()->getPath_ViewsFile( $sFeatureInclude ) ) ) {
+				if ( $oWpFs->exists( $this->getController()->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
 					$sSubView = $sFeatureInclude;
 				}
 				else {
@@ -1005,11 +1005,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 			$aData[ 'sFeatureInclude' ] = $sSubView;
 			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
-
 			try {
 				$this
 					->getOptionsDisplay()
-					->setTemplate( $sSubView.'.twig' )
+					->setTemplate( $sSubView )
 					->setRenderVars( $aData )
 					->display();
 			}

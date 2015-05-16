@@ -131,6 +131,9 @@ if ( !class_exists( 'ICWP_WPSF_OptionsDisplay', false ) ):
 		 * @return $this
 		 */
 		public function setTemplate( $sPath ) {
+			if ( !preg_match( '#\.twig$#', $sPath ) ) {
+				$sPath = $sPath . '.twig';
+			}
 			$this->sTemplate = $sPath;
 			return $this;
 		}
