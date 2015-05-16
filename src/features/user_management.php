@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 				'aActiveSessions'		=> $this->getIsMainFeatureEnabled()? $oProcessor->getActiveUserSessionRecords() : array(),
 				'aFailedSessions'		=> $this->getIsMainFeatureEnabled()? $oProcessor->getPendingOrFailedUserSessionRecordsSince() : array()
 			);
-			$this->display( $aData );
+			$this->displayByTemplate( $aData );
 		}
 
 		/**

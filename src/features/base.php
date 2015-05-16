@@ -874,7 +874,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		/**
 		 */
 		public function displayFeatureConfigPage() {
-			$this->display();
+			$this->displayByTemplate();
 		}
 
 		/**
@@ -903,7 +903,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
-				'all_options_input'	=> $this->collateAllFormInputsForAllOptions()
+				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
+
+				'page_title'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
+				'strings'			=> array(
+					'go_to_settings' => _wpsf__( 'Go To Settings' ),
+					'on' => _wpsf__( 'On' ),
+					'off' => _wpsf__( 'Off' ),
+					'more_info' => _wpsf__( 'More Info' ),
+					'blog' => _wpsf__( 'Blog' ),
+					'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
+					'save_all_settings' => _wpsf__( 'Save All Settings' ),
+
+					'aar_what_should_you_enter' => _wpsf__( 'What should you enter here?' ),
+					'aar_must_supply_key_first' => _wpsf__( 'At some point you supplied an Admin Access Key - to manage this plugin, you must supply it here first.' ),
+					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
+					'aar_enter_access_key' => _wpsf__( 'Enter Access Key' ),
+					'aar_submit_access_key' => _wpsf__( 'Submit Access Key' ),
+				)
 			);
 		}
 
@@ -985,15 +1002,20 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 					$sSubView = 'feature-default';
 				}
 			}
+
 			$aData[ 'sFeatureInclude' ] = $sSubView;
+			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
 
-			$aData[ 'strings' ] = $this->getDisplayStrings();
-
-			$oOptionsDisplay = $this->getOptionsDisplay();
-			$oOptionsDisplay
-				->setTemplate( 'feature-default.twig' )
-				->setRenderVars( $aData )
-				->display();
+			try {
+				$this
+					->getOptionsDisplay()
+					->setTemplate( $sSubView.'.twig' )
+					->setRenderVars( $aData )
+					->display();
+			}
+			catch( Exception $oE ) {
+				echo $oE->getMessage();
+			}
 		}
 
 		/**
@@ -1014,15 +1036,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return array
 		 */
 		protected function getDisplayStrings() {
-			return array(
-				'go_to_settings' => _wpsf__( 'Go To Settings' ),
-				'on' => _wpsf__( 'On' ),
-				'off' => _wpsf__( 'Off' ),
-				'more_info' => _wpsf__( 'More Info' ),
-				'blog' => _wpsf__( 'Blog' ),
-				'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
-				'save_all_settings' => _wpsf__( 'Save All Settings' ),
-			);
+			return array();
 		}
 
 		/**
