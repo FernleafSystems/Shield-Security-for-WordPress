@@ -10,6 +10,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected $oPluginController;
 
 		/**
+		 * @var ICWP_WPSF_OptionsDisplay
+		 */
+		protected $oOptionsDisplay;
+
+		/**
 		 * @var ICWP_WPSF_OptionsVO
 		 */
 		protected $oOptions;
@@ -356,9 +361,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			}
 
 			$aSummaryData[] = array(
-				$this->getIsMainFeatureEnabled(),
-				$this->getMainFeatureName(),
-				$this->doPluginPrefix( $this->getFeatureSlug() )
+				'enabled' => $this->getIsMainFeatureEnabled(),
+				'slug' => $this->getFeatureSlug(),
+				'name' => $this->getMainFeatureName(),
+				'href' => network_admin_url( 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ) )
 			);
 
 			return $aSummaryData;
@@ -513,6 +519,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 						else {
 							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'ip_addresses' ) {
 
@@ -522,6 +529,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 						else {
 							$mCurrentOptionVal = implode( "\n", $this->convertIpListForDisplay( $mCurrentOptionVal ) );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) {
 
@@ -535,6 +543,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 							}
 							$mCurrentOptionVal = implode( "\n", $aDisplay );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'comma_separated_lists' ) {
 
@@ -548,7 +557,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 							}
 							$mCurrentOptionVal = implode( "\n", $aNewValues );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
+
+					if ( $sOptionType == 'text' ) {
+						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
+					}
+					$mCurrentOptionVal = esc_attr( $mCurrentOptionVal );
+
 					$aOptionParams['value'] = $mCurrentOptionVal;
 
 					// Build strings
@@ -879,7 +895,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'sPluginName'		=> $oCon->getHumanName(),
 				'sFeatureName'		=> $this->getMainFeatureName(),
 				'fShowAds'			=> $this->getIsShowMarketing(),
-				'nonce_field'		=> $oCon->getPluginPrefix(),
+				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
 				'sFeatureSlug'		=> $this->doPluginPrefix( $this->getFeatureSlug() ),
 				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
@@ -942,6 +958,71 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 			echo $sContents;
 			return true;
+		}
+
+		/**
+		 * @param array $aData
+		 * @param string $sSubView
+		 * @return bool
+		 */
+		protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
+
+			// Get Base Data
+			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
+
+			if ( !$bPermissionToView ) {
+				$sSubView = 'subfeature-access_restricted';
+			}
+
+			if ( empty( $sSubView ) ) {
+				$oWpFs = $this->loadFileSystemProcessor();
+				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
+				if ( $oWpFs->exists( $this->getController()->getPath_ViewsFile( $sFeatureInclude ) ) ) {
+					$sSubView = $sFeatureInclude;
+				}
+				else {
+					$sSubView = 'feature-default';
+				}
+			}
+			$aData[ 'sFeatureInclude' ] = $sSubView;
+
+			$aData[ 'strings' ] = $this->getDisplayStrings();
+
+			$oOptionsDisplay = $this->getOptionsDisplay();
+			$oOptionsDisplay
+				->setTemplate( 'feature-default.twig' )
+				->setRenderVars( $aData )
+				->display();
+		}
+
+		/**
+		 * @return ICWP_WPSF_OptionsDisplay
+		 */
+		protected function getOptionsDisplay() {
+			if ( !isset( $this->oOptionsDisplay ) ) {
+				$oCon = $this->getController();
+				require_once( dirname(__FILE__).ICWP_DS.'options-display.php' );
+				$this->oOptionsDisplay = ( new ICWP_WPSF_OptionsDisplay() )
+					->setAutoloaderPath( $oCon->getPath_SourceFile( 'lib/Twig/Autoloader.php' ) )
+					->setTemplatePath( $oCon->getPath_Templates() );
+			}
+			return $this->oOptionsDisplay;
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getDisplayStrings() {
+			return array(
+				'go_to_settings' => _wpsf__( 'Go To Settings' ),
+				'on' => _wpsf__( 'On' ),
+				'off' => _wpsf__( 'Off' ),
+				'more_info' => _wpsf__( 'More Info' ),
+				'blog' => _wpsf__( 'Blog' ),
+				'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
+				'save_all_settings' => _wpsf__( 'Save All Settings' ),
+			);
 		}
 
 		/**
