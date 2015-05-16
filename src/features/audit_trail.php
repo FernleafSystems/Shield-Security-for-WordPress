@@ -28,12 +28,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 			$oAuditTrail = $this->loadFeatureProcessor();
 
 			$aContexts = array(
-				'users',
-				'plugins',
-				'themes',
-				'wordpress',
-				'posts',
-				'emails',
+				'Users',
+				'Plugins',
+				'Themes',
+				'WordPress',
+				'Posts',
+				'Emails',
 				'wpsf'
 			);
 
@@ -46,20 +46,47 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 			$sTimeFormat = $oWp->getOption( 'time_format' );
 			$sDateFormat = $oWp->getOption( 'date_format' );
 
+			$aAudits = array();
 			foreach( $aContexts as $sContext ) {
-				$aAuditData = $oAuditTrail->getAuditEntriesForContext( $sContext );
+				$aAuditContext = array();
+				$aAuditContext['title'] = ( $sContext == 'wpsf' ) ? $this->getController()->getHumanName() : _wpsf__( $sContext );
 
+				$aAuditData = $oAuditTrail->getAuditEntriesForContext( strtolower( $sContext ) );
 				if ( is_array( $aAuditData ) ) {
 					foreach( $aAuditData as &$aAuditEntry ) {
 						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', $aAuditEntry[ 'event' ] );
 						$aAuditEntry[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aAuditEntry[ 'created_at' ] );
 					}
 				}
-				$aDisplayData[ 'aAuditData' . ucfirst( $sContext ) ] = $aAuditData;
+				$aAuditContext['trail'] = $aAuditData;
+				$aAudits[] = $aAuditContext;
 			}
-
-			$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
+			$aDisplayData[ 'aAudits' ] = $aAudits;
+			$this->displayByTemplate( $aDisplayData, 'subfeature-audit_trail_viewer' );
 		}
+
+		/**
+		 * @return array
+		 */
+		protected function getDisplayStrings() {
+			return array(
+				'at_users' => _wpsf__( 'Users' ),
+				'at_plugins' => _wpsf__( 'Plugins' ),
+				'at_themes' => _wpsf__( 'Themes' ),
+				'at_wordpress' => _wpsf__( 'WordPress' ),
+				'at_posts' => _wpsf__( 'Posts' ),
+				'at_emails' => _wpsf__( 'Emails' ),
+				'at_time'	=> _wpsf__( 'Time' ),
+				'at_event'	=> _wpsf__( 'Event' ),
+				'at_message'	=> _wpsf__( 'Message' ),
+				'at_username'	=> _wpsf__( 'Username' ),
+				'at_category'	=> _wpsf__( 'Category' ),
+				'at_ipaddress'	=> _wpsf__( 'IP Address' ),
+				'at_you'	=> _wpsf__( 'You' ),
+				'at_no_audit_entries'	=> _wpsf__( 'There are currently no audit entries this is section.' ),
+			);
+		}
+
 		/**
 		 * @return string
 		 */
