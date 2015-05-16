@@ -1099,12 +1099,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
-	 *
 	 * @return string
 	 */
 	public function getPath_Views() {
 		return $this->getRootDir().$this->getPluginSpec_Path( 'views' ).ICWP_DS;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_Templates() {
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
 	}
 
 	/**
