@@ -1,4 +1,4 @@
-{% extends "/section_options_base.twig" %}
+{% extends "section_options_base.twig" %}
 
 {% block options_body %}
 	<div class="row">
@@ -13,8 +13,7 @@
 			{% if fShowAds %}
 				<div class="row-fluid">
 					<div class="span12">
-						{#{% include 'state_summary.twig' %}#}
-						{#<?php echo getWidgetIframeHtml( 'dashboard-widget-worpit-wtb' ); ?>#}
+						{% include 'snippets/widget_options_footer.twig' %}
 					</div>
 				</div>
 			{% endif %}
@@ -22,8 +21,7 @@
 
 		{% if fShowAds %}
 			<div class="span3" id="side_widgets">
-				{#{% include 'state_summary.twig' %}#}
-				{#<?php echo getWidgetIframeHtml('side-widgets-wtb'); ?>#}
+				{% include 'snippets/widget_sidebar.twig' %}
 			</div>
 		{% endif %}
 	</div><!-- / row -->
