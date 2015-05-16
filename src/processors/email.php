@@ -34,7 +34,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	/**
 	 * @var boolean
 	 */
-	protected $m_fEmailIsThrottled;
+	protected $fEmailIsThrottled;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Email $oFeatureOptions
@@ -52,29 +52,29 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	
 	/**
 	 * @param string $sEmailAddress
-	 * @param string $insEmailSubject
+	 * @param string $sEmailSubject
 	 * @param array $aMessage
 	 * @return boolean
 	 * @uses wp_mail
 	 */
-	public function sendEmailTo( $sEmailAddress = '', $insEmailSubject = '', $aMessage = array() ) {
+	public function sendEmailTo( $sEmailAddress = '', $sEmailSubject = '', $aMessage = array() ) {
 
 		$sEmailTo = $this->verifyEmailAddress( $sEmailAddress );
 
 		$aHeaders = array(
 			'MIME-Version: 1.0',
 			'Content-type: text/plain;',
-			sprintf( 'From: %s, Simple Firewall Plugin <%s>', $this->getSiteName(), $sEmailTo ),
-			sprintf( "Subject: %s", $insEmailSubject ),
+			sprintf( 'From: %s :: %s <%s>', $this->getSiteName(), $this->getController()->getHumanName(), $sEmailTo ),
+			sprintf( "Subject: %s", $sEmailSubject ),
 			'X-Mailer: PHP/'.phpversion()
 		);
 		
 		$this->updateEmailThrottle();
 		// We make it appear to have "succeeded" if the throttle is applied.
-		if ( $this->m_fEmailIsThrottled ) {
+		if ( $this->fEmailIsThrottled ) {
 			return true;
 		}
-		$fSuccess = wp_mail( $sEmailTo, $insEmailSubject, implode( "\r\n", $aMessage ), implode( "\r\n", $aHeaders ) );
+		$fSuccess = wp_mail( $sEmailTo, $sEmailSubject, implode( "\r\n", $aMessage ), implode( "\r\n", $aHeaders ) );
 		return $fSuccess;
 	}
 
@@ -102,7 +102,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 		// Throttling Is Effectively Off
 		if ( $this->getThrottleLimit() <= 0 ) {
 			$this->setThrottledFile( false );
-			return $this->m_fEmailIsThrottled;
+			return $this->fEmailIsThrottled;
 		}
 		
 		// Check that there is an email throttle file. If it exists and its modified time is greater than the 
@@ -139,7 +139,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	
 	public function setThrottledFile( $infOn = false ) {
 		
-		$this->m_fEmailIsThrottled = $infOn;
+		$this->fEmailIsThrottled = $infOn;
 		
 		if ( $infOn && !is_file( self::$sModeFile_EmailThrottled ) && function_exists('touch') ) {
 			@touch( self::$sModeFile_EmailThrottled );

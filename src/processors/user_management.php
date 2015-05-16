@@ -122,7 +122,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 		$oEmailer = $this->getFeatureOptions()->getEmailProcessor();
 
 		$aMessage = array(
-			_wpsf__( 'As requested, the WordPress Simple Firewall is notifying you of an administrator login to a WordPress site that you manage.' ),
+			sprintf( _wpsf__( 'As requested, %s is notifying you of an administrator login to a WordPress site that you manage.' ), $this->getController()->getHumanName() ),
 			_wpsf__( 'Details for this user are below:' ),
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), home_url() ),
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),

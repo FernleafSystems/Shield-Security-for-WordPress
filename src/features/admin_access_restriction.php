@@ -159,7 +159,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'admin_access_timeout' :
 				$sName = _wpsf__( 'Admin Access Timeout' );
 				$sSummary = _wpsf__( 'Specify An Automatic Timeout Interval For Admin Access' );
-				$sDescription = _wpsf__( 'This will automatically expire your WordPress Simple Firewall session. Does not apply until you enter the access key again.')
+				$sDescription = sprintf( _wpsf__( 'This will automatically expire your %s Admin Access Session.'), $this->getController()->getHumanName() )
+					.' '._wpsf__( 'Does not apply until you enter the access key again.' )
 					.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()->getOptDefault( 'admin_access_timeout' ) );
 				break;
 

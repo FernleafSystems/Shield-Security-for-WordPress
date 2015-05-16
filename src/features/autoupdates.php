@@ -95,7 +95,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 				case 'autoupdate_plugin_self' :
 					$sName = _wpsf__( 'Auto Update Plugin' );
 					$sSummary = _wpsf__( 'Always Automatically Update This Plugin' );
-					$sDescription = _wpsf__( 'Regardless of any component settings below, automatically update the WordPress Simple Firewall plugin.' );
+					$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), $this->getController()->getHumanName() );
 					break;
 
 				case 'autoupdate_core' :

@@ -407,7 +407,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 					break;
 
 				case 4:
-					$sMessage = _wpsf__( 'You do not currently have a Simple Firewall user session.' );
+					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getController()->getHumanName() );
 					break;
 
 				case 5:

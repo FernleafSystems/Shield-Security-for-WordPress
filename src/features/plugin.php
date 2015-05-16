@@ -224,7 +224,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'global_enable_plugin_features' :
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
-					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all WordPress Simple Firewall features.' ) );
+					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $this->getController()->getHumanName() );
 					break;
 
 				case 'ip_whitelist' :

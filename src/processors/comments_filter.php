@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 
 		$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
 		if ( $sActivePluginFile ) {
-			$sMessage = _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the Simple Firewall Anti-SPAM.' )
+			$sMessage = _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the our human Anti-SPAM filter.' )
 						.' <strong>'._wpsf__('This is not recommended and you should disable Akismet.').'</strong>';
 			$sMessage .= '<br />'.sprintf(
 					'<a href="%s" id="fromIcwp" class="button">%s</a>',
