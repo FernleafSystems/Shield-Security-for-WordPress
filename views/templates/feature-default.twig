@@ -1,0 +1,181 @@
+{% extends "/section_options_base.twig" %}
+
+{% block options_body %}
+	<div class="row">
+		<div class="{{ fShowAds ? 'span10' : 'span12' }}">
+
+			<div>
+				<form action="{{ form_action }}" method="post" class="form-horizontal">
+					{{ nonce_field|raw }}
+
+					<ul class="nav nav-tabs">
+						{% for sOptionSection in aAllOptions %}
+							<li class="{{ sOptionSection.section_primary ? 'active' : '' }}">
+								<a href="#{{ sOptionSection.section_slug }}" data-toggle="tab" >{{ sOptionSection.section_title_short }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+					<div class="tab-content">
+						{% for sOptionSection in aAllOptions %}
+							<div class="tab-pane {{ sOptionSection.section_primary ? 'active in primary_section' : 'non_primary_section' }}"
+								 id="{{ sOptionSection.section_slug }}">
+
+								<div class="row option_section_row {{ sOptionSection.section_primary ? 'primary_section' : 'non_primary_section' }}"
+									 id="row-{{ sOptionSection.section_slug }}">
+									<div class="span9">
+										<fieldset>
+											<legend>{{ sOptionSection.section_title }}</legend>
+
+											{% for key, aOption in sOptionSection.section_options %}
+												<div class="row row_number_{{ key }}">
+
+													{% if aOption.key is sameas('spacer') %}
+														<div class="span8">&nbsp;</div>
+													{% else %}
+
+														<div class="item_group span8 {{ ( aOption.value is sameas('Y') or aOption.value is sameas(aOption.default) ) ? 'selected_item_group' : '' }}"
+															 id="span_{{ var_prefix ~ aOption.key }}">
+															<div class="control-group">
+																<label class="control-label" for="{{ var_prefix~aOption.key }}">
+																	{{ aOption.name }}
+																	<br />
+																	[<a href="{{ aOption.info_link }}" target="_blank">{{ strings.more_info }}</a>
+																	{% if aOption.blog_link %}
+																		| <a href="{{ aOption.blog_link }}" target="_blank">{{ strings.blog }}</a>
+																	{% endif %}
+																	]
+																</label>
+
+																<div class="controls">
+																	<div class="option_section {{ ( aOption.value is sameas('Y') ) ? 'selected_item' : '' }}" id="option_section_{{ var_prefix~aOption.key }}">
+																		<label>
+																			{% if aOption.type is sameas('checkbox') %}
+
+																				<input {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }}
+																						type="checkbox" name="{{ var_prefix~aOption.key }}" value="Y" id="{{ var_prefix~aOption.key }}" />
+																				{{ aOption.summary }}
+
+																			{% elseif aOption.type is sameas('text') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																					   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+
+																			{% elseif aOption.type is sameas('password') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<input type="password" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																					   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+
+																			{% elseif aOption.type is sameas('email') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																					   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+
+																			{% elseif aOption.type is sameas('select') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<select name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}">
+																					{% for option_value, option_value_name in aOption.value_options %}
+																						<option value="{{ option_value }}"
+																								id="{{ var_prefix~aOption.key }}_{{ option_value }}"
+																								{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
+																							{{ option_value_name }}
+																						</option>
+																					{% endfor %}
+																				</select>
+
+																			{% elseif aOption.type is sameas('multiple_select') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<select name="{{ var_prefix~aOption.key }}[]" id="{{ var_prefix~aOption.key }}"
+																						multiple="multiple" size="{{ aOption.value_options|length }}" >
+																					{% for option_value, option_value_name in aOption.value_options %}
+																						<option value="{{ option_value }}"
+																								id="{{ var_prefix~aOption.key }}_{{ option_value }}"
+																								{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
+																							{{ option_value_name }}
+																						</option>
+																					{% endfor %}
+																				</select>
+
+																			{% elseif aOption.type is sameas('ip_addresses') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																						  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
+																						  class="span5">{{ aOption.value }}</textarea>
+
+																			{% elseif aOption.type is sameas('array') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																						  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
+																						  class="span5">{{ aOption.value }}</textarea>
+
+																			{% elseif aOption.type is sameas('yubikey_unique_keys') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																						  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
+																						  class="span5">{{ aOption.value }}</textarea>
+
+																			{% elseif aOption.type is sameas('comma_separated_lists') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																						  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
+																						  class="span5">{{ aOption.value }}</textarea>
+
+																			{% elseif aOption.type is sameas('integer') %}
+
+																				<p>{{ aOption.summary }}</p>
+																				<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
+																					   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+
+																			{% else %}
+																				ERROR: Should never reach this point.
+																			{% endif %}
+																		</label>
+																		{{ aOption.description|raw }}
+																		<div style="clear:both"></div>
+																	</div>
+																</div><!-- controls -->
+															</div><!-- control-group -->
+														</div>
+
+													{% endif %}
+												</div><!-- row -->
+											{% endfor %}
+										</fieldset>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+					<div class="form-actions">
+						<input type="hidden" name="{{ var_prefix }}all_options_input" value="{{ all_options_input }}" />
+						<input type="hidden" name="{{ var_prefix }}plugin_form_submit" value="Y" />
+						<button type="submit" class="btn btn-primary btn-large" name="submit">{{ strings.save_all_settings }}</button>
+					</div>
+				</form>
+			</div>
+			{% if fShowAds %}
+				<div class="row-fluid">
+					<div class="span12">
+						{#{% include 'state_summary.twig' %}#}
+						{#<?php echo getWidgetIframeHtml( 'dashboard-widget-worpit-wtb' ); ?>#}
+					</div>
+				</div>
+			{% endif %}
+		</div><!-- / span10 -->
+
+		{% if fShowAds %}
+			<div class="span3" id="side_widgets">
+				{#{% include 'state_summary.twig' %}#}
+				{#<?php echo getWidgetIframeHtml('side-widgets-wtb'); ?>#}
+			</div>
+		{% endif %}
+	</div><!-- / row -->
+{% endblock %}

@@ -1,0 +1,16 @@
+
+<div class="wrap">
+	<div class="bootstrap-wpadmin icwp-options-page {{ sFeatureSlug ? sFeatureSlug : '' }}">
+		{% block options_header %}
+			<div class="row">
+				<div class="span12">
+					{% include 'state_summary.twig' %}
+				</div>
+			</div>
+		{% endblock %}
+		{% block options_body %}
+		{% endblock %}
+		{% block options_footer %}
+		{% endblock %}
+	</div>
+</div>
