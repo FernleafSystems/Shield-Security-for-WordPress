@@ -184,9 +184,9 @@ p.code-description {
 	font-style: italic;
 }
 .form-horizontal legend {
-	border-bottom: 1px dashed #aaa;
-	margin-bottom: 8px;
-	padding-top: 10px;
+	border-bottom: 1px dashed #aaaaaa;
+	margin-bottom: 11px;
+	padding: 16px 0 3px;
 }
 .form-horizontal .item_group .control-group {
 	margin-bottom: 0;

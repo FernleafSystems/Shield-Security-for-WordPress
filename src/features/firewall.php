@@ -48,8 +48,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 				case 'section_enable_plugin_feature_wordpress_firewall' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
 					$aSummary = array(
-						_wpsf__( 'Here you may turn on or off this entire sub-section of the plugin.' ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep the Firewall turned on.' ) ),
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Firewall' ) ) )
 					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
