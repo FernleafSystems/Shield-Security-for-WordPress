@@ -79,15 +79,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 * @return array
 		 */
 		public function adminNoticeYouAreWhitelisted( $aAdminNotices ) {
-			$oFO = $this->getFeatureOptions();
-			$bWhitelisted = $this->fGetIsVisitorWhitelisted( false );
-			if ( $bWhitelisted ) {
-				$sIpAddress = $this->loadDataProcessor()->getVisitorIpAddress();
-				ob_start();
-				include( $oFO->getViewSnippet( 'admin_notice_vistor_whitelisted' ) );
-				$sNoticeMessage = ob_get_contents();
-				ob_end_clean();
-				$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+
+			if ( $this->fGetIsVisitorWhitelisted( false ) ) {
+
+				$aDisplayData = array(
+					'strings' => array(
+						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
+						'notice_message' => sprintf(
+							_wpsf__( 'Notice - %s' ),
+							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
+						),
+					)
+				);
+				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'visitor-whitelisted', $aDisplayData );
 			}
 			return $aAdminNotices;
 		}
