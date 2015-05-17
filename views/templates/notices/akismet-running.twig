@@ -1,0 +1,7 @@
+{% extends "/notices/base-error.twig" %}
+
+{% block notice_body %}
+	{{ strings.appears_running_akismet }}
+	<strong>{{ strings.not_recommended }}</strong>
+	<br /><a href="{{ hrefs.deactivate }}" id="fromIcwp" class="button">{{ strings.click_to_deactivate }}</a>
+{% endblock %}

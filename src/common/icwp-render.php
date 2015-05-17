@@ -55,13 +55,14 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 */
 		public function render() {
 			$oTwig = $this->getTwigEnvironment();
-			return $oTwig->render( $this->getTemplate() );
+			return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
 		}
 
 		/**
 		 */
 		public function display() {
 			$this->getTwigEnvironment()->display( $this->getTemplate(), $this->getRenderVars() );
+			return $this;
 		}
 
 		/**
@@ -81,7 +82,8 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 				$this->autoload();
 				$this->oTwigEnv = new Twig_Environment( $this->getTwigLoader(),
 					array(
-						'debug' => true
+						'debug' => true,
+						'strict_variables' => true,
 					)
 				);
 			}

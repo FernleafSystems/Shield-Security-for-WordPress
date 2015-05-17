@@ -140,23 +140,34 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function adminNoticeMailingListSignup( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
 
-			$nDays = $this->getInstallationDays();
-			if ( $nDays < 2 ) {
-				return $aAdminNotices;
-			}
-
 			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oFO->prefixOptionKey( 'plugin_mailing_list_signup' ) );
 			if ( $sCurrentMetaValue == 'Y' ) {
 				return $aAdminNotices;
 			}
 
-			$sLink_HideNotice = $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1';
-			ob_start();
-			include( $oFO->getViewSnippet( 'admin_notice_mailchimp' ) );
-			$sNoticeMessage = ob_get_contents();
-			ob_end_clean();
+			$nDays = $this->getInstallationDays();
+			if ( $nDays < 5 ) {
+				return $aAdminNotices;
+			}
 
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aDisplayData = array(
+				'strings' => array(
+					'yes' => "Yes please! I'd love to join in and learn more",
+					'no' => "No thanks, I'm not interested in such groups",
+					'we_dont_spam' => "(don't worry, we don't SPAM. Ever.)",
+					'your_name' => _wpsf__( 'Your Name' ),
+					'your_email' => _wpsf__( 'Your Email' ),
+					'summary' => 'The WordPress Simple Firewall team is running an initiative (with currently over 1000 members) to raise awareness of WordPress Security
+				and to provide further help with the WordPress Simple Firewall plugin. Get Involved here:',
+				),
+				'hrefs' => array(
+					'form_action' => 'http://hostliketoast.us2.list-manage1.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
+					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1'
+				),
+				'install_days' => $nDays
+			);
+
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'security-group-signup', $aDisplayData );
 			return $aAdminNotices;
 		}
 

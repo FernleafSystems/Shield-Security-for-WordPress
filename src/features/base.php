@@ -973,6 +973,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
+		 * @param string $sAdminNotice
+		 * @param array $aData
+		 * @return string
+		 */
+		public function renderAdminNotice( $sAdminNotice, $aData ) {
+			try {
+				$sOutput = $this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'notices'.ICWP_DS.$sAdminNotice )
+					->setRenderVars( $aData )
+					->render();
+			}
+			catch( Exception $oE ) {
+				$sOutput = $oE->getMessage();
+			}
+
+			return $sOutput;
+		}
+
+		/**
 		 * @param array $aData
 		 * @param string $sSubView
 		 * @return bool

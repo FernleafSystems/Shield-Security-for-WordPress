@@ -151,15 +151,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function adminNoticeDoesNotMeetRequirements() {
-		$sMessage = sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.',
-			'<strong>'.$this->getHumanName().'</strong>'
-		);
 		$aMessages = $this->getRequirementsMessages();
 		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
-			$sMessage .= sprintf( '<ul style="list-style: inside none disc;"><li>%s</li></ul>', implode( '</li><li>', $aMessages ) );
+			$aDisplayData = array(
+				'strings' => array(
+					'requirements' => $aMessages,
+					'summary_title' => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
+					'more_information' => 'Click here for more information on requirements'
+				),
+				'hrefs' => array(
+					'more_information' => sprintf( 'https://wordpress.org/plugins/%s/faq', $this->getTextDomain() )
+				)
+			);
+
+			$this->loadRenderer( $this->getPath_Templates() )
+				 ->setTemplate( 'notices/does-not-meet-requirements' )
+				 ->setRenderVars( $aDisplayData )
+				 ->display();
 		}
-		$sMessage .= sprintf( '<a href="https://wordpress.org/plugins/%s/faq" target="_blank">Click here for more information on requirements</a>.', $this->getTextDomain() );
-		echo $this->wrapAdminNoticeHtml( $sMessage, 'error' );
 	}
 
 	/**
