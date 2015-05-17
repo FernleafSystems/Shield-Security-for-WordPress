@@ -115,11 +115,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 
 				case 'section_audit_trail_options' :
 					$sTitle = _wpsf__( 'Audit Trail Options' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Provides finer control over the audit trail itself.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Options' );
 					break;
 
 				case 'section_enable_audit_contexts' :
 					$sTitle = _wpsf__( 'Enable Audit Contexts' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Specify which types of actions on your site are logged.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Audit Contexts' );
 					break;
 

@@ -14,11 +14,11 @@ sections:
     slug: 'section_enable_plugin_feature_spam_comments_protection_filter'
     primary: true
   -
-    slug: 'section_enable_human_comment_spam_protection_filter'
-  -
     slug: 'section_enable_automatic_bot_comment_spam_protection_filter'
   -
     slug: 'section_customize_messages_shown_to_user'
+  -
+    slug: 'section_enable_human_comment_spam_protection_filter'
   -
     slug: 'section_non_ui'
     hidden: true

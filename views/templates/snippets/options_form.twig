@@ -6,6 +6,7 @@
 		background-color: #f1f1f1;
 		border-radius: 2px;
 		box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+		margin: 0;
 		padding: 15px 0 12px;
 	}
 	.row.row_section_summary p {
@@ -37,7 +38,7 @@
 
 							{% if ( sOptionSection.section_summary is defined ) and sOptionSection.section_summary|length %}
 							<div class="row row_section_summary">
-								<div class="span8">
+								<div class="span9">
 									{% for item in sOptionSection.section_summary %}
 									<p>{{ item }}</p>
 									{% endfor %}
@@ -52,7 +53,7 @@
 										<div class="span8">&nbsp;</div>
 									{% else %}
 
-										<div class="item_group span8 {{ ( aOption.value is sameas('Y') or aOption.value is sameas(aOption.default) ) ? 'selected_item_group' : '' }}"
+										<div class="item_group span8 {{ ( aOption.value is sameas('Y') or not ( aOption.value is sameas(aOption.default) ) ) ? 'selected_item_group' : '' }}"
 											 id="span_{{ var_prefix ~ aOption.key }}">
 											<div class="control-group">
 												<label class="control-label" for="{{ var_prefix~aOption.key }}">
@@ -78,19 +79,19 @@
 
 																<p>{{ aOption.summary }}</p>
 																<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+																	   value="{{ aOption.value|raw }}" placeholder="{{ aOption.value }}" class="span5" />
 
 															{% elseif aOption.type is sameas('password') %}
 
 																<p>{{ aOption.summary }}</p>
 																<input type="password" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+																	   value="{{ aOption.value|raw }}" placeholder="{{ aOption.value }}" class="span5" />
 
 															{% elseif aOption.type is sameas('email') %}
 
 																<p>{{ aOption.summary }}</p>
 																<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
+																	   value="{{ aOption.value|raw }}" placeholder="{{ aOption.value }}" class="span5" />
 
 															{% elseif aOption.type is sameas('select') %}
 
@@ -124,14 +125,14 @@
 																<p>{{ aOption.summary }}</p>
 																<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
 																		  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
-																		  class="span5">{{ aOption.value }}</textarea>
+																		  class="span5">{{ aOption.value|raw }}</textarea>
 
 															{% elseif aOption.type is sameas('array') %}
 
 																<p>{{ aOption.summary }}</p>
 																<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
 																		  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
-																		  class="span5">{{ aOption.value }}</textarea>
+																		  class="span5">{{ aOption.value|raw }}</textarea>
 
 															{% elseif aOption.type is sameas('yubikey_unique_keys') %}
 

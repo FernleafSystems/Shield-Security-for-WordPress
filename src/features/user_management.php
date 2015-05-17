@@ -81,7 +81,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 				case 'section_enable_plugin_feature_user_accounts_management' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
 					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'User Management provides and manages real user sessions, timing-out users, and ensuring that they have logged-in in a correct manner.' ) ),
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
 					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
@@ -89,16 +89,28 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 
 				case 'section_bypass_user_accounts_management' :
 					$sTitle = _wpsf__('By-Pass User Accounts Management');
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned off unless you know you need it.' ) )
+					);
 					$sTitleShort = _wpsf__( 'By-Pass' );
 					break;
 
 				case 'section_admin_login_notification' :
 					$sTitle = _wpsf__('Admin Login Notification');
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Notifications' );
 					break;
 
 				case 'section_user_session_management' :
 					$sTitle = _wpsf__('User Session Management');
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Session Options' );
 					break;
 

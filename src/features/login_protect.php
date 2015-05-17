@@ -86,21 +86,37 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 				case 'section_rename_wplogin' :
 					$sTitle = _wpsf__( 'Rename WP Login Page' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )
+					);
 					$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 					break;
 
 				case 'section_two_factor_authentication' :
 					$sTitle = _wpsf__('Two-Factor Authentication');
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
+					);
 					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					break;
 
 				case 'section_brute_force_login_protection' :
 					$sTitle = _wpsf__('Brute Force Login Protection');
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Brute Force' );
 					break;
 
 				case 'section_yubikey_authentication' :
 					$sTitle = _wpsf__('Yubikey Authentication');
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'Note: you must own the appropriate Yubikey hardware device.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
