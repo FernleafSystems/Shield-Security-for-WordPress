@@ -46,6 +46,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
+	private $sFlashMessage;
+
+	/**
+	 * @var string
+	 */
 	private $sPluginUrl;
 
 	/**
@@ -251,6 +256,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpLoaded() {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
+			$this->readFlashMessage();
 		}
 	}
 
@@ -372,21 +378,34 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					echo $sAdminNotice;
 				}
 			}
+			$this->flashNotice();
 		}
 		return true;
 	}
 
-	/**
-	 * Provides the basic HTML template for printing a WordPress Admin Notices
-	 *
-	 * @param $sNotice - The message to be displayed.
-	 * @param $sMessageClass - either error or updated
-	 * @return string
-	 */
-	protected function wrapAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated' ) {
-		$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
-		$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
-		return $sFullNotice;
+	public function addFlashMessage( $sMessage ) {
+		$this->loadDataProcessor()->setCookie( $this->doPluginPrefix( 'flash' ), esc_attr( $sMessage ) );
+	}
+
+	protected function readFlashMessage() {
+
+		$oDp = $this->loadDataProcessor();
+		$sCookieName = $this->doPluginPrefix( 'flash' );
+		$sMessage = esc_attr( $oDp->FetchCookie( $sCookieName, '' ) );
+		if ( !empty( $sMessage ) ) {
+			$this->sFlashMessage = $sMessage;
+		}
+		$oDp->setDeleteCookie( $sCookieName );
+	}
+
+	protected function flashNotice() {
+		if ( !empty( $this->sFlashMessage ) ) {
+			$aDisplayData = array( 'message' => $this->sFlashMessage );
+			$this->loadRenderer( $this->getPath_Templates() )
+				 ->setTemplate( 'notices/flash-message' )
+				 ->setRenderVars( $aDisplayData )
+				 ->display();
+		}
 	}
 
 	public function onWpEnqueueFrontendCss() {

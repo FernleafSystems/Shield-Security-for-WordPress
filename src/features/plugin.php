@@ -21,26 +21,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			return $bOverrideOff || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
 		}
 
-		/**
-		 */
-		public function doClearAdminFeedback() {
-			$this->setOpt( 'feedback_admin_notice', array() );
-		}
-
-		/**
-		 * @param string $sMessage
-		 */
-		public function doAddAdminFeedback( $sMessage ) {
-			$aFeedback = $this->getOpt( 'feedback_admin_notice', array() );
-			if ( !is_array( $aFeedback ) ) {
-				$aFeedback = array();
-			}
-			$aFeedback[] = $sMessage;
-			$this->setOpt( 'feedback_admin_notice', $aFeedback );
-		}
-
 		public function doExtraSubmitProcessing() {
-			$this->doAddAdminFeedback( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $this->getController()->getHumanName() ) );
+			$this->getController()->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $this->getController()->getHumanName() ) );
 		}
 
 		/**

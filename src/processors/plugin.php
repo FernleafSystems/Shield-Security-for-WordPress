@@ -37,7 +37,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$oCon = $this->getController();
 				// always show this notice
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
-				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeFeedback' ) );
 				if ( $this->getIfShowAdminNotices() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
@@ -112,30 +111,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				);
 				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'override-forceoff', $aDisplayData );
 			}
-			return $aAdminNotices;
-		}
-
-		/**
-		 * @param array $aAdminNotices
-		 * @return array
-		 */
-		public function adminNoticeFeedback( $aAdminNotices ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$aAdminFeedbackNotice = $this->getOption( 'feedback_admin_notice' );
-
-			if ( !empty( $aAdminFeedbackNotice ) && is_array( $aAdminFeedbackNotice ) ) {
-
-				foreach ( $aAdminFeedbackNotice as $sNotice ) {
-					if ( empty( $sNotice ) || !is_string( $sNotice ) ) {
-						continue;
-					}
-					$aAdminNotices[] = $this->getAdminNoticeHtml( '<p>'.$sNotice.'</p>', 'updated', false );
-				}
-				$oFO->doClearAdminFeedback( 'feedback_admin_notice', array() );
-			}
-
 			return $aAdminNotices;
 		}
 
