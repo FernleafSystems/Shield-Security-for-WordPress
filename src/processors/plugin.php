@@ -102,13 +102,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function adminNoticeForceOffActive( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
-			$fOverride = $oFO->getIfOverrideOff();
-			if ( $fOverride ) {
-				ob_start();
-				include( $oFO->getViewSnippet( 'admin_notice_override' ) );
-				$sNoticeMessage = ob_get_contents();
-				ob_end_clean();
-				$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false );
+
+			if ( $oFO->getIfOverrideOff() ) {
+				$aDisplayData = array(
+					'strings' => array(
+						'message' => sprintf( _wpsf__('Warning - %s.'), sprintf( _wpsf__('%s is not currently running' ), $this->getController()->getHumanName() ) ),
+						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
+					)
+				);
+				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'override-forceoff', $aDisplayData );
 			}
 			return $aAdminNotices;
 		}
