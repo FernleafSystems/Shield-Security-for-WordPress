@@ -205,7 +205,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function adminNoticePostPluginUpgrade( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
-
 			$oController = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
 
@@ -213,37 +212,44 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === $oFO->getVersion() ) {
 				return $aAdminNotices;
 			}
+			$this->updateVersionUserMeta(); // we show the upgrade notice only once.
 
 			if ( $this->getInstallationDays() <= 1 ) {
 				$sMessage = sprintf(
-					_wpsf__( "Note: The %s plugin does not automatically turn on features when you install." ),
+					sprintf( _wpsf__( "Notice - %s" ), "The %s plugin does not automatically turn on features when you install." ),
 					$oController->getHumanName()
 				);
 			}
 			else {
 				$sMessage = sprintf(
-					_wpsf__( "Note: The %s plugin has been recently upgraded, but please remember that any new features are not automatically enabled." ),
+					sprintf( _wpsf__( "Notice - %s" ), "The %s plugin has been recently upgraded, but please remember that any new features are not automatically enabled." ),
 					$oController->getHumanName()
 				);
 			}
-			$sMessage .= '<br />'.sprintf(
-					'<a href="%s" id="fromIcwp" title="%s" target="_blank">%s</a>',
-					'http://icwp.io/27',
-					$oController->getHumanName(),
-					_wpsf__( 'Click to read about any important updates from the plugin home page.' )
-				);
-			$sButtonText = _wpsf__( 'Okay, hide this notice and go to the plugin dashboard.' );
 
-			$sMetaFlag = $oController->doPluginPrefix( 'hide_update_notice' );
-			$sAction = $oController->getPluginUrl_AdminMainPage().'&'.$sMetaFlag.'=1';
-			$sRedirectPage = $oWp->getUrl_CurrentAdminPage();
-			ob_start();
-			include( $oFO->getViewSnippet( 'admin_notice_plugin_upgraded' ) );
-			$sNoticeMessage = ob_get_contents();
-			ob_end_clean();
-
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aDisplayData = array(
+				'strings' => array(
+					'main_message' => $sMessage,
+					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
+					'link_title' => $oController->getHumanName(),
+				),
+				'hrefs' => array(
+					'read_homepage' => 'http://icwp.io/27',
+					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_update_notice' ).'=1'
+				),
+			);
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'plugin_updated', $aDisplayData );
 			return $aAdminNotices;
+		}
+
+		/**
+		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
+		 *
+		 * @param integer $nId
+		 */
+		protected function updateVersionUserMeta( $nId = null ) {
+			$oCon = $this->getController();
+			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
 		}
 
 		/**
