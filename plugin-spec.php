@@ -29,6 +29,7 @@ includes:
       - plugin
     js:
       - bootstrap.min
+      - icwp-options
   frontend:
     css:
 
