@@ -59,8 +59,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$aSummary = array(
 						_wpsf__( 'Here you choose what kind of malicious data to scan for.' ),
 						sprintf( _wpsf__( 'Recommendation - %s' ),
-							_wpsf__( 'Turn on as many options here as you can and at minimum follow the recommended symbol.' ) )
-						.' '._wpsf__('If you find an incompatibility or something stops working, un-check 1 at a time until you find it or review the Audit Trail.'),
+							_wpsf__( 'Turn on as many options here as you can.' ) )
+						.' '._wpsf__('If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail.'),
 					);
 					$sTitleShort = _wpsf__( 'Firewall Blocking' );
 					break;
