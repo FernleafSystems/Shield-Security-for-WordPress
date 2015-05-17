@@ -1,11 +1,11 @@
-{% extends "section_options_base.twig" %}
+{% extends "feature-base.twig" %}
 
 {% block options_body %}
 	<div class="row">
 		<div class="{{ fShowAds ? 'span10' : 'span12' }}">
 
 			{% if aAllOptions|length %}
-			<div>
+			<div id="icwp-options-form">
 				{% include '/snippets/options_form.twig' %}
 			</div>
 			{% endif %}
@@ -16,7 +16,7 @@
 						{% include 'snippets/widget_options_footer.twig' %}
 					</div>
 				</div>
-			{% endif %}
+			{% endif %}\
 		</div><!-- / span10 -->
 
 		{% if fShowAds %}
