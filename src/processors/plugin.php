@@ -245,30 +245,32 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 * @return array
 		 */
 		public function adminNoticeTranslations( $aAdminNotices ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			if ( $this->getInstallationDays() < 7 ) {
-				return $aAdminNotices;
-			}
 
 			$oController = $this->getController();
-
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sCurrentMetaValue = $oWp->getUserMeta( $oController->doPluginOptionPrefix( 'plugin_translation_notice' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
 				return $aAdminNotices;
 			}
 
-			ob_start();
-			$sMetaFlag = $oController->doPluginPrefix( 'hide_translation_notice' );
-			$sAction = $oController->getPluginUrl_AdminMainPage().'&'.$sMetaFlag.'=1';
-			$sRedirectPage = $oWp->getUrl_CurrentAdminPage();
-			include( $oFO->getViewSnippet( 'admin_notice_translate_plugin' ) );
-			$sNoticeMessage = ob_get_contents();
-			ob_end_clean();
+			if ( $this->getInstallationDays() < 7 ) {
+				return $aAdminNotices;
+			}
 
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aDisplayData = array(
+				'strings' => array(
+					'like_to_help' => "Would you like to help translate the WordPress Simple Firewall into your language?",
+					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
+					'site_url' => 'translate.icontrolwp.com',
+					'dismiss' => _wpsf__( 'Dismiss this notice' )
+				),
+				'hrefs' => array(
+					'form_action' => $oController->getPluginUrl_AdminMainPage().'&'.$oController->doPluginPrefix( 'hide_translation_notice' ).'=1',
+					'redirect' => $oWp->getUrl_CurrentAdminPage(),
+					'translate' => 'http://translate.icontrolwp.com'
+				)
+			);
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'translate-plugin', $aDisplayData );
 			return $aAdminNotices;
 		}
 
