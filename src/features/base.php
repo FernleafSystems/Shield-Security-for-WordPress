@@ -902,7 +902,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 				'page_title'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
 				'strings'			=> array(
-					'go_to_settings' => _wpsf__( 'Go To Settings' ),
+					'go_to_settings' => _wpsf__( 'Settings' ),
+//					'go_to_settings' => _wpsf__( 'Go To Settings' ),
 					'on' => _wpsf__( 'On' ),
 					'off' => _wpsf__( 'Off' ),
 					'more_info' => _wpsf__( 'More Info' ),

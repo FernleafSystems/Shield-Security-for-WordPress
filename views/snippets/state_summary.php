@@ -38,6 +38,7 @@ function printFeatureSummaryBlock( $fOn, $sName, $sSettingsHref= '', $sInnerSpan
 		border: 1px solid rgba(0, 0, 0, 0.3);
 		border-radius: 3px;
 		margin-bottom: 20px;
+		/*min-width: 216px;*/
 		padding: 0;
 	}
 	.feature-summary-blocks .feature-summary-block.state-on {
