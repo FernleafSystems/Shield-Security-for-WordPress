@@ -1,7 +1,24 @@
 <?php
-if ( !class_exists( 'ICWP_WPSF_OptionsDisplay', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 
-	class ICWP_WPSF_OptionsDisplay extends ICWP_WPSF_Foundation {
+	class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
+
+		/**
+		 * @var ICWP_WPSF_Render
+		 */
+		protected static $oInstance = NULL;
+
+		private function __construct() {}
+
+		/**
+		 * @return ICWP_WPSF_Render
+		 */
+		public static function GetInstance() {
+			if ( is_null( self::$oInstance ) ) {
+				self::$oInstance = new self();
+			}
+			return self::$oInstance;
+		}
 
 		/**
 		 * @var array
@@ -32,10 +49,6 @@ if ( !class_exists( 'ICWP_WPSF_OptionsDisplay', false ) ):
 		 * @var Twig_Loader_Filesystem
 		 */
 		protected $oTwigLoader;
-
-		/**
-		 */
-		public function __construct() { }
 
 		/**
 		 * @return string

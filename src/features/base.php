@@ -10,11 +10,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected $oPluginController;
 
 		/**
-		 * @var ICWP_WPSF_OptionsDisplay
-		 */
-		protected $oOptionsDisplay;
-
-		/**
 		 * @var ICWP_WPSF_OptionsVO
 		 */
 		protected $oOptions;
@@ -1007,7 +1002,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
 			try {
 				$this
-					->getOptionsDisplay()
+					->loadRenderer( $this->getController()->getPath_Templates() )
 					->setTemplate( $sSubView )
 					->setRenderVars( $aData )
 					->display();
@@ -1015,20 +1010,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			catch( Exception $oE ) {
 				echo $oE->getMessage();
 			}
-		}
-
-		/**
-		 * @return ICWP_WPSF_OptionsDisplay
-		 */
-		protected function getOptionsDisplay() {
-			if ( !isset( $this->oOptionsDisplay ) ) {
-				$oCon = $this->getController();
-				require_once( dirname(__FILE__).ICWP_DS.'options-display.php' );
-				$this->oOptionsDisplay = ( new ICWP_WPSF_OptionsDisplay() )
-					->setAutoloaderPath( $oCon->getPath_SourceFile( 'lib/Twig/Autoloader.php' ) )
-					->setTemplatePath( $oCon->getPath_Templates() );
-			}
-			return $this->oOptionsDisplay;
 		}
 
 		/**
