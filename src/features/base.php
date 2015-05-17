@@ -1023,7 +1023,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			try {
 				$this
 					->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( $sSubView )
+					->setTemplate( 'features/'.$sSubView )
 					->setRenderVars( $aData )
 					->display();
 			}

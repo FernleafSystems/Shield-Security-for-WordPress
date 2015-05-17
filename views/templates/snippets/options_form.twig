@@ -1,3 +1,19 @@
+<style>
+	.row.row_section_summary {
+		margin: 10px 0 20px;
+	}
+	.row.row_section_summary div {
+		background-color: #f1f1f1;
+		border-radius: 2px;
+		box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+		padding: 20px 0;
+	}
+	.row.row_section_summary p {
+		margin: 0 20px 12px 20px;
+		font-family: 'Open Sans';
+	}
+</style>
+
 <form action="{{ form_action }}" method="post" class="form-horizontal">
 	{{ nonce_field|raw }}
 
@@ -18,6 +34,16 @@
 					<div class="span9">
 						<fieldset>
 							<legend>{{ sOptionSection.section_title }}</legend>
+
+							{% if ( sOptionSection.section_summary is defined ) and sOptionSection.section_summary|length %}
+							<div class="row row_section_summary">
+								<div class="span8">
+									{% for item in sOptionSection.section_summary %}
+									<p>{{ item }}</p>
+									{% endfor %}
+								</div>
+							</div>
+							{% endif %}
 
 							{% for key, aOption in sOptionSection.section_options %}
 								<div class="row row_number_{{ key }}">
