@@ -24,7 +24,7 @@
 						<td class="cell-message">{{ aAuditData.message }}</td>
 						<td class="cell-username">{{ aAuditData.wp_username }}</td>
 						<td class="cell-category">{{ aAuditData.category }}</td>
-						<td class="cell-ip">
+						<td class="cell-ip {{ ( nYourIp is sameas( aAuditData.ip ) ) ? strings.at_you : 'your-ip' }}">
 							{{ aAuditData.ip }}
 							{{ ( nYourIp is sameas( aAuditData.ip ) ) ? strings.at_you : '' }}
 						</td>

@@ -1,60 +1,42 @@
-<?php
-function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
-
-	?><h4 class="table-title"><?php echo $sTitle; ?></h4><?php
-
-	if ( empty( $aAuditData ) ) {
-		_wpsf_e( 'There are currently no audit entries this is section.' );
-		return;
-	}
-	?>
-	<table class="table table-hover table-striped table-audit_trail">
-		<tr>
-			<th class="cell-time"><?php _wpsf_e('Time'); ?></th>
-			<th class="cell-event"><?php _wpsf_e('Event'); ?></th>
-			<th class="cell-message"><?php _wpsf_e('Message'); ?></th>
-			<th class="cell-username"><?php _wpsf_e('Username'); ?></th>
-			<th class="cell-category"><?php _wpsf_e('Category'); ?></th>
-			<th class="cell-ip"><?php _wpsf_e('IP Address'); ?></th>
-		</tr>
-		<?php foreach( $aAuditData as $aAuditEntry ) : ?>
-			<tr>
-				<td class="cell-time"><?php echo $aAuditEntry['created_at']; ?></td>
-				<td class="cell-event"><?php echo $aAuditEntry['event']; ?></td>
-				<td class="cell-message"><?php echo $aAuditEntry['message']; ?></td>
-				<td class="cell-username"><?php echo $aAuditEntry['wp_username']; ?></td>
-				<td class="cell-category"><?php echo $aAuditEntry['category']; ?></td>
-				<td class="cell-ip">
-					<?php echo $aAuditEntry['ip']; ?>
-					<?php echo ( $nYourIp == $aAuditEntry['ip'] ) ? '<br />('._wpsf__('You').')' : ''; ?>
-				</td>
-			</tr>
-		<?php endforeach; ?>
-	</table>
-<?php
-}
-?>
 <div class="row">
 	<div class="span12">
 
-		<?php printAuditTrailTable( _wpsf__( 'WordPress Simple Firewall' ), $aAuditDataWpsf, $nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Users' ), $aAuditDataUsers, $nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Plugins' ), $aAuditDataPlugins, $nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Themes' ), $aAuditDataThemes, $nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'WordPress' ), $aAuditDataWordpress, $nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Posts' ), $aAuditDataPosts, $nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Emails' ), $aAuditDataEmails, $nYourIp ); ?>
+		<?php if ( !empty( $aAudits ) && is_array( $aAudits ) ) : ?>
+
+			<?php foreach ( $aAudits as $aAuditDataContext ) : ?>
+				<h4 class="table-title"><?php echo $aAuditDataContext['title']; ?></h4>
+				<table class="table table-hover table-striped table-audit_trail">
+					<tr>
+						<th class="cell-time"><?php echo $strings['at_time']; ?></th>
+						<th class="cell-event"><?php echo $strings['at_event']; ?></th>
+						<th class="cell-message"><?php echo $strings['at_message']; ?></th>
+						<th class="cell-username"><?php echo $strings['at_username']; ?></th>
+						<th class="cell-category"><?php echo $strings['at_category']; ?></th>
+						<th class="cell-ip"><?php echo $strings['at_ipaddress']; ?></th>
+					</tr>
+					<?php foreach ( $aAuditDataContext['trail'] as $aAuditData ) : ?>
+						<tr class="<?php echo ( $nYourIp == $aAuditData['ip'] ) ? 'your-ip' : 'not-your-ip'; ?>">
+							<td class="cell-time"><?php echo $aAuditData['created_at']; ?></td>
+							<td class="cell-event"><?php echo $aAuditData['event']; ?></td>
+							<td class="cell-message"><?php echo $aAuditData['message']; ?></td>
+							<td class="cell-username"><?php echo $aAuditData['wp_username']; ?></td>
+							<td class="cell-category"><?php echo $aAuditData['category']; ?></td>
+							<td class="cell-ip">
+								<?php echo $aAuditData['ip']; ?>
+								<br/><strong><?php echo ( $nYourIp == $aAuditData['ip'] ) ? $strings['at_you'] : ''; ?></strong>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</table>
+			<?php endforeach; ?>
+
+		<?php else : ?>
+			<?php echo $strings['at_no_audit_entries']; ?>
+		<?php endif; ?>
 
 	</div><!-- / span9 -->
 </div><!-- / row -->
 
-<div class="row">
-	<div class="span6">
-	</div><!-- / span6 -->
-	<div class="span6">
-		<p></p>
-	</div><!-- / span6 -->
-</div><!-- / row -->
 <style>
 
 	h4.table-title {
@@ -86,5 +68,11 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 	td .section-timestamp {
 		text-align: right;
 		width: 28%;
+	}
+	tr.not-your-ip td {
+
+	}
+	tr.your-ip td {
+		opacity: 0.6;
 	}
 </style>

@@ -391,9 +391,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$oDp = $this->loadDataProcessor();
 		$sCookieName = $this->doPluginPrefix( 'flash' );
-		$sMessage = esc_attr( $oDp->FetchCookie( $sCookieName, '' ) );
+		$sMessage = $oDp->FetchCookie( $sCookieName, '' );
 		if ( !empty( $sMessage ) ) {
-			$this->sFlashMessage = $sMessage;
+			$this->sFlashMessage = sanitize_text_field( $sMessage );
 		}
 		$oDp->setDeleteCookie( $sCookieName );
 	}
