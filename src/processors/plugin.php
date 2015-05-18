@@ -51,11 +51,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 		public function printPluginBadge() {
 			$oCon = $this->getController();
-			ob_start();
-			include( $oCon->getPath_ViewsSnippet( 'site_badge' ) );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ) );
+			$oRender = $this->loadRenderer( $oCon->getPath_Templates().'html' );
+			$sContents = $oRender
+				->clearRenderVars()
+				->setTemplate( 'plugin_badge' )
+				->setTemplateEngineHtml()
+				->render();
+			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $oCon->getHumanName() );
 		}
 
 		/**

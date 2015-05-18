@@ -5,6 +5,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 
 		const TEMPLATE_ENGINE_TWIG = 0;
 		const TEMPLATE_ENGINE_PHP = 1;
+		const TEMPLATE_ENGINE_HTML = 2;
 
 		/**
 		 * @var ICWP_WPSF_Render
@@ -69,11 +70,26 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 					$sOutput = $this->renderTwig();
 					break;
 
+				case self::TEMPLATE_ENGINE_HTML :
+					$sOutput = $this->renderHtml();
+					break;
+
 				default:
 					$sOutput = $this->renderPhp();
 					break;
 			}
 			return $sOutput;
+		}
+
+		/**
+		 * @return string
+		 */
+		private function renderHtml() {
+			ob_start();
+			@include( $this->getTemplatePath().ltrim( $this->getTemplate(), ICWP_DS ) );
+			$sContents = ob_get_contents();
+			ob_end_clean();
+			return $sContents;
 		}
 
 		/**
@@ -113,6 +129,13 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 				require_once( $this->sAutoloaderPath );
 				Twig_Autoloader::register();
 			}
+		}
+
+		/**
+		 * @return $this
+		 */
+		public function clearRenderVars() {
+			return $this->setRenderVars( array() );
 		}
 
 		/**
@@ -159,7 +182,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 */
 		public function getTemplateEngine() {
 			if ( !isset( $this->nTemplateEngine )
-				 || !in_array( $this->nTemplateEngine, array( self::TEMPLATE_ENGINE_TWIG, self::TEMPLATE_ENGINE_PHP ) ) ) {
+				 || !in_array( $this->nTemplateEngine, array( self::TEMPLATE_ENGINE_TWIG, self::TEMPLATE_ENGINE_PHP, self::TEMPLATE_ENGINE_HTML ) ) ) {
 				$this->nTemplateEngine = self::TEMPLATE_ENGINE_PHP;
 			}
 			return $this->nTemplateEngine;
@@ -183,7 +206,6 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		public function getRenderVars() {
 			return $this->aRenderVars;
 		}
-
 
 		/**
 		 * @param array $aVars
@@ -216,10 +238,31 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		}
 
 		/**
+		 * @return $this
+		 */
+		public function setTemplateEngineHtml() {
+			return $this->setTemplateEngine( self::TEMPLATE_ENGINE_HTML );
+		}
+
+		/**
+		 * @return $this
+		 */
+		public function setTemplateEnginePhp() {
+			return $this->setTemplateEngine( self::TEMPLATE_ENGINE_PHP );
+		}
+
+		/**
+		 * @return $this
+		 */
+		public function setTemplateEngineTwig() {
+			return $this->setTemplateEngine( self::TEMPLATE_ENGINE_TWIG );
+		}
+
+		/**
 		 * @param int $nEngine
 		 * @return $this
 		 */
-		public function setTemplateEngine( $nEngine ) {
+		protected function setTemplateEngine( $nEngine ) {
 			$this->nTemplateEngine = $nEngine;
 			return $this;
 		}
@@ -237,9 +280,23 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		private function getEngineStub() {
-			$sStub = 'php'; // default
-			if ( $this->getTemplateEngine() == self::TEMPLATE_ENGINE_TWIG ) {
-				$sStub = 'twig';
+			switch( $this->getTemplateEngine() ) {
+
+				case self::TEMPLATE_ENGINE_TWIG:
+					$sStub = 'twig';
+					break;
+
+				case self::TEMPLATE_ENGINE_HTML:
+					$sStub = 'html';
+					break;
+
+				case self::TEMPLATE_ENGINE_PHP:
+					$sStub = 'php';
+					break;
+
+				default:
+					$sStub = 'php';
+					break;
 			}
 			return $sStub;
 		}

@@ -1152,7 +1152,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates().$sTemplate.'.twig';
+		return $this->getPath_Templates().$sTemplate;
 	}
 
 	/**
