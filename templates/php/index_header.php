@@ -1,6 +1,5 @@
 <?php
 $sBaseDirName = dirname(__FILE__).ICWP_DS;
-include_once( $sBaseDirName . 'icwp_options_helper.php' );
 include_once( $sBaseDirName.'widgets'.ICWP_DS.'icwp_widgets.php' );
 ?>
 
