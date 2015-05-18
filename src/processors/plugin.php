@@ -37,7 +37,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$oCon = $this->getController();
 				// always show this notice
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
-				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeFeedback' ) );
 				if ( $this->getIfShowAdminNotices() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
@@ -52,11 +51,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 		public function printPluginBadge() {
 			$oCon = $this->getController();
-			ob_start();
-			include( $oCon->getPath_ViewsSnippet( 'site_badge' ) );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ) );
+			$oRender = $this->loadRenderer( $oCon->getPath_Templates().'html' );
+			$sContents = $oRender
+				->clearRenderVars()
+				->setTemplate( 'plugin_badge' )
+				->setTemplateEngineHtml()
+				->render();
+			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $oCon->getHumanName() );
 		}
 
 		/**
@@ -79,15 +80,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 * @return array
 		 */
 		public function adminNoticeYouAreWhitelisted( $aAdminNotices ) {
-			$oFO = $this->getFeatureOptions();
-			$bWhitelisted = $this->fGetIsVisitorWhitelisted( false );
-			if ( $bWhitelisted ) {
-				$sIpAddress = $this->loadDataProcessor()->getVisitorIpAddress();
-				ob_start();
-				include( $oFO->getViewSnippet( 'admin_notice_vistor_whitelisted' ) );
-				$sNoticeMessage = ob_get_contents();
-				ob_end_clean();
-				$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+
+			if ( $this->fGetIsVisitorWhitelisted( false ) ) {
+
+				$aDisplayData = array(
+					'strings' => array(
+						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
+						'notice_message' => sprintf(
+							_wpsf__( 'Notice - %s' ),
+							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
+						),
+					)
+				);
+				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'visitor-whitelisted', $aDisplayData );
 			}
 			return $aAdminNotices;
 		}
@@ -98,38 +103,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function adminNoticeForceOffActive( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
-			$fOverride = $oFO->getIfOverrideOff();
-			if ( $fOverride ) {
-				ob_start();
-				include( $oFO->getViewSnippet( 'admin_notice_override' ) );
-				$sNoticeMessage = ob_get_contents();
-				ob_end_clean();
-				$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false );
+
+			if ( $oFO->getIfOverrideOff() ) {
+				$aDisplayData = array(
+					'strings' => array(
+						'message' => sprintf( _wpsf__('Warning - %s.'), sprintf( _wpsf__('%s is not currently running' ), $this->getController()->getHumanName() ) ),
+						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
+					)
+				);
+				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'override-forceoff', $aDisplayData );
 			}
-			return $aAdminNotices;
-		}
-
-		/**
-		 * @param array $aAdminNotices
-		 * @return array
-		 */
-		public function adminNoticeFeedback( $aAdminNotices ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			$aAdminFeedbackNotice = $this->getOption( 'feedback_admin_notice' );
-
-			if ( !empty( $aAdminFeedbackNotice ) && is_array( $aAdminFeedbackNotice ) ) {
-
-				foreach ( $aAdminFeedbackNotice as $sNotice ) {
-					if ( empty( $sNotice ) || !is_string( $sNotice ) ) {
-						continue;
-					}
-					$aAdminNotices[] = $this->getAdminNoticeHtml( '<p>'.$sNotice.'</p>', 'updated', false );
-				}
-				$oFO->doClearAdminFeedback( 'feedback_admin_notice', array() );
-			}
-
 			return $aAdminNotices;
 		}
 
@@ -140,23 +123,34 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function adminNoticeMailingListSignup( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
 
-			$nDays = $this->getInstallationDays();
-			if ( $nDays < 2 ) {
-				return $aAdminNotices;
-			}
-
 			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oFO->prefixOptionKey( 'plugin_mailing_list_signup' ) );
 			if ( $sCurrentMetaValue == 'Y' ) {
 				return $aAdminNotices;
 			}
 
-			$sLink_HideNotice = $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1';
-			ob_start();
-			include( $oFO->getViewSnippet( 'admin_notice_mailchimp' ) );
-			$sNoticeMessage = ob_get_contents();
-			ob_end_clean();
+			$nDays = $this->getInstallationDays();
+			if ( $nDays < 5 ) {
+				return $aAdminNotices;
+			}
 
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aDisplayData = array(
+				'strings' => array(
+					'yes' => "Yes please! I'd love to join in and learn more",
+					'no' => "No thanks, I'm not interested in such groups",
+					'we_dont_spam' => "(don't worry, we don't SPAM. Ever.)",
+					'your_name' => _wpsf__( 'Your Name' ),
+					'your_email' => _wpsf__( 'Your Email' ),
+					'summary' => 'The WordPress Simple Firewall team is running an initiative (with currently over 1000 members) to raise awareness of WordPress Security
+				and to provide further help with the WordPress Simple Firewall plugin. Get Involved here:',
+				),
+				'hrefs' => array(
+					'form_action' => 'http://hostliketoast.us2.list-manage1.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
+					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1'
+				),
+				'install_days' => $nDays
+			);
+
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'security-group-signup', $aDisplayData );
 			return $aAdminNotices;
 		}
 
@@ -175,10 +169,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				return $aAdminNotices;
 			}
 
-			$sNoticeMessage = '<p>'.sprintf( _wpsf__( 'There is an update available for your WordPress Security plugin: %s.' ), '<strong>'.$this->getController()->getHumanName().'</strong>' ).'</p>';
-			$sNoticeMessage .= sprintf( '<a href="%s" class="button">'._wpsf__( 'Please click to update immediately' ).'</a>', $oWp->getPluginUpgradeLink( $sBaseFile ) );
+			$aDisplayData = array(
+				'strings' => array(
+					'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
+					'click_update' => _wpsf__( 'Please click to update immediately' )
+				),
+				'hrefs' => array(
+					'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
+				)
+			);
 
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'plugin_update_available', $aDisplayData );
 			return $aAdminNotices;
 		}
 
@@ -188,7 +189,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function adminNoticePostPluginUpgrade( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
-
 			$oController = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
 
@@ -196,37 +196,44 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === $oFO->getVersion() ) {
 				return $aAdminNotices;
 			}
+			$this->updateVersionUserMeta(); // we show the upgrade notice only once.
 
 			if ( $this->getInstallationDays() <= 1 ) {
 				$sMessage = sprintf(
-					_wpsf__( "Note: The %s plugin does not automatically turn on features when you install." ),
+					sprintf( _wpsf__( "Notice - %s" ), "The %s plugin does not automatically turn on features when you install." ),
 					$oController->getHumanName()
 				);
 			}
 			else {
 				$sMessage = sprintf(
-					_wpsf__( "Note: The %s plugin has been recently upgraded, but please remember that any new features are not automatically enabled." ),
+					sprintf( _wpsf__( "Notice - %s" ), "The %s plugin has been recently upgraded, but please remember that any new features are not automatically enabled." ),
 					$oController->getHumanName()
 				);
 			}
-			$sMessage .= '<br />'.sprintf(
-					'<a href="%s" id="fromIcwp" title="%s" target="_blank">%s</a>',
-					'http://icwp.io/27',
-					$oController->getHumanName(),
-					_wpsf__( 'Click to read about any important updates from the plugin home page.' )
-				);
-			$sButtonText = _wpsf__( 'Okay, hide this notice and go to the plugin dashboard.' );
 
-			$sMetaFlag = $oController->doPluginPrefix( 'hide_update_notice' );
-			$sAction = $oController->getPluginUrl_AdminMainPage().'&'.$sMetaFlag.'=1';
-			$sRedirectPage = $oWp->getUrl_CurrentAdminPage();
-			ob_start();
-			include( $oFO->getViewSnippet( 'admin_notice_plugin_upgraded' ) );
-			$sNoticeMessage = ob_get_contents();
-			ob_end_clean();
-
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aDisplayData = array(
+				'strings' => array(
+					'main_message' => $sMessage,
+					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
+					'link_title' => $oController->getHumanName(),
+				),
+				'hrefs' => array(
+					'read_homepage' => 'http://icwp.io/27',
+					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_update_notice' ).'=1'
+				),
+			);
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'plugin_updated', $aDisplayData );
 			return $aAdminNotices;
+		}
+
+		/**
+		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
+		 *
+		 * @param integer $nId
+		 */
+		protected function updateVersionUserMeta( $nId = null ) {
+			$oCon = $this->getController();
+			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
 		}
 
 		/**
@@ -234,30 +241,32 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 * @return array
 		 */
 		public function adminNoticeTranslations( $aAdminNotices ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			if ( $this->getInstallationDays() < 7 ) {
-				return $aAdminNotices;
-			}
 
 			$oController = $this->getController();
-
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sCurrentMetaValue = $oWp->getUserMeta( $oController->doPluginOptionPrefix( 'plugin_translation_notice' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
 				return $aAdminNotices;
 			}
 
-			ob_start();
-			$sMetaFlag = $oController->doPluginPrefix( 'hide_translation_notice' );
-			$sAction = $oController->getPluginUrl_AdminMainPage().'&'.$sMetaFlag.'=1';
-			$sRedirectPage = $oWp->getUrl_CurrentAdminPage();
-			include( $oFO->getViewSnippet( 'admin_notice_translate_plugin' ) );
-			$sNoticeMessage = ob_get_contents();
-			ob_end_clean();
+			if ( $this->getInstallationDays() < 7 ) {
+				return $aAdminNotices;
+			}
 
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aDisplayData = array(
+				'strings' => array(
+					'like_to_help' => "Would you like to help translate the WordPress Simple Firewall into your language?",
+					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
+					'site_url' => 'translate.icontrolwp.com',
+					'dismiss' => _wpsf__( 'Dismiss this notice' )
+				),
+				'hrefs' => array(
+					'form_action' => $oController->getPluginUrl_AdminMainPage().'&'.$oController->doPluginPrefix( 'hide_translation_notice' ).'=1',
+					'redirect' => $oWp->getUrl_CurrentAdminPage(),
+					'translate' => 'http://translate.icontrolwp.com'
+				)
+			);
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'translate-plugin', $aDisplayData );
 			return $aAdminNotices;
 		}
 

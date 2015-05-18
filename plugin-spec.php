@@ -11,11 +11,17 @@ properties:
   wpms_network_admin_only: true
   logging_enabled: true
   autoupdate: 'pass' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
+
+requirements:
+  php: '5.2.4'
+  wordpress: '3.5.0'
+
 paths:
   source: 'src'
   assets: 'resources'
   languages: 'languages'
-  views: 'views'
+  views: 'templates'
+  templates: 'templates'
   flags: 'flags'
 includes:
   admin:
@@ -28,6 +34,7 @@ includes:
       - plugin
     js:
       - bootstrap.min
+      - icwp-options
   frontend:
     css:
 

@@ -1,0 +1,28 @@
+{% extends "/features/feature-base.twig" %}
+
+{% block options_body %}
+	<div class="row">
+		<div class="{{ fShowAds ? 'span10' : 'span12' }}">
+
+			{% if aAllOptions|length %}
+			<div id="icwp-options-form">
+				{% include '/snippets/options_form.twig' %}
+			</div>
+			{% endif %}
+
+			{% if fShowAds %}
+				<div class="row-fluid">
+					<div class="span12">
+						{% include '/snippets/widget_options_footer.twig' %}
+					</div>
+				</div>
+			{% endif %}
+		</div><!-- / span10 -->
+
+		{% if fShowAds %}
+			<div class="span3" id="side_widgets">
+				{% include '/snippets/widget_sidebar.twig' %}
+			</div>
+		{% endif %}
+	</div><!-- / row -->
+{% endblock %}

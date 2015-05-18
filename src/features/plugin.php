@@ -21,26 +21,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			return $bOverrideOff || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
 		}
 
-		/**
-		 */
-		public function doClearAdminFeedback() {
-			$this->setOpt( 'feedback_admin_notice', array() );
-		}
-
-		/**
-		 * @param string $sMessage
-		 */
-		public function doAddAdminFeedback( $sMessage ) {
-			$aFeedback = $this->getOpt( 'feedback_admin_notice', array() );
-			if ( !is_array( $aFeedback ) ) {
-				$aFeedback = array();
-			}
-			$aFeedback[] = $sMessage;
-			$this->setOpt( 'feedback_admin_notice', $aFeedback );
-		}
-
 		public function doExtraSubmitProcessing() {
-			$this->doAddAdminFeedback( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $this->getController()->getHumanName() ) );
+			$this->getController()->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $this->getController()->getHumanName() ) );
 		}
 
 		/**
@@ -207,6 +189,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
 			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
@@ -224,7 +207,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'global_enable_plugin_features' :
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
-					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all WordPress Simple Firewall features.' ) );
+					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $this->getController()->getHumanName() );
 					break;
 
 				case 'ip_whitelist' :

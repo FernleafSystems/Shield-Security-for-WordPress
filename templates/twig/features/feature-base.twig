@@ -1,0 +1,23 @@
+{% import "/macros/macros.twig" as icwp_macros %}
+
+<div class="wrap">
+	<div class="bootstrap-wpadmin icwp-options-page {{ sFeatureSlug ? sFeatureSlug : '' }}">
+		{% block options_header %}
+			<div class="row">
+				<div class="span12">
+					{% include '/snippets/state_summary.twig' %}
+				</div>
+			</div>
+			<div class="page-header">
+				<h2>
+					<a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
+					{{ sPageTitle|raw }}
+				</h2>
+			</div>
+		{% endblock %}
+		{% block options_body %}
+		{% endblock %}
+		{% block options_footer %}
+		{% endblock %}
+	</div>
+</div>

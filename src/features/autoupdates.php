@@ -39,26 +39,45 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 
 				case 'section_enable_plugin_feature_automatic_updates_control' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic Updates' ) ) )
+					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_disable_all_wordpress_automatic_updates' :
 					$sTitle = _wpsf__( 'Disable ALL WordPress Automatic Updates' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'If you never want WordPress to automatically update anything on your site, turn on this option.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not turn on this option unless you really need to block updates.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Turn Off' );
 					break;
 
 				case 'section_automatic_plugin_self_update' :
 					$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), $this->getController()->getHumanName() ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this option turned on.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Self-Update' );
 					break;
 
 				case 'section_automatic_updates_for_wordpress_components' :
 					$sTitle = _wpsf__( 'Automatic Updates For WordPress Components' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Control how automatic updates for each WordPress component is handled.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'You should at least allow minor updates for the WordPress core.' ) )
+					);
 					$sTitleShort = _wpsf__( 'WordPress Components' );
 					break;
 
 				case 'section_automatic_update_email_notifications' :
 					$sTitle = _wpsf__( 'Automatic Update Email Notifications' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Control how you are notified of automatic updates that have occurred.' ) ),
+					);
 					$sTitleShort = _wpsf__( 'Notifications' );
 					break;
 
@@ -66,6 +85,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
 			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
@@ -95,7 +115,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 				case 'autoupdate_plugin_self' :
 					$sName = _wpsf__( 'Auto Update Plugin' );
 					$sSummary = _wpsf__( 'Always Automatically Update This Plugin' );
-					$sDescription = _wpsf__( 'Regardless of any component settings below, automatically update the WordPress Simple Firewall plugin.' );
+					$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), $this->getController()->getHumanName() );
 					break;
 
 				case 'autoupdate_core' :

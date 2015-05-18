@@ -1,0 +1,11 @@
+{% extends "/notices/base-error.twig" %}
+
+{% block notice_body %}
+	{{ strings.summary_title }}
+	<ul style="list-style: inside none disc;">
+		{% for req in strings.requirements %}
+			<li>{{ req }}</li>
+		{% endfor %}
+	</ul>
+	<a href="{{ hrefs.more_information }}" target="_blank">{{ strings.more_information }}</a>
+{% endblock %}

@@ -43,31 +43,52 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
 			switch( $aOptionsParams['section_slug'] ) {
 
 				case 'section_enable_plugin_feature_wordpress_firewall' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Firewall' ) ) )
+					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_firewall_blocking_options' :
 					$sTitle = _wpsf__( 'Firewall Blocking Options' );
+					$aSummary = array(
+						_wpsf__( 'Here you choose what kind of malicious data to scan for.' ),
+						sprintf( _wpsf__( 'Recommendation - %s' ),
+							_wpsf__( 'Turn on as many options here as you can.' ) )
+						.' '._wpsf__('If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail.'),
+					);
 					$sTitleShort = _wpsf__( 'Firewall Blocking' );
 					break;
 
 				case 'section_choose_firewall_block_response' :
 					$sTitle = _wpsf__('Choose Firewall Block Response');
+					$aSummary = array(
+						_wpsf__( 'Here you choose how the plugin will respond when it detects malicious data.' ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Choose the option "%s".' ), _wpsf__('Die With Message') ) )
+					);
 					$sTitleShort = _wpsf__( 'Firewall Response' );
 					break;
 
 				case 'section_whitelist' :
 					$sTitle = _wpsf__('Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall');
+					$aSummary = array(
+						_wpsf__( 'In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.' ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not whitelist anything unless you are confident in what you are doing.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Whitelist' );
 					break;
 
 				case 'section_blacklist' :
 					$sTitle = _wpsf__('Choose IP Addresses To Blacklist');
+					$aSummary = array(
+						_wpsf__( 'IP Address blacklists are nearly completely useless but is provided here in case absolutely required.' ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not blacklist anything unless you are confident in what you are doing.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Blacklist' );
 					break;
 
@@ -77,9 +98,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					break;
 
 				default:
-					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+//					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
 			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}

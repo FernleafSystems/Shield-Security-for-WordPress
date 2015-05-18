@@ -1,0 +1,34 @@
+
+<div class="row">
+	<div class="span12">
+		<h2>{{ strings.um_current_user_settings }}
+			<small>({{ time_now }})</small>
+		</h2>
+		{% if aActiveSessions|length %}
+			<table class="table table-bordered">
+				<tr>
+					<th>{{ strings.um_username }}</th>
+					<th>{{ strings.um_logged_in_at }}</th>
+					<th>{{ strings.um_last_activity_at }}</th>
+					<th>{{ strings.um_last_activity_uri }}</th>
+					<th>{{ strings.um_login_ip }}</th>
+					<th>{{ strings.um_login_attempts }}</th>
+				</tr>
+				{% for aSessionData in aActiveSessions %}
+					<tr>
+						<td>{{ aSessionData.wp_username }}</td>
+						<td>{{ aSessionData.logged_in_at }}</td>
+						<td>{{ aSessionData.last_activity_at }}</td>
+						<td>{{ aSessionData.last_activity_uri }}</td>
+						<td>
+							<a href="http://whois.domaintools.com/{{ aSessionData.ip }}" target="_blank">{{ aSessionData.ip }}</a>
+						</td>
+						<td>{{ aSessionData.login_attempts }}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% else %}
+			{{ strings.um_need_to_enable_user_management }}
+		{% endif %}
+	</div>
+</div>

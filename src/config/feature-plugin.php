@@ -72,9 +72,6 @@ options:
     key: 'installation_time'
     section: 'section_non_ui'
   -
-    key: 'feedback_admin_notice'
-    section: 'section_non_ui'
-  -
     key: 'capability_can_disk_write'
     section: 'section_non_ui'
   -
