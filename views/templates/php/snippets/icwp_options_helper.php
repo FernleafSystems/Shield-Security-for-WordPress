@@ -1,4 +1,6 @@
 <?php
+/** UNUSED and retained for reference */
+die();
 
 function printOptionsPageHeader( $insSection = '' ) {
 	$sLinkedIcwp = '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>';

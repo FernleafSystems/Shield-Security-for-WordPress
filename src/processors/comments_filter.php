@@ -42,6 +42,10 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		}
 	}
 
+	/**
+	 * @param array $aAdminNotices
+	 * @return array
+	 */
 	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {
 		// We only warn when the human spam filter is running
 		if ( !$this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
@@ -72,7 +76,6 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 	 * Always default to true, and if false, return that.
 	 *
 	 * @param boolean $fIfDoCheck
-	 *
 	 * @return boolean
 	 */
 	public function getIfDoCommentsCheck( $fIfDoCheck ) {

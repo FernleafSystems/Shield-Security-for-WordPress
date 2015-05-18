@@ -357,3 +357,7 @@ label input[type=checkbox] {
 #feature-audit_trail .feature-icon:before {
 	content: "\f115";
 }
+
+input[type="email"] {
+	height: 28px;
+}
