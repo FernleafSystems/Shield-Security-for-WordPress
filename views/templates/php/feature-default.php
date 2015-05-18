@@ -17,4 +17,4 @@
 			<?php echo getWidgetIframeHtml('side-widgets-wtb'); ?>
 		</div>
 	<?php endif; ?>
-</div><!-- / row -->
+</div>

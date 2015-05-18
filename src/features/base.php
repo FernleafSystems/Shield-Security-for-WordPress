@@ -558,7 +558,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 					if ( $sOptionType == 'text' ) {
 						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
 					}
-					$mCurrentOptionVal = esc_attr( $mCurrentOptionVal );
+					$mCurrentOptionVal = is_scalar( $mCurrentOptionVal ) ? esc_attr( $mCurrentOptionVal ) : $mCurrentOptionVal;
 
 					$aOptionParams['value'] = $mCurrentOptionVal;
 
@@ -954,17 +954,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			}
 			$aData[ 'sFeatureInclude' ] = $sSubView;
 
-			$sFile = $this->getController()->getPath_ViewsFile( 'config_index' );
-			if ( !is_file( $sFile ) ) {
-				echo "View not found: ".$sFile;
-				return false;
-			}
-
 			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
 			try {
 				echo $this
-					->loadRenderer( $this->getController()->getPath_Views() )
-					->setTemplate( 'config_index.php' )
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'index.php' )
 					->setRenderVars( $aData )
 					->render();
 			}

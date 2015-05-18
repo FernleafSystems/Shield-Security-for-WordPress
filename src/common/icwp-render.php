@@ -62,29 +62,47 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		public function render() {
-			if ( $this->getTemplateEngine() == self::TEMPLATE_ENGINE_PHP ) {
 
-				if ( count( $this->getRenderVars() ) > 0 ) {
-					extract( $this->getRenderVars() );
-				}
+			switch( $this->getTemplateEngine() ) {
 
-				ob_start();
-				include( rtrim( $this->getTemplatePath(), ICWP_DS ).ICWP_DS. ltrim( $this->getTemplate(), ICWP_DS ) );
-				$sContents = ob_get_contents();
-				ob_end_clean();
-				return $sContents;
+				case self::TEMPLATE_ENGINE_TWIG :
+					$sOutput = $this->renderTwig();
+					break;
 
+				default:
+					$sOutput = $this->renderPhp();
+					break;
 			}
-			elseif ( $this->getTemplateEngine() == self::TEMPLATE_ENGINE_TWIG ) {
-				$oTwig = $this->getTwigEnvironment();
-				return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
+			return $sOutput;
+		}
+
+		/**
+		 * @return string
+		 */
+		private function renderPhp() {
+			if ( count( $this->getRenderVars() ) > 0 ) {
+				extract( $this->getRenderVars() );
 			}
+
+			ob_start();
+			include( $this->getTemplatePath().ltrim( $this->getTemplate(), ICWP_DS ) );
+			$sContents = ob_get_contents();
+			ob_end_clean();
+			return $sContents;
+		}
+
+		/**
+		 * @return string
+		 */
+		private function renderTwig() {
+			$oTwig = $this->getTwigEnvironment();
+			return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
 		}
 
 		/**
 		 */
 		public function display() {
-			$this->getTwigEnvironment()->display( $this->getTemplate(), $this->getRenderVars() );
+			echo $this->render();
 			return $this;
 		}
 
@@ -128,7 +146,12 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		public function getTemplate() {
-			return $this->sTemplate;
+			$sTemplate = $this->sTemplate;
+			$sStub = $this->getEngineStub();
+			if ( !preg_match( sprintf( '#\.%s$#', $sStub ), $sTemplate ) ) {
+				$sTemplate = $sTemplate.'.'.$sStub;
+			}
+			return $sTemplate;
 		}
 
 		/**
@@ -146,7 +169,12 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		public function getTemplatePath() {
-			return $this->sTemplatePath;
+			$sPath = rtrim( $this->sTemplatePath, ICWP_DS );
+			$sStub = $this->getEngineStub();
+			if ( !preg_match( sprintf( '#%s$#', $sStub ), $sPath ) ) {
+				$sPath = $sPath.ICWP_DS.$sStub;
+			}
+			return $sPath.ICWP_DS;
 		}
 
 		/**
@@ -203,6 +231,17 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		public function setTemplatePath( $sPath ) {
 			$this->sTemplatePath = $sPath;
 			return $this;
+		}
+
+		/**
+		 * @return string
+		 */
+		private function getEngineStub() {
+			$sStub = 'php'; // default
+			if ( $this->getTemplateEngine() == self::TEMPLATE_ENGINE_TWIG ) {
+				$sStub = 'twig';
+			}
+			return $sStub;
 		}
 	}
 
