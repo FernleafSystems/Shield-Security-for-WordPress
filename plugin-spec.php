@@ -20,8 +20,8 @@ paths:
   source: 'src'
   assets: 'resources'
   languages: 'languages'
-  views: 'views'
-  templates: 'views/templates'
+  views: 'templates'
+  templates: 'templates'
   flags: 'flags'
 includes:
   admin:

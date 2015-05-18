@@ -1047,14 +1047,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
-		 * @param string $sSnippet
-		 * @return string
-		 */
-		public function getViewSnippet( $sSnippet = '' ) {
-			return $this->getController()->getPath_ViewsSnippet( $sSnippet );
-		}
-
-		/**
 		 * @param $sStatKey
 		 */
 		public function doStatIncrement( $sStatKey ) {
