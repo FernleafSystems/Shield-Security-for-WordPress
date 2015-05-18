@@ -169,10 +169,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				return $aAdminNotices;
 			}
 
-			$sNoticeMessage = '<p>'.sprintf( _wpsf__( 'There is an update available for your WordPress Security plugin: %s.' ), '<strong>'.$this->getController()->getHumanName().'</strong>' ).'</p>';
-			$sNoticeMessage .= sprintf( '<a href="%s" class="button">'._wpsf__( 'Please click to update immediately' ).'</a>', $oWp->getPluginUpgradeLink( $sBaseFile ) );
+			$aDisplayData = array(
+				'strings' => array(
+					'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
+					'click_update' => _wpsf__( 'Please click to update immediately' )
+				),
+				'hrefs' => array(
+					'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
+				)
+			);
 
-			$aAdminNotices[] = $this->getAdminNoticeHtml( $sNoticeMessage, 'updated', false );
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'plugin_update_available', $aDisplayData );
 			return $aAdminNotices;
 		}
 
