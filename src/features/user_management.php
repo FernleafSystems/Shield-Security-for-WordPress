@@ -49,7 +49,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
 				'aActiveSessions' => $aActiveSessions
 			);
-			$this->displayByTemplate( $aData );
+			$this->display( $aData );
 		}
 
 		/**

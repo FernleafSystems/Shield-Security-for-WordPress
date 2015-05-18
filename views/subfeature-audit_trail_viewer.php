@@ -37,13 +37,13 @@ function printAuditTrailTable( $sTitle, $aAuditData, $nYourIp = -1 ) {
 <div class="row">
 	<div class="span12">
 
-		<?php printAuditTrailTable( _wpsf__( 'WordPress Simple Firewall' ), $icwp_aAuditDataWpsf, $icwp_nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Users' ), $icwp_aAuditDataUsers, $icwp_nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Plugins' ), $icwp_aAuditDataPlugins, $icwp_nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Themes' ), $icwp_aAuditDataThemes, $icwp_nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'WordPress' ), $icwp_aAuditDataWordpress, $icwp_nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Posts' ), $icwp_aAuditDataPosts, $icwp_nYourIp ); ?>
-		<?php printAuditTrailTable( _wpsf__( 'Emails' ), $icwp_aAuditDataEmails, $icwp_nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'WordPress Simple Firewall' ), $aAuditDataWpsf, $nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'Users' ), $aAuditDataUsers, $nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'Plugins' ), $aAuditDataPlugins, $nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'Themes' ), $aAuditDataThemes, $nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'WordPress' ), $aAuditDataWordpress, $nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'Posts' ), $aAuditDataPosts, $nYourIp ); ?>
+		<?php printAuditTrailTable( _wpsf__( 'Emails' ), $aAuditDataEmails, $nYourIp ); ?>
 
 	</div><!-- / span9 -->
 </div><!-- / row -->

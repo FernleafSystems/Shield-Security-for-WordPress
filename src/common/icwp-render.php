@@ -3,6 +3,9 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 
 	class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 
+		const TEMPLATE_ENGINE_TWIG = 0;
+		const TEMPLATE_ENGINE_PHP = 1;
+
 		/**
 		 * @var ICWP_WPSF_Render
 		 */
@@ -41,6 +44,11 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		protected $sTemplate;
 
 		/**
+		 * @var int
+		 */
+		protected $nTemplateEngine;
+
+		/**
 		 * @var Twig_Environment
 		 */
 		protected $oTwigEnv;
@@ -54,8 +62,23 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		public function render() {
-			$oTwig = $this->getTwigEnvironment();
-			return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
+			if ( $this->getTemplateEngine() == self::TEMPLATE_ENGINE_PHP ) {
+
+				if ( count( $this->getRenderVars() ) > 0 ) {
+					extract( $this->getRenderVars() );
+				}
+
+				ob_start();
+				include( rtrim( $this->getTemplatePath(), ICWP_DS ).ICWP_DS. ltrim( $this->getTemplate(), ICWP_DS ) );
+				$sContents = ob_get_contents();
+				ob_end_clean();
+				return $sContents;
+
+			}
+			elseif ( $this->getTemplateEngine() == self::TEMPLATE_ENGINE_TWIG ) {
+				$oTwig = $this->getTwigEnvironment();
+				return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
+			}
 		}
 
 		/**
@@ -109,6 +132,17 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		}
 
 		/**
+		 * @return int
+		 */
+		public function getTemplateEngine() {
+			if ( !isset( $this->nTemplateEngine )
+				 || !in_array( $this->nTemplateEngine, array( self::TEMPLATE_ENGINE_TWIG, self::TEMPLATE_ENGINE_PHP ) ) ) {
+				$this->nTemplateEngine = self::TEMPLATE_ENGINE_PHP;
+			}
+			return $this->nTemplateEngine;
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getTemplatePath() {
@@ -146,10 +180,19 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return $this
 		 */
 		public function setTemplate( $sPath ) {
-			if ( !preg_match( '#\.twig$#', $sPath ) ) {
-				$sPath = $sPath . '.twig';
-			}
+//			if ( !preg_match( '#\.twig$#', $sPath ) ) {
+//				$sPath = $sPath . '.twig';
+//			}
 			$this->sTemplate = $sPath;
+			return $this;
+		}
+
+		/**
+		 * @param int $nEngine
+		 * @return $this
+		 */
+		public function setTemplateEngine( $nEngine ) {
+			$this->nTemplateEngine = $nEngine;
 			return $this;
 		}
 

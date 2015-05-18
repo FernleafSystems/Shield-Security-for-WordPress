@@ -14,371 +14,171 @@ function printOptionsPageHeader( $insSection = '' ) {
 	echo '</h2></div>';
 }
 
-function printAllPluginOptionsForm( $inaAllPluginOptions, $insVarPrefix = '', $iOptionsPerRow = 1 ) {
-	
-	if ( empty($inaAllPluginOptions) ) {
+function printAllPluginOptionsFormTabs( $aAllOptions, $var_prefix = '', $iOptionsPerRow = 1 ) {
+	if ( empty($aAllOptions) ) {
 		return;
 	}
+	$iOptionWidth = 8 / $iOptionsPerRow;//8 spans.
+	?>
 
-	$iRowWidth = 8; //8 spans.
-	$iOptionWidth = $iRowWidth / $iOptionsPerRow;
-
-	//Take each Options Section in turn
-	foreach ( $inaAllPluginOptions as $sOptionSection ) {
-
-		$fIsPrimarySection = isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'];
-
-		$sRowId = str_replace( ' ', '', $sOptionSection['section_title'] );
-		//Print the Section Title
-		echo '
-				<div class="row option_section_row '.( $fIsPrimarySection? 'primary_section' : 'non_primary_section' ).'" id="'.$sRowId.'">
-					<div class="span'.( $fIsPrimarySection? '9' : '9' ).'">
-						<fieldset>
-							<legend>'.$sOptionSection['section_title'].'</legend>
-		';
-		
-		$rowCount = 1;
-		$iOptionCount = 0;
-		//Print each option in the option section
-		foreach ( $sOptionSection['section_options'] as $aOption ) {
-			
-			$iOptionCount = $iOptionCount % $iOptionsPerRow;
-
-			if ( $iOptionCount == 0 ) {
-				echo '
-				<div class="row row_number_'.$rowCount.'">';
-			}
-			
-			echo getPluginOptionSpan( $aOption, $iOptionWidth, $insVarPrefix );
-
-			$iOptionCount++;
-
-			if ( $iOptionCount == $iOptionsPerRow ) {
-				echo '
-				</div> <!-- / options row -->';
-				$rowCount++;
-			}
-	
-		}//foreach option
-	
-		echo '
-					</fieldset>
-				</div>
-			</div>
-		';
-
-	}
-
-}
-
-function printAllPluginOptionsFormTabs( $inaAllPluginOptions, $insVarPrefix = '', $iOptionsPerRow = 1 ) {
-
-	if ( empty($inaAllPluginOptions) ) {
-		return;
-	}
-
-
-	$iRowWidth = 8; //8 spans.
-	$iOptionWidth = $iRowWidth / $iOptionsPerRow;
-
-	$nTabCount = 1;
-	//Take each Options Section in turn
-	?><ul class="nav nav-tabs"><?php
-	foreach ( $inaAllPluginOptions as $sOptionSection ) {
-		?>
-		<li class="<?php echo ( $nTabCount == 1 )? 'active' : '' ?>">
-			<a href="#<?php echo $sOptionSection['section_slug'] ?>" data-toggle="tab" >
-				<?php echo $sOptionSection['section_title_short']; ?>
-			</a>
+	<ul class="nav nav-tabs">
+	<?php foreach ( $aAllOptions as $sOptionSection ) : ?>
+		<li class="<?php echo $sOptionSection['section_primary'] ? 'active' : '' ?>">
+			<a href="#<?php echo $sOptionSection['section_slug'] ?>" data-toggle="tab" ><?php echo $sOptionSection['section_title_short']; ?></a>
 		</li>
-		<?php
-		$nTabCount++;
-	}
-	?></ul><?php
+	<?php endforeach; ?>
+	</ul>
 
-	$nTabCount = 1;
-	?><div class="tab-content"><?php
-	foreach ( $inaAllPluginOptions as $sOptionSection ) {
+	<div class="tab-content">
+	<?php foreach ( $aAllOptions as $sOptionSection ) : ?>
 
-		$aTabClasses = array( 'tab-pane', 'fade' );
-		if ( $nTabCount == 1 ) {
-			$aTabClasses[] = 'active';
-			$aTabClasses[] = 'in';
-		}
-		if ( isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'] ) {
-			$aTabClasses[] = ( isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'] ) ? 'primary_section' : 'non_primary_section';
-		}
+		<div class="tab-pane fade <?php echo $sOptionSection['section_primary'] ? 'active in primary_section' : 'non_primary_section'; ?>"
+			 id="<?php echo $sOptionSection['section_slug'] ?>">
+			<div class="row option_section_row <?php echo $sOptionSection['section_primary'] ? 'primary_section' : 'non_primary_section'; ?>"
+				 id="row-<?php echo $sOptionSection['section_slug']; ?>">
+				<div class="span9">
+					<fieldset>
+						<legend><?php echo $sOptionSection['section_title']; ?></legend>
 
-		?><div class="tab-pane <?php echo implode( ' ', $aTabClasses ); ?>" id="<?php echo $sOptionSection['section_slug'] ?>"><?php
+						<?php if ( !empty( $sOptionSection['section_summary'] ) ) : ?>
+							<div class="row row_section_summary">
+								<div class="span9">
+									<?php foreach( $sOptionSection['section_summary'] as $sItem ) : ?>
+										<p class="noselect"><?php echo $sItem; ?></p>
+									<?php endforeach; ?>
+								</div>
+							</div>
+						<?php endif; ?>
 
-		$fIsPrimarySection = isset( $sOptionSection['section_primary'] ) && $sOptionSection['section_primary'];
 
-		$sRowId = str_replace( array(' ',':'), '', $sOptionSection['section_title'] );
-		//Print the Section Title
-		echo '
-				<div class="row option_section_row '.( $fIsPrimarySection? 'primary_section' : 'non_primary_section' ).'" id="'.$sRowId.'">
-					<div class="span'.( $fIsPrimarySection? '9' : '9' ).'">
-						<fieldset>
-							<legend>'.$sOptionSection['section_title'].'</legend>
-		';
-
-		$rowCount = 1;
-		$iOptionCount = 0;
-		//Print each option in the option section
-		foreach ( $sOptionSection['section_options'] as $aOption ) {
-
-			$iOptionCount = $iOptionCount % $iOptionsPerRow;
-
-			if ( $iOptionCount == 0 ) {
-				echo '
-				<div class="row row_number_'.$rowCount.'">';
-			}
-
-			echo getPluginOptionSpan( $aOption, $iOptionWidth, $insVarPrefix );
-
-			$iOptionCount++;
-
-			if ( $iOptionCount == $iOptionsPerRow ) {
-				echo '
-				</div> <!-- / options row -->';
-				$rowCount++;
-			}
-
-		}//foreach option
-
-		echo '
+						<?php foreach( $sOptionSection['section_options'] as $nKeyRow => $aOption ) : ?>
+							<div class="row row_number_<?php echo $nKeyRow; ?>">
+								<?php getPluginOptionSpan( $aOption, $iOptionWidth, $var_prefix ); ?>
+							</div>
+						<?php endforeach; ?>
 					</fieldset>
 				</div>
 			</div>
-		';
-
-		?></div><?php
-		$nTabCount++;
-	}
-	?></div><?php
-
+		</div>
+	<?php endforeach; ?>
+	</div>
+<?php
 }
 
-function getPluginOptionSpan( $aOption, $nSpanSize, $insVarPrefix = '' ) {
-	
+function getPluginOptionSpan( $aOption, $nSpanSize, $var_prefix = '' ) {
+
 	$sOptionKey = $aOption['key'];
-	$sOptionSaved = $aOption['value'];
-	$sOptionDefault = $aOption['default'];
-	$sOptionType = $aOption['type'];
-	$aPossibleOptions = $aOption['value_options'];
-	$sHelpLink = $aOption['info_link'];
-	$sBlogLink = $aOption['blog_link'];
-	$sOptionHumanName = $aOption['name'];
-	$sOptionTitle = $aOption['summary'];
-	$sOptionHelpText = $aOption['description'];
+	$sOptionType = $aOption['type']; ?>
 
-	if ( $sOptionKey == 'spacer' ) {
-		$sHtml = '
-			<div class="span'.$nSpanSize.'">
-			</div>
-		';
-	}
-	else {
+	<?php if ( $sOptionKey == 'spacer' ) : ?>
+		<div class="span8"></div>
+	<?php else: ?>
 
-		$sLink = '';
-		$sLinkTemplate = '<br /><span>[%s]</span>';
-		if ( !empty($sHelpLink) ) {
-			$sLink = sprintf( $sLinkTemplate, '<a href="'.$sHelpLink.'" target="_blank">'._wpsf__('More Info').'</a>%s' );
-			if ( !empty( $sBlogLink ) ) {
-				$sLink = sprintf( $sLink, ' | <a href="'.$sBlogLink.'" target="_blank">'._wpsf__('Blog').'</a>' );
-			}
-			else {
-				$sLink = sprintf( $sLink, '' );
-			}
-		}
-
-		$sSpanId = 'span_'.$insVarPrefix.$sOptionKey;
-		$sHtml = '
-			<div class="item_group span'.$nSpanSize.' '.( ($sOptionSaved === 'Y' || $sOptionSaved != $sOptionDefault )? ' selected_item_group':'' ).'" id="'.$sSpanId.'">
-				<div class="control-group">
-					<label class="control-label" for="'.$insVarPrefix.$sOptionKey.'">'.$sOptionHumanName.$sLink.'</label>
-					<div class="controls">
-					  <div class="option_section'.( ($sOptionSaved == 'Y')? ' selected_item':'' ).'" id="option_section_'.$insVarPrefix.$sOptionKey.'">
+		<div class="item_group span8 <?php echo ( $aOption['value'] == 'Y' || $aOption['value'] != $aOption['default'] ) ? 'selected_item_group':''; ?>" id="span_<?php echo $var_prefix.$sOptionKey; ?>">
+			<div class="control-group">
+				<label class="control-label" for="<?php echo $var_prefix.$sOptionKey; ?>">
+					<?php echo $aOption['name']; ?>
+					<br />
+					[<a href="<?php echo $aOption['info_link']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
+					<?php if ( !empty( $aOption['blog_link'] ) ) : ?>
+						| <a href="<?php echo $aOption['blog_link']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
+					<?php endif; ?>
+					]
+				</label>
+				<div class="controls">
+					<div class="option_section <?php echo ( $aOption['value'] == 'Y' ) ? 'selected_item':''; ?>" id="option_section_<?php echo $var_prefix.$sOptionKey; ?>">
 						<label>
-		';
-		$sAdditionalClass = '';
-		$sHelpSection = '';
-		
-		if ( $sOptionType === 'checkbox' ) {
-			
-			$sChecked = ( $sOptionSaved == 'Y' )? 'checked="checked"' : '';
-			
-			$sHtml .= '
-				<input '.$sChecked.'
-						type="checkbox"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						value="Y"
-						class="'.$sAdditionalClass.'"
-						id="'.$insVarPrefix.$sOptionKey.'" />
-						'.$sOptionTitle;
+							<?php if ( $sOptionType == 'checkbox' ) : ?>
 
-		}
-		else if ( $sOptionType === 'text' ) {
-			$sTextInput = esc_attr( stripslashes( $sOptionSaved ) );
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<input type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						value="'.$sTextInput.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						class="span5" />';
-		}
-		else if ( $sOptionType === 'password' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<input type="password"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						value="'.$sTextInput.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						class="span5" />';
-		}
-		else if ( $sOptionType === 'email' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<input type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						value="'.$sTextInput.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						class="span5" />';
+								<input type="checkbox" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+									   value="Y" <?php echo ( $aOption['value'] == 'Y' ) ? 'checked="checked"':''; ?> />
+								<?php echo $aOption['summary']; ?>
 
-		}
-		else if ( $sOptionType === 'select' ) {
+							<?php elseif ( $sOptionType == 'text' ) : ?>
 
-			$sFragment = '<p>'.$sOptionTitle.'</p>
-				<select
-				id="'.$insVarPrefix.$sOptionKey.'"
-				name="'.$insVarPrefix.$sOptionKey.'">';
+								<p><?php echo $aOption['summary']; ?></p>
+								<input type="text" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+									   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
 
-			foreach( $aPossibleOptions as $mOptionValue => $sOptionName ) {
+							<?php elseif ( $sOptionType == 'password' ) : ?>
 
-				$fSelected = $sOptionSaved == $mOptionValue;
-				$sFragment .= '
-					<option
-					value="'.$mOptionValue.'"
-					id="'.$insVarPrefix.$sOptionKey.'_'.$mOptionValue.'"'
-					.( $fSelected? ' selected="selected"' : '') .'>'. $sOptionName.'</option>';
-			}
-			$sFragment .= '</select>';
-			$sHtml .= $sFragment;
-		}
-		else if ( $sOptionType === 'multiple_select' ) {
+								<p><?php echo $aOption['summary']; ?></p>
+								<input type="password" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+									   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
 
-			$sFragment = '<p>'.$sOptionTitle.'</p>
-				<select
-				id="'.$insVarPrefix.$sOptionKey.'"
-				name="'.$insVarPrefix.$sOptionKey.'[]" multiple multiple="multiple" size="'.count( $aPossibleOptions ).'">';
+							<?php elseif ( $sOptionType == 'email' ) : ?>
 
-			foreach( $aPossibleOptions as $mOptionValue => $sOptionName ) {
+								<p><?php echo $aOption['summary']; ?></p>
+								<input type="email" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+									   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
 
-				$fSelected = in_array( $mOptionValue, $sOptionSaved );
-				$sFragment .= '<option
-					value="'.$mOptionValue.'"
-					id="'.$insVarPrefix.$sOptionKey.'_'.$mOptionValue.'"'
-					.( $fSelected? ' selected="selected"' : '') .'>'. $sOptionName.'</option>';
-			}
-			$sFragment .= '</select>';
-			$sHtml .= $sFragment;
-		}
-		else if ( $sOptionType === 'ip_addresses' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$nRows = substr_count( $sTextInput, "\n" ) + 1;
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<textarea type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						rows="'.$nRows.'"
-						class="span5">'.$sTextInput.'</textarea>';
+							<?php elseif ( $sOptionType == 'select' ) : ?>
 
-			$sOptionHelpText = '<p class="help-block">'.$sOptionHelpText.'</p>';
+								<p><?php echo $aOption['summary']; ?></p>
+								<select name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>">
+									<?php foreach( $aOption['value_options'] as $sOptionValue => $sOptionValueName ) : ?>
+									<option value="<?php echo $sOptionValue; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>_<?php echo $sOptionValue; ?>"
+										<?php echo ( $sOptionValue == $aOption['value'] ) ? 'selected="selected"' : ''; ?>
+										><?php echo $sOptionValueName; ?></option>
+									<?php endforeach; ?>
+								</select>
 
-		}
-		else if ( $sOptionType === 'array' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$nRows = substr_count( $sTextInput, "\n" ) + 1;
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<textarea type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						rows="'.$nRows.'"
-						class="span5">'.$sTextInput.'</textarea>';
+							<?php elseif ( $sOptionType == 'multiple_select' ) : ?>
 
-			$sOptionHelpText = '<p class="help-block">'.$sOptionHelpText.'</p>';
+								<p><?php echo $aOption['summary']; ?></p>
+								<select name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+										multiple="multiple" size="<?php echo count( $aOption['value_options'] ); ?>">
+									<?php foreach( $aOption['value_options'] as $sOptionValue => $sOptionValueName ) : ?>
+										<option value="<?php echo $sOptionValue; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>_<?php echo $sOptionValue; ?>"
+											<?php echo ( $sOptionValue == $aOption['value'] ) ? 'selected="selected"' : ''; ?>
+											><?php echo $sOptionValueName; ?></option>
+									<?php endforeach; ?>
+								</select>
 
-		}
-		else if ( $sOptionType === 'yubikey_unique_keys' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$nRows = substr_count( $sTextInput, "\n" ) + 1;
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<textarea type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						rows="'.$nRows.'"
-						class="span5">'.$sTextInput.'</textarea>';
+							<?php elseif ( $sOptionType == 'ip_addresses' ) : ?>
 
-			$sOptionHelpText = '<p class="help-block">'.$sOptionHelpText.'</p>';
+								<p><?php echo $aOption['summary']; ?></p>
+								<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+									   placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
+									   class="span5" ><?php echo $aOption['value']; ?></textarea>
 
-		}
-		else if ( $sOptionType === 'comma_separated_lists' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$nRows = substr_count( $sTextInput, "\n" ) + 1;
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<textarea type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						rows="'.$nRows.'"
-						class="span5">'.$sTextInput.'</textarea>';
-		}
-		else if ( $sOptionType === 'integer' ) {
-			$sTextInput = esc_attr( $sOptionSaved );
-			$sHtml .= '
-				<p>'.$sOptionTitle.'</p>
-				<input type="text"
-						name="'.$insVarPrefix.$sOptionKey.'"
-						value="'.$sTextInput.'"
-						placeholder="'.$sTextInput.'"
-						id="'.$insVarPrefix.$sOptionKey.'"
-						class="span5" />';
-		}
-		else {
-			$sHtml .= 'we should never reach this point';
-		}
+							<?php elseif ( $sOptionType == 'array' ) : ?>
 
-//		$sOptionHelpText = '<p class="help-block">'
-//			.$sOptionHelpText
-//			.( isset($sHelpLink)? '<br /><span class="help-link">['.$sHelpLink.']</span>':'' )
-//			.'</p>';
-		
-		$sOptionHelpText = '<p class="help-block">'.$sOptionHelpText.'</p>';
+								<p><?php echo $aOption['summary']; ?></p>
+								<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+										  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
+										  class="span5" ><?php echo $aOption['value']; ?></textarea>
 
-		$sHtml .= '
+							<?php elseif ( $sOptionType == 'yubikey_unique_keys' ) : ?>
+
+								<p><?php echo $aOption['summary']; ?></p>
+								<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+										  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
+										  class="span5" ><?php echo $aOption['value']; ?></textarea>
+
+							<?php elseif ( $sOptionType == 'comma_separated_lists' ) : ?>
+
+								<p><?php echo $aOption['summary']; ?></p>
+								<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+										  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
+										  class="span5" ><?php echo $aOption['value']; ?></textarea>
+
+							<?php elseif ( $sOptionType == 'integer' ) : ?>
+
+								<p><?php echo $aOption['summary']; ?></p>
+								<input type="text" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+									   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
+
+							<?php else : ?>
+								ERROR: Should never reach this point.
+							<?php endif; ?>
+
 						</label>
-						'.$sOptionHelpText.'
+						<p class="help-block"><?php echo  $aOption['description']; ?></p>
 						<div style="clear:both"></div>
-					  </div>
-					</div><!-- controls -->'
-					.$sHelpSection.'
-				</div><!-- control-group -->
-			</div>
-		';
-	}
-	
-	return $sHtml;
+					</div>
+				</div><!-- controls -->'
+			</div><!-- control-group -->
+		</div>
+	<?php endif;
 }

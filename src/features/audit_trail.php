@@ -62,7 +62,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 				$aAudits[] = $aAuditContext;
 			}
 			$aDisplayData[ 'aAudits' ] = $aAudits;
-			$this->displayByTemplate( $aDisplayData, 'subfeature-audit_trail_viewer' );
+			$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
+//			$this->displayByTemplate( $aDisplayData, 'subfeature-audit_trail_viewer' );
 		}
 
 		/**

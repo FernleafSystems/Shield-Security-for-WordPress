@@ -442,8 +442,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	public function onWpEnqueueAdminCss() {
 
-		$sDependent = '';
-
 		if ( $this->getIsValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminCss['css'] ) && !empty( $aAdminCss['css'] ) && is_array( $aAdminCss['css'] ) ) {
@@ -452,7 +450,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -468,7 +466,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}

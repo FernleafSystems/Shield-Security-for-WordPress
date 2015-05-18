@@ -134,7 +134,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			$aData = array(
 				'aSummaryData'		=> $aPluginSummaryData
 			);
-			$this->displayByTemplate( $aData );
+			$this->display( $aData );
 		}
 
 		/**

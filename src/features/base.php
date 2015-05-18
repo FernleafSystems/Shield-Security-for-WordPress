@@ -869,7 +869,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		/**
 		 */
 		public function displayFeatureConfigPage() {
-			$this->displayByTemplate();
+			$this->display();
 		}
 
 		/**
@@ -900,7 +900,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
 				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
 
-				'page_title'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
+				'sPageTitle'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
 				'strings'			=> array(
 					'go_to_settings' => _wpsf__( 'Settings' ),
 //					'go_to_settings' => _wpsf__( 'Go To Settings' ),
@@ -960,37 +960,29 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				return false;
 			}
 
-			if ( count( $aData ) > 0 ) {
-				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
-			}
-
-			ob_start();
-			include( $sFile );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-
-			echo $sContents;
-			return true;
-		}
-
-		/**
-		 * @param string $sAdminNotice
-		 * @param array $aData
-		 * @return string
-		 */
-		public function renderAdminNotice( $sAdminNotice, $aData ) {
+			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
 			try {
-				$sOutput = $this
-					->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( 'notices'.ICWP_DS.$sAdminNotice )
+				echo $this
+					->loadRenderer( $this->getController()->getPath_Views() )
+					->setTemplate( 'config_index.php' )
 					->setRenderVars( $aData )
 					->render();
 			}
 			catch( Exception $oE ) {
-				$sOutput = $oE->getMessage();
+				echo $oE->getMessage();
 			}
 
-			return $sOutput;
+//			if ( count( $aData ) > 0 ) {
+//				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
+//			}
+//
+//			ob_start();
+//			include( $sFile );
+//			$sContents = ob_get_contents();
+//			ob_end_clean();
+//
+//			echo $sContents;
+//			return true;
 		}
 
 		/**
@@ -1031,6 +1023,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			catch( Exception $oE ) {
 				echo $oE->getMessage();
 			}
+		}
+
+		/**
+		 * @param string $sAdminNotice
+		 * @param array $aData
+		 * @return string
+		 */
+		public function renderAdminNotice( $sAdminNotice, $aData ) {
+			try {
+				$sOutput = $this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'notices'.ICWP_DS.$sAdminNotice )
+					->setRenderVars( $aData )
+					->render();
+			}
+			catch( Exception $oE ) {
+				$sOutput = $oE->getMessage();
+			}
+
+			return $sOutput;
 		}
 
 		/**

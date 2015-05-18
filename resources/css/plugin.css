@@ -176,6 +176,32 @@ p.code-description {
 	opacity: 0.5;
 }
 /* BOOSTRAP SETTINGS PAGE STYLES */
+
+/** Section summaries **/
+.row.row_section_summary {
+	margin: 10px 0 20px;
+}
+.row.row_section_summary div {
+	background-color: #f1f1f1;
+	border-radius: 2px;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+	margin: 0;
+	padding: 15px 0 12px;
+}
+.row.row_section_summary p {
+	margin: 0 20px 12px 20px;
+	font-family: 'Open Sans';
+}
+.row.row_section_summary p.noselect {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+/** End-Section summaries **/
+
 .wrap .icon32 {
 	width: 32px;
 }
@@ -261,4 +287,73 @@ table#tbl_tbs_options_javascript td {
 
 label input[type=checkbox] {
 	height: 16px !important;
+}
+
+/** FEature summaries **/
+
+.feature-summary-blocks {
+}
+.feature-summary-blocks .feature-summary-block {
+	background-color: #F6F6F6;
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	border-radius: 3px;
+	margin-bottom: 20px;
+	/*min-width: 216px;*/
+	padding: 0;
+}
+.feature-summary-blocks .feature-summary-block.state-on {
+	background-color: rgba( 102, 216, 45, 0.2 );
+}
+.feature-summary-blocks .feature-summary-block.state-off {
+	background-color: rgba( 239, 141, 49, 0.2 );
+}
+.feature-summary-blocks .feature-summary-block .row-fluid .feature-icon {
+	padding: 20px;
+	text-align: center;
+}
+.feature-summary-blocks .feature-summary-block .row-fluid div {
+	line-height: 46px;
+	padding: 20px;
+	text-align: center;
+}
+.feature-summary-blocks .feature-summary-block .feature-icon a {
+	margin-left: 53px;
+}
+.feature-summary-blocks .feature-summary-block .feature-name {
+	border-top: 1px dashed #999999;
+	padding: 5px 20px;
+}
+.feature-summary-blocks .feature-summary-block .feature-name .feature-enabled-text {
+	float: right;
+}
+.feature-summary-blocks .feature-summary-block .feature-icon:before {
+	-webkit-font-smoothing: antialiased;
+	display: inline-block;
+	font: 48px/1 'dashicons';
+	vertical-align: top;
+}
+#feature-dashboard .feature-icon:before,
+#feature-admin_access_restriction .feature-icon:before {
+	content: "\f332";
+}
+#feature-firewall .feature-icon:before {
+	content: "\f479";
+}
+#feature-user_management .feature-icon:before {
+	content: "\f307";
+}
+#feature-login_protect .feature-icon:before {
+	content: "\f112";
+}
+#feature-comments_filter .feature-icon:before {
+	content: "\f125";
+}
+#feature-autoupdates .feature-icon:before {
+	content: "\f463";
+}
+#feature-lockdown .feature-icon:before {
+	content: "\f160";
+}
+#feature-audit_trail .feature-icon:before {
+	content: "\f115";
 }

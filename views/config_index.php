@@ -1,7 +1,7 @@
 <?php
 $sFeatureInclude = 'feature-default';
-if ( !empty( $icwp_sFeatureInclude ) ) {
-	$sFeatureInclude = $icwp_sFeatureInclude;
+if ( !empty( $sFeatureInclude ) ) {
+	$sFeatureInclude = $sFeatureInclude;
 }
 $sBaseDirName = dirname(__FILE__).ICWP_DS;
 include_once( $sBaseDirName.'config_header.php' );
