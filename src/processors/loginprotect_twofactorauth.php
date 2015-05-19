@@ -43,6 +43,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * Should be hooked to 'init' so we have is_user_logged_in()
 		 */
 		public function checkCurrentUserAuth() {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
 
 			if ( is_user_logged_in() ) {
 
@@ -50,7 +52,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$oUser = $oWp->getCurrentWpUser();
 				if ( !is_null( $oUser ) ) {
 
-					if ( $this->getIsUserLevelSubjectToTwoFactorAuth( $oUser->get( 'user_level' ) ) && !$this->getUserHasValidAuth( $oUser ) ) {
+					if ( $this->getUserHasValidAuth( $oUser ) ) {
+						// we do this for active users who already have verified
+						if ( !$oFO->getIfCanSendEmailVerified() ) {
+							$oFO->setIfCanSendEmail( true );
+						}
+					}
+					else if ( $this->getIsUserLevelSubjectToTwoFactorAuth( $oUser->get( 'user_level' ) ) ) {
 
 						$sAuditMessage = sprintf( _wpsf__('User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).'), $oUser->get( 'user_login' ) );
 						$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_logout_unverified' );
@@ -123,7 +131,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
 				$oWp->setUserLoggedIn( $sUsername );
-				$oFO->setIfCanSendEmail( true ); // we do this for previous users who verify
 				$oWp->redirectToAdmin();
 			}
 			else {

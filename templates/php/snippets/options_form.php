@@ -94,7 +94,7 @@
 																		multiple="multiple" size="<?php echo count( $aOption['value_options'] ); ?>">
 																	<?php foreach( $aOption['value_options'] as $sOptionValue => $sOptionValueName ) : ?>
 																		<option value="<?php echo $sOptionValue; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>_<?php echo $sOptionValue; ?>"
-																			<?php echo ( $sOptionValue == $aOption['value'] ) ? 'selected="selected"' : ''; ?>
+																			<?php echo in_array( $sOptionValue, $aOption['value'] ) ? 'selected="selected"' : ''; ?>
 																			><?php echo $sOptionValueName; ?></option>
 																	<?php endforeach; ?>
 																</select>
