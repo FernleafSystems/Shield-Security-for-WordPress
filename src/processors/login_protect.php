@@ -86,6 +86,8 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
 			if (  $oFO->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
 				$oFO->setIfCanSendEmail( true );
+				$oFO->savePluginOptions();
+				$oWp->redirectToLogin();
 			}
 		}
 
