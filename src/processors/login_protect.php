@@ -43,6 +43,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
+		$oDp = $this->loadDataProcessor();
 		$oWp = $this->loadWpFunctionsProcessor();
 
 		// XML-RPC Compatibility
@@ -73,12 +74,47 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorYubikey()->run();
 		}
 
-		if ( $oFO->getIsTwoFactorAuthOn() ) {
+		if ( $oFO->getIsEmailTwoFactorAuthEnabled() ) {
 			$this->getProcessorTwoFactor()->run();
+		}
+		else if ( $oFO->getIsTwoFactorAuthOn() )  {
+			//we're here because two-factor auth settings are on, but it's not enabled (probably due to email ability not verified
+			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
+		}
+
+		// User has clicked a link in their email to verify they can send email.
+		if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
+			if (  $oFO->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
+				$oFO->setIfCanSendEmail( true );
+			}
 		}
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
+	}
+
+	/**
+	 * @param array $aAdminNotices
+	 * @return array
+	 */
+	public function adminNoticeVerifyEmailAbility( $aAdminNotices ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+
+		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIfCanSendEmail() ) {
+
+			$aDisplayData = array(
+				'strings' => array(
+					'need_you_confirm' => _wpsf__("Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails."),
+					'please_click_link' => _wpsf__("Please click the link in the email you received."),
+					'email_sent_to' => sprintf( _wpsf__("The email has been sent to you at blog admin address: %s"), get_bloginfo('admin_email') ),
+					'how_resend_email' => _wpsf__("To have this email resent, re-save your Login Protection settings."),
+					'how_turn_off' => _wpsf__("To turn this notice off, disable Two Factor authentication."),
+				)
+			);
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'email-verification-sent', $aDisplayData );
+		}
+		return $aAdminNotices;
 	}
 
 	/**

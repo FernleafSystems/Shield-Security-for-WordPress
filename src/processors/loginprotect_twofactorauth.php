@@ -23,7 +23,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		public function run() {
 			$oDp = $this->loadDataProcessor();
 
-			// User has clicked a link in their email to validate their IP address for login.
 			if ( $oDp->FetchGet( 'wpsf-action' ) == 'linkauth' ) {
 				add_action( 'init', array( $this, 'validateUserAuthLink' ), 10 );
 			}
@@ -124,6 +123,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
 				$oWp->setUserLoggedIn( $sUsername );
+				$oFO->setIfCanSendEmail( true ); // we do this for previous users who verify
 				$oWp->redirectToAdmin();
 			}
 			else {

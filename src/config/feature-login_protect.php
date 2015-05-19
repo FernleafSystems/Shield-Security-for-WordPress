@@ -167,6 +167,10 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
+    key: 'email_can_send_verified_at'
+    section: 'section_non_ui'
+    default: -1
+  -
     key: 'gasp_key'
     section: 'section_non_ui'
   -
