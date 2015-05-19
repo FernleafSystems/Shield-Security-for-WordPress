@@ -263,10 +263,15 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = Point Release 4.7.4 =
-*Released: 15th May, 2015*
+*Released: 20th May, 2015*
 
+* **(v.4)**  ADDED:         Email Sending Verification when enabling two-factor authentication - this ensures your site can send (and you can receive) emails.
+* **(v.4)**  ADDED:         Section Summaries - each option tab contains a small text summary outlining the purpose and recommendation for each.
 * **(v.4)**  CHANGED:       The Admin Access Key input is now a password field.
 * **(v.4)**  CHANGED:       Custom Login URL now works with or without trailing slash.
+* **(v.4)**  CHANGED:       Streamlining and improvement of PHP UI templates
+* **(v.4)**  ADDED:         Implemented TWIG for templates (not yet activated)
+* **(v.4)**  TRANSLATIONS:  Romanian (100%), Spanish-Spain (63%)
 
 = 4.7 Series =
 *Released: 29th April, 2015*
