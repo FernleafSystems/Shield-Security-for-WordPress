@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'user_management' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
   storag
 # Options Sections
 sections:
@@ -122,5 +123,6 @@ options:
     section: 'section_non_ui'
     default: false
 ",
-		_wpsf__( 'User Management' )
+		_wpsf__( 'User Management' ),
+		_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' ) //tagline
 	);

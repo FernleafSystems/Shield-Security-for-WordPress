@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'loginprotect' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
 # Options Sections
 sections:
   -
@@ -213,5 +214,6 @@ options:
     section: 'section_non_ui'
     default: false
 ",
-		_wpsf__( 'Login Protection' )
+		_wpsf__( 'Login Protection' ),
+		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' ) //tagline
 	);

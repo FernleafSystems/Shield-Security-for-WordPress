@@ -889,6 +889,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
 				'sPluginName'		=> $oCon->getHumanName(),
 				'sFeatureName'		=> $this->getMainFeatureName(),
+				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
 				'fShowAds'			=> $this->getIsShowMarketing(),
 				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
 				'sFeatureSlug'		=> $this->doPluginPrefix( $this->getFeatureSlug() ),
@@ -900,7 +901,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
 				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
 
-				'sPageTitle'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
+				'sPageTitle'		=> $this->getMainFeatureName(),
+//				'sPageTitle'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
 				'strings'			=> array(
 					'go_to_settings' => _wpsf__( 'Settings' ),
 //					'go_to_settings' => _wpsf__( 'Go To Settings' ),

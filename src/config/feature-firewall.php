@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'firewall' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
 # Options Sections
 sections:
   -
@@ -150,5 +151,6 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
 ",
-		_wpsf__( 'Firewall' )
+		_wpsf__( 'Firewall' ),
+		_wpsf__( 'Automatically block malicious URLs and data sent to your site' )
 	);

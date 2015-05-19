@@ -141,7 +141,7 @@
 														<p class="help-block"><?php echo  $aOption['description']; ?></p>
 														<div style="clear:both"></div>
 													</div>
-												</div><!-- controls -->'
+												</div><!-- controls -->
 											</div><!-- control-group -->
 										</div>
 									<?php endif; ?>

@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'lockdown' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
 # Options Sections
 sections:
   -
@@ -68,5 +69,6 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
 ",
-		_wpsf__( 'Lockdown' )
+		_wpsf__( 'Lockdown' ),
+		_wpsf__( 'Harden the more loosely controlled settings of your site' ) //tagline
 	);

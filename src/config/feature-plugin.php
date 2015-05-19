@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'plugin' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
 # Options Sections
 sections:
   -
@@ -115,5 +116,6 @@ options:
         slug: 'email'
         storage_key: 'email'
 ",
-		_wpsf__( 'Dashboard' )
+		_wpsf__( 'Dashboard' ),
+		_wpsf__( 'Overview of the plugin settings' ) //tagline
 	);

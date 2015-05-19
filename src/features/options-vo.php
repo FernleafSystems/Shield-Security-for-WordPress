@@ -90,6 +90,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getFeatureTagline() {
+		return $this->getFeatureProperty( 'tagline' );
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return boolean
 	 */

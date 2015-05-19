@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'audit_trail' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
 # Options Sections
 sections:
   -
@@ -117,5 +118,6 @@ menu_items:
     callback: 'displayAuditTrailViewer'
 ",
 		_wpsf__( 'Audit Trail' ),
+		_wpsf__( 'Get a view on what happens on your site, when it happens' ), //tagline
 		_wpsf__( 'Audit Trail Viewer' )
 	);

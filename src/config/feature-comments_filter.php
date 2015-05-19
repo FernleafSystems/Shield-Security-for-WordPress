@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'commentsfilter' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
   use_sessions: true
 # Options Sections
 sections:
@@ -190,5 +191,6 @@ options:
     section: 'section_non_ui'
     default: false
 ",
-		_wpsf__( 'Comments Filter' )
+		_wpsf__( 'Comments Filter' ),
+		_wpsf__( 'Block comment SPAM and retain your privacy' ) //tagline
 	);
