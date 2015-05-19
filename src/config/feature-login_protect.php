@@ -52,6 +52,27 @@ options:
     link_info: 'http://icwp.io/5q'
     link_blog: 'http://icwp.io/5r'
   -
+    key: 'enable_two_factor_auth_by_ip'
+    section: 'section_two_factor_authentication'
+    default: 'N'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/3s'
+    link_blog: ''
+  -
+    key: 'enable_two_factor_auth_by_cookie'
+    section: 'section_two_factor_authentication'
+    default: 'N'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/3t'
+    link_blog: ''
+  -
+    key: 'enable_two_factor_bypass_on_email_fail'
+    section: 'section_two_factor_authentication'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'two_factor_auth_user_roles'
     section: 'section_two_factor_authentication'
     type: 'multiple_select'
@@ -77,27 +98,6 @@ options:
         value_key: 8
         text: 'Administrators'
     link_info: 'http://icwp.io/4v'
-    link_blog: ''
-  -
-    key: 'enable_two_factor_auth_by_ip'
-    section: 'section_two_factor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/3s'
-    link_blog: ''
-  -
-    key: 'enable_two_factor_auth_by_cookie'
-    section: 'section_two_factor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/3t'
-    link_blog: ''
-  -
-    key: 'enable_two_factor_bypass_on_email_fail'
-    section: 'section_two_factor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
     link_blog: ''
   -
     key: 'enable_user_register_checking'
@@ -166,6 +166,10 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+  -
+    key: 'email_can_send_verified_at'
+    section: 'section_non_ui'
+    default: -1
   -
     key: 'gasp_key'
     section: 'section_non_ui'

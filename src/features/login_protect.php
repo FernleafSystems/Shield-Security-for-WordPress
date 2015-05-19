@@ -12,15 +12,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 		}
 
-		/**
 		protected function doExtraSubmitProcessing() {
+			/**
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sCustomLoginPath = $this->cleanLoginUrlPath();
 			if ( !empty( $sCustomLoginPath ) && $oWp->getIsPermalinksEnabled() ) {
 				$oWp->resavePermalinks();
 			}
-		}
 		 */
+			if ( $this->getIsTwoFactorAuthOn() && !$this->getIfCanSendEmailVerified() ) {
+				$this->setIfCanSendEmail( false );
+				$this->sendEmailVerifyCanSend();
+			}
+		}
 
 		public function doPrePluginOptionsSave() {
 
@@ -42,6 +46,36 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			if ( empty($aTwoFactorAuthRoles) || !is_array( $aTwoFactorAuthRoles ) ) {
 				$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
 			}
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function generateCanSendEmailVerifyLink() {
+			$aQueryArgs = array(
+				'wpsfkey' 		=> $this->getTwoAuthSecretKey(),
+				'wpsf-action'	=> 'emailsendverify'
+			);
+			return add_query_arg( $aQueryArgs, home_url() );
+		}
+
+		/**
+		 * @return boolean
+		 */
+		public function sendEmailVerifyCanSend() {
+
+			$aMessage = array(
+				_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
+				_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
+				sprintf( _wpsf__('Verify Link: %s'), $this->generateCanSendEmailVerifyLink() ),
+			);
+			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For: %s' ), home_url() );
+
+			// add filters to email sending (for now only Mandrill)
+			add_filter( 'mandrill_payload', array ($this, 'customiseMandrill' ) );
+
+			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo('admin_email'), $sEmailSubject, $aMessage );
+			return $bResult;
 		}
 
 		/**
@@ -374,6 +408,50 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					return $fIp || $fCookie;
 					break;
 			}
+		}
+
+		/**
+		 * Also considers whether email sending ability has been verified
+		 * @return bool
+		 */
+		public function getIsEmailTwoFactorAuthEnabled() {
+			return $this->getIfCanSendEmail() && $this->getIsTwoFactorAuthOn();
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getCanSendEmailVerifiedAt() {
+			return $this->getOpt( 'email_can_send_verified_at' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIfCanSendEmail() {
+			return $this->getCanSendEmailVerifiedAt() != 0;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIfCanSendEmailVerified() {
+			return $this->getCanSendEmailVerifiedAt() > 0;
+		}
+
+		/**
+		 * @param bool $bCan
+		 * @return bool
+		 */
+		public function setIfCanSendEmail( $bCan ) {
+			$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
+			if ( $bCan ) {
+				$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadDataProcessor()->time() : $nCurrentDateAt;
+			}
+			else {
+				$nDateAt = 0;
+			}
+			return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
 		}
 	}
 
