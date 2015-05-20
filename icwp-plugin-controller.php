@@ -1149,6 +1149,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sTemplate
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
@@ -1234,7 +1235,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * This should always be used to modify or delete the options as it works within the Admin Access Permission system.
 	 *
-	 * @param stdClass $oOptions
+	 * @param stdClass|bool $oOptions
 	 * @return bool
 	 */
 	protected function setPluginControllerOptions( $oOptions ) {
