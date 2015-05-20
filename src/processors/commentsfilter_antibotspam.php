@@ -477,7 +477,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function setCommentStatusExplanation( $sExplanation ) {
 		$this->sCommentStatusExplanation =
-			'[* '.sprintf( _wpsf__('WordPress Simple Firewall plugin marked this comment as "%s" because: %s.'),
+			'[* '.sprintf( _wpsf__('%s plugin marked this comment as "%s".').' '._wpsf__( 'Reason: %s' ),
+				$this->getController()->getHumanName(),
 				$this->sCommentStatus,
 				$sExplanation
 			)." *]\n";

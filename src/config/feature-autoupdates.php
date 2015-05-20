@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'autoupdates' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
 # Options Sections
 sections:
   -
@@ -114,5 +115,6 @@ options:
     section: 'section_non_ui'
     default: 1000
 ",
-		_wpsf__( 'Automatic Updates' )
+		_wpsf__( 'Automatic Updates' ),
+		_wpsf__( 'Take back full control of WordPress automatic updates' ) //tagline
 	);

@@ -24,28 +24,46 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 
 				case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__('SPAM Comments Protection Filter') );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
+					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-					break;
-
-				case 'section_enable_human_comment_spam_protection_filter' :
-					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Human') );
-					$sTitleShort = _wpsf__( 'Human SPAM' );
 					break;
 
 				case 'section_enable_automatic_bot_comment_spam_protection_filter' :
 					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Automatic Bot') );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					);
 					$sTitleShort = _wpsf__( 'Bot SPAM' );
+					break;
+
+				case 'section_enable_human_comment_spam_protection_filter' :
+					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Human') );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+						_wpsf__( 'This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis.' )
+					);
+					$sTitleShort = _wpsf__( 'Human SPAM' );
 					break;
 
 				case 'section_customize_messages_shown_to_user' :
 					$sTitle = _wpsf__( 'Customize Messages Shown To User' );
-					$sTitleShort = _wpsf__( 'User Messages' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Customize the messages shown to visitors when they view and use comment forms.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Be sure to change the messages to suit your audience.' ) )
+					);
+					$sTitleShort = _wpsf__( 'Visitor Messages' );
 					break;
 
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
 			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
 			$aOptionsParams['section_title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}

@@ -1,0 +1,8 @@
+
+{% macro marketing_iframe( name, page, height, bgcolor ) %}
+	<iframe
+			name="{{ name|default('icwp-iframe') }}"
+			src="//www.icontrolwp.com/custom/remote/plugins/hlt-bootstrapcss-plugin-widgets.php?page={{ page|default('icwp-options') }}&snippet={{ name|default('icwp-iframe') }}"
+			width="100%" height="{{ height|default( '500px' ) }}"
+			frameborder="0" scrolling="no" style="background-color:{{ bgcolor|default('rgba(0, 0, 0, 0)') }};" ></iframe>
+{% endmacro %}

@@ -1,0 +1,30 @@
+{% extends "/features/feature-base.twig" %}
+
+{% block options_body %}
+	<div class="row">
+		<div class="span9">
+			<div class="well admin_access_restriction_form">
+				<h3>{{ strings.aar_what_should_you_enter }}</h3>
+				<p>{{ strings.aar_must_supply_key_first }}</p>
+				<form action="{{ form_action }}" method="post" class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label" for="{{ var_prefix }}admin_access_key_request">{{ strings.aar_enter_access_key }}<br></label>
+						<div class="controls">
+							<div class="option_section selected_item active" id="option_section_icwp_wpsf_admin_access_key">
+								<label>
+									<input type="password" name="{{ var_prefix }}admin_access_key_request" value="" autocomplete="off" />
+								</label>
+								<p class="help-block">{{ strings.aar_to_manage_must_enter_key }}</p>
+							</div>
+						</div><!-- controls -->
+					</div>
+					<div class="form-actions">
+						{{ nonce_field|raw }}
+						<input type="hidden" name="{{ var_prefix }}plugin_form_submit" value="Y" />
+						<button type="submit" class="btn btn-primary" name="submit">{{ strings.aar_submit_access_key }}</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+{% endblock %}

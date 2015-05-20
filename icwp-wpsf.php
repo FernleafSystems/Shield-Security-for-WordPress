@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Simple Security Firewall
  * Plugin URI: http://icwp.io/2f
  * Description: Easy-To-Use WordPress Security System
- * Version: 4.7.3
+ * Version: 4.7.4
  * Text Domain: wp-simple-firewall
  * Author: iControlWP
  * Author URI: http://icwp.io/2e
@@ -85,11 +85,6 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 
 				$sRedirect = $oDp->FetchPost( 'redirect_page' );
 				$sRedirect = empty( $sRedirect ) ? $this->getController()->getPluginUrl_AdminMainPage() : $sRedirect;
-				//Someone clicked the button to acknowledge the update
-				if ( $oDp->FetchRequest( $oCon->doPluginPrefix( 'hide_update_notice' ), false ) == 1 ) {
-					$this->updateVersionUserMeta();
-					$oWp->doRedirect( $sRedirect );
-				}
 
 				if ( $oDp->FetchRequest( $oCon->doPluginPrefix( 'hide_translation_notice' ), false ) == 1 ) {
 					$this->updateTranslationNoticeShownUserMeta();
@@ -154,16 +149,6 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 		protected function updateMailingListSignupShownUserMeta( $nId = '', $sValue = 'Y' ) {
 			$oCon = $this->getController();
 			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_mailing_list_signup' ), $sValue, $nId );
-		}
-
-		/**
-		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
-		 *
-		 * @param integer $nId
-		 */
-		protected function updateVersionUserMeta( $nId = null ) {
-			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
 		}
 	}
 

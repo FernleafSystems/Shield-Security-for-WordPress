@@ -46,6 +46,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
+	private $sFlashMessage;
+
+	/**
+	 * @var string
+	 */
 	private $sPluginUrl;
 
 	/**
@@ -151,15 +156,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function adminNoticeDoesNotMeetRequirements() {
-		$sMessage = sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.',
-			'<strong>'.$this->getHumanName().'</strong>'
-		);
 		$aMessages = $this->getRequirementsMessages();
 		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
-			$sMessage .= sprintf( '<ul style="list-style: inside none disc;"><li>%s</li></ul>', implode( '</li><li>', $aMessages ) );
+			$aDisplayData = array(
+				'strings' => array(
+					'requirements' => $aMessages,
+					'summary_title' => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
+					'more_information' => 'Click here for more information on requirements'
+				),
+				'hrefs' => array(
+					'more_information' => sprintf( 'https://wordpress.org/plugins/%s/faq', $this->getTextDomain() )
+				)
+			);
+
+			$this->loadRenderer( $this->getPath_Templates() )
+				 ->setTemplate( 'notices/does-not-meet-requirements' )
+				 ->setRenderVars( $aDisplayData )
+				 ->display();
 		}
-		$sMessage .= sprintf( '<a href="https://wordpress.org/plugins/%s/faq" target="_blank">Click here for more information on requirements</a>.', $this->getTextDomain() );
-		echo $this->wrapAdminNoticeHtml( $sMessage, 'error' );
 	}
 
 	/**
@@ -242,6 +256,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpLoaded() {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
+			$this->readFlashMessage();
 		}
 	}
 
@@ -363,21 +378,34 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					echo $sAdminNotice;
 				}
 			}
+			$this->flashNotice();
 		}
 		return true;
 	}
 
-	/**
-	 * Provides the basic HTML template for printing a WordPress Admin Notices
-	 *
-	 * @param $sNotice - The message to be displayed.
-	 * @param $sMessageClass - either error or updated
-	 * @return string
-	 */
-	protected function wrapAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated' ) {
-		$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
-		$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
-		return $sFullNotice;
+	public function addFlashMessage( $sMessage ) {
+		$this->loadDataProcessor()->setCookie( $this->doPluginPrefix( 'flash' ), esc_attr( $sMessage ) );
+	}
+
+	protected function readFlashMessage() {
+
+		$oDp = $this->loadDataProcessor();
+		$sCookieName = $this->doPluginPrefix( 'flash' );
+		$sMessage = $oDp->FetchCookie( $sCookieName, '' );
+		if ( !empty( $sMessage ) ) {
+			$this->sFlashMessage = sanitize_text_field( $sMessage );
+		}
+		$oDp->setDeleteCookie( $sCookieName );
+	}
+
+	protected function flashNotice() {
+		if ( !empty( $this->sFlashMessage ) ) {
+			$aDisplayData = array( 'message' => $this->sFlashMessage );
+			$this->loadRenderer( $this->getPath_Templates() )
+				 ->setTemplate( 'notices/flash-message' )
+				 ->setRenderVars( $aDisplayData )
+				 ->display();
+		}
 	}
 
 	public function onWpEnqueueFrontendCss() {
@@ -414,8 +442,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	public function onWpEnqueueAdminCss() {
 
-		$sDependent = '';
-
 		if ( $this->getIsValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminCss['css'] ) && !empty( $aAdminCss['css'] ) && is_array( $aAdminCss['css'] ) ) {
@@ -424,7 +450,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -440,7 +466,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -1099,8 +1125,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
-	 *
 	 * @return string
 	 */
 	public function getPath_Views() {
@@ -1115,6 +1139,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_ViewsFile( $sView ) {
 		return $this->getPath_Views().$sView.'.php';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_Templates() {
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
+	}
+
+	/**
+	 * @param string $sTemplate
+	 * @return string
+	 */
+	public function getPath_TemplatesFile( $sTemplate ) {
+		return $this->getPath_Templates().$sTemplate;
 	}
 
 	/**
@@ -1196,7 +1235,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * This should always be used to modify or delete the options as it works within the Admin Access Permission system.
 	 *
-	 * @param stdClass $oOptions
+	 * @param stdClass|bool $oOptions
 	 * @return bool
 	 */
 	protected function setPluginControllerOptions( $oOptions ) {

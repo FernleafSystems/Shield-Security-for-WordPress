@@ -493,8 +493,8 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 
 			$sIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
 			$aMessage = array(
-				_wpsf__('WordPress Simple Firewall has blocked a page visit to your site.'),
-				_wpsf__('Log details for this visitor are below:'),
+				sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()->getHumanName() ),
+				_wpsf__( 'Log details for this visitor are below:' ),
 				'- '.sprintf( _wpsf__('IP Address: %s'), $sIp )
 			);
 			$aMessage = array_merge( $aMessage, $this->getRawAuditMessage( '- ' ) );

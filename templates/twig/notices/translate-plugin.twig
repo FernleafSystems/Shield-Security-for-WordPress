@@ -1,0 +1,15 @@
+{% extends "/notices/base-info.twig" %}
+
+{% block notice_body %}
+	<div id="IcwpTranslationsNotice">
+		<form method="post" action="{{ hrefs.form_action }}">
+			<input type="hidden" value="{{ hrefs.redirect }}" name="redirect_page" id="redirect_page">
+			<h4 style="margin:10px 0 3px;">
+				{{ strings.like_to_help }}
+				{{ strings.head_over_to }} <a href="{{ hrefs.translate }}" target="_blank">{{ strings.site_url }}</a>
+			</h4>
+			<input type="submit" value="{{ strings.dismiss }}" name="submit" class="button" style="float:left; margin-bottom:10px;">
+			<div style="clear:both;"></div>
+		</form>
+	</div>
+{% endblock %}

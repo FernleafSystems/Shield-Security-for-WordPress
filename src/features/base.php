@@ -128,7 +128,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				require_once( $this->getController()->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
+				require_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
@@ -356,9 +356,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			}
 
 			$aSummaryData[] = array(
-				$this->getIsMainFeatureEnabled(),
-				$this->getMainFeatureName(),
-				$this->doPluginPrefix( $this->getFeatureSlug() )
+				'enabled' => $this->getIsMainFeatureEnabled(),
+				'slug' => $this->getFeatureSlug(),
+				'name' => $this->getMainFeatureName(),
+				'href' => network_admin_url( 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ) )
 			);
 
 			return $aSummaryData;
@@ -513,6 +514,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 						else {
 							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'ip_addresses' ) {
 
@@ -522,6 +524,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 						else {
 							$mCurrentOptionVal = implode( "\n", $this->convertIpListForDisplay( $mCurrentOptionVal ) );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) {
 
@@ -535,6 +538,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 							}
 							$mCurrentOptionVal = implode( "\n", $aDisplay );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
 					else if ( $sOptionType == 'comma_separated_lists' ) {
 
@@ -548,7 +552,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 							}
 							$mCurrentOptionVal = implode( "\n", $aNewValues );
 						}
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
+
+					if ( $sOptionType == 'text' ) {
+						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
+					}
+					$mCurrentOptionVal = is_scalar( $mCurrentOptionVal ) ? esc_attr( $mCurrentOptionVal ) : $mCurrentOptionVal;
+
 					$aOptionParams['value'] = $mCurrentOptionVal;
 
 					// Build strings
@@ -878,8 +889,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
 				'sPluginName'		=> $oCon->getHumanName(),
 				'sFeatureName'		=> $this->getMainFeatureName(),
+				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
 				'fShowAds'			=> $this->getIsShowMarketing(),
-				'nonce_field'		=> $oCon->getPluginPrefix(),
+				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
 				'sFeatureSlug'		=> $this->doPluginPrefix( $this->getFeatureSlug() ),
 				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
@@ -887,7 +899,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
-				'all_options_input'	=> $this->collateAllFormInputsForAllOptions()
+				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
+
+				'sPageTitle'		=> $this->getMainFeatureName(),
+//				'sPageTitle'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
+				'strings'			=> array(
+					'go_to_settings' => _wpsf__( 'Settings' ),
+//					'go_to_settings' => _wpsf__( 'Go To Settings' ),
+					'on' => _wpsf__( 'On' ),
+					'off' => _wpsf__( 'Off' ),
+					'more_info' => _wpsf__( 'More Info' ),
+					'blog' => _wpsf__( 'Blog' ),
+					'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
+					'save_all_settings' => _wpsf__( 'Save All Settings' ),
+
+					'aar_what_should_you_enter' => _wpsf__( 'What should you enter here?' ),
+					'aar_must_supply_key_first' => _wpsf__( 'At some point you supplied an Admin Access Key - to manage this plugin, you must supply it here first.' ),
+					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
+					'aar_enter_access_key' => _wpsf__( 'Enter Access Key' ),
+					'aar_submit_access_key' => _wpsf__( 'Submit Access Key' ),
+				)
 			);
 		}
 
@@ -925,31 +956,96 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			}
 			$aData[ 'sFeatureInclude' ] = $sSubView;
 
-			$sFile = $this->getController()->getPath_ViewsFile( 'config_index' );
-			if ( !is_file( $sFile ) ) {
-				echo "View not found: ".$sFile;
-				return false;
+			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
+			try {
+				echo $this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'index.php' )
+					->setRenderVars( $aData )
+					->render();
+			}
+			catch( Exception $oE ) {
+				echo $oE->getMessage();
 			}
 
-			if ( count( $aData ) > 0 ) {
-				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
-			}
-
-			ob_start();
-			include( $sFile );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-
-			echo $sContents;
-			return true;
+//			if ( count( $aData ) > 0 ) {
+//				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
+//			}
+//
+//			ob_start();
+//			include( $sFile );
+//			$sContents = ob_get_contents();
+//			ob_end_clean();
+//
+//			echo $sContents;
+//			return true;
 		}
 
 		/**
-		 * @param string $sSnippet
+		 * @param array $aData
+		 * @param string $sSubView
+		 * @return bool
+		 */
+		protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
+
+			// Get Base Data
+			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
+
+			if ( !$bPermissionToView ) {
+				$sSubView = 'subfeature-access_restricted';
+			}
+
+			if ( empty( $sSubView ) ) {
+				$oWpFs = $this->loadFileSystemProcessor();
+				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
+				if ( $oWpFs->exists( $this->getController()->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
+					$sSubView = $sFeatureInclude;
+				}
+				else {
+					$sSubView = 'feature-default';
+				}
+			}
+
+			$aData[ 'sFeatureInclude' ] = $sSubView;
+			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
+			try {
+				$this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'features/'.$sSubView )
+					->setRenderVars( $aData )
+					->display();
+			}
+			catch( Exception $oE ) {
+				echo $oE->getMessage();
+			}
+		}
+
+		/**
+		 * @param string $sAdminNotice
+		 * @param array $aData
 		 * @return string
 		 */
-		public function getViewSnippet( $sSnippet = '' ) {
-			return $this->getController()->getPath_ViewsSnippet( $sSnippet );
+		public function renderAdminNotice( $sAdminNotice, $aData ) {
+			try {
+				$sOutput = $this
+					->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'notices'.ICWP_DS.$sAdminNotice )
+					->setRenderVars( $aData )
+					->render();
+			}
+			catch( Exception $oE ) {
+				$sOutput = $oE->getMessage();
+			}
+
+			return $sOutput;
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getDisplayStrings() {
+			return array();
 		}
 
 		/**

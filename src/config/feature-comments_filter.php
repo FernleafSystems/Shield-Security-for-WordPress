@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'commentsfilter' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
   use_sessions: true
 # Options Sections
 sections:
@@ -14,11 +15,11 @@ sections:
     slug: 'section_enable_plugin_feature_spam_comments_protection_filter'
     primary: true
   -
-    slug: 'section_enable_human_comment_spam_protection_filter'
-  -
     slug: 'section_enable_automatic_bot_comment_spam_protection_filter'
   -
     slug: 'section_customize_messages_shown_to_user'
+  -
+    slug: 'section_enable_human_comment_spam_protection_filter'
   -
     slug: 'section_non_ui'
     hidden: true
@@ -190,5 +191,6 @@ options:
     section: 'section_non_ui'
     default: false
 ",
-		_wpsf__( 'Comments Filter' )
+		_wpsf__( 'Comments Filter' ),
+		_wpsf__( 'Block comment SPAM and retain your privacy' ) //tagline
 	);

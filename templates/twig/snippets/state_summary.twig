@@ -1,0 +1,33 @@
+
+{% if aSummaryData is defined and aSummaryData|length %}
+
+	<div class="row-fluid">
+		<div class="span">
+			<h3>{{ strings.plugin_activated_features_summary }}</h3>
+		</div>
+	</div>
+
+	<div class="row-fluid feature-summary-blocks">
+		{% for key, aSummary in aSummaryData %}
+			{% if (key > 0) and ( key is divisible by(4) )%}
+				</div><div class="row-fluid feature-summary-blocks">
+			{% endif %}
+
+			<div class="span3 feature-summary-block state-{{ aSummary.enabled? 'on' : 'off' }}" id="feature-{{ aSummary.slug }}">
+				<div class="row-fluid">
+					<div class="feature-icon span3"></div>
+					<div class="span8 offset1">
+						<a class="btn btn-{{ aSummary.enabled ? 'success' : 'warning' }}"
+						href="{{ aSummary.href }}">
+						{{ strings.go_to_settings }}
+						</a>
+					</div>
+				</div>
+				<div class="feature-name">
+					{{ aSummary.name }} : <span class="feature-enabled-text">{{ aSummary.enabled ? 'on' : 'off' }}</span>
+				</div>
+			</div>
+
+		{% endfor %}
+	</div>
+{% endif %}

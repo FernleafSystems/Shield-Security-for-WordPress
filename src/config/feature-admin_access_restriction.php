@@ -7,6 +7,7 @@ properties:
   name: '%s'
   show_feature_menu_item: true
   storage_key: 'admin_access_restriction' # should correspond exactly to that in the plugin.yaml
+  tagline: '%s'
   menu_title: '%s'
 # Options Sections
 sections:
@@ -51,6 +52,7 @@ options:
     section: 'section_non_ui'
     value: 'icwp_wpsf_aakcook'
 ",
-		_wpsf__( 'Admin Access Restriction' ),
+		_wpsf__( 'Admin Access Restriction' ), //name
+		_wpsf__( 'Protect your security plugin not just your WordPress site' ), //tagline
 		_wpsf__( 'Admin Access' )
 	);

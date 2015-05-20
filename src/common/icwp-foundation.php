@@ -17,6 +17,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		private static $oWp;
 		/**
+		 * @var ICWP_WPSF_Render
+		 */
+		private static $oRender;
+		/**
 		 * @var ICWP_WPSF_YamlProcessor
 		 */
 		private static $oYaml;
@@ -59,6 +63,22 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadDbProcessor() {
 			return self::loadWpFunctionsProcessor()->loadDbProcessor();
+		}
+
+		/**
+		 * @param string $sTemplatePath
+		 * @return ICWP_WPSF_Render
+		 */
+		static public function loadRenderer( $sTemplatePath = '' ) {
+			if ( !isset( self::$oRender ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-render.php' );
+				self::$oRender = ICWP_WPSF_Render::GetInstance()
+					->setAutoloaderPath( dirname( __FILE__ ) . ICWP_DS . 'Twig' . ICWP_DS . 'Autoloader.php' );
+			}
+			if ( !empty( $sTemplatePath ) ) {
+				self::$oRender->setTemplatePath( $sTemplatePath );
+			}
+			return self::$oRender;
 		}
 
 		/**
