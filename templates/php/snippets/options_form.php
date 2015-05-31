@@ -43,11 +43,14 @@
 												<label class="control-label" for="<?php echo $var_prefix.$sOptionKey; ?>">
 													<?php echo $aOption['name']; ?>
 													<br />
-													[<a href="<?php echo $aOption['info_link']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
-													<?php if ( !empty( $aOption['blog_link'] ) ) : ?>
-														| <a href="<?php echo $aOption['blog_link']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
+													<?php if ( !empty( $aOption['info_link'] ) ) : ?>
+														[
+														<a href="<?php echo $aOption['info_link']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
+														<?php if ( !empty( $aOption['blog_link'] ) ) : ?>
+															| <a href="<?php echo $aOption['blog_link']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
+														<?php endif; ?>
+														]
 													<?php endif; ?>
-													]
 												</label>
 												<div class="controls">
 													<div class="option_section <?php echo ( $aOption['value'] == 'Y' ) ? 'selected_item':''; ?>" id="option_section_<?php echo $var_prefix.$sOptionKey; ?>">

@@ -262,6 +262,10 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= Point Release 4.7.5 =
+
+* **(v.5)**  FIXED:         Displaying "more info" links when there wasn't any links to display.
+
 = Point Release 4.7.4 =
 *Released: 20th May, 2015*
 
