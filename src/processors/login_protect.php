@@ -82,15 +82,6 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
 		}
 
-		// User has clicked a link in their email to verify they can send email.
-		if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
-			if (  $oFO->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
-				$oFO->setIfCanSendEmail( true );
-				$oFO->savePluginOptions();
-				$oWp->redirectToLogin();
-			}
-		}
-
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
 	}

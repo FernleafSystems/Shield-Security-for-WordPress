@@ -104,9 +104,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function onWpPluginsLoaded() {
 			if ( $this->getIsMainFeatureEnabled() ) {
+				$this->doExecutePreProcessor();
 				$this->doExecuteProcessor();
 			}
 		}
+
+		/**
+		 * Used to effect certain processing that is to do with options etc. but isn't related to processing
+		 * functionality of the plugin.
+		 */
+		protected function doExecutePreProcessor() { }
 
 		protected function doExecuteProcessor() {
 			$oProcessor = $this->getProcessor();
@@ -462,6 +469,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return bool
 		 */
 		public function savePluginOptions() {
+			$this->initialiseKeyVars();
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
 			return $this->getOptionsVo()->doOptionsSave();
@@ -586,6 +594,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 			return $aOptionsParams;
 		}
+
+		/**
+		 * Ensures that certain key options are always initialized.
+		 */
+		protected function initialiseKeyVars() {}
 
 		/**
 		 * This is the point where you would want to do any options verification
