@@ -262,8 +262,14 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Point Release 4.7.4 =
-*Released: 20th May, 2015*
+= Point Release 4.7.5 =
+*Released: 3rd June, 2015*
+
+* **(v.5)**  FIXED:         Verifying ability to send/receive email doesn't complete if Admin Access Protection is turned on.
+* **(v.5)**  FIXED:         GASP Login Protection feature breaks because certain key options aren't initialized when the feature is enabled.
+
+= 4.7 Series =
+*Released: 29th April, 2015*
 
 * **(v.4)**  ADDED:         Email Sending Verification when enabling two-factor authentication - this ensures your site can send (and you can receive) emails.
 * **(v.4)**  ADDED:         Section Summaries - each option tab contains a small text summary outlining the purpose and recommendation for each.
@@ -272,10 +278,6 @@ You can either manually upgrade, or WordPress will handle it in due course.
 * **(v.4)**  CHANGED:       Streamlining and improvement of PHP UI templates
 * **(v.4)**  ADDED:         Implemented TWIG for templates (not yet activated)
 * **(v.4)**  TRANSLATIONS:  Romanian (100%), Spanish-Spain (63%)
-
-= 4.7 Series =
-*Released: 29th April, 2015*
-
 * **(v.3)**  ADDED:         Integrated protection against 2x RevSlider vulnerabilities (Local File Include and Arbitrary File Upload)
 * **(v.3)**  CHANGED:       Reverted the addition of Permalinks/Rewrite rules flushing, in case this is a problem for some.
 * **(v.2)**  UPDATED/FIX:   Major fixes and improvements to the rename wp-login.php feature.
