@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Simple Security Firewall
  * Plugin URI: http://icwp.io/2f
  * Description: Easy-To-Use WordPress Security System
- * Version: 4.7.5
+ * Version: 4.7.6
  * Text Domain: wp-simple-firewall
  * Author: iControlWP
  * Author URI: http://icwp.io/2e
