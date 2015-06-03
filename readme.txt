@@ -267,6 +267,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 * **(v.5)**  FIXED:         Verifying ability to send/receive email doesn't complete if Admin Access Protection is turned on.
 * **(v.5)**  FIXED:         GASP Login Protection feature breaks because certain key options aren't initialized when the feature is enabled.
+* **(v.5)**  FIXED:         Some "more info" links were empty.
 
 = 4.7 Series =
 *Released: 29th April, 2015*
