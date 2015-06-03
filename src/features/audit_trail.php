@@ -16,8 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 		 */
 		public function doPrePluginOptionsSave() {
 
-			$nAutoClean = $this->getOpt( 'audit_trail_auto_clean' );
-			if ( $nAutoClean < 0 ) {
+			if ( $this->getOpt( 'audit_trail_auto_clean' ) < 0 ) {
 				$this->getOptionsVo()->resetOptToDefault( 'audit_trail_auto_clean' );
 			}
 		}
