@@ -272,6 +272,9 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.7 Series =
 *Released: 29th April, 2015*
 
+* **(v.5)**  FIXED:         Verifying ability to send/receive email doesn't complete if Admin Access Protection is turned on.
+* **(v.5)**  FIXED:         GASP Login Protection feature breaks because certain key options aren't initialized when the feature is enabled.
+* **(v.5)**  FIXED:         Some "more info" links were empty.
 * **(v.4)**  ADDED:         Email Sending Verification when enabling two-factor authentication - this ensures your site can send (and you can receive) emails.
 * **(v.4)**  ADDED:         Section Summaries - each option tab contains a small text summary outlining the purpose and recommendation for each.
 * **(v.4)**  CHANGED:       The Admin Access Key input is now a password field.
