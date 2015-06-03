@@ -6,6 +6,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Base {
 
+		protected function doExecutePreProcessor() {
+			$oDp = $this->loadDataProcessor();
+
+			// User has clicked a link in their email to verify they can send email.
+			if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
+				if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
+					$this->setIfCanSendEmail( true );
+					$this->doSaveByPassAdminProtection();
+					$this->loadWpFunctionsProcessor()->redirectToLogin();
+				}
+			}
+		}
+
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
@@ -56,7 +69,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				'wpsfkey' 		=> $this->getTwoAuthSecretKey(),
 				'wpsf-action'	=> 'emailsendverify'
 			);
-			return add_query_arg( $aQueryArgs, home_url() );
+			return add_query_arg( $aQueryArgs, site_url() );
 		}
 
 		/**

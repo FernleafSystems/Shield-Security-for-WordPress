@@ -104,9 +104,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function onWpPluginsLoaded() {
 			if ( $this->getIsMainFeatureEnabled() ) {
+				$this->doExecutePreProcessor();
 				$this->doExecuteProcessor();
 			}
 		}
+
+		/**
+		 * Used to effect certain processing that is to do with options etc. but isn't related to processing
+		 * functionality of the plugin.
+		 */
+		protected function doExecutePreProcessor() { }
 
 		protected function doExecuteProcessor() {
 			$oProcessor = $this->getProcessor();
