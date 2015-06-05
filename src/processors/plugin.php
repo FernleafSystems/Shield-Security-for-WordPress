@@ -144,7 +144,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				and to provide further help with the WordPress Simple Firewall plugin. Get Involved here:',
 				),
 				'hrefs' => array(
-					'form_action' => 'http://hostliketoast.us2.list-manage1.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
+					'form_action' => '//hostliketoast.us2.list-manage1.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
 					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1'
 				),
 				'install_days' => $nDays
