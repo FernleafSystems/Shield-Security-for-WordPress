@@ -262,12 +262,12 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Point Release 4.7.6 =
-*Released: 3rd June, 2015*
+= Point Release 4.7.7 =
+*Released: 17th June, 2015*
 
-* **(v.6)**  FIXED:         Verifying ability to send/receive email doesn't complete if Admin Access Protection is turned on.
-* **(v.6)**  FIXED:         GASP Login Protection feature breaks because certain key options aren't initialized when the feature is enabled.
-* **(v.6)**  FIXED:         Some "more info" links were empty.
+* **(v.7)**  FIXED:         The text used to explain why some comments were marked as spam was broken.
+* **(v.7)**  FIXED:         Group sign-up form now honours your SSL setting.
+* **(v.7)**  TRANSLATIONS:  Spanish - 74%, Russian - 91%, Turkish - 94%, Polish- 95%, Finnish - 100%
 
 = 4.7 Series =
 *Released: 29th April, 2015*
