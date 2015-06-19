@@ -18,6 +18,9 @@ sections:
     slug: 'section_admin_access_restriction_settings'
     primary: false
   -
+    slug: 'section_admin_access_restriction_areas'
+    primary: false
+  -
     slug: 'section_non_ui'
     hidden: true
 
@@ -43,6 +46,66 @@ options:
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/41'
+    link_blog: ''
+  -
+    key: 'admin_access_restrict_plugins'
+    section: 'section_admin_access_restriction_areas'
+    type: 'multiple_select'
+    default:
+    value_options:
+      -
+        value_key: 'activate_plugins'
+        text: 'Activate'
+      -
+        value_key: 'install_plugins'
+        text: 'Install'
+      -
+        value_key: 'update_plugins'
+        text: 'Update'
+      -
+        value_key: 'delete_plugins'
+        text: 'Delete'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'admin_access_restrict_themes'
+    section: 'section_admin_access_restriction_areas'
+    type: 'multiple_select'
+    default:
+    value_options:
+      -
+        value_key: 'switch_themes'
+        text: 'Activate'
+      -
+        value_key: 'edit_theme_options'
+        text: 'Edit Theme Options'
+      -
+        value_key: 'install_themes'
+        text: 'Install'
+      -
+        value_key: 'update_themes'
+        text: 'Update'
+      -
+        value_key: 'delete_themes'
+        text: 'Delete'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'admin_access_restrict_posts'
+    section: 'section_admin_access_restriction_areas'
+    type: 'multiple_select'
+    default:
+    value_options:
+      -
+        value_key: 'edit'
+        text: 'Create / Edit'
+      -
+        value_key: 'publish'
+        text: 'Publish'
+      -
+        value_key: 'delete'
+        text: 'Delete'
+    link_info: ''
     link_blog: ''
   -
     key: 'current_plugin_version'
