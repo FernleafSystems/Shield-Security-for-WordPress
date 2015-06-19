@@ -68,6 +68,29 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'admin_access_restrict_themes'
+    section: 'section_admin_access_restriction_areas'
+    type: 'multiple_select'
+    default:
+    value_options:
+      -
+        value_key: 'switch_themes'
+        text: 'Activate'
+      -
+        value_key: 'edit_theme_options'
+        text: 'Edit Theme Options'
+      -
+        value_key: 'install_themes'
+        text: 'Install'
+      -
+        value_key: 'update_themes'
+        text: 'Update'
+      -
+        value_key: 'delete_themes'
+        text: 'Delete'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -

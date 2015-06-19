@@ -49,10 +49,24 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getAdminAccessArea_Plugins() {
-		$aSettings = $this->getOpt( 'admin_access_restrict_plugins', array() );
-		return !is_array( $aSettings ) ? array() : $aSettings;
+		return $this->getAdminAccessArea( 'plugins' );
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getAdminAccessArea_Themes() {
+		return $this->getAdminAccessArea( 'themes' );
+	}
+
+	/**
+	 * @param string $sArea one of plugins, themes
+	 * @return array
+	 */
+	public function getAdminAccessArea( $sArea = 'plugins' ) {
+		$aSettings = $this->getOpt( 'admin_access_restrict_'.$sArea, array() );
+		return !is_array( $aSettings ) ? array() : $aSettings;
+	}
 
 	/**
 	 */
@@ -147,7 +161,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'section_admin_access_restriction_areas' :
 				$sTitle = _wpsf__( 'Admin Access Restriction Areas' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restrict access to key WordPress functionality' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restricts access to key WordPress actions to all users not authenticated with the Admin Access system.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 				);
 				$sTitleShort = _wpsf__( 'Access Restriction Areas' );
@@ -197,7 +211,25 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Admin Access Plugins' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
-								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will restrict all other options also.' ), _wpsf__('Activate') ) );
+								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
+				break;
+
+			case 'admin_access_restrict_themes' :
+				$sName = _wpsf__( 'Admin Access Themes' );
+				$sSummary = _wpsf__( 'Restrict Access To WordPress Theme Actions' );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to theme installation, update, activation and deletion.' ) )
+								.'<br />'.
+								sprintf(
+									_wpsf__( 'Note: %s' ),
+									sprintf(
+										_wpsf__( 'Selecting "%s" will also restrict all other options.' ),
+										sprintf(
+											_wpsf__('%s and %s'),
+											_wpsf__( 'Activate' ),
+											_wpsf__( 'Edit Theme Options' )
+										)
+									)
+								);
 				break;
 
 			default:
@@ -229,6 +261,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
 			$aPluginsRestrictions = array_merge( $aPluginsRestrictions, array( 'install_plugins', 'update_plugins', 'delete_plugins' ) );
 			$this->setOpt( 'admin_access_restrict_plugins', $aPluginsRestrictions );
+		}
+
+		// Restricting Activate Plugins also means restricting the rest.
+		$aThemesRestrictions = $this->getAdminAccessArea_Themes();
+		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
+			$aThemesRestrictions = array_merge( $aThemesRestrictions, array( 'install_themes', 'update_themes', 'delete_themes' ) );
+			$this->setOpt( 'admin_access_restrict_themes', $aThemesRestrictions );
 		}
 	}
 
