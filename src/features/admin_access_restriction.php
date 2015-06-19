@@ -46,6 +46,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAdminAccessArea_Plugins() {
+		$aSettings = $this->getOpt( 'admin_access_restrict_plugins', array() );
+		return !is_array( $aSettings ) ? array() : $aSettings;
+	}
+
+
+	/**
 	 */
 	protected function setAdminAccessCookie() {
 		$sAccessKey = $this->getOpt( 'admin_access_key' );
@@ -135,6 +144,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sTitleShort = _wpsf__( 'Access Restriction Settings' );
 				break;
 
+			case 'section_admin_access_restriction_areas' :
+				$sTitle = _wpsf__( 'Admin Access Restriction Areas' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restrict access to key WordPress functionality' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+				);
+				$sTitleShort = _wpsf__( 'Access Restriction Areas' );
+				break;
+
 			default:
 				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
@@ -166,12 +184,20 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) );
 				break;
 
+
 			case 'admin_access_timeout' :
 				$sName = _wpsf__( 'Admin Access Timeout' );
 				$sSummary = _wpsf__( 'Specify An Automatic Timeout Interval For Admin Access' );
 				$sDescription = sprintf( _wpsf__( 'This will automatically expire your %s Admin Access Session.'), $this->getController()->getHumanName() )
 					.' '._wpsf__( 'Does not apply until you enter the access key again.' )
 					.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()->getOptDefault( 'admin_access_timeout' ) );
+				break;
+
+			case 'admin_access_restrict_plugins' :
+				$sName = _wpsf__( 'Admin Access Plugins' );
+				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
+								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will restrict all other options also.' ), _wpsf__('Activate') ) );
 				break;
 
 			default:
@@ -196,6 +222,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$sAccessKey = $this->getOpt( 'admin_access_key' );
 		if ( empty( $sAccessKey ) ) {
 			$this->setOpt( 'enable_admin_access_restriction', 'N' );
+		}
+
+		// Restricting Activate Plugins also means restricting the rest.
+		$aPluginsRestrictions = $this->getAdminAccessArea_Plugins();
+		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
+			$aPluginsRestrictions = array_merge( $aPluginsRestrictions, array( 'install_plugins', 'update_plugins', 'delete_plugins' ) );
+			$this->setOpt( 'admin_access_restrict_plugins', $aPluginsRestrictions );
 		}
 	}
 

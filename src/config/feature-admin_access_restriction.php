@@ -18,6 +18,9 @@ sections:
     slug: 'section_admin_access_restriction_settings'
     primary: false
   -
+    slug: 'section_admin_access_restriction_areas'
+    primary: false
+  -
     slug: 'section_non_ui'
     hidden: true
 
@@ -43,6 +46,26 @@ options:
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/41'
+    link_blog: ''
+  -
+    key: 'admin_access_restrict_plugins'
+    section: 'section_admin_access_restriction_areas'
+    type: 'multiple_select'
+    default:
+    value_options:
+      -
+        value_key: 'activate_plugins'
+        text: 'Activate'
+      -
+        value_key: 'install_plugins'
+        text: 'Install'
+      -
+        value_key: 'update_plugins'
+        text: 'Update'
+      -
+        value_key: 'delete_plugins'
+        text: 'Delete'
+    link_info: ''
     link_blog: ''
   -
     key: 'current_plugin_version'

@@ -93,8 +93,8 @@
 															<?php elseif ( $sOptionType == 'multiple_select' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
-																<select name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																		multiple="multiple" size="<?php echo count( $aOption['value_options'] ); ?>">
+																<select name="<?php echo $var_prefix.$sOptionKey; ?>[]" id="<?php echo $var_prefix.$sOptionKey; ?>"
+																		multiple="multiple" multiple size="<?php echo count( $aOption['value_options'] ); ?>">
 																	<?php foreach( $aOption['value_options'] as $sOptionValue => $sOptionValueName ) : ?>
 																		<option value="<?php echo $sOptionValue; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>_<?php echo $sOptionValue; ?>"
 																			<?php echo in_array( $sOptionValue, $aOption['value'] ) ? 'selected="selected"' : ''; ?>
