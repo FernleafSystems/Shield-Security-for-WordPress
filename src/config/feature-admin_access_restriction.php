@@ -91,6 +91,23 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'admin_access_restrict_posts'
+    section: 'section_admin_access_restriction_areas'
+    type: 'multiple_select'
+    default:
+    value_options:
+      -
+        value_key: 'edit'
+        text: 'Create / Edit'
+      -
+        value_key: 'publish'
+        text: 'Publish'
+      -
+        value_key: 'delete'
+        text: 'Delete'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -

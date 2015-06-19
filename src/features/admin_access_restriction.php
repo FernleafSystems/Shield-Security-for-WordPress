@@ -60,6 +60,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAdminAccessArea_Posts() {
+		return $this->getAdminAccessArea( 'posts' );
+	}
+
+	/**
 	 * @param string $sArea one of plugins, themes
 	 * @return array
 	 */
@@ -207,6 +214,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()->getOptDefault( 'admin_access_timeout' ) );
 				break;
 
+			case 'admin_access_restrict_posts' :
+				$sName = _wpsf__( 'Admin Access Pages' );
+				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Posts And Pages Actions' );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to page/post creation, editing and deletion.' ) )
+								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Edit') ) );
+				break;
+
 			case 'admin_access_restrict_plugins' :
 				$sName = _wpsf__( 'Admin Access Plugins' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
@@ -263,11 +277,17 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$this->setOpt( 'admin_access_restrict_plugins', $aPluginsRestrictions );
 		}
 
-		// Restricting Activate Plugins also means restricting the rest.
+		// Restricting Switch (Activate) Themes also means restricting the rest.
 		$aThemesRestrictions = $this->getAdminAccessArea_Themes();
 		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
 			$aThemesRestrictions = array_merge( $aThemesRestrictions, array( 'install_themes', 'update_themes', 'delete_themes' ) );
 			$this->setOpt( 'admin_access_restrict_themes', $aThemesRestrictions );
+		}
+
+		$aPostRestrictions = $this->getAdminAccessArea_Posts();
+		if ( in_array( 'edit', $aPostRestrictions ) ) {
+			$aThemesRestrictions = array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) );
+			$this->setOpt( 'admin_access_restrict_posts', $aThemesRestrictions );
 		}
 	}
 
