@@ -168,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'section_admin_access_restriction_areas' :
 				$sTitle = _wpsf__( 'Admin Access Restriction Areas' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restricts access to key WordPress actions to all users not authenticated with the Admin Access system.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restricts access to key WordPress areas for all users not authenticated with the Admin Access system.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 				);
 				$sTitleShort = _wpsf__( 'Access Restriction Areas' );
