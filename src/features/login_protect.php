@@ -89,9 +89,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			);
 			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For: %s' ), home_url() );
 
-			// add filters to email sending (for now only Mandrill)
-			add_filter( 'mandrill_payload', array ($this, 'customiseMandrill' ) );
-
 			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo('admin_email'), $sEmailSubject, $aMessage );
 			return $bResult;
 		}

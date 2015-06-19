@@ -6,11 +6,27 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_Base {
 
+		protected function doPostConstruction() {
+			// add filters to email sending (for now only Mandrill)
+			add_filter( 'mandrill_payload', array( $this, 'customiseMandrill' ) );
+		}
+
 		/**
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
 			return true;
+		}
+
+		/**
+		 * @param array $aMessage
+		 * @return array
+		 */
+		public function customiseMandrill( $aMessage ) {
+			if ( empty( $aMessage['text'] ) ) {
+				$aMessage['text'] = $aMessage['html'];
+			}
+			return $aMessage;
 		}
 
 		/**
