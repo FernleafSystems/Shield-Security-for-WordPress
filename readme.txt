@@ -263,10 +263,15 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = Point Release 4.8.0 =
-*Released: 19th June, 2015*
+*Released: 21st June, 2015*
+
+* **(v.0)**  FEATURE:       Admin Access Restriction Areas - Restrict access to certain WordPress areas and functionality to **Administrators** with the Admin Access key.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Plugins. You can now restrict access to certain Plugin actions - activate, install, update, delete.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Themes. You can now restrict access to certain Theme actions - activate, install, update, delete.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Pages/Post. You can now restrict access to certain Page/Post actions - Create/Edit, Publish, Delete.
 
 = 4.8 Series =
-*Released: 19th June, 2015*
+*Released: 21st June, 2015*
 
 * **(v.0)**  FEATURE:       Admin Access Restriction Areas - Restrict access to certain WordPress areas and functionality to **Administrators** with the Admin Access key.
 * **(v.0)**  ADDED:         Admin Access Restriction Area - Plugins. You can now restrict access to certain Plugin actions - activate, install, update, delete.
