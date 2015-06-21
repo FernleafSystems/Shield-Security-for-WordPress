@@ -425,9 +425,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			);
 			$sEmailSubject = sprintf( _wpsf__('Two-Factor Login Verification for: %s'), home_url() );
 
-			// add filters to email sending (for now only Mandrill)
-			add_filter( 'mandrill_payload', array ($this, 'customiseMandrill' ) );
-
 			$fResult = $this->getEmailProcessor()->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 			if ( $fResult ) {
 				$sAuditMessage = sprintf( _wpsf__('User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".'), $oUser->get( 'user_login' ), $sIpAddress );
@@ -438,17 +435,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
 			}
 			return $fResult;
-		}
-
-		/**
-		 * @param array $aMessage
-		 * @return array
-		 */
-		public function customiseMandrill( $aMessage ) {
-			if ( empty( $aMessage['text'] ) ) {
-				$aMessage['text'] = $aMessage['html'];
-			}
-			return $aMessage;
 		}
 
 		/**

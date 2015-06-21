@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.7.7
+Stable tag: 4.8.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,16 +262,28 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Point Release 4.7.7 =
-*Released: 17th June, 2015*
+= Point Release 4.8.0 =
+*Released: 21st June, 2015*
 
-* **(v.7)**  FIXED:         The text used to explain why some comments were marked as spam was broken.
-* **(v.7)**  FIXED:         Group sign-up form now honours your SSL setting.
-* **(v.7)**  TRANSLATIONS:  Spanish - 74%, Russian - 91%, Turkish - 94%, Polish- 95%, Finnish - 100%
+* **(v.0)**  FEATURE:       Admin Access Restriction Areas - Restrict access to certain WordPress areas and functionality to **Administrators** with the Admin Access key.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Plugins. You can now restrict access to certain Plugin actions - activate, install, update, delete.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Themes. You can now restrict access to certain Theme actions - activate, install, update, delete.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Pages/Post. You can now restrict access to certain Page/Post actions - Create/Edit, Publish, Delete.
+
+= 4.8 Series =
+*Released: 21st June, 2015*
+
+* **(v.0)**  FEATURE:       Admin Access Restriction Areas - Restrict access to certain WordPress areas and functionality to **Administrators** with the Admin Access key.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Plugins. You can now restrict access to certain Plugin actions - activate, install, update, delete.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Themes. You can now restrict access to certain Theme actions - activate, install, update, delete.
+* **(v.0)**  ADDED:         Admin Access Restriction Area - Pages/Post. You can now restrict access to certain Page/Post actions - Create/Edit, Publish, Delete.
 
 = 4.7 Series =
 *Released: 29th April, 2015*
 
+* **(v.7)**  FIXED:         The text used to explain why some comments were marked as spam was broken.
+* **(v.7)**  FIXED:         Group sign-up form now honours your SSL setting.
+* **(v.7)**  TRANSLATIONS:  Spanish - 74%, Russian - 91%, Turkish - 94%, Polish- 95%, Finnish - 100%
 * **(v.6)**  FIXED:         Verifying ability to send/receive email doesn't complete if Admin Access Protection is turned on.
 * **(v.6)**  FIXED:         GASP Login Protection feature breaks because certain key options aren't initialized when the feature is enabled.
 * **(v.6)**  FIXED:         Some "more info" links were empty.

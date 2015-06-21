@@ -65,7 +65,7 @@ options:
       -
         value_key: 'delete_plugins'
         text: 'Delete'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf21'
     link_blog: ''
   -
     key: 'admin_access_restrict_themes'
@@ -88,7 +88,7 @@ options:
       -
         value_key: 'delete_themes'
         text: 'Delete'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf21'
     link_blog: ''
   -
     key: 'admin_access_restrict_posts'
@@ -105,7 +105,7 @@ options:
       -
         value_key: 'delete'
         text: 'Delete'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf21'
     link_blog: ''
   -
     key: 'current_plugin_version'
