@@ -6,9 +6,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Base {
 
-		protected function doExecutePreProcessor() {
-			$oDp = $this->loadDataProcessor();
+		/**
+		 * A action added to WordPress 'init' hook
+		 */
+		public function onWpInit() {
+			parent::onWpInit();
 
+			$oDp = $this->loadDataProcessor();
 			// User has clicked a link in their email to verify they can send email.
 			if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
 				if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
@@ -88,9 +92,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				sprintf( _wpsf__('Verify Link: %s'), $this->generateCanSendEmailVerifyLink() ),
 			);
 			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For: %s' ), home_url() );
-
-			// add filters to email sending (for now only Mandrill)
-			add_filter( 'mandrill_payload', array ($this, 'customiseMandrill' ) );
 
 			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo('admin_email'), $sEmailSubject, $aMessage );
 			return $bResult;
