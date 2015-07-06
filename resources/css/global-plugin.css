@@ -42,3 +42,17 @@ td.icwp_autoupdate span.icwp-pluginautoupdateicon.dashicons-update {
 td.icwp_autoupdate span.icwp-pluginautoupdateicon.dashicons-hammer {
 	color: #87492e;
 }
+
+tr.icwp-plugin-vulnerability td {
+	background-color: rgba( 190, 33, 33, 1.0 );
+	color: white;
+	padding: 12px 20px;
+}
+tr.icwp-plugin-vulnerability .vuln_type {
+	font-style: italic; 
+}
+tr.icwp-plugin-vulnerability td a {
+	color: white;
+	font-weight: bold;
+	text-decoration: underline;
+}
