@@ -48,6 +48,9 @@ tr.icwp-plugin-vulnerability td {
 	color: white;
 	padding: 12px 20px;
 }
+tr.icwp-plugin-vulnerability .vuln_type {
+	font-style: italic; 
+}
 tr.icwp-plugin-vulnerability td a {
 	color: white;
 	font-weight: bold;

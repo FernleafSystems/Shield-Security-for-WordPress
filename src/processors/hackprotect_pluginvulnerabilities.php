@@ -8,8 +8,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 		const PvSourceKey = 'plugin-vulnerabilities';
 
+		/**
+		 * @var array
+		 */
 		static protected $aPluginVulnerabilities;
 
+		/**
+		 * @var int
+		 */
 		static protected $nColumnsCount;
 
 		/**
@@ -17,8 +23,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 		 */
 		public function run() {
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
-			add_action( 'after_plugin_row', array( $this, 'attachVulnerabilityWarning' ), 10, 3 );
+			add_action( 'after_plugin_row', array( $this, 'attachVulnerabilityWarning' ), 10, 2 );
 		}
+
 		/**
 		 * @param array $aColumns
 		 * @return array
@@ -30,7 +37,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 			return $aColumns;
 		}
 
-		public function attachVulnerabilityWarning( $sPluginFile, $aPluginData, $sPluginStatus ) {
+		/**
+		 * @param string $sPluginFile
+		 * @param array $aPluginData
+		 */
+		public function attachVulnerabilityWarning( $sPluginFile, $aPluginData ) {
 
 			if ( !isset( self::$aPluginVulnerabilities ) ) {
 				self::$aPluginVulnerabilities = $this->loadPluginVulnerabilities();
@@ -48,12 +59,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 						$aRenderData = array(
 							'strings' => array (
-								'known_vuln' => sprintf( _wpsf__( '%s has discovered that the "%s" plugin has a known vulnerability.'), $this->getController()->getHumanName(), $aPluginData['Name'] ),
+								'known_vuln' => sprintf( _wpsf__( '%s has discovered the "%s" plugin has a known vulnerability.'), $this->getController()->getHumanName(), $aPluginData['Name'] ),
 								'vuln_type' => sprintf( _wpsf__( 'Vulnerability Type: "%s".'), $aVulnerabilityItem['TypeOfVulnerability'] ),
 								'more_info' => _wpsf__( 'More Info' )
 							),
 							'hrefs' => array(
-								'more_info' => $aVulnerabilityItem['URL']
+								'more_info' => $aVulnerabilityItem[ 'URL' ]
 							),
 							'nColspan' => self::$nColumnsCount
 						);
