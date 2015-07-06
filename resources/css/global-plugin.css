@@ -56,3 +56,9 @@ tr.icwp-plugin-vulnerability td a {
 	font-weight: bold;
 	text-decoration: underline;
 }
+tr.icwp-plugin-vulnerability dl {
+	margin: 12px 0;
+}
+tr.icwp-plugin-vulnerability dd {
+	margin-bottom: 3px;
+}

@@ -59,9 +59,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 						$aRenderData = array(
 							'strings' => array (
-								'known_vuln' => sprintf( _wpsf__( '%s has discovered the "%s" plugin has a known vulnerability.'), $this->getController()->getHumanName(), $aPluginData['Name'] ),
-								'vuln_type' => sprintf( _wpsf__( 'Vulnerability Type: "%s".'), $aVulnerabilityItem['TypeOfVulnerability'] ),
-								'more_info' => _wpsf__( 'More Info' )
+								'known_vuln' => sprintf( _wpsf__( '%s has discovered that the currently installed version of the "%s" plugin has a known security vulnerability.'), $this->getController()->getHumanName(), $aPluginData['Name'] ),
+								'vuln_type' => _wpsf__( 'Vulnerability Type' ),
+								'vuln_type_explanation' => ucfirst( $aVulnerabilityItem['TypeOfVulnerability'] ),
+								'vuln_versions' => _wpsf__( 'Vulnerable Versions' ),
+								'more_info' => _wpsf__( 'More Info' ),
+								'first_version' => $aVulnerabilityItem['FirstVersion'],
+								'last_version' => $aVulnerabilityItem['LastVersion'],
 							),
 							'hrefs' => array(
 								'more_info' => $aVulnerabilityItem[ 'URL' ]
