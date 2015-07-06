@@ -221,7 +221,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		 * @param string $sUrl
 		 * @param array $aRequestArgs
 		 *
-		 * @return bool|string
+		 * @return false|string
 		 */
 		public function getUrlContent( $sUrl, $aRequestArgs = array() ) {
 			$aResponse = $this->getUrl( $sUrl, $aRequestArgs );

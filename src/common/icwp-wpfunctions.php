@@ -340,7 +340,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @return object
+		 * @return mixed
 		 */
 		public function getTransient( $sKey ) {
 
