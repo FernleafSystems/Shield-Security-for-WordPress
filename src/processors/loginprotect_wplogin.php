@@ -30,6 +30,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		add_filter( 'network_site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 		add_filter( 'wp_redirect', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 
+		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) ) ;
 		return true;
 	}
 
@@ -158,6 +159,17 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		}
 	}
 
+	/**
+	 * Add the custom login URL to the Elegant Themes Maintenance Mode plugin URL exceptions list
+	 *
+	 * @param array $aUrlExceptions
+	 * @return array
+	 */
+	public function fAddToEtMaintenanceExceptions( $aUrlExceptions ) {
+		$aUrlExceptions[] = $this->getLoginPath();
+		return $aUrlExceptions;
+	}
+
 	protected function do404() {
 		$oDp = $this->loadDataProcessor();
 		$sRequestUrl = $oDp->FetchServer( 'REQUEST_URI' );
@@ -166,5 +178,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 			home_url()
 		);
 	}
+
 }
 endif;

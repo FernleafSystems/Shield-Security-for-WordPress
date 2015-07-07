@@ -19,6 +19,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 
 			// not probably necessary any longer since it's patched in the Core
 			add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
+
+			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_pluginvulnerabilities.php' );
+			( new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeatureOptions() ) )->run();
 		}
 
 		/**

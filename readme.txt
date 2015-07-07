@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.8.0
+Stable tag: 4.9.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,13 +262,10 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= Point Release 4.8.0 =
-*Released: 21st June, 2015*
+= Point Release 4.9.0 =
+*Released: 7th July, 2015*
 
-* **(v.0)**  FEATURE:       Admin Access Restriction Areas - Restrict access to certain WordPress areas and functionality to **Administrators** with the Admin Access key.
-* **(v.0)**  ADDED:         Admin Access Restriction Area - Plugins. You can now restrict access to certain Plugin actions - activate, install, update, delete.
-* **(v.0)**  ADDED:         Admin Access Restriction Area - Themes. You can now restrict access to certain Theme actions - activate, install, update, delete.
-* **(v.0)**  ADDED:         Admin Access Restriction Area - Pages/Post. You can now restrict access to certain Page/Post actions - Create/Edit, Publish, Delete.
+* **(v.0)**  FEATURE:       Plugin Vulnerabilities Detection: If you're running plugins with known vulnerabilities you will be warned - [more info](http://icwp.io/wpsf22)
 
 = 4.8 Series =
 *Released: 21st June, 2015*

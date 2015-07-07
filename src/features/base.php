@@ -1040,10 +1040,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return string
 		 */
 		public function renderAdminNotice( $sAdminNotice, $aData ) {
+			return $this->renderTemplate( 'notices'.ICWP_DS.$sAdminNotice, $aData );
+		}
+
+		/**
+		 * @param string $sTemplate
+		 * @param array $aData
+		 * @return string
+		 */
+		public function renderTemplate( $sTemplate, $aData ) {
 			try {
 				$sOutput = $this
 					->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( 'notices'.ICWP_DS.$sAdminNotice )
+					->setTemplate( $sTemplate )
 					->setRenderVars( $aData )
 					->render();
 			}
