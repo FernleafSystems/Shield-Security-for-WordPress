@@ -31,7 +31,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 			// For display on the Plugins page
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
-			add_action( 'after_plugin_row', array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
+			add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
+
 		}
 
 		protected function setupNotificationsCron() {
@@ -67,6 +68,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 			$this->sendVulnerabilityNotification( $sRecipient );
 		}
 
+		/**
+		 * @param array $aPluginData
+		 * @param array $aVulnerabilityData
+		 */
 		protected function addPluginVulnerabilityToEmail( $aPluginData, $aVulnerabilityData ) {
 			if ( !isset( $this->aPluginVulnerabilitiesEmailContents ) ) {
 				$this->aPluginVulnerabilitiesEmailContents = array();
@@ -113,6 +118,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
 			}
 			return $bSendSuccess;
+		}
+
+		public function addPluginVulnerabilityRows() {
+			$aPlugins = $this->loadWpFunctionsProcessor()->getPlugins();
+			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
+				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
+			}
 		}
 
 		/**
