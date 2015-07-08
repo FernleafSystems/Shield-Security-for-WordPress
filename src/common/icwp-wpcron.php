@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_WPSF_WpCron', false ) ):
 
 		/**
 		 * @param string $sUniqueCronName
-		 * @param array|string $sCallback
+		 * @param callback $sCallback
 		 * @param string $sRecurrence
 		 * @throws Exception
 		 */
