@@ -19,13 +19,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 		protected $nColumnsCount;
 
 		/**
-		 * Override to set what this processor does when it's "run"
 		 */
 		public function run() {
 
 			$this->setupNotificationsCron();
-
-//			$this->cron_dailyPluginVulnerabilitiesScan();
 
 			// For display on the Plugins page
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
