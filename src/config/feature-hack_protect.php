@@ -19,6 +19,10 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+  -
+    key: 'notifications_cron_name'
+    default: 'plugin-vulnerabilities-notification'
+    section: 'section_non_ui'
 ",
 		_wpsf__( 'Hack Protection' )
 	);

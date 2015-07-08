@@ -11,19 +11,83 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 		/**
 		 * @var array
 		 */
-		static protected $aPluginVulnerabilities;
+		protected $aPluginVulnerabilities;
 
 		/**
 		 * @var int
 		 */
-		static protected $nColumnsCount;
+		protected $nColumnsCount;
 
 		/**
-		 * Override to set what this processor does when it's "run"
 		 */
 		public function run() {
+
+			$this->setupNotificationsCron();
+
+			// For display on the Plugins page
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
 			add_action( 'after_plugin_row', array( $this, 'attachVulnerabilityWarning' ), 10, 2 );
+		}
+
+		protected function setupNotificationsCron() {
+			$oWpCron = $this->loadWpCronProcessor();
+			$oWpCron->createCronJob(
+				$this->getFeatureOptions()->prefixOptionKey( $this->getOption( 'notifications_cron_name' ) ),
+				array( $this, 'cron_dailyPluginVulnerabilitiesScan' ),
+				'daily'
+			);
+			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
+		}
+
+		/**
+		 */
+		public function deleteCron() {
+			$oWpCron = $this->loadWpCronProcessor();
+			$oWpCron->deleteCronJob( $this->getFeatureOptions()->prefixOptionKey( $this->getOption( 'notifications_cron_name' ) ) );
+		}
+
+		public function cron_dailyPluginVulnerabilitiesScan() {
+
+			$oWp = $this->loadWpFunctionsProcessor();
+			$aPlugins = $oWp->getPlugins();
+
+			$sRecipient = $this->getPluginDefaultRecipientAddress();
+			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
+				$aPluginVulnerabilityData = $this->getPluginVulnerabilityData( $sPluginFile, $aPluginData );
+
+				if ( is_array( $aPluginVulnerabilityData ) ) {
+					$bSendSuccess = $this->sendVulnerabilityNotification( $sRecipient, $aPluginData, $aPluginVulnerabilityData );
+					if ( $bSendSuccess ) {
+						$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+					}
+					else {
+						$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+					}
+				}
+			}
+		}
+
+		/**
+		 * @param string $sRecipient
+		 * @param array $aPluginData
+		 * @param array $aVulnerabilityData
+		 * @return bool
+		 */
+		protected function sendVulnerabilityNotification( $sRecipient, $aPluginData, $aVulnerabilityData ) {
+
+			$aMessage = array(
+				sprintf( _wpsf__( '%s has detected a plugin with a known security vulnerability on your site.' ), $this->getController()->getHumanName() ),
+				_wpsf__( 'Details for this plugin are below:' ),
+				'- ' . sprintf( _wpsf__( 'Plugin Name: %s' ), $aPluginData[ 'Name' ] ),
+				'- ' . sprintf( _wpsf__( 'Vulnerability Type: %s' ), $aVulnerabilityData[ 'TypeOfVulnerability' ] ),
+				'- ' . sprintf( _wpsf__( 'Vulnerable Plugin Version Range: %s' ), $aVulnerabilityData[ 'FirstVersion' ] . ' - ' . $aVulnerabilityData[ 'LastVersion' ] ),
+				'- ' . sprintf( _wpsf__( 'Further Information: %s' ), $aVulnerabilityData[ 'URL' ] ),
+				_wpsf__( 'You should update or remove this plugin at your earliest convenience.' ),
+			);
+			$sEmailSubject = _wpsf__( 'Warning: Plugin Discovered With Known Security Vulnerability' );
+
+			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aMessage );
+			return $bSendSuccess;
 		}
 
 		/**
@@ -31,8 +95,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 		 * @return array
 		 */
 		public function fCountColumns( $aColumns ) {
-			if ( !isset( self::$nColumnsCount ) ) {
-				self::$nColumnsCount = count( $aColumns );
+			if ( !isset( $this->nColumnsCount ) ) {
+				$this->nColumnsCount = count( $aColumns );
 			}
 			return $aColumns;
 		}
@@ -43,53 +107,69 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 		 */
 		public function attachVulnerabilityWarning( $sPluginFile, $aPluginData ) {
 
-			if ( !isset( self::$aPluginVulnerabilities ) ) {
-				self::$aPluginVulnerabilities = $this->loadPluginVulnerabilities();
+			$aPluginVulnerabilityData = $this->getPluginVulnerabilityData( $sPluginFile, $aPluginData );
+			if ( is_array( $aPluginVulnerabilityData ) ) {
+				$aRenderData = array(
+					'strings' => array (
+						'known_vuln' => sprintf( _wpsf__( '%s has discovered that the currently installed version of the "%s" plugin has a known security vulnerability.'), $this->getController()->getHumanName(), $aPluginData['Name'] ),
+						'vuln_type' => _wpsf__( 'Vulnerability Type' ),
+						'vuln_type_explanation' => ucfirst( $aPluginVulnerabilityData['TypeOfVulnerability'] ),
+						'vuln_versions' => _wpsf__( 'Vulnerable Versions' ),
+						'more_info' => _wpsf__( 'More Info' ),
+						'first_version' => $aPluginVulnerabilityData['FirstVersion'],
+						'last_version' => $aPluginVulnerabilityData['LastVersion'],
+					),
+					'hrefs' => array(
+						'more_info' => $aPluginVulnerabilityData[ 'URL' ]
+					),
+					'nColspan' => $this->nColumnsCount
+				);
+				echo $this->getFeatureOptions()->renderTemplate( 'snippets'.ICWP_DS.'plugin-vulnerability.php', $aRenderData );
 			}
-			else if ( empty( self::$aPluginVulnerabilities ) ) {
-				return;
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @param array $aPluginData
+		 * @return false|array			- array if a vulnerability exists
+		 */
+		protected function getPluginVulnerabilityData( $sPluginFile, $aPluginData ) {
+
+			$aPV = $this->loadPluginVulnerabilities();
+			if ( empty( $aPV ) ) {
+				return false;
 			}
 
 			$sPluginDir = substr( $sPluginFile, 0, strpos( $sPluginFile, ICWP_DS ) );
+			if ( array_key_exists( $sPluginDir, $aPV ) ) {
 
-			if ( array_key_exists( $sPluginDir, self::$aPluginVulnerabilities ) ) {
-				foreach( self::$aPluginVulnerabilities[$sPluginDir] as $aVulnerabilityItem ) {
+				foreach( $aPV[$sPluginDir] as $aVulnerabilityItem ) {
+
 					if ( version_compare( $aPluginData['Version'], $aVulnerabilityItem['FirstVersion'], '>=' )
 						 && version_compare( $aPluginData['Version'], $aVulnerabilityItem['LastVersion'], '<=' ) ) {
 
-						$aRenderData = array(
-							'strings' => array (
-								'known_vuln' => sprintf( _wpsf__( '%s has discovered that the currently installed version of the "%s" plugin has a known security vulnerability.'), $this->getController()->getHumanName(), $aPluginData['Name'] ),
-								'vuln_type' => _wpsf__( 'Vulnerability Type' ),
-								'vuln_type_explanation' => ucfirst( $aVulnerabilityItem['TypeOfVulnerability'] ),
-								'vuln_versions' => _wpsf__( 'Vulnerable Versions' ),
-								'more_info' => _wpsf__( 'More Info' ),
-								'first_version' => $aVulnerabilityItem['FirstVersion'],
-								'last_version' => $aVulnerabilityItem['LastVersion'],
-							),
-							'hrefs' => array(
-								'more_info' => $aVulnerabilityItem[ 'URL' ]
-							),
-							'nColspan' => self::$nColumnsCount
-						);
-						echo $this->getFeatureOptions()->renderTemplate( 'snippets'.ICWP_DS.'plugin-vulnerability.php', $aRenderData );
+						return $aVulnerabilityItem;
 					}
 				}
 			}
+			return false;
 		}
 
 		/**
 		 * @return array|false
 		 */
 		protected function loadPluginVulnerabilities() {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oFO = $this->getFeatureOptions();
 
-			$aPv = $oWp->getTransient( $oFO->prefixOptionKey( self::PvSourceKey ) );
-			if ( empty( $aPv ) ) {
-				$aPv = $this->downloadPluginVulnerabilitiesFromSource();
+			if ( !isset( $this->aPluginVulnerabilities ) ) {
+
+				$oWp = $this->loadWpFunctionsProcessor();
+				$oFO = $this->getFeatureOptions();
+				$this->aPluginVulnerabilities = $oWp->getTransient( $oFO->prefixOptionKey( self::PvSourceKey ) );
+				if ( empty( $this->aPluginVulnerabilities ) ) {
+					$this->aPluginVulnerabilities = $this->downloadPluginVulnerabilitiesFromSource();
+				}
 			}
-			return $aPv;
+			return $this->aPluginVulnerabilities;
 		}
 
 		/**
@@ -108,7 +188,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 			$aPluginVulnerabilitiesParsed = $this->loadYamlProcessor()->parseYamlString( $sRawSource );
 			if ( is_array( $aPluginVulnerabilitiesParsed ) ) {
-				$oWp->setTransient( $oFO->prefixOptionKey( self::PvSourceKey ), $aPluginVulnerabilitiesParsed, DAY_IN_SECONDS * 3 );
+				$oWp->setTransient( $oFO->prefixOptionKey( self::PvSourceKey ), $aPluginVulnerabilitiesParsed, DAY_IN_SECONDS );
 				return $aPluginVulnerabilitiesParsed;
 			}
 			return false;
