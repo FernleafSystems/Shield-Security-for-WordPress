@@ -191,7 +191,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 			$aPluginVulnerabilitiesParsed = $this->loadYamlProcessor()->parseYamlString( $sRawSource );
 			if ( is_array( $aPluginVulnerabilitiesParsed ) ) {
-				$oWp->setTransient( $oFO->prefixOptionKey( self::PvSourceKey ), $aPluginVulnerabilitiesParsed, DAY_IN_SECONDS * 3 );
+				$oWp->setTransient( $oFO->prefixOptionKey( self::PvSourceKey ), $aPluginVulnerabilitiesParsed, DAY_IN_SECONDS );
 				return $aPluginVulnerabilitiesParsed;
 			}
 			return false;
