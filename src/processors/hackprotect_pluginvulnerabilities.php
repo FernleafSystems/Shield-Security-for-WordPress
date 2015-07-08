@@ -179,9 +179,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 			$oWp = $this->loadWpFunctionsProcessor();
 			$oFO = $this->getFeatureOptions();
 
-			$sSource = 'https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml';
-			$oFs = $this->loadFileSystemProcessor();
-			$sRawSource = $oFs->getUrlContent( $sSource );
+			$sSource = $this->getOption( 'plugin_vulnerabilities_data_source' );
+			$sRawSource = $this->loadFileSystemProcessor()->getUrlContent( $sSource );
 			if ( $sRawSource === false ) {
 				return false;
 			}
