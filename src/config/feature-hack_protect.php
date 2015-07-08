@@ -21,7 +21,7 @@ options:
     section: 'section_non_ui'
   -
     key: 'plugin_vulnerabilities_data_source'
-    default: 'https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml'
+    value: 'https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml'
     immutable: true
     section: 'section_non_ui'
   -

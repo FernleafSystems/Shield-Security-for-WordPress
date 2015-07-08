@@ -31,7 +31,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 			// For display on the Plugins page
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
-			add_action( 'after_plugin_row', array( $this, 'attachVulnerabilityWarning' ), 10, 2 );
+			add_action( 'after_plugin_row', array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 		}
 
 		protected function setupNotificationsCron() {
@@ -165,10 +165,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 				return false;
 			}
 
-			$sPluginDir = substr( $sPluginFile, 0, strpos( $sPluginFile, ICWP_DS ) );
-			if ( array_key_exists( $sPluginDir, $aPV ) ) {
-
-				foreach( $aPV[$sPluginDir] as $aVulnerabilityItem ) {
+			$sSlug = !empty( $aPluginData['slug'] ) ? $aPluginData['slug'] : substr( $sPluginFile, 0, strpos( $sPluginFile, ICWP_DS ) );
+			if ( array_key_exists( $sSlug, $aPV ) ) {
+				foreach( $aPV[$sSlug] as $aVulnerabilityItem ) {
 
 					if ( version_compare( $aPluginData['Version'], $aVulnerabilityItem['FirstVersion'], '>=' )
 						 && version_compare( $aPluginData['Version'], $aVulnerabilityItem['LastVersion'], '<=' ) ) {
