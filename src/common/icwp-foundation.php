@@ -13,6 +13,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		private static $oFs;
 		/**
+		 * @var ICWP_WPSF_WpCron
+		 */
+		private static $oWpCron;
+		/**
 		 * @var ICWP_WPSF_WpFilesystem
 		 */
 		private static $oWp;
@@ -56,6 +60,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oWp = ICWP_WPSF_WpFunctions::GetInstance();
 			}
 			return self::$oWp;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpCron
+		 */
+		static public function loadWpCronProcessor() {
+			if ( !isset( self::$oWpCron ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpcron.php' );
+				self::$oWpCron = ICWP_WPSF_WpCron::GetInstance();
+			}
+			return self::$oWpCron;
 		}
 
 		/**
