@@ -19,6 +19,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 		protected $nColumnsCount;
 
 		/**
+		 * @var array
+		 */
+		protected $aPluginVulnerabilitiesEmailContents;
+
+		/**
 		 */
 		public function run() {
 
@@ -54,39 +59,59 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
 				$aPluginVulnerabilityData = $this->getPluginVulnerabilityData( $sPluginFile, $aPluginData );
-
 				if ( is_array( $aPluginVulnerabilityData ) ) {
-					$bSendSuccess = $this->sendVulnerabilityNotification( $sRecipient, $aPluginData, $aPluginVulnerabilityData );
-					if ( $bSendSuccess ) {
-						$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
-					}
-					else {
-						$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
-					}
+					$this->addPluginVulnerabilityToEmail( $aPluginData, $aPluginVulnerabilityData );
 				}
 			}
+
+			$this->sendVulnerabilityNotification( $sRecipient );
+		}
+
+		protected function addPluginVulnerabilityToEmail( $aPluginData, $aVulnerabilityData ) {
+			if ( !isset( $this->aPluginVulnerabilitiesEmailContents ) ) {
+				$this->aPluginVulnerabilitiesEmailContents = array();
+			}
+			$this->aPluginVulnerabilitiesEmailContents = array_merge(
+				$this->aPluginVulnerabilitiesEmailContents,
+				array(
+					'- ' . sprintf( _wpsf__( 'Plugin Name: %s' ), $aPluginData[ 'Name' ] ),
+					'- ' . sprintf( _wpsf__( 'Vulnerability Type: %s' ), $aVulnerabilityData[ 'TypeOfVulnerability' ] ),
+					'- ' . sprintf( _wpsf__( 'Vulnerable Plugin Version Range: %s' ), $aVulnerabilityData[ 'FirstVersion' ] . ' - ' . $aVulnerabilityData[ 'LastVersion' ] ),
+					'- ' . sprintf( _wpsf__( 'Further Information: %s' ), $aVulnerabilityData[ 'URL' ] ),
+					'',
+				)
+			);
 		}
 
 		/**
 		 * @param string $sRecipient
-		 * @param array $aPluginData
-		 * @param array $aVulnerabilityData
 		 * @return bool
 		 */
-		protected function sendVulnerabilityNotification( $sRecipient, $aPluginData, $aVulnerabilityData ) {
+		protected function sendVulnerabilityNotification( $sRecipient ) {
 
-			$aMessage = array(
+			if ( empty( $this->aPluginVulnerabilitiesEmailContents ) ) {
+				return true;
+			}
+
+			$aPreamble = array(
 				sprintf( _wpsf__( '%s has detected a plugin with a known security vulnerability on your site.' ), $this->getController()->getHumanName() ),
-				_wpsf__( 'Details for this plugin are below:' ),
-				'- ' . sprintf( _wpsf__( 'Plugin Name: %s' ), $aPluginData[ 'Name' ] ),
-				'- ' . sprintf( _wpsf__( 'Vulnerability Type: %s' ), $aVulnerabilityData[ 'TypeOfVulnerability' ] ),
-				'- ' . sprintf( _wpsf__( 'Vulnerable Plugin Version Range: %s' ), $aVulnerabilityData[ 'FirstVersion' ] . ' - ' . $aVulnerabilityData[ 'LastVersion' ] ),
-				'- ' . sprintf( _wpsf__( 'Further Information: %s' ), $aVulnerabilityData[ 'URL' ] ),
-				_wpsf__( 'You should update or remove this plugin at your earliest convenience.' ),
+				_wpsf__( 'Details for the plugin(s) are below:' ),
+				'',
 			);
-			$sEmailSubject = _wpsf__( 'Warning: Plugin Discovered With Known Security Vulnerability' );
 
-			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aMessage );
+			$this->aPluginVulnerabilitiesEmailContents = array_merge( $aPreamble, $this->aPluginVulnerabilitiesEmailContents );
+			$this->aPluginVulnerabilitiesEmailContents[ ] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
+
+			$sEmailSubject = _wpsf__( 'Warning: Plugin(s) Discovered With Known Security Vulnerabilities' );
+
+			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $this->aPluginVulnerabilitiesEmailContents );
+
+			if ( $bSendSuccess ) {
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+			}
+			else {
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+			}
 			return $bSendSuccess;
 		}
 
