@@ -122,7 +122,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities_V1', 
 
 		public function addPluginVulnerabilityRows() {
 			$aPlugins = $this->loadWpFunctionsProcessor()->getPlugins();
-			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
+			foreach( array_keys( $aPlugins ) as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
 		}
