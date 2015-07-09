@@ -266,7 +266,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *Released: 9th July, 2015*
 
 * **(v.2)**  ADDED:         Email notifications sent out to report email address on a daily cron. [more info](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/)
-* **(v.2)**  FIX:           Work around WordPress inline plugin update Javascript bug.
+* **(v.2)**  FIX:           Work around a WordPress inline plugin update Javascript bug.
 
 = 4.9 Series =
 *Released: 7th July, 2015*
