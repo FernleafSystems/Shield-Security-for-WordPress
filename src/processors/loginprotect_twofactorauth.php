@@ -464,14 +464,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 		/**
 		 * This is hooked into a cron in the base class and overrides the parent method.
-		 *
 		 * It'll delete everything older than 24hrs.
 		 */
 		public function cleanupDatabase() {
 			if ( !$this->getTableExists() ) {
 				return;
 			}
-			$nTimeStamp = $this->time() - (DAY_IN_SECONDS * $this->nDaysToKeepLog);
+			$nTimeStamp = $this->time() - ( DAY_IN_SECONDS * $this->nDaysToKeepLog );
 			$this->deleteAllRowsOlderThan( $nTimeStamp );
 		}
 
