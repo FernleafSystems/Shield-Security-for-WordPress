@@ -3,7 +3,6 @@
 if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 
 	class ICWP_WPSF_Foundation {
-
 		/**
 		 * @var ICWP_WPSF_DataProcessor
 		 */
@@ -71,6 +70,13 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oWpCron = ICWP_WPSF_WpCron::GetInstance();
 			}
 			return self::$oWpCron;
+		}
+
+		/**
+		 * @return void
+		 */
+		static public function loadWpWidgets() {
+			require_once( dirname(__FILE__).ICWP_DS.'icwp-wpwidget.php' );
 		}
 
 		/**
