@@ -25,6 +25,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
 				add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
 			}
+
+			add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
+		}
+
+		public function addPluginBadgeWidget() {
+			$this->loadWpWidgets();
+			require_once( dirname(__FILE__).ICWP_DS.'plugin_badgewidget.php' );
+			ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getFeatureOptions() );
+			register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
 		}
 
 		/**
