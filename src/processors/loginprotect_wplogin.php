@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( !$oFO->getIsCustomLoginPathEnabled() || $this->doCheckForPluginConflict() ) {
+		if ( !$oFO->getIsCustomLoginPathEnabled() || $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
 			return false;
 		}
 
@@ -37,9 +37,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 	/**
 	 * @return bool - true if conflict exists
 	 */
-	protected function doCheckForPluginConflict() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+	protected function checkForPluginConflict() {
 
 		$oWp = $this->loadWpFunctionsProcessor();
 		if ( $oWp->isMultisite() ) {
@@ -85,6 +83,26 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
 			return true;
 		}
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function checkForUnsupportedConfiguration() {
+		$oDp = $this->loadDataProcessor();
+		$aRequestParts =  $oDp->getRequestUriParts();
+		if ( $aRequestParts === false || empty( $aRequestParts['path'] ) )  {
+
+			$sNoticeMessage = sprintf(
+				'<strong>%s</strong>: %s',
+				_wpsf__( 'Warning' ),
+				_wpsf__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.')
+			);
+			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
+			return true;
+		}
+
 		return false;
 	}
 

@@ -61,7 +61,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		}
 
 		/**
-		 *
 		 * @param boolean $bAsHuman
 		 * @return bool|integer - visitor IP Address as IP2Long
 		 */
@@ -81,7 +80,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 
 		/**
 		 * Cloudflare compatible.
-		 *
 		 * @return string|bool
 		 */
 		protected function findViableVisitorIp() {
@@ -137,6 +135,15 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @param bool $bIncludeCookie
+		 * @return array
+		 */
+		public function getRawRequestParams( $bIncludeCookie = true ) {
+			$aParams = array_merge( $_GET, $_POST );
+			return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
+		}
+
+		/**
 		 * @return array|false
 		 */
 		public function getRequestUriParts() {
@@ -155,15 +162,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 				$this->aRequestUriParts = $aParts;
 			}
 			return $this->aRequestUriParts;
-		}
-
-		/**
-		 * @param bool $bIncludeCookie
-		 * @return array
-		 */
-		public function getRawRequestParams( $bIncludeCookie = true ) {
-			$aParams = array_merge( $_GET, $_POST );
-			return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
 		}
 
 		/**
