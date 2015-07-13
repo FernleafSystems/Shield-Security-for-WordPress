@@ -168,6 +168,34 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param string $sPath
+		 * @param string $sExtensionToAdd
+		 * @return string
+		 */
+		public function addExtensionToFilePath( $sPath, $sExtensionToAdd ) {
+
+			if ( strpos( $sExtensionToAdd, '.' ) === false ) {
+				$sExtensionToAdd = '.'.$sExtensionToAdd;
+			}
+
+			if ( !$this->getIfStringEndsIn( $sPath, $sExtensionToAdd ) ) {
+				$sPath = $sPath.$sExtensionToAdd;
+			}
+			return $sPath;
+		}
+
+		/**
+		 * @param string $sHaystack
+		 * @param string $sNeedle
+		 * @return bool
+		 */
+		public function getIfStringEndsIn( $sHaystack, $sNeedle ) {
+			$nNeedleLength = strlen( $sNeedle );
+			$sStringEndsIn = substr( $sHaystack, strlen( $sHaystack ) - $nNeedleLength, $nNeedleLength );
+			return ( $sStringEndsIn == $sNeedle );
+		}
+
+		/**
+		 * @param string $sPath
 		 * @return string
 		 */
 		public function getExtension( $sPath ) {
