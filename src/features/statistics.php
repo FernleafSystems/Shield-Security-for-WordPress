@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 			$aStatsData = $this->getStatsData();
 			ksort( $aStatsData );
 
-			$this->display( array(), 'subfeature-statistics_data_viewer.php' );
+			$this->display( array( 'aStatsData' => $aStatsData ), 'subfeature-statistics_data_viewer.php' );
 		}
 
 		/**
