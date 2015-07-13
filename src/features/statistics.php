@@ -8,6 +8,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 
 		public function doPrePluginOptionsSave() { }
 
+		public function displayStatisticsDataViewer() {
+
+			/** @var ICWP_WPSF_Processor_Statistics $oStatics */
+			$oStatics = $this->loadFeatureProcessor();
+			$this->display( array(), 'subfeature-statistics_data_viewer.php' );
+		}
+
 		/**
 		 * @param array $aOptionsParams
 		 * @return array

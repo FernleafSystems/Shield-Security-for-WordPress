@@ -38,7 +38,13 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+menu_items:
+  -
+    slug: 'statistics_data_viewer'
+    title: '%s'
+    callback: 'displayStatisticsDataViewer'
 ",
 		_wpsf__( 'Statistics' ),
-		_wpsf__( 'Summary of the main security actions taken by this plugin' ) //tagline
+		_wpsf__( 'Summary of the main security actions taken by this plugin' ), //tagline
+        _wpsf__( 'Stats Viewer' )
 	);
