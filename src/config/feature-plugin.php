@@ -110,6 +110,9 @@ options:
         load_priority: 10
         hidden: false
       -
+        slug: 'statistics'
+        storage_key: 'statistics'
+      -
         slug: 'hack_protect'
         storage_key: 'hack_protect'
       -

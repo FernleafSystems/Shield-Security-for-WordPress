@@ -135,7 +135,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				require_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
+				@include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
