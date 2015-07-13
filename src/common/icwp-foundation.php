@@ -114,7 +114,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		}
 
 		/**
-		 * @return ICWP_Stats_APP
+		 * @return ICWP_Stats_WPSF
 		 */
 		public function loadStatsProcessor() {
 			require_once( dirname(__FILE__).ICWP_DS.'icwp-stats.php' );

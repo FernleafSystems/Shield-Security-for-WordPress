@@ -12,8 +12,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 
 			/** @var ICWP_WPSF_Processor_Statistics $oStatics */
 			$oStatics = $this->loadFeatureProcessor();
+
+			$aStatsData = $this->getStatsData();
+			ksort( $aStatsData );
+
 			$this->display( array(), 'subfeature-statistics_data_viewer.php' );
 		}
+
+		/**
+		 * @return array
+		 */
+		protected function getStatsData() {
+			$this->loadStatsProcessor();
+			return ICWP_Stats_WPSF::GetStatsData();}
 
 		/**
 		 * @param array $aOptionsParams

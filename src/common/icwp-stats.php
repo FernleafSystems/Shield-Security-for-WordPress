@@ -53,6 +53,14 @@ class ICWP_Stats_WPSF {
 	}
 
 	/**
+	 * @return array
+	 */
+	public static function GetStatsData() {
+		self::LoadStats();
+		return self::$aStats;
+	}
+
+	/**
 	 */
 	protected static function LoadStats() {
 		if ( isset( self::$aStats ) ) {
