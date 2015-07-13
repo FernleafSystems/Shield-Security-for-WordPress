@@ -967,6 +967,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 					$sSubView = 'feature-default';
 				}
 			}
+
+			$sSubView = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
 			$aData[ 'sFeatureInclude' ] = $sSubView;
 
 			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
