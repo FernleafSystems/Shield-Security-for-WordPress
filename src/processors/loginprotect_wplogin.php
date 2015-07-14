@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( !$oFO->getIsCustomLoginPathEnabled() || $this->doCheckForPluginConflict() ) {
+		if ( !$oFO->getIsCustomLoginPathEnabled() || $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
 			return false;
 		}
 
@@ -37,54 +37,57 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 	/**
 	 * @return bool - true if conflict exists
 	 */
-	protected function doCheckForPluginConflict() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+	protected function checkForPluginConflict() {
+
+		$sMessage = '';
+		$bConflicted = false;
 
 		$oWp = $this->loadWpFunctionsProcessor();
 		if ( $oWp->isMultisite() ) {
-
-			$sNoticeMessage = sprintf(
-				'<strong>%s</strong>: %s',
-				_wpsf__( 'Warning' ),
-				_wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.')
-			);
-			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
-			return true;
+			$sMessage = _wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.' );
+			$bConflicted = true;
 		}
 		else if ( class_exists( 'Rename_WP_Login', false ) ) {
-
-			$sNoticeMessage = sprintf(
-				'<strong>%s</strong>: %s',
-				_wpsf__( 'Warning' ),
-				_wpsf__( 'Can not use the Rename WP Login feature because you have the "Rename WP Login" plugin installed and active.' )
-			);
-			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
-			return true;
+			$sMessage = _wpsf__( 'Can not use the Rename WP Login feature because you have the "Rename WP Login" plugin installed and active.' );
+			$bConflicted = true;
 		}
 		else if ( !$oWp->getIsPermalinksEnabled() ) {
-
-			$sNoticeMessage = sprintf(
-				'<strong>%s</strong>: %s',
-				_wpsf__( 'Warning' ),
-				sprintf(
-					_wpsf__( 'Can not use the Rename WP Login feature because you have not enabled %s.'),
-					__('Permalinks')
-				)
-			);
-			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
-			return true;
+			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have not enabled %s.' ), __( 'Permalinks' ) );
+			$bConflicted = true;
 		}
 		else if ( $oWp->getIsPermalinksEnabled() && $oWp->getDoesWpSlugExist( $this->getLoginPath() ) ) {
+			$sMessage = _wpsf__( 'Can not use the Rename WP Login feature because you have chosen a path that is already reserved on your WordPress site.' );
+			$bConflicted = true;
+		}
+
+		if ( $bConflicted ) {
+			$sNoticeMessage = sprintf( '<strong>%s</strong>: %s',
+				_wpsf__( 'Warning' ),
+				$sMessage
+			);
+			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
+		}
+
+		return $bConflicted;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function checkForUnsupportedConfiguration() {
+		$oDp = $this->loadDataProcessor();
+		$aRequestParts =  $oDp->getRequestUriParts();
+		if ( $aRequestParts === false || empty( $aRequestParts['path'] ) )  {
 
 			$sNoticeMessage = sprintf(
 				'<strong>%s</strong>: %s',
 				_wpsf__( 'Warning' ),
-				_wpsf__( 'Can not use the Rename WP Login feature because you have chosen a path that is already reserved on your WordPress site.' )
+				_wpsf__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.')
 			);
 			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
 			return true;
 		}
+
 		return false;
 	}
 

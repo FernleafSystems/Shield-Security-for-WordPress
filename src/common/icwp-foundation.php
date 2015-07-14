@@ -3,7 +3,6 @@
 if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 
 	class ICWP_WPSF_Foundation {
-
 		/**
 		 * @var ICWP_WPSF_DataProcessor
 		 */
@@ -74,6 +73,13 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		}
 
 		/**
+		 * @return void
+		 */
+		static public function loadWpWidgets() {
+			require_once( dirname(__FILE__).ICWP_DS.'icwp-wpwidget.php' );
+		}
+
+		/**
 		 * @return ICWP_WPSF_WpDb
 		 */
 		static public function loadDbProcessor() {
@@ -108,7 +114,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		}
 
 		/**
-		 * @return ICWP_Stats_APP
+		 * @return ICWP_Stats_WPSF
 		 */
 		public function loadStatsProcessor() {
 			require_once( dirname(__FILE__).ICWP_DS.'icwp-stats.php' );

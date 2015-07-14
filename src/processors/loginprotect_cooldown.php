@@ -48,13 +48,15 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Base
 		// So we remove WordPress's authentication filter and our own user check authentication
 		// And finally return a WP_Error which will be reflected back to the user.
 		$this->doStatIncrement( 'login.cooldown.fail' );
-		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20, 3 );  // wp-includes/user.php
+		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 
 		$oWp = $this->loadWpFunctionsProcessor();
-		$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '. sprintf( _wpsf__( "You must wait %s seconds before attempting to %s again." ),
-			$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
-			$oWp->getIsLoginRequest() ? _wpsf__('login') : _wpsf__('register')
-		);
+		$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
+						.sprintf(
+							_wpsf__( "You must wait %s seconds before attempting to %s again." ),
+							$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
+							$oWp->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
+						);
 
 		if ( !is_wp_error( $oUserOrError ) ) {
 			$oUserOrError = new WP_Error();
