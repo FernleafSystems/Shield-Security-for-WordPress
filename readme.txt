@@ -3,10 +3,10 @@ Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, firewall, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
+Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.9.2
+Stable tag: 4.9.3
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,15 +262,18 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.9.2 Point Release =
-*Released: 9th July, 2015*
+= 4.9.3 Point Release =
+*Released: 14th July, 2015*
 
-* **(v.2)**  ADDED:         Email notifications sent out to report email address on a daily cron. [more info](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/)
-* **(v.2)**  FIX:           Work around a WordPress inline plugin update Javascript bug.
+* **(v.3)**  ADDED:         Further checking for availability of certain PHP/server data before enabling the rename WordPress login feature
+* **(v.3)**  ADDED:         Option to add the Plugin Badge as a Widget to your side-bar or page footer, or any other widget area.
+* **(v.3)**  TRANSLATIONS:  Polish - 100%
 
 = 4.9 Series =
 *Released: 7th July, 2015*
 
+* **(v.2)**  ADDED:         Email notifications sent out to report email address on a daily cron. [more info](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/)
+* **(v.2)**  FIX:           Work around a WordPress inline plugin update Javascript bug.
 * **(v.1)**  FIX:           Fix syntax support for earlier versions of PHP.
 * **(v.0)**  FEATURE:       Plugin Vulnerabilities Detection: If you're running plugins with known vulnerabilities you will be warned - [more info](http://icwp.io/wpsf22)
 
