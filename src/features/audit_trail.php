@@ -53,7 +53,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 				$aAuditData = $oAuditTrail->getAuditEntriesForContext( strtolower( $sContext ) );
 				if ( is_array( $aAuditData ) ) {
 					foreach( $aAuditData as &$aAuditEntry ) {
-						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', $aAuditEntry[ 'event' ] );
+						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
+						$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
 						$aAuditEntry[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aAuditEntry[ 'created_at' ] );
 					}
 				}

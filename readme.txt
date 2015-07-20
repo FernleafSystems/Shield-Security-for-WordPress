@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.9.3
+Stable tag: 4.9.4
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,16 +262,18 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.9.3 Point Release =
-*Released: 14th July, 2015*
+= 4.9.4 Point Release =
+*Released: 20th July, 2015*
 
-* **(v.3)**  ADDED:         Further checking for availability of certain PHP/server data before enabling the rename WordPress login feature
-* **(v.3)**  ADDED:         Option to add the Plugin Badge as a Widget to your side-bar or page footer, or any other widget area.
-* **(v.3)**  TRANSLATIONS:  Polish - 100%
+* **(v.4)**  FIX:           Audit Trail Viewer display issue with non-escaped HTML (Thanks Chris!)
+* **(v.4)**  TRANSLATIONS:  Danish - 6%, Spanish - 76%
 
 = 4.9 Series =
 *Released: 7th July, 2015*
 
+* **(v.3)**  ADDED:         Further checking for availability of certain PHP/server data before enabling the rename WordPress login feature
+* **(v.3)**  ADDED:         Option to add the Plugin Badge as a Widget to your side-bar or page footer, or any other widget area.
+* **(v.3)**  TRANSLATIONS:  Polish - 100%
 * **(v.2)**  ADDED:         Email notifications sent out to report email address on a daily cron. [more info](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/)
 * **(v.2)**  FIX:           Work around a WordPress inline plugin update Javascript bug.
 * **(v.1)**  FIX:           Fix syntax support for earlier versions of PHP.
