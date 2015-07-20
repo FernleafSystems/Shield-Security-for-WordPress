@@ -266,6 +266,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *Released: 20th July, 2015*
 
 * **(v.4)**  FIX:           Audit Trail Viewer display issue with non-escaped HTML (Thanks Chris!)
+* **(v.4)**  ADDED:         An admin warning for sites with PHP version less than 5.3.2 (future versions will require this as a minimum)
 * **(v.4)**  TRANSLATIONS:  Danish - 6%, Spanish - 76%
 
 = 4.9 Series =

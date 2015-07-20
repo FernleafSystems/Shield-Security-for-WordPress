@@ -46,6 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$oCon = $this->getController();
 				// always show this notice
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
+				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
 				if ( $this->getIfShowAdminNotices() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
@@ -122,6 +123,43 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				);
 				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'override-forceoff', $aDisplayData );
 			}
+			return $aAdminNotices;
+		}
+
+		/**
+		 * @param array $aAdminNotices
+		 * @return array
+		 */
+		public function adminNoticePhpMinimumVersion53( $aAdminNotices ) {
+
+			$oDp = $this->loadDataProcessor();
+			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
+				return $aAdminNotices;
+			}
+			$oCon = $this->getController();
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sCurrentMetaValue = $oWp->getUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ) );
+			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
+				return $aAdminNotices;
+			}
+
+			$aDisplayData = array(
+				'strings' => array(
+					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
+					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
+					'ask_host_to_upgrade' => sprintf( _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
+					'any_questions' => sprintf( _wpsf__( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
+					'dismiss' => _wpsf__( 'Dismiss this notice' ),
+					'forums' => __('Support Forums'),
+				),
+				'hrefs' => array(
+					'form_action' => $oCon->getPluginUrl_AdminMainPage().'&'.$oCon->doPluginPrefix( 'hide_php53_warning' ).'=1',
+					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
+					'redirect' => $oWp->getUrl_CurrentAdminPage(),
+				)
+			);
+
+			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'minimum-php53', $aDisplayData );
 			return $aAdminNotices;
 		}
 
@@ -264,7 +302,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			$aDisplayData = array(
 				'strings' => array(
-					'like_to_help' => "Would you like to help translate the WordPress Simple Firewall into your language?",
+					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $oController->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
 					'site_url' => 'translate.icontrolwp.com',
 					'dismiss' => _wpsf__( 'Dismiss this notice' )
