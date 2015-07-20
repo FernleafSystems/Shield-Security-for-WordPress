@@ -768,6 +768,13 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
+			return ( version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' ) );
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getCanOpensslSign() {
