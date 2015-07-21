@@ -28,14 +28,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
 
-			add_action( 'activated_plugin', array( $this, 'setPluginToLoadFirst' ) );
+			if ( $this->getController()->getIsValidAdminArea() ) {
+				$this->maintainPluginLoadPosition();
+			}
 		}
 
 		/**
 		 * Sets this plugin to be the first loaded of all the plugins.
 		 */
-		public function setPluginToLoadFirst() {
-			$this->loadWpFunctionsProcessor()->setPluginLoadPosition( $this->getController()->getPluginBaseFile(), 0 );
+		protected function maintainPluginLoadPosition() {
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sBaseFile = $this->getController()->getPluginBaseFile();
+			if ( $oWp->getActivePluginLoadPosition( $sBaseFile ) !== 0 ) {
+				$oWp->setActivePluginLoadFirst( $sBaseFile );
+			}
 		}
 
 		public function addPluginBadgeWidget() {
