@@ -828,6 +828,37 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @param string $sPluginFile
+		 * @param int $nDesiredPosition
+		 */
+		public function setPluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
+
+			if ( $nDesiredPosition < 0 ) {
+				return;
+			}
+
+			$aActivePlugins = $this->getOption( 'active_plugins', array() );
+
+			$nMaxPossiblePosition = count( $aActivePlugins ) - 1;
+			if ( $nDesiredPosition > $nMaxPossiblePosition ) {
+				$nDesiredPosition = $nMaxPossiblePosition;
+			}
+
+			$nPosition = array_search( $sPluginFile, $aActivePlugins );
+			if ( $nPosition !== false && $nPosition != $nDesiredPosition ) {
+
+				// remove existing and reset index
+				unset( $aActivePlugins[ $nPosition ] );
+				$aActivePlugins = array_values( $aActivePlugins );
+
+				// insert and update
+				// http://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
+				array_splice( $aActivePlugins, $nDesiredPosition, 0, $sPluginFile );
+				$this->updateOption( 'active_plugins', $aActivePlugins );
+			}
+		}
+
+		/**
 		 * @param string $sKey should be already prefixed
 		 * @param int|null $nId - if omitted get for current user
 		 * @return bool|string
