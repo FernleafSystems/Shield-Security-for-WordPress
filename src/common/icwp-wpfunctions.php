@@ -833,7 +833,8 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		 * @return int
 		 */
 		public function getActivePluginLoadPosition( $sPluginFile ) {
-			$aActive = $this->getOption( 'active_plugins' );
+			$sOptionKey = $this->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
+			$aActive = $this->getOption( $sOptionKey );
 			$nPosition = array_search( $sPluginFile, $aActive );
 			return ( $nPosition === false ) ? -1 : $nPosition;
 		}
@@ -844,11 +845,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		 */
 		public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
 
-			$aActive = $this->getOption( 'active_plugins' );
-			$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $aActive, $sPluginFile, $nDesiredPosition );
-			$this->updateOption(
-				'active_plugins', $aActive
-			);
+			$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
+			$this->updateOption( 'active_plugins', $aActive );
+
+			if ( $this->isMultisite() ) {
+				$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
+				$this->updateOption( 'active_sitewide_plugins', $aActive );
+			}
 		}
 
 		/**
