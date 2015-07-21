@@ -827,35 +827,42 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 			return true;
 		}
 
+
+		/**
+		 * @param string $sPluginFile
+		 * @return int
+		 */
+		public function getActivePluginLoadPosition( $sPluginFile ) {
+			$aActive = $this->getOption( 'active_plugins' );
+			$nPosition = array_search( $sPluginFile, $aActive );
+			return ( $nPosition === false ) ? -1 : $nPosition;
+		}
+
 		/**
 		 * @param string $sPluginFile
 		 * @param int $nDesiredPosition
 		 */
-		public function setPluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
+		public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
 
-			if ( $nDesiredPosition < 0 ) {
-				return;
-			}
+			$aActive = $this->getOption( 'active_plugins' );
+			$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $aActive, $sPluginFile, $nDesiredPosition );
+			$this->updateOption(
+				'active_plugins', $aActive
+			);
+		}
 
-			$aActivePlugins = $this->getOption( 'active_plugins', array() );
+		/**
+		 * @param string $sPluginFile
+		 */
+		public function setActivePluginLoadFirst( $sPluginFile ) {
+			$this->setActivePluginLoadPosition( $sPluginFile, 0 );
+		}
 
-			$nMaxPossiblePosition = count( $aActivePlugins ) - 1;
-			if ( $nDesiredPosition > $nMaxPossiblePosition ) {
-				$nDesiredPosition = $nMaxPossiblePosition;
-			}
-
-			$nPosition = array_search( $sPluginFile, $aActivePlugins );
-			if ( $nPosition !== false && $nPosition != $nDesiredPosition ) {
-
-				// remove existing and reset index
-				unset( $aActivePlugins[ $nPosition ] );
-				$aActivePlugins = array_values( $aActivePlugins );
-
-				// insert and update
-				// http://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
-				array_splice( $aActivePlugins, $nDesiredPosition, 0, $sPluginFile );
-				$this->updateOption( 'active_plugins', $aActivePlugins );
-			}
+		/**
+		 * @param string $sPluginFile
+		 */
+		public function setActivePluginLoadLast( $sPluginFile ) {
+			$this->setActivePluginLoadPosition( $sPluginFile, 1000 );
 		}
 
 		/**

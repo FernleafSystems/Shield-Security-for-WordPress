@@ -800,6 +800,38 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		}
 
 		/**
+		 * @param array $aSubjectArray
+		 * @param mixed $mValue
+		 * @param int $nDesiredPosition
+		 * @return array
+		 */
+		public function setArrayValueToPosition( $aSubjectArray, $mValue, $nDesiredPosition ) {
+
+			if ( $nDesiredPosition < 0 ) {
+				return $aSubjectArray;
+			}
+
+			$nMaxPossiblePosition = count( $aSubjectArray ) - 1;
+			if ( $nDesiredPosition > $nMaxPossiblePosition ) {
+				$nDesiredPosition = $nMaxPossiblePosition;
+			}
+
+			$nPosition = array_search( $mValue, $aSubjectArray );
+			if ( $nPosition !== false && $nPosition != $nDesiredPosition ) {
+
+				// remove existing and reset index
+				unset( $aSubjectArray[ $nPosition ] );
+				$aSubjectArray = array_values( $aSubjectArray );
+
+				// insert and update
+				// http://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
+				array_splice( $aSubjectArray, $nDesiredPosition, 0, $mValue );
+			}
+
+			return $aSubjectArray;
+		}
+
+		/**
 		 * @return int
 		 */
 		public function time() {
