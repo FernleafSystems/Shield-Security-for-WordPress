@@ -262,16 +262,17 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.9.4 Point Release =
+= 4.9.5 Point Release =
 *Released: 20th July, 2015*
 
-* **(v.4)**  FIX:           Audit Trail Viewer display issue with non-escaped HTML (Thanks Chris!)
-* **(v.4)**  ADDED:         An admin warning for sites with PHP version less than 5.3.2 (future versions will require this as a minimum)
-* **(v.4)**  TRANSLATIONS:  Danish - 6%, Spanish - 76%
+* **(v.5)**  ADDED:         The plugin will load itself first before all other plugins
 
 = 4.9 Series =
 *Released: 7th July, 2015*
 
+* **(v.4)**  FIX:           Audit Trail Viewer display issue with non-escaped HTML (Thanks Chris!)
+* **(v.4)**  ADDED:         An admin warning for sites with PHP version less than 5.3.2 (future versions will require this as a minimum)
+* **(v.4)**  TRANSLATIONS:  Danish - 6%, Spanish - 76%
 * **(v.3)**  ADDED:         Further checking for availability of certain PHP/server data before enabling the rename WordPress login feature
 * **(v.3)**  ADDED:         Option to add the Plugin Badge as a Widget to your side-bar or page footer, or any other widget area.
 * **(v.3)**  TRANSLATIONS:  Polish - 100%
