@@ -827,6 +827,47 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 			return true;
 		}
 
+
+		/**
+		 * @param string $sPluginFile
+		 * @return int
+		 */
+		public function getActivePluginLoadPosition( $sPluginFile ) {
+			$sOptionKey = $this->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
+			$aActive = $this->getOption( $sOptionKey );
+			$nPosition = array_search( $sPluginFile, $aActive );
+			return ( $nPosition === false ) ? -1 : $nPosition;
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 * @param int $nDesiredPosition
+		 */
+		public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
+
+			$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
+			$this->updateOption( 'active_plugins', $aActive );
+
+			if ( $this->isMultisite() ) {
+				$aActive = $this->loadDataProcessor()->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
+				$this->updateOption( 'active_sitewide_plugins', $aActive );
+			}
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 */
+		public function setActivePluginLoadFirst( $sPluginFile ) {
+			$this->setActivePluginLoadPosition( $sPluginFile, 0 );
+		}
+
+		/**
+		 * @param string $sPluginFile
+		 */
+		public function setActivePluginLoadLast( $sPluginFile ) {
+			$this->setActivePluginLoadPosition( $sPluginFile, 1000 );
+		}
+
 		/**
 		 * @param string $sKey should be already prefixed
 		 * @param int|null $nId - if omitted get for current user
