@@ -39,7 +39,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		protected function maintainPluginLoadPosition() {
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
-			if ( $oWp->getActivePluginLoadPosition( $sBaseFile ) !== 0 ) {
+			$nLoadPosition = $oWp->getActivePluginLoadPosition( $sBaseFile );
+			if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
 				$oWp->setActivePluginLoadFirst( $sBaseFile );
 			}
 		}
