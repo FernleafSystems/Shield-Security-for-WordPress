@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.2
-Stable tag: 4.9.4
+Stable tag: 4.9.5
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -263,9 +263,10 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.9.5 Point Release =
-*Released: 20th July, 2015*
+*Released: 2nd August, 2015*
 
 * **(v.5)**  ADDED:         The plugin will load itself first before all other plugins
+* **(v.5)**  FIXED:         No longer using parse_url() to determine the request URL as it's too inconsistent and unreliable.
 
 = 4.9 Series =
 *Released: 7th July, 2015*
