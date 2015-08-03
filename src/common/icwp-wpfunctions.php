@@ -470,33 +470,36 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 			$this->doRedirect( wp_login_url(), $aQueryParams );
 		}
 		/**
-		 * @param $aQueryParams
+		 * @param array $aQueryParams
 		 */
 		public function redirectToAdmin( $aQueryParams = array() ) {
 			$this->doRedirect( is_multisite()? get_admin_url() : admin_url(), $aQueryParams );
 		}
 		/**
-		 * @param $aQueryParams
+		 * @param array $aQueryParams
 		 */
 		public function redirectToHome( $aQueryParams = array() ) {
 			$this->doRedirect( home_url(), $aQueryParams );
 		}
 
 		/**
-		 * @param $sUrl
+		 * @param string $sUrl
 		 * @param array $aQueryParams
 		 * @param bool $bSafe
+		 * @param bool $bProtectAgainstInfiniteLoops - if false, ignores the redirect loop protection
 		 */
-		public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true ) {
+		public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 			$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
 			$oDp = $this->loadDataProcessor();
 			// we prevent any repetitive redirect loops
-			if ( $oDp->FetchCookie( 'icwp-isredirect' ) == 'yes' ) {
-				return;
-			}
-			else {
-				$oDp->setCookie( 'icwp-isredirect', 'yes', 7 );
+			if ( $bProtectAgainstInfiniteLoops ) {
+				if ( $oDp->FetchCookie( 'icwp-isredirect' ) == 'yes' ) {
+					return;
+				}
+				else {
+					$oDp->setCookie( 'icwp-isredirect', 'yes', 7 );
+				}
 			}
 
 			// based on: https://make.wordpress.org/plugins/2015/04/20/fixing-add_query_arg-and-remove_query_arg-usage/
