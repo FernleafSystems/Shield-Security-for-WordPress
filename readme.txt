@@ -265,12 +265,12 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.9.6 Point Release =
 *Released: 4th August, 2015*
 
-* **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk resulting in email notifications for spam comments.
+* **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
 
 = 4.9 Series =
 *Released: 7th July, 2015*
 
-* **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk resulting in email notifications for spam comments.
+* **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
 * **(v.5)**  ADDED:         The plugin will load itself first before all other plugins
 * **(v.5)**  FIXED:         No longer using parse_url() to determine the request URL as it's too inconsistent and unreliable.
 * **(v.4)**  FIX:           Audit Trail Viewer display issue with non-escaped HTML (Thanks Chris!)
