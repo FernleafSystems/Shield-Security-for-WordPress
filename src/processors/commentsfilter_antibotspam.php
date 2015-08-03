@@ -130,8 +130,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 		if ( $this->sCommentStatus == 'reject' ) {
-			$oWpFunctions = $this->loadWpFunctionsProcessor();
-			$oWpFunctions->redirectToHome();
+			$this->loadWpFunctionsProcessor()->doRedirect( home_url(), array(), true, false );
 		}
 
 		return $aCommentData;
@@ -153,7 +152,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		$fIsSpam = true;
+		$bIsSpam = true;
+		$sStatKey = '';
 		$sExplanation = '';
 
 		$oDp = $this->loadDataProcessor();
@@ -177,10 +177,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$sStatKey = 'token';
 		}
 		else {
-			$fIsSpam = false;
+			$bIsSpam = false;
 		}
 
-		if ( $fIsSpam ) {
+		if ( $bIsSpam ) {
 			$this->doStatIncrement( sprintf( 'spam.gasp.%s', $sStatKey ) );
 			$this->sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
 			$this->setCommentStatusExplanation( $sExplanation );
