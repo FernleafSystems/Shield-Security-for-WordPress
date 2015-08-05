@@ -131,16 +131,18 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 		}
 
 		/**
-		 * @param string $sRedirectUrl
 		 * @uses redirect
 		 */
-		public function interceptCanonicalRedirects( $sRedirectUrl ) {
+		public function interceptCanonicalRedirects() {
 			$oDp = $this->loadDataProcessor();
 
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
 				$sAuthor = $oDp->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
-					$this->loadWpFunctionsProcessor()->redirectToHome( array( 'author-query-blocked-by-firewall' => 'sorry' ) );
+					wp_die( sprintf(
+						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user ID fishing.' ),
+						$this->getController()->getHumanName()
+					));
 				}
 			}
 		}
