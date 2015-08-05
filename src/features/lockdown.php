@@ -123,6 +123,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sDescription = _wpsf__( 'Remove a meta tag from your WordPress pages that publicly displays that your site is WordPress and its current version.' );
 					break;
 
+				case 'block_author_discovery' :
+					$sName = _wpsf__( 'Block Author Discovery' );
+					$sSummary = _wpsf__( 'Block the ability to discover usernames based on author IDs' );
+					$sDescription = sprintf( _wpsf__( 'When enabled, any URLs containing "%s" will be redirected to the home page.' ), 'author=' )
+					.'<br />'. sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option may interfere with expected operations of your site.' ) );
+					break;
+
 				default:
 					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 			}

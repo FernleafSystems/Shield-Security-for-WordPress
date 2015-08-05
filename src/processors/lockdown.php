@@ -46,6 +46,11 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 			if ( $this->getIsOption( 'hide_wordpress_generator_tag', 'Y' ) ) {
 				remove_action( 'wp_head', 'wp_generator' );
 			}
+
+			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
+				add_filter( 'redirect_canonical', array( $this, 'interceptCanonicalRedirects' ), 1000, 2 );
+			}
+
 		}
 
 		/**
@@ -122,6 +127,25 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 			}
 			$aContent[$nStartLine] = $sSalts;
 			$oWpFs->putContent_WpConfig( implode( PHP_EOL, $aContent ) );
+		}
+
+		/**
+		 * @param string $sRedirectUrl
+		 * @param string $sRequestedUrl
+		 * @return string
+		 */
+		public function interceptCanonicalRedirects( $sRedirectUrl, $sRequestedUrl ) {
+			$oDp = $this->loadDataProcessor();
+
+			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
+				$sAuthor = $oDp->FetchGet( 'author', '' );
+				if ( !empty( $sAuthor ) ) {
+					$sRedirectUrl = home_url();
+				}
+			}
+
+			// Can you believe we have to put a trailing slash on it so WP doesn't error about no 'path' since they don't do basic checking?! Sigh ...
+			return trailingslashit( $sRedirectUrl );
 		}
 	}
 
