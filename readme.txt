@@ -265,6 +265,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.9.6 Point Release =
 *Released: 4th August, 2015*
 
+* **(v.6)**  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -> Obscurity)
 * **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
 
 = 4.9 Series =
