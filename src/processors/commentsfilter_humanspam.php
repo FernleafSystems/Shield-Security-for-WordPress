@@ -118,8 +118,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 		if ( $this->sCommentStatus == 'reject' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oWp->redirectToHome();
+			$this->loadWpFunctionsProcessor()->doRedirect( home_url(), array(), true, false );
 		}
 
 		return $aCommentData;

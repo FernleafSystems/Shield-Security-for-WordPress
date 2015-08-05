@@ -131,7 +131,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 	 */
 	public function doClearCommentNotificationEmail_Filter( $aEmails ) {
 		$sStatus = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status' ), '' );
-		if ( $sStatus == 'trash' ) {
+		if ( in_array( $sStatus, array( 'reject', 'trash' ) ) ) {
 			$aEmails = array();
 		}
 		return $aEmails;

@@ -66,6 +66,13 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'block_author_discovery'
+    section: 'section_wordpress_obscurity_options'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
 ",
