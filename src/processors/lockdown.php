@@ -48,7 +48,8 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 			}
 
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
-				add_filter( 'redirect_canonical', array( $this, 'interceptCanonicalRedirects' ), 1000, 2 );
+				// jump in before add_action( 'template_redirect', 'redirect_canonical' );
+				add_action( 'template_redirect', array( $this, 'interceptCanonicalRedirects' ), 9 );
 			}
 
 		}
@@ -131,21 +132,17 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 
 		/**
 		 * @param string $sRedirectUrl
-		 * @param string $sRequestedUrl
-		 * @return string
+		 * @uses redirect
 		 */
-		public function interceptCanonicalRedirects( $sRedirectUrl, $sRequestedUrl ) {
+		public function interceptCanonicalRedirects( $sRedirectUrl ) {
 			$oDp = $this->loadDataProcessor();
 
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
 				$sAuthor = $oDp->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
-					$sRedirectUrl = home_url();
+					$this->loadWpFunctionsProcessor()->redirectToHome( array( 'author-query-blocked-by-firewall' => 'sorry' ) );
 				}
 			}
-
-			// Can you believe we have to put a trailing slash on it so WP doesn't error about no 'path' since they don't do basic checking?! Sigh ...
-			return trailingslashit( $sRedirectUrl );
 		}
 	}
 
