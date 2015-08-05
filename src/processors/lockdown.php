@@ -48,8 +48,8 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 			}
 
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
-				// jump in before add_action( 'template_redirect', 'redirect_canonical' );
-				add_action( 'template_redirect', array( $this, 'interceptCanonicalRedirects' ), 9 );
+				// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
+				add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 			}
 
 		}
@@ -131,16 +131,16 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 		}
 
 		/**
-		 * @uses redirect
+		 * @uses wp_die()
 		 */
 		public function interceptCanonicalRedirects() {
 			$oDp = $this->loadDataProcessor();
 
-			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
+			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !is_user_logged_in() ) {
 				$sAuthor = $oDp->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
 					wp_die( sprintf(
-						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user ID fishing.' ),
+						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' ),
 						$this->getController()->getHumanName()
 					));
 				}
