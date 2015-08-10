@@ -138,7 +138,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 
 		if ( !empty( $sHttpRef ) ) {
 			$aHttpRefererParts = parse_url( $sHttpRef );
-			$aHomeUrlParts = parse_url( home_url() );
+			$aHomeUrlParts = parse_url( $this->loadWpFunctionsProcessor()->getHomeUrl() );
 
 			if ( !empty( $aHttpRefererParts['host'] ) && !empty( $aHomeUrlParts['host'] ) && ( $aHttpRefererParts['host'] === $aHomeUrlParts['host'] ) ) {
 				$this->doStatIncrement( 'login.remotepost.success' );

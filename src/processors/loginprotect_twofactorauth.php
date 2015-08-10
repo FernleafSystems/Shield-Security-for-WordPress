@@ -401,7 +401,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				'username'		=> $sUser,
 				'uniqueid'		=> $sUniqueId
 			);
-			return add_query_arg( $aQueryArgs, home_url() );
+			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
 		}
 
 		/**
@@ -423,10 +423,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				sprintf( _wpsf__('IP Address: %s'), $sIpAddress ),
 				sprintf( _wpsf__('Authentication Link: %s'), $sAuthLink ),
 			);
-			$sEmailSubject = sprintf( _wpsf__('Two-Factor Login Verification for: %s'), home_url() );
+			$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
 
-			$fResult = $this->getEmailProcessor()->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
-			if ( $fResult ) {
+			$bResult = $this->getEmailProcessor()->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
+			if ( $bResult ) {
 				$sAuditMessage = sprintf( _wpsf__('User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".'), $oUser->get( 'user_login' ), $sIpAddress );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );
 			}
@@ -434,7 +434,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$sAuditMessage = sprintf( _wpsf__('Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.'), $oUser->get( 'user_login' ), $sIpAddress );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
 			}
-			return $fResult;
+			return $bResult;
 		}
 
 		/**

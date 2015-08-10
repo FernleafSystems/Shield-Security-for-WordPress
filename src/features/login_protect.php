@@ -91,9 +91,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
 				sprintf( _wpsf__('Verify Link: %s'), $this->generateCanSendEmailVerifyLink() ),
 			);
-			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For: %s' ), home_url() );
+			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
 
-			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo('admin_email'), $sEmailSubject, $aMessage );
+			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo( 'admin_email' ), $sEmailSubject, $aMessage );
 			return $bResult;
 		}
 
