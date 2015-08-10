@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.9.6
+Stable tag: 4.9.7
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -263,13 +263,14 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.9.7 Point Release =
-*Released: 6th August, 2015*
+*Released: 10th August, 2015*
 
-* **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter.
+* **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when visitors are not logged in, and it will DIE instead of redirect.
 
 = 4.9 Series =
 *Released: 7th July, 2015*
 
+* **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.
 * **(v.6)**  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -> Obscurity)
 * **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
 * **(v.5)**  ADDED:         The plugin will load itself first before all other plugins
