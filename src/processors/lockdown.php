@@ -48,7 +48,8 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 			}
 
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
-				add_filter( 'redirect_canonical', array( $this, 'interceptCanonicalRedirects' ), 1000, 2 );
+				// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
+				add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 			}
 
 		}
@@ -130,27 +131,25 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 		}
 
 		/**
-		 * @param string $sRedirectUrl
-		 * @param string $sRequestedUrl
-		 * @return string
+		 * @uses wp_die()
 		 */
-		public function interceptCanonicalRedirects( $sRedirectUrl, $sRequestedUrl ) {
+		public function interceptCanonicalRedirects() {
 			$oDp = $this->loadDataProcessor();
 
-			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
+			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !is_user_logged_in() ) {
 				$sAuthor = $oDp->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
-					$sRedirectUrl = home_url();
+					wp_die( sprintf(
+						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' ),
+						$this->getController()->getHumanName()
+					));
 				}
 			}
-
-			// Can you believe we have to put a trailing slash on it so WP doesn't error about no 'path' since they don't do basic checking?! Sigh ...
-			return trailingslashit( $sRedirectUrl );
 		}
 	}
 
 endif;
 
-if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Lockdown', false ) ):
 	class ICWP_WPSF_Processor_Lockdown extends ICWP_LockdownProcessor_V1 { }
 endif;
