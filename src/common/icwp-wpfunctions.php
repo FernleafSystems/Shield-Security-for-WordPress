@@ -199,6 +199,18 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getHomeUrl() {
+			$sUrl = home_url();
+			if ( empty( $sUrl ) ) {
+				remove_all_filters( 'home_url' );
+				$sUrl = home_url();
+			}
+			return $sUrl;
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getPlugins() {
