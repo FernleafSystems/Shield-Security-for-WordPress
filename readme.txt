@@ -265,7 +265,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.9.7 Point Release =
 *Released: 10th August, 2015*
 
-* **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.
+* **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when visitors are not logged in, and it will DIE instead of redirect.
 
 = 4.9 Series =
 *Released: 7th July, 2015*

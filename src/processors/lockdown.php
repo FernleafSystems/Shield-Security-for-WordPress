@@ -150,6 +150,6 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 
 endif;
 
-if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Lockdown', false ) ):
 	class ICWP_WPSF_Processor_Lockdown extends ICWP_LockdownProcessor_V1 { }
 endif;
