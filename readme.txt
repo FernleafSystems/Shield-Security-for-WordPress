@@ -262,10 +262,12 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.9.7 Point Release =
+= 4.9.8 Point Release =
 *Released: 10th August, 2015*
 
-* **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when visitors are not logged in, and it will DIE instead of redirect.
+* **(v.8)**  FIX:           Some server email programs can't handle colons (:) in the email subject (because supporting all characters would be waaay too radical man).
+* **(v.8)**  ADDED:       	Function to better get the WordPress home URL to prevent interference from other plugins.
+* **(v.8)**  CHANGED:       Updated Text For [Author Scan Block](http://icwp.io/6e) feature.
 
 = 4.9 Series =
 *Released: 7th July, 2015*
