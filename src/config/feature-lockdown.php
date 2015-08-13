@@ -70,7 +70,7 @@ options:
     section: 'section_wordpress_obscurity_options'
     default: 'N'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf23'
     link_blog: ''
   -
     key: 'current_plugin_version'

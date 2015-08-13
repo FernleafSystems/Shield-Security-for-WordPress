@@ -140,7 +140,8 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 				$sAuthor = $oDp->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
 					wp_die( sprintf(
-						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' ),
+						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
+						.'<br /><a href="" target="_blank">'._wpsf__( 'Learn More.' ).'</a>',
 						$this->getController()->getHumanName()
 					));
 				}
