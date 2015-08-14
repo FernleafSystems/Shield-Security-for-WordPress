@@ -32,7 +32,7 @@ options:
   -
     key: 'enable_firewall'
     section: 'section_enable_plugin_feature_wordpress_firewall'
-    default: 'N'
+    default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/43'
     link_blog: 'http://icwp.io/wpsf01'
