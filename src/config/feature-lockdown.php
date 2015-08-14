@@ -26,7 +26,7 @@ options:
   -
     key: 'enable_lockdown'
     section: 'section_enable_plugin_feature_wordpress_lockdown'
-    default: 'N'
+    default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/4r'
     link_blog: ''
@@ -68,9 +68,9 @@ options:
   -
     key: 'block_author_discovery'
     section: 'section_wordpress_obscurity_options'
-    default: 'N'
+    default: 'Y'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf23'
     link_blog: ''
   -
     key: 'current_plugin_version'

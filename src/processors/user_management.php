@@ -121,10 +121,12 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 		$oDp = $this->loadDataProcessor();
 		$oEmailer = $this->getFeatureOptions()->getEmailProcessor();
 
+		$sHomeUrl = $this->loadWpFunctionsProcessor()->getHomeUrl();
+
 		$aMessage = array(
 			sprintf( _wpsf__( 'As requested, %s is notifying you of an administrator login to a WordPress site that you manage.' ), $this->getController()->getHumanName() ),
 			_wpsf__( 'Details for this user are below:' ),
-			'- '.sprintf( _wpsf__( 'Site URL: %s' ), home_url() ),
+			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $sHomeUrl ),
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $oDp->getVisitorIpAddress( true ) ),
 			_wpsf__( 'Thanks.' )
@@ -132,7 +134,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 
 		$bResult = $oEmailer->sendEmailTo(
 			$this->getOption( 'enable_admin_login_email_notification' ),
-			sprintf( 'Email Notice: An Administrator Just Logged Into %s', home_url() ),
+			sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( 'An Administrator Just Logged Into %s' ), $sHomeUrl ) ),
 			$aMessage
 		);
 		return $bResult;

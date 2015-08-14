@@ -124,9 +124,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					break;
 
 				case 'block_author_discovery' :
-					$sName = _wpsf__( 'Block Author Discovery' );
-					$sSummary = _wpsf__( 'Block the ability to discover usernames based on author IDs' );
-					$sDescription = sprintf( _wpsf__( 'When enabled, any URLs containing "%s" will be redirected to the home page.' ), 'author=' )
+					$sName = _wpsf__( 'Block Username Fishing' );
+					$sSummary = _wpsf__( 'Block the ability to discover WordPress usernames based on author IDs' );
+					$sDescription = sprintf( _wpsf__( 'When enabled, any URL requests containing "%s" will be killed.' ), 'author=' )
 					.'<br />'. sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option may interfere with expected operations of your site.' ) );
 					break;
 

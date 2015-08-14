@@ -366,6 +366,7 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 				return true;
 			}
 
+			$sHomeUrl = $this->loadWpFunctionsProcessor()->getHomeUrl();
 			switch( $this->getOption( 'block_response' ) ) {
 				case 'redirect_die':
 					break;
@@ -373,11 +374,11 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 					wp_die( $this->sFirewallDieMessage );
 					break;
 				case 'redirect_home':
-					header( "Location: ".home_url() );
+					header( "Location: ".$sHomeUrl );
 					exit();
 					break;
 				case 'redirect_404':
-					header( "Location: ".home_url().'/404' );
+					header( "Location: ".$sHomeUrl.'/404' );
 					break;
 				default:
 					break;
@@ -500,7 +501,7 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 			$aMessage = array_merge( $aMessage, $this->getRawAuditMessage( '- ' ) );
 			// TODO: Get audit trail messages
 			$aMessage[] = sprintf( _wpsf__('You can look up the offending IP Address here: %s'), 'http://ip-lookup.net/?ip='.$sIp );
-			$sEmailSubject = sprintf( _wpsf__('Firewall Block Email Alert: %s'), home_url() );
+			$sEmailSubject = sprintf( _wpsf__( 'Firewall Block Email Alert for %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
 
 			$fSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aMessage );
 			return $fSendSuccess;
