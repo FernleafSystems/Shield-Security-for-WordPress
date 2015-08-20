@@ -123,9 +123,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected function verifyModuleMeetRequirements() {
 			$bMeetsReqs = true;
 
-			$sPhpVersion = $this->getOptionsVo()->getFeatureRequirement( 'php' );
-			if ( !empty( $sPhpVersion ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $sPhpVersion );
+			$aPhpReqs = $this->getOptionsVo()->getFeatureRequirement( 'php' );
+			if ( !empty( $aPhpReqs ) ) {
+
+				if ( !empty( $aPhpReqs['version'] ) ) {
+					$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs['version'] );
+				}
+
+				if ( !empty( $aPhpReqs['functions'] ) && is_array( $aPhpReqs['functions'] )  ) {
+					foreach( $aPhpReqs['functions'] as $sFunction ) {
+						$bMeetsReqs = $bMeetsReqs && function_exists( $sFunction );
+					}
+				}
+				if ( !empty( $aPhpReqs['constants'] ) && is_array( $aPhpReqs['constants'] )  ) {
+					foreach( $aPhpReqs['constants'] as $sConstant ) {
+						$bMeetsReqs = $bMeetsReqs && defined( $sConstant );
+					}
+				}
 			}
 
 			return $bMeetsReqs;
