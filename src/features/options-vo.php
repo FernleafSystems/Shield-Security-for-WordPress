@@ -90,6 +90,15 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sReq
+	 * @return null|mixed
+	 */
+	public function getFeatureRequirement( $sReq ) {
+		$aReqs = $this->getRawData_Requirements();
+		return ( is_array( $aReqs ) && isset( $aReqs[ $sReq ] ) ) ? $aReqs[ $sReq ] : null;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getFeatureTagline() {
@@ -308,6 +317,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	protected function getRawData_AllOptions() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
 		return isset( $aAllRawOptions['options'] ) ? $aAllRawOptions['options'] : array();
+	}
+
+	/**
+	 * Return the section of the Raw config that is the "options" key only.
+	 *
+	 * @return array
+	 */
+	protected function getRawData_Requirements() {
+		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
+		return isset( $aAllRawOptions['requirements'] ) ? $aAllRawOptions['requirements'] : array();
 	}
 
 	/**
