@@ -28,31 +28,31 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
+			$this->processBlacklist();
+
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
+			add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+		}
 
-			$aIpBlackListData = $this->getIsIpOnBlackLists( $this->loadDataProcessor()->getVisitorIpAddress(), true );
-			if ( is_array( $aIpBlackListData ) ) {
-				$bKill = false;
-				foreach( $aIpBlackListData as $aIpData ) {
+		protected function processBlacklist() {
 
-					if ( $aIpData['list'] == self::LIST_MANUAL_BLACK ) {
-						$bKill = true;
-						break;
-					}
-					if ( $aIpData['list'] == self::LIST_AUTO_BLACK ) {
+			// the best approach here is to do 2x separate queries.  Not ideal, but the logic behind the automatic black list
+			// is comparatively more complex than the simple manual black list, so it doesn't make sense to do 1 big query and
+			// then post-process it all. Better to be highly selective with 2x queries.
 
-						if ( $aIpData['bm_counter'] >= 3 ) { // TODO: set a configurable option.
-							$bKill = true;
-							break;
-						}
-					}
-				}
-				if ( $bKill ) {
-					wp_die( 'you be on the ip blacklist' );
-				}
+			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+
+			// Manual black list first.
+			$bKill = $this->getIsIpOnManualBlackList( $sIp );
+
+			// now try auto black list
+			if ( !$bKill ) {
+				$bKill = $this->getIsIpOnAutoBlackList( $sIp );
 			}
 
-			add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+			if ( $bKill ) {
+				wp_die( 'you be on the ip blacklist' );
+			}
 		}
 
 		/**
@@ -62,15 +62,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		public function action_blackMarkIp( $bIsWhitelisted ) {
 			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
 			if ( $bDoBlackMark ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
-				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $sIp );
+				$this->blackMarkIp( $this->loadDataProcessor()->getVisitorIpAddress() );
 			}
-			return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
 		}
 
-		protected function blackMarkIp() {
+		/**
+		 * @param string $sIp
+		 */
+		protected function blackMarkIp( $sIp ) {
 
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
 			$aIpBlackListData = $this->getIsIpOnAutoBlackList( $sIp, true );
 			if ( count( $aIpBlackListData ) > 0 ) {
 				$this->query_updateBmCounterForIp( $aIpBlackListData[ 0 ] );
@@ -132,14 +132,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
+		 * The auto black list isn't a simple lookup, but rather has an auto expiration and a transgression count
+		 *
 		 * @param string $sIp
 		 * @param bool $bReturnListData
-		 * @return bool|array
+		 * @return bool|array - will return the associative array of the single row data
 		 */
 		public function getIsIpOnAutoBlackList( $sIp, $bReturnListData = false ) {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
 
-			$aIpData = $this->getIpListData( $sIp, self::LIST_AUTO_BLACK );
-			$bOnList = count( $aIpData ) > 0;
+			$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
+			$nTransgressions = $oFO->getTransgressionLimit();
+
+			$aIpData = $this->query_getAutoBlackListDataForIp( $sIp, $nSinceTimeToConsider, $nTransgressions );
+			$bOnList = !empty( $aIpData );
 
 			return ( ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList );
 		}
@@ -169,7 +176,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		protected function query_addNewAutoBlackListIp( $sIp ) {
 
-			// Now add new pending entry
+			// Ensure we delete any previous old entries as we go.
+			$this->query_deleteIpFromList( $sIp, self::LIST_AUTO_BLACK );
+
+			// Now add new entry
 			$aNewData = array();
 			$aNewData[ 'ip' ]				= $sIp;
 			$aNewData[ 'label' ]			= 'auto';
@@ -194,6 +204,59 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				'last_access_at'	=> $this->time(),
 			);
 			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
+		}
+
+		/**
+		 * @param $sIp
+		 * @param $sList
+		 * @return bool|int
+		 */
+		protected function query_deleteIpFromList( $sIp, $sList ) {
+
+			$sQuery = "
+				DELETE from `%s`
+				WHERE
+					`ip`		= '%s'
+					AND `list`	= '%s'
+			";
+			$sQuery = sprintf( $sQuery,
+				$this->getTableName(),
+				esc_sql( $sIp ),
+				esc_sql( $sList )
+			);
+			return $this->loadDbProcessor()->doSql( $sQuery );
+		}
+
+		/**
+		 * We can be specific with the IP in this query since auto black lists is single IPs only.
+		 *
+		 * @param string $sIp
+		 * @param int $nSince
+		 * @param int $nTransgressionLimit
+		 * @return array
+		 */
+		protected function query_getAutoBlackListDataForIp( $sIp, $nSince = 0, $nTransgressionLimit = 0) {
+
+			$sQuery = "
+				SELECT *
+				FROM `%s`
+				WHERE
+					`ip`					= '%s'
+					AND `list`				= '%s'
+					AND `transgressions`	>= '%s'
+					AND `last_access_at`	>= %s
+					AND `deleted_at`		= '0'
+			";
+
+			$sQuery = sprintf( $sQuery,
+				$this->getTableName(),
+				$sIp,
+				self::LIST_AUTO_BLACK,
+				$nTransgressionLimit,
+				$nSince
+			);
+			$mResult = $this->selectCustom( $sQuery );
+			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult[0] : array();
 		}
 
 		/**
@@ -233,7 +296,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				`list` varchar(4) NOT NULL DEFAULT '',
 				`ip6` TINYINT(1) NOT NULL DEFAULT 0,
 				`range` TINYINT(1) NOT NULL DEFAULT 0,
-				`bm_counter` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
+				`transgressions` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
 				`last_access_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
 				`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
 				`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',

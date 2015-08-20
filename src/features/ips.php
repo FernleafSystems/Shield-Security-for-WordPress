@@ -9,11 +9,29 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		/**
 		 * @return string
 		 */
+		public function getTransgressionLimit() {
+			return $this->getOpt( 'transgression_limit' );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getAutoExpireTime() {
+			return constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
+		}
+
+		/**
+		 * @return string
+		 */
 		public function getIpListsTableName() {
 			return $this->getOpt( 'ip_lists_table_name' );
 		}
 
 		public function doPrePluginOptionsSave() {
+			$sSetting = $this->getOpt( 'auto_expire' );
+			if ( !in_array( $sSetting, array( 'minute', 'hour', 'day', 'week' ) ) ) {
+				$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
+			}
 		}
 
 		/**
@@ -33,6 +51,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
 					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+					break;
+
+				case 'section_auto_black_list' :
+					$sTitle = _wpsf__( 'Automatic IP Black List' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
+					);
+					$sTitleShort = _wpsf__( 'Auto Black List' );
 					break;
 
 				default:
@@ -59,11 +86,18 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 					$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
 					break;
 
-				case 'enable_login_protect_log' :
+				case 'transgression_limit' :
 					$sName = _wpsf__( 'Login Protect Logging' );
 					$sSummary = _wpsf__( 'Turn on a detailed Login Protect Log' );
 					$sDescription = _wpsf__( 'Will log every event related to login protection and how it is processed. ' )
-									.'<br />'. _wpsf__( 'Not recommended to leave on unless you want to debug something and check the login protection is working as you expect.' );
+						.'<br />'. _wpsf__( 'Not recommended to leave on unless you want to debug something and check the login protection is working as you expect.' );
+					break;
+
+				case 'auto_expire' :
+					$sName = _wpsf__( 'Login Protect Logging' );
+					$sSummary = _wpsf__( 'Turn on a detailed Login Protect Log' );
+					$sDescription = _wpsf__( 'Will log every event related to login protection and how it is processed. ' )
+						.'<br />'. _wpsf__( 'Not recommended to leave on unless you want to debug something and check the login protection is working as you expect.' );
 					break;
 
 				default:
