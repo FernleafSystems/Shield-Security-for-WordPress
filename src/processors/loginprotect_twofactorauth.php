@@ -358,14 +358,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 */
 		protected function query_GetActiveAuthForUser( $oUser ) {
 			$sQuery = "
-			SELECT *
-			FROM `%s`
-			WHERE
-				`wp_username`		= '%s'
-				AND `pending`		= '0'
-				AND `deleted_at`	= '0'
-				AND `expired_at`	= '0'
-		";
+				SELECT *
+				FROM `%s`
+				WHERE
+					`wp_username`		= '%s'
+					AND `pending`		= '0'
+					AND `deleted_at`	= '0'
+					AND `expired_at`	= '0'
+			";
 
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
@@ -491,6 +491,5 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			);
 			return $this->loadDbProcessor()->doSql( $sQuery );
 		}
-
 	}
 endif;

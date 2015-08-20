@@ -38,6 +38,24 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+  -
+    key: 'ip_lists_table_name'
+    section: 'section_non_ui'
+    value: 'ip_lists'
+  -
+    key: 'ip_list_table_columns'
+    section: 'section_non_ui'
+    value:
+      - 'id'
+      - 'ip'
+      - 'label'
+      - 'list'
+      - 'ip6'
+      - 'range'
+      - 'bm_counter'
+      - 'last_access_at'
+      - 'created_at'
+      - 'deleted_at'
 ",
 		_wpsf__( 'IP Manager' ),
 		_wpsf__( 'Manage Visitor IP Address' )

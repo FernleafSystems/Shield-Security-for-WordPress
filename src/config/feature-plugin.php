@@ -87,6 +87,9 @@ options:
         storage_key: 'admin_access_restriction'
         load_priority: 20
       -
+        slug: 'ips'
+        storage_key: 'ips'
+      -
         slug: 'firewall'
         storage_key: 'firewall'
       -
