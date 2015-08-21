@@ -356,6 +356,9 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 					$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
 				}
 			}
+
+			// We now black mark this IP
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 		}
 
 		/**
@@ -371,7 +374,7 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 				case 'redirect_die':
 					break;
 				case 'redirect_die_message':
-					wp_die( $this->sFirewallDieMessage );
+					wp_die( $this->getFirewallDieMessage() );
 					break;
 				case 'redirect_home':
 					header( "Location: ".$sHomeUrl );
@@ -384,6 +387,18 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 					break;
 			}
 			exit();
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getFirewallDieMessage() {
+			$sMessage = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'firewall_die_message' ), $this->sFirewallDieMessage );
+			if ( empty( $sMessage ) || !is_string( $sMessage ) ) {
+				$sMessage = $this->sFirewallDieMessage;
+			}
+
+			return $sMessage;
 		}
 
 		/**

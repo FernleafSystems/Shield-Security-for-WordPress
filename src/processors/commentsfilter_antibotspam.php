@@ -185,6 +185,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->doStatIncrement( sprintf( 'spam.gasp.%s', $sStatKey ) );
 			$this->sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
 			$this->setCommentStatusExplanation( $sExplanation );
+
+			// We now black mark this IP
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 		}
 	}
 

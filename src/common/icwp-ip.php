@@ -49,6 +49,7 @@ if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
 			}
 			return false;
 		}
+
 		/**
 		 * Compares two IPv4 addresses.
 		 * In case a subnet is given, it checks if it contains the request IP.

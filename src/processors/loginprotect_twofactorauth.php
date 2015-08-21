@@ -32,7 +32,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 			// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
 			// is valid, the filter will have a valid WP_User object passed to it.
-			add_filter( 'authenticate', array( $this, 'doUserTwoFactorAuth' ), 30, 3);
+			add_filter( 'authenticate', array( $this, 'doUserTwoFactorAuth' ), 30, 3 );
 		}
 
 		/**
@@ -358,14 +358,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 */
 		protected function query_GetActiveAuthForUser( $oUser ) {
 			$sQuery = "
-			SELECT *
-			FROM `%s`
-			WHERE
-				`wp_username`		= '%s'
-				AND `pending`		= '0'
-				AND `deleted_at`	= '0'
-				AND `expired_at`	= '0'
-		";
+				SELECT *
+				FROM `%s`
+				WHERE
+					`wp_username`		= '%s'
+					AND `pending`		= '0'
+					AND `deleted_at`	= '0'
+					AND `expired_at`	= '0'
+			";
 
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
@@ -491,6 +491,5 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			);
 			return $this->loadDbProcessor()->doSql( $sQuery );
 		}
-
 	}
 endif;
