@@ -27,16 +27,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
+
 			$this->processBlacklist();
 
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
-			add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 
-			// At (29), we come in just before login protect (30) to mark a login as invalid and black mark it.
-			add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 1 );
+			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
+				// At (29), we come in just before login protect (30) to find an invalid login and black mark it.
+				add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 1 );
 
-			// We add the current number of transgressions remaining in the Firewall die message
-			add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
+				// We add text of the current number of transgressions remaining in the Firewall die message
+				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
+
+				// We must allow for black marking of an IP
+				add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+			}
 		}
 
 		/**
@@ -44,9 +49,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return string
 		 */
 		public function fAugmentFirewallDieMessage( $sCurrentMessage ) {
-			$sCurrentMessage .= sprintf(
-				'<p>%s</p>',
-				sprintf( _wpsf__( 'Warning - %s' ), $this->getTextOfRemainingTransgressions() ) );
+			$sCurrentMessage .= sprintf( '<p>%s</p>', $this->getTextOfRemainingTransgressions() );
 			return $sCurrentMessage;
 		}
 
@@ -114,7 +117,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$bKill = $this->getIsIpOnManualBlackList( $sIp );
 
 			// now try auto black list
-			if ( !$bKill ) {
+			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				$bKill = $this->getIsIpAutoBlackListed( $sIp );
 			}
 

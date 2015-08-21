@@ -21,6 +21,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getIsAutoBlackListFeatureEnabled() {
+			return ( $this->getTransgressionLimit() > 0 );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getIpListsTableName() {
@@ -31,6 +38,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$sSetting = $this->getOpt( 'auto_expire' );
 			if ( !in_array( $sSetting, array( 'minute', 'hour', 'day', 'week' ) ) ) {
 				$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
+			}
+
+			$nLimit = $this->getTransgressionLimit();
+			if ( !is_int( $nLimit ) || $nLimit < 0 ) {
+				$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
 			}
 		}
 
@@ -89,7 +101,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				case 'transgression_limit' :
 					$sName = _wpsf__( 'Transgression Limit' );
 					$sSummary = _wpsf__( 'After X bad actions on your site, visitor will be black listed' );
-					$sDescription = _wpsf__( 'Each time a visitor trips the defenses of the %s plugin a black mark is set against their IP address.' )
+					$sDescription = sprintf( _wpsf__( 'Each time a visitor trips the defenses of the %s plugin a black mark is set against their IP address.' ), $this->getController()->getHumanName() )
 						.'<br />'. _wpsf__( 'When the number these transgressions exceeds your limit, they are automatically blocked from accessing the site.' )
 						.'<br />'. sprintf( _wpsf__( 'Set this to "0" to turn off the %s feature.' ), _wpsf__( 'Automatic IP Black List' ) );
 					break;
