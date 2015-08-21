@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.9.8
+Stable tag: 4.10.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -261,6 +261,24 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Screenshots ==
 
 == Changelog ==
+
+= 4.10 Series =
+*Released: 23rd August, 2015*
+
+* **(v.0)**  NEW FEATURE:	'ABLE' - Automatic Black Listing Engine.
+
+Simply put, ABLE will automatically block all malicious traffic by IP based on their activity. This Security Plugin will track malicious behaviour
+and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the maximum number transgressions that you specificy, ABLE
+will outright block any access they have to your WordPress site.
+
+What makes the ABLE system better?
+
+* Automatic. No more need for manual black lists.
+* Loads first before other plugins.
+* Automatic pruning. Based on expiration time you specify, older IP address will be removed.
+* Increased Performance. With automatic pruning IP look-up tables remain small and concise.
+* Adaptive. It wont just block based on 1 misdemeanour - instead you may allow any given visitor grace to legitimately get things wrong (like login passwords).
+* Intelligent. With an all-round integrated plugin such as this, it uses login failure attempts, spam comment attempts, login brute force attempts to capture malicious visitors.
 
 = 4.9.8 Point Release =
 *Released: 10th August, 2015*
