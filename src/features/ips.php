@@ -68,7 +68,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				case 'section_auto_black_list' :
 					$sTitle = _wpsf__( 'Automatic IP Black List' );
 					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Automatic IP Black List system will block naughty IP address after a certain number of transgressions.' ) ),
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) )
 					);
 					$sTitleShort = _wpsf__( 'Auto Black List' );
