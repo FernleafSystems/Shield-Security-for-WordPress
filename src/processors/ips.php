@@ -120,7 +120,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			if ( $bKill ) {
 				wp_die(
-					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ), $this->getController()->getHumanName() ).'</h3>'
+					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
+						'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
+					).'</h3>'
 					.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
 					.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
 				);
