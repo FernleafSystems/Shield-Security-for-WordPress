@@ -497,10 +497,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				DELETE from `%s`
 				WHERE
 					`last_access_at`	< %s
+					AND `list`			= '%s'
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
-				esc_sql( $nTimeStamp )
+				esc_sql( $nTimeStamp ),
+				self::LIST_AUTO_BLACK
 			);
 			return $this->loadDbProcessor()->doSql( $sQuery );
 		}
