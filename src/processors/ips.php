@@ -122,6 +122,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			}
 
 			if ( $bKill ) {
+				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Manual Black List with IP address "%s" and their connected was killed.' ), $sIp );
+				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connected_killed' );
+
 				wp_die(
 					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
 						'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
@@ -150,9 +153,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aIpBlackListData = $this->getIpHasTransgressions( $sIp, true );
 			if ( count( $aIpBlackListData ) > 0 ) {
 				$this->query_updateBmCounterForIp( $aIpBlackListData );
+				$sAuditMessage = sprintf(
+					_wpsf__( 'Auto Black List transgression counter was incremented from "%s" for visitor at IP address "%s".' ),
+					$aIpBlackListData[ 'transgressions' ],
+					$sIp
+				);
+				$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_increment' );
 			}
 			else {
 				$this->query_addNewAutoBlackListIp( $sIp );
+				$sAuditMessage = sprintf(
+					_wpsf__( 'Auto Black List transgression counter was started for visitor at IP address "%s".' ),
+					$aIpBlackListData[ 'transgressions' ],
+					$sIp
+				);
+				$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
 			}
 		}
 
