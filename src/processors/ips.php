@@ -426,7 +426,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			if ( !$this->getTableExists() ) {
 				return;
 			}
-			$nTimeStamp = $this->time() - ( DAY_IN_SECONDS * $this->nDaysToKeepLog );
+
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+			$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
+
+			$nTimeStamp = $this->time() - $nSinceTimeToConsider;
 			$this->deleteAllRowsOlderThan( $nTimeStamp );
 		}
 
@@ -438,7 +443,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$sQuery = "
 				DELETE from `%s`
 				WHERE
-					`last_access_at`	< '%s'
+					`last_access_at`	< %s
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
