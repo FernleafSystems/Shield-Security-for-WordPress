@@ -46,30 +46,41 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		public function fAugmentFirewallDieMessage( $sCurrentMessage ) {
 			$sCurrentMessage .= sprintf(
 				'<p>%s</p>',
-				sprintf(
-					_wpsf__( 'Warning - %s' ),
-					sprintf(
-						_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' ),
-						$this->getRemainingTransgressionsForIp()
-					)
-				)
-			);
+				sprintf( _wpsf__( 'Warning - %s' ), $this->getTextOfRemainingTransgressions() ) );
 			return $sCurrentMessage;
 		}
 
 		/**
-		 * @param WP_User|WP_Error $oUser
+		 * @param WP_User|WP_Error $oUserOrError
 		 * @return WP_User|WP_Error
 		 */
-		public function verifyIfAuthenticationValid( $oUser ) {
+		public function verifyIfAuthenticationValid( $oUserOrError ) {
 
 			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
-				$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
+				$bUserLoginSuccess = is_object( $oUserOrError ) && ( $oUserOrError instanceof WP_User );
 				if ( !$bUserLoginSuccess ) {
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+
+					if ( !is_wp_error( $oUserOrError ) ) {
+						$oUserOrError = new WP_Error();
+					}
+					$oUserOrError->add( 'wpsf-autoblacklist', $this->getTextOfRemainingTransgressions() );
 				}
 			}
-			return $oUser;
+			return $oUserOrError;
+		}
+
+		/**
+		 * @return string
+		 */
+		private function getTextOfRemainingTransgressions() {
+			return sprintf(
+				_wpsf__( 'Warning - %s' ),
+				sprintf(
+					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' ),
+					$this->getRemainingTransgressionsForIp()
+				)
+			);
 		}
 
 		protected function getRemainingTransgressionsForIp( $sIp = '' ) {
