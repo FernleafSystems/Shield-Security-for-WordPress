@@ -133,7 +133,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( empty( $sAccessKeyRequest ) ) {
 			return false;
 		}
-		return $this->getOpt( 'admin_access_key' ) === md5( $sAccessKeyRequest );
+		$bSuccess = ( $this->getOpt( 'admin_access_key' ) === md5( $sAccessKeyRequest ) );
+		if ( !$bSuccess ) {
+			add_filter( $this->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+		}
+		return $bSuccess;
 	}
 
 	/**
