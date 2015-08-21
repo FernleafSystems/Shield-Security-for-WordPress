@@ -285,11 +285,11 @@ Which actions will trigger an ABLE transgression?
 * Attempt to login with an invalid username/password combination
 * Any attempt to login while the login cooldown system is in-effect
 * Any login attempt that trips the GASP Login protection system
+* Any login attempt with a username that doesn't exist
 * Any attempt to access /wp-admin/, /login/, or wp-login.php while the Rename WP Login setting is active
 * Any comment that gets labelled as SPAM by the plugin
-* Failed attempt to authenticate with the plugin's admin access protection module
-* Trigger a Firewall block for whatever reason
-
+* Failed attempt to authenticate with the plugin's Admin Access Protection module
+* Any trigger of a Firewall block rule
 
 = 4.9.8 Point Release =
 *Released: 10th August, 2015*
