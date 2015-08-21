@@ -146,6 +146,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				$bKill = $this->getIsIpAutoBlackListed( $sIp );
+				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 			}
 
 			if ( $bKill ) {
@@ -348,6 +349,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				'transgressions'	=> $aCurrentData['transgressions'] + 1,
 				'last_access_at'	=> $this->time(),
 			);
+			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
+		}
+
+		/**
+		 * @param string $sIp
+		 * @return bool|int
+		 */
+		protected function query_updateLastAccessForAutoBlackListIp( $sIp ) {
+			$aCurrentData = array(
+				'ip'	=> $sIp,
+				'list'	=> self::LIST_AUTO_BLACK
+			);
+			$aUpdated = array( 'last_access_at'	=> $this->time() );
 			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
 		}
 
