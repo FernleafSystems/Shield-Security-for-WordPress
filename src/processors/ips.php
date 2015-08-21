@@ -19,7 +19,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @param ICWP_WPSF_FeatureHandler_Ips $oFeatureOptions
 		 */
 		public function __construct( ICWP_WPSF_FeatureHandler_Ips $oFeatureOptions ) {
-
 			parent::__construct( $oFeatureOptions, $oFeatureOptions->getIpListsTableName() );
 		}
 
@@ -35,6 +34,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			// At (29), we come in just before login protect (30) to mark a login as invalid and black mark it.
 			add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 1 );
+
+			// We add the current number of transgressions remaining in the Firewall die message
+			add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
+		}
+
+		/**
+		 * @param string $sCurrentMessage
+		 * @return string
+		 */
+		public function fAugmentFirewallDieMessage( $sCurrentMessage ) {
+			$sCurrentMessage .= sprintf(
+				'<p>%s</p>',
+				sprintf(
+					_wpsf__( 'Warning - %s' ),
+					sprintf(
+						_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' ),
+						$this->getRemainingTransgressionsForIp()
+					)
+				)
+			);
+			return $sCurrentMessage;
 		}
 
 		/**
@@ -52,7 +72,26 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			return $oUser;
 		}
 
+		protected function getRemainingTransgressionsForIp( $sIp = '' ) {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( empty( $sIp ) ) {
+				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+			}
+			return $oFO->getTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
+		}
+
+		protected function getCurrentTransgressionsForIp( $sIp ) {
+			if ( empty( $sIp ) ) {
+				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+			}
+			$aData = $this->getIpHasTransgressions( $sIp, true );
+			return empty( $aData ) ? 0 : $aData[ 'transgressions' ];
+		}
+
 		protected function processBlacklist() {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
 
 			// the best approach here is to do 2x separate queries.  Not ideal, but the logic behind the automatic black list
 			// is comparatively more complex than the simple manual black list, so it doesn't make sense to do 1 big query and
@@ -69,7 +108,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			}
 
 			if ( $bKill ) {
-				wp_die( 'you be on the ip blacklist' );
+				wp_die(
+					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ), $this->getController()->getHumanName() ).'</h3>'
+					.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
+					.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
+				);
 			}
 		}
 

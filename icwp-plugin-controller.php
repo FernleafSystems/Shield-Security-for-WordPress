@@ -1315,7 +1315,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$this->loadFeatureHandler(
 				array(
 					'slug' => 'plugin',
-					'load_priority' => 5
+					'load_priority' => 10
 				)
 			);
 		}

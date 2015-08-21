@@ -374,7 +374,7 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 				case 'redirect_die':
 					break;
 				case 'redirect_die_message':
-					wp_die( $this->sFirewallDieMessage );
+					wp_die( $this->getFirewallDieMessage() );
 					break;
 				case 'redirect_home':
 					header( "Location: ".$sHomeUrl );
@@ -387,6 +387,18 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 					break;
 			}
 			exit();
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getFirewallDieMessage() {
+			$sMessage = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'firewall_die_message' ), $this->sFirewallDieMessage );
+			if ( empty( $sMessage ) || !is_string( $sMessage ) ) {
+				$sMessage = $this->sFirewallDieMessage;
+			}
+
+			return $sMessage;
 		}
 
 		/**

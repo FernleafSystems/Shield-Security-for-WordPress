@@ -87,11 +87,9 @@ options:
         storage_key: 'admin_access_restriction'
         load_priority: 20
       -
-        slug: 'ips'
-        storage_key: 'ips'
-      -
         slug: 'firewall'
         storage_key: 'firewall'
+        load_priority: 7
       -
         slug: 'login_protect'
         storage_key: 'loginprotect'
@@ -108,9 +106,13 @@ options:
         slug: 'lockdown'
         storage_key: 'lockdown'
       -
+        slug: 'ips'
+        storage_key: 'ips'
+        load_priority: 6
+      -
         slug: 'audit_trail'
         storage_key: 'audit_trail'
-        load_priority: 10
+        load_priority: 5
         hidden: false
       -
         slug: 'hack_protect'

@@ -56,8 +56,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				case 'section_auto_black_list' :
 					$sTitle = _wpsf__( 'Automatic IP Black List' );
 					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Automatic IP Black List system will block naughty IP address after a certain number of transgressions.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) )
 					);
 					$sTitleShort = _wpsf__( 'Auto Black List' );
 					break;
@@ -87,17 +87,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 					break;
 
 				case 'transgression_limit' :
-					$sName = _wpsf__( 'Login Protect Logging' );
-					$sSummary = _wpsf__( 'Turn on a detailed Login Protect Log' );
-					$sDescription = _wpsf__( 'Will log every event related to login protection and how it is processed. ' )
-						.'<br />'. _wpsf__( 'Not recommended to leave on unless you want to debug something and check the login protection is working as you expect.' );
+					$sName = _wpsf__( 'Transgression Limit' );
+					$sSummary = _wpsf__( 'After X bad actions on your site, visitor will be black listed' );
+					$sDescription = _wpsf__( 'Each time a visitor trips the defenses of the %s plugin a black mark is set against their IP address.' )
+						.'<br />'. _wpsf__( 'When the number these transgressions exceeds your limit, they are automatically blocked from accessing the site.' )
+						.'<br />'. sprintf( _wpsf__( 'Set this to "0" to turn off the %s feature.' ), _wpsf__( 'Automatic IP Black List' ) );
 					break;
 
 				case 'auto_expire' :
-					$sName = _wpsf__( 'Login Protect Logging' );
-					$sSummary = _wpsf__( 'Turn on a detailed Login Protect Log' );
-					$sDescription = _wpsf__( 'Will log every event related to login protection and how it is processed. ' )
-						.'<br />'. _wpsf__( 'Not recommended to leave on unless you want to debug something and check the login protection is working as you expect.' );
+					$sName = _wpsf__( 'Auto Block Expiration' );
+					$sSummary = _wpsf__( 'A 1 X a black listed IP will be removed from the black list' );
+					$sDescription = _wpsf__( 'Permanent and lengthy IP Black Lists are harmful to performance.' )
+						.'<br />'. _wpsf__( 'You should allow IP addresses on the black list to be eventually removed over time.' )
+						.'<br />'. _wpsf__( 'Shorter IP black lists are more efficient and more intelligent use of an IP blocking system.' );
 					break;
 
 				default:
