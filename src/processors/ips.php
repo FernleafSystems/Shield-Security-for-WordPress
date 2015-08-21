@@ -86,6 +86,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			);
 		}
 
+		/**
+		 * @param string $sIp
+		 * @return string
+		 */
 		protected function getRemainingTransgressionsForIp( $sIp = '' ) {
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
@@ -95,6 +99,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			return $oFO->getTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
 		}
 
+		/**
+		 * @param string $sIp
+		 * @return int
+		 */
 		protected function getCurrentTransgressionsForIp( $sIp ) {
 			if ( empty( $sIp ) ) {
 				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
