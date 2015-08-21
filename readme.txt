@@ -273,12 +273,23 @@ will outright block any access they have to your WordPress site.
 
 What makes the ABLE system better?
 
-* Automatic. No more need for manual black lists.
+* Hands Free - Automatic. No more need for manual black lists.
 * Loads first before other plugins.
 * Automatic pruning. Based on expiration time you specify, older IP address will be removed.
-* Increased Performance. With automatic pruning IP look-up tables remain small and concise.
+* Increased Performance. With automatic pruning, IP look-up tables remain small and concise so page load times for legitimate visitors is minimally affected.
 * Adaptive. It wont just block based on 1 misdemeanour - instead you may allow any given visitor grace to legitimately get things wrong (like login passwords).
 * Intelligent. With an all-round integrated plugin such as this, it uses login failure attempts, spam comment attempts, login brute force attempts to capture malicious visitors.
+
+Which actions will trigger an ABLE transgression?
+
+* Attempt to login with an invalid username/password combination
+* Any attempt to login while the login cooldown system is in-effect
+* Any login attempt that trips the GASP Login protection system
+* Any attempt to access /wp-admin/, /login/, or wp-login.php while the Rename WP Login setting is active
+* Any comment that gets labelled as SPAM by the plugin
+* Failed attempt to authenticate with the plugin's admin access protection module
+* Trigger a Firewall block for whatever reason
+
 
 = 4.9.8 Point Release =
 *Released: 10th August, 2015*
