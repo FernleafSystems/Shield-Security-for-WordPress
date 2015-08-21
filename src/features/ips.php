@@ -100,9 +100,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 				case 'transgression_limit' :
 					$sName = _wpsf__( 'Transgression Limit' );
-					$sSummary = _wpsf__( 'After X bad actions on your site, visitor will be black listed' );
+					$sSummary = _wpsf__( 'Visitor IP address will be Black Listed after X bad actions on your site' );
 					$sDescription = sprintf( _wpsf__( 'Each time a visitor trips the defenses of the %s plugin a black mark is set against their IP address.' ), $this->getController()->getHumanName() )
-						.'<br />'. _wpsf__( 'When the number these transgressions exceeds your limit, they are automatically blocked from accessing the site.' )
+						.'<br />'. _wpsf__( 'When the number these transgressions exceeds specified limit, they are automatically blocked from accessing the site.' )
 						.'<br />'. sprintf( _wpsf__( 'Set this to "0" to turn off the %s feature.' ), _wpsf__( 'Automatic IP Black List' ) );
 					break;
 
@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 					$sSummary = _wpsf__( 'A 1 X a black listed IP will be removed from the black list' );
 					$sDescription = _wpsf__( 'Permanent and lengthy IP Black Lists are harmful to performance.' )
 						.'<br />'. _wpsf__( 'You should allow IP addresses on the black list to be eventually removed over time.' )
-						.'<br />'. _wpsf__( 'Shorter IP black lists are more efficient and more intelligent use of an IP blocking system.' );
+						.'<br />'. _wpsf__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.' );
 					break;
 
 				default:
