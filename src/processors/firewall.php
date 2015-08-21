@@ -356,6 +356,9 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 					$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
 				}
 			}
+
+			// We now black mark this IP
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 		}
 
 		/**

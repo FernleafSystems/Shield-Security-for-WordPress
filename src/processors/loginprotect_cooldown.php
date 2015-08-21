@@ -62,6 +62,10 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Base
 			$oUserOrError = new WP_Error();
 		}
 		$oUserOrError->add( 'wpsf_logininterval', $sErrorString );
+
+		// We now black mark this IP
+		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+
 		return $oUserOrError;
 	}
 
