@@ -123,7 +123,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			if ( $bKill ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Manual Black List with IP address "%s" and their connected was killed.' ), $sIp );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connected_killed' );
+				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 
 				wp_die(
 					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
