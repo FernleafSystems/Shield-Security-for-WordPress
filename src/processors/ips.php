@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
 
 	class ICWP_WPSF_Processor_Ips_V1 extends ICWP_WPSF_BaseDbProcessor {
 
@@ -19,6 +19,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @param ICWP_WPSF_FeatureHandler_Ips $oFeatureOptions
 		 */
 		public function __construct( ICWP_WPSF_FeatureHandler_Ips $oFeatureOptions ) {
+
 			parent::__construct( $oFeatureOptions, $oFeatureOptions->getIpListsTableName() );
 		}
 
@@ -27,11 +28,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
-
 			$this->processBlacklist();
 
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
 			add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+
+			// At (29), we come in just before login protect (30) to mark a login as invalid and black mark it.
+			add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 1 );
+		}
+
+		/**
+		 * @param WP_User|WP_Error $oUser
+		 * @return WP_User|WP_Error
+		 */
+		public function verifyIfAuthenticationValid( $oUser ) {
+
+			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+				$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
+				if ( !$bUserLoginSuccess ) {
+					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+				}
+			}
+			return $oUser;
 		}
 
 		protected function processBlacklist() {
@@ -47,7 +65,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			// now try auto black list
 			if ( !$bKill ) {
-				$bKill = $this->getIsIpOnAutoBlackList( $sIp );
+				$bKill = $this->getIsIpAutoBlackListed( $sIp );
 			}
 
 			if ( $bKill ) {
@@ -56,10 +74,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
-		 * @param boolean $bIsWhitelisted
 		 * @return boolean
 		 */
-		public function action_blackMarkIp( $bIsWhitelisted ) {
+		public function action_blackMarkIp() {
 			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
 			if ( $bDoBlackMark ) {
 				$this->blackMarkIp( $this->loadDataProcessor()->getVisitorIpAddress() );
@@ -71,9 +88,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		protected function blackMarkIp( $sIp ) {
 
-			$aIpBlackListData = $this->getIsIpOnAutoBlackList( $sIp, true );
+			$aIpBlackListData = $this->getIpHasTransgressions( $sIp, true );
 			if ( count( $aIpBlackListData ) > 0 ) {
-				$this->query_updateBmCounterForIp( $aIpBlackListData[ 0 ] );
+				$this->query_updateBmCounterForIp( $aIpBlackListData );
 			}
 			else {
 				$this->query_addNewAutoBlackListIp( $sIp );
@@ -138,7 +155,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @param bool $bReturnListData
 		 * @return bool|array - will return the associative array of the single row data
 		 */
-		public function getIsIpOnAutoBlackList( $sIp, $bReturnListData = false ) {
+		public function getIsIpAutoBlackListed( $sIp, $bReturnListData = false ) {
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
@@ -146,9 +163,24 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$nTransgressions = $oFO->getTransgressionLimit();
 
 			$aIpData = $this->query_getAutoBlackListDataForIp( $sIp, $nSinceTimeToConsider, $nTransgressions );
-			$bOnList = !empty( $aIpData );
+			return ( $bReturnListData ? $aIpData : !empty( $aIpData ) );
+		}
 
-			return ( ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList );
+		/**
+		 * The auto black list isn't a simple lookup, but rather has an auto expiration and a transgression count
+		 *
+		 * @param string $sIp
+		 * @param bool $bReturnListData
+		 * @return bool|array - will return the associative array of the single row data
+		 */
+		public function getIpHasTransgressions( $sIp, $bReturnListData = false ) {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
+
+			$aIpData = $this->query_getAutoBlackListDataForIp( $sIp, $nSinceTimeToConsider, 0 );
+			return ( $bReturnListData ? $aIpData : !empty( $aIpData ) );
 		}
 
 		/**
@@ -185,7 +217,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aNewData[ 'label' ]			= 'auto';
 			$aNewData[ 'list' ]				= self::LIST_AUTO_BLACK;
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
-			$aNewData[ 'bm_counter' ]		= 1;
+			$aNewData[ 'transgressions' ]	= 1;
 			$aNewData[ 'range' ]			= 0;
 			$aNewData[ 'last_access_at' ]	= $this->time();
 			$aNewData[ 'created_at' ]		= $this->time();
@@ -200,7 +232,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		protected function query_updateBmCounterForIp( $aCurrentData ) {
 			$aUpdated = array(
-				'bm_counter'		=> $aCurrentData['bm_counter'] + 1,
+				'transgressions'	=> $aCurrentData['transgressions'] + 1,
 				'last_access_at'	=> $this->time(),
 			);
 			return $this->updateRowsWhere( $aUpdated, $aCurrentData );

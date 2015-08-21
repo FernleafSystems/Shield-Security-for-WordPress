@@ -24,7 +24,6 @@ sections:
     primary: true
   -
     slug: 'section_auto_black_list'
-    primary: true
   -
     slug: 'section_non_ui'
     hidden: true
