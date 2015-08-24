@@ -262,6 +262,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.10.1 Point Release =
+*Released: 24th August, 2015*
+
+* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file.
+
 = 4.10 Series =
 *Released: 23rd August, 2015*
 
@@ -291,17 +296,13 @@ Which actions will trigger an ABLE transgression?
 * Failed attempt to authenticate with the plugin's Admin Access Protection module
 * Any trigger of a Firewall block rule
 
-= 4.9.8 Point Release =
-*Released: 10th August, 2015*
+= 4.9 Series =
+*Released: 7th July, 2015*
 
 * **(v.8)**  CHANGED:       Firewall, User Sessions and Lockdown Feature Modules are now enabled by default for new installations.
 * **(v.8)**  FIX:           Some server email programs can't handle colons (:) in the email subject (because supporting all characters would be waaay too radical man).
 * **(v.8)**  ADDED:       	Function to better get the WordPress home URL to prevent interference from other plugins.
 * **(v.8)**  CHANGED:       Updated Text For [Author Scan Block](http://icwp.io/6e) feature.
-
-= 4.9 Series =
-*Released: 7th July, 2015*
-
 * **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.
 * **(v.6)**  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -> Obscurity)
 * **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
