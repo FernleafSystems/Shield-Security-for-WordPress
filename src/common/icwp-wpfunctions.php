@@ -726,6 +726,18 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @return array
+		 */
+		public function getAllUserLoginUsernames() {
+			$aUsers = get_users( array( 'fields' => array( 'user_login' ) ) );
+			$aLogins = array();
+			foreach( $aUsers as $oUser ) {
+				$aLogins[] = $oUser->user_login;
+			}
+			return $aLogins;
+		}
+
+		/**
 		 * @param array $aLoginUrlParams
 		 */
 		public function forceUserRelogin( $aLoginUrlParams = array() ) {

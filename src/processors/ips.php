@@ -25,6 +25,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		/**
 		 */
 		public function run() {
+			// Before anything else, verify we can actually get a valid remote IP address
+			if ( $this->getIsValidRemoteIp() === false ) {
+				return;
+			}
+
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
@@ -34,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				// At (29), we come in just before login protect (30) to find an invalid login and black mark it.
-				add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 1 );
+				add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 2 );
 
 				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
@@ -42,6 +47,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				// We must allow for black marking of an IP
 				add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			}
+		}
+
+		/**
+		 * Note: Feature requirements in yaml already checks that all of these functions/constants are available
+		 *
+		 * @return string|false
+		 */
+		protected function getIsValidRemoteIp() {
+			$sIp = $this->human_ip();
+			return filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		}
 
 		/**
@@ -57,19 +72,38 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @param WP_User|WP_Error $oUserOrError
 		 * @return WP_User|WP_Error
 		 */
-		public function verifyIfAuthenticationValid( $oUserOrError ) {
+		public function verifyIfAuthenticationValid( $oUserOrError, $sUsername ) {
+			// Don't concern yourself if visitor is whitelisted
+			if ( $this->getIsVisitorWhitelisted() ) {
+				return $oUserOrError;
+			}
 
-			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
-				$bUserLoginSuccess = is_object( $oUserOrError ) && ( $oUserOrError instanceof WP_User );
-				if ( !$bUserLoginSuccess ) {
-					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			$bBlackMark = false;
+			$oWp = $this->loadWpFunctionsProcessor();
+			if ( $oWp->getIsLoginRequest() ) {
 
-					if ( !is_wp_error( $oUserOrError ) ) {
-						$oUserOrError = new WP_Error();
+				// If there's an attempt to login with a non-existent username
+				if ( !empty( $sUsername ) && !in_array( $sUsername, $oWp->getAllUserLoginUsernames() ) ) {
+					$bBlackMark = true;
+				}
+				else {
+					// If the login failed.
+					$bUserLoginSuccess = is_object( $oUserOrError ) && ( $oUserOrError instanceof WP_User );
+					if ( !$bUserLoginSuccess ) {
+						$bBlackMark = true;
 					}
-					$oUserOrError->add( 'wpsf-autoblacklist', $this->getTextOfRemainingTransgressions() );
 				}
 			}
+
+			if ( $bBlackMark ) {
+				add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+
+				if ( !is_wp_error( $oUserOrError ) ) {
+					$oUserOrError = new WP_Error();
+				}
+				$oUserOrError->add( 'wpsf-autoblacklist', $this->getTextOfRemainingTransgressions() );
+			}
+
 			return $oUserOrError;
 		}
 
@@ -81,23 +115,31 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				_wpsf__( 'Warning - %s' ),
 				sprintf(
 					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' ),
-					$this->getRemainingTransgressionsForIp()
+					$this->getRemainingTransgressionsForIp() - 1 // we take one off because it hasn't been incremented at this stage
 				)
 			);
 		}
 
+		/**
+		 * @param string $sIp
+		 * @return string
+		 */
 		protected function getRemainingTransgressionsForIp( $sIp = '' ) {
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 			if ( empty( $sIp ) ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$sIp = $this->human_ip();
 			}
 			return $oFO->getTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
 		}
 
+		/**
+		 * @param string $sIp
+		 * @return int
+		 */
 		protected function getCurrentTransgressionsForIp( $sIp ) {
 			if ( empty( $sIp ) ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$sIp = $this->human_ip();
 			}
 			$aData = $this->getIpHasTransgressions( $sIp, true );
 			return empty( $aData ) ? 0 : $aData[ 'transgressions' ];
@@ -111,7 +153,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			// is comparatively more complex than the simple manual black list, so it doesn't make sense to do 1 big query and
 			// then post-process it all. Better to be highly selective with 2x queries.
 
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+			$sIp = $this->human_ip();
 
 			// Manual black list first.
 			$bKill = $this->getIsIpOnManualBlackList( $sIp );
@@ -119,6 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				$bKill = $this->getIsIpAutoBlackListed( $sIp );
+				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 			}
 
 			if ( $bKill ) {
@@ -139,10 +182,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return boolean
 		 */
 		public function action_blackMarkIp() {
+			// Never black mark IPs that are on the whitelist
+			if ( $this->getIsVisitorWhitelisted() ) {
+				return;
+			}
+
 			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
 			if ( $bDoBlackMark ) {
-				$this->blackMarkIp( $this->loadDataProcessor()->getVisitorIpAddress() );
+				$this->blackMarkIp( $this->human_ip() );
 			}
+		}
+
+		/**
+		 * @return boolean
+		 */
+		protected function getIsVisitorWhitelisted() {
+			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false );
 		}
 
 		/**
@@ -177,7 +232,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
 			if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$sIp = $this->human_ip();
 				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $sIp );
 			}
 			return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
@@ -313,6 +368,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
+		 * @param string $sIp
+		 * @return bool|int
+		 */
+		protected function query_updateLastAccessForAutoBlackListIp( $sIp ) {
+			$aCurrentData = array(
+				'ip'	=> $sIp,
+				'list'	=> self::LIST_AUTO_BLACK
+			);
+			$aUpdated = array( 'last_access_at'	=> $this->time() );
+			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
+		}
+
+		/**
 		 * @param $sIp
 		 * @param $sList
 		 * @return bool|int
@@ -444,10 +512,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				DELETE from `%s`
 				WHERE
 					`last_access_at`	< %s
+					AND `list`			= '%s'
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
-				esc_sql( $nTimeStamp )
+				esc_sql( $nTimeStamp ),
+				self::LIST_AUTO_BLACK
 			);
 			return $this->loadDbProcessor()->doSql( $sQuery );
 		}
