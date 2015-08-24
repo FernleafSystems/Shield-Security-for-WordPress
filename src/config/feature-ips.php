@@ -36,15 +36,15 @@ options:
     section: 'section_enable_plugin_feature_ips'
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf26'
     link_blog: ''
   -
     key: 'transgression_limit'
     section: 'section_auto_black_list'
     default: 5
     type: 'integer'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/wpsf24'
+    link_blog: 'http://icwp.io/wpsf26'
   -
     key: 'auto_expire'
     section: 'section_auto_black_list'
@@ -63,8 +63,8 @@ options:
       -
         value_key: 'week'
         text: 'Week'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/wpsf25'
+    link_blog: 'http://icwp.io/wpsf26'
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
