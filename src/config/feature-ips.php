@@ -10,13 +10,14 @@ properties:
   tagline: '%s'
 requirements:
   php:
-    version: '5.3.6'
     functions:
       - 'filter_var'
     constants:
       - 'FILTER_VALIDATE_IP'
       - 'FILTER_FLAG_IPV4'
       - 'FILTER_FLAG_IPV6'
+      - 'FILTER_FLAG_NO_PRIV_RANGE'
+      - 'FILTER_FLAG_NO_RES_RANGE'
 # Options Sections
 sections:
   -

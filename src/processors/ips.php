@@ -25,6 +25,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		/**
 		 */
 		public function run() {
+			// Before anything else, verify we can actually get a valid remote IP address
+			if ( $this->getIsValidRemoteIp() === false ) {
+				return;
+			}
+
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
@@ -42,6 +47,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				// We must allow for black marking of an IP
 				add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			}
+		}
+
+		/**
+		 * Note: Feature requirements in yaml already checks that all of these functions/constants are available
+		 *
+		 * @return string|false
+		 */
+		protected function getIsValidRemoteIp() {
+			$sIp = $this->human_ip();
+			return filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		}
 
 		/**
