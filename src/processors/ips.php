@@ -113,7 +113,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 			if ( empty( $sIp ) ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$sIp = $this->human_ip();
 			}
 			return $oFO->getTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
 		}
@@ -124,7 +124,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		protected function getCurrentTransgressionsForIp( $sIp ) {
 			if ( empty( $sIp ) ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$sIp = $this->human_ip();
 			}
 			$aData = $this->getIpHasTransgressions( $sIp, true );
 			return empty( $aData ) ? 0 : $aData[ 'transgressions' ];
@@ -138,7 +138,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			// is comparatively more complex than the simple manual black list, so it doesn't make sense to do 1 big query and
 			// then post-process it all. Better to be highly selective with 2x queries.
 
-			$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+			$sIp = $this->human_ip();
 
 			// Manual black list first.
 			$bKill = $this->getIsIpOnManualBlackList( $sIp );
@@ -174,7 +174,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
 			if ( $bDoBlackMark ) {
-				$this->blackMarkIp( $this->loadDataProcessor()->getVisitorIpAddress() );
+				$this->blackMarkIp( $this->human_ip() );
 			}
 		}
 
@@ -217,7 +217,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
 			if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-				$sIp = $this->loadDataProcessor()->getVisitorIpAddress();
+				$sIp = $this->human_ip();
 				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $sIp );
 			}
 			return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
