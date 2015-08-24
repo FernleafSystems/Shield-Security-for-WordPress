@@ -303,6 +303,13 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		}
 
 		/**
+		 * @return bool|int|string
+		 */
+		protected function human_ip() {
+			return $this->loadDataProcessor()->getVisitorIpAddress();
+		}
+
+		/**
 		 * @return bool|int
 		 */
 		protected function ip() {

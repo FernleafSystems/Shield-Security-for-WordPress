@@ -27,6 +27,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_YamlProcessor
 		 */
 		private static $oYaml;
+		/**
+		 * @var ICWP_WPSF_Ip
+		 */
+		private static $oIp;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -84,6 +88,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadDbProcessor() {
 			return self::loadWpFunctionsProcessor()->loadDbProcessor();
+		}
+
+		/**
+		 * @return ICWP_WPSF_Ip
+		 */
+		static public function loadIpProcessor() {
+			if ( !isset( self::$oIp ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-ip.php' );
+				self::$oIp = ICWP_WPSF_Ip::GetInstance();
+			}
+			return self::$oIp;
 		}
 
 		/**

@@ -163,6 +163,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_Base {
 			$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to %s but GASP checkbox was not present.'), $sUsername, $sActionAttempted ).' '._wpsf__('Probably a BOT.');
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_checkbox' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.checkbox.fail' );
+
+			// We now black mark this IP
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+
 			wp_die( _wpsf__( "You must check that box to say you're not a bot." ) );
 			return false;
 		}
@@ -170,6 +174,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_Base {
 			$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to %s but they were caught by the GASP honeypot.'), $sUsername, $sActionAttempted ).' '._wpsf__('Probably a BOT.');
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_honeypot' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.honeypot.fail' );
+
+			// We now black mark this IP
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+
 			wp_die( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
 			return false;
 		}

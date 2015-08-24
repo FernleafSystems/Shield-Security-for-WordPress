@@ -15,6 +15,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected $oOptions;
 
 		/**
+		 * @var boolean
+		 */
+		protected $bModuleMeetsRequirements;
+
+		/**
 		 * @var string
 		 */
 		const CollateSeparator = '--SEP--';
@@ -82,19 +87,62 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$this->sFeatureSlug = $aFeatureProperties['slug'];
 			}
 
-			$nRunPriority = isset( $aFeatureProperties['load_priority'] ) ? $aFeatureProperties['load_priority'] : 100;
-			// Handle any upgrades as necessary (only go near this if it's the admin area)
-			add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
-			add_action( 'init', array( $this, 'onWpInit' ), 1 );
-			add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
-			add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
-			add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
-			add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
-			add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
-			add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
-			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
+			// before proceeding, we must now test the system meets the minimum requirements.
+			if ( $this->getModuleMeetRequirements() ) {
 
-			$this->doPostConstruction();
+				$nRunPriority = isset( $aFeatureProperties['load_priority'] ) ? $aFeatureProperties['load_priority'] : 100;
+				// Handle any upgrades as necessary (only go near this if it's the admin area)
+				add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
+				add_action( 'init', array( $this, 'onWpInit' ), 1 );
+				add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
+				add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
+				add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
+				add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
+				add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
+				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
+				add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
+
+				$this->doPostConstruction();
+			}
+
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getModuleMeetRequirements() {
+			if ( !isset( $this->bModuleMeetsRequirements ) ) {
+				$this->bModuleMeetsRequirements = $this->verifyModuleMeetRequirements();
+			}
+			return $this->bModuleMeetsRequirements;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function verifyModuleMeetRequirements() {
+			$bMeetsReqs = true;
+
+			$aPhpReqs = $this->getOptionsVo()->getFeatureRequirement( 'php' );
+			if ( !empty( $aPhpReqs ) ) {
+
+				if ( !empty( $aPhpReqs['version'] ) ) {
+					$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs['version'] );
+				}
+
+				if ( !empty( $aPhpReqs['functions'] ) && is_array( $aPhpReqs['functions'] )  ) {
+					foreach( $aPhpReqs['functions'] as $sFunction ) {
+						$bMeetsReqs = $bMeetsReqs && function_exists( $sFunction );
+					}
+				}
+				if ( !empty( $aPhpReqs['constants'] ) && is_array( $aPhpReqs['constants'] )  ) {
+					foreach( $aPhpReqs['constants'] as $sConstant ) {
+						$bMeetsReqs = $bMeetsReqs && defined( $sConstant );
+					}
+				}
+			}
+
+			return $bMeetsReqs;
 		}
 
 		protected function doPostConstruction() { }

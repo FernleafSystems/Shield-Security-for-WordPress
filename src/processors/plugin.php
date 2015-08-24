@@ -28,6 +28,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
 
+			add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
+
 			if ( $this->getController()->getIsValidAdminArea() ) {
 				$this->maintainPluginLoadPosition();
 			}
@@ -84,6 +86,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				->setTemplateEngineHtml()
 				->render();
 			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $oCon->getHumanName() );
+		}
+
+		public function printVisitorIpFooter() {
+			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
 		}
 
 		/**

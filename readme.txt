@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.9.8
+Stable tag: 4.10.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -261,6 +261,35 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Screenshots ==
 
 == Changelog ==
+
+= 4.10 Series =
+*Released: 23rd August, 2015*
+
+* **(v.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](http://icwp.io/wpsf27).
+
+Simply put, FABLE will automatically block all malicious traffic by IP, based on their activity. This Security Plugin will track malicious behaviour
+and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the specified number transgressions, FABLE
+will outright block any access they have to your WordPress site.
+
+What makes the FABLE system better?
+
+* Hands Free - Automatic. No more need for maintaining manual black lists.
+* Loads first before other plugins.
+* Automatic pruning. Based on expiration time you specify, older IP address will be removed.
+* Increased Performance. With automatic pruning, IP look-up tables remain small and concise so page load times for legitimate visitors is minimally affected.
+* Adaptive. It wont just block based on 1 misdemeanour - instead you may allow any given visitor grace to legitimately get things wrong (like login passwords).
+* Intelligent. With an fully integrated plugin such as this, it uses login failure attempts, spam comment attempts, login brute force attempts to capture malicious visitors.
+
+Which actions will trigger an ABLE transgression?
+
+* Attempt to login with an invalid username/password combination
+* Any attempt to login while the login cooldown system is in-effect
+* Any login attempt that trips the GASP Login protection system
+* Any login attempt with a username that doesn't exist
+* Any attempt to access /wp-admin/, /login/, or wp-login.php while the Rename WP Login setting is active
+* Any comment that gets labelled as SPAM by the plugin
+* Failed attempt to authenticate with the plugin's Admin Access Protection module
+* Any trigger of a Firewall block rule
 
 = 4.9.8 Point Release =
 *Released: 10th August, 2015*

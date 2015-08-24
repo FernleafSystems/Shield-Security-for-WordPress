@@ -188,6 +188,10 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 					$this->doStatHumanSpamWords( $sWord );
 					$this->sCommentStatus = $this->getOption( 'comments_default_action_human_spam' );
 					$this->setCommentStatusExplanation( sprintf( _wpsf__('Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
+
+					// We now black mark this IP
+					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+
 					break 2;
 				}
 			}
