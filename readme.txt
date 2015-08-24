@@ -265,20 +265,20 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.10 Series =
 *Released: 23rd August, 2015*
 
-* **(v.0)**  NEW FEATURE:	'ABLE' - Automatic Black Listing Engine.
+* **(v.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](http://icwp.io/wpsf27).
 
-Simply put, ABLE will automatically block all malicious traffic by IP based on their activity. This Security Plugin will track malicious behaviour
-and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the maximum number transgressions that you specificy, ABLE
+Simply put, FABLE will automatically block all malicious traffic by IP, based on their activity. This Security Plugin will track malicious behaviour
+and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the specified number transgressions, FABLE
 will outright block any access they have to your WordPress site.
 
-What makes the ABLE system better?
+What makes the FABLE system better?
 
-* Hands Free - Automatic. No more need for manual black lists.
+* Hands Free - Automatic. No more need for maintaining manual black lists.
 * Loads first before other plugins.
 * Automatic pruning. Based on expiration time you specify, older IP address will be removed.
 * Increased Performance. With automatic pruning, IP look-up tables remain small and concise so page load times for legitimate visitors is minimally affected.
 * Adaptive. It wont just block based on 1 misdemeanour - instead you may allow any given visitor grace to legitimately get things wrong (like login passwords).
-* Intelligent. With an all-round integrated plugin such as this, it uses login failure attempts, spam comment attempts, login brute force attempts to capture malicious visitors.
+* Intelligent. With an fully integrated plugin such as this, it uses login failure attempts, spam comment attempts, login brute force attempts to capture malicious visitors.
 
 Which actions will trigger an ABLE transgression?
 
