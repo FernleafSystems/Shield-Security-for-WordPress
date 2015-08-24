@@ -62,7 +62,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param boolean $bAsHuman
-		 * @return bool|integer - visitor IP Address as IP2Long
+		 * @return int|string|bool - visitor IP Address as IP2Long
 		 */
 		public function getVisitorIpAddress( $bAsHuman = true ) {
 
@@ -86,10 +86,13 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 
 			$aAddressSourceOptions = array(
 				'HTTP_CF_CONNECTING_IP',
-				'HTTP_CLIENT_IP',
 				'HTTP_X_FORWARDED_FOR',
 				'HTTP_X_FORWARDED',
+				'HTTP_X_REAL_IP',
+				'HTTP_X_SUCURI_CLIENTIP',
+				'HTTP_INCAP_CLIENT_IP',
 				'HTTP_FORWARDED',
+				'HTTP_CLIENT_IP',
 				'REMOTE_ADDR'
 			);
 
@@ -713,7 +716,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 
 		/**
 		 * @param string $sKey
-		 *
 		 * @return bool
 		 */
 		public function setDeleteCookie( $sKey ) {
