@@ -44,6 +44,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $bRebuildOptions;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bResetPlugin;
+
+	/**
 	 * @var string
 	 */
 	private $sFlashMessage;
@@ -526,7 +531,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 *
 	 * @param boolean $bDoAutoUpdate
 	 * @param string|object $mItemToUpdate
-	 *
 	 * @return boolean
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItemToUpdate ) {
@@ -626,6 +630,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function deleteRebuildFlag() {
 		if ( $this->getIsRebuildOptionsFromFile() ) {
 			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		}
+		if ( $this->getIsResetPlugin() ) {
+			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'reset' ) );
 		}
 	}
 
@@ -925,6 +932,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$this->bRebuildOptions = is_null( $bExists ) ? false : $bExists;
 		}
 		return $this->bRebuildOptions;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsResetPlugin() {
+		if ( !isset( $this->bResetPlugin ) ) {
+			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'reset' ) );
+			$this->bResetPlugin = is_null( $bExists ) ? false : $bExists;
+		}
+		return $this->bResetPlugin;
 	}
 
 	/**
