@@ -154,7 +154,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * 		b) then, we give back a message saying that if the login was successful, they would have received a verification email. In this way we give nothing away.
 		 * 		c) note at this stage, if the username was empty, we give back nothing (this happens when wp-login.php is loaded as normal.
 		 *
-		 * @param WP_User|WP_Error|string $oUser	- the docs say the first parameter a string, WP actually gives a WP_User object (or null)
+		 * @param WP_User|WP_Error|null $oUser
 		 * @param string $sUsername
 		 * @param string $sPassword
 		 * @return WP_Error|WP_User|null	- WP_User when the login success AND the IP is authenticated. null when login not successful but IP is valid. WP_Error otherwise.
@@ -183,6 +183,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				if ( is_array( $aNewAuthData ) ) {
 					$this->doStatIncrement( 'login.twofactor.started' );
 					$fEmailSuccess = $this->sendEmailTwoFactorVerify( $oUser, $aNewAuthData['ip'], $aNewAuthData['unique_id'] );
+
+					// We put this right at the end so as to nullify the effect of black marking on failed login (which this appears to be due to WP_Error)
+					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_false', 1000 );
 
 					// Failure to send email - log them in.
 					if ( !$fEmailSuccess && $this->getIsOption( 'enable_two_factor_bypass_on_email_fail', 'Y' ) ) {
