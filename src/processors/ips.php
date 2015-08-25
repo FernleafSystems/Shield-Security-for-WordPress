@@ -38,9 +38,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$this->processBlacklist();
 
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
-				// At (29), we come in just before login protect (30) to find an invalid login and black mark it.
-//				add_filter( 'authenticate', array( $this, 'verifyIfAuthenticationValid' ), 29, 2 );
-
 				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 
