@@ -318,6 +318,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
+		 * @return array
+		 */
+		public function getWhitelistData() {
+			$aData = $this->query_getListData( array( self::LIST_MANUAL_WHITE ) );
+			return $aData;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getAutoBlacklistData() {
+			$aData = $this->query_getListData( array( self::LIST_AUTO_BLACK ) );
+			return $aData;
+		}
+
+		/**
 		 * @param string $sIp
 		 * @param array $aLists
 		 * @return array
@@ -334,6 +350,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			}
 
 			return $aData;
+		}
+
+		public function removeIpFromList( $sIp, $sList ) {
+			return $this->query_deleteIpFromList( $sIp, $sList );
+		}
+
+		public function removeIpFromListWhiteList( $sIp ) {
+			return $this->removeIpFromList( $sIp, self::LIST_MANUAL_WHITE );
 		}
 
 		/**

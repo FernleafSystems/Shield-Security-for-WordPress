@@ -175,6 +175,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function onWpInit() {
 			$this->updateHandler();
+			$this->setupAjaxHandlers();
 		}
 
 		/**
@@ -510,6 +511,17 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$this->setOpt( $sKey, $mValue );
 			}
 		}
+
+		protected function setupAjaxHandlers() {
+			if ( $this->getController()->getIsValidAdminArea() ) {
+				$this->adminAjaxHandlers();
+			}
+			else {
+				$this->frontEndAjaxHandlers();
+			}
+		}
+		protected function adminAjaxHandlers() { }
+		protected function frontEndAjaxHandlers() { }
 
 		/**
 		 * Saves the options to the WordPress Options store.
