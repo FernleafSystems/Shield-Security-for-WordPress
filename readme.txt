@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.10.0
+Stable tag: 4.10.1
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -263,9 +263,13 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.10.1 Point Release =
-*Released: 24th August, 2015*
+*Released: 25th August, 2015*
 
-* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file.
+* **(v.1)**  ADDED:       	UI to view and remove IP address from Automatic Black List Engine.
+* **(v.1)**  FIX:       	Removed transgression counting on failed logins - WP data is inconsistent.
+* **(v.1)**  CHANGED:		Original legacy white list now takes priority over new auto black list
+* **(v.1)**  CHANGED:		Default transgressions limit is now 7
+* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file.[more info](http://icwp.io/wpsf28)
 
 = 4.10 Series =
 *Released: 23rd August, 2015*
