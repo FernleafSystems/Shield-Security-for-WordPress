@@ -28,6 +28,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		/**
+		 */
+		public function displayFeatureConfigPage( ) {
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
+			$this->display( array(), 'feature-ips' );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getIpListsTableName() {

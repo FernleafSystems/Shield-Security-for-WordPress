@@ -33,9 +33,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$this->processBlacklist();
-
 			add_filter( $oFO->doPluginPrefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
+
+			$this->processBlacklist();
 
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				// At (29), we come in just before login protect (30) to find an invalid login and black mark it.
@@ -146,6 +146,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		protected function processBlacklist() {
+
+			// white list rules
+			if ( $this->getIsVisitorWhitelisted() ) {
+				return;
+			}
+
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
@@ -219,7 +225,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				$this->query_addNewAutoBlackListIp( $sIp );
 				$sAuditMessage = sprintf(
 					_wpsf__( 'Auto Black List transgression counter was started for visitor at IP address "%s".' ),
-					$aIpBlackListData[ 'transgressions' ],
 					$sIp
 				);
 				$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
