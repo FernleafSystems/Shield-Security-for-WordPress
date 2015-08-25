@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.10.0
+Stable tag: 4.10.1
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,6 +262,15 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.10.1 Point Release =
+*Released: 25th August, 2015*
+
+* **(v.1)**  ADDED:       	UI to view and remove IP address from Automatic Black List Engine.
+* **(v.1)**  FIX:       	Removed transgression counting on failed logins - WP data is inconsistent.
+* **(v.1)**  CHANGED:		Original legacy white list now takes priority over new auto black list
+* **(v.1)**  CHANGED:		Default transgressions limit is now 7
+* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file.[more info](http://icwp.io/wpsf28)
+
 = 4.10 Series =
 *Released: 23rd August, 2015*
 
@@ -291,17 +300,13 @@ Which actions will trigger an ABLE transgression?
 * Failed attempt to authenticate with the plugin's Admin Access Protection module
 * Any trigger of a Firewall block rule
 
-= 4.9.8 Point Release =
-*Released: 10th August, 2015*
+= 4.9 Series =
+*Released: 7th July, 2015*
 
 * **(v.8)**  CHANGED:       Firewall, User Sessions and Lockdown Feature Modules are now enabled by default for new installations.
 * **(v.8)**  FIX:           Some server email programs can't handle colons (:) in the email subject (because supporting all characters would be waaay too radical man).
 * **(v.8)**  ADDED:       	Function to better get the WordPress home URL to prevent interference from other plugins.
 * **(v.8)**  CHANGED:       Updated Text For [Author Scan Block](http://icwp.io/6e) feature.
-
-= 4.9 Series =
-*Released: 7th July, 2015*
-
 * **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.
 * **(v.6)**  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -> Obscurity)
 * **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.

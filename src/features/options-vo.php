@@ -35,6 +35,12 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	protected $sOptionsStorageKey;
 
 	/**
+	 *  by default we load from saved
+	 * @var string
+	 */
+	protected $bLoadFromSaved = true;
+
+	/**
 	 * @var string
 	 */
 	protected $sOptionsName;
@@ -380,6 +386,20 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return boolean
+	 */
+	public function getIfLoadOptionsFromStorage() {
+		return $this->bLoadFromSaved;
+	}
+
+	/**
+	 * @param boolean $bLoadFromSaved
+	 */
+	public function setIfLoadOptionsFromStorage( $bLoadFromSaved ) {
+		$this->bLoadFromSaved = $bLoadFromSaved;
+	}
+
+	/**
 	 * @param boolean $bNeed
 	 */
 	public function setNeedSave( $bNeed ) {
@@ -463,7 +483,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param bool $bReload
-	 *
 	 * @return array|mixed
 	 * @throws Exception
 	 */
@@ -471,12 +490,15 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 		if ( $bReload || empty( $this->aOptionsValues ) ) {
 
-			$sStorageKey = $this->getOptionsStorageKey();
-			if ( empty( $sStorageKey ) ) {
-				throw new Exception( 'Options Storage Key Is Empty' );
+			if ( $this->getIfLoadOptionsFromStorage() ) {
+
+				$sStorageKey = $this->getOptionsStorageKey();
+				if ( empty( $sStorageKey ) ) {
+					throw new Exception( 'Options Storage Key Is Empty' );
+				}
+				$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			}
 
-			$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			if ( empty( $this->aOptionsValues ) ) {
 				$this->aOptionsValues = array();
 				$this->setNeedSave( true );

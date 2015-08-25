@@ -28,6 +28,39 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		/**
+		 */
+		public function displayFeatureConfigPage( ) {
+			add_thickbox();
+			$this->display( $this->getIpTableDisplayData(), 'feature-ips' );
+		}
+
+		protected function getIpTableDisplayData() {
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
+
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sTimeFormat = $oWp->getOption( 'time_format' );
+			$sDateFormat = $oWp->getOption( 'date_format' );
+
+			$aWhitelistData = $oProcessor->getWhitelistData();
+			foreach( $aWhitelistData as &$aList ) {
+				$aList[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aList[ 'last_access_at' ] );
+			}
+
+			$aBlackListData = $oProcessor->getAutoBlacklistData();
+			foreach( $aBlackListData as &$aList ) {
+				$aList[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aList[ 'last_access_at' ] );
+			}
+
+			return array(
+				'white_list' => $aWhitelistData,
+				'auto_black_list' => $aBlackListData,
+				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
+				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' )
+			);
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getIpListsTableName() {
@@ -44,6 +77,34 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			if ( !is_int( $nLimit ) || $nLimit < 0 ) {
 				$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
 			}
+		}
+
+		protected function adminAjaxHandlers() {
+			add_action( 'wp_ajax_icwp_wpsf_GetIpList', array( $this, 'ajaxGetIpList' ) );
+			add_action( 'wp_ajax_icwp_wpsf_RemoveIpFromList', array( $this, 'ajaxRemoveIpFromList' ) );
+		}
+
+		public function ajaxGetIpList() {
+			check_ajax_referer( 'fable_ip_list_action' );
+			echo $this->renderListTable();
+			wp_die();
+		}
+
+		public function ajaxRemoveIpFromList() {
+			check_ajax_referer( 'fable_ip_list_action' );
+
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
+
+			$oDp = $this->loadDataProcessor();
+			$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
+
+			echo $this->renderListTable();
+			wp_die();
+		}
+
+		protected function renderListTable() {
+			return $this->renderTemplate( 'snippets/ip_list_table.php', $this->getIpTableDisplayData() );
 		}
 
 		/**
