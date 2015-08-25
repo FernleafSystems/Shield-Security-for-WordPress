@@ -262,18 +262,19 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.10.1 Point Release =
+= 4.10.2 Point Release =
 *Released: 25th August, 2015*
+
+* **(v.2)**  ADDED:       	Returned the black marking of failed WP login attempts on the automatic black list system
+
+= 4.10 Series =
+*Released: 23rd August, 2015*
 
 * **(v.1)**  ADDED:       	UI to view and remove IP address from Automatic Black List Engine.
 * **(v.1)**  FIX:       	Removed transgression counting on failed logins - WP data is inconsistent.
 * **(v.1)**  CHANGED:		Original legacy white list now takes priority over new auto black list
 * **(v.1)**  CHANGED:		Default transgressions limit is now 7
-* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file.[more info](http://icwp.io/wpsf28)
-
-= 4.10 Series =
-*Released: 23rd August, 2015*
-
+* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file. [more info](http://icwp.io/wpsf28)
 * **(v.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](http://icwp.io/wpsf27).
 
 Simply put, FABLE will automatically block all malicious traffic by IP, based on their activity. This Security Plugin will track malicious behaviour
