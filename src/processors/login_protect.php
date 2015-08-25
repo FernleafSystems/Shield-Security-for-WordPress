@@ -82,8 +82,14 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
 		}
 
+		add_action( 'wp_login_failed', array( $this, 'blackMarkFailedLogin' ), 10, 0 );
+
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
+	}
+
+	public function blackMarkFailedLogin() {
+		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 	}
 
 	/**
