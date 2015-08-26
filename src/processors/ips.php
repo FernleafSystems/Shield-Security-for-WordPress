@@ -52,8 +52,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return string|false
 		 */
 		protected function getIsValidRemoteIp() {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$sThisServerIp = $oFO->getWhatIsMyServerIp();
 			$sIp = $this->human_ip();
-			return filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+
+			// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
+			return
+				filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+				&& ( $sThisServerIp != $sIp );
 		}
 
 		/**

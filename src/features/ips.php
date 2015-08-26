@@ -28,6 +28,38 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getWhatIsMyServerIp() {
+
+			$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
+			if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
+				$this->loadFileSystemProcessor(); // to ensure the necessary Class exits - we can clean this up later
+				$sThisServerIp = $this->loadIpProcessor()->WhatIsMyIp();
+				if ( is_string( $sThisServerIp ) ) {
+					$this->setOpt( 'this_server_ip', $sThisServerIp );
+				}
+				// we always update so we don't forever check on every single page load
+				$this->setOpt( 'this_server_ip_last_check_at', $this->loadDataProcessor()->time() );
+			}
+			return $sThisServerIp;
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getLastCheckServerIpAt() {
+			return $this->getOpt( 'this_server_ip_last_check_at', 0 );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIfLastCheckServerIpAtHasExpired() {
+			return ( ( $this->loadDataProcessor()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
+		}
+
+		/**
 		 */
 		public function displayFeatureConfigPage( ) {
 			add_thickbox();
@@ -87,24 +119,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		public function ajaxGetIpList() {
 
 			$bNonce = $this->checkAjaxNonce();
-
-			$sData = $this->renderListTable();
-			$this->sendAjaxResponse( $bNonce, $sData );
+			if ( $bNonce ) {
+				$sData = $this->renderListTable();
+				$this->sendAjaxResponse( $bNonce, $sData );
+			}
 		}
 
 		public function ajaxRemoveIpFromList() {
 
 			$bNonce = $this->checkAjaxNonce();
+			if ( $bNonce ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
 
-			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-			$oProcessor = $this->getProcessor();
+				$oDp = $this->loadDataProcessor();
+				$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
 
-			$oDp = $this->loadDataProcessor();
-			$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
+				$sData = $this->renderListTable();
 
-			$sData = $this->renderListTable();
-
-			$this->sendAjaxResponse( $bNonce, $sData );
+				$this->sendAjaxResponse( $bNonce, $sData );
+			}
 		}
 
 		/**
@@ -128,6 +162,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			// At this stage we haven't returned after success so we failed the nonce check
 			$this->sendAjaxResponse( false, $sMessage );
+			return false;
 		}
 
 		/**

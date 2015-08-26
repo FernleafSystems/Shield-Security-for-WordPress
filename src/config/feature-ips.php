@@ -86,6 +86,14 @@ options:
       - 'last_access_at'
       - 'created_at'
       - 'deleted_at'
+  -
+    key: 'this_server_ip'
+    section: 'section_non_ui'
+    value: ''
+  -
+    key: 'this_server_ip_last_check_at'
+    section: 'section_non_ui'
+    value: 0
 ",
 		_wpsf__( 'IP Manager' ),
 		_wpsf__( 'Manage Visitor IP Address' )
