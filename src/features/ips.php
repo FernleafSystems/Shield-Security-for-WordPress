@@ -85,13 +85,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		public function ajaxGetIpList() {
-			check_ajax_referer( 'fable_ip_list_action' );
-			echo $this->renderListTable();
-			wp_die();
+
+			$bNonce = $this->checkAjaxNonce();
+
+			$sData = $this->renderListTable();
+			$this->sendAjaxResponse( $bNonce, $sData );
 		}
 
 		public function ajaxRemoveIpFromList() {
-			check_ajax_referer( 'fable_ip_list_action' );
+
+			$bNonce = $this->checkAjaxNonce();
 
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
@@ -99,8 +102,40 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$oDp = $this->loadDataProcessor();
 			$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
 
-			echo $this->renderListTable();
-			wp_die();
+			$sData = $this->renderListTable();
+
+			$this->sendAjaxResponse( $bNonce, $sData );
+		}
+
+		/**
+		 * Will send ajax error response immediately upon failure
+		 *
+		 * @return bool
+		 */
+		protected function checkAjaxNonce() {
+
+			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			if ( empty( $sNonce ) ) {
+				$sMessage = 'Nonce security checking failed - the nonce value was empty.';
+			}
+			else if ( wp_verify_nonce( $sNonce, 'fable_ip_list_action' ) === false ) {
+				$sMessage = sprintf( 'Nonce security checking failed - the nonce supplied was "%s".', $sNonce );
+			}
+			else {
+				// At this stage we passed the nonce check
+				return true;
+			}
+
+			// At this stage we haven't returned after success so we failed the nonce check
+			$this->sendAjaxResponse( false, $sMessage );
+		}
+
+		/**
+		 * @param $bSuccess
+		 * @param string $mData
+		 */
+		protected function sendAjaxResponse( $bSuccess, $mData = '' ) {
+			$bSuccess ? wp_send_json_success( $mData ) : wp_send_json_error( $mData );
 		}
 
 		protected function renderListTable() {

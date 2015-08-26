@@ -61,7 +61,15 @@ $sTableId = 'IpTable' . uniqid();
 		$sContentDiv.html( '<div class="spinner"></div>');
 		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
 		jQuery.post(ajaxurl, requestData, function(response) {
-			$sContentDiv.html(response);
+
+			// No data came back, maybe a security error
+			if( response.data ) {
+				$sContentDiv.html( response.data );
+			}
+			else {
+				$sContentDiv.html( 'There was an unknown error' );
+			}
+
 		});
 	}
 </script>
