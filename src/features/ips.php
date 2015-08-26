@@ -119,24 +119,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		public function ajaxGetIpList() {
 
 			$bNonce = $this->checkAjaxNonce();
-
-			$sData = $this->renderListTable();
-			$this->sendAjaxResponse( $bNonce, $sData );
+			if ( $bNonce ) {
+				$sData = $this->renderListTable();
+				$this->sendAjaxResponse( $bNonce, $sData );
+			}
 		}
 
 		public function ajaxRemoveIpFromList() {
 
 			$bNonce = $this->checkAjaxNonce();
+			if ( $bNonce ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
 
-			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-			$oProcessor = $this->getProcessor();
+				$oDp = $this->loadDataProcessor();
+				$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
 
-			$oDp = $this->loadDataProcessor();
-			$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
+				$sData = $this->renderListTable();
 
-			$sData = $this->renderListTable();
-
-			$this->sendAjaxResponse( $bNonce, $sData );
+				$this->sendAjaxResponse( $bNonce, $sData );
+			}
 		}
 
 		/**
@@ -160,6 +162,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			// At this stage we haven't returned after success so we failed the nonce check
 			$this->sendAjaxResponse( false, $sMessage );
+			return false;
 		}
 
 		/**
