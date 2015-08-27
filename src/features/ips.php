@@ -101,6 +101,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			foreach( $aListData as &$aListItem ) {
 				$aListItem[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'last_access_at' ] );
+				$aListItem[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'created_at' ] );
 			}
 			return $aListData;
 		}
@@ -134,23 +135,25 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			$bNonce = $this->checkAjaxNonce();
 			if ( $bNonce ) {
-				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
-				$this->sendAjaxResponse( $bNonce, $sData );
+				$sResponseData = array();
+				$sResponseData['html'] = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+				$this->sendAjaxResponse( $bNonce, $sResponseData );
 			}
 		}
 
 		public function ajaxRemoveIpFromList() {
 
-			$bNonce = $this->checkAjaxNonce();
-			if ( $bNonce ) {
+			$bSuccess = $this->checkAjaxNonce();
+			if ( $bSuccess ) {
 				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 				$oProcessor = $this->getProcessor();
+				$sResponseData = array();
 
 				$oDp = $this->loadDataProcessor();
 				$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
 
-				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
-				$this->sendAjaxResponse( $bNonce, $sData );
+				$sResponseData['html'] = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+				$this->sendAjaxResponse( $bSuccess, $sResponseData );
 			}
 		}
 
@@ -160,6 +163,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			if ( $bSuccess ) {
 				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 				$oProcessor = $this->getProcessor();
+				$sResponseData = array();
 
 				$oDp = $this->loadDataProcessor();
 
@@ -169,12 +173,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 					$mResult = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
 				}
 
-				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+				$sResponseData['html'] = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
 
 //				if ( $mResult === false || $mResult < 1 ) {
 //					$bSuccess = false;
 //				}
-				$this->sendAjaxResponse( $bSuccess, $sData );
+				$this->sendAjaxResponse( $bSuccess, $sResponseData );
 			}
 		}
 
@@ -198,16 +202,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			}
 
 			// At this stage we haven't returned after success so we failed the nonce check
-			$this->sendAjaxResponse( false, $sMessage );
+			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
 			return false;
 		}
 
 		/**
 		 * @param $bSuccess
-		 * @param string $mData
+		 * @param array $aData
 		 */
-		protected function sendAjaxResponse( $bSuccess, $mData = '' ) {
-			$bSuccess ? wp_send_json_success( $mData ) : wp_send_json_error( $mData );
+		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 		}
 
 		protected function renderListTable( $sListToRender ) {

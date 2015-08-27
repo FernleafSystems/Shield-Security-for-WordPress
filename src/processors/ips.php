@@ -406,7 +406,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
 			$aNewData[ 'transgressions' ]	= 0;
 			$aNewData[ 'range' ]			= strpos( $sIp, '/' );
-			$aNewData[ 'last_access_at' ]	= $this->time();
+			$aNewData[ 'last_access_at' ]	= 0;
 			$aNewData[ 'created_at' ]		= $this->time();
 
 			$mResult = $this->insertData( $aNewData );

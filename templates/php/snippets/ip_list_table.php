@@ -17,29 +17,38 @@ $sTableId = uniqid('IpTable').rand(0,1000);
 
 			<?php if ( $list_id == 'MW' ) : ?>
 				<th>Label</th>
+				<th>Added</th>
 			<?php else: ?>
 				<th>Transgressions</th>
+				<th>Last Access</th>
 			<?php endif; ?>
 
-			<th>Last Access</th>
 			<th>Actions</th>
 		</tr>
 
 		<?php foreach( $list_data as $aIpData ) : ?>
 			<tr>
-				<td><?php echo $aIpData['ip']; ?></td>
+				<td>
+					<a href="http://whois.domaintools.com/<?php echo $aIpData['ip']; ?>" target="_blank"><?php echo $aIpData['ip']; ?></a>
+				</td>
+
 				<?php if ( $list_id == 'MW' ) : ?>
 					<td><?php echo $aIpData['label']; ?></td>
+					<td><?php echo $aIpData['created_at']; ?></td>
 				<?php else: ?>
 					<td><?php echo $aIpData['transgressions']; ?></td>
+					<td><?php echo $aIpData['last_access_at']; ?></td>
 				<?php endif; ?>
-				<td><?php echo $aIpData['last_access_at']; ?></td>
-				<td><a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>' );">Remove</a></td>
+
+				<td class="centered">
+					<a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>' );">Remove</a>
+				</td>
 			</tr>
 		<?php endforeach; ?>
 		<tr>
-			<td colspan="4">
-				<a href="javascript:refresh_list( '<?php echo $list_id; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Refresh</a>
+			<td colspan="3">&nbsp;</td>
+			<td  class="centered">
+				<a class="btn" href="javascript:refresh_list( '<?php echo $list_id; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Refresh</a>
 			</td>
 		</tr>
 
@@ -47,12 +56,12 @@ $sTableId = uniqid('IpTable').rand(0,1000);
 
 	<?php if ( $list_id == 'MW' ) : ?>
 		<tr>
-			<td colspan="4">
-				<div class="input-append">
-					<input class="span3 on_return_send" name="new_ip" placeholder="Add IP Address" id="AddIpAddress" type="text" />
-					<input class="span3 on_return_send" name="new_ip" placeholder="Label" id="AddIpAddressLabel" type="text" />
-					<button class="btn" type="button" id="AddIpButton">Click To Add!</button>
-				</div>
+			<td colspan="3">
+				<input class="span3 on_return_send" name="new_ip" placeholder="Add IP Address" id="AddIpAddress" type="text" />
+				<input class="span3 on_return_send" name="new_ip" placeholder="Label" id="AddIpAddressLabel" type="text" />
+			</td>
+			<td class="centered">
+				<button class="btn" type="button" id="AddIpButton">Add IP</button>
 			</td>
 		</tr>
 	<?php endif; ?>

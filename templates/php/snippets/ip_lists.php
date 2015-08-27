@@ -25,11 +25,10 @@
 
 		$oTarget.html( '<div class="spinner"></div>');
 		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-		jQuery.post(ajaxurl, requestData, function(response) {
+		jQuery.post(ajaxurl, requestData, function( oResponse ) {
 
-			// No data came back, maybe a security error
-			if( response.data ) {
-				$oTarget.html( response.data );
+			if( oResponse.data ) {
+				$oTarget.html( oResponse.data.html );
 			}
 			else {
 				$oTarget.html( 'There was an unknown error' );
@@ -42,6 +41,13 @@
 <style>
 	.wpsf-ip-list table {
 		margin: 15px 0;
+	}
+	.wpsf-ip-list table td.centered {
+		text-align: center;
+	}
+	.wpsf-ip-list table td input,
+	.wpsf-ip-list table td button {
+		margin: 5px 6px;
 	}
 	.wpsf-ip-list .spinner {
 		background: rgba(0, 0, 0, 0) url("images/spinner.gif") no-repeat scroll 0 0 / 20px 20px;
