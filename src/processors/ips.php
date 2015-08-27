@@ -377,17 +377,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		public function addIpToWhiteList( $sIp ) {
 			$bSuccess = false;
 			if ( $this->isValidIp( $sIp ) ){
-				$bSuccess = $this->query_addNewManualWhiteListIp( $sIp );
+
+				$aExisting = $this->query_getIpWhiteListData( $sIp );
+				if ( empty( $aExisting ) ) {
+					$bSuccess = $this->query_addNewManualWhiteListIp( $sIp );
+				}
 			}
 			return $bSuccess;
 		}
 
 		public function removeIpFromList( $sIp, $sList ) {
 			return $this->query_deleteIpFromList( $sIp, $sList );
-		}
-
-		public function removeIpFromListWhiteList( $sIp ) {
-			return $this->removeIpFromList( $sIp, self::LIST_MANUAL_WHITE );
 		}
 
 		/**
@@ -485,6 +485,32 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * We can be specific with the IP in this query since auto black lists is single IPs only.
 		 *
 		 * @param string $sIp
+		 * @return array
+		 */
+		protected function query_getIpWhiteListData( $sIp ) {
+
+			$sQuery = "
+				SELECT *
+				FROM `%s`
+				WHERE
+					`ip`					= '%s'
+					AND `list`				= '%s'
+					AND `deleted_at`		= '0'
+			";
+
+			$sQuery = sprintf( $sQuery,
+				$this->getTableName(),
+				esc_sql( $sIp ),
+				self::LIST_MANUAL_WHITE
+			);
+			$mResult = $this->selectCustom( $sQuery );
+			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult[0] : array();
+		}
+
+		/**
+		 * We can be specific with the IP in this query since auto black lists is single IPs only.
+		 *
+		 * @param string $sIp
 		 * @param int $nSince
 		 * @param int $nTransgressionLimit
 		 * @return array
@@ -504,9 +530,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
-				$sIp,
+				esc_sql( $sIp ),
 				self::LIST_AUTO_BLACK,
-				$nTransgressionLimit,
+				esc_sql( $nTransgressionLimit ),
 				$nSince
 			);
 			$mResult = $this->selectCustom( $sQuery );
