@@ -1,5 +1,5 @@
 <?php
-$sTableId = substr( md5( uniqid( 'IpTable', true ) ), 0, 5 );
+$sTableId = 'IpTable'.substr( md5( uniqid( 'ASDF', true ) ), 0, 5 );
 ?>
 
 <table class="table table-bordered" id="<?php echo $sTableId; ?>">
@@ -96,7 +96,6 @@ $sTableId = substr( md5( uniqid( 'IpTable', true ) ), 0, 5 );
 	}
 
 	function add_ip_to_whitelist( $sList ) {
-		$oTable = jQuery('#<?php echo $sTableId; ?>');
 
 		var aData = {
 			'action': 'icwp_wpsf_AddIpToWhiteList',
