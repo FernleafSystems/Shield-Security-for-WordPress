@@ -1,75 +1,87 @@
 <?php
-$sTableId = 'IpTable' . uniqid();
+$sTableId = uniqid('IpTable').rand(0,1000);
 ?>
 
-<?php if ( empty( $auto_black_list ) ) : ?>
-	<p id="<?php echo $sTableId; ?>">
-		There are no IPs on this list.
-		<a href="javascript:refresh_list();">Refresh</a>
-	</p>
+<table class="table table-bordered" id="<?php echo $sTableId; ?>">
+<?php if ( empty( $list_data ) ) : ?>
+	<tr>
+		<td colspan="4">
+			There are no IPs on this list.
+			<a href="javascript:refresh_list( '<?php echo $list_id; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Refresh</a>
+		</td>
+	</tr>
 <?php else: ?>
-	<table class="table table-bordered" id="<?php echo $sTableId; ?>">
+
+	<tr>
+		<th>IP Address</th>
+		<th>Transgressions</th>
+		<th>Last Access</th>
+		<th>Actions</th>
+	</tr>
+	<?php foreach( $list_data as $aIpData ) : ?>
 		<tr>
-			<th>IP Address</th>
-			<th>Transgressions</th>
-			<th>Last Access</th>
-			<th>Actions</th>
+			<td><?php echo $aIpData['ip']; ?></td>
+			<td><?php echo $aIpData['transgressions']; ?></td>
+			<td><?php echo $aIpData['last_access_at']; ?></td>
+			<td><a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>' );">Remove</a></td>
 		</tr>
-		<?php foreach( $auto_black_list as $aIpData ) : ?>
-			<tr>
-				<td><?php echo $aIpData['ip']; ?></td>
-				<td><?php echo $aIpData['transgressions']; ?></td>
-				<td><?php echo $aIpData['last_access_at']; ?></td>
-				<td><a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>' );">Remove</a></td>
-			</tr>
-		<?php endforeach; ?>
-		<tr>
-			<td colspan="4">
-				<a href="javascript:refresh_list();">Refresh</a>
-			</td>
-		</tr>
-	</table>
+	<?php endforeach; ?>
+	<tr>
+		<td colspan="4">
+			<a href="javascript:refresh_list( '<?php echo $list_id; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Refresh</a>
+		</td>
+	</tr>
+
 <?php endif; ?>
 
+<?php if ( $list_id == 'MW' ) : ?>
+	<tr>
+		<td colspan="4">
+			<div class="input-append">
+				<input class="span4" name="new_ip" placeholder="Add IP Address" id="AddIpAddress" type="text">
+				<button class="btn" type="button" id="AddIpButton">
+					Click To Add!</button>
+			</div>
+		</td>
+	</tr>
+<?php endif; ?>
+</table>
+
 <script type="text/javascript" >
-	function refresh_list() {
 
-		var data = {
-			'action': 'icwp_wpsf_GetIpList',
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
+	$oTable = jQuery('#<?php echo $sTableId; ?>');
 
-		request_and_reload(data);
-	}
+	jQuery( document ).ready(function() {
+		jQuery('#AddIpButton', $oTable).click( add_ip_to_whitelist );
+	});
+
 	function remove_ip( $sIp, $sList ) {
 
-		var data = {
+		var aData = {
 			'action': 'icwp_wpsf_RemoveIpFromList',
 			'ip': $sIp,
 			'list': $sList,
 			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
 		};
 
-		request_and_reload(data);
+		$oContentDiv = $oTable.parent();
+
+		request_and_reload( aData, $oContentDiv );
 	}
 
-	function request_and_reload( requestData ) {
-
+	function add_ip_to_whitelist( $sList ) {
 		$oTable = jQuery('#<?php echo $sTableId; ?>');
-		$sContentDiv = $oTable.parent();
 
-		$sContentDiv.html( '<div class="spinner"></div>');
-		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-		jQuery.post(ajaxurl, requestData, function(response) {
+		var aData = {
+			'action': 'icwp_wpsf_AddIpToWhiteList',
+			'ip': jQuery('#AddIpAddress', $oTable).val(),
+			'list': 'MW',
+			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
+		};
 
-			// No data came back, maybe a security error
-			if( response.data ) {
-				$sContentDiv.html( response.data );
-			}
-			else {
-				$sContentDiv.html( 'There was an unknown error' );
-			}
+		$oContentDiv = $oTable.parent();
 
-		});
+		request_and_reload( aData, $oContentDiv );
 	}
+
 </script>

@@ -47,6 +47,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
+		 * @return array
+		 */
+		public function getAllValidLists() {
+			return array( self::LIST_AUTO_BLACK, self::LIST_MANUAL_WHITE, self::LIST_MANUAL_BLACK );
+		}
+
+		/**
 		 * Note: Feature requirements in yaml already checks that all of these functions/constants are available
 		 *
 		 * @return string|false
@@ -59,9 +66,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$sIp = $this->human_ip();
 
 			// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
-			return
-				filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
-				&& ( $sThisServerIp != $sIp );
+			return $this->isValidIp( $sIp ) && ( $sThisServerIp != $sIp );
+		}
+
+		/**
+		 * @param string $sIp
+		 * @return boolean
+		 */
+		protected function isValidIp( $sIp ) {
+			return filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		}
 
 		/**
@@ -357,12 +370,45 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			return $aData;
 		}
 
+		/**
+		 * @param $sIp
+		 * @return bool|int
+		 */
+		public function addIpToWhiteList( $sIp ) {
+			$bSuccess = false;
+			if ( $this->isValidIp( $sIp ) ){
+				$bSuccess = $this->query_addNewManualWhiteListIp( $sIp );
+			}
+			return $bSuccess;
+		}
+
 		public function removeIpFromList( $sIp, $sList ) {
 			return $this->query_deleteIpFromList( $sIp, $sList );
 		}
 
 		public function removeIpFromListWhiteList( $sIp ) {
 			return $this->removeIpFromList( $sIp, self::LIST_MANUAL_WHITE );
+		}
+
+		/**
+		 * @param string $sIp
+		 * @return bool|int
+		 */
+		protected function query_addNewManualWhiteListIp( $sIp ) {
+
+			// Now add new entry
+			$aNewData = array();
+			$aNewData[ 'ip' ]				= $sIp;
+			$aNewData[ 'label' ]			= 'unset';
+			$aNewData[ 'list' ]				= self::LIST_MANUAL_WHITE;
+			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
+			$aNewData[ 'transgressions' ]	= 0;
+			$aNewData[ 'range' ]			= strpos( $sIp, '/' );
+			$aNewData[ 'last_access_at' ]	= $this->time();
+			$aNewData[ 'created_at' ]		= $this->time();
+
+			$mResult = $this->insertData( $aNewData );
+			return $mResult ? $aNewData : $mResult;
 		}
 
 		/**

@@ -66,30 +66,43 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$this->display( $this->getIpTableDisplayData(), 'feature-ips' );
 		}
 
+		/**
+		 * @return array
+		 */
 		protected function getIpTableDisplayData() {
+			return array( 'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ) );
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getFormatedData_WhiteList() {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
+			return $this->formatIpListData( $oProcessor->getWhitelistData() );
+		}
+		/**
+		 * @return array
+		 */
+		protected function getFormatedData_AutoBlackList() {
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
+			return $this->formatIpListData( $oProcessor->getAutoBlacklistData() );
+		}
 
+		/**
+		 * @param array $aListData
+		 * @return array
+		 */
+		protected function formatIpListData( $aListData ) {
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sTimeFormat = $oWp->getOption( 'time_format' );
 			$sDateFormat = $oWp->getOption( 'date_format' );
 
-			$aWhitelistData = $oProcessor->getWhitelistData();
-			foreach( $aWhitelistData as &$aList ) {
-				$aList[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aList[ 'last_access_at' ] );
+			foreach( $aListData as &$aListItem ) {
+				$aListItem[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'last_access_at' ] );
 			}
-
-			$aBlackListData = $oProcessor->getAutoBlacklistData();
-			foreach( $aBlackListData as &$aList ) {
-				$aList[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aList[ 'last_access_at' ] );
-			}
-
-			return array(
-				'white_list' => $aWhitelistData,
-				'auto_black_list' => $aBlackListData,
-				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
-				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' )
-			);
+			return $aListData;
 		}
 
 		/**
@@ -114,13 +127,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		protected function adminAjaxHandlers() {
 			add_action( 'wp_ajax_icwp_wpsf_GetIpList', array( $this, 'ajaxGetIpList' ) );
 			add_action( 'wp_ajax_icwp_wpsf_RemoveIpFromList', array( $this, 'ajaxRemoveIpFromList' ) );
+			add_action( 'wp_ajax_icwp_wpsf_AddIpToWhiteList', array( $this, 'ajaxAddIpToWhiteList' ) );
 		}
 
 		public function ajaxGetIpList() {
 
 			$bNonce = $this->checkAjaxNonce();
 			if ( $bNonce ) {
-				$sData = $this->renderListTable();
+				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
 				$this->sendAjaxResponse( $bNonce, $sData );
 			}
 		}
@@ -135,9 +149,31 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				$oDp = $this->loadDataProcessor();
 				$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
 
-				$sData = $this->renderListTable();
-
+				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
 				$this->sendAjaxResponse( $bNonce, $sData );
+			}
+		}
+
+		public function ajaxAddIpToWhiteList() {
+
+			$bSuccess = $this->checkAjaxNonce();
+			if ( $bSuccess ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
+
+				$oDp = $this->loadDataProcessor();
+
+				$sIp = $oDp->FetchPost( 'ip', '' );
+				if ( !empty( $sIp ) ) {
+					$mResult = $oProcessor->addIpToWhiteList( $sIp );
+				}
+
+				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+
+//				if ( $mResult === false || $mResult < 1 ) {
+//					$bSuccess = false;
+//				}
+				$this->sendAjaxResponse( $bSuccess, $sData );
 			}
 		}
 
@@ -173,8 +209,35 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$bSuccess ? wp_send_json_success( $mData ) : wp_send_json_error( $mData );
 		}
 
-		protected function renderListTable() {
-			return $this->renderTemplate( 'snippets/ip_list_table.php', $this->getIpTableDisplayData() );
+		protected function renderListTable( $sListToRender ) {
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
+
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sTimeFormat = $oWp->getOption( 'time_format' );
+			$sDateFormat = $oWp->getOption( 'date_format' );
+			$aRenderData = array(
+				'list_id' => $sListToRender,
+				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
+				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' )
+			);
+
+			switch ( $sListToRender ) {
+
+				case $oProcessor::LIST_MANUAL_WHITE :
+					$aRenderData['list_data'] = $this->getFormatedData_WhiteList();
+					break;
+
+				case $oProcessor::LIST_AUTO_BLACK :
+					$aRenderData['list_data'] = $this->getFormatedData_AutoBlackList();
+					break;
+
+				default:
+					$aRenderData['list_data'] = array();
+					break;
+			}
+
+			return $this->renderTemplate( 'snippets/ip_list_table.php', $aRenderData );
 		}
 
 		/**
