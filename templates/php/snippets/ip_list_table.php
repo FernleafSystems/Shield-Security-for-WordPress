@@ -1,5 +1,5 @@
 <?php
-$sTableId = uniqid('IpTable').rand(0,1000);
+$sTableId = substr( md5( uniqid( 'IpTable', true ) ), 0, 5 );
 ?>
 
 <table class="table table-bordered" id="<?php echo $sTableId; ?>">

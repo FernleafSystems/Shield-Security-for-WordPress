@@ -50,7 +50,7 @@
 		margin: 5px 6px;
 	}
 	.wpsf-ip-list .spinner {
-		background: rgba(0, 0, 0, 0) url("images/spinner.gif") no-repeat scroll 0 0 / 20px 20px;
+		background: rgba(0, 0, 0, 0) <?php echo includes_url("images/spinner.gif"); ?> no-repeat scroll 0 0 / 20px 20px;
 		height: 20px;
 		margin: 100px 45%;
 		text-align: center;
