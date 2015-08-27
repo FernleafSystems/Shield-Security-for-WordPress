@@ -164,8 +164,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				$oDp = $this->loadDataProcessor();
 
 				$sIp = $oDp->FetchPost( 'ip', '' );
+				$sLabel = $oDp->FetchPost( 'label', '' );
 				if ( !empty( $sIp ) ) {
-					$mResult = $oProcessor->addIpToWhiteList( $sIp );
+					$mResult = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
 				}
 
 				$sData = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );

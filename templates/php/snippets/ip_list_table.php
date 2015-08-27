@@ -49,7 +49,8 @@ $sTableId = uniqid('IpTable').rand(0,1000);
 		<tr>
 			<td colspan="4">
 				<div class="input-append">
-					<input class="span4" name="new_ip" placeholder="Add IP Address" id="AddIpAddress" type="text">
+					<input class="span3 on_return_send" name="new_ip" placeholder="Add IP Address" id="AddIpAddress" type="text" />
+					<input class="span3 on_return_send" name="new_ip" placeholder="Label" id="AddIpAddressLabel" type="text" />
 					<button class="btn" type="button" id="AddIpButton">Click To Add!</button>
 				</div>
 			</td>
@@ -63,8 +64,8 @@ $sTableId = uniqid('IpTable').rand(0,1000);
 	$oTable = jQuery('#<?php echo $sTableId; ?>');
 
 	jQuery( document ).ready(function() {
-		jQuery('#AddIpButton', $oTable).click( add_ip_to_whitelist );
-		jQuery('#AddIpAddress', $oTable).keypress(function(e) {
+		jQuery( '#AddIpButton', $oTable ).click( add_ip_to_whitelist );
+		jQuery( 'input.on_return_send', $oTable ).keypress(function(e) {
 			if(e.which == 13) {
 				add_ip_to_whitelist();
 			}
@@ -91,6 +92,7 @@ $sTableId = uniqid('IpTable').rand(0,1000);
 		var aData = {
 			'action': 'icwp_wpsf_AddIpToWhiteList',
 			'ip': jQuery('#AddIpAddress', $oTable).val(),
+			'label': jQuery('#AddIpAddressLabel', $oTable).val(),
 			'list': 'MW',
 			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
 		};

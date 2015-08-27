@@ -371,16 +371,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
-		 * @param $sIp
+		 * @param string $sIp
+		 * @param string $sLabel
 		 * @return bool|int
 		 */
-		public function addIpToWhiteList( $sIp ) {
+		public function addIpToWhiteList( $sIp, $sLabel = '' ) {
 			$bSuccess = false;
 			if ( $this->isValidIp( $sIp ) ){
 
 				$aExisting = $this->query_getIpWhiteListData( $sIp );
 				if ( empty( $aExisting ) ) {
-					$bSuccess = $this->query_addNewManualWhiteListIp( $sIp );
+					$bSuccess = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
 				}
 			}
 			return $bSuccess;
@@ -392,14 +393,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 		/**
 		 * @param string $sIp
+		 * @param string $sLabel
 		 * @return bool|int
 		 */
-		protected function query_addNewManualWhiteListIp( $sIp ) {
+		protected function query_addNewManualWhiteListIp( $sIp, $sLabel = '' ) {
 
 			// Now add new entry
 			$aNewData = array();
 			$aNewData[ 'ip' ]				= $sIp;
-			$aNewData[ 'label' ]			= 'unset';
+			$aNewData[ 'label' ]			= empty( $sLabel ) ? _wpsf__('No Label') : $sLabel;
 			$aNewData[ 'list' ]				= self::LIST_MANUAL_WHITE;
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
 			$aNewData[ 'transgressions' ]	= 0;
