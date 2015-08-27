@@ -89,7 +89,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		public function printVisitorIpFooter() {
-			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
+			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() ) );
 		}
 
 		/**

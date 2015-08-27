@@ -41,7 +41,7 @@ $sTableId = 'IpTable'.substr( md5( uniqid( 'ASDF', true ) ), 0, 5 );
 				<?php endif; ?>
 
 				<td class="centered">
-					<a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>' );">Remove</a>
+					<a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Remove</a>
 				</td>
 			</tr>
 		<?php endforeach; ?>
@@ -80,20 +80,6 @@ $sTableId = 'IpTable'.substr( md5( uniqid( 'ASDF', true ) ), 0, 5 );
 			}
 		});
 	});
-
-	function remove_ip( $sIp, $sList ) {
-
-		var aData = {
-			'action': 'icwp_wpsf_RemoveIpFromList',
-			'ip': $sIp,
-			'list': $sList,
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
-
-		$oContentDiv = $oTable.parent();
-
-		request_and_reload( aData, $oContentDiv );
-	}
 
 	function add_ip_to_whitelist( $sList ) {
 

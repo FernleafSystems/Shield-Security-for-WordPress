@@ -21,6 +21,19 @@
 
 		request_and_reload( aData, $oTarget );
 	}
+
+	function remove_ip( $sIp, $sList, $oTarget ) {
+
+		var aData = {
+			'action': 'icwp_wpsf_RemoveIpFromList',
+			'ip': $sIp,
+			'list': $sList,
+			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
+		};
+
+		request_and_reload( aData, $oTarget );
+	}
+
 	function request_and_reload( requestData, $oTarget ) {
 
 		$oTarget.html( '<div class="spinner"></div>');
