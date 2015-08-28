@@ -132,7 +132,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		public function ajaxGetIpList() {
-
 			$bNonce = $this->checkAjaxNonce();
 			if ( $bNonce ) {
 				$sResponseData = array();
@@ -190,20 +189,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		protected function checkAjaxNonce() {
 
 			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
-			if ( empty( $sNonce ) ) {
-				$sMessage = 'Nonce security checking failed - the nonce value was empty.';
+			if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+				$sMessage = _wpsf__('You need to authenticate with the plugin Admin Access Protection system.');
+			}
+			else if ( empty( $sNonce ) ) {
+				$sMessage = _wpsf__('Nonce security checking failed - the nonce value was empty.');
 			}
 			else if ( wp_verify_nonce( $sNonce, 'fable_ip_list_action' ) === false ) {
-				$sMessage = sprintf( 'Nonce security checking failed - the nonce supplied was "%s".', $sNonce );
+				$sMessage = sprintf( _wpsf__('Nonce security checking failed - the nonce supplied was "%s".'), $sNonce );
 			}
 			else {
-				// At this stage we passed the nonce check
-				return true;
+				return true; // At this stage we passed the nonce check
 			}
 
 			// At this stage we haven't returned after success so we failed the nonce check
 			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
-			return false;
+			return false; //unreachable
 		}
 
 		/**

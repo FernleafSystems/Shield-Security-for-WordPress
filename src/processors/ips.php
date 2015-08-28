@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		/**
 		 */
 		public function run() {
-			// Before anything else, verify we can actually get a valid remote IP address
+			// Before anything else, verify we can actually get a valid remote visitor IP address
 			if ( $this->getIsValidRemoteIp() === false ) {
 				return;
 			}
@@ -40,9 +40,39 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
+			}
+		}
 
-				// We must allow for black marking of an IP
-				add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+		public function action_doFeatureProcessorShutdown () {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( ! $oFO->getIsPluginDeleting() ) {
+
+				if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
+					$this->blackMarkCurrentVisitor();
+				}
+
+				$this->addFilterIpsToWhiteList();
+				$this->moveIpsFromLegacyWhiteList();
+			}
+		}
+
+		protected function addFilterIpsToWhiteList() {
+			$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
+			if ( !empty( $aIps ) && is_array( $aIps ) ) {
+				foreach( $aIps as $sIP => $sLabel ) {
+					$this->addIpToWhiteList( $sIP, $sLabel );
+				}
+			}
+		}
+
+		protected function moveIpsFromLegacyWhiteList() {
+			$aIps = $this->getController()->loadCorePluginFeatureHandler()->getIpWhitelistOption();
+			if ( !empty( $aIps ) && is_array( $aIps ) ) {
+				foreach( $aIps as $nIndex => $sIP ) {
+					$this->addIpToWhiteList( $sIP, 'legacy' );
+				}
 			}
 		}
 
@@ -66,15 +96,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$sIp = $this->human_ip();
 
 			// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
-			return $this->isValidIp( $sIp ) && ( $sThisServerIp != $sIp );
+			return $this->loadIpProcessor()->isValidIp( $sIp, true ) && ( $sThisServerIp != $sIp );
 		}
 
 		/**
 		 * @param string $sIp
 		 * @return boolean
 		 */
-		protected function isValidIp( $sIp ) {
-			return filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+		protected function isValidIpOrRange( $sIp ) {
+			$oIP = $this->loadIpProcessor();
+			return $oIP->isValidIp( $sIp, true ) || $oIP->isValidIpRange( $sIp );
 		}
 
 		/**
@@ -222,6 +253,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		protected function getIsVisitorWhitelisted() {
 			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false );
+		}
+
+		/**
+		 */
+		protected function blackMarkCurrentVisitor() {
+			// Never black mark IPs that are on the whitelist
+			if ( $this->getIsVisitorWhitelisted() ) {
+				return;
+			}
+
+			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
+			if ( $bDoBlackMark ) {
+				$this->blackMarkIp( $this->human_ip() );
+			}
 		}
 
 		/**
@@ -377,12 +422,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		public function addIpToWhiteList( $sIp, $sLabel = '' ) {
 			$bSuccess = false;
-			if ( $this->isValidIp( $sIp ) ){
+			if ( $this->isValidIpOrRange( $sIp ) ) {
 
-				$aExisting = $this->query_getIpWhiteListData( $sIp );
+				$aIpData = $this->query_getIpWhiteListData( $sIp );
 				if ( empty( $aExisting ) ) {
-					$bSuccess = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
+					$aIpData = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
 				}
+				$bSuccess = !empty( $aIpData ) && is_array( $aIpData );
 			}
 			return $bSuccess;
 		}

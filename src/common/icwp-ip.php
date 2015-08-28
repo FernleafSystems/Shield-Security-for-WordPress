@@ -120,6 +120,31 @@ if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
 		}
 
 		/**
+		 * @param string $sIp
+		 * @param bool $bOnlyPublicRemotes
+		 * @return boolean
+		 */
+		public function isValidIp( $sIp, $bOnlyPublicRemotes = false ) {
+			$flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
+			if ( $bOnlyPublicRemotes ) {
+				$flags = $flags | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+			}
+			return filter_var( $sIp, FILTER_VALIDATE_IP, $flags );
+		}
+
+		/**
+		 * @param string $sIp
+		 * @return boolean
+		 */
+		public function isValidIpRange( $sIp ) {
+			if ( strpos( $sIp, '/' ) == false ) {
+				return false;
+			}
+			$aParts = explode( '/', $sIp );
+			return filter_var( $aParts[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) && ( 0 < $aParts[1] && $aParts[1] < 33 );
+		}
+
+		/**
 		 * @return string|false
 		 */
 		public static function WhatIsMyIp() {
