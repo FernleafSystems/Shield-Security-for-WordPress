@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				}
 
 				$this->addFilterIpsToWhiteList();
-				$this->addLegacyIpsToWhiteList();
+				$this->moveIpsFromLegacyWhiteList();
 			}
 		}
 
@@ -67,10 +67,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			}
 		}
 
-		protected function addLegacyIpsToWhiteList() {
+		protected function moveIpsFromLegacyWhiteList() {
 			$aIps = $this->getController()->loadCorePluginFeatureHandler()->getIpWhitelistOption();
 			if ( !empty( $aIps ) && is_array( $aIps ) ) {
-				foreach( $aIps as $sIP ) {
+				foreach( $aIps as $nIndex => $sIP ) {
 					$this->addIpToWhiteList( $sIP, 'legacy' );
 				}
 			}
@@ -424,10 +424,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$bSuccess = false;
 			if ( $this->isValidIpOrRange( $sIp ) ) {
 
-				$aExisting = $this->query_getIpWhiteListData( $sIp );
+				$aIpData = $this->query_getIpWhiteListData( $sIp );
 				if ( empty( $aExisting ) ) {
-					$bSuccess = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
+					$aIpData = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
 				}
+				$bSuccess = !empty( $aIpData ) && is_array( $aIpData );
 			}
 			return $bSuccess;
 		}
