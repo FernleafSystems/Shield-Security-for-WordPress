@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		/**
 		 */
 		public function run() {
-			// Before anything else, verify we can actually get a valid remote IP address
+			// Before anything else, verify we can actually get a valid remote visitor IP address
 			if ( $this->getIsValidRemoteIp() === false ) {
 				return;
 			}
@@ -43,6 +43,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 				// We must allow for black marking of an IP
 				add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+			}
+		}
+
+		public function action_doFeatureProcessorShutdown () {
+			if ( ! $this->getFeatureOptions()->getIsPluginDeleting() ) {
+
+				$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
+				if ( empty( $aIps ) || !is_array( $aIps ) ) {
+					return;
+				}
+
+				foreach( $aIps as $sIP => $sLabel ) {
+					$this->addIpToWhiteList( $sIP, $sLabel );
+				}
 			}
 		}
 
@@ -66,15 +80,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$sIp = $this->human_ip();
 
 			// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
-			return $this->isValidIp( $sIp ) && ( $sThisServerIp != $sIp );
+			return $this->loadIpProcessor()->isValidIp( $sIp, true ) && ( $sThisServerIp != $sIp );
 		}
 
 		/**
 		 * @param string $sIp
 		 * @return boolean
 		 */
-		protected function isValidIp( $sIp ) {
-			return filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+		protected function isValidIpOrRange( $sIp ) {
+			$oIP = $this->loadIpProcessor();
+			return $oIP->isValidIp( $sIp, true ) || $oIP->isValidIpRange( $sIp );
 		}
 
 		/**
@@ -377,7 +392,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		public function addIpToWhiteList( $sIp, $sLabel = '' ) {
 			$bSuccess = false;
-			if ( $this->isValidIp( $sIp ) ){
+			if ( $this->isValidIpOrRange( $sIp ) ) {
 
 				$aExisting = $this->query_getIpWhiteListData( $sIp );
 				if ( empty( $aExisting ) ) {

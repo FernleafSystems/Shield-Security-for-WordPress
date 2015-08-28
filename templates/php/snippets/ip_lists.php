@@ -1,3 +1,16 @@
+
+<div class="row">
+	<div class="span12">
+		<h2>IP Lists Management</h2>
+		<p>Click the buttons below to manage the respective IP Address Lists</p>
+		<p>
+			<!--<a href="#TB_inline?width=800&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-success">View White List</a>-->
+			<a href="#TB_inline?width=1000&height=600&inlineId=WpsfAutoBlackList" title="Automatic Black List" class="thickbox btn btn-warning btn-large">Manage: Auto Black List</a>
+			<a href="#TB_inline?width=1000&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-info btn-large">Manage: White List</a>
+		</p>
+	</div>
+</div>
+
 <div id="WpsfWhiteList" style="display:none;">
 	<div class="bootstrap-wpadmin wpsf-ip-list" id="IpTableList_White"> </div>
 </div>
@@ -72,11 +85,3 @@
 		width: 20px;
 	}
 </style>
-
-<h3>IP Lists Management</h3>
-<p>Click the button below to manage the automatic black list IP addressses</p>
-<p>
-	<!--<a href="#TB_inline?width=800&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-success">View White List</a>-->
-	<a href="#TB_inline?width=800&height=600&inlineId=WpsfAutoBlackList" title="Automatic Black List" class="thickbox btn btn-warning btn-large">Manage: Auto Black List</a>
-	<a href="#TB_inline?width=800&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-info btn-large">Manage: White List</a>
-</p>
