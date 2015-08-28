@@ -40,22 +40,38 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
-
-				// We must allow for black marking of an IP
-				add_action( $oFO->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			}
 		}
 
 		public function action_doFeatureProcessorShutdown () {
-			if ( ! $this->getFeatureOptions()->getIsPluginDeleting() ) {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
 
-				$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
-				if ( empty( $aIps ) || !is_array( $aIps ) ) {
-					return;
+			if ( ! $oFO->getIsPluginDeleting() ) {
+
+				if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
+					$this->blackMarkCurrentVisitor();
 				}
 
+				$this->addFilterIpsToWhiteList();
+				$this->addLegacyIpsToWhiteList();
+			}
+		}
+
+		protected function addFilterIpsToWhiteList() {
+			$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
+			if ( !empty( $aIps ) && is_array( $aIps ) ) {
 				foreach( $aIps as $sIP => $sLabel ) {
 					$this->addIpToWhiteList( $sIP, $sLabel );
+				}
+			}
+		}
+
+		protected function addLegacyIpsToWhiteList() {
+			$aIps = $this->getController()->loadCorePluginFeatureHandler()->getIpWhitelistOption();
+			if ( !empty( $aIps ) && is_array( $aIps ) ) {
+				foreach( $aIps as $sIP ) {
+					$this->addIpToWhiteList( $sIP, 'legacy' );
 				}
 			}
 		}
@@ -237,6 +253,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		protected function getIsVisitorWhitelisted() {
 			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false );
+		}
+
+		/**
+		 */
+		protected function blackMarkCurrentVisitor() {
+			// Never black mark IPs that are on the whitelist
+			if ( $this->getIsVisitorWhitelisted() ) {
+				return;
+			}
+
+			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
+			if ( $bDoBlackMark ) {
+				$this->blackMarkIp( $this->human_ip() );
+			}
 		}
 
 		/**
