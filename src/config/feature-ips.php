@@ -41,7 +41,7 @@ options:
   -
     key: 'transgression_limit'
     section: 'section_auto_black_list'
-    default: 7
+    default: 0
     type: 'integer'
     link_info: 'http://icwp.io/wpsf24'
     link_blog: 'http://icwp.io/wpsf26'
@@ -86,6 +86,14 @@ options:
       - 'last_access_at'
       - 'created_at'
       - 'deleted_at'
+  -
+    key: 'this_server_ip'
+    section: 'section_non_ui'
+    value: ''
+  -
+    key: 'this_server_ip_last_check_at'
+    section: 'section_non_ui'
+    value: 0
 ",
 		_wpsf__( 'IP Manager' ),
 		_wpsf__( 'Manage Visitor IP Address' )

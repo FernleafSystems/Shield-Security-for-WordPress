@@ -28,36 +28,91 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getWhatIsMyServerIp() {
+
+			$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
+			if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
+				$this->loadFileSystemProcessor(); // to ensure the necessary Class exits - we can clean this up later
+				$sThisServerIp = $this->loadIpProcessor()->WhatIsMyIp();
+				if ( is_string( $sThisServerIp ) ) {
+					$this->setOpt( 'this_server_ip', $sThisServerIp );
+				}
+				// we always update so we don't forever check on every single page load
+				$this->setOpt( 'this_server_ip_last_check_at', $this->loadDataProcessor()->time() );
+			}
+			return $sThisServerIp;
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getLastCheckServerIpAt() {
+			return $this->getOpt( 'this_server_ip_last_check_at', 0 );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIfLastCheckServerIpAtHasExpired() {
+			return ( ( $this->loadDataProcessor()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
+		}
+
+		/**
 		 */
 		public function displayFeatureConfigPage( ) {
 			add_thickbox();
 			$this->display( $this->getIpTableDisplayData(), 'feature-ips' );
 		}
 
+		/**
+		 * @return array
+		 */
 		protected function getIpTableDisplayData() {
+			return array( 'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ) );
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getFormatedData_WhiteList() {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
+			return $this->formatIpListData( $oProcessor->getWhitelistData() );
+		}
+		/**
+		 * @return array
+		 */
+		protected function getFormatedData_AutoBlackList() {
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
+			return $this->formatIpListData( $oProcessor->getAutoBlacklistData() );
+		}
 
+		/**
+		 * @param array $aListData
+		 * @return array
+		 */
+		protected function formatIpListData( $aListData ) {
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sTimeFormat = $oWp->getOption( 'time_format' );
 			$sDateFormat = $oWp->getOption( 'date_format' );
 
-			$aWhitelistData = $oProcessor->getWhitelistData();
-			foreach( $aWhitelistData as &$aList ) {
-				$aList[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aList[ 'last_access_at' ] );
+			foreach( $aListData as &$aListItem ) {
+				$aListItem[ 'ip_link' ] =
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						(
+						( $this->loadDataProcessor()->getIpAddressVersion( $aListItem['ip'] ) == 4 ) ?
+							'http://whois.domaintools.com/'.$aListItem['ip']
+							: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $aListItem['ip'] )
+						),
+						$aListItem['ip']
+					);
+				$aListItem[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'last_access_at' ] );
+				$aListItem[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'created_at' ] );
 			}
-
-			$aBlackListData = $oProcessor->getAutoBlacklistData();
-			foreach( $aBlackListData as &$aList ) {
-				$aList[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aList[ 'last_access_at' ] );
-			}
-
-			return array(
-				'white_list' => $aWhitelistData,
-				'auto_black_list' => $aBlackListData,
-				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
-				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' )
-			);
+			return $aListData;
 		}
 
 		/**
@@ -82,29 +137,122 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		protected function adminAjaxHandlers() {
 			add_action( 'wp_ajax_icwp_wpsf_GetIpList', array( $this, 'ajaxGetIpList' ) );
 			add_action( 'wp_ajax_icwp_wpsf_RemoveIpFromList', array( $this, 'ajaxRemoveIpFromList' ) );
+			add_action( 'wp_ajax_icwp_wpsf_AddIpToWhiteList', array( $this, 'ajaxAddIpToWhiteList' ) );
 		}
 
 		public function ajaxGetIpList() {
-			check_ajax_referer( 'fable_ip_list_action' );
-			echo $this->renderListTable();
-			wp_die();
+			$bNonce = $this->checkAjaxNonce();
+			if ( $bNonce ) {
+				$sResponseData = array();
+				$sResponseData['html'] = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+				$this->sendAjaxResponse( $bNonce, $sResponseData );
+			}
 		}
 
 		public function ajaxRemoveIpFromList() {
-			check_ajax_referer( 'fable_ip_list_action' );
 
+			$bSuccess = $this->checkAjaxNonce();
+			if ( $bSuccess ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
+				$sResponseData = array();
+
+				$oDp = $this->loadDataProcessor();
+				$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
+
+				$sResponseData['html'] = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+				$this->sendAjaxResponse( $bSuccess, $sResponseData );
+			}
+		}
+
+		public function ajaxAddIpToWhiteList() {
+
+			$bSuccess = $this->checkAjaxNonce();
+			if ( $bSuccess ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
+				$sResponseData = array();
+
+				$oDp = $this->loadDataProcessor();
+
+				$sIp = $oDp->FetchPost( 'ip', '' );
+				$sLabel = $oDp->FetchPost( 'label', '' );
+				if ( !empty( $sIp ) ) {
+					$mResult = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
+				}
+
+				$sResponseData['html'] = $this->renderListTable( $this->loadDataProcessor()->FetchPost( 'list', '' ) );
+
+//				if ( $mResult === false || $mResult < 1 ) {
+//					$bSuccess = false;
+//				}
+				$this->sendAjaxResponse( $bSuccess, $sResponseData );
+			}
+		}
+
+		/**
+		 * Will send ajax error response immediately upon failure
+		 *
+		 * @return bool
+		 */
+		protected function checkAjaxNonce() {
+
+			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+				$sMessage = _wpsf__('You need to authenticate with the plugin Admin Access Protection system.');
+			}
+			else if ( empty( $sNonce ) ) {
+				$sMessage = _wpsf__('Nonce security checking failed - the nonce value was empty.');
+			}
+			else if ( wp_verify_nonce( $sNonce, 'fable_ip_list_action' ) === false ) {
+				$sMessage = sprintf( _wpsf__('Nonce security checking failed - the nonce supplied was "%s".'), $sNonce );
+			}
+			else {
+				return true; // At this stage we passed the nonce check
+			}
+
+			// At this stage we haven't returned after success so we failed the nonce check
+			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
+			return false; //unreachable
+		}
+
+		/**
+		 * @param $bSuccess
+		 * @param array $aData
+		 */
+		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
+		}
+
+		protected function renderListTable( $sListToRender ) {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
 
-			$oDp = $this->loadDataProcessor();
-			$oProcessor->removeIpFromList( $oDp->FetchPost( 'ip' ), $oDp->FetchPost( 'list' ) );
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sTimeFormat = $oWp->getOption( 'time_format' );
+			$sDateFormat = $oWp->getOption( 'date_format' );
+			$aRenderData = array(
+				'list_id' => $sListToRender,
+				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
+				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' )
+			);
 
-			echo $this->renderListTable();
-			wp_die();
-		}
+			switch ( $sListToRender ) {
 
-		protected function renderListTable() {
-			return $this->renderTemplate( 'snippets/ip_list_table.php', $this->getIpTableDisplayData() );
+				case $oProcessor::LIST_MANUAL_WHITE :
+					$aRenderData['list_data'] = $this->getFormatedData_WhiteList();
+					break;
+
+				case $oProcessor::LIST_AUTO_BLACK :
+					$aRenderData['list_data'] = $this->getFormatedData_AutoBlackList();
+					break;
+
+				default:
+					$aRenderData['list_data'] = array();
+					break;
+			}
+
+			return $this->renderTemplate( 'snippets/ip_list_table.php', $aRenderData );
 		}
 
 		/**

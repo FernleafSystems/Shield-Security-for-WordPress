@@ -89,7 +89,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		public function printVisitorIpFooter() {
-			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
+			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() ) );
 		}
 
 		/**
@@ -113,7 +113,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function adminNoticeYouAreWhitelisted( $aAdminNotices ) {
 
-			if ( $this->fGetIsVisitorWhitelisted( false ) ) {
+			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 
 				$aDisplayData = array(
 					'strings' => array(

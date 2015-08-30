@@ -1328,7 +1328,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_FeatureHandler_Plugin
 	 */
-	public function loadCorePluginFeatureHandler() {
+	public function &loadCorePluginFeatureHandler() {
 		if ( !isset( $this->oFeatureHandlerPlugin ) ) {
 			$this->loadFeatureHandler(
 				array(

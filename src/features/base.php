@@ -513,10 +513,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		protected function setupAjaxHandlers() {
-			if ( $this->getController()->getIsValidAdminArea() ) {
-				$this->adminAjaxHandlers();
-			}
-			else {
+			if ( $this->loadWpFunctionsProcessor()->getIsAjax() ) {
+				if ( is_admin() || is_network_admin() ) {
+					$this->adminAjaxHandlers();
+				}
 				$this->frontEndAjaxHandlers();
 			}
 		}

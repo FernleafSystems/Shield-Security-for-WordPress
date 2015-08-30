@@ -23,6 +23,8 @@ if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
 	 */
 	class ICWP_WPSF_Ip_V1 {
 
+		const IpifyEndpoint = 'https://api.ipify.org';
+
 		/**
 		 * @var ICWP_WPSF_Ip_V1
 		 */
@@ -91,8 +93,7 @@ if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
 		 *
 		 * @throws Exception When IPV6 support is not enabled
 		 */
-		public static function checkIp6($requestIp, $ip)
-		{
+		public static function checkIp6($requestIp, $ip) {
 			if (!((extension_loaded('sockets') && defined('AF_INET6')) || @inet_pton('::1'))) {
 				throw new Exception('Unable to check Ipv6. Check that PHP was not compiled with option "disable-ipv6".');
 			}
@@ -116,6 +117,47 @@ if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
 				}
 			}
 			return true;
+		}
+
+		/**
+		 * @param string $sIp
+		 * @param bool $bOnlyPublicRemotes
+		 * @return boolean
+		 */
+		public function isValidIp( $sIp, $bOnlyPublicRemotes = false ) {
+			$flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
+			if ( $bOnlyPublicRemotes ) {
+				$flags = $flags | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+			}
+			return filter_var( $sIp, FILTER_VALIDATE_IP, $flags );
+		}
+
+		/**
+		 * @param string $sIp
+		 * @return boolean
+		 */
+		public function isValidIpRange( $sIp ) {
+			if ( strpos( $sIp, '/' ) == false ) {
+				return false;
+			}
+			$aParts = explode( '/', $sIp );
+			return filter_var( $aParts[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) && ( 0 < $aParts[1] && $aParts[1] < 33 );
+		}
+
+		/**
+		 * @return string|false
+		 */
+		public static function WhatIsMyIp() {
+
+			$sIp = '';
+			if ( class_exists( 'ICWP_WPSF_WpFilesystem' ) ) {
+				$oWpFs = ICWP_WPSF_WpFilesystem::GetInstance();
+				$sIp = $oWpFs->getUrlContent( self::IpifyEndpoint );
+				if ( empty( $sIp ) || !is_string( $sIp ) ) {
+					$sIp = '';
+				}
+			}
+			return $sIp;
 		}
 	}
 endif;

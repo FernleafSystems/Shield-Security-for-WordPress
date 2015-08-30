@@ -54,69 +54,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return array
 		 */
-		protected function buildFullIpWhitelist() {
-
-			$aWhitelistFromOptions = $this->getIpWhitelistOption();
-
-			$aIpWhitelist = array();
-			$aOldWhitelists = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
-			if ( is_array( $aOldWhitelists ) ) {
-				foreach( $aOldWhitelists as $mKey => $sValue ) {
-					$aIpWhitelist[] = is_string( $mKey ) ? $mKey : $sValue;
-				}
-			}
-
-			$aFullIpWhitelist = array_merge( $aWhitelistFromOptions, $aIpWhitelist );
-			$aFinalPreChecking = array();
-			foreach( $aFullIpWhitelist as $sItem ) {
-				if ( strpos( $sItem, ' ' ) !== false ) {
-					$aParts = explode( ' ', $sItem );
-					$aFinalPreChecking = array_merge( $aFinalPreChecking, $aParts );
-				}
-				else {
-					$aFinalPreChecking[] = $sItem;
-				}
-			}
-
-			$aFinalUnique = array_unique( preg_replace( '#[^0-9a-zA-Z:.-]#', '', $aFinalPreChecking ) );
-
-			$oDp = $this->loadDataProcessor();
-			foreach( $aFinalUnique as $nPos => $sIp ) {
-				if ( !$oDp->verifyIp( $sIp ) ) {
-					unset( $aFinalUnique[$nPos] );
-				}
-			}
-
-			$aDifference = array_diff( $aFinalUnique, $aWhitelistFromOptions );
-			if ( !empty( $aDifference ) ) { // there's nothing new
-				$this->setIpWhitelistOption( $aFinalUnique );
-			}
-
-			return $aFinalUnique;
-		}
-
-		/**
-		 * @return array
-		 */
 		public function getIpWhitelistOption() {
 			$aList = $this->getOpt( 'ip_whitelist', array() );
 			if ( empty( $aList ) || !is_array( $aList ) ){
 				$aList = array();
 			}
 			return $aList;
-		}
-
-		/**
-		 * @param array $aList
-		 *
-		 * @return bool
-		 */
-		private function setIpWhitelistOption( $aList ) {
-			if ( empty( $aList ) || !is_array( $aList ) ){
-				$aList = array();
-			}
-			$this->setOpt( 'ip_whitelist', $aList );
-			$this->doSaveByPassAdminProtection();
 		}
 
 		/**
@@ -262,9 +205,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			if ( empty($nInstalledAt) || $nInstalledAt <= 0 ) {
 				$this->setOpt( 'installation_time', time() );
 			}
-
-			// we only rebuild and verify the white list IP address in the admin area
-			$this->buildFullIpWhitelist();
 		}
 
 		protected function updateHandler() {

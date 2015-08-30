@@ -1,67 +1,99 @@
 <?php
-$sTableId = 'IpTable' . uniqid();
+$sTableId = 'IpTable'.substr( md5( uniqid( 'ASDF', true ) ), 0, 5 );
 ?>
 
-<?php if ( empty( $auto_black_list ) ) : ?>
-	<p id="<?php echo $sTableId; ?>">
-		There are no IPs on this list.
-		<a href="javascript:refresh_list();">Refresh</a>
-	</p>
-<?php else: ?>
-	<table class="table table-bordered" id="<?php echo $sTableId; ?>">
+<table class="table table-bordered" id="<?php echo $sTableId; ?>">
+	<?php if ( empty( $list_data ) ) : ?>
+		<tr>
+			<td colspan="4">
+				There are no IPs on this list.
+				<a href="javascript:refresh_list( '<?php echo $list_id; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Refresh</a>
+			</td>
+		</tr>
+	<?php else: ?>
+
 		<tr>
 			<th>IP Address</th>
-			<th>Transgressions</th>
-			<th>Last Access</th>
+
+			<?php if ( $list_id == 'MW' ) : ?>
+				<th>Label</th>
+				<th>Added</th>
+			<?php else: ?>
+				<th>Transgressions</th>
+				<th>Last Access</th>
+			<?php endif; ?>
+
 			<th>Actions</th>
 		</tr>
-		<?php foreach( $auto_black_list as $aIpData ) : ?>
+
+		<?php foreach( $list_data as $aIpData ) : ?>
 			<tr>
-				<td><?php echo $aIpData['ip']; ?></td>
-				<td><?php echo $aIpData['transgressions']; ?></td>
-				<td><?php echo $aIpData['last_access_at']; ?></td>
-				<td><a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>' );">Remove</a></td>
+				<td>
+					<?php echo $aIpData['ip_link']; ?>
+				</td>
+
+				<?php if ( $list_id == 'MW' ) : ?>
+					<td><?php echo $aIpData['label']; ?></td>
+					<td><?php echo $aIpData['created_at']; ?></td>
+				<?php else: ?>
+					<td><?php echo $aIpData['transgressions']; ?></td>
+					<td><?php echo $aIpData['last_access_at']; ?></td>
+				<?php endif; ?>
+
+				<td class="centered">
+					<a href="javascript:remove_ip( '<?php echo $aIpData['ip']; ?>', '<?php echo $aIpData['list']; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Remove</a>
+				</td>
 			</tr>
 		<?php endforeach; ?>
 		<tr>
-			<td colspan="4">
-				<a href="javascript:refresh_list();">Refresh</a>
+			<td colspan="3">&nbsp;</td>
+			<td  class="centered">
+				<a class="btn" href="javascript:refresh_list( '<?php echo $list_id; ?>', jQuery('#<?php echo $sTableId; ?>').parent() );">Refresh</a>
 			</td>
 		</tr>
-	</table>
-<?php endif; ?>
+
+	<?php endif; ?>
+
+	<?php if ( $list_id == 'MW' ) : ?>
+		<tr>
+			<td colspan="3">
+				<input class="span3 on_return_send" name="new_ip" placeholder="Add IP Address" id="AddIpAddress" type="text" />
+				<input class="span3 on_return_send" name="new_ip" placeholder="Label" id="AddIpAddressLabel" type="text" />
+			</td>
+			<td class="centered">
+				<button class="btn" type="button" id="AddIpButton">Add IP</button>
+			</td>
+		</tr>
+	<?php endif; ?>
+
+</table>
 
 <script type="text/javascript" >
-	function refresh_list() {
 
-		var data = {
-			'action': 'icwp_wpsf_GetIpList',
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
+	$oTable = jQuery('#<?php echo $sTableId; ?>');
 
-		request_and_reload(data);
-	}
-	function remove_ip( $sIp, $sList ) {
-
-		var data = {
-			'action': 'icwp_wpsf_RemoveIpFromList',
-			'ip': $sIp,
-			'list': $sList,
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
-
-		request_and_reload(data);
-	}
-
-	function request_and_reload( requestData ) {
-
-		$oTable = jQuery('#<?php echo $sTableId; ?>');
-		$sContentDiv = $oTable.parent();
-
-		$sContentDiv.html( '<div class="spinner"></div>');
-		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-		jQuery.post(ajaxurl, requestData, function(response) {
-			$sContentDiv.html(response);
+	jQuery( document ).ready(function() {
+		jQuery( '#AddIpButton', $oTable ).click( add_ip_to_whitelist );
+		jQuery( 'input.on_return_send', $oTable ).keypress(function(e) {
+			if(e.which == 13) {
+				add_ip_to_whitelist();
+			}
 		});
+	});
+
+	function add_ip_to_whitelist( $sList ) {
+
+		var aData = {
+			'action': 'icwp_wpsf_AddIpToWhiteList',
+			'ip': jQuery('#AddIpAddress', $oTable).val(),
+			'label': jQuery('#AddIpAddressLabel', $oTable).val(),
+			'list': 'MW',
+			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
+		};
+
+		$oContentDiv = $oTable.parent();
+
+		request_and_reload( aData, $oContentDiv );
 	}
+
 </script>
