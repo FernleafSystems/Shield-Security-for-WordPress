@@ -41,7 +41,7 @@ options:
   -
     key: 'transgression_limit'
     section: 'section_auto_black_list'
-    default: 7
+    default: 0
     type: 'integer'
     link_info: 'http://icwp.io/wpsf24'
     link_blog: 'http://icwp.io/wpsf26'

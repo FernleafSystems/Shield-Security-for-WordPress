@@ -204,14 +204,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			// the best approach here is to do 2x separate queries.  Not ideal, but the logic behind the automatic black list
-			// is comparatively more complex than the simple manual black list, so it doesn't make sense to do 1 big query and
-			// then post-process it all. Better to be highly selective with 2x queries.
-
 			$sIp = $this->human_ip();
 
 			// Manual black list first.
-			$bKill = $this->getIsIpOnManualBlackList( $sIp );
+			$bKill = false;
+//			$bKill = $this->getIsIpOnManualBlackList( $sIp ); // TODO: Not currently implemented
 
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
