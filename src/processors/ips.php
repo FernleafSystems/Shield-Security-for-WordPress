@@ -221,11 +221,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				$bKill = $this->getIsIpAutoBlackListed( $sIp );
-				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
+				if ( $bKill ) {
+					$this->query_updateLastAccessForAutoBlackListIp( $sIp );
+				}
 			}
 
 			if ( $bKill ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Manual Black List with IP address "%s" and their connected was killed.' ), $sIp );
+				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connected was killed.' ), $sIp );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 
 				wp_die(
@@ -601,7 +603,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				esc_sql( $sIp ),
 				self::LIST_AUTO_BLACK,
 				esc_sql( $nTransgressionLimit ),
-				$nSince
+				esc_sql( $nSince )
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult[0] : array();
