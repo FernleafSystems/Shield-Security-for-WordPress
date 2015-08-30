@@ -125,6 +125,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 		/**
 		 * @param WP_User|WP_Error $oUserOrError
+		 * @param string $sUsername
 		 * @return WP_User|WP_Error
 		 */
 		public function verifyIfAuthenticationValid( $oUserOrError, $sUsername ) {
@@ -172,6 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' ),
 					$this->getRemainingTransgressionsForIp() - 1 // we take one off because it hasn't been incremented at this stage
 				)
+				.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
 			);
 		}
 
@@ -232,6 +234,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					).'</h3>'
 					.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
 					.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
+					.'<p><a href="http://icwp.io/6i" target="_blank">'._wpsf__( 'Click here if you are the site owner.' ).'</a></p>'
 				);
 			}
 		}
