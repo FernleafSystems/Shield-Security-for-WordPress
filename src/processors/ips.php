@@ -53,8 +53,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					$this->blackMarkCurrentVisitor();
 				}
 
-				$this->addFilterIpsToWhiteList();
 				$this->moveIpsFromLegacyWhiteList();
+				$this->addFilterIpsToWhiteList();
 			}
 		}
 
@@ -68,11 +68,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		protected function moveIpsFromLegacyWhiteList() {
-			$aIps = $this->getController()->loadCorePluginFeatureHandler()->getIpWhitelistOption();
+			$oCore =& $this->getController()->loadCorePluginFeatureHandler();
+			$aIps = $oCore->getIpWhitelistOption();
 			if ( !empty( $aIps ) && is_array( $aIps ) ) {
 				foreach( $aIps as $nIndex => $sIP ) {
-					$this->addIpToWhiteList( $sIP, 'legacy' );
+					$mResult = $this->addIpToWhiteList( $sIP, 'legacy' );
+					if ( $mResult != false ) {
+						unset( $aIps[ $nIndex ] );
+						$oCore->setOpt( 'ip_whitelist', $aIps ); // not efficient to set every time, but simpler as this should only get run once.
+					}
 				}
+				$oCore->savePluginOptions();
 			}
 		}
 
@@ -419,11 +425,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		public function addIpToWhiteList( $sIp, $sLabel = '' ) {
 			$bSuccess = false;
+			$sIp = trim( $sIp );
 			if ( $this->isValidIpOrRange( $sIp ) ) {
 
 				$aIpData = $this->query_getIpWhiteListData( $sIp );
-				if ( empty( $aExisting ) ) {
+				if ( empty( $aIpData ) ) {
 					$aIpData = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
+				}
+				else if ( $sLabel != $aIpData['label'] ) {
+					$this->query_updateIpRecordLabel( $sLabel, $aIpData );
 				}
 				$bSuccess = !empty( $aIpData ) && is_array( $aIpData );
 			}
@@ -489,6 +499,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				'transgressions'	=> $aCurrentData['transgressions'] + 1,
 				'last_access_at'	=> $this->time(),
 			);
+			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
+		}
+
+		/**
+		 * @param string $sLabel
+		 * @param array $aCurrentData
+		 * @return bool|int
+		 */
+		protected function query_updateIpRecordLabel( $sLabel, $aCurrentData ) {
+			$aUpdated = array( 'label'	=> $sLabel );
 			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
 		}
 
