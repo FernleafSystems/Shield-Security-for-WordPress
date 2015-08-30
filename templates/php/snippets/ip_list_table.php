@@ -29,7 +29,7 @@ $sTableId = 'IpTable'.substr( md5( uniqid( 'ASDF', true ) ), 0, 5 );
 		<?php foreach( $list_data as $aIpData ) : ?>
 			<tr>
 				<td>
-					<a href="http://whois.domaintools.com/<?php echo $aIpData['ip']; ?>" target="_blank"><?php echo $aIpData['ip']; ?></a>
+					<?php echo $aIpData['ip_link']; ?>
 				</td>
 
 				<?php if ( $list_id == 'MW' ) : ?>
