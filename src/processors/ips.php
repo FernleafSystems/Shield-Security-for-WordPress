@@ -53,8 +53,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					$this->blackMarkCurrentVisitor();
 				}
 
-				$this->addFilterIpsToWhiteList();
 				$this->moveIpsFromLegacyWhiteList();
+				$this->addFilterIpsToWhiteList();
 			}
 		}
 
@@ -68,11 +68,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		protected function moveIpsFromLegacyWhiteList() {
-			$aIps = $this->getController()->loadCorePluginFeatureHandler()->getIpWhitelistOption();
+			$oCore =& $this->getController()->loadCorePluginFeatureHandler();
+			$aIps = $oCore->getIpWhitelistOption();
 			if ( !empty( $aIps ) && is_array( $aIps ) ) {
 				foreach( $aIps as $nIndex => $sIP ) {
-					$this->addIpToWhiteList( $sIP, 'legacy' );
+					$mResult = $this->addIpToWhiteList( $sIP, 'legacy' );
+					if ( $mResult != false ) {
+						unset( $aIps[ $nIndex ] );
+						$oCore->setOpt( 'ip_whitelist', $aIps ); // not efficient to set every time, but simpler as this should only get run once.
+					}
 				}
+				$oCore->savePluginOptions();
 			}
 		}
 
@@ -119,6 +125,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 		/**
 		 * @param WP_User|WP_Error $oUserOrError
+		 * @param string $sUsername
 		 * @return WP_User|WP_Error
 		 */
 		public function verifyIfAuthenticationValid( $oUserOrError, $sUsername ) {
@@ -166,6 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' ),
 					$this->getRemainingTransgressionsForIp() - 1 // we take one off because it hasn't been incremented at this stage
 				)
+				.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
 			);
 		}
 
@@ -213,11 +221,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				$bKill = $this->getIsIpAutoBlackListed( $sIp );
-				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
+				if ( $bKill ) {
+					$this->query_updateLastAccessForAutoBlackListIp( $sIp );
+				}
 			}
 
 			if ( $bKill ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Manual Black List with IP address "%s" and their connected was killed.' ), $sIp );
+				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connected was killed.' ), $sIp );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 
 				wp_die(
@@ -226,6 +236,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					).'</h3>'
 					.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
 					.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
+					.'<p><a href="http://icwp.io/6i" target="_blank">'._wpsf__( 'Click here if you are the site owner.' ).'</a></p>'
 				);
 			}
 		}
@@ -419,11 +430,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 */
 		public function addIpToWhiteList( $sIp, $sLabel = '' ) {
 			$bSuccess = false;
+			$sIp = trim( $sIp );
 			if ( $this->isValidIpOrRange( $sIp ) ) {
 
 				$aIpData = $this->query_getIpWhiteListData( $sIp );
-				if ( empty( $aExisting ) ) {
+				if ( empty( $aIpData ) ) {
 					$aIpData = $this->query_addNewManualWhiteListIp( $sIp, $sLabel );
+				}
+				else if ( $sLabel != $aIpData['label'] ) {
+					$this->query_updateIpRecordLabel( $sLabel, $aIpData );
 				}
 				$bSuccess = !empty( $aIpData ) && is_array( $aIpData );
 			}
@@ -489,6 +504,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				'transgressions'	=> $aCurrentData['transgressions'] + 1,
 				'last_access_at'	=> $this->time(),
 			);
+			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
+		}
+
+		/**
+		 * @param string $sLabel
+		 * @param array $aCurrentData
+		 * @return bool|int
+		 */
+		protected function query_updateIpRecordLabel( $sLabel, $aCurrentData ) {
+			$aUpdated = array( 'label'	=> $sLabel );
 			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
 		}
 
@@ -578,7 +603,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				esc_sql( $sIp ),
 				self::LIST_AUTO_BLACK,
 				esc_sql( $nTransgressionLimit ),
-				$nSince
+				esc_sql( $nSince )
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult[0] : array();

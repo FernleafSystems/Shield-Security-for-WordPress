@@ -100,6 +100,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$sDateFormat = $oWp->getOption( 'date_format' );
 
 			foreach( $aListData as &$aListItem ) {
+				$aListItem[ 'ip_link' ] =
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						(
+						( $this->loadDataProcessor()->getIpAddressVersion( $aListItem['ip'] ) == 4 ) ?
+							'http://whois.domaintools.com/'.$aListItem['ip']
+							: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $aListItem['ip'] )
+						),
+						$aListItem['ip']
+					);
 				$aListItem[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'last_access_at' ] );
 				$aListItem[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'created_at' ] );
 			}
