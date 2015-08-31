@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.10.2
+Stable tag: 4.10.3
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -262,9 +262,10 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.10.2 Point Release =
+= 4.10.3 Point Release =
 *Released: 25th August, 2015*
 
+* **(v.3)**  FIXED:       	Another PHP 5.2 incompatibility.
 * **(v.2)**  ADDED:			White Listing UI to the IP Manager - CIDR ranges are supported (also automatically migrates IPs, except ranges, from legacy to new)
 * **(v.2)**  ADDED:			Returned the black marking of failed WP login attempts to the automatic black list system
 * **(v.2)**  ADDED:			Using a 3rd party API service: [ipify.org](https://www.ipify.org/) - to find the server's own IP address so we can ensure it's not used in the black lists
