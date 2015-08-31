@@ -157,7 +157,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sName = _wpsf__( 'IP Whitelist' );
 					$sSummary = _wpsf__( 'IP Address White List' );
 					$sDescription = sprintf( _wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' ) )
-									.'<br />'.sprintf( _wpsf__( 'Your IP address is: %s' ), '<span class="code">'.( $this->loadDataProcessor()->getVisitorIpAddress() ).'</span>' );
+									.'<br />'.sprintf( _wpsf__( 'Your IP address is: %s' ), '<span class="code">'.( $this->loadDataProcessor()->getVisitorIpAddress() ).'</span>' )
+									.'<br /><strong>This option is deprecated - Please use the IP Manager to set white list IPs.</strong>';
 					break;
 
 				case 'block_send_email_address' :
