@@ -41,7 +41,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			}
-			$this->cleanupDatabase();
 		}
 
 		public function action_doFeatureProcessorShutdown () {
@@ -49,11 +48,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$oFO = $this->getFeatureOptions();
 
 			if ( ! $oFO->getIsPluginDeleting() ) {
-
-				if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
-					$this->blackMarkCurrentVisitor();
-				}
-
+				$this->blackMarkCurrentVisitor();
 				$this->moveIpsFromLegacyWhiteList();
 				$this->addFilterIpsToWhiteList();
 			}
@@ -76,10 +71,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					$mResult = $this->addIpToWhiteList( $sIP, 'legacy' );
 					if ( $mResult != false ) {
 						unset( $aIps[ $nIndex ] );
-						$oCore->setOpt( 'ip_whitelist', $aIps ); // not efficient to set every time, but simpler as this should only get run once.
+						$oCore->setOpt( 'ip_whitelist', $aIps );
+						$oCore->savePluginOptions(); // clearly not efficient to set every time, but simpler as this should only get run once.
 					}
 				}
-				$oCore->savePluginOptions();
 			}
 		}
 
@@ -246,6 +241,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return boolean
 		 */
 		public function action_blackMarkIp() {
+
 			// Never black mark IPs that are on the whitelist
 			if ( $this->getIsVisitorWhitelisted() ) {
 				return;
@@ -267,8 +263,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		/**
 		 */
 		protected function blackMarkCurrentVisitor() {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+
 			// Never black mark IPs that are on the whitelist
-			if ( $this->getIsVisitorWhitelisted() ) {
+			if ( !$oFO->getIsAutoBlackListFeatureEnabled() || $this->getIsVisitorWhitelisted() ) {
 				return;
 			}
 
