@@ -239,11 +239,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			switch ( $sListToRender ) {
 
-				case $oProcessor::LIST_MANUAL_WHITE :
+				// this is a hard-coded class... need to change this.  It was $oProcessor:: but 5.2 doesn't supprt.
+				case ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE :
 					$aRenderData['list_data'] = $this->getFormatedData_WhiteList();
 					break;
 
-				case $oProcessor::LIST_AUTO_BLACK :
+				case ICWP_WPSF_Processor_Ips::LIST_AUTO_BLACK :
 					$aRenderData['list_data'] = $this->getFormatedData_AutoBlackList();
 					break;
 
