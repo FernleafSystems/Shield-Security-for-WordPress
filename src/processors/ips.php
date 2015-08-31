@@ -41,6 +41,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			}
+			$this->cleanupDatabase();
 		}
 
 		public function action_doFeatureProcessorShutdown () {
@@ -667,6 +668,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * It'll delete everything older than 24hrs.
 		 */
 		public function cleanupDatabase() {
+
 			if ( !$this->getTableExists() ) {
 				return;
 			}
@@ -674,9 +676,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 			$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
-
-			$nTimeStamp = $this->time() - $nSinceTimeToConsider;
-			$this->deleteAllRowsOlderThan( $nTimeStamp );
+			$this->deleteAllRowsOlderThan( $nSinceTimeToConsider );
 		}
 
 		/**
