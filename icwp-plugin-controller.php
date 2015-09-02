@@ -216,6 +216,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
+
+		// outsource the collection of admin notices
+		if ( is_admin() ) {
+			$this->loadAdminNoticesProcessor()->setActionPrefix( $this->doPluginPrefix() );
+		}
 	}
 
 	/**
