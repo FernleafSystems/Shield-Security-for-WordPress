@@ -64,7 +64,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$oCon = $this->getController();
 				// always show this notice
 				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
-				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
+				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
 				if ( $this->getIfShowAdminNotices() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
@@ -147,23 +147,23 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
-		 * @return array
 		 */
-		public function adminNoticePhpMinimumVersion53( $aAdminNotices ) {
+		public function adminNoticePhpMinimumVersion53() {
 
 			$oDp = $this->loadDataProcessor();
 			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
-				return $aAdminNotices;
+				return;
 			}
+
 			$oCon = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sCurrentMetaValue = $oWp->getUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
-				return $aAdminNotices;
+				return;
 			}
 
 			$aDisplayData = array(
+				'render-slug' => 'minimum-php53',
 				'strings' => array(
 					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
 					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
@@ -178,9 +178,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					'redirect' => $oWp->getUrl_CurrentAdminPage(),
 				)
 			);
-
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'minimum-php53', $aDisplayData );
-			return $aAdminNotices;
+			$this->insertAdminNotice( $aDisplayData );
 		}
 
 		/**
