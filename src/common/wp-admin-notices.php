@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 		}
 
 		public function onWpAdminNotices() {
-			do_action( $this->getActionPrefix().'generate_admin_notices' );
+			do_action( $this->getActionPrefix().'-generate_admin_notices' );
 			foreach( $this->getNotices() as $sAdminNotice ) {
 				echo $sAdminNotice;
 			}

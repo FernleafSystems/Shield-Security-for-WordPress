@@ -63,7 +63,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( $oFO->getController()->getIsValidAdminArea() ) {
 				$oCon = $this->getController();
 				// always show this notice
-				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
+				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
 				add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
 				if ( $this->getIfShowAdminNotices() ) {
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
@@ -130,22 +130,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
 		 * @return array
 		 */
-		public function adminNoticeForceOffActive( $aAdminNotices ) {
-			$oFO = $this->getFeatureOptions();
+		public function adminNoticeForceOffActive() {
 
-			if ( $oFO->getIfOverrideOff() ) {
+			if ( $this->getFeatureOptions()->getIfOverrideOff() ) {
 				$aDisplayData = array(
+					'render-slug' => 'override-forceoff',
 					'strings' => array(
 						'message' => sprintf( _wpsf__('Warning - %s.'), sprintf( _wpsf__('%s is not currently running' ), $this->getController()->getHumanName() ) ),
 						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
 					)
 				);
-				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'override-forceoff', $aDisplayData );
+				$this->insertAdminNotice( $aDisplayData );
 			}
-			return $aAdminNotices;
 		}
 
 		/**

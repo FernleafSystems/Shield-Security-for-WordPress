@@ -136,11 +136,11 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @return ICWP_WPSF_WpAdminNotices
 		 */
 		static public function loadAdminNoticesProcessor() {
-			if ( !isset( self::$oYaml ) ) {
+			if ( !isset( self::$oAdminNotices ) ) {
 				require_once( dirname(__FILE__).ICWP_DS.'wp-admin-notices.php' );
-				self::$oYaml = ICWP_WPSF_WpAdminNotices::GetInstance();
+				self::$oAdminNotices = ICWP_WPSF_WpAdminNotices::GetInstance();
 			}
-			return self::$oYaml;
+			return self::$oAdminNotices;
 		}
 
 		/**

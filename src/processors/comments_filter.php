@@ -28,48 +28,34 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );
-	}
-
-	/**
-	 */
-	public function addToAdminNotices() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeatureOptions();
 
 		// Warning notice about akismet clashing
-		if ( $oFO->getController()->getIsValidAdminArea() ) {
-			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
-		}
+		add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
 	}
 
 	/**
-	 * @param array $aAdminNotices
-	 * @return array
 	 */
-	public function adminNoticeWarningAkismetRunning( $aAdminNotices ) {
+	public function adminNoticeWarningAkismetRunning() {
 		// We only warn when the human spam filter is running
-		if ( !$this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
-			return $aAdminNotices;
+		if ( $this->getController()->getIsValidAdminArea() && $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
+			$oWp = $this->loadWpFunctionsProcessor();
+
+			$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
+			if ( $sActivePluginFile ) {
+				$aDisplayData = array(
+					'render-slug' => 'akismet-running',
+					'strings' => array(
+						'appears_running_akismet' => _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the our human Anti-SPAM filter.' ),
+						'not_recommended' => _wpsf__('This is not recommended and you should disable Akismet.'),
+						'click_to_deactivate' => _wpsf__('Click to deactivate Akismet now.'),
+					),
+					'hrefs' => array(
+						'deactivate' => $oWp->getPluginDeactivateLink( $sActivePluginFile )
+					)
+				);
+				$this->insertAdminNotice( $aDisplayData );
+			}
 		}
-
-		$oWp = $this->loadWpFunctionsProcessor();
-
-		$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
-		if ( $sActivePluginFile ) {
-			$aDisplayData = array(
-				'strings' => array(
-					'appears_running_akismet' => _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the our human Anti-SPAM filter.' ),
-					'not_recommended' => _wpsf__('This is not recommended and you should disable Akismet.'),
-					'click_to_deactivate' => _wpsf__('Click to deactivate Akismet now.'),
-				),
-				'hrefs' => array(
-					'deactivate' => $oWp->getPluginDeactivateLink( $sActivePluginFile )
-				)
-			);
-
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'akismet-running', $aDisplayData );
-		}
-		return $aAdminNotices;
 	}
 
 	/**

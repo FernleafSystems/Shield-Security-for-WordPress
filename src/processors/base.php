@@ -77,6 +77,14 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		}
 
 		/**
+		 * Data must contain 'render-slug' for the template to render
+		 * @param array $aDisplayData
+		 */
+		protected function insertAdminNotice( $aDisplayData ) {
+			$this->loadAdminNoticesProcessor()->addAdminNotice( $this->getFeatureOptions()->renderAdminNotice( $aDisplayData['render-slug'], $aDisplayData ) );
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getAdminNotices() {
@@ -280,26 +288,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 */
 		protected function getFeatureOptions() {
 			return $this->oFeatureOptions;
-		}
-
-		/**
-		 * Provides the basic HTML template for printing a WordPress Admin Notices
-		 *
-		 * @param $sNotice - The message to be displayed.
-		 * @param $sMessageClass - either error or updated
-		 * @param $bPrint - if true, will echo. false will return the string
-		 *
-		 * @return boolean|string
-		 */
-		protected function getAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated', $bPrint = false ) {
-			$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
-			$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
-			if ( $bPrint ) {
-				echo $sFullNotice;
-				return true;
-			} else {
-				return $sFullNotice;
-			}
 		}
 
 		/**
