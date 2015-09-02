@@ -66,9 +66,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
 				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
 				if ( $this->getIfShowAdminNotices() ) {
-					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
+					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
-					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePluginUpgradeAvailable' ) );
+					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePluginUpgradeAvailable' ) );
 					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePostPluginUpgrade' ) );
 				}
 				if ( $oCon->getIsPage_PluginAdmin() ) {
@@ -182,70 +182,59 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
-		 * @return array
 		 */
-		public function adminNoticeMailingListSignup( $aAdminNotices ) {
+		public function adminNoticeMailingListSignup() {
 			$oFO = $this->getFeatureOptions();
 
 			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oFO->prefixOptionKey( 'plugin_mailing_list_signup' ) );
 			if ( $sCurrentMetaValue == 'Y' ) {
-				return $aAdminNotices;
+				return;
 			}
 
 			$nDays = $this->getInstallationDays();
-			if ( $nDays < 5 ) {
-				return $aAdminNotices;
-			}
-
-			$aDisplayData = array(
-				'strings' => array(
-					'yes' => "Yes please! I'd love to join in and learn more",
-					'no' => "No thanks, I'm not interested in such groups",
-					'we_dont_spam' => "(don't worry, we don't SPAM. Ever.)",
-					'your_name' => _wpsf__( 'Your Name' ),
-					'your_email' => _wpsf__( 'Your Email' ),
-					'summary' => 'The WordPress Simple Firewall team is running an initiative (with currently 1000+ members) to raise awareness of WordPress Security
+			if ( $nDays >= 5 ) {
+				$aDisplayData = array(
+					'render-slug' => 'security-group-signup',
+					'strings' => array(
+						'yes' => "Yes please! I'd love to join in and learn more",
+						'no' => "No thanks, I'm not interested in such groups",
+						'we_dont_spam' => "(don't worry, we don't SPAM. Ever.)",
+						'your_name' => _wpsf__( 'Your Name' ),
+						'your_email' => _wpsf__( 'Your Email' ),
+						'summary' => 'The WordPress Simple Firewall team is running an initiative (with currently 1000+ members) to raise awareness of WordPress Security
 				and to provide further help with the WordPress Simple Firewall plugin. Get Involved here:',
-				),
-				'hrefs' => array(
-					'form_action' => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
-					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1'
-				),
-				'install_days' => $nDays
-			);
-
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'security-group-signup', $aDisplayData );
-			return $aAdminNotices;
+					),
+					'hrefs' => array(
+						'form_action' => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
+						'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_mailing_list_signup' ).'=1'
+					),
+					'install_days' => $nDays
+				);
+				$this->insertAdminNotice( $aDisplayData );
+			}
 		}
 
 		/**
-		 * @param array $aAdminNotices
-		 * @return array
 		 */
-		public function adminNoticePluginUpgradeAvailable( $aAdminNotices ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sBaseFile = $oFO->getController()->getPluginBaseFile();
+		public function adminNoticePluginUpgradeAvailable() {
 
+			$sBaseFile = $this->getController()->getPluginBaseFile();
 			$oWp = $this->loadWpFunctionsProcessor();
-			// Don't show on the update page
-			if ( $oWp->getIsPage_Updates() || !$oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) {
-				return $aAdminNotices;
+
+			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
+
+				$aDisplayData = array(
+					'render-slug' => 'plugin_update_available',
+					'strings' => array(
+						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
+						'click_update' => _wpsf__( 'Please click to update immediately' )
+					),
+					'hrefs' => array(
+						'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
+					)
+				);
+				$this->insertAdminNotice( $aDisplayData );
 			}
-
-			$aDisplayData = array(
-				'strings' => array(
-					'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
-					'click_update' => _wpsf__( 'Please click to update immediately' )
-				),
-				'hrefs' => array(
-					'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
-				)
-			);
-
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'plugin_update_available', $aDisplayData );
-			return $aAdminNotices;
 		}
 
 		/**
