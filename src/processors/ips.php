@@ -226,7 +226,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connected was killed.' ), $sIp );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 
-				wp_die(
+				$this->loadWpFunctionsProcessor()->wpDie(
 					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
 						'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
 					).'</h3>'

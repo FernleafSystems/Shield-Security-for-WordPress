@@ -88,7 +88,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		public function onWpHookDeactivatePlugin( $sPlugin ) {
 			if ( strpos( $this->getController()->getRootFile(), $sPlugin ) !== false ) {
 				if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
-					wp_die(
+					$this->loadWpFunctionsProcessor()->wpDie(
 						_wpsf__( 'Sorry, you do not have permission to disable this plugin.')
 						. _wpsf__( 'You need to authenticate first.' )
 					);

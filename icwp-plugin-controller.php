@@ -1357,7 +1357,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$bSuccess = true;
 			}
 			catch( Exception $oE ) {
-				wp_die( $oE->getMessage() );
+				$this->loadWpFunctionsProcessor()->wpDie( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;

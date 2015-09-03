@@ -160,7 +160,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		);
 		$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_block_remote' );
 
-		wp_die(
+		$this->loadWpFunctionsProcessor()->wpDie(
 			_wpsf__( 'Sorry, you must login directly from within the site.' )
 			.' '._wpsf__( 'Remote login is not supported.' )
 			.'<br /><a href="http://icwp.io/4n" target="_blank">&rarr;'._wpsf__('More Info').'</a>'
