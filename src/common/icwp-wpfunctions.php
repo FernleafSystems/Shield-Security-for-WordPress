@@ -970,6 +970,28 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function turnOffCache() {
+			if ( !defined( 'DONOTCACHEPAGE' ) ) {
+				define( 'DONOTCACHEPAGE', true );
+			}
+			return DONOTCACHEPAGE;
+		}
+
+		/**
+		 * @param string $sMessage
+		 * @param string $sTitle
+		 * @param bool $bTurnOffCachePage
+		 */
+		public function wpDie( $sMessage, $sTitle = '', $bTurnOffCachePage = true ) {
+			if ( $bTurnOffCachePage ) {
+				$this->turnOffCache();
+			}
+			wp_die( $sMessage, $sTitle );
+		}
+
+		/**
 		 * @return ICWP_WPSF_DataProcessor
 		 */
 		public function loadDataProcessor() {
