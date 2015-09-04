@@ -262,8 +262,13 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.10.3 Point Release =
-*Released: 25th August, 2015*
+= 4.10.4 Point Release =
+*Released: 7th September, 2015*
+
+* **(v.4)**  REMOVED:		The old manual black list option has been completely removed - in favour of the automatic black list system
+
+= 4.10 Series =
+*Released: 23rd August, 2015*
 
 * **(v.3)**  FIXED:       	Another PHP 5.2 incompatibility.
 * **(v.2)**  ADDED:			White Listing UI to the IP Manager - CIDR ranges are supported (also automatically migrates IPs, except ranges, from legacy to new)
@@ -271,10 +276,6 @@ You can either manually upgrade, or WordPress will handle it in due course.
 * **(v.2)**  ADDED:			Using a 3rd party API service: [ipify.org](https://www.ipify.org/) - to find the server's own IP address so we can ensure it's not used in the black lists
 * **(v.2)**  CHANGED:		AJAX calls are handled more robustly with actual error messages where possible.
 * **(v.2)**  FIXED:       	A few black list processing bugs.
-
-= 4.10 Series =
-*Released: 23rd August, 2015*
-
 * **(v.1)**  ADDED:       	UI to view and remove IP address from Automatic Black List Engine.
 * **(v.1)**  FIX:       	Removed transgression counting on failed logins - WP data is inconsistent.
 * **(v.1)**  CHANGED:		Original legacy white list now takes priority over new auto black list
