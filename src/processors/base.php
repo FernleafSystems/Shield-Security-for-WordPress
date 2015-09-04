@@ -10,11 +10,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		private $aAuditEntry;
 
 		/**
-		 * @var array
-		 */
-		protected $aAdminNotices;
-
-		/**
 		 * @var ICWP_WPSF_FeatureHandler_Base
 		 */
 		protected $oFeatureOptions;
@@ -26,7 +21,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$this->oFeatureOptions = $oFeatureOptions;
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
-			add_filter( $oFeatureOptions->doPluginPrefix( 'admin_notices' ), array( $this, 'fGetAdminNotices' ) );
 			add_action( 'init', array( $this, 'addToAdminNotices' ) );
 			$this->reset();
 		}
@@ -53,45 +47,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		abstract public function run();
 
 		/**
-		 * @param array $sNotice
-		 */
-		public function doAddAdminNotice( $sNotice ) {
-			if ( empty( $sNotice ) ) {
-				return;
-			}
-			$aCurrentNotices = $this->getAdminNotices();
-			$aCurrentNotices[] = $sNotice;
-			$this->aAdminNotices = $aCurrentNotices;
-		}
-
-		/**
-		 * @param array $aNotices
-		 *
-		 * @return array
-		 */
-		public function fGetAdminNotices( $aNotices ) {
-			if ( is_array( $aNotices ) ) {
-				$aNotices = array_merge( $aNotices, $this->getAdminNotices() );
-			}
-			return $aNotices;
-		}
-
-		/**
 		 * Data must contain 'render-slug' for the template to render
 		 * @param array $aDisplayData
 		 */
 		protected function insertAdminNotice( $aDisplayData ) {
 			$this->loadAdminNoticesProcessor()->addAdminNotice( $this->getFeatureOptions()->renderAdminNotice( $aDisplayData['render-slug'], $aDisplayData ) );
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getAdminNotices() {
-			if ( !isset( $this->aAdminNotices ) || !is_array( $this->aAdminNotices ) ) {
-				$this->aAdminNotices = array();
-			}
-			return $this->aAdminNotices;
 		}
 
 		/**

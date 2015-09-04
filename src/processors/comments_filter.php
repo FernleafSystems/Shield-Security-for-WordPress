@@ -28,16 +28,17 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );
+	}
 
-		// Warning notice about akismet clashing
-		add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
+	public function addToAdminNotices() {
+		add_action( $this->getFeatureOptions()->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
 	}
 
 	/**
 	 */
 	public function adminNoticeWarningAkismetRunning() {
 		// We only warn when the human spam filter is running
-		if ( $this->getController()->getIsValidAdminArea() && $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
+		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->getController()->getIsValidAdminArea() ) {
 			$oWp = $this->loadWpFunctionsProcessor();
 
 			$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );

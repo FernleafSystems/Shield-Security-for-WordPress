@@ -76,10 +76,6 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		if ( $oFO->getIsEmailTwoFactorAuthEnabled() ) {
 			$this->getProcessorTwoFactor()->run();
 		}
-		else if ( $oFO->getIsTwoFactorAuthOn() )  {
-			//we're here because two-factor auth settings are on, but it's not enabled (probably due to email ability not verified
-			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
-		}
 
 		add_action( 'wp_login_failed', array( $this, 'blackMarkFailedLogin' ), 10, 0 );
 
@@ -87,21 +83,29 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		return true;
 	}
 
+	public function addToAdminNotices() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+
+		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIsEmailTwoFactorAuthEnabled() ) {
+			add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
+		}
+	}
+
 	public function blackMarkFailedLogin() {
 		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 	}
 
 	/**
-	 * @param array $aAdminNotices
-	 * @return array
 	 */
-	public function adminNoticeVerifyEmailAbility( $aAdminNotices ) {
+	public function adminNoticeVerifyEmailAbility() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
 		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIfCanSendEmail() ) {
 
 			$aDisplayData = array(
+				'render-slug' => 'email-verification-sent',
 				'strings' => array(
 					'need_you_confirm' => _wpsf__("Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails."),
 					'please_click_link' => _wpsf__("Please click the link in the email you received."),
@@ -110,9 +114,8 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 					'how_turn_off' => _wpsf__("To turn this notice off, disable Two Factor authentication."),
 				)
 			);
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'email-verification-sent', $aDisplayData );
+			$this->insertAdminNotice( $aDisplayData );
 		}
-		return $aAdminNotices;
 	}
 
 	/**

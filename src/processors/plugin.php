@@ -57,22 +57,24 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		/**
 		 */
 		public function addToAdminNotices() {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oCon = $this->getController();
 
-			if ( $oFO->getController()->getIsValidAdminArea() ) {
-				$oCon = $this->getController();
+			if ( $oCon->getIsValidAdminArea() ) {
+
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeatureOptions();
+
 				// always show this notice
 				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
 				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
 				if ( $this->getIfShowAdminNotices() ) {
 					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
-					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
+					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
 					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePluginUpgradeAvailable' ) );
-					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticePostPluginUpgrade' ) );
+					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePostPluginUpgrade' ) );
 				}
 				if ( $oCon->getIsPage_PluginAdmin() ) {
-					add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
+					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
 				}
 			}
 		}
@@ -108,14 +110,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
-		 * @return array
 		 */
-		public function adminNoticeYouAreWhitelisted( $aAdminNotices ) {
+		public function adminNoticeYouAreWhitelisted() {
 
 			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 
 				$aDisplayData = array(
+					'render-slug' => 'visitor-whitelisted',
 					'strings' => array(
 						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
 						'notice_message' => sprintf(
@@ -124,9 +125,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 						),
 					)
 				);
-				$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'visitor-whitelisted', $aDisplayData );
+				$this->insertAdminNotice( $aDisplayData );
 			}
-			return $aAdminNotices;
 		}
 
 		/**
@@ -224,7 +224,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
 				$aDisplayData = array(
-					'render-slug' => 'plugin_update_available',
+					'render-slug' => 'plugin-update-available',
 					'strings' => array(
 						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
 						'click_update' => _wpsf__( 'Please click to update immediately' )
@@ -244,9 +244,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function adminNoticePostPluginUpgrade( $aAdminNotices ) {
 			$oFO = $this->getFeatureOptions();
 			$oController = $this->getController();
-			$oWp = $this->loadWpFunctionsProcessor();
 
-			$sCurrentMetaValue = $oWp->getUserMeta( $oController->doPluginOptionPrefix( 'current_version' ) );
+			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'current_version' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === $oFO->getVersion() ) {
 				return $aAdminNotices;
 			}
@@ -254,18 +253,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			if ( $this->getInstallationDays() <= 1 ) {
 				$sMessage = sprintf(
-					sprintf( _wpsf__( "Notice - %s" ), "The %s plugin does not automatically turn on features when you install." ),
-					$oController->getHumanName()
+					_wpsf__( "Notice - %s" ),
+					sprintf( _wpsf__( "The %s plugin does not automatically turn on certain features when you install." ), $oController->getHumanName() )
 				);
 			}
 			else {
 				$sMessage = sprintf(
-					sprintf( _wpsf__( "Notice - %s" ), "The %s plugin has been recently upgraded, but please remember that any new features are not automatically enabled." ),
-					$oController->getHumanName()
+					_wpsf__( "Notice - %s" ),
+					sprintf( _wpsf__( "The %s plugin has been recently upgraded, but please remember that new features may not be automatically enabled." ), $oController->getHumanName() )
 				);
 			}
 
 			$aDisplayData = array(
+				'render-slug' => 'plugin-updated',
 				'strings' => array(
 					'main_message' => $sMessage,
 					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
@@ -273,11 +273,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				),
 				'hrefs' => array(
 					'read_homepage' => 'http://icwp.io/27',
-					'hide_notice' => $this->getController()->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_update_notice' ).'=1'
+					'hide_notice' => $oController->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_update_notice' ).'=1'
 				),
 			);
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'plugin_updated', $aDisplayData );
-			return $aAdminNotices;
+			$this->insertAdminNotice( $aDisplayData );
 		}
 
 		/**
@@ -291,23 +290,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
-		 * @return array
 		 */
-		public function adminNoticeTranslations( $aAdminNotices ) {
+		public function adminNoticeTranslations() {
 
 			$oController = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sCurrentMetaValue = $oWp->getUserMeta( $oController->doPluginOptionPrefix( 'plugin_translation_notice' ) );
-			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
-				return $aAdminNotices;
-			}
-
-			if ( $this->getInstallationDays() < 7 ) {
-				return $aAdminNotices;
+			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' || $this->getInstallationDays() < 40 ) {
+				return;
 			}
 
 			$aDisplayData = array(
+				'render-slug' => 'translate-plugin',
 				'strings' => array(
 					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $oController->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
@@ -320,8 +314,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					'translate' => 'http://translate.icontrolwp.com'
 				)
 			);
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'translate-plugin', $aDisplayData );
-			return $aAdminNotices;
+			$this->insertAdminNotice( $aDisplayData );
 		}
 
 		/**
