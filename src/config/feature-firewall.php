@@ -141,13 +141,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'ips_blacklist'
-    section: 'section_blacklist'
-    default: ''
-    type: 'ip_addresses'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
 ",

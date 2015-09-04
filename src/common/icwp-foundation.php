@@ -31,6 +31,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_Ip
 		 */
 		private static $oIp;
+		/**
+		 * @var ICWP_WPSF_WpAdminNotices
+		 */
+		private static $oAdminNotices;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -126,6 +130,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oYaml = ICWP_WPSF_YamlProcessor::GetInstance();
 			}
 			return self::$oYaml;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpAdminNotices
+		 */
+		static public function loadAdminNoticesProcessor() {
+			if ( !isset( self::$oAdminNotices ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-admin-notices.php' );
+				self::$oAdminNotices = ICWP_WPSF_WpAdminNotices::GetInstance();
+			}
+			return self::$oAdminNotices;
 		}
 
 		/**

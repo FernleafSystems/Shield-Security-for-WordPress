@@ -499,7 +499,8 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 		}
 
 		public function isVisitorOnBlacklist() {
-			return $this->isIpOnlist( $this->getOption( 'ips_blacklist', array() ), $this->ip(), $this->sListItemLabel );
+			return false;
+			/* return $this->isIpOnlist( $this->getOption( 'ips_blacklist', array() ), $this->ip(), $this->sListItemLabel ); */
 		}
 
 		/**

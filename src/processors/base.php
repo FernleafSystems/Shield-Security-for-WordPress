@@ -10,11 +10,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		private $aAuditEntry;
 
 		/**
-		 * @var array
-		 */
-		protected $aAdminNotices;
-
-		/**
 		 * @var ICWP_WPSF_FeatureHandler_Base
 		 */
 		protected $oFeatureOptions;
@@ -26,12 +21,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$this->oFeatureOptions = $oFeatureOptions;
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
-			add_filter( $oFeatureOptions->doPluginPrefix( 'admin_notices' ), array( $this, 'fGetAdminNotices' ) );
-			add_action( 'init', array( $this, 'addToAdminNotices' ) );
+			add_action( 'in_admin_header', array( $this, 'addToAdminNotices' ) ); // very specific hook for optimization purposes - it is called right before admin notices
 			$this->reset();
 		}
 
-		public function addToAdminNotices() { }
+		public function addToAdminNotices() {}
 
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
@@ -53,37 +47,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		abstract public function run();
 
 		/**
-		 * @param array $sNotice
+		 * Data must contain 'render-slug' for the template to render
+		 * @param array $aDisplayData
 		 */
-		public function doAddAdminNotice( $sNotice ) {
-			if ( empty( $sNotice ) ) {
-				return;
-			}
-			$aCurrentNotices = $this->getAdminNotices();
-			$aCurrentNotices[] = $sNotice;
-			$this->aAdminNotices = $aCurrentNotices;
-		}
-
-		/**
-		 * @param array $aNotices
-		 *
-		 * @return array
-		 */
-		public function fGetAdminNotices( $aNotices ) {
-			if ( is_array( $aNotices ) ) {
-				$aNotices = array_merge( $aNotices, $this->getAdminNotices() );
-			}
-			return $aNotices;
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getAdminNotices() {
-			if ( !isset( $this->aAdminNotices ) || !is_array( $this->aAdminNotices ) ) {
-				$this->aAdminNotices = array();
-			}
-			return $this->aAdminNotices;
+		protected function insertAdminNotice( $aDisplayData ) {
+			$this->loadAdminNoticesProcessor()->addAdminNotice( $this->getFeatureOptions()->renderAdminNotice( $aDisplayData['render-slug'], $aDisplayData ) );
 		}
 
 		/**
@@ -280,26 +248,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 */
 		protected function getFeatureOptions() {
 			return $this->oFeatureOptions;
-		}
-
-		/**
-		 * Provides the basic HTML template for printing a WordPress Admin Notices
-		 *
-		 * @param $sNotice - The message to be displayed.
-		 * @param $sMessageClass - either error or updated
-		 * @param $bPrint - if true, will echo. false will return the string
-		 *
-		 * @return boolean|string
-		 */
-		protected function getAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated', $bPrint = false ) {
-			$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
-			$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
-			if ( $bPrint ) {
-				echo $sFullNotice;
-				return true;
-			} else {
-				return $sFullNotice;
-			}
 		}
 
 		/**

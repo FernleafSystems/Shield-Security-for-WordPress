@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 				_wpsf__( 'Warning' ),
 				$sMessage
 			);
-			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
+			$this->loadAdminNoticesProcessor()->addRawAdminNotice( $sNoticeMessage, 'error' );
 		}
 
 		return $bConflicted;
@@ -84,10 +84,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 				_wpsf__( 'Warning' ),
 				_wpsf__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.')
 			);
-			$this->doAddAdminNotice( $this->getAdminNoticeHtml( $sNoticeMessage, 'error', false ) );
+			$this->loadAdminNoticesProcessor()->addRawAdminNotice( $sNoticeMessage, 'error' );
 			return true;
 		}
-
 		return false;
 	}
 
