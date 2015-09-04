@@ -16,13 +16,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		 */
 		public function doPrePluginOptionsSave() {
 
-			$aIpBlacklist = $this->getOpt( 'ips_blacklist' );
-			if ( $aIpBlacklist === false ) {
-				$aIpBlacklist = '';
-				$this->setOpt( 'ips_blacklist', $aIpBlacklist );
-			}
-			$this->processIpFilter( 'ips_blacklist', 'icwp_simple_firewall_blacklist_ips' );
-
 			$aPageWhitelist = $this->getOpt( 'page_params_whitelist' );
 			if ( $aPageWhitelist === false ) {
 				$aPageWhitelist = '';
@@ -203,12 +196,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sName = sprintf( _wpsf__( 'Ignore %s' ), _wpsf__( 'Search Engines' ) );
 					$sSummary = _wpsf__( 'Ignore Search Engine Bot Traffic' );
 					$sDescription = _wpsf__( 'The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them.' );
-					break;
-
-				case 'ips_blacklist' :
-					$sName = _wpsf__( 'Blacklist IP Addresses' );
-					$sSummary = _wpsf__( 'Choose IP Addresses that are always blocked from accessing the site' );
-					$sDescription = _wpsf__( 'Take a new line per address. Each IP Address must be valid and will be checked.' );
 					break;
 
 				case 'enable_firewall_log' :
