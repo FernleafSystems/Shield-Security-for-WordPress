@@ -15,12 +15,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists( 'ICWP_WPSF_WpDb_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 
-	class ICWP_WPSF_WpDb_V1 {
+	class ICWP_WPSF_WpDb {
 
 		/**
-		 * @var ICWP_WPSF_WpDb_V1
+		 * @var ICWP_WPSF_WpDb
 		 */
 		protected static $oInstance = NULL;
 
@@ -232,21 +232,6 @@ if ( !class_exists( 'ICWP_WPSF_WpDb_V1', false ) ):
 		private function getWpdb() {
 			global $wpdb;
 			return $wpdb;
-		}
-	}
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
-
-	class ICWP_WPSF_WpDb extends ICWP_WPSF_WpDb_V1 {
-		/**
-		 * @return ICWP_WPSF_WpDb
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

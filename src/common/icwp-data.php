@@ -16,12 +16,12 @@
  *
  */
 
-if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
+if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 
-	class ICWP_WPSF_DataProcessor_V4 {
+	class ICWP_WPSF_DataProcessor {
 
 		/**
-		 * @var ICWP_WPSF_DataProcessor_V4
+		 * @var ICWP_WPSF_DataProcessor
 		 */
 		protected static $oInstance = NULL;
 
@@ -49,6 +49,18 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		 * @var array
 		 */
 		protected $aRequestUriParts;
+
+		protected function __construct() { }
+
+		/**
+		 * @return ICWP_WPSF_DataProcessor
+		 */
+		public static function GetInstance() {
+			if ( is_null( self::$oInstance ) ) {
+				self::$oInstance = new self();
+			}
+			return self::$oInstance;
+		}
 
 		/**
 		 * @return int
@@ -835,21 +847,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor_V4', false ) ):
 		 */
 		public function time() {
 			return self::GetRequestTime();
-		}
-	}
-endif;
-
-if ( !class_exists('ICWP_WPSF_DataProcessor') ):
-
-	class ICWP_WPSF_DataProcessor extends ICWP_WPSF_DataProcessor_V4 {
-		/**
-		 * @return ICWP_WPSF_DataProcessor
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

@@ -15,9 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
+if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 
-	class ICWP_WPSF_WpFunctions_V7 {
+	class ICWP_WPSF_WpFunctions {
 		/**
 		 * @var ICWP_WPSF_WpDb
 		 */
@@ -29,12 +29,12 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		protected $oWpAutomaticUpdater;
 
 		/**
-		 * @var ICWP_WPSF_WpFunctions_V7
+		 * @var ICWP_WPSF_WpFunctions
 		 */
 		protected static $oInstance = NULL;
 
 		/**
-		 * @return ICWP_WPSF_WpFunctions_V7
+		 * @return ICWP_WPSF_WpFunctions
 		 */
 		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
@@ -1008,21 +1008,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
 			}
 			return self::$oWpDb;
-		}
-	}
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
-
-	class ICWP_WPSF_WpFunctions extends ICWP_WPSF_WpFunctions_V7 {
-		/**
-		 * @return ICWP_WPSF_WpFunctions
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

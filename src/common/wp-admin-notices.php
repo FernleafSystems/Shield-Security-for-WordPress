@@ -1,11 +1,11 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 
-	class ICWP_WPSF_WpAdminNotices_V1 {
+	class ICWP_WPSF_WpAdminNotices {
 
 		/**
-		 * @var ICWP_WPSF_WpAdminNotices_V1
+		 * @var ICWP_WPSF_WpAdminNotices
 		 */
 		protected static $oInstance = NULL;
 
@@ -23,6 +23,16 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 		 * @var string
 		 */
 		protected $sActionPrefix = '';
+
+		/**
+		 * @return ICWP_WPSF_WpAdminNotices
+		 */
+		public static function GetInstance() {
+			if ( is_null( self::$oInstance ) ) {
+				self::$oInstance = new self();
+			}
+			return self::$oInstance;
+		}
 
 		protected function __construct() {
 			add_action( 'admin_notices',			array( $this, 'onWpAdminNotices' ) );
@@ -52,16 +62,6 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 		public function setActionPrefix( $sPrefix ) {
 			$this->sActionPrefix = rtrim( $sPrefix, '-' ).'-';
 			return $this;
-		}
-
-		/**
-		 * @return ICWP_WPSF_WpAdminNotices_V1
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 
 		/**
@@ -148,21 +148,6 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 		public function loadDataProcessor() {
 			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
 			return ICWP_WPSF_DataProcessor::GetInstance();
-		}
-	}
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
-
-	class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_WpAdminNotices_V1 {
-		/**
-		 * @return ICWP_WPSF_WpAdminNotices
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;
