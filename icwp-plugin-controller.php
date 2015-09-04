@@ -51,11 +51,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	private $sFlashMessage;
-
-	/**
-	 * @var string
-	 */
 	private $sPluginUrl;
 
 	/**
@@ -203,8 +198,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
 		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
-		add_action( 'admin_notices',					array( $this, 'onWpAdminNotices' ) );
-		add_action( 'network_admin_notices',			array( $this, 'onWpAdminNotices' ) );
 
 		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
@@ -266,7 +259,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpLoaded() {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
-			$this->readFlashMessage();
 		}
 	}
 
@@ -376,46 +368,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aActionLinks;
-	}
-
-	/**
-	 */
-	public function onWpAdminNotices() {
-		if ( $this->getIsValidAdminArea() ) {
-			$aAdminNotices = apply_filters( $this->doPluginPrefix( 'admin_notices' ), array() );
-			if ( !empty( $aAdminNotices ) && is_array( $aAdminNotices ) ) {
-				foreach( $aAdminNotices as $sAdminNotice ) {
-					echo $sAdminNotice;
-				}
-			}
-			$this->flashNotice();
-		}
-		return true;
-	}
-
-	public function addFlashMessage( $sMessage ) {
-		$this->loadDataProcessor()->setCookie( $this->doPluginPrefix( 'flash' ), esc_attr( $sMessage ) );
-	}
-
-	protected function readFlashMessage() {
-
-		$oDp = $this->loadDataProcessor();
-		$sCookieName = $this->doPluginPrefix( 'flash' );
-		$sMessage = $oDp->FetchCookie( $sCookieName, '' );
-		if ( !empty( $sMessage ) ) {
-			$this->sFlashMessage = sanitize_text_field( $sMessage );
-		}
-		$oDp->setDeleteCookie( $sCookieName );
-	}
-
-	protected function flashNotice() {
-		if ( !empty( $this->sFlashMessage ) ) {
-			$aDisplayData = array( 'message' => $this->sFlashMessage );
-			$this->loadRenderer( $this->getPath_Templates() )
-				 ->setTemplate( 'notices/flash-message' )
-				 ->setRenderVars( $aDisplayData )
-				 ->display();
-		}
 	}
 
 	public function onWpEnqueueFrontendCss() {

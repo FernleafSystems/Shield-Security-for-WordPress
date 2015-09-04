@@ -25,10 +25,11 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 		}
 
 		public function onWpAdminNotices() {
-			do_action( $this->getActionPrefix().'-generate_admin_notices' );
+			do_action( $this->getActionPrefix().'generate_admin_notices' );
 			foreach( $this->getNotices() as $sAdminNotice ) {
 				echo $sAdminNotice;
 			}
+			$this->flashNotice();
 		}
 
 		/**
@@ -43,7 +44,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 		 * @return $this
 		 */
 		public function setActionPrefix( $sPrefix ) {
-			$this->sActionPrefix = $sPrefix;
+			$this->sActionPrefix = rtrim( $sPrefix, '-' ).'-';
 			return $this;
 		}
 
@@ -109,6 +110,40 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices_V1', false ) ):
 			} else {
 				return $sFullNotice;
 			}
+		}
+
+		/**
+		 * @param $sMessage
+		 */
+		public function addFlashMessage( $sMessage ) {
+			$this->loadDataProcessor()->setCookie( $this->getActionPrefix().'flash', esc_attr( $sMessage ) );
+		}
+
+		protected function flashNotice() {
+			$sMessage = $this->readFlashMessage();
+			if ( !empty( $sMessage ) ) {
+				echo $this->wrapAdminNoticeHtml( $sMessage );
+			}
+		}
+
+		protected function readFlashMessage() {
+
+			$oDp = $this->loadDataProcessor();
+			$sCookieName = $this->getActionPrefix().'flash';
+			$sMessage = $oDp->FetchCookie( $sCookieName, '' );
+			if ( !empty( $sMessage ) ) {
+				$sMessage = sanitize_text_field( $sMessage );
+			}
+			$oDp->setDeleteCookie( $sCookieName );
+			return $sMessage;
+		}
+
+		/**
+		 * @return ICWP_WPSF_DataProcessor
+		 */
+		public function loadDataProcessor() {
+			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
+			return ICWP_WPSF_DataProcessor::GetInstance();
 		}
 	}
 endif;
