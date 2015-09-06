@@ -96,7 +96,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		$this->doRegisterHooks();
+		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ) ); // this hook then registers everything
 	}
 
 	/**
@@ -187,36 +187,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 */
-	protected function doRegisterHooks() {
-		$this->registerActivationHooks();
-		add_action( 'plugins_loaded',					array( $this, 'onWpPluginsLoaded' ) );
-
-		add_action( 'init',			        			array( $this, 'onWpInit' ) );
-		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
-		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
-
-		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
-		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
-
-		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
-		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
-		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
-
-		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
-		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
-
-		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
-
-		// outsource the collection of admin notices
-		if ( is_admin() ) {
-			$this->loadAdminNoticesProcessor()->setActionPrefix( $this->doPluginPrefix() );
-		}
-	}
-
-	/**
 	 * Registers the plugins activation, deactivate and uninstall hooks.
 	 */
 	protected function registerActivationHooks() {
@@ -243,8 +213,38 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpPluginsLoaded() {
 		$this->doLoadTextDomain();
+		$this->doRegisterHooks();
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ) );
+	}
+
+	/**
+	 */
+	protected function doRegisterHooks() {
+		$this->registerActivationHooks();
+
+		add_action( 'init',			        			array( $this, 'onWpInit' ) );
+		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
+		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
+
+		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
+		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
+
+		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
+		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+
+		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
+
+		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
+
+		// outsource the collection of admin notices
+		if ( is_admin() ) {
+			$this->loadAdminNoticesProcessor()->setActionPrefix( $this->doPluginPrefix() );
+		}
 	}
 
 	/**
