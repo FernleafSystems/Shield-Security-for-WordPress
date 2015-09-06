@@ -45,7 +45,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	public function onWpLogin( $sUsername ) {
-		$oUser = $this->loadWpFunctionsProcessor()->getUserByUsername( $sUsername );
+		$oUser = $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
 
 			if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {

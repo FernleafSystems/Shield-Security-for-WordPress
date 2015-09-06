@@ -128,7 +128,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$sAuditMessage = sprintf( _wpsf__('User "%s" verified their identity using Two-Factor Authentication.'), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
-				$oWp->setUserLoggedIn( $sUsername );
+				$this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 				$oWp->redirectToAdmin();
 			}
 			else {

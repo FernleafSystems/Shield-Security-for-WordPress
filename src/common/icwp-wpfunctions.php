@@ -702,26 +702,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @param $sUsername
-		 *
-		 * @return bool|WP_User
-		 */
-		public function getUserByUsername( $sUsername ) {
-			if ( empty( $sUsername ) ) {
-				return false;
-			}
-
-			if ( version_compare( $this->getWordpressVersion(), '2.8.0', '<' ) ) {
-				$oUser = get_userdatabylogin( $sUsername );
-			}
-			else {
-				$oUser = get_user_by( 'login', $sUsername );
-			}
-
-			return $oUser;
-		}
-
-		/**
 		 * @return array
 		 */
 		public function getAllUserLoginUsernames() {
@@ -808,26 +788,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 			}
 			return empty( $sCurrentPage ) ? '' : $sCurrentPage;
 		}
-
-		/**
-		 * @param string $sUsername
-		 * @return bool
-		 */
-		public function setUserLoggedIn( $sUsername ) {
-
-			$oUser = $this->getUserByUsername( $sUsername );
-			if ( !is_a( $oUser, 'WP_User' ) ) {
-				return false;
-			}
-
-			wp_clear_auth_cookie();
-			wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
-			wp_set_auth_cookie( $oUser->ID, true );
-			do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
-
-			return true;
-		}
-
 
 		/**
 		 * @param string $sPluginFile
@@ -938,6 +898,15 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 
 		/**
 		 * @deprecated
+		 * @param $sUsername
+		 * @return bool|WP_User
+		 */
+		public function getUserByUsername( $sUsername ) {
+			return $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
+		}
+
+		/**
+		 * @deprecated
 		 * @param string $sKey should be already prefixed
 		 * @param int|null $nId - if omitted get for current user
 		 * @return bool|string
@@ -957,6 +926,15 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
 			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sUsername
+		 * @return bool
+		 */
+		public function setUserLoggedIn( $sUsername ) {
+			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 		}
 	}
 endif;

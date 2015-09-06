@@ -1,7 +1,7 @@
 <?php
 if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 
-	class ICWP_WPSF_WpUsers {
+	class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_WpUsers
@@ -39,6 +39,25 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 				}
 			}
 			return null;
+		}
+
+		/**
+		 * @param $sUsername
+		 * @return bool|WP_User
+		 */
+		public function getUserByUsername( $sUsername ) {
+			if ( empty( $sUsername ) ) {
+				return false;
+			}
+
+			if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '2.8.0', '<' ) ) {
+				$oUser = get_userdatabylogin( $sUsername );
+			}
+			else {
+				$oUser = get_user_by( 'login', $sUsername );
+			}
+
+			return $oUser;
 		}
 
 		/**
@@ -84,6 +103,25 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 				$nUserId = $oCurrentUser->ID;
 			}
 			return update_user_meta( $nUserId, $sKey, $mValue );
+		}
+
+		/**
+		 * @param string $sUsername
+		 * @return bool
+		 */
+		public function setUserLoggedIn( $sUsername ) {
+
+			$oUser = $this->getUserByUsername( $sUsername );
+			if ( !is_a( $oUser, 'WP_User' ) ) {
+				return false;
+			}
+
+			wp_clear_auth_cookie();
+			wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
+			wp_set_auth_cookie( $oUser->ID, true );
+			do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
+
+			return true;
 		}
 	}
 
