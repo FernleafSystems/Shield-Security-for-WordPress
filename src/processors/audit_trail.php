@@ -199,8 +199,7 @@ class ICWP_WPSF_AuditTrail_Entries extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDataProcessor();
 
 		if ( empty( $sWpUsername ) ) {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oCurrentUser = $oWp->getCurrentWpUser();
+			$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 			$sWpUsername = empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' );
 		}
 

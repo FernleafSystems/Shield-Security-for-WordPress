@@ -1,9 +1,9 @@
 <?php
-if ( !class_exists( 'ICWP_WPSF_WpWidget_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_WpWidget', false ) ):
 	/**
 	 * Class ICWP_WPSF_WpWidget_V1
 	 */
-	class ICWP_WPSF_WpWidget_V1 extends WP_Widget {
+	class ICWP_WPSF_WpWidget extends WP_Widget {
 
 		/**
 		 * @param array $aWidgetArguments
@@ -18,11 +18,4 @@ if ( !class_exists( 'ICWP_WPSF_WpWidget_V1', false ) ):
 			echo $sContent.$aWidgetArguments[ 'after_widget' ];
 		}
 	}
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_WpWidget', false ) ):
-	/**
-	 * Class ICWP_WPSF_WpWidget
-	 */
-	class ICWP_WPSF_WpWidget extends ICWP_WPSF_WpWidget_V1 { }
 endif;

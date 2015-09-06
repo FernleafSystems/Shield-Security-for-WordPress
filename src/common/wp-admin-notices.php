@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 
-	class ICWP_WPSF_WpAdminNotices {
+	class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_WpAdminNotices

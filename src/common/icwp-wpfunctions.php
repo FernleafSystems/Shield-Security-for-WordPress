@@ -17,11 +17,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 
-	class ICWP_WPSF_WpFunctions {
-		/**
-		 * @var ICWP_WPSF_WpDb
-		 */
-		private static $oWpDb;
+	class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var WP_Automatic_Updater
@@ -814,23 +810,10 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @return null|WP_User
-		 */
-		public function getCurrentWpUser() {
-			if ( is_user_logged_in() ) {
-				$oUser = wp_get_current_user();
-				if ( is_object( $oUser ) && $oUser instanceof WP_User ) {
-					return $oUser;
-				}
-			}
-			return null;
-		}
-
-		/**
 		 * @return integer
 		 */
 		public function getCurrentUserLevel() {
-			$oUser = $this->getCurrentWpUser();
+			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 			return ( is_object($oUser) && ($oUser instanceof WP_User) )? $oUser->get( 'user_level' ) : -1;
 		}
 
@@ -903,7 +886,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function getUserMeta( $sKey, $nId = null ) {
 			$nUserId = $nId;
 			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
+				$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 				if ( is_null( $oCurrentUser ) ) {
 					return false;
 				}
@@ -960,7 +943,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
 			$nUserId = $nId;
 			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
+				$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 				if ( is_null( $oCurrentUser ) ) {
 					return false;
 				}
@@ -989,25 +972,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 				$this->turnOffCache();
 			}
 			wp_die( $sMessage, $sTitle );
-		}
-
-		/**
-		 * @return ICWP_WPSF_DataProcessor
-		 */
-		public function loadDataProcessor() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
-			return ICWP_WPSF_DataProcessor::GetInstance();
-		}
-
-		/**
-		 * @return ICWP_WPSF_WpDb
-		 */
-		public function loadDbProcessor() {
-			if ( !isset( self::$oWpDb ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
-				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
-			}
-			return self::$oWpDb;
 		}
 	}
 endif;

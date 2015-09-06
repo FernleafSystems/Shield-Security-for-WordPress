@@ -35,6 +35,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_WpAdminNotices
 		 */
 		private static $oAdminNotices;
+		/**
+		 * @var ICWP_WPSF_WpUsers
+		 */
+		private static $oWpUsers;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -141,6 +145,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oAdminNotices = ICWP_WPSF_WpAdminNotices::GetInstance();
 			}
 			return self::$oAdminNotices;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpUsers
+		 */
+		static public function loadWpUsersProcessor() {
+			if ( !isset( self::$oWpUsers ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-users.php' );
+				self::$oWpUsers = ICWP_WPSF_WpUsers::GetInstance();
+			}
+			return self::$oWpUsers;
 		}
 
 		/**

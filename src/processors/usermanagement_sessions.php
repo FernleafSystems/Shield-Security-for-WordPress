@@ -83,7 +83,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			}
 
 			// always track activity
-			$oUser = $oWp->getCurrentWpUser();
+			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 			$this->updateSessionLastActivity( $oUser );
 		}
 	}
@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	protected function doVerifyCurrentSession() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		$oUser = $oWp->getCurrentWpUser();
+		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 
 		if ( !is_object( $oUser ) || ! ( $oUser instanceof WP_User ) ) {
 			$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
@@ -320,7 +320,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return boolean
 	 */
 	protected function doTerminateCurrentUserSession() {
-		$oUser = $this->loadWpFunctionsProcessor()->getCurrentWpUser();
+		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
 			return false;
 		}
