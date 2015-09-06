@@ -31,7 +31,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 	}
 
 	public function addToAdminNotices() {
-		add_action( $this->getFeatureOptions()->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeWarningAkismetRunning' ) );
+		$this->adminNoticeWarningAkismetRunning();
 	}
 
 	/**

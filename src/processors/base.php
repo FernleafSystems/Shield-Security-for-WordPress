@@ -21,11 +21,9 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$this->oFeatureOptions = $oFeatureOptions;
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
-			add_action( 'in_admin_header', array( $this, 'addToAdminNotices' ) ); // very specific hook for optimization purposes - it is called right before admin notices
+			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 			$this->reset();
 		}
-
-		public function addToAdminNotices() {}
 
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
@@ -33,6 +31,8 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		public function getController() {
 			return $this->getFeatureOptions()->getController();
 		}
+
+		public function addToAdminNotices() {}
 
 		public function action_doFeatureProcessorShutdown() { }
 

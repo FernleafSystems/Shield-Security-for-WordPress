@@ -60,21 +60,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			$oCon = $this->getController();
 
 			if ( $oCon->getIsValidAdminArea() ) {
-
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeatureOptions();
-
 				// always show this notice
-				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeForceOffActive' ) );
-				add_action( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePhpMinimumVersion53' ) );
+				$this->adminNoticeForceOffActive();
+				$this->adminNoticePhpMinimumVersion53();
 				if ( $this->getIfShowAdminNotices() ) {
-					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeMailingListSignup' ) );
-					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeTranslations' ) );
-					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePluginUpgradeAvailable' ) );
-					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticePostPluginUpgrade' ) );
+					$this->adminNoticeMailingListSignup();
+					$this->adminNoticeTranslations();
+					$this->adminNoticePluginUpgradeAvailable();
+					$this->adminNoticePostPluginUpgrade();
 				}
 				if ( $oCon->getIsPage_PluginAdmin() ) {
-					add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeYouAreWhitelisted' ) );
+					$this->adminNoticeYouAreWhitelisted();
 				}
 			}
 		}
@@ -238,16 +234,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aAdminNotices
-		 * @return array
 		 */
-		public function adminNoticePostPluginUpgrade( $aAdminNotices ) {
+		public function adminNoticePostPluginUpgrade() {
 			$oFO = $this->getFeatureOptions();
 			$oController = $this->getController();
 
 			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'current_version' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === $oFO->getVersion() ) {
-				return $aAdminNotices;
+				return;
 			}
 			$this->updateVersionUserMeta(); // we show the upgrade notice only once.
 

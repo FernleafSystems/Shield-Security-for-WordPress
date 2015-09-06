@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		$oFO = $this->getFeatureOptions();
 
 		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIsEmailTwoFactorAuthEnabled() ) {
-			add_filter( $oFO->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
+			$this->adminNoticeVerifyEmailAbility();
 		}
 	}
 
