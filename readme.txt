@@ -266,6 +266,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 *Released: 7th September, 2015*
 
 * **(v.4)**  REMOVED:		The old manual black list option has been completely removed - in favour of the automatic black list system
+* **(v.4)**  CHANGED:		Revised the order of certain hooks being created to avoid the possible of pluggable.php not being loaded for PHP Shutdown
 
 = 4.10 Series =
 *Released: 23rd August, 2015*
