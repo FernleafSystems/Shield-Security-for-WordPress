@@ -691,17 +691,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @param int $nId
-		 * @return WP_User|null
-		 */
-		public function getUserById( $nId ) {
-			if ( version_compare( $this->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
-				return null;
-			}
-			return get_user_by( 'id', $nId );
-		}
-
-		/**
 		 * @return array
 		 */
 		public function getAllUserLoginUsernames() {
@@ -889,6 +878,15 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function getCurrentUserLevel() {
 			return $this->loadWpUsersProcessor()->getCurrentUserLevel();
+		}
+
+		/**
+		 * @deprecated
+		 * @param int $nId
+		 * @return WP_User|null
+		 */
+		public function getUserById( $nId ) {
+			return $this->loadWpUsersProcessor()->getUserById( $nId );
 		}
 
 		/**

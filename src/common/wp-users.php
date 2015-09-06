@@ -69,6 +69,17 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		}
 
 		/**
+		 * @param int $nId
+		 * @return WP_User|null
+		 */
+		public function getUserById( $nId ) {
+			if ( version_compare( $this->loadWpFunctionsProcessor()->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
+				return null;
+			}
+			return get_user_by( 'id', $nId );
+		}
+
+		/**
 		 * @param string $sKey should be already prefixed
 		 * @param int|null $nId - if omitted get for current user
 		 * @return bool|string
