@@ -128,35 +128,35 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return bool
 	 */
 	protected function doVerifyCurrentSession() {
-		$oWp = $this->loadWpFunctionsProcessor();
+		$oWpUsers = $this->loadWpUsersProcessor();
 		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 
 		if ( !is_object( $oUser ) || ! ( $oUser instanceof WP_User ) ) {
-			$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
+			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
 		}
 
 		$aLoginSessionData = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
 		if ( !$aLoginSessionData ) {
-			$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 4 ) );
+			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 4 ) );
 		}
 
 		// check timeout interval
 		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
 		if ( $nSessionTimeoutInterval > 0 && ( $this->time() - $aLoginSessionData['logged_in_at'] > $nSessionTimeoutInterval ) ) {
-			$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 1 ) );
+			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 1 ) );
 		}
 
 		// check idle timeout interval
 		$nSessionIdleTimeoutInterval = $this->getOption( 'session_idle_timeout_interval', 0 ) * HOUR_IN_SECONDS;
 		if ( intval($nSessionIdleTimeoutInterval) > 0 && ( ($this->time() - $aLoginSessionData['last_activity_at']) > $nSessionIdleTimeoutInterval ) ) {
-			$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 2 ) );
+			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 2 ) );
 		}
 
 		// check login ip address
 		$fLockToIp = $this->getIsOption( 'session_lock_location', 'Y' );
 		$sVisitorIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
 		if ( $fLockToIp && $sVisitorIp != $aLoginSessionData['ip'] ) {
-			$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 3 ) );
+			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 3 ) );
 		}
 
 		return true;

@@ -61,7 +61,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 						$sAuditMessage = sprintf( _wpsf__('User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).'), $oUser->get( 'user_login' ) );
 						$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_logout_unverified' );
 						$this->doStatIncrement( 'login.userverify.fail' );
-						$this->loadWpFunctionsProcessor()->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
+						$this->loadWpUsersProcessor()->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
 					}
 				}
 			}

@@ -714,21 +714,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @param array $aLoginUrlParams
-		 */
-		public function forceUserRelogin( $aLoginUrlParams = array() ) {
-			$this->logoutUser();
-			$this->redirectToLogin( $aLoginUrlParams );
-		}
-
-		/**
-		 * @param string $sRedirectUrl
-		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			empty( $sRedirectUrl ) ? wp_logout() : wp_logout_url( $sRedirectUrl );
-		}
-
-		/**
 		 * @return bool
 		 */
 		public function isMultisite() {
@@ -880,6 +865,16 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 			wp_die( $sMessage, $sTitle );
 		}
 
+		/** DEPRECATED: */
+
+		/**
+		 * @deprecated
+		 * @param array $aLoginUrlParams
+		 */
+		public function forceUserRelogin( $aLoginUrlParams = array() ) {
+			$this->loadWpUsersProcessor()->forceUserRelogin( $aLoginUrlParams );
+		}
+
 		/**
 		 * @deprecated
 		 * @return null|WP_User
@@ -913,6 +908,14 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function getUserMeta( $sKey, $nId = null ) {
 			return $this->loadWpUsersProcessor()->getUserMeta( $sKey, $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sRedirectUrl
+		 */
+		public function logoutUser( $sRedirectUrl = '' ) {
+			$this->loadWpUsersProcessor()->logoutUser( $sRedirectUrl );
 		}
 
 		/**

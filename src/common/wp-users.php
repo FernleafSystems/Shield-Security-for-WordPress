@@ -21,6 +21,14 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		}
 
 		/**
+		 * @param array $aLoginUrlParams
+		 */
+		public function forceUserRelogin( $aLoginUrlParams = array() ) {
+			$this->logoutUser();
+			$this->loadWpFunctionsProcessor()->redirectToLogin( $aLoginUrlParams );
+		}
+
+		/**
 		 * @return integer
 		 */
 		public function getCurrentUserLevel() {
@@ -83,6 +91,13 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 				return '';
 			}
 			return $sCurrentMetaValue;
+		}
+
+		/**
+		 * @param string $sRedirectUrl
+		 */
+		public function logoutUser( $sRedirectUrl = '' ) {
+			empty( $sRedirectUrl ) ? wp_logout() : wp_logout_url( $sRedirectUrl );
 		}
 
 		/**
