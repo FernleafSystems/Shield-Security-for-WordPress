@@ -810,16 +810,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @return integer
-		 */
-		public function getCurrentUserLevel() {
-			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			return ( is_object($oUser) && ($oUser instanceof WP_User) )? $oUser->get( 'user_level' ) : -1;
-		}
-
-		/**
 		 * @param string $sUsername
-		 *
 		 * @return bool
 		 */
 		public function setUserLoggedIn( $sUsername ) {
@@ -879,31 +870,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @param string $sKey should be already prefixed
-		 * @param int|null $nId - if omitted get for current user
-		 * @return bool|string
-		 */
-		public function getUserMeta( $sKey, $nId = null ) {
-			$nUserId = $nId;
-			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
-			}
-
-			$sCurrentMetaValue = get_user_meta( $nUserId, $sKey, true );
-			// A guard whereby if we can't ever get a value for this meta, it means we can never set it.
-			if ( empty( $sCurrentMetaValue ) ) {
-				//the value has never been set, or it's been installed for the first time.
-				$this->updateUserMeta( $sKey, 'temp', $nUserId );
-				return '';
-			}
-			return $sCurrentMetaValue;
-		}
-
-		/**
 		 * @return false|WP_Automatic_Updater
 		 */
 		public function getWpAutomaticUpdater() {
@@ -933,26 +899,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * Updates the user meta data for the current (or supplied user ID)
-		 *
-		 * @param string $sKey
-		 * @param mixed $mValue
-		 * @param integer $nId		-user ID
-		 * @return boolean
-		 */
-		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
-			$nUserId = $nId;
-			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
-			}
-			return update_user_meta( $nUserId, $sKey, $mValue );
-		}
-
-		/**
 		 * @return bool
 		 */
 		public function turnOffCache() {
@@ -972,6 +918,45 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 				$this->turnOffCache();
 			}
 			wp_die( $sMessage, $sTitle );
+		}
+
+		/**
+		 * @deprecated
+		 * @return null|WP_User
+		 */
+		public function getCurrentWpUser() {
+			return $this->loadWpUsersProcessor()->getCurrentWpUser();
+		}
+
+		/**
+		 * @deprecated
+		 * @return integer
+		 */
+		public function getCurrentUserLevel() {
+			return $this->loadWpUsersProcessor()->getCurrentUserLevel();
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sKey should be already prefixed
+		 * @param int|null $nId - if omitted get for current user
+		 * @return bool|string
+		 */
+		public function getUserMeta( $sKey, $nId = null ) {
+			return $this->loadWpUsersProcessor()->getUserMeta( $sKey, $nId );
+		}
+
+		/**
+		 * Updates the user meta data for the current (or supplied user ID)
+		 *
+		 * @deprecated
+		 * @param string $sKey
+		 * @param mixed $mValue
+		 * @param integer $nId		-user ID
+		 * @return boolean
+		 */
+		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
+			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
 		}
 	}
 endif;

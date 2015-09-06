@@ -157,7 +157,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			$oCon = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sCurrentMetaValue = $oWp->getUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ) );
+			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
 				return;
 			}
@@ -186,7 +186,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function adminNoticeMailingListSignup() {
 			$oFO = $this->getFeatureOptions();
 
-			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oFO->prefixOptionKey( 'plugin_mailing_list_signup' ) );
+			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oFO->prefixOptionKey( 'plugin_mailing_list_signup' ) );
 			if ( $sCurrentMetaValue == 'Y' ) {
 				return;
 			}
@@ -245,7 +245,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oController = $this->getController();
 
-			$sCurrentMetaValue = $this->loadWpFunctionsProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'current_version' ) );
+			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'current_version' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === $oFO->getVersion() ) {
 				return $aAdminNotices;
 			}
@@ -281,12 +281,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 		/**
 		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
-		 *
 		 * @param integer $nId
 		 */
 		protected function updateVersionUserMeta( $nId = null ) {
 			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
+			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
 		}
 
 		/**
@@ -295,7 +294,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			$oController = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sCurrentMetaValue = $oWp->getUserMeta( $oController->doPluginOptionPrefix( 'plugin_translation_notice' ) );
+			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'plugin_translation_notice' ) );
 			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' || $this->getInstallationDays() < 40 ) {
 				return;
 			}

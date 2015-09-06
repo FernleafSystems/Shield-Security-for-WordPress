@@ -46,22 +46,21 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpFunctionsProcessor()->getUserByUsername( $sUsername );
-		if ( !( $oUser instanceof WP_User ) ) {
-			return false;
-		}
+		if ( $oUser instanceof WP_User ) {
 
-		if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
-			$this->sendLoginEmailNotification( $oUser );
+			if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
+				$this->sendLoginEmailNotification( $oUser );
+			}
+			$this->setUserLastLoginTime( $oUser );
 		}
-
-		$this->setUserLastLoginTime( $oUser );
 	}
 
 	/**
 	 * @param WP_User $oUser
+	 * @return bool
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$this->loadWpFunctionsProcessor()->updateUserMeta( $this->getUserLastLoginKey(), $this->time(), $oUser->ID );
+		return $this->loadWpUsersProcessor()->updateUserMeta( $this->getUserLastLoginKey(), $this->time(), $oUser->ID );
 	}
 
 	/**
@@ -94,7 +93,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 			return $sContent;
 		}
 		$oWp = $this->loadWpFunctionsProcessor();
-		$nLastLoginTime = $oWp->getUserMeta( $sLastLoginKey, $nUserId );
+		$nLastLoginTime = $this->loadWpUsersProcessor()->getUserMeta( $sLastLoginKey, $nUserId );
 
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
 		if ( !empty( $nLastLoginTime ) && is_numeric( $nLastLoginTime ) ) {
