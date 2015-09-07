@@ -8,6 +8,11 @@ properties:
   show_feature_menu_item: true
   storage_key: 'plugin' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
+admin_notices:
+  'rate_plugin':
+    once: true
+    valid_admin: true
+    delay_days: 30
 # Options Sections
 sections:
   -

@@ -21,7 +21,10 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$this->oFeatureOptions = $oFeatureOptions;
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
-			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+			if ( method_exists( $this, 'addToAdminNotices' ) ) {
+				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+			}
 			$this->reset();
 		}
 
@@ -32,7 +35,17 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			return $this->getFeatureOptions()->getController();
 		}
 
-		public function addToAdminNotices() {}
+		public function autoAddToAdminNotices() {
+			$oCon = $this->getController();
+			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeData ) {
+
+				if ( method_exists( $this, 'addNotice_'.$sNoticeId )
+					&& isset( $aNoticeData['valid_admin'] ) && $aNoticeData['valid_admin'] && $oCon->getIsValidAdminArea() ) {
+
+					call_user_func( array( $this, 'addNotice_' . $sNoticeId ), $aNoticeData );
+				}
+			}
+		}
 
 		public function action_doFeatureProcessorShutdown() { }
 

@@ -29,6 +29,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 		}
 
+		public function addNotice_rate_plugin( $aNoticeData ) {
+			if ( isset( $aNoticeData['delay_days'] ) && is_int( $aNoticeData['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeData['delay_days'] ) ) {
+				return;
+			}
+		}
+
 		/**
 		 */
 		public function adminNoticePhpMinimumVersion53() {
