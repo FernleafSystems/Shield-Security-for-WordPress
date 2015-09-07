@@ -88,7 +88,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @return void
 		 */
 		static public function loadWpWidgets() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-wpwidget.php' );
+			require_once( dirname( __FILE__ ).ICWP_DS.'wp-widget.php' );
 		}
 
 		/**
