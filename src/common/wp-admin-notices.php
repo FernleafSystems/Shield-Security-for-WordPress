@@ -141,13 +141,5 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 			}
 			$oDp->setDeleteCookie( $sCookieName );
 		}
-
-		/**
-		 * @return ICWP_WPSF_DataProcessor
-		 */
-		public function loadDataProcessor() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
-			return ICWP_WPSF_DataProcessor::GetInstance();
-		}
 	}
 endif;
