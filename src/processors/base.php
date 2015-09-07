@@ -39,10 +39,15 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$oCon = $this->getController();
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeData ) {
 
-				if ( method_exists( $this, 'addNotice_'.$sNoticeId )
+				if ( isset( $aNoticeData['once'] ) && $aNoticeData['once'] && $this->getFeatureOptions()->getAdminNoticeIsDismissed( $sNoticeId ) ) {
+					return;
+				}
+
+				$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
+				if ( method_exists( $this, $sMethodName )
 					&& isset( $aNoticeData['valid_admin'] ) && $aNoticeData['valid_admin'] && $oCon->getIsValidAdminArea() ) {
 
-					call_user_func( array( $this, 'addNotice_' . $sNoticeId ), $aNoticeData );
+					call_user_func( array( $this, $sMethodName ), $aNoticeData );
 				}
 			}
 		}
@@ -60,11 +65,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		abstract public function run();
 
 		/**
-		 * Data must contain 'render-slug' for the template to render
+		 * Data must contain 'render_slug' for the template to render
 		 * @param array $aDisplayData
 		 */
 		protected function insertAdminNotice( $aDisplayData ) {
-			$this->loadAdminNoticesProcessor()->addAdminNotice( $this->getFeatureOptions()->renderAdminNotice( $aDisplayData['render-slug'], $aDisplayData ) );
+			$this->loadAdminNoticesProcessor()->addAdminNotice( $this->getFeatureOptions()->renderAdminNotice( $aDisplayData['render_slug'], $aDisplayData ) );
 		}
 
 		/**

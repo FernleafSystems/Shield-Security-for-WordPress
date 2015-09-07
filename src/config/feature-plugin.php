@@ -9,7 +9,7 @@ properties:
   storage_key: 'plugin' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
 admin_notices:
-  'rate_plugin':
+  'rate-plugin':
     once: true
     valid_admin: true
     delay_days: 30

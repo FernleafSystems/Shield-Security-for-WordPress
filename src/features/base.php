@@ -520,8 +520,54 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$this->frontEndAjaxHandlers();
 			}
 		}
-		protected function adminAjaxHandlers() { }
+		protected function adminAjaxHandlers() {
+			add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
+		}
 		protected function frontEndAjaxHandlers() { }
+
+		public function ajaxDismissAdminNotice() {
+
+			$bSuccess = $this->checkAjaxNonce();
+			if ( $bSuccess ) {
+				// Get all notices and if this notice exists, we set it to "hidden"
+				$sNoticeId = sanitize_key( $this->loadDataProcessor()->FetchGet( 'notice_id', '' ) );
+				$aNotices = $this->getOptionsVo()->getAdminNotices();
+				if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices )) {
+					$this->setAdminNoticeAsDismissed( $sNoticeId );
+				}
+				$this->sendAjaxResponse( true );
+			}
+		}
+
+		/**
+		 * Will send ajax error response immediately upon failure
+		 * @return bool
+		 */
+		protected function checkAjaxNonce() {
+
+			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			if ( empty( $sNonce ) ) {
+				$sMessage = _wpsf__( 'Nonce security checking failed - the nonce value was empty.' );
+			}
+			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
+				$sMessage = sprintf( _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
+			}
+			else {
+				return true; // At this stage we passed the nonce check
+			}
+
+			// At this stage we haven't returned after success so we failed the nonce check
+			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
+			return false; //unreachable
+		}
+
+		/**
+		 * @param $bSuccess
+		 * @param array $aData
+		 */
+		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
+		}
 
 		/**
 		 * Saves the options to the WordPress Options store.
@@ -748,6 +794,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
+			$this->handleAdminNoticeClose();
 			return true;
 		}
 
@@ -775,6 +822,50 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		protected function doExtraSubmitProcessing() { }
+
+		/**
+		 * We should only be here after verifying the nonce
+		 */
+		protected function handleAdminNoticeClose() {
+			$oDp = $this->loadDataProcessor();
+			$aNotices = $this->getOptionsVo()->getAdminNotices();
+			foreach( $aNotices as $sNoticeKey => $aNoticeData ) {
+
+				// First round sets the key - there are cases where this meta data doesn't actually get set.
+				// So, we first get the current meta - if it's empty, we set it to a temp value, and move on
+				// Second, if current meta is the temp value, we know we can set it.
+				if ( !$this->getAdminNoticeIsDismissed( $sNoticeKey ) && $oDp->FetchRequest( $sNoticeKey ) == '1' && $oDp->FetchRequest( 'hide' ) == '1' ) {
+					$this->setAdminNoticeAsDismissed( $sNoticeKey );
+				}
+			}
+		}
+
+		/**
+		 * @param string $sNoticeId
+		 */
+		protected function setAdminNoticeAsDismissed( $sNoticeId ) {
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oCurrentUser = $oWpUsers->getCurrentWpUser();
+			if ( !empty( $oCurrentUser ) ) {
+				$oWpUsers->updateUserMeta( $this->prefixOptionKey( $sNoticeId ), 'Y' );
+			}
+		}
+
+		/**
+		 * @param string $sNoticeId
+		 * @return true
+		 */
+		public function getAdminNoticeIsDismissed( $sNoticeId ) {
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oCurrentUser = $oWpUsers->getCurrentWpUser();
+
+			$bDismissed = true;
+			if ( !empty( $oCurrentUser ) ) {
+				$sCurrentMetaValue = $oWpUsers->getUserMeta( $this->prefixOptionKey( $sNoticeId ) );
+				$bDismissed = ( $sCurrentMetaValue == 'Y' );
+			}
+			return $bDismissed;
+		}
 
 		/**
 		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from
@@ -1103,7 +1194,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return string
 		 */
 		public function renderAdminNotice( $sAdminNotice, $aData ) {
-			return $this->renderTemplate( 'notices'.ICWP_DS.$sAdminNotice, $aData );
+			if ( !isset( $aData['icwp_ajax_nonce'] ) ) {
+				$aData[ 'icwp_ajax_nonce' ] = wp_create_nonce( 'icwp_ajax' );
+			}
+			if ( !isset( $aData['icwp_admin_notice_template'] ) ) {
+				$aData[ 'icwp_admin_notice_template' ] = $sAdminNotice;
+			}
+			if ( isset( $aData['notice_classes'] ) ) {
+				if ( is_array( $aData['notice_classes'] ) ) {
+					$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
+				}
+			}
+			if ( empty( $aData[ 'notice_classes' ] ) || !is_string( $aData[ 'notice_classes' ] ) ) {
+				$aData[ 'notice_classes' ] = 'updated';
+			}
+			return $this->renderTemplate( 'notices'.ICWP_DS.'admin-notice-template', $aData );
 		}
 
 		/**
@@ -1112,6 +1217,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return string
 		 */
 		public function renderTemplate( $sTemplate, $aData ) {
+			if ( empty( $aData['unique_render_id'] ) ) {
+				$aData[ 'unique_render_id' ] = uniqid( $this->doPluginPrefix( 'render' ) );
+			}
 			try {
 				$sOutput = $this
 					->loadRenderer( $this->getController()->getPath_Templates() )

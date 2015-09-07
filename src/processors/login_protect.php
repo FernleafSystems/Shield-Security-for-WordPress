@@ -105,7 +105,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIfCanSendEmail() ) {
 
 			$aDisplayData = array(
-				'render-slug' => 'email-verification-sent',
+				'render_slug' => 'email-verification-sent',
 				'strings' => array(
 					'need_you_confirm' => _wpsf__("Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails."),
 					'please_click_link' => _wpsf__("Please click the link in the email you received."),

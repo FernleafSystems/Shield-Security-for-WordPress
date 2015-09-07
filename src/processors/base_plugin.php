@@ -30,9 +30,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		}
 
 		public function addNotice_rate_plugin( $aNoticeData ) {
+			$oDp = $this->loadDataProcessor();
+			$oCon = $this->getController();
+			$oWp = $this->loadWpFunctionsProcessor();
+
 			if ( isset( $aNoticeData['delay_days'] ) && is_int( $aNoticeData['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeData['delay_days'] ) ) {
 				return;
 			}
+
+			$aDisplayData = array(
+				'render_slug' => 'rate-plugin',
+			);
+			$this->insertAdminNotice( $aDisplayData );
 		}
 
 		/**
@@ -52,7 +61,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 
 			$aDisplayData = array(
-				'render-slug' => 'minimum-php53',
+				'render_slug' => 'minimum-php53',
 				'strings' => array(
 					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
 					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
@@ -80,7 +89,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
 				$aDisplayData = array(
-					'render-slug' => 'plugin-update-available',
+					'render_slug' => 'plugin-update-available',
 					'strings' => array(
 						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
 						'click_update' => _wpsf__( 'Please click to update immediately' )
@@ -119,7 +128,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 
 			$aDisplayData = array(
-				'render-slug' => 'plugin-updated',
+				'render_slug' => 'plugin-updated',
 				'strings' => array(
 					'main_message' => $sMessage,
 					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
@@ -154,7 +163,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 
 			$aDisplayData = array(
-				'render-slug' => 'translate-plugin',
+				'render_slug' => 'translate-plugin',
 				'strings' => array(
 					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $oController->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),

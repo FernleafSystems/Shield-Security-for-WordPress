@@ -86,7 +86,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 
 				$aDisplayData = array(
-					'render-slug' => 'visitor-whitelisted',
+					'render_slug' => 'visitor-whitelisted',
 					'strings' => array(
 						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
 						'notice_message' => sprintf(
@@ -106,7 +106,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			if ( $this->getFeatureOptions()->getIfOverrideOff() ) {
 				$aDisplayData = array(
-					'render-slug' => 'override-forceoff',
+					'render_slug' => 'override-forceoff',
+					'notice_classes' => 'error',
 					'strings' => array(
 						'message' => sprintf( _wpsf__('Warning - %s.'), sprintf( _wpsf__('%s is not currently running' ), $this->getController()->getHumanName() ) ),
 						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
@@ -129,7 +130,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			$nDays = $this->getInstallationDays();
 			if ( $nDays >= 5 ) {
 				$aDisplayData = array(
-					'render-slug' => 'security-group-signup',
+					'render_slug' => 'security-group-signup',
 					'strings' => array(
 						'yes' => "Yes please! I'd love to join in and learn more",
 						'no' => "No thanks, I'm not interested in such groups",
