@@ -142,7 +142,7 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 		 */
 		protected function updateTranslationNoticeShownUserMeta( $nId = '', $sValue = 'Y' ) {
 			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_translation_notice' ), $sValue, $nId );
+			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_translation_notice' ), $sValue, $nId );
 		}
 
 		/**
@@ -151,7 +151,7 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 		 */
 		protected function updatePhp53VersionWarning( $nId = '', $sValue = 'Y' ) {
 			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ), $sValue, $nId );
+			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ), $sValue, $nId );
 		}
 
 		/**
@@ -162,7 +162,7 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 		 */
 		protected function updateMailingListSignupShownUserMeta( $nId = '', $sValue = 'Y' ) {
 			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_mailing_list_signup' ), $sValue, $nId );
+			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_mailing_list_signup' ), $sValue, $nId );
 		}
 	}
 

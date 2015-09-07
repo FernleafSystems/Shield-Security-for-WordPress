@@ -97,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			if ( !isset( $this->aAuditEntry ) ) {
 
 				if ( empty( $sWpUsername ) ) {
-					$oCurrentUser = $this->loadWpFunctionsProcessor()->getCurrentWpUser();
+					$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 					$sWpUsername = empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' );
 				}
 
@@ -150,8 +150,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 * @param string $sMessage
 		 */
 		public function writeAuditEntry( $sEvent, $nCategory = 1, $sMessage = '' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oCurrentUser = $oWp->getCurrentWpUser();
+			$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 			$this->aAuditEntry = array(
 				'created_at' => $this->time(),
 				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),

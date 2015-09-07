@@ -62,8 +62,7 @@ if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Users') ):
 				return;
 			}
 
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oNewUser = $oWp->getUserById( $nUserId );
+			$oNewUser = $this->loadWpUsersProcessor()->getUserById( $nUserId );
 
 			$oAuditTrail = $this->getAuditTrailEntries();
 			$oAuditTrail->add(
@@ -88,9 +87,9 @@ if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Users') ):
 				return;
 			}
 
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oDeletedUser = $oWp->getUserById( $nUserId );
-			$oReassignedUser = empty( $nReassigned ) ? null : $oWp->getUserById( $nReassigned );
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oDeletedUser = $oWpUsers->getUserById( $nUserId );
+			$oReassignedUser = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
 
 			// Build the audit message
 			$sAuditMessage =

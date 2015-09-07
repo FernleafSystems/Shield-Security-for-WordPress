@@ -47,9 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$oFO = $this->getFeatureOptions();
 
 			if ( is_user_logged_in() ) {
-
-				$oWp = $this->loadWpFunctionsProcessor();
-				$oUser = $oWp->getCurrentWpUser();
+				$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 				if ( !is_null( $oUser ) ) {
 
 					if ( $this->getUserHasValidAuth( $oUser ) ) {
@@ -63,7 +61,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 						$sAuditMessage = sprintf( _wpsf__('User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).'), $oUser->get( 'user_login' ) );
 						$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_logout_unverified' );
 						$this->doStatIncrement( 'login.userverify.fail' );
-						$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
+						$this->loadWpUsersProcessor()->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
 					}
 				}
 			}
@@ -130,7 +128,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$sAuditMessage = sprintf( _wpsf__('User "%s" verified their identity using Two-Factor Authentication.'), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
-				$oWp->setUserLoggedIn( $sUsername );
+				$this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 				$oWp->redirectToAdmin();
 			}
 			else {

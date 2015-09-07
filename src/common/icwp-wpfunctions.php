@@ -15,13 +15,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
+if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 
-	class ICWP_WPSF_WpFunctions_V7 {
-		/**
-		 * @var ICWP_WPSF_WpDb
-		 */
-		private static $oWpDb;
+	class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var WP_Automatic_Updater
@@ -29,12 +25,12 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		protected $oWpAutomaticUpdater;
 
 		/**
-		 * @var ICWP_WPSF_WpFunctions_V7
+		 * @var ICWP_WPSF_WpFunctions
 		 */
 		protected static $oInstance = NULL;
 
 		/**
-		 * @return ICWP_WPSF_WpFunctions_V7
+		 * @return ICWP_WPSF_WpFunctions
 		 */
 		public static function GetInstance() {
 			if ( is_null( self::$oInstance ) ) {
@@ -695,37 +691,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
-		 * @param int $nId
-		 * @return WP_User|null
-		 */
-		public function getUserById( $nId ) {
-			if ( version_compare( $this->getWordpressVersion(), '2.8.0', '<' ) || !function_exists( 'get_user_by' ) ) {
-				return null;
-			}
-			return get_user_by( 'id', $nId );
-		}
-
-		/**
-		 * @param $sUsername
-		 *
-		 * @return bool|WP_User
-		 */
-		public function getUserByUsername( $sUsername ) {
-			if ( empty( $sUsername ) ) {
-				return false;
-			}
-
-			if ( version_compare( $this->getWordpressVersion(), '2.8.0', '<' ) ) {
-				$oUser = get_userdatabylogin( $sUsername );
-			}
-			else {
-				$oUser = get_user_by( 'login', $sUsername );
-			}
-
-			return $oUser;
-		}
-
-		/**
 		 * @return array
 		 */
 		public function getAllUserLoginUsernames() {
@@ -735,21 +700,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 				$aLogins[] = $oUser->user_login;
 			}
 			return $aLogins;
-		}
-
-		/**
-		 * @param array $aLoginUrlParams
-		 */
-		public function forceUserRelogin( $aLoginUrlParams = array() ) {
-			$this->logoutUser();
-			$this->redirectToLogin( $aLoginUrlParams );
-		}
-
-		/**
-		 * @param string $sRedirectUrl
-		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			empty( $sRedirectUrl ) ? wp_logout() : wp_logout_url( $sRedirectUrl );
 		}
 
 		/**
@@ -814,48 +764,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
-		 * @return null|WP_User
-		 */
-		public function getCurrentWpUser() {
-			if ( is_user_logged_in() ) {
-				$oUser = wp_get_current_user();
-				if ( is_object( $oUser ) && $oUser instanceof WP_User ) {
-					return $oUser;
-				}
-			}
-			return null;
-		}
-
-		/**
-		 * @return integer
-		 */
-		public function getCurrentUserLevel() {
-			$oUser = $this->getCurrentWpUser();
-			return ( is_object($oUser) && ($oUser instanceof WP_User) )? $oUser->get( 'user_level' ) : -1;
-		}
-
-		/**
-		 * @param string $sUsername
-		 *
-		 * @return bool
-		 */
-		public function setUserLoggedIn( $sUsername ) {
-
-			$oUser = $this->getUserByUsername( $sUsername );
-			if ( !is_a( $oUser, 'WP_User' ) ) {
-				return false;
-			}
-
-			wp_clear_auth_cookie();
-			wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
-			wp_set_auth_cookie( $oUser->ID, true );
-			do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
-
-			return true;
-		}
-
-
-		/**
 		 * @param string $sPluginFile
 		 * @return int
 		 */
@@ -896,31 +804,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
-		 * @param string $sKey should be already prefixed
-		 * @param int|null $nId - if omitted get for current user
-		 * @return bool|string
-		 */
-		public function getUserMeta( $sKey, $nId = null ) {
-			$nUserId = $nId;
-			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
-			}
-
-			$sCurrentMetaValue = get_user_meta( $nUserId, $sKey, true );
-			// A guard whereby if we can't ever get a value for this meta, it means we can never set it.
-			if ( empty( $sCurrentMetaValue ) ) {
-				//the value has never been set, or it's been installed for the first time.
-				$this->updateUserMeta( $sKey, 'temp', $nUserId );
-				return '';
-			}
-			return $sCurrentMetaValue;
-		}
-
-		/**
 		 * @return false|WP_Automatic_Updater
 		 */
 		public function getWpAutomaticUpdater() {
@@ -950,26 +833,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 		}
 
 		/**
-		 * Updates the user meta data for the current (or supplied user ID)
-		 *
-		 * @param string $sKey
-		 * @param mixed $mValue
-		 * @param integer $nId		-user ID
-		 * @return boolean
-		 */
-		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
-			$nUserId = $nId;
-			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
-			}
-			return update_user_meta( $nUserId, $sKey, $mValue );
-		}
-
-		/**
 		 * @return bool
 		 */
 		public function turnOffCache() {
@@ -991,38 +854,88 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions_V7', false ) ):
 			wp_die( $sMessage, $sTitle );
 		}
 
+		/** DEPRECATED: */
+
 		/**
-		 * @return ICWP_WPSF_DataProcessor
+		 * @deprecated
+		 * @param array $aLoginUrlParams
 		 */
-		public function loadDataProcessor() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
-			return ICWP_WPSF_DataProcessor::GetInstance();
+		public function forceUserRelogin( $aLoginUrlParams = array() ) {
+			$this->loadWpUsersProcessor()->forceUserRelogin( $aLoginUrlParams );
 		}
 
 		/**
-		 * @return ICWP_WPSF_WpDb
+		 * @deprecated
+		 * @return null|WP_User
 		 */
-		public function loadDbProcessor() {
-			if ( !isset( self::$oWpDb ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
-				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
-			}
-			return self::$oWpDb;
+		public function getCurrentWpUser() {
+			return $this->loadWpUsersProcessor()->getCurrentWpUser();
 		}
-	}
-endif;
 
-if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
-
-	class ICWP_WPSF_WpFunctions extends ICWP_WPSF_WpFunctions_V7 {
 		/**
-		 * @return ICWP_WPSF_WpFunctions
+		 * @deprecated
+		 * @return integer
 		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
+		public function getCurrentUserLevel() {
+			return $this->loadWpUsersProcessor()->getCurrentUserLevel();
+		}
+
+		/**
+		 * @deprecated
+		 * @param int $nId
+		 * @return WP_User|null
+		 */
+		public function getUserById( $nId ) {
+			return $this->loadWpUsersProcessor()->getUserById( $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param $sUsername
+		 * @return bool|WP_User
+		 */
+		public function getUserByUsername( $sUsername ) {
+			return $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sKey should be already prefixed
+		 * @param int|null $nId - if omitted get for current user
+		 * @return bool|string
+		 */
+		public function getUserMeta( $sKey, $nId = null ) {
+			return $this->loadWpUsersProcessor()->getUserMeta( $sKey, $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sRedirectUrl
+		 */
+		public function logoutUser( $sRedirectUrl = '' ) {
+			$this->loadWpUsersProcessor()->logoutUser( $sRedirectUrl );
+		}
+
+		/**
+		 * Updates the user meta data for the current (or supplied user ID)
+		 *
+		 * @deprecated
+		 * @param string $sKey
+		 * @param mixed $mValue
+		 * @param integer $nId		-user ID
+		 * @return boolean
+		 */
+		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
+			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sUsername
+		 * @return bool
+		 */
+		public function setUserLoggedIn( $sUsername ) {
+			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 		}
 	}
 endif;
