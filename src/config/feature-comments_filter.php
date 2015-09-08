@@ -9,6 +9,13 @@ properties:
   storage_key: 'commentsfilter' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
   use_sessions: true
+
+admin_notices:
+  'akismet-running':
+    once: false
+    valid_admin: true
+    type: 'warning'
+
 # Options Sections
 sections:
   -

@@ -29,17 +29,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 		}
 
-		public function addNotice_rate_plugin( $aNoticeData ) {
+		public function addNotice_rate_plugin( $aNoticeAttributes ) {
 			$oDp = $this->loadDataProcessor();
 			$oCon = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
 
-			if ( isset( $aNoticeData['delay_days'] ) && is_int( $aNoticeData['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeData['delay_days'] ) ) {
+			if ( isset( $aNoticeAtributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeAttributes['delay_days'] ) ) {
 				return;
 			}
 
-			$aDisplayData = array(
-				'render_slug' => 'rate-plugin',
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes
 			);
 			$this->insertAdminNotice( $aDisplayData );
 		}

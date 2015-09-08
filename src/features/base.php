@@ -1189,17 +1189,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
-		 * @param string $sAdminNotice
 		 * @param array $aData
 		 * @return string
+		 * @throws Exception
 		 */
-		public function renderAdminNotice( $sAdminNotice, $aData ) {
+		public function renderAdminNotice( $aData ) {
+
+			if ( empty( $aData['notice_attributes'] ) ) {
+				throw new Exception( 'notice_attributes is empty' );
+			}
+
 			if ( !isset( $aData['icwp_ajax_nonce'] ) ) {
 				$aData[ 'icwp_ajax_nonce' ] = wp_create_nonce( 'icwp_ajax' );
 			}
 			if ( !isset( $aData['icwp_admin_notice_template'] ) ) {
-				$aData[ 'icwp_admin_notice_template' ] = $sAdminNotice;
+				$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
 			}
+
 			if ( isset( $aData['notice_classes'] ) ) {
 				if ( is_array( $aData['notice_classes'] ) ) {
 					$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );

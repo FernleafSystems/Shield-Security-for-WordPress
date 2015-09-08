@@ -54,6 +54,26 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			}
 		}
 
+		/**
+		 * @param array $aNoticeAttributes
+		 */
+		public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
+
+			if ( $this->getController()->getIsPage_PluginAdmin() && $this->getIsVisitorWhitelisted() ) {
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
+					'strings' => array(
+						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
+						'notice_message' => sprintf(
+							_wpsf__( 'Notice - %s' ),
+							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
+						),
+					)
+				);
+				$this->insertAdminNotice( $aRenderData );
+			}
+		}
+
 		protected function addFilterIpsToWhiteList() {
 			$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
 			if ( !empty( $aIps ) && is_array( $aIps ) ) {

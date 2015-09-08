@@ -8,6 +8,13 @@ properties:
   show_feature_menu_item: true
   storage_key: 'loginprotect' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
+
+admin_notices:
+  'email-verification-sent':
+    once: false
+    valid_admin: true
+    type: 'warning'
+
 # Options Sections
 sections:
   -

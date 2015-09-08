@@ -45,25 +45,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
 		}
 
-		/**
-		 */
-		public function addToAdminNotices() {
-
-			parent::addToAdminNotices();
-
-			$oCon = $this->getController();
-			if ( $oCon->getIsValidAdminArea() ) {
-
-				$this->adminNoticeForceOffActive(); // always show this notice
-				if ( $this->getIfShowAdminNotices() ) {
-					$this->adminNoticeMailingListSignup();
-				}
-				if ( $oCon->getIsPage_PluginAdmin() ) {
-					$this->adminNoticeYouAreWhitelisted();
-				}
-			}
-		}
-
 		public function printPluginBadge() {
 			$oCon = $this->getController();
 			$oRender = $this->loadRenderer( $oCon->getPath_Templates().'html' );
@@ -80,57 +61,35 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
 		 */
-		public function adminNoticeYouAreWhitelisted() {
-
-			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
-
-				$aDisplayData = array(
-					'render_slug' => 'visitor-whitelisted',
-					'strings' => array(
-						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
-						'notice_message' => sprintf(
-							_wpsf__( 'Notice - %s' ),
-							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
-						),
-					)
-				);
-				$this->insertAdminNotice( $aDisplayData );
-			}
-		}
-
-		/**
-		 * @return array
-		 */
-		public function adminNoticeForceOffActive() {
+		protected function addNotice_override_forceoff( $aNoticeAttributes ) {
 
 			if ( $this->getFeatureOptions()->getIfOverrideOff() ) {
-				$aDisplayData = array(
-					'render_slug' => 'override-forceoff',
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
 					'notice_classes' => 'error',
 					'strings' => array(
-						'message' => sprintf( _wpsf__('Warning - %s.'), sprintf( _wpsf__('%s is not currently running' ), $this->getController()->getHumanName() ) ),
+						'message' => sprintf( _wpsf__( 'Warning - %s.' ), sprintf( _wpsf__( '%s is not currently running' ), $this->getController()->getHumanName() ) ),
 						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
 					)
 				);
-				$this->insertAdminNotice( $aDisplayData );
+				$this->insertAdminNotice( $aRenderData );
 			}
 		}
 
 		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
 		 */
-		public function adminNoticeMailingListSignup() {
+		protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
 
-			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oFO->prefixOptionKey( 'plugin_mailing_list_signup' ) );
-			if ( $sCurrentMetaValue == 'Y' ) {
-				return;
-			}
-
 			$nDays = $this->getInstallationDays();
-			if ( $nDays >= 5 ) {
-				$aDisplayData = array(
-					'render_slug' => 'security-group-signup',
+			if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
 						'yes' => "Yes please! I'd love to join in and learn more",
 						'no' => "No thanks, I'm not interested in such groups",
@@ -146,17 +105,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					),
 					'install_days' => $nDays
 				);
-				$this->insertAdminNotice( $aDisplayData );
+				$this->insertAdminNotice( $aRenderData );
 			}
-		}
-
-		/**
-		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
-		 * @param integer $nId
-		 */
-		protected function updateVersionUserMeta( $nId = null ) {
-			$oCon = $this->getController();
-			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
 		}
 
 		/**

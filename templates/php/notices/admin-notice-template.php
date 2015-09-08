@@ -15,7 +15,7 @@ $sBaseDirName = dirname(__FILE__).ICWP_DS;
 				'action': 'icwp_DismissAdminNotice',
 				'_ajax_nonce': '<?php echo $icwp_ajax_nonce; ?>',
 				'hide': '1',
-				'notice_id': '<?php echo $render_slug; ?>'
+				'notice_id': '<?php echo $notice_attributes['notice_id']; ?>'
 			};
 			jQuery.get( ajaxurl, requestData );
 		}

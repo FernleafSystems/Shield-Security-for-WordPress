@@ -8,11 +8,30 @@ properties:
   show_feature_menu_item: true
   storage_key: 'plugin' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
+
 admin_notices:
   'rate-plugin':
     once: true
     valid_admin: true
     delay_days: 30
+    type: 'promo'
+
+  'visitor-whitelisted':
+    once: false
+    valid_admin: true
+    type: 'info'
+
+  'override-forceoff':
+    once: false
+    valid_admin: true
+    type: 'warning'
+
+  'plugin-mailing-list-signup':
+    once: true
+    valid_admin: true
+    delay_days: 15
+    type: 'promo'
+
 # Options Sections
 sections:
   -
