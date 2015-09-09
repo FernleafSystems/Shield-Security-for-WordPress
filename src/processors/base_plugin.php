@@ -20,7 +20,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 
 			if ( $this->getController()->getIsValidAdminArea() ) {
 				// always show this notice
-				$this->adminNoticePhpMinimumVersion53();
 				if ( $this->getIfShowAdminNotices() ) {
 					$this->adminNoticeTranslations();
 					$this->adminNoticePluginUpgradeAvailable();
@@ -41,27 +40,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes
 			);
-			$this->insertAdminNotice( $aDisplayData );
+			$this->insertAdminNotice( $aRenderData );
 		}
 
 		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
 		 */
-		public function adminNoticePhpMinimumVersion53() {
+		protected function addNotice_php53_version_warning( $aNoticeAttributes ) {
 
 			$oDp = $this->loadDataProcessor();
 			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
-				return;
+//				return;
 			}
 
 			$oCon = $this->getController();
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ) );
-			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' ) {
-				return;
-			}
 
-			$aDisplayData = array(
-				'render_slug' => 'minimum-php53',
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
 					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
 					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
@@ -76,7 +73,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					'redirect' => $oWp->getUrl_CurrentAdminPage(),
 				)
 			);
-			$this->insertAdminNotice( $aDisplayData );
+			$this->insertAdminNotice( $aRenderData );
 		}
 
 		/**

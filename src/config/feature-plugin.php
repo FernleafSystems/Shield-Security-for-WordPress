@@ -32,6 +32,11 @@ admin_notices:
     delay_days: 15
     type: 'promo'
 
+  'php53-version-warning':
+    once: true
+    valid_admin: true
+    type: 'warning'
+
 # Options Sections
 sections:
   -
