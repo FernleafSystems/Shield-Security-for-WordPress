@@ -21,7 +21,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( $this->getController()->getIsValidAdminArea() ) {
 				// always show this notice
 				if ( $this->getIfShowAdminNotices() ) {
-					$this->adminNoticeTranslations();
 					$this->adminNoticePostPluginUpgrade();
 				}
 			}
@@ -80,12 +79,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$sCurrentMetaValue = $oWpUsers->getUserMeta( $this->getFeatureOptions()->prefixOptionKey( $aNoticeAttributes['notice_id'] ) );
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			$oWp = $this->loadWpFunctionsProcessor();
 
-			if ( true || !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
+			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
@@ -100,6 +97,32 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				);
 				$this->insertAdminNotice( $aRenderData );
 			}
+		}
+
+		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
+		 */
+		protected function addNotice_translate_plugin( $aNoticeAttributes ) {
+
+			$oController = $this->getController();
+			$oWp = $this->loadWpFunctionsProcessor();
+
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $oController->getHumanName() ),
+					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
+					'site_url' => 'translate.icontrolwp.com',
+					'dismiss' => _wpsf__( 'Dismiss this notice' )
+				),
+				'hrefs' => array(
+					'form_action' => $oController->getPluginUrl_AdminMainPage().'&'.$oController->doPluginPrefix( 'hide_translation_notice' ).'=1',
+					'redirect' => $oWp->getUrl_CurrentAdminPage(),
+					'translate' => 'http://translate.icontrolwp.com'
+				)
+			);
+			$this->insertAdminNotice( $aRenderData );
 		}
 
 		/**
@@ -149,34 +172,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		protected function updateVersionUserMeta( $nId = null ) {
 			$oCon = $this->getController();
 			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
-		}
-
-		/**
-		 */
-		public function adminNoticeTranslations() {
-
-			$oController = $this->getController();
-			$oWp = $this->loadWpFunctionsProcessor();
-			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'plugin_translation_notice' ) );
-			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === 'Y' || $this->getInstallationDays() < 40 ) {
-				return;
-			}
-
-			$aDisplayData = array(
-				'render_slug' => 'translate-plugin',
-				'strings' => array(
-					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $oController->getHumanName() ),
-					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
-					'site_url' => 'translate.icontrolwp.com',
-					'dismiss' => _wpsf__( 'Dismiss this notice' )
-				),
-				'hrefs' => array(
-					'form_action' => $oController->getPluginUrl_AdminMainPage().'&'.$oController->doPluginPrefix( 'hide_translation_notice' ).'=1',
-					'redirect' => $oWp->getUrl_CurrentAdminPage(),
-					'translate' => 'http://translate.icontrolwp.com'
-				)
-			);
-			$this->insertAdminNotice( $aDisplayData );
 		}
 
 		/**

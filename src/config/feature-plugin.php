@@ -36,6 +36,11 @@ admin_notices:
     once: false
     valid_admin: true
     type: 'warning'
+  'translate-plugin':
+    once: true
+    valid_admin: true
+    delay_days: 45
+    type: 'promo'
 
 # Options Sections
 sections:
