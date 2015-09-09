@@ -42,8 +42,8 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 
 		public function onWpAdminNotices() {
 			do_action( $this->getActionPrefix().'generate_admin_notices' );
-			foreach( $this->getNotices() as $sAdminNotice ) {
-				echo $sAdminNotice;
+			foreach( $this->getNotices() as $sKey => $sAdminNoticeContent ) {
+				echo $sAdminNoticeContent;
 			}
 			$this->flashNotice();
 		}
@@ -75,13 +75,17 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		}
 
 		/**
+		 * @param string $sNoticeId
 		 * @param string $sNotice
 		 * @return $this
 		 */
-		public function addAdminNotice( $sNotice ) {
+		public function addAdminNotice( $sNotice, $sNoticeId = '' ) {
 			if ( !empty( $sNotice ) ) {
 				$aCurrentNotices = $this->getNotices();
-				$aCurrentNotices[] = $sNotice;
+				if ( empty( $sNoticeId ) ) {
+					$sNoticeId = md5( uniqid( '', true ) );
+				}
+				$aCurrentNotices[ $sNoticeId ] = $sNotice;
 				$this->aAdminNotices = $aCurrentNotices;
 			}
 			return $this;

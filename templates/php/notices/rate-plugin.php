@@ -1,3 +1,1 @@
-<div id="IcwpNoticePhpWarning">
-	temp
-</div>
+	rate plugin

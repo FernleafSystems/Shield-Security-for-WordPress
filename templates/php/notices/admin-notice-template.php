@@ -1,8 +1,8 @@
 <?php
 $sBaseDirName = dirname(__FILE__).ICWP_DS;
 ?>
-<div id="<?php echo $unique_render_id;?>" class="<?php echo $notice_classes; ?> icwp-admin-notice notice is-dismissible">
-<?php include_once( $sBaseDirName.$icwp_admin_notice_template.'.php' ); ?>
+<div id="<?php echo $unique_render_id;?>" class="<?php echo $notice_classes; ?> icwp-admin-notice notice is-dismissible notice-<?php echo $icwp_admin_notice_template;?>">
+<?php require_once( $sBaseDirName.$icwp_admin_notice_template.'.php' ); ?>
 </div>
 
 

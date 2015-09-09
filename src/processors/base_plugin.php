@@ -48,7 +48,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @param array $aNoticeAttributes
 		 */
 		protected function addNotice_php53_version_warning( $aNoticeAttributes ) {
-
 			$oDp = $this->loadDataProcessor();
 			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
 //				return;

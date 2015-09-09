@@ -40,7 +40,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
 				if ( isset( $aNoticeAttributes['once'] ) && $aNoticeAttributes['once'] && $this->getFeatureOptions()->getAdminNoticeIsDismissed( $sNoticeId ) ) {
-					return;
+					continue;
 				}
 
 				$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
@@ -69,7 +69,13 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 * @param array $aNoticeData
 		 */
 		protected function insertAdminNotice( $aNoticeData ) {
-			$this->loadAdminNoticesProcessor()->addAdminNotice( $this->getFeatureOptions()->renderAdminNotice( $aNoticeData ) );
+			$sRenderedNotice = $this->getFeatureOptions()->renderAdminNotice( $aNoticeData );
+			if ( !empty( $sRenderedNotice ) ) {
+				$this->loadAdminNoticesProcessor()->addAdminNotice(
+					$sRenderedNotice,
+					$aNoticeData['notice_attributes']['notice_id']
+				);
+			}
 		}
 
 		/**

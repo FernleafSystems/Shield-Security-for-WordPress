@@ -1194,7 +1194,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @throws Exception
 		 */
 		public function renderAdminNotice( $aData ) {
-
 			if ( empty( $aData['notice_attributes'] ) ) {
 				throw new Exception( 'notice_attributes is empty' );
 			}

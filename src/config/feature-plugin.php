@@ -15,23 +15,19 @@ admin_notices:
     valid_admin: true
     delay_days: 30
     type: 'promo'
-
   'visitor-whitelisted':
     once: false
     valid_admin: true
     type: 'info'
-
   'override-forceoff':
     once: false
     valid_admin: true
     type: 'warning'
-
   'plugin-mailing-list-signup':
     once: true
     valid_admin: true
     delay_days: 15
     type: 'promo'
-
   'php53-version-warning':
     once: true
     valid_admin: true
