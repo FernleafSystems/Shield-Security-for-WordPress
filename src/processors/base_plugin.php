@@ -22,7 +22,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				// always show this notice
 				if ( $this->getIfShowAdminNotices() ) {
 					$this->adminNoticeTranslations();
-					$this->adminNoticePluginUpgradeAvailable();
 					$this->adminNoticePostPluginUpgrade();
 				}
 			}
@@ -50,7 +49,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		protected function addNotice_php53_version_warning( $aNoticeAttributes ) {
 			$oDp = $this->loadDataProcessor();
 			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
-//				return;
+				return;
 			}
 
 			$oCon = $this->getController();
@@ -76,15 +75,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		}
 
 		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
 		 */
-		public function adminNoticePluginUpgradeAvailable() {
+		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$sCurrentMetaValue = $oWpUsers->getUserMeta( $this->getFeatureOptions()->prefixOptionKey( $aNoticeAttributes['notice_id'] ) );
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			$oWp = $this->loadWpFunctionsProcessor();
 
-			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
+			if ( true || !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
-				$aDisplayData = array(
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
 					'render_slug' => 'plugin-update-available',
 					'strings' => array(
 						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
@@ -94,7 +98,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 						'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
 					)
 				);
-				$this->insertAdminNotice( $aDisplayData );
+				$this->insertAdminNotice( $aRenderData );
 			}
 		}
 

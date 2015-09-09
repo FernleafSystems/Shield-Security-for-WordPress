@@ -70,3 +70,10 @@ tr.icwp-plugin-vulnerability dl {
 tr.icwp-plugin-vulnerability dd {
 	margin-bottom: 3px;
 }
+
+.icwp-admin-notice .notice-dismiss::before {
+	color: rgba(0, 0, 0, 0.5);
+	font-size: 24px;
+	line-height: 30px;
+	padding-right: 4px;
+}

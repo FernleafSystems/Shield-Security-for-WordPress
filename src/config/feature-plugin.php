@@ -32,6 +32,10 @@ admin_notices:
     once: true
     valid_admin: true
     type: 'warning'
+  'plugin-update-available':
+    once: false
+    valid_admin: true
+    type: 'warning'
 
 # Options Sections
 sections:
