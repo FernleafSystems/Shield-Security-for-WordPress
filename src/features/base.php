@@ -1206,14 +1206,17 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
 			}
 
-			if ( isset( $aData['notice_classes'] ) ) {
-				if ( is_array( $aData['notice_classes'] ) ) {
-					$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
+			if ( !isset( $aData['notice_classes'] ) ) {
+				$aData[ 'notice_classes' ] = array();
+			}
+			if ( is_array( $aData['notice_classes'] ) ) {
+				if ( empty( $aData['notice_classes'] ) ) {
+					$aData[ 'notice_classes' ][] = 'updated';
 				}
+				$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
 			}
-			if ( empty( $aData[ 'notice_classes' ] ) || !is_string( $aData[ 'notice_classes' ] ) ) {
-				$aData[ 'notice_classes' ] = 'updated';
-			}
+			$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
+
 			return $this->renderTemplate( 'notices'.ICWP_DS.'admin-notice-template', $aData );
 		}
 
