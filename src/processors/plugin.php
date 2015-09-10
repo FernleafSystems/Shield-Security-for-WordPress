@@ -93,9 +93,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					'strings' => array(
 						'yes' => "Yes please! I'd love to join in and learn more",
 						'no' => "No thanks, I'm not interested in such groups",
-						'we_dont_spam' => "(don't worry, we don't SPAM. Ever.)",
+						'we_dont_spam' => "( Fear not! SPAM is for losers. And we're not losers! )",
 						'your_name' => _wpsf__( 'Your Name' ),
 						'your_email' => _wpsf__( 'Your Email' ),
+						'dismiss' => "No thanks, I'm not interested in such informative groups",
 						'summary' => 'The WordPress Simple Firewall team is running an initiative (with currently 1500+ members) to raise awareness of WordPress Security
 				and to provide further help with the WordPress Simple Firewall plugin. Get Involved here:',
 					),

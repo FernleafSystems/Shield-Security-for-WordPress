@@ -45,7 +45,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
+					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very (10+ years) old: %s' ), $oDp->getPhpVersion() ),
 					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
 					'ask_host_to_upgrade' => sprintf( _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
 					'any_questions' => sprintf( _wpsf__( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
@@ -53,9 +53,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					'forums' => __('Support Forums'),
 				),
 				'hrefs' => array(
-					'form_action' => $oCon->getPluginUrl_AdminMainPage().'&'.$oCon->doPluginPrefix( 'hide_php53_warning' ).'=1',
 					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
-					'redirect' => $oWp->getUrl_CurrentAdminPage(),
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );
