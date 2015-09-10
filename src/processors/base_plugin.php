@@ -14,18 +14,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 		}
 
-		/**
-		 */
-		public function addToAdminNotices() {
-
-			if ( $this->getController()->getIsValidAdminArea() ) {
-				// always show this notice
-				if ( $this->getIfShowAdminNotices() ) {
-					$this->adminNoticePostPluginUpgrade();
-				}
-			}
-		}
-
 		public function addNotice_rate_plugin( $aNoticeAttributes ) {
 			$oDp = $this->loadDataProcessor();
 			$oCon = $this->getController();
@@ -126,16 +114,23 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		}
 
 		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
 		 */
-		public function adminNoticePostPluginUpgrade() {
+		protected function addNotice_post_plugin_upgrade( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
 			$oController = $this->getController();
 
-			$sCurrentMetaValue = $this->loadWpUsersProcessor()->getUserMeta( $oController->doPluginOptionPrefix( 'current_version' ) );
-			if ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue === $oFO->getVersion() ) {
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'post-plugin-upgrade' );
+			if ( $oFO->getAdminNoticeIsDismissed( 'post-plugin-upgrade' ) ) {
+				// so they've hidden it. Now we set the current version so it doesn't display below
+				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() );
 				return;
 			}
-			$this->updateVersionUserMeta(); // we show the upgrade notice only once.
+			if ( $oWpUsers->getUserMeta( $sAdminNoticeMetaKey ) === $oFO->getVersion() ) {
+				return;
+			}
 
 			if ( $this->getInstallationDays() <= 1 ) {
 				$sMessage = sprintf(
@@ -150,8 +145,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				);
 			}
 
-			$aDisplayData = array(
-				'render_slug' => 'plugin-updated',
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
 					'main_message' => $sMessage,
 					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
@@ -162,7 +157,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					'hide_notice' => $oController->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_update_notice' ).'=1'
 				),
 			);
-			$this->insertAdminNotice( $aDisplayData );
+			$this->insertAdminNotice( $aRenderData );
 		}
 
 		/**
