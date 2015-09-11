@@ -39,8 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$oCon = $this->getController();
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 				if ( isset( $aNoticeAttributes['once'] ) && $aNoticeAttributes['once']
-					&& !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta()
-					&& $this->getFeatureOptions()->getAdminNoticeIsDismissed( $sNoticeId )
+					&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $this->getFeatureOptions()->getAdminNoticeIsDismissed( $sNoticeId ) )
 				) {
 					continue;
 				}
