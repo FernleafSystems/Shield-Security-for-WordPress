@@ -40,8 +40,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 
 			$oCon = $this->getController();
-			$oWp = $this->loadWpFunctionsProcessor();
-
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
@@ -50,7 +48,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					'ask_host_to_upgrade' => sprintf( _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
 					'any_questions' => sprintf( _wpsf__( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
 					'dismiss' => _wpsf__( 'Dismiss this notice' ),
-					'forums' => __('Support Forums'),
+					'forums' => __( 'Support Forums' )
 				),
 				'hrefs' => array(
 					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
@@ -64,10 +62,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @param array $aNoticeAttributes
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
+			$oFO = $this->getFeatureOptions();
+			$oWp = $this->loadWpFunctionsProcessor();
+			$oWpUsers = $this->loadWpUsersProcessor();
+
+			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'plugin-update-available' );
+			if ( $oFO->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
+				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
+				return;
+			}
+			if ( $oWpUsers->getUserMeta( $sAdminNoticeMetaKey ) === $oFO->getVersion() ) {
+				return;
+			}
 
 			$sBaseFile = $this->getController()->getPluginBaseFile();
-			$oWp = $this->loadWpFunctionsProcessor();
-
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
 				$aRenderData = array(
@@ -75,7 +83,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					'render_slug' => 'plugin-update-available',
 					'strings' => array(
 						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
-						'click_update' => _wpsf__( 'Please click to update immediately' )
+						'click_update' => _wpsf__( 'Please click to update immediately' ),
+						'dismiss' => _wpsf__( 'Dismiss this notice' )
 					),
 					'hrefs' => array(
 						'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
@@ -91,20 +100,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function addNotice_translate_plugin( $aNoticeAttributes ) {
 
-			$oController = $this->getController();
-			$oWp = $this->loadWpFunctionsProcessor();
-
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $oController->getHumanName() ),
+					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
 					'site_url' => 'translate.icontrolwp.com',
 					'dismiss' => _wpsf__( 'Dismiss this notice' )
 				),
 				'hrefs' => array(
-					'form_action' => $oController->getPluginUrl_AdminMainPage().'&'.$oController->doPluginPrefix( 'hide_translation_notice' ).'=1',
-					'redirect' => $oWp->getUrl_CurrentAdminPage(),
 					'translate' => 'http://translate.icontrolwp.com'
 				)
 			);
@@ -122,8 +126,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$oWpUsers = $this->loadWpUsersProcessor();
 			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'post-plugin-upgrade' );
 			if ( $oFO->getAdminNoticeIsDismissed( 'post-plugin-upgrade' ) ) {
-				// so they've hidden it. Now we set the current version so it doesn't display below
-				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() );
+				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
 			}
 			if ( $oWpUsers->getUserMeta( $sAdminNoticeMetaKey ) === $oFO->getVersion() ) {

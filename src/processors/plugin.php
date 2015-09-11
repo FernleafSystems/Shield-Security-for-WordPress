@@ -69,7 +69,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( $this->getFeatureOptions()->getIfOverrideOff() ) {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
-					'notice_classes' => 'error',
 					'strings' => array(
 						'message' => sprintf( _wpsf__( 'Warning - %s.' ), sprintf( _wpsf__( '%s is not currently running' ), $this->getController()->getHumanName() ) ),
 						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )

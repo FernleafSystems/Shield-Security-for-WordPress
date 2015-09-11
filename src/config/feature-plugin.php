@@ -22,7 +22,7 @@ admin_notices:
   'override-forceoff':
     once: false
     valid_admin: true
-    type: 'warning'
+    type: 'error'
   'plugin-mailing-list-signup':
     once: true
     valid_admin: true

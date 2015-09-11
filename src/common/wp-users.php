@@ -21,6 +21,22 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		}
 
 		/**
+		 * @param string $sKey
+		 * @param integer $nUserId		-user ID
+		 * @return boolean
+		 */
+		public function deleteUserMeta( $sKey, $nUserId = null ) {
+			if ( empty( $nUserId ) ) {
+				$nUserId = $this->getCurrentWpUserId();
+			}
+			$bSuccess = false;
+			if ( $nUserId > 0 ) {
+				$bSuccess = delete_user_meta( $nUserId, $sKey );
+			}
+			return $bSuccess;
+		}
+
+		/**
 		 * @param array $aLoginUrlParams
 		 */
 		public function forceUserRelogin( $aLoginUrlParams = array() ) {
@@ -37,6 +53,27 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getCanAddUpdateCurrentUserMeta() {
+			$bCanMeta = false;
+			try {
+				if ( $this->getIsUserLoggedIn() ) {
+					$sKey = 'icwp-flag-can-store-user-meta';
+					$sMeta = $this->getUserMeta( $sKey );
+					if ( $sMeta == 'icwp' ) {
+						$bCanMeta = true;
+					}
+					else {
+						$bCanMeta = $this->updateUserMeta( $sKey, 'icwp' );
+					}
+				}
+			}
+			catch( Exception $oE ) { }
+			return $bCanMeta;
+		}
+
+		/**
 		 * @return null|WP_User
 		 */
 		public function getCurrentWpUser() {
@@ -47,6 +84,26 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 				}
 			}
 			return null;
+		}
+
+		/**
+		 * @return int - 0 if not logged in or can't get the current User
+		 */
+		public function getCurrentWpUserId() {
+			$oUser = $this->getCurrentWpUser();
+			$nId = is_null( $oUser ) ? 0 : $oUser->ID;
+			return $nId;
+		}
+
+		/**
+		 * @return bool
+		 * @throws Exception
+		 */
+		public function getIsUserLoggedIn() {
+			if ( !function_exists( 'is_user_logged_in' ) ) {
+				throw new Exception( sprintf( 'Function %s is not ready - you are calling it too early in the WP load.', 'is_user_logged_in' ) );
+			}
+			return is_user_logged_in();
 		}
 
 		/**
@@ -81,27 +138,19 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 
 		/**
 		 * @param string $sKey should be already prefixed
-		 * @param int|null $nId - if omitted get for current user
-		 * @return bool|string
+		 * @param int|null $nUserId - if omitted get for current user
+		 * @return false|string
 		 */
-		public function getUserMeta( $sKey, $nId = null ) {
-			$nUserId = $nId;
+		public function getUserMeta( $sKey, $nUserId = null ) {
 			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
+				$nUserId = $this->getCurrentWpUserId();
 			}
 
-			$sCurrentMetaValue = get_user_meta( $nUserId, $sKey, true );
-			// A guard whereby if we can't ever get a value for this meta, it means we can never set it.
-			if ( empty( $sCurrentMetaValue ) ) {
-				//the value has never been set, or it's been installed for the first time.
-				$this->updateUserMeta( $sKey, 'temp', $nUserId );
-				return '';
+			$mResult = false;
+			if ( $nUserId > 0 ) {
+				$mResult = get_user_meta( $nUserId, $sKey, true );
 			}
-			return $sCurrentMetaValue;
+			return $mResult;
 		}
 
 		/**
@@ -116,19 +165,19 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		 *
 		 * @param string $sKey
 		 * @param mixed $mValue
-		 * @param integer $nId		-user ID
+		 * @param integer $nUserId		-user ID
 		 * @return boolean
 		 */
-		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
-			$nUserId = $nId;
+		public function updateUserMeta( $sKey, $mValue, $nUserId = null ) {
 			if ( empty( $nUserId ) ) {
-				$oCurrentUser = $this->getCurrentWpUser();
-				if ( is_null( $oCurrentUser ) ) {
-					return false;
-				}
-				$nUserId = $oCurrentUser->ID;
+				$nUserId = $this->getCurrentWpUserId();
 			}
-			return update_user_meta( $nUserId, $sKey, $mValue );
+
+			$bSuccess = false;
+			if ( $nUserId > 0 ) {
+				$bSuccess = update_user_meta( $nUserId, $sKey, $mValue );
+			}
+			return $bSuccess;
 		}
 
 		/**

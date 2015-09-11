@@ -18,13 +18,26 @@
 	margin: 0;
 }
 .wrap .icwp-admin-notice p.dismiss-p {
-	margin: 10px 4px 0;
-}
-.wrap .icwp-admin-notice p.dismiss-p a.icwp-notice-dismiss {
-	margin: 10px 4px 0;
+	margin: 10px 4px 0 0;
 }
 .wrap .icwp-admin-notice .button:hover {
 	text-decoration: none;
+}
+
+.wrap .icwp-admin-notice .notice-dismiss::before {
+	color: rgba(0, 0, 0, 0.5);
+	font-size: 24px;
+	line-height: 26px;
+	padding-right: 4px;
+}
+
+.wrap .promo.icwp-admin-notice {
+	background-color: rgba(40, 214, 40, 0.25);
+	border-color: rgba(25, 137, 25, 0.99);
+}
+.wrap .promo.icwp-admin-notice,
+.wrap .promo.icwp-admin-notice p {
+	color: rgba(21, 111, 21, 0.99);
 }
 
 .wrap .error.icwp-admin-notice {
@@ -72,11 +85,4 @@ tr.icwp-plugin-vulnerability dl {
 }
 tr.icwp-plugin-vulnerability dd {
 	margin-bottom: 3px;
-}
-
-.icwp-admin-notice .notice-dismiss::before {
-	color: rgba(0, 0, 0, 0.5);
-	font-size: 24px;
-	line-height: 26px;
-	padding-right: 4px;
 }

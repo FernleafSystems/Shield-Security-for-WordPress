@@ -1,6 +1,6 @@
 <?php $sBaseDirName = dirname(__FILE__).ICWP_DS; ?>
 
-<div style="transition: all 0.5s ease;" id="<?php echo $unique_render_id;?>" class="<?php echo $notice_classes; ?> icwp-admin-notice notice is-dismissible notice-<?php echo $icwp_admin_notice_template; ?>">
+<div id="<?php echo $unique_render_id;?>" class="<?php echo $notice_classes; ?> icwp-admin-notice notice is-dismissible notice-<?php echo $icwp_admin_notice_template; ?>">
 	<?php require_once( $sBaseDirName.$icwp_admin_notice_template.'.php' ); ?>
 	<div style="clear:both;"></div>
 	<?php if ( !empty( $strings['dismiss'] ) ) : ?>

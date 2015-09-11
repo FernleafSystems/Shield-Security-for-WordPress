@@ -862,9 +862,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			$bDismissed = true;
 			if ( !empty( $oCurrentUser ) ) {
 				$sCurrentMetaValue = $oWpUsers->getUserMeta( $this->prefixOptionKey( $sNoticeId ) );
-				$bDismissed = ( $sCurrentMetaValue == 'Y' );
+				$bDismissed = ( empty( $sCurrentMetaValue ) || $sCurrentMetaValue == 'Y' );
 			}
-//			$bDismissed = false; // TODO
 			return $bDismissed;
 		}
 
