@@ -67,7 +67,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$oWpUsers = $this->loadWpUsersProcessor();
 
 			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'plugin-update-available' );
-			if ( $oFO->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
+			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
 			}
@@ -125,7 +125,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 
 			$oWpUsers = $this->loadWpUsersProcessor();
 			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'post-plugin-upgrade' );
-			if ( $oFO->getAdminNoticeIsDismissed( 'post-plugin-upgrade' ) ) {
+			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-upgrade' ) ) {
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
 			}

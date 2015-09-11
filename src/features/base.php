@@ -102,9 +102,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 				add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
 
+				add_filter($this->doPluginPrefix( 'admin_notice_ids' ), array( $this, 'fRegisterAdminNoticeIds' ) );
+
 				$this->doPostConstruction();
 			}
 
+		}
+
+		/**
+		 * @param array $aIds
+		 * @return array
+		 */
+		public function fRegisterAdminNoticeIds( $aIds ) {
+			if ( !is_array( $aIds ) ) {
+				$aIds = array();
+			}
+			return array_merge( $aIds, array_keys( $this->getOptionsVo()->getAdminNotices() ) );
 		}
 
 		/**
@@ -520,24 +533,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$this->frontEndAjaxHandlers();
 			}
 		}
-		protected function adminAjaxHandlers() {
-			add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
-		}
+		protected function adminAjaxHandlers() { }
+
 		protected function frontEndAjaxHandlers() { }
-
-		public function ajaxDismissAdminNotice() {
-
-			$bSuccess = $this->checkAjaxNonce();
-			if ( $bSuccess ) {
-				// Get all notices and if this notice exists, we set it to "hidden"
-				$sNoticeId = sanitize_key( $this->loadDataProcessor()->FetchGet( 'notice_id', '' ) );
-				$aNotices = $this->getOptionsVo()->getAdminNotices();
-				if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices )) {
-					$this->setAdminNoticeAsDismissed( $sNoticeId );
-				}
-				$this->sendAjaxResponse( true );
-			}
-		}
 
 		/**
 		 * Will send ajax error response immediately upon failure
@@ -794,7 +792,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
-			$this->handleAdminNoticeClose();
 			return true;
 		}
 
@@ -822,50 +819,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		protected function doExtraSubmitProcessing() { }
-
-		/**
-		 * We should only be here after verifying the nonce
-		 */
-		protected function handleAdminNoticeClose() {
-			$oDp = $this->loadDataProcessor();
-			$aNotices = $this->getOptionsVo()->getAdminNotices();
-			foreach( $aNotices as $sNoticeKey => $aNoticeData ) {
-
-				// First round sets the key - there are cases where this meta data doesn't actually get set.
-				// So, we first get the current meta - if it's empty, we set it to a temp value, and move on
-				// Second, if current meta is the temp value, we know we can set it.
-				if ( !$this->getAdminNoticeIsDismissed( $sNoticeKey ) && $oDp->FetchRequest( $sNoticeKey ) == '1' && $oDp->FetchRequest( 'hide' ) == '1' ) {
-					$this->setAdminNoticeAsDismissed( $sNoticeKey );
-				}
-			}
-		}
-
-		/**
-		 * @param string $sNoticeId
-		 */
-		protected function setAdminNoticeAsDismissed( $sNoticeId ) {
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$oCurrentUser = $oWpUsers->getCurrentWpUser();
-			if ( !empty( $oCurrentUser ) ) {
-				$oWpUsers->updateUserMeta( $this->prefixOptionKey( $sNoticeId ), 'Y' );
-			}
-		}
-
-		/**
-		 * @param string $sNoticeId
-		 * @return true
-		 */
-		public function getAdminNoticeIsDismissed( $sNoticeId ) {
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$oCurrentUser = $oWpUsers->getCurrentWpUser();
-
-			$bDismissed = true;
-			if ( !empty( $oCurrentUser ) ) {
-				$sCurrentMetaValue = $oWpUsers->getUserMeta( $this->prefixOptionKey( $sNoticeId ) );
-				$bDismissed = ( $sCurrentMetaValue == 'Y' );
-			}
-			return $bDismissed;
-		}
 
 		/**
 		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from

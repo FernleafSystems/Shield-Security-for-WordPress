@@ -27,7 +27,7 @@
 .wrap .icwp-admin-notice .notice-dismiss::before {
 	color: rgba(0, 0, 0, 0.5);
 	font-size: 24px;
-	line-height: 26px;
+	line-height: 21px;
 	padding-right: 4px;
 }
 
