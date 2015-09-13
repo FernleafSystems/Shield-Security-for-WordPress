@@ -49,32 +49,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			if ( ! $oFO->getIsPluginDeleting() ) {
 				$this->blackMarkCurrentVisitor();
-				$this->moveIpsFromLegacyWhiteList();
-				$this->addFilterIpsToWhiteList();
 			}
 		}
 
-		protected function addFilterIpsToWhiteList() {
-			$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
-			if ( !empty( $aIps ) && is_array( $aIps ) ) {
-				foreach( $aIps as $sIP => $sLabel ) {
-					$this->addIpToWhiteList( $sIP, $sLabel );
-				}
-			}
-		}
+		/**
+		 * @param array $aNoticeAttributes
+		 */
+		public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
 
-		protected function moveIpsFromLegacyWhiteList() {
-			$oCore =& $this->getController()->loadCorePluginFeatureHandler();
-			$aIps = $oCore->getIpWhitelistOption();
-			if ( !empty( $aIps ) && is_array( $aIps ) ) {
-				foreach( $aIps as $nIndex => $sIP ) {
-					$mResult = $this->addIpToWhiteList( $sIP, 'legacy' );
-					if ( $mResult != false ) {
-						unset( $aIps[ $nIndex ] );
-						$oCore->setOpt( 'ip_whitelist', $aIps );
-						$oCore->savePluginOptions(); // clearly not efficient to set every time, but simpler as this should only get run once.
-					}
-				}
+			if ( $this->getController()->getIsPage_PluginAdmin() && $this->getIsVisitorWhitelisted() ) {
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
+					'strings' => array(
+						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
+						'notice_message' => sprintf(
+							_wpsf__( 'Notice - %s' ),
+							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
+						),
+						'including_message' => _wpsf__( 'Including the Rename WP Login feature.' )
+					)
+				);
+				$this->insertAdminNotice( $aRenderData );
 			}
 		}
 

@@ -20,6 +20,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		private static $oWp;
 		/**
+		 * @var ICWP_WPSF_WpDb
+		 */
+		private static $oWpDb;
+		/**
 		 * @var ICWP_WPSF_Render
 		 */
 		private static $oRender;
@@ -95,7 +99,11 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @return ICWP_WPSF_WpDb
 		 */
 		static public function loadDbProcessor() {
-			return self::loadWpFunctionsProcessor()->loadDbProcessor();
+			if ( !isset( self::$oWpDb ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
+				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
+			}
+			return self::$oWpDb;
 		}
 
 		/**

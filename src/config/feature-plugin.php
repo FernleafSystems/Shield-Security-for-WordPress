@@ -8,6 +8,47 @@ properties:
   show_feature_menu_item: true
   storage_key: 'plugin' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
+
+admin_notices:
+  'override-forceoff':
+    id: 'override-forceoff'
+    schedule: 'conditions'
+    valid_admin: true
+    type: 'error'
+  'php53-version-warning':
+    id: 'php53-version-warning'
+    schedule: 'once'
+    valid_admin: true
+    type: 'warning'
+  'plugin-update-available':
+    id: 'plugin-update-available'
+    schedule: 'version'
+    valid_admin: true
+    type: 'warning'
+  'post-plugin-update':
+    id: 'post-plugin-update'
+    schedule: 'version'
+    valid_admin: true
+    type: 'warning'
+  'plugin-mailing-list-signup':
+    id: 'plugin-mailing-list-signup'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 15
+    type: 'promo'
+  'rate-plugin':
+    id: 'rate-plugin'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 30
+    type: 'promo'
+  'translate-plugin':
+    id: 'translate-plugin'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 45
+    type: 'promo'
+
 # Options Sections
 sections:
   -

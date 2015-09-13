@@ -100,10 +100,17 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 				extract( $this->getRenderVars() );
 			}
 
-			ob_start();
-			include( $this->getTemplatePath().ltrim( $this->getTemplate(), ICWP_DS ) );
-			$sContents = ob_get_contents();
-			ob_end_clean();
+			$sTemplate = $this->getTemplatePath() . ltrim( $this->getTemplate(), ICWP_DS );
+			if ( $this->loadFileSystemProcessor()->isFile( $sTemplate ) ) {
+				ob_start();
+				include( $sTemplate );
+				$sContents = ob_get_contents();
+				ob_end_clean();
+			}
+			else {
+				$sContents = 'Error: Template file not found: ' . $sTemplate;
+			}
+
 			return $sContents;
 		}
 

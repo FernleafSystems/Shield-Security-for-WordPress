@@ -105,6 +105,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAdminNotices(){
+		$aRawConfig = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : array();
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getFeatureTagline() {

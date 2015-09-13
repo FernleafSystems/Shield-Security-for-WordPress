@@ -83,38 +83,29 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		return true;
 	}
 
-	public function addToAdminNotices() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-
-		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIsEmailTwoFactorAuthEnabled() ) {
-			$this->adminNoticeVerifyEmailAbility();
-		}
-	}
-
 	public function blackMarkFailedLogin() {
 		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 	}
 
 	/**
+	 * @param array $aNoticeAttributes
 	 */
-	public function adminNoticeVerifyEmailAbility() {
+	public function addNotice_email_verification_sent( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIfCanSendEmail() ) {
-
-			$aDisplayData = array(
-				'render-slug' => 'email-verification-sent',
+		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIsEmailTwoFactorAuthEnabled() && !$oFO->getIfCanSendEmail() ) {
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'need_you_confirm' => _wpsf__("Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails."),
-					'please_click_link' => _wpsf__("Please click the link in the email you received."),
-					'email_sent_to' => sprintf( _wpsf__("The email has been sent to you at blog admin address: %s"), get_bloginfo('admin_email') ),
-					'how_resend_email' => _wpsf__("To have this email resent, re-save your Login Protection settings."),
-					'how_turn_off' => _wpsf__("To turn this notice off, disable Two Factor authentication."),
+					'need_you_confirm' => _wpsf__( "Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails." ),
+					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
+					'email_sent_to' => sprintf( _wpsf__( "The email has been sent to you at blog admin address: %s" ), get_bloginfo( 'admin_email' ) ),
+					'how_resend_email' => _wpsf__( "To have this email resent, re-save your Login Protection settings." ),
+					'how_turn_off' => _wpsf__( "To turn this notice off, disable Two Factor authentication." ),
 				)
 			);
-			$this->insertAdminNotice( $aDisplayData );
+			$this->insertAdminNotice( $aRenderData );
 		}
 	}
 

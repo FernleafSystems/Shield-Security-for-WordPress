@@ -102,9 +102,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 				add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
 
+				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+
 				$this->doPostConstruction();
 			}
 
+		}
+
+		/**
+		 * @param array $aAdminNotices
+		 * @return array
+		 */
+		public function fRegisterAdminNotices( $aAdminNotices ) {
+			if ( !is_array( $aAdminNotices ) ) {
+				$aAdminNotices = array();
+			}
+			return array_merge( $aAdminNotices, $this->getOptionsVo()->getAdminNotices() );
 		}
 
 		/**
@@ -521,7 +534,38 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			}
 		}
 		protected function adminAjaxHandlers() { }
+
 		protected function frontEndAjaxHandlers() { }
+
+		/**
+		 * Will send ajax error response immediately upon failure
+		 * @return bool
+		 */
+		protected function checkAjaxNonce() {
+
+			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			if ( empty( $sNonce ) ) {
+				$sMessage = _wpsf__( 'Nonce security checking failed - the nonce value was empty.' );
+			}
+			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
+				$sMessage = sprintf( _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
+			}
+			else {
+				return true; // At this stage we passed the nonce check
+			}
+
+			// At this stage we haven't returned after success so we failed the nonce check
+			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
+			return false; //unreachable
+		}
+
+		/**
+		 * @param $bSuccess
+		 * @param array $aData
+		 */
+		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
+		}
 
 		/**
 		 * Saves the options to the WordPress Options store.
@@ -1098,12 +1142,34 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
-		 * @param string $sAdminNotice
 		 * @param array $aData
 		 * @return string
+		 * @throws Exception
 		 */
-		public function renderAdminNotice( $sAdminNotice, $aData ) {
-			return $this->renderTemplate( 'notices'.ICWP_DS.$sAdminNotice, $aData );
+		public function renderAdminNotice( $aData ) {
+			if ( empty( $aData['notice_attributes'] ) ) {
+				throw new Exception( 'notice_attributes is empty' );
+			}
+
+			if ( !isset( $aData['icwp_ajax_nonce'] ) ) {
+				$aData[ 'icwp_ajax_nonce' ] = wp_create_nonce( 'icwp_ajax' );
+			}
+			if ( !isset( $aData['icwp_admin_notice_template'] ) ) {
+				$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
+			}
+
+			if ( !isset( $aData['notice_classes'] ) ) {
+				$aData[ 'notice_classes' ] = array();
+			}
+			if ( is_array( $aData['notice_classes'] ) ) {
+				if ( empty( $aData['notice_classes'] ) ) {
+					$aData[ 'notice_classes' ][] = 'updated';
+				}
+				$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
+			}
+			$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
+
+			return $this->renderTemplate( 'notices'.ICWP_DS.'admin-notice-template', $aData );
 		}
 
 		/**
@@ -1112,6 +1178,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return string
 		 */
 		public function renderTemplate( $sTemplate, $aData ) {
+			if ( empty( $aData['unique_render_id'] ) ) {
+				$aData[ 'unique_render_id' ] = uniqid( $this->doPluginPrefix( 'render' ) );
+			}
 			try {
 				$sOutput = $this
 					->loadRenderer( $this->getController()->getPath_Templates() )

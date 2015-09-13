@@ -37,15 +37,87 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		protected function __construct() {
 			add_action( 'admin_notices',			array( $this, 'onWpAdminNotices' ) );
 			add_action( 'network_admin_notices',	array( $this, 'onWpAdminNotices' ) );
-			add_action( 'wp_loaded',	array( $this, 'flushFlashMessage' ) );
+			add_action( 'wp_loaded',				array( $this, 'flushFlashMessage' ) );
+
+			if ( $this->loadWpFunctionsProcessor()->getIsAjax() ) {
+				add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
+			}
 		}
 
 		public function onWpAdminNotices() {
 			do_action( $this->getActionPrefix().'generate_admin_notices' );
-			foreach( $this->getNotices() as $sAdminNotice ) {
-				echo $sAdminNotice;
+			foreach( $this->getNotices() as $sKey => $sAdminNoticeContent ) {
+				echo $sAdminNoticeContent;
 			}
 			$this->flashNotice();
+		}
+
+		public function ajaxDismissAdminNotice() {
+
+			$bSuccess = $this->checkAjaxNonce();
+			if ( $bSuccess ) {
+				// Get all notices and if this notice exists, we set it to "hidden"
+				$sNoticeId = sanitize_key( $this->loadDataProcessor()->FetchGet( 'notice_id', '' ) );
+				$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
+				if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
+					$this->setAdminNoticeAsDismissed( $aNotices[ $sNoticeId ] );
+				}
+				$this->sendAjaxResponse( true );
+			}
+		}
+
+		/**
+		 * @param string $sNoticeId
+		 * @return true
+		 */
+		public function getAdminNoticeIsDismissed( $sNoticeId ) {
+			$sCurrentMetaValue = $this->getAdminNoticeMeta( $sNoticeId );
+			return ( $sCurrentMetaValue == 'Y' );
+		}
+
+		/**
+		 * @param string $sNoticeId
+		 * @return false|string
+		 */
+		public function getAdminNoticeMeta( $sNoticeId ) {
+			return $this->loadWpUsersProcessor()->getUserMeta( $this->getActionPrefix().$sNoticeId );
+		}
+
+		/**
+		 * @param array $aNotice
+		 */
+		public function setAdminNoticeAsDismissed( $aNotice ) {
+			$this->loadWpUsersProcessor()->updateUserMeta( $this->getActionPrefix().$aNotice['id'], 'Y' );
+		}
+
+		/**
+		 * Will send ajax error response immediately upon failure
+		 * @return bool
+		 */
+		protected function checkAjaxNonce() {
+
+			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+			if ( empty( $sNonce ) ) {
+				$sMessage = 'Nonce security checking failed - the nonce value was empty.';
+			}
+			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
+				$sMessage = sprintf( 'Nonce security checking failed - the nonce supplied was "%s".', $sNonce );
+			}
+			else {
+				return true; // At this stage we passed the nonce check
+			}
+
+			// At this stage we haven't returned after success so we failed the nonce check
+			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
+			return false; //unreachable
+		}
+
+		/**
+		 * @param $bSuccess
+		 * @param array $aData
+		 */
+		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 		}
 
 		/**
@@ -75,13 +147,17 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		}
 
 		/**
+		 * @param string $sNoticeId
 		 * @param string $sNotice
 		 * @return $this
 		 */
-		public function addAdminNotice( $sNotice ) {
+		public function addAdminNotice( $sNotice, $sNoticeId = '' ) {
 			if ( !empty( $sNotice ) ) {
 				$aCurrentNotices = $this->getNotices();
-				$aCurrentNotices[] = $sNotice;
+				if ( empty( $sNoticeId ) ) {
+					$sNoticeId = md5( uniqid( '', true ) );
+				}
+				$aCurrentNotices[ $sNoticeId ] = $sNotice;
 				$this->aAdminNotices = $aCurrentNotices;
 			}
 			return $this;
@@ -140,14 +216,6 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 				$this->sFlashMessage = sanitize_text_field( $this->sFlashMessage );
 			}
 			$oDp->setDeleteCookie( $sCookieName );
-		}
-
-		/**
-		 * @return ICWP_WPSF_DataProcessor
-		 */
-		public function loadDataProcessor() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
-			return ICWP_WPSF_DataProcessor::GetInstance();
 		}
 	}
 endif;

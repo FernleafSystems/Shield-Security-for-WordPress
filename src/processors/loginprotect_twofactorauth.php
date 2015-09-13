@@ -417,12 +417,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$sAuthLink = $this->generateTwoFactorVerifyLink( $oUser->get( 'user_login' ), $sUniqueId );
 
 			$aMessage = array(
-				_wpsf__('You, or someone pretending to be you, just attempted to login into your WordPress site.'),
-				_wpsf__('The IP Address / Cookie from which they tried to login is not currently verified.'),
-				_wpsf__('Click the following link to validate and complete the login process.') .' '._wpsf__('You will be logged in automatically upon successful authentication.'),
-				sprintf( _wpsf__('Username: %s'), $oUser->get( 'user_login' ) ),
-				sprintf( _wpsf__('IP Address: %s'), $sIpAddress ),
-				sprintf( _wpsf__('Authentication Link: %s'), $sAuthLink ),
+				_wpsf__( 'You, or someone pretending to be you, just attempted to login into your WordPress site.' ),
+				_wpsf__( 'The IP Address / Cookie from which they tried to login is not currently verified.' ),
+				_wpsf__('Click the following link to validate and complete the login process.').' '._wpsf__('You will be logged in automatically upon successful authentication.'),
+				sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
+				sprintf( _wpsf__( 'Authentication Link: %s' ), $sAuthLink )
 			);
 			$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
 

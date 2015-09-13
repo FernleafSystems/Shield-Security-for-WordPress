@@ -691,6 +691,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return boolean
+		 */
+		public function getIsMobile() {
+			return function_exists( 'wp_is_mobile' )&& wp_is_mobile();
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getAllUserLoginUsernames() {
