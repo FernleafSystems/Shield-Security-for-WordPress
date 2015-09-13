@@ -215,7 +215,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			}
 
 			// we need to update the meta keys for notices.
-			if ( version_compare( $this->getVersion(), '4.10.4', '<' ) ) {
+			if ( is_admin() && version_compare( $this->getVersion(), '4.10.4', '<=' ) ) {
 				$aOldMetaMap = array(
 					'plugin_translation_notice' => 'translate-plugin',
 					'php53_version_warning' => 'php53-version-warning',
@@ -227,6 +227,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					if ( $oWpUsers->getUserMeta( $this->prefixOptionKey( $sOldMeta ) ) == 'Y' ) {
 						$oWpAdminNotices->setAdminNoticeAsDismissed( array( 'id' => $sNewId ) );
 					}
+					$oWpUsers->deleteUserMeta( $this->prefixOptionKey( $sOldMeta ) );
 				}
 			}
 		}
