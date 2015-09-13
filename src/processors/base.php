@@ -39,6 +39,9 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$oCon = $this->getController();
 			$oWpNotices = $this->loadAdminNoticesProcessor();
 			$aScheduleOptions = array( 'once', 'conditions', 'version' );
+
+			$bIsMobile = $this->loadWpFunctionsProcessor()->getIsMobile();
+
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
 				if ( empty( $aNoticeAttributes['schedule'] ) || !in_array( $aNoticeAttributes['schedule'], $aScheduleOptions ) ) {
@@ -52,6 +55,10 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 				}
 
 				if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $sNoticeId ) ) ) {
+					continue;
+				}
+
+				if ( $bIsMobile && isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
 					continue;
 				}
 
