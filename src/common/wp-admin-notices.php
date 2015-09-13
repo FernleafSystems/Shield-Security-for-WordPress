@@ -71,15 +71,16 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		 * @return true
 		 */
 		public function getAdminNoticeIsDismissed( $sNoticeId ) {
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$oCurrentUser = $oWpUsers->getCurrentWpUser();
+			$sCurrentMetaValue = $this->getAdminNoticeMeta( $sNoticeId );
+			return ( $sCurrentMetaValue == 'Y' );
+		}
 
-			$bDismissed = true;
-			if ( !empty( $oCurrentUser ) ) {
-				$sCurrentMetaValue = $oWpUsers->getUserMeta( $this->getActionPrefix().$sNoticeId );
-				$bDismissed = ( $sCurrentMetaValue == 'Y' );
-			}
-			return $bDismissed;
+		/**
+		 * @param string $sNoticeId
+		 * @return false|string
+		 */
+		public function getAdminNoticeMeta( $sNoticeId ) {
+			return $this->loadWpUsersProcessor()->getUserMeta( $this->getActionPrefix().$sNoticeId );
 		}
 
 		/**

@@ -49,8 +49,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			if ( ! $oFO->getIsPluginDeleting() ) {
 				$this->blackMarkCurrentVisitor();
-				$this->moveIpsFromLegacyWhiteList();
-				$this->addFilterIpsToWhiteList();
 			}
 		}
 
@@ -72,30 +70,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );
-			}
-		}
-
-		protected function addFilterIpsToWhiteList() {
-			$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
-			if ( !empty( $aIps ) && is_array( $aIps ) ) {
-				foreach( $aIps as $sIP => $sLabel ) {
-					$this->addIpToWhiteList( $sIP, $sLabel );
-				}
-			}
-		}
-
-		protected function moveIpsFromLegacyWhiteList() {
-			$oCore =& $this->getController()->loadCorePluginFeatureHandler();
-			$aIps = $oCore->getIpWhitelistOption();
-			if ( !empty( $aIps ) && is_array( $aIps ) ) {
-				foreach( $aIps as $nIndex => $sIP ) {
-					$mResult = $this->addIpToWhiteList( $sIP, 'legacy' );
-					if ( $mResult != false ) {
-						unset( $aIps[ $nIndex ] );
-						$oCore->setOpt( 'ip_whitelist', $aIps );
-						$oCore->savePluginOptions(); // clearly not efficient to set every time, but simpler as this should only get run once.
-					}
-				}
 			}
 		}
 
