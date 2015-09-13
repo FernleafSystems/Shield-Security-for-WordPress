@@ -82,7 +82,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oWpUsers = $this->loadWpUsersProcessor();
 
-			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'plugin-update-available' );
+			$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'plugin-update-available' );
 			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
@@ -139,12 +139,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @see autoAddToAdminNotices()
 		 * @param array $aNoticeAttributes
 		 */
-		protected function addNotice_post_plugin_upgrade( $aNoticeAttributes ) {
+		protected function addNotice_post_plugin_update( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
 
 			$oWpUsers = $this->loadWpUsersProcessor();
-			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'post-plugin-upgrade' );
-			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-upgrade' ) ) {
+			$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'post-plugin-update' );
+			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-update' ) ) {
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display
 				return;
 			}
@@ -173,6 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					'main_message' => $sMessage,
 					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
 					'link_title' => $sHumanName,
+					'dismiss' => _wpsf__( 'Dismiss this notice' )
 				),
 				'hrefs' => array(
 					'read_homepage' => 'http://icwp.io/27',
