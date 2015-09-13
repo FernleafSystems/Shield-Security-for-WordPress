@@ -129,9 +129,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
 			}
-			if ( $oWpUsers->getUserMeta( $sAdminNoticeMetaKey ) === $oFO->getVersion() ) {
-				return;
-			}
 
 			if ( $this->getInstallationDays() <= 1 ) {
 				$sMessage = sprintf(
@@ -155,19 +152,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				),
 				'hrefs' => array(
 					'read_homepage' => 'http://icwp.io/27',
-					'hide_notice' => $oController->getPluginUrl_AdminMainPage().'&'.$oFO->doPluginPrefix( 'hide_update_notice' ).'=1'
 				),
 			);
 			$this->insertAdminNotice( $aRenderData );
-		}
-
-		/**
-		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
-		 * @param integer $nId
-		 */
-		protected function updateVersionUserMeta( $nId = null ) {
-			$oCon = $this->getController();
-			$oCon->loadWpUsersProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'current_version' ), $oCon->getVersion(), $nId );
 		}
 
 		/**

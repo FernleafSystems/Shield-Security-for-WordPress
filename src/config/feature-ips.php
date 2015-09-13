@@ -8,6 +8,12 @@ properties:
   show_feature_menu_item: true
   storage_key: 'ips' # should correspond exactly to that in the plugin-spec.yaml
   tagline: '%s'
+admin_notices:
+  'visitor-whitelisted':
+    id: 'visitor-whitelisted'
+    schedule: 'conditions'
+    valid_admin: true
+    type: 'info'
 requirements:
   php:
     functions:

@@ -37,13 +37,23 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
 		public function autoAddToAdminNotices() {
 			$oCon = $this->getController();
+			$aScheduleOptions = array( 'once', 'conditions', 'version' );
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
-				if ( isset( $aNoticeAttributes['once'] ) && $aNoticeAttributes['once']
+				if ( empty( $aNoticeAttributes['schedule'] ) || !in_array( $aNoticeAttributes['schedule'], $aScheduleOptions ) ) {
+					$aNoticeAttributes[ 'schedule' ] = 'conditions';
+				}
+
+				if ( $aNoticeAttributes[ 'schedule' ] == 'once'
 					&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( $sNoticeId ) )
 				) {
 					continue;
 				}
+
+				if ( $aNoticeAttributes['version'] == $this->getFeatureOptions()->getVersion() ) {
+					continue;
+				}
+
 				$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
 				if ( method_exists( $this, $sMethodName )
 					&& isset( $aNoticeAttributes['valid_admin'] ) && $aNoticeAttributes['valid_admin'] && $oCon->getIsValidAdminArea() ) {

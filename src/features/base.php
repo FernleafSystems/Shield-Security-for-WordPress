@@ -102,7 +102,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 				add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
 
-				add_filter($this->doPluginPrefix( 'admin_notice_ids' ), array( $this, 'fRegisterAdminNoticeIds' ) );
+				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 
 				$this->doPostConstruction();
 			}
@@ -110,14 +110,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
-		 * @param array $aIds
+		 * @param array $aAdminNotices
 		 * @return array
 		 */
-		public function fRegisterAdminNoticeIds( $aIds ) {
-			if ( !is_array( $aIds ) ) {
-				$aIds = array();
+		public function fRegisterAdminNotices( $aAdminNotices ) {
+			if ( !is_array( $aAdminNotices ) ) {
+				$aAdminNotices = array();
 			}
-			return array_merge( $aIds, array_keys( $this->getOptionsVo()->getAdminNotices() ) );
+			return array_merge( $aAdminNotices, $this->getOptionsVo()->getAdminNotices() );
 		}
 
 		/**

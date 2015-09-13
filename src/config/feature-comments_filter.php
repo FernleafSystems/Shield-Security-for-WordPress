@@ -12,7 +12,8 @@ properties:
 
 admin_notices:
   'akismet-running':
-    once: false
+    id: 'akismet-running'
+    schedule: 'conditions'
     valid_admin: true
     type: 'warning'
 

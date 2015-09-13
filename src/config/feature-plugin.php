@@ -11,33 +11,35 @@ properties:
 
 admin_notices:
   'rate-plugin':
-    once: true
+    id: 'rate-plugin'
+    schedule: 'once'
     valid_admin: true
     delay_days: 30
     type: 'promo'
-  'visitor-whitelisted':
-    once: false
-    valid_admin: true
-    type: 'info'
   'override-forceoff':
-    once: false
+    id: 'override-forceoff'
+    schedule: 'conditions'
     valid_admin: true
     type: 'error'
   'plugin-mailing-list-signup':
-    once: true
+    id: 'plugin-mailing-list-signup'
+    schedule: 'once'
     valid_admin: true
     delay_days: 15
     type: 'promo'
   'php53-version-warning':
-    once: true
+    id: 'php53-version-warning'
+    schedule: 'once'
     valid_admin: true
     type: 'warning'
   'plugin-update-available':
-    once: false
+    id: 'plugin-update-available'
+    schedule: 'version'
     valid_admin: true
     type: 'warning'
   'translate-plugin':
-    once: true
+    id: 'translate-plugin'
+    schedule: 'once'
     valid_admin: true
     delay_days: 45
     type: 'promo'

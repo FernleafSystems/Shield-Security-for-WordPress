@@ -58,9 +58,9 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 			if ( $bSuccess ) {
 				// Get all notices and if this notice exists, we set it to "hidden"
 				$sNoticeId = sanitize_key( $this->loadDataProcessor()->FetchGet( 'notice_id', '' ) );
-				$aNotices = apply_filters( $this->getActionPrefix().'admin_notice_ids', array() );
-				if ( !empty( $sNoticeId ) && in_array( $sNoticeId, $aNotices ) ) {
-					$this->setAdminNoticeAsDismissed( $sNoticeId );
+				$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
+				if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
+					$this->setAdminNoticeAsDismissed( $aNotices[ $sNoticeId ] );
 				}
 				$this->sendAjaxResponse( true );
 			}
@@ -83,14 +83,10 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		}
 
 		/**
-		 * @param string $sNoticeId
+		 * @param array $aNotice
 		 */
-		protected function setAdminNoticeAsDismissed( $sNoticeId ) {
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$oCurrentUser = $oWpUsers->getCurrentWpUser();
-			if ( !empty( $oCurrentUser ) ) {
-				$oWpUsers->updateUserMeta( $this->getActionPrefix().$sNoticeId, 'Y' );
-			}
+		protected function setAdminNoticeAsDismissed( $aNotice ) {
+			$this->loadWpUsersProcessor()->updateUserMeta( $this->getActionPrefix().$aNotice['id'], 'Y' );
 		}
 
 		/**
