@@ -10,23 +10,11 @@ properties:
   tagline: '%s'
 
 admin_notices:
-  'rate-plugin':
-    id: 'rate-plugin'
-    schedule: 'once'
-    valid_admin: true
-    delay_days: 30
-    type: 'promo'
   'override-forceoff':
     id: 'override-forceoff'
     schedule: 'conditions'
     valid_admin: true
     type: 'error'
-  'plugin-mailing-list-signup':
-    id: 'plugin-mailing-list-signup'
-    schedule: 'once'
-    valid_admin: true
-    delay_days: 15
-    type: 'promo'
   'php53-version-warning':
     id: 'php53-version-warning'
     schedule: 'once'
@@ -37,6 +25,18 @@ admin_notices:
     schedule: 'version'
     valid_admin: true
     type: 'warning'
+  'plugin-mailing-list-signup':
+    id: 'plugin-mailing-list-signup'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 15
+    type: 'promo'
+  'rate-plugin':
+    id: 'rate-plugin'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 30
+    type: 'promo'
   'translate-plugin':
     id: 'translate-plugin'
     schedule: 'once'

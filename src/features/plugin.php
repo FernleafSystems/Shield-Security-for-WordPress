@@ -214,7 +214,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				return;
 			}
 
-			if ( version_compare( $this->getVersion(), '4.3.0', '<' ) ) { }
+			// we need to update the meta keys for notices.
+			if ( version_compare( $this->getVersion(), '4.10.4', '<' ) ) {
+
+			}
 		}
 	}
 
