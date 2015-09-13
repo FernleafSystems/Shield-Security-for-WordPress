@@ -4,13 +4,22 @@
 	</div>
 
 	<div class="notice-content">
-		<h3>Would you like show us your support?  We need only your words.</h3>
+		<h3>Would you like show us your support? We need only your words &hellip;</h3>
+
 		<p>The authors of the Simple Firewall plugin need your support to spread the word about us.</p>
-		<p>By simply talking about our plugin and how effective it is for your site security, you lend us your support in return; You help other people find us; and of course, you help build a more secure WordPress community.</p>
-		<p>Please, could you leave us a 5* review?
+
+		<p>Simply by talking about our plugin to other people in the community how effective it is for your site security, you lend us your
+			incredible support in return for continued development of this plugin.
+
+		<p>You will help other people find us; you help other people to trust us, and of course, you will help build a more secure
+			WordPress community.</p>
+
+		<p><a href="" class="button button-primary" target="_blank">Please, could you leave us a 5* review on WordPress.org?</a>
+			 If you're having any trouble, please leave us a support ticket <strong>instead</strong> and we'll help you out asap!
+		</p>
 	</div>
 	<div class="notice-icon notice-icon-right">
-		<span class="dashicons dashicons-star-filled"></span>&nbsp;
+		<span class="dashicons dashicons-star-empty"></span>&nbsp;
 	</div>
 </div>
 

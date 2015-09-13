@@ -37,28 +37,10 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
 		public function autoAddToAdminNotices() {
 			$oCon = $this->getController();
-			$oWpNotices = $this->loadAdminNoticesProcessor();
-			$aScheduleOptions = array( 'once', 'conditions', 'version' );
-
-			$bIsMobile = $this->loadWpFunctionsProcessor()->getIsMobile();
 
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
-				if ( empty( $aNoticeAttributes['schedule'] ) || !in_array( $aNoticeAttributes['schedule'], $aScheduleOptions ) ) {
-					$aNoticeAttributes[ 'schedule' ] = 'conditions';
-				}
-
-				if ( $aNoticeAttributes[ 'schedule' ] == 'once'
-					&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $sNoticeId ) )
-				) {
-					continue;
-				}
-
-				if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $sNoticeId ) ) ) {
-					continue;
-				}
-
-				if ( $bIsMobile && isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
+				if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
 					continue;
 				}
 
@@ -70,6 +52,34 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 					call_user_func( array( $this, $sMethodName ), $aNoticeAttributes );
 				}
 			}
+		}
+
+		/**
+		 * @param array $aNoticeAttributes
+		 * @return bool
+		 */
+		protected function getIfDisplayAdminNotice( $aNoticeAttributes ) {
+			$oWpNotices = $this->loadAdminNoticesProcessor();
+
+			if ( empty( $aNoticeAttributes['schedule'] ) || !in_array( $aNoticeAttributes['schedule'], array( 'once', 'conditions', 'version' ) ) ) {
+				$aNoticeAttributes[ 'schedule' ] = 'conditions';
+			}
+
+			if ( $aNoticeAttributes[ 'schedule' ] == 'once'
+				&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes['id'] ) )
+			) {
+				return false;
+			}
+
+			if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes['id'] ) ) ) {
+				return false;
+			}
+
+			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' && $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		public function action_doFeatureProcessorShutdown() { }

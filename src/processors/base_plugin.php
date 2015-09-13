@@ -14,17 +14,34 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 		}
 
-		public function addNotice_rate_plugin( $aNoticeAttributes ) {
-			$oDp = $this->loadDataProcessor();
-			$oCon = $this->getController();
-			$oWp = $this->loadWpFunctionsProcessor();
+		/**
+		 * @param array $aNoticeAttributes
+		 * @return bool
+		 */
+		protected function getIfDisplayAdminNotice( $aNoticeAttributes ) {
 
-			if ( isset( $aNoticeAtributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeAttributes['delay_days'] ) ) {
-				return;
+			if ( ! parent::getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
+				return false;
 			}
 
+			if ( isset( $aNoticeAtributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeAttributes['delay_days'] ) ) {
+				return false;
+			}
+
+			return true;
+		}
+
+		public function addNotice_rate_plugin( $aNoticeAttributes ) {
+
 			$aRenderData = array(
-				'notice_attributes' => $aNoticeAttributes
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'dismiss' => _wpsf__( "I'd rather not show this support" ),
+					'forums' => __( 'Support Forums' )
+				),
+				'hrefs' => array(
+					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
+				)
 			);
 			$this->insertAdminNotice( $aRenderData );
 		}
