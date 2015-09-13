@@ -40,6 +40,15 @@
 	color: rgba(21, 111, 21, 0.99);
 }
 
+.wrap .info.icwp-admin-notice {
+	background-color: rgba(6, 164, 255, 0.25);
+	border-color: rgba(6, 90, 150, 0.99);
+}
+.wrap .info.icwp-admin-notice,
+.wrap .info.icwp-admin-notice p {
+	color: rgba(6, 90, 150, 0.99);
+}
+
 .wrap .error.icwp-admin-notice {
 	border-color: rgba(240, 51, 4, 0.56);
 	background-color: rgba(255, 185, 167, 0.25);

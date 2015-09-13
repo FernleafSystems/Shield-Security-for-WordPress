@@ -68,6 +68,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 							_wpsf__( 'Notice - %s' ),
 							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
 						),
+						'including_message' => _wpsf__( 'Including the Rename WP Login feature.' )
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );
