@@ -63,7 +63,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
-			$oWp = $this->loadWpFunctionsProcessor();
 			$oWpUsers = $this->loadWpUsersProcessor();
 
 			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'plugin-update-available' );
@@ -72,6 +71,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				return;
 			}
 
+			if ( !$this->getIfShowAdminNotices() ) {
+				return;
+			}
+
+			$oWp = $this->loadWpFunctionsProcessor();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 
