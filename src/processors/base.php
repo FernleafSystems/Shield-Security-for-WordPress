@@ -37,6 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 
 		public function autoAddToAdminNotices() {
 			$oCon = $this->getController();
+			$oWpNotices = $this->loadAdminNoticesProcessor();
 			$aScheduleOptions = array( 'once', 'conditions', 'version' );
 			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
@@ -45,12 +46,12 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 				}
 
 				if ( $aNoticeAttributes[ 'schedule' ] == 'once'
-					&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( $sNoticeId ) )
+					&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $sNoticeId ) )
 				) {
 					continue;
 				}
 
-				if ( $aNoticeAttributes['version'] == $this->getFeatureOptions()->getVersion() ) {
+				if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $sNoticeId ) ) ) {
 					continue;
 				}
 
