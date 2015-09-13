@@ -86,7 +86,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		/**
 		 * @param array $aNotice
 		 */
-		protected function setAdminNoticeAsDismissed( $aNotice ) {
+		public function setAdminNoticeAsDismissed( $aNotice ) {
 			$this->loadWpUsersProcessor()->updateUserMeta( $this->getActionPrefix().$aNotice['id'], 'Y' );
 		}
 
