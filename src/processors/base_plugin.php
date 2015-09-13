@@ -71,9 +71,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
 			}
-			if ( $oWpUsers->getUserMeta( $sAdminNoticeMetaKey ) === $oFO->getVersion() ) {
-				return;
-			}
 
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
@@ -100,19 +97,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function addNotice_translate_plugin( $aNoticeAttributes ) {
 
-			$aRenderData = array(
-				'notice_attributes' => $aNoticeAttributes,
-				'strings' => array(
-					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()->getHumanName() ),
-					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
-					'site_url' => 'translate.icontrolwp.com',
-					'dismiss' => _wpsf__( 'Dismiss this notice' )
-				),
-				'hrefs' => array(
-					'translate' => 'http://translate.icontrolwp.com'
-				)
-			);
-			$this->insertAdminNotice( $aRenderData );
+			if ( $this->getIfShowAdminNotices() ) {
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
+					'strings' => array(
+						'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()->getHumanName() ),
+						'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
+						'site_url' => 'translate.icontrolwp.com',
+						'dismiss' => _wpsf__( 'Dismiss this notice' )
+					),
+					'hrefs' => array(
+						'translate' => 'http://translate.icontrolwp.com'
+					)
+				);
+				$this->insertAdminNotice( $aRenderData );
+			}
 		}
 
 		/**
@@ -121,25 +120,29 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function addNotice_post_plugin_upgrade( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
-			$oController = $this->getController();
 
 			$oWpUsers = $this->loadWpUsersProcessor();
 			$sAdminNoticeMetaKey = $oFO->prefixOptionKey( 'post-plugin-upgrade' );
 			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-upgrade' ) ) {
-				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
+				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display
 				return;
 			}
 
+			if ( !$this->getIfShowAdminNotices() ) {
+				return;
+			}
+
+			$sHumanName = $this->getController()->getHumanName();
 			if ( $this->getInstallationDays() <= 1 ) {
 				$sMessage = sprintf(
 					_wpsf__( "Notice - %s" ),
-					sprintf( _wpsf__( "The %s plugin does not automatically turn on certain features when you install." ), $oController->getHumanName() )
+					sprintf( _wpsf__( "The %s plugin does not automatically turn on certain features when you install." ), $sHumanName )
 				);
 			}
 			else {
 				$sMessage = sprintf(
 					_wpsf__( "Notice - %s" ),
-					sprintf( _wpsf__( "The %s plugin has been recently upgraded, but please remember that new features may not be automatically enabled." ), $oController->getHumanName() )
+					sprintf( _wpsf__( "The %s plugin has been recently upgraded, but please remember that new features may not be automatically enabled." ), $sHumanName )
 				);
 			}
 
@@ -148,7 +151,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				'strings' => array(
 					'main_message' => $sMessage,
 					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
-					'link_title' => $oController->getHumanName(),
+					'link_title' => $sHumanName,
 				),
 				'hrefs' => array(
 					'read_homepage' => 'http://icwp.io/27',
