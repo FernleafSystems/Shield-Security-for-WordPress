@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.10.3
+Stable tag: 4.10.4
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -51,6 +51,9 @@ Provides effective security against Brute Force Hacking and email based Two-Fact
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
 Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](http://icwp.io/wpsf08)
+
+= FABLE - Fully Automatic Black Listing Engine =
+No more manual IP Black lists. This plugin handles the blocking of IP addresses for hosts that are naughty.
 
 = WordPress Lock Down =
 Numerous security and protection mechanisms to lock down your WordPress admin area, such as blocking file edits and enforcing SSL.
@@ -263,10 +266,14 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.10.4 Point Release =
-*Released: 7th September, 2015*
+*Released: 14th September, 2015*
 
-* **(v.4)**  REMOVED:		The old manual black list option has been completely removed - in favour of the automatic black list system
-* **(v.4)**  CHANGED:		Revised the order of certain hooks being created to avoid the possible of pluggable.php not being loaded for PHP Shutdown
+* **(v.4)**  REFACTOR:		Notifications system is more reliable and most notices can be hidden/closed (at least for the current page load as some notices are persistent).
+* **(v.4)**  REMOVED:		The old manual black list option has been completely removed - in favour of the automatic black list system.
+* **(v.4)**  CHANGED:		Revised the order of certain hooks being created to avoid the possibility of pluggable.php not being loaded for PHP Shutdown.
+* **(v.4)**  CHANGED:		The presence of IP addresses in the IP Whitelist will force the IP Manager feature to be enabled.
+* **(v.4)**  CHANGED:		We now make an attempt to prevent the caching of WordPress wp_die() pages that we generate. (compatible with at least W3TC, Super Cache)
+* **(v.4)**  TRANSLATIONS:  Turkish - 100%, Danish - 3%
 
 = 4.10 Series =
 *Released: 23rd August, 2015*
