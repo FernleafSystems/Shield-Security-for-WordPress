@@ -50,7 +50,7 @@ menu:
 
 labels: #the keys below must correspond exactly for the 'all_plugins' filter
   Name: 'WordPress Simple Firewall'
-  Description: 'Take Control Of All WordPress Sites From A Single Dashboard'
+  Description: \"Secure Your Sites With The World's Most Powerful WordPress Security Protection System\"
   Title: 'WordPress Simple Firewall'
   Author: 'iControlWP'
   AuthorName: 'iControlWP'
@@ -62,7 +62,7 @@ labels: #the keys below must correspond exactly for the 'all_plugins' filter
 # This is on the plugins.php page with the option to remove or add custom links.
 plugin_meta:
     -
-      name: 'Rate This Plugin'
+      name: '5&#10025; Rate This Plugin'
       href: 'http://icwp.io/wpsf29'
 action_links:
   remove:

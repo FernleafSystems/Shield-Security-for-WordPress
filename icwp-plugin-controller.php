@@ -391,7 +391,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $sPluginFile == $this->getPluginBaseFile() ) {
 			$aMeta = $this->getPluginSpec_PluginMeta();
 
-			$sLinkTemplate = '<a href="%s" target="%s">%s</a>';
+			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
 			foreach( $aMeta as $aMetaLink ){
 				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
 				array_push( $aPluginMeta, $sSettingsLink );
