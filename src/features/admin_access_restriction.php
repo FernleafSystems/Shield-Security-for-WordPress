@@ -45,6 +45,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->bHasPermissionToSubmit;
 	}
 
+	/** TODO
+	 * @return bool
+	 */
+	public function getAdminAccessArea_Options() {
+		return $this->getOptIs( 'admin_access_restrict_options', 'Y' );
+	}
+
 	/**
 	 * @return array
 	 */
@@ -228,6 +235,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'admin_access_restrict_plugins' :
 				$sName = _wpsf__( 'Admin Access Plugins' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
+								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
+				break;
+
+			case 'admin_access_restrict_options' :
+				$sName = _wpsf__( 'Admin Access Options' );
+				$sSummary = _wpsf__( 'Restrict Access To Changing Admin Options' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
 								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
 				break;

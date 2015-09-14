@@ -39,17 +39,43 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		}
 
 		/**
+		 * @param array $aNoticeAttributes
+		 */
+		public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
+
+			if ( !$this->loadWpFunctionsProcessor()->getIsCurrentPage( 'options-general.php' ) ) {
+				return;
+			}
+
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
+					'notice_message' => sprintf(
+						_wpsf__( 'Notice - %s' ),
+						_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
+					),
+					'including_message' => _wpsf__( 'Including the Rename WP Login feature.' )
+				)
+			);
+			$this->insertAdminNotice( $aRenderData );
+		}
+
+		/**
 		 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
 		 * revert the option to save to the previous one.
 		 *
 		 * @param mixed $mNewOptionValue
-		 * @param string $sOption
+		 * @param string $sOptionKey
 		 * @param mixed $mOldValue
 		 * @return mixed
 		 */
-		public function blockOptionsSaves( $mNewOptionValue, $sOption, $mOldValue ) {
-			if ( !preg_match( $this->getOptionRegexPattern(), $sOption ) ) {
-				return $mNewOptionValue;
+		public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
+			if ( !$this->getIsOptionKeyForThisPlugin( $sOptionKey ) ) {
+				// Now we test certain other options saving based on where it's restricted
+				if ( !$this->getIsSavingOptionRestricted( $sOptionKey ) ) {
+					return $mNewOptionValue;
+				}
 			}
 
 			$fHasPermissionToChangeOptions = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
@@ -60,6 +86,37 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			return $mNewOptionValue;
+		}
+
+		/**
+		 * @param string $sOptionKey
+		 * @return int
+		 */
+		protected function getIsOptionKeyForThisPlugin( $sOptionKey ) {
+			return preg_match( $this->getOptionRegexPattern(), $sOptionKey );
+		}
+
+		/**
+		 * @param string $sOptionKey
+		 * @return int
+		 */
+		protected function getIsSavingOptionRestricted( $sOptionKey ) {
+			$bRestricted = false;
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->getAdminAccessArea_Options() ) {
+				$bRestricted = in_array(
+					$sOptionKey,
+					array(
+						'blogname',
+						'blogdescription',
+						'siteurl',
+						'home',
+						'admin_email'
+					)
+				);
+			}
+			return $bRestricted;
 		}
 
 		/**
