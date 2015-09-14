@@ -76,10 +76,6 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		if ( $oFO->getIsEmailTwoFactorAuthEnabled() ) {
 			$this->getProcessorTwoFactor()->run();
 		}
-		else if ( $oFO->getIsTwoFactorAuthOn() )  {
-			//we're here because two-factor auth settings are on, but it's not enabled (probably due to email ability not verified
-			add_filter( $oFO->doPluginPrefix( 'admin_notices' ), array( $this, 'adminNoticeVerifyEmailAbility' ) );
-		}
 
 		add_action( 'wp_login_failed', array( $this, 'blackMarkFailedLogin' ), 10, 0 );
 
@@ -92,27 +88,25 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @param array $aAdminNotices
-	 * @return array
+	 * @param array $aNoticeAttributes
 	 */
-	public function adminNoticeVerifyEmailAbility( $aAdminNotices ) {
+	public function addNotice_email_verification_sent( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIfCanSendEmail() ) {
-
-			$aDisplayData = array(
+		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIsEmailTwoFactorAuthEnabled() && !$oFO->getIfCanSendEmail() ) {
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'need_you_confirm' => _wpsf__("Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails."),
-					'please_click_link' => _wpsf__("Please click the link in the email you received."),
-					'email_sent_to' => sprintf( _wpsf__("The email has been sent to you at blog admin address: %s"), get_bloginfo('admin_email') ),
-					'how_resend_email' => _wpsf__("To have this email resent, re-save your Login Protection settings."),
-					'how_turn_off' => _wpsf__("To turn this notice off, disable Two Factor authentication."),
+					'need_you_confirm' => _wpsf__( "Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails." ),
+					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
+					'email_sent_to' => sprintf( _wpsf__( "The email has been sent to you at blog admin address: %s" ), get_bloginfo( 'admin_email' ) ),
+					'how_resend_email' => _wpsf__( "To have this email resent, re-save your Login Protection settings." ),
+					'how_turn_off' => _wpsf__( "To turn this notice off, disable Two Factor authentication." ),
 				)
 			);
-			$aAdminNotices[] = $this->getFeatureOptions()->renderAdminNotice( 'email-verification-sent', $aDisplayData );
+			$this->insertAdminNotice( $aRenderData );
 		}
-		return $aAdminNotices;
 	}
 
 	/**
@@ -160,7 +154,7 @@ class ICWP_WPSF_Processor_LoginProtect_V6 extends ICWP_WPSF_Processor_Base {
 		);
 		$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_block_remote' );
 
-		wp_die(
+		$this->loadWpFunctionsProcessor()->wpDie(
 			_wpsf__( 'Sorry, you must login directly from within the site.' )
 			.' '._wpsf__( 'Remote login is not supported.' )
 			.'<br /><a href="http://icwp.io/4n" target="_blank">&rarr;'._wpsf__('More Info').'</a>'

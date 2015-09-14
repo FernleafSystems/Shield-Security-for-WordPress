@@ -369,12 +369,13 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 				return true;
 			}
 
-			$sHomeUrl = $this->loadWpFunctionsProcessor()->getHomeUrl();
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sHomeUrl = $oWp->getHomeUrl();
 			switch( $this->getOption( 'block_response' ) ) {
 				case 'redirect_die':
 					break;
 				case 'redirect_die_message':
-					wp_die( $this->getFirewallDieMessage() );
+					$oWp->wpDie( $this->getFirewallDieMessage() );
 					break;
 				case 'redirect_home':
 					header( "Location: ".$sHomeUrl );
@@ -498,7 +499,8 @@ if ( !class_exists( 'ICWP_FirewallProcessor_V1', false ) ):
 		}
 
 		public function isVisitorOnBlacklist() {
-			return $this->isIpOnlist( $this->getOption( 'ips_blacklist', array() ), $this->ip(), $this->sListItemLabel );
+			return false;
+			/* return $this->isIpOnlist( $this->getOption( 'ips_blacklist', array() ), $this->ip(), $this->sListItemLabel ); */
 		}
 
 		/**

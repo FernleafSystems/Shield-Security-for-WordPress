@@ -20,6 +20,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		private static $oWp;
 		/**
+		 * @var ICWP_WPSF_WpDb
+		 */
+		private static $oWpDb;
+		/**
 		 * @var ICWP_WPSF_Render
 		 */
 		private static $oRender;
@@ -31,6 +35,14 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_Ip
 		 */
 		private static $oIp;
+		/**
+		 * @var ICWP_WPSF_WpAdminNotices
+		 */
+		private static $oAdminNotices;
+		/**
+		 * @var ICWP_WPSF_WpUsers
+		 */
+		private static $oWpUsers;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -80,14 +92,18 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @return void
 		 */
 		static public function loadWpWidgets() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-wpwidget.php' );
+			require_once( dirname( __FILE__ ).ICWP_DS.'wp-widget.php' );
 		}
 
 		/**
 		 * @return ICWP_WPSF_WpDb
 		 */
 		static public function loadDbProcessor() {
-			return self::loadWpFunctionsProcessor()->loadDbProcessor();
+			if ( !isset( self::$oWpDb ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
+				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
+			}
+			return self::$oWpDb;
 		}
 
 		/**
@@ -126,6 +142,28 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oYaml = ICWP_WPSF_YamlProcessor::GetInstance();
 			}
 			return self::$oYaml;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpAdminNotices
+		 */
+		static public function loadAdminNoticesProcessor() {
+			if ( !isset( self::$oAdminNotices ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-admin-notices.php' );
+				self::$oAdminNotices = ICWP_WPSF_WpAdminNotices::GetInstance();
+			}
+			return self::$oAdminNotices;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpUsers
+		 */
+		static public function loadWpUsersProcessor() {
+			if ( !isset( self::$oWpUsers ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-users.php' );
+				self::$oWpUsers = ICWP_WPSF_WpUsers::GetInstance();
+			}
+			return self::$oWpUsers;
 		}
 
 		/**

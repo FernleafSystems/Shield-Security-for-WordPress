@@ -47,9 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$oFO = $this->getFeatureOptions();
 
 			if ( is_user_logged_in() ) {
-
-				$oWp = $this->loadWpFunctionsProcessor();
-				$oUser = $oWp->getCurrentWpUser();
+				$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 				if ( !is_null( $oUser ) ) {
 
 					if ( $this->getUserHasValidAuth( $oUser ) ) {
@@ -63,7 +61,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 						$sAuditMessage = sprintf( _wpsf__('User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).'), $oUser->get( 'user_login' ) );
 						$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_logout_unverified' );
 						$this->doStatIncrement( 'login.userverify.fail' );
-						$oWp->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
+						$this->loadWpUsersProcessor()->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
 					}
 				}
 			}
@@ -130,7 +128,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$sAuditMessage = sprintf( _wpsf__('User "%s" verified their identity using Two-Factor Authentication.'), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
-				$oWp->setUserLoggedIn( $sUsername );
+				$this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
 				$oWp->redirectToAdmin();
 			}
 			else {
@@ -419,12 +417,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$sAuthLink = $this->generateTwoFactorVerifyLink( $oUser->get( 'user_login' ), $sUniqueId );
 
 			$aMessage = array(
-				_wpsf__('You, or someone pretending to be you, just attempted to login into your WordPress site.'),
-				_wpsf__('The IP Address / Cookie from which they tried to login is not currently verified.'),
-				_wpsf__('Click the following link to validate and complete the login process.') .' '._wpsf__('You will be logged in automatically upon successful authentication.'),
-				sprintf( _wpsf__('Username: %s'), $oUser->get( 'user_login' ) ),
-				sprintf( _wpsf__('IP Address: %s'), $sIpAddress ),
-				sprintf( _wpsf__('Authentication Link: %s'), $sAuthLink ),
+				_wpsf__( 'You, or someone pretending to be you, just attempted to login into your WordPress site.' ),
+				_wpsf__( 'The IP Address / Cookie from which they tried to login is not currently verified.' ),
+				_wpsf__('Click the following link to validate and complete the login process.').' '._wpsf__('You will be logged in automatically upon successful authentication.'),
+				sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
+				sprintf( _wpsf__( 'Authentication Link: %s' ), $sAuthLink )
 			);
 			$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
 

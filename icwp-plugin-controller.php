@@ -51,11 +51,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	private $sFlashMessage;
-
-	/**
-	 * @var string
-	 */
 	private $sPluginUrl;
 
 	/**
@@ -101,7 +96,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		$this->doRegisterHooks();
+		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ) ); // this hook then registers everything
 	}
 
 	/**
@@ -192,33 +187,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 */
-	protected function doRegisterHooks() {
-		$this->registerActivationHooks();
-		add_action( 'plugins_loaded',					array( $this, 'onWpPluginsLoaded' ) );
-
-		add_action( 'init',			        			array( $this, 'onWpInit' ) );
-		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
-		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
-
-		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
-		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
-		add_action( 'admin_notices',					array( $this, 'onWpAdminNotices' ) );
-		add_action( 'network_admin_notices',			array( $this, 'onWpAdminNotices' ) );
-
-		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
-		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
-		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
-
-		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
-		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
-
-		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
-	}
-
-	/**
 	 * Registers the plugins activation, deactivate and uninstall hooks.
 	 */
 	protected function registerActivationHooks() {
@@ -245,8 +213,39 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpPluginsLoaded() {
 		$this->doLoadTextDomain();
+		$this->doRegisterHooks();
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ) );
+	}
+
+	/**
+	 */
+	protected function doRegisterHooks() {
+		$this->registerActivationHooks();
+
+		add_action( 'init',			        			array( $this, 'onWpInit' ) );
+		add_action( 'admin_init',						array( $this, 'onWpAdminInit' ) );
+		add_action( 'wp_loaded',			    		array( $this, 'onWpLoaded' ) );
+
+		add_action( 'admin_menu',						array( $this, 'onWpAdminMenu' ) );
+		add_action(	'network_admin_menu',				array( $this, 'onWpAdminMenu' ) );
+
+		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
+		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_row_meta',					array( $this, 'onPluginRowMeta' ), 50, 2 );
+		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+
+		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
+
+		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
+
+		// outsource the collection of admin notices
+		if ( is_admin() ) {
+			$this->loadAdminNoticesProcessor()->setActionPrefix( $this->doPluginPrefix() );
+		}
 	}
 
 	/**
@@ -261,7 +260,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpLoaded() {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
-			$this->readFlashMessage();
 		}
 	}
 
@@ -358,15 +356,25 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( !empty( $aLinksToAdd ) && is_array( $aLinksToAdd ) ) {
+
+				$sLinkTemplate = '<a href="%s" target="%s">%s</a>';
 				foreach( $aLinksToAdd as $aLink ){
-					if ( empty( $aLink['name'] ) || empty( $aLink['url_method_name'] ) ) {
+					if ( empty( $aLink['name'] ) || ( empty( $aLink['url_method_name'] ) && empty( $aLink['href'] ) ) ) {
 						continue;
 					}
-					$sMethod = $aLink['url_method_name'];
-					if ( method_exists( $this, $sMethod ) ) {
-						$sSettingsLink = sprintf( '<a href="%s">%s</a>', $this->{$sMethod}(), $aLink['name'] ); ;
+
+					if ( !empty( $aLink['url_method_name'] ) ) {
+						$sMethod = $aLink['url_method_name'];
+						if ( method_exists( $this, $sMethod ) ) {
+							$sSettingsLink = sprintf( $sLinkTemplate, $this->{$sMethod}(), "_top", $aLink['name'] ); ;
+							array_unshift( $aActionLinks, $sSettingsLink );
+						}
+					}
+					else if ( !empty( $aLink['href'] ) ) {
+						$sSettingsLink = sprintf( $sLinkTemplate, $aLink['href'], "_blank", $aLink['name'] ); ;
 						array_unshift( $aActionLinks, $sSettingsLink );
 					}
+
 				}
 			}
 		}
@@ -374,43 +382,22 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param array $aPluginMeta
+	 * @param string $sPluginFile
+	 * @return array
 	 */
-	public function onWpAdminNotices() {
-		if ( $this->getIsValidAdminArea() ) {
-			$aAdminNotices = apply_filters( $this->doPluginPrefix( 'admin_notices' ), array() );
-			if ( !empty( $aAdminNotices ) && is_array( $aAdminNotices ) ) {
-				foreach( $aAdminNotices as $sAdminNotice ) {
-					echo $sAdminNotice;
-				}
+	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
+
+		if ( $sPluginFile == $this->getPluginBaseFile() ) {
+			$aMeta = $this->getPluginSpec_PluginMeta();
+
+			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
+			foreach( $aMeta as $aMetaLink ){
+				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
+				array_push( $aPluginMeta, $sSettingsLink );
 			}
-			$this->flashNotice();
 		}
-		return true;
-	}
-
-	public function addFlashMessage( $sMessage ) {
-		$this->loadDataProcessor()->setCookie( $this->doPluginPrefix( 'flash' ), esc_attr( $sMessage ) );
-	}
-
-	protected function readFlashMessage() {
-
-		$oDp = $this->loadDataProcessor();
-		$sCookieName = $this->doPluginPrefix( 'flash' );
-		$sMessage = $oDp->FetchCookie( $sCookieName, '' );
-		if ( !empty( $sMessage ) ) {
-			$this->sFlashMessage = sanitize_text_field( $sMessage );
-		}
-		$oDp->setDeleteCookie( $sCookieName );
-	}
-
-	protected function flashNotice() {
-		if ( !empty( $this->sFlashMessage ) ) {
-			$aDisplayData = array( 'message' => $this->sFlashMessage );
-			$this->loadRenderer( $this->getPath_Templates() )
-				 ->setTemplate( 'notices/flash-message' )
-				 ->setRenderVars( $aDisplayData )
-				 ->display();
-		}
+		return $aPluginMeta;
 	}
 
 	public function onWpEnqueueFrontendCss() {
@@ -817,6 +804,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function getPluginSpec_Property( $sKey ) {
 		$oConOptions = $this->getPluginControllerOptions();
 		return isset( $oConOptions->plugin_spec['properties'][$sKey] ) ? $oConOptions->plugin_spec['properties'][$sKey] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getPluginSpec_PluginMeta() {
+		$oConOptions = $this->getPluginControllerOptions();
+		return ( isset( $oConOptions->plugin_spec['plugin_meta'] ) && is_array( $oConOptions->plugin_spec['plugin_meta'] ) ) ? $oConOptions->plugin_spec['plugin_meta'] : array();
 	}
 
 	/**
@@ -1357,7 +1352,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$bSuccess = true;
 			}
 			catch( Exception $oE ) {
-				wp_die( $oE->getMessage() );
+				$this->loadWpFunctionsProcessor()->wpDie( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;

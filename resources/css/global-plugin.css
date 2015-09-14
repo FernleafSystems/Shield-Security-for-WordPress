@@ -1,7 +1,7 @@
 @CHARSET "ISO-8859-1";
 
 .wrap .icwp-admin-notice {
-	padding: 13px 20px;
+	padding: 10px 20px 8px;
 	border: 1px solid rgba(240, 165, 4, 0.56);
 	background-color: rgba(255, 227, 167, 0.25);
 	border-right-width: 5px;
@@ -9,7 +9,7 @@
 }
 
 .wrap .icwp-admin-notice p {
-	text-shadow: -1px -1px 0px rgba(255,255,255,0.4);
+	text-shadow: -1px -1px 0 rgba(255,255,255,0.4);
 }
 .wrap .icwp-admin-notice.updated p {
 	color: rgba(155, 107, 5, 1);
@@ -17,11 +17,36 @@
 .wrap .icwp-admin-notice form {
 	margin: 0;
 }
-.wrap .icwp-admin-notice .button {
-	margin: 10px 0 7px;
+.wrap .icwp-admin-notice p.dismiss-p {
+	margin: 10px 4px 0 0;
 }
 .wrap .icwp-admin-notice .button:hover {
 	text-decoration: none;
+}
+
+.wrap .icwp-admin-notice .notice-dismiss::before {
+	color: rgba(0, 0, 0, 0.5);
+	font-size: 24px;
+	line-height: 21px;
+	padding-right: 4px;
+}
+
+.wrap .promo.icwp-admin-notice {
+	background-color: rgba(40, 214, 40, 0.25);
+	border-color: rgba(25, 137, 25, 0.99);
+}
+.wrap .promo.icwp-admin-notice,
+.wrap .promo.icwp-admin-notice p {
+	color: rgba(21, 111, 21, 0.99);
+}
+
+.wrap .info.icwp-admin-notice {
+	background-color: rgba(6, 164, 255, 0.25);
+	border-color: rgba(6, 90, 150, 0.99);
+}
+.wrap .info.icwp-admin-notice,
+.wrap .info.icwp-admin-notice p {
+	color: rgba(6, 90, 150, 0.99);
 }
 
 .wrap .error.icwp-admin-notice {

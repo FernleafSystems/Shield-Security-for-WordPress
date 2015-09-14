@@ -135,6 +135,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		protected function adminAjaxHandlers() {
+			parent::adminAjaxHandlers();
 			add_action( 'wp_ajax_icwp_wpsf_GetIpList', array( $this, 'ajaxGetIpList' ) );
 			add_action( 'wp_ajax_icwp_wpsf_RemoveIpFromList', array( $this, 'ajaxRemoveIpFromList' ) );
 			add_action( 'wp_ajax_icwp_wpsf_AddIpToWhiteList', array( $this, 'ajaxAddIpToWhiteList' ) );
@@ -192,20 +193,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 		/**
 		 * Will send ajax error response immediately upon failure
-		 *
 		 * @return bool
 		 */
 		protected function checkAjaxNonce() {
 
 			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
 			if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
-				$sMessage = _wpsf__('You need to authenticate with the plugin Admin Access Protection system.');
+				$sMessage = _wpsf__( 'You need to authenticate with the plugin Admin Access Protection system.' );
 			}
 			else if ( empty( $sNonce ) ) {
-				$sMessage = _wpsf__('Nonce security checking failed - the nonce value was empty.');
+				$sMessage = _wpsf__( 'Nonce security checking failed - the nonce value was empty.' );
 			}
 			else if ( wp_verify_nonce( $sNonce, 'fable_ip_list_action' ) === false ) {
-				$sMessage = sprintf( _wpsf__('Nonce security checking failed - the nonce supplied was "%s".'), $sNonce );
+				$sMessage = sprintf( _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
 			}
 			else {
 				return true; // At this stage we passed the nonce check
@@ -216,17 +216,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			return false; //unreachable
 		}
 
-		/**
-		 * @param $bSuccess
-		 * @param array $aData
-		 */
-		protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
-			$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
-		}
-
 		protected function renderListTable( $sListToRender ) {
-			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-			$oProcessor = $this->getProcessor();
 
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sTimeFormat = $oWp->getOption( 'time_format' );
@@ -332,6 +322,60 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$aOptionsParams['summary'] = $sSummary;
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
+		}
+
+		/**
+		 * Hooked to the plugin's main plugin_shutdown action
+		 */
+		public function action_doFeatureShutdown() {
+			if ( ! $this->getIsPluginDeleting() ) {
+				$this->moveIpsFromLegacyWhiteList();
+				$this->addFilterIpsToWhiteList();
+				$this->ensureFeatureEnabled();
+			}
+			parent::action_doFeatureShutdown(); //save
+		}
+
+		protected function addFilterIpsToWhiteList() {
+			$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
+			if ( !empty( $aIps ) && is_array( $aIps ) ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
+				foreach( $aIps as $sIP => $sLabel ) {
+					$oProcessor->addIpToWhiteList( $sIP, $sLabel );
+				}
+			}
+		}
+
+		protected function moveIpsFromLegacyWhiteList() {
+			$oCore =& $this->getController()->loadCorePluginFeatureHandler();
+			$aIps = $oCore->getIpWhitelistOption();
+			if ( !empty( $aIps ) && is_array( $aIps ) ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
+				foreach( $aIps as $nIndex => $sIP ) {
+					$mResult = $oProcessor->addIpToWhiteList( $sIP, 'legacy' );
+					if ( $mResult != false ) {
+						unset( $aIps[ $nIndex ] );
+						$oCore->setOpt( 'ip_whitelist', $aIps );
+						$oCore->savePluginOptions(); // clearly not efficient to set every time, but simpler as this should only get run once.
+					}
+				}
+			}
+		}
+
+		protected function ensureFeatureEnabled() {
+			// we prevent disabling of this feature if the white list isn't empty
+			if ( !$this->getIsMainFeatureEnabled() ) {
+				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+				$oProcessor = $this->getProcessor();
+				if ( count( $oProcessor->getWhitelistData() ) > 0 ) {
+					$this->setIsMainFeatureEnabled( true );
+					$this->loadAdminNoticesProcessor()->addFlashMessage(
+						sprintf( _wpsf__( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List' ), $this->getMainFeatureName() )
+					);
+				}
+			}
 		}
 	}
 

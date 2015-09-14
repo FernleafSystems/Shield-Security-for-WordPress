@@ -17,11 +17,29 @@
  *
  */
 
-if ( !class_exists( 'ICWP_WPSF_YamlProcessor_V2', false ) ):
+if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
 
-	class ICWP_WPSF_YamlProcessor_V2 {
+	class ICWP_WPSF_YamlProcessor {
 
+		/**
+		 * @var ICWP_WPSF_YamlProcessor
+		 */
+		protected static $oInstance = NULL;
+
+		/**
+		 * @var sfYaml
+		 */
 		protected static $oYaml;
+
+		/**
+		 * @return ICWP_WPSF_YamlProcessor
+		 */
+		public static function GetInstance() {
+			if ( is_null( self::$oInstance ) ) {
+				self::$oInstance = new self();
+			}
+			return self::$oInstance;
+		}
 
 		/**
 		 * @param string $sYamlString
@@ -96,27 +114,6 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor_V2', false ) ):
 				}
 			}
 			return self::$oYaml;
-		}
-	}
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
-
-	class ICWP_WPSF_YamlProcessor extends ICWP_WPSF_YamlProcessor_V2 {
-
-		/**
-		 * @var ICWP_WPSF_YamlProcessor
-		 */
-		protected static $oInstance = NULL;
-
-		/**
-		 * @return ICWP_WPSF_YamlProcessor
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

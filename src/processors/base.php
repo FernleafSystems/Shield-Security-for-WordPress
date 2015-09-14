@@ -10,11 +10,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		private $aAuditEntry;
 
 		/**
-		 * @var array
-		 */
-		protected $aAdminNotices;
-
-		/**
 		 * @var ICWP_WPSF_FeatureHandler_Base
 		 */
 		protected $oFeatureOptions;
@@ -26,18 +21,65 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			$this->oFeatureOptions = $oFeatureOptions;
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
 			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
-			add_filter( $oFeatureOptions->doPluginPrefix( 'admin_notices' ), array( $this, 'fGetAdminNotices' ) );
-			add_action( 'init', array( $this, 'addToAdminNotices' ) );
+			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+			if ( method_exists( $this, 'addToAdminNotices' ) ) {
+				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+			}
 			$this->reset();
 		}
-
-		public function addToAdminNotices() { }
 
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
 		public function getController() {
 			return $this->getFeatureOptions()->getController();
+		}
+
+		public function autoAddToAdminNotices() {
+			$oCon = $this->getController();
+
+			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
+
+				if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
+					continue;
+				}
+
+				$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
+				if ( method_exists( $this, $sMethodName )
+					&& isset( $aNoticeAttributes['valid_admin'] ) && $aNoticeAttributes['valid_admin'] && $oCon->getIsValidAdminArea() ) {
+
+					$aNoticeAttributes[ 'notice_id' ] = $sNoticeId;
+					call_user_func( array( $this, $sMethodName ), $aNoticeAttributes );
+				}
+			}
+		}
+
+		/**
+		 * @param array $aNoticeAttributes
+		 * @return bool
+		 */
+		protected function getIfDisplayAdminNotice( $aNoticeAttributes ) {
+			$oWpNotices = $this->loadAdminNoticesProcessor();
+
+			if ( empty( $aNoticeAttributes['schedule'] ) || !in_array( $aNoticeAttributes['schedule'], array( 'once', 'conditions', 'version' ) ) ) {
+				$aNoticeAttributes[ 'schedule' ] = 'conditions';
+			}
+
+			if ( $aNoticeAttributes[ 'schedule' ] == 'once'
+				&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes['id'] ) )
+			) {
+				return false;
+			}
+
+			if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes['id'] ) ) ) {
+				return false;
+			}
+
+			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' && $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		public function action_doFeatureProcessorShutdown() { }
@@ -53,37 +95,16 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		abstract public function run();
 
 		/**
-		 * @param array $sNotice
+		 * @param array $aNoticeData
 		 */
-		public function doAddAdminNotice( $sNotice ) {
-			if ( empty( $sNotice ) ) {
-				return;
+		protected function insertAdminNotice( $aNoticeData ) {
+			$sRenderedNotice = $this->getFeatureOptions()->renderAdminNotice( $aNoticeData );
+			if ( !empty( $sRenderedNotice ) ) {
+				$this->loadAdminNoticesProcessor()->addAdminNotice(
+					$sRenderedNotice,
+					$aNoticeData['notice_attributes']['notice_id']
+				);
 			}
-			$aCurrentNotices = $this->getAdminNotices();
-			$aCurrentNotices[] = $sNotice;
-			$this->aAdminNotices = $aCurrentNotices;
-		}
-
-		/**
-		 * @param array $aNotices
-		 *
-		 * @return array
-		 */
-		public function fGetAdminNotices( $aNotices ) {
-			if ( is_array( $aNotices ) ) {
-				$aNotices = array_merge( $aNotices, $this->getAdminNotices() );
-			}
-			return $aNotices;
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getAdminNotices() {
-			if ( !isset( $this->aAdminNotices ) || !is_array( $this->aAdminNotices ) ) {
-				$this->aAdminNotices = array();
-			}
-			return $this->aAdminNotices;
 		}
 
 		/**
@@ -129,7 +150,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			if ( !isset( $this->aAuditEntry ) ) {
 
 				if ( empty( $sWpUsername ) ) {
-					$oCurrentUser = $this->loadWpFunctionsProcessor()->getCurrentWpUser();
+					$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 					$sWpUsername = empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' );
 				}
 
@@ -182,8 +203,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 * @param string $sMessage
 		 */
 		public function writeAuditEntry( $sEvent, $nCategory = 1, $sMessage = '' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oCurrentUser = $oWp->getCurrentWpUser();
+			$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
 			$this->aAuditEntry = array(
 				'created_at' => $this->time(),
 				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),
@@ -280,26 +300,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		 */
 		protected function getFeatureOptions() {
 			return $this->oFeatureOptions;
-		}
-
-		/**
-		 * Provides the basic HTML template for printing a WordPress Admin Notices
-		 *
-		 * @param $sNotice - The message to be displayed.
-		 * @param $sMessageClass - either error or updated
-		 * @param $bPrint - if true, will echo. false will return the string
-		 *
-		 * @return boolean|string
-		 */
-		protected function getAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated', $bPrint = false ) {
-			$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
-			$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
-			if ( $bPrint ) {
-				echo $sFullNotice;
-				return true;
-			} else {
-				return $sFullNotice;
-			}
 		}
 
 		/**

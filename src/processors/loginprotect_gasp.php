@@ -167,7 +167,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_Base {
 			// We now black mark this IP
 			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 
-			wp_die( _wpsf__( "You must check that box to say you're not a bot." ) );
+			$this->loadWpFunctionsProcessor()->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
 			return false;
 		}
 		else if ( !empty( $sHoney ) ) {
@@ -178,7 +178,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_Base {
 			// We now black mark this IP
 			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 
-			wp_die( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
+			$this->loadWpFunctionsProcessor()->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
 			return false;
 		}
 		return true;

@@ -16,19 +16,29 @@
  *
  */
 
-if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Ip', false ) ):
 
 	/**
 	 * This is taken straight out of https://github.com/symfony/HttpFoundation/blob/master/IpUtils.php
 	 */
-	class ICWP_WPSF_Ip_V1 {
+	class ICWP_WPSF_Ip {
 
 		const IpifyEndpoint = 'https://api.ipify.org';
 
 		/**
-		 * @var ICWP_WPSF_Ip_V1
+		 * @var ICWP_WPSF_Ip
 		 */
 		protected static $oInstance = NULL;
+
+		/**
+		 * @return ICWP_WPSF_Ip
+		 */
+		public static function GetInstance() {
+			if ( is_null( self::$oInstance ) ) {
+				self::$oInstance = new self();
+			}
+			return self::$oInstance;
+		}
 
 		/**
 		 * Checks if an IPv4 or IPv6 address is contained in the list of given IPs or subnets.
@@ -158,21 +168,6 @@ if ( !class_exists( 'ICWP_WPSF_Ip_V1', false ) ):
 				}
 			}
 			return $sIp;
-		}
-	}
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Ip', false ) ):
-
-	class ICWP_WPSF_Ip extends ICWP_WPSF_Ip_V1 {
-		/**
-		 * @return ICWP_WPSF_Ip
-		 */
-		public static function GetInstance() {
-			if ( is_null( self::$oInstance ) ) {
-				self::$oInstance = new self();
-			}
-			return self::$oInstance;
 		}
 	}
 endif;

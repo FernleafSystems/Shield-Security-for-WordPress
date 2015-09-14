@@ -3,7 +3,7 @@
  * Plugin Name: Simple Security Firewall
  * Plugin URI: http://icwp.io/2f
  * Description: Easy-To-Use WordPress Security System
- * Version: 4.10.3
+ * Version: 4.10.4
  * Text Domain: wp-simple-firewall
  * Author: iControlWP
  * Author URI: http://icwp.io/2e
@@ -66,7 +66,6 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 			$this->getController()->loadAllFeatures();
 			add_filter( $this->getController()->doPluginPrefix( 'plugin_update_message' ), array( $this, 'getPluginsListUpdateMessage' ) );
 
-			add_action( 'admin_init',				array( $this, 'onWpAdminInit' ) );
 			add_action( 'plugin_action_links',		array( $this, 'onWpPluginActionLinks' ), 10, 4 );
 		}
 
@@ -75,31 +74,6 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 		 */
 		public static function getController() {
 			return self::$oPluginController;
-		}
-
-		public function onWpAdminInit() {
-			$oCon = $this->getController();
-			if ( $oCon->getIsValidAdminArea() ) {
-				$oDp = $oCon->loadDataProcessor();
-				$oWp = $oCon->loadWpFunctionsProcessor();
-
-				$sRedirect = $oDp->FetchPost( 'redirect_page' );
-				$sRedirect = empty( $sRedirect ) ? $this->getController()->getPluginUrl_AdminMainPage() : $sRedirect;
-
-				if ( $oDp->FetchRequest( $oCon->doPluginPrefix( 'hide_translation_notice' ), false ) == 1 ) {
-					$this->updateTranslationNoticeShownUserMeta();
-					$oWp->doRedirect( $sRedirect );
-				}
-
-				if ( $oDp->FetchRequest( $oCon->doPluginPrefix( 'hide_php53_warning' ), false ) == 1 ) {
-					$this->updatePhp53VersionWarning();
-					$oWp->doRedirect( $sRedirect );
-				}
-
-				if ( $oDp->FetchRequest( $oCon->doPluginPrefix( 'hide_mailing_list_signup' ), false ) == 1 ) {
-					$this->updateMailingListSignupShownUserMeta();
-				}
-			}
 		}
 
 		public function getPluginsListUpdateMessage( $sMessage ) {
@@ -132,37 +106,6 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 				}
 			}
 			return $aActionLinks;
-		}
-
-		/**
-		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
-		 *
-		 * @param $nId
-		 * @param $sValue
-		 */
-		protected function updateTranslationNoticeShownUserMeta( $nId = '', $sValue = 'Y' ) {
-			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_translation_notice' ), $sValue, $nId );
-		}
-
-		/**
-		 * @param $nId
-		 * @param $sValue
-		 */
-		protected function updatePhp53VersionWarning( $nId = '', $sValue = 'Y' ) {
-			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'php53_version_warning' ), $sValue, $nId );
-		}
-
-		/**
-		 * Updates the current (or supplied user ID) user meta data with the version of the plugin
-		 *
-		 * @param $nId
-		 * @param $sValue
-		 */
-		protected function updateMailingListSignupShownUserMeta( $nId = '', $sValue = 'Y' ) {
-			$oCon = $this->getController();
-			$oCon->loadWpFunctionsProcessor()->updateUserMeta( $oCon->doPluginOptionPrefix( 'plugin_mailing_list_signup' ), $sValue, $nId );
 		}
 	}
 
