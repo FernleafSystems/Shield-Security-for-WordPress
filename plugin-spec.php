@@ -60,6 +60,10 @@ labels: #the keys below must correspond exactly for the 'all_plugins' filter
   icon_url_32x32: 'pluginlogo_32x32.png'
 
 # This is on the plugins.php page with the option to remove or add custom links.
+plugin_meta:
+    -
+      name: 'Rate This Plugin'
+      href: 'http://icwp.io/wpsf29'
 action_links:
   remove:
   add:
