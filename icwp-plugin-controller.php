@@ -233,6 +233,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_filter( 'all_plugins', 						array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins',						array( $this, 'doPluginLabels' ) );
 		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_row_meta',					array( $this, 'onPluginRowMeta' ), 50, 2 );
 		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
 		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
@@ -355,19 +356,48 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( !empty( $aLinksToAdd ) && is_array( $aLinksToAdd ) ) {
+
+				$sLinkTemplate = '<a href="%s" target="%s">%s</a>';
 				foreach( $aLinksToAdd as $aLink ){
-					if ( empty( $aLink['name'] ) || empty( $aLink['url_method_name'] ) ) {
+					if ( empty( $aLink['name'] ) || ( empty( $aLink['url_method_name'] ) && empty( $aLink['href'] ) ) ) {
 						continue;
 					}
-					$sMethod = $aLink['url_method_name'];
-					if ( method_exists( $this, $sMethod ) ) {
-						$sSettingsLink = sprintf( '<a href="%s">%s</a>', $this->{$sMethod}(), $aLink['name'] ); ;
+
+					if ( !empty( $aLink['url_method_name'] ) ) {
+						$sMethod = $aLink['url_method_name'];
+						if ( method_exists( $this, $sMethod ) ) {
+							$sSettingsLink = sprintf( $sLinkTemplate, $this->{$sMethod}(), "_top", $aLink['name'] ); ;
+							array_unshift( $aActionLinks, $sSettingsLink );
+						}
+					}
+					else if ( !empty( $aLink['href'] ) ) {
+						$sSettingsLink = sprintf( $sLinkTemplate, $aLink['href'], "_blank", $aLink['name'] ); ;
 						array_unshift( $aActionLinks, $sSettingsLink );
 					}
+
 				}
 			}
 		}
 		return $aActionLinks;
+	}
+
+	/**
+	 * @param array $aPluginMeta
+	 * @param string $sPluginFile
+	 * @return array
+	 */
+	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
+
+		if ( $sPluginFile == $this->getPluginBaseFile() ) {
+			$aMeta = $this->getPluginSpec_PluginMeta();
+
+			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
+			foreach( $aMeta as $aMetaLink ){
+				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
+				array_push( $aPluginMeta, $sSettingsLink );
+			}
+		}
+		return $aPluginMeta;
 	}
 
 	public function onWpEnqueueFrontendCss() {
@@ -774,6 +804,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function getPluginSpec_Property( $sKey ) {
 		$oConOptions = $this->getPluginControllerOptions();
 		return isset( $oConOptions->plugin_spec['properties'][$sKey] ) ? $oConOptions->plugin_spec['properties'][$sKey] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getPluginSpec_PluginMeta() {
+		$oConOptions = $this->getPluginControllerOptions();
+		return ( isset( $oConOptions->plugin_spec['plugin_meta'] ) && is_array( $oConOptions->plugin_spec['plugin_meta'] ) ) ? $oConOptions->plugin_spec['plugin_meta'] : array();
 	}
 
 	/**
