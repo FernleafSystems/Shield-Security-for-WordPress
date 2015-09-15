@@ -1179,7 +1179,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function renderTemplate( $sTemplate, $aData ) {
 			if ( empty( $aData['unique_render_id'] ) ) {
-				$aData[ 'unique_render_id' ] = uniqid( $this->doPluginPrefix( 'render' ) );
+				$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 			}
 			try {
 				$sOutput = $this
