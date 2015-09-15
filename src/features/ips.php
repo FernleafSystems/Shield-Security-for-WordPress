@@ -226,7 +226,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,
 				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
 				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ),
-				'sTableId' => $sTableId = 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
+				'sTableId' => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
 			);
 
 			switch ( $sListToRender ) {
