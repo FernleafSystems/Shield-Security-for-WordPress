@@ -1,7 +1,3 @@
-<?php
-$sTableId = 'IpTable'.$unique_render_id;
-?>
-
 <table class="table table-bordered" id="<?php echo $sTableId; ?>">
 	<?php if ( empty( $list_data ) ) : ?>
 		<tr>
@@ -68,32 +64,31 @@ $sTableId = 'IpTable'.$unique_render_id;
 
 </table>
 
-<script type="text/javascript" >
+<?php if ( $bIsWhiteList ) : ?>
+	<script type="text/javascript" >
 
-	$oTable = jQuery('#<?php echo $sTableId; ?>');
-
-	jQuery( document ).ready(function() {
-		jQuery( '#AddIpButton', $oTable ).click( add_ip_to_whitelist );
-		jQuery( 'input.on_return_send', $oTable ).keypress(function(e) {
-			if(e.which == 13) {
-				add_ip_to_whitelist();
-			}
+		var $oTable = jQuery('#<?php echo $sTableId; ?>');
+		jQuery( document ).ready(function() {
+			jQuery( '#AddIpButton', $oTable ).click( add_ip_to_whitelist );
+			jQuery( 'input.on_return_send', $oTable ).keypress( function(e) {
+				if( e.which == 13 ) {
+					add_ip_to_whitelist();
+				}
+			});
 		});
-	});
 
-	function add_ip_to_whitelist( $sList ) {
+		function add_ip_to_whitelist( $sList ) {
 
-		var aData = {
-			'action': 'icwp_wpsf_AddIpToWhiteList',
-			'ip': jQuery('#AddIpAddress', $oTable).val(),
-			'label': jQuery('#AddIpAddressLabel', $oTable).val(),
-			'list': 'MW',
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
+			var aData = {
+				'action': 'icwp_wpsf_AddIpToWhiteList',
+				'ip': jQuery('#AddIpAddress', $oTable).val(),
+				'label': jQuery('#AddIpAddressLabel', $oTable).val(),
+				'list': 'MW',
+				'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
+			};
+			$oContentDiv = $oTable.parent();
+			request_and_reload( aData, $oContentDiv );
+		}
 
-		$oContentDiv = $oTable.parent();
-
-		request_and_reload( aData, $oContentDiv );
-	}
-
-</script>
+	</script>
+<?php endif; ?>
