@@ -185,6 +185,10 @@ Any IP address that is on the whitelist will not be subject to **any of the fire
 
 Yes. To specify a range you use CIDR notation.  E.g. ABC.DEF.GHJ.KMP/16
 
+= I want to black list an IP address, where can I do that? =
+
+You can't. The plugin runs an automatic black list IP system so you don't need to maintain any manual lists.
+
 = I've locked myself out from my own site! =
 
 This happens when any the following 3 conditions are met:
