@@ -181,9 +181,9 @@ is designed to restrict access to your site, based on certain type of web calls.
 
 Any IP address that is on the whitelist will not be subject to **any of the firewall processing**.  This setting takes priority over all other settings.
 
-= Does the IP Whitelist/Blacklist support IP ranges? =
+= Does the IP Whitelist support IP ranges? =
 
-Yes. To specify a range you do something like:  192.168.1.10-192.168.1.20
+Yes. To specify a range you use CIDR notation.  E.g. ABC.DEF.GHJ.KMP/16
 
 = I've locked myself out from my own site! =
 
