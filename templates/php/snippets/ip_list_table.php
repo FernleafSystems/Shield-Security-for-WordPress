@@ -1,5 +1,5 @@
 <?php
-$sTableId = 'IpTable'.substr( md5( uniqid( 'ASDF', true ) ), 0, 5 );
+$sTableId = 'IpTable'.$unique_render_id;
 ?>
 
 <table class="table table-bordered" id="<?php echo $sTableId; ?>">
