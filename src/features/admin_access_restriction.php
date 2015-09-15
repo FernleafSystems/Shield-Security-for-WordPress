@@ -83,6 +83,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getOptionsToRestrict() {
+		return $this->getOpt( 'admin_access_options_to_restrict', array() );
+	}
+
+	/**
 	 */
 	protected function setAdminAccessCookie() {
 		$sAccessKey = $this->getOpt( 'admin_access_key' );

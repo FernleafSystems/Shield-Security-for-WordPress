@@ -43,19 +43,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 
-			if ( !$this->loadWpFunctionsProcessor()->getIsCurrentPage( 'options-general.php' ) ) {
+			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
+			if ( !in_array( $sCurrentPage, array( 'options-general.php', 'options-discussion.php', 'options-reading.php' ) ) ) {
 				return;
 			}
 
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
-					'notice_message' => sprintf(
-						_wpsf__( 'Notice - %s' ),
-						_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
-					),
-					'including_message' => _wpsf__( 'Including the Rename WP Login feature.' )
+					'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' ),
+					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+					'unlock_link' => sprintf( '<a href="%s">%s</a>', '#', _wpsf__('Unlock') ),
+				),
+				'js_snippets' => array(
+					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );
@@ -107,13 +110,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			if ( $oFO->getAdminAccessArea_Options() ) {
 				$bRestricted = in_array(
 					$sOptionKey,
-					array(
-						'blogname',
-						'blogdescription',
-						'siteurl',
-						'home',
-						'admin_email'
-					)
+					$oFO->getOptionsToRestrict()
 				);
 			}
 			return $bRestricted;
