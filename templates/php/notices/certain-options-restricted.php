@@ -37,3 +37,4 @@
 		padding: 7px 8px 5px 6px;
 	}
 </style>
+<?php include( dirname(__FILE__).'/../snippets/admin_access_login.php') ?>

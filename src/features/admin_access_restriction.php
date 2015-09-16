@@ -14,6 +14,25 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( 'wp_ajax_icwp_wpsf_AdminAccessLogin', array( $this, 'ajaxAdminAccessLogin' ) );
+	}
+
+	public function ajaxAdminAccessLogin() {
+		$bSuccess = $this->checkAjaxNonce();
+		if ( $bSuccess ) {
+
+			$bSuccess = $this->checkAdminAccessKeySubmission();
+			if ( $bSuccess ) {
+				$this->setPermissionToSubmit( true );
+			}
+			$sResponseData = array();
+			$sResponseData['html'] = $bSuccess?'Success':'failed';
+			$this->sendAjaxResponse( $bSuccess, $sResponseData );
+		}
+	}
+
 	/**
 	 * @param bool $fHasPermission
 	 * @return bool

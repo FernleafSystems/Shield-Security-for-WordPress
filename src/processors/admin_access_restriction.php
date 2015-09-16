@@ -42,27 +42,38 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 * @param array $aNoticeAttributes
 		 */
 		public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->doCheckHasPermissionToSubmit() ) {
+				return;
+			}
 
 			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
 			if ( !in_array( $sCurrentPage, array( 'options-general.php', 'options-discussion.php', 'options-reading.php' ) ) ) {
 				return;
 			}
 
-			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
 					'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' ),
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
-					'unlock_link' => sprintf( '<a href="%s">%s</a>', '#', _wpsf__('Unlock') ),
+					'unlock_link' => sprintf(
+						'<a href="%s" title="%s" class="thickbox">%s</a>',
+						'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
+						_wpsf__( 'Admin Access Login.' ),
+						_wpsf__('Unlock')
+					),
 				),
+				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
 				'js_snippets' => array(
 					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 				)
 			);
+			add_thickbox();
 			$this->insertAdminNotice( $aRenderData );
 		}
+
 
 		/**
 		 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
