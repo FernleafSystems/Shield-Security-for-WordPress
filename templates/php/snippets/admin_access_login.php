@@ -1,19 +1,13 @@
-<?php ?>
-
-<div id="WpsfAdminAccessLogin" style="display:none;">
-	<div class="bootstrap-wpadmin wpsf-admin-access-login" id="AdminAccessLogin-<?php echo $unique_render_id;?>">
-		<div class="input-holder">
-			<label>
-				Enter your Admin Access Key:
-				<input type="password" name="icwp-wpsf-admin_access_key_request" data-nonce="<?php echo $sAjaxNonce; ?>" />
-				<button type="submit">Go!</button>
-			</label>
-		</div>
-	</div>
+<div class="input-holder" id="AdminInputHolder-<?php echo $unique_render_id;?>">
+	<label>
+		<?php echo $admin_access_message; ?>:
+		<input type="password" name="icwp-wpsf-admin_access_key_request" data-nonce="<?php echo $sAjaxNonce; ?>" />
+		<button type="submit">Go!</button>
+	</label>
 </div>
 
 <script type="text/javascript">
-	var $oThisAAL = jQuery('#AdminAccessLogin-<?php echo $unique_render_id;?>');
+	var $oThisAAL = jQuery('#AdminInputHolder-<?php echo $unique_render_id;?>');
 	var $oInput = jQuery( 'input', $oThisAAL );
 	var $oSubmit = jQuery( 'button', $oThisAAL );
 	jQuery( document ).ready(
@@ -30,29 +24,26 @@
 	function submit_admin_access() {
 		$oThisAAL.html( '<div class="spinner"></div>');
 		$oInput.prop( 'disabled', true );
-		send_admin_access_login( $oInput.val(), $oInput.data('nonce') );
-		$oInput.prop( 'disabled', false );
-	}
-
-	function send_admin_access_login( $sKey, $sNonce ) {
 
 		var requestData = {
 			'action': 'icwp_wpsf_AdminAccessLogin',
-			'icwp_wpsf_admin_access_key_request': $sKey,
-			'_ajax_nonce': $sNonce
+			'icwp_wpsf_admin_access_key_request': $oInput.val(),
+			'_ajax_nonce': $oInput.data('nonce')
 		};
 
 		jQuery.post(ajaxurl, requestData, function( oResponse ) {
-
 			if( oResponse.success ) {
-				location.reload( true );
+				location.reload(true);
+			}
+			if( oResponse.data ) {
+				$oThisAAL.html( oResponse.data.html );
 			}
 			else {
-				alert( 'Failed to authenticate the key. Warning! Repeated attempts may lock you out of this site.' );
+				$oThisAAL.html( 'There was an unknown error' );
 			}
-
 		});
 	}
+
 
 </script>
 

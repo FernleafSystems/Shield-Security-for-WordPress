@@ -2,7 +2,12 @@
 	<?php echo $strings['notice_message']; ?>
 </p>
 
+<div id="WpsfAdminAccessLogin" style="display:none;">
+	<div class="bootstrap-wpadmin wpsf-admin-access-login" id="AdminAccessLogin-<?php echo $unique_render_id;?>"></div>
+</div>
+
 <script type="text/javascript">
+
 	jQuery( document ).ready(
 		function() {
 			aItems = [ <?php echo $js_snippets['options_to_restrict']; ?> ];
@@ -22,6 +27,32 @@
 			'</div>'
 		);
 	}
+
+
+	jQuery( document ).ready(function() {
+		load_admin_access_form( jQuery('#AdminAccessLogin-<?php echo $unique_render_id;?>') );
+	});
+
+	function load_admin_access_form( $oTarget ) {
+
+		var aData = {
+			'action': 'icwp_wpsf_LoadAdminAccessForm',
+			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
+		};
+		request_and_html( aData, $oTarget );
+	}
+	function request_and_html( requestData, $oTarget ) {
+
+		$oTarget.html( '<div class="spinner"></div>');
+		jQuery.post(ajaxurl, requestData, function( oResponse ) {
+			if( oResponse.data ) {
+				$oTarget.html( oResponse.data.html );
+			}
+			else {
+				$oTarget.html( 'There was an unknown error' );
+			}
+		});
+	}
 </script>
 <style>
 	.restricted-option-row {}
@@ -37,4 +68,3 @@
 		padding: 7px 8px 5px 6px;
 	}
 </style>
-<?php include( dirname(__FILE__).'/../snippets/admin_access_login.php') ?>

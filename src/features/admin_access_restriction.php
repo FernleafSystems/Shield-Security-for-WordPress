@@ -17,18 +17,43 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
 		add_action( 'wp_ajax_icwp_wpsf_AdminAccessLogin', array( $this, 'ajaxAdminAccessLogin' ) );
+		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
+	}
+
+	public function ajaxLoadAdminAccessForm() {
+		$bSuccess = $this->checkAjaxNonce();
+		if ( $bSuccess ) {
+			$sResponseData = array();
+			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm();
+			$this->sendAjaxResponse( true, $sResponseData );
+		}
+	}
+
+	/**
+	 * @param string $sMessage
+	 * @return string
+	 */
+	protected function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
+		$aRenderData = array(
+			'admin_access_message' => empty( $sMessage ) ? _wpsf__('Enter your Admin Access Key') : $sMessage,
+			'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' )
+		);
+		return $this->renderTemplate( 'snippets/admin_access_login.php', $aRenderData );
 	}
 
 	public function ajaxAdminAccessLogin() {
 		$bSuccess = $this->checkAjaxNonce();
 		if ( $bSuccess ) {
 
+			$sResponseData = array();
 			$bSuccess = $this->checkAdminAccessKeySubmission();
 			if ( $bSuccess ) {
 				$this->setPermissionToSubmit( true );
+				$sResponseData[ 'html' ] = _wpsf__( 'Admin Access Key Accepted.' ). ' '. _wpsf__('Please wait');
 			}
-			$sResponseData = array();
-			$sResponseData['html'] = $bSuccess?'Success':'failed';
+			else {
+				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+			}
 			$this->sendAjaxResponse( $bSuccess, $sResponseData );
 		}
 	}
