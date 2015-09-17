@@ -39,17 +39,65 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		}
 
 		/**
+		 * @param array $aNoticeAttributes
+		 */
+		public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->doCheckHasPermissionToSubmit() ) {
+				return;
+			}
+
+			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
+			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) ) {
+				return;
+			}
+
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' ),
+					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+					'unlock_link' => sprintf(
+						'<a href="%s" title="%s" class="thickbox">%s</a>',
+						'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
+						_wpsf__( 'Admin Access Login' ),
+						_wpsf__('Unlock')
+					),
+				),
+				'hrefs' => array(
+					'setting_page' => sprintf(
+						'<a href="%s" title="%s">%s</a>',
+						$oFO->getFeatureAdminPageUrl(),
+						_wpsf__( 'Admin Access Login' ),
+						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
+					)
+				),
+				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
+				'js_snippets' => array(
+					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+				)
+			);
+			add_thickbox();
+			$this->insertAdminNotice( $aRenderData );
+		}
+
+
+		/**
 		 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
 		 * revert the option to save to the previous one.
 		 *
 		 * @param mixed $mNewOptionValue
-		 * @param string $sOption
+		 * @param string $sOptionKey
 		 * @param mixed $mOldValue
 		 * @return mixed
 		 */
-		public function blockOptionsSaves( $mNewOptionValue, $sOption, $mOldValue ) {
-			if ( !preg_match( $this->getOptionRegexPattern(), $sOption ) ) {
-				return $mNewOptionValue;
+		public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
+			if ( !$this->getIsOptionKeyForThisPlugin( $sOptionKey ) ) {
+				// Now we test certain other options saving based on where it's restricted
+				if ( !$this->getIsSavingOptionRestricted( $sOptionKey ) ) {
+					return $mNewOptionValue;
+				}
 			}
 
 			$fHasPermissionToChangeOptions = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
@@ -60,6 +108,31 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			return $mNewOptionValue;
+		}
+
+		/**
+		 * @param string $sOptionKey
+		 * @return int
+		 */
+		protected function getIsOptionKeyForThisPlugin( $sOptionKey ) {
+			return preg_match( $this->getOptionRegexPattern(), $sOptionKey );
+		}
+
+		/**
+		 * @param string $sOptionKey
+		 * @return int
+		 */
+		protected function getIsSavingOptionRestricted( $sOptionKey ) {
+			$bRestricted = false;
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->getAdminAccessArea_Options() ) {
+				$bRestricted = in_array(
+					$sOptionKey,
+					$oFO->getOptionsToRestrict()
+				);
+			}
+			return $bRestricted;
 		}
 
 		/**

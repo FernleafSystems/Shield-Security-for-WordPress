@@ -1,0 +1,69 @@
+<p><?php echo $strings['notice_message']; ?></p>
+<p><?php echo $hrefs['setting_page']; ?></p>
+
+<div id="WpsfAdminAccessLogin" style="display:none;">
+	<div class="bootstrap-wpadmin wpsf-admin-access-login" id="AdminAccessLogin-<?php echo $unique_render_id;?>"></div>
+</div>
+
+<script type="text/javascript">
+
+	jQuery( document ).ready(
+		function() {
+			aItems = [ <?php echo $js_snippets['options_to_restrict']; ?> ];
+			aItems.forEach( disable_input );
+		}
+	);
+
+	function disable_input( element, index, array ) {
+		$oItem = jQuery( 'input[name=' + element + ']' );
+		$oItem.prop( 'disabled', true );
+		$oParentTr = $oItem.parents('tr');
+		$oParentTr.addClass( 'restricted-option-row' );
+		$oItem.parents('td').append(
+			'<div style="clear:both"></div><div class="restricted-option">' +
+			'<span class="dashicons dashicons-lock"></span>' +
+			'<?php echo $strings['editing_restricted'];?>'+' <?php echo $strings['unlock_link'];?>' +
+			'</div>'
+		);
+	}
+
+
+	jQuery( document ).ready(function() {
+		load_admin_access_form( jQuery('#AdminAccessLogin-<?php echo $unique_render_id;?>') );
+	});
+
+	function load_admin_access_form( $oTarget ) {
+
+		var aData = {
+			'action': 'icwp_wpsf_LoadAdminAccessForm',
+			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
+		};
+		request_and_html( aData, $oTarget );
+	}
+	function request_and_html( requestData, $oTarget ) {
+
+		$oTarget.html( '<div class="spinner"></div>');
+		jQuery.post(ajaxurl, requestData, function( oResponse ) {
+			if( oResponse.data ) {
+				$oTarget.html( oResponse.data.html );
+			}
+			else {
+				$oTarget.html( 'There was an unknown error' );
+			}
+		});
+	}
+</script>
+<style>
+	.restricted-option-row {}
+	.restricted-option {
+		background-color: rgba(255, 255, 255, 0.6);
+		border: 1px solid;
+		border-radius: 3px;
+		clear: both;
+		color: rgba(195, 71, 76, 0.9);
+		display: inline-block;
+		line-height: 22px;
+		margin: 2px 0 4px;
+		padding: 7px 8px 5px 6px;
+	}
+</style>
