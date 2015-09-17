@@ -129,8 +129,29 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	public function getOptionsToRestrict() {
-		return $this->getOpt( 'admin_access_options_to_restrict', array() );
+	public function getRestrictedOptions() {
+		$aOptions = $this->getOpt( 'admin_access_options_to_restrict', array() );
+		return is_array( $aOptions ) ? $aOptions : array();
+	}
+
+	/**
+	 * @param string $sType - wp or wpms
+	 * @return array
+	 */
+	public function getOptionsToRestrict( $sType = '' ) {
+		$sType = empty( $sType ) ? ( $this->loadWpFunctionsProcessor()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$aOptions = $this->getRestrictedOptions();
+		return ( isset( $aOptions[$sType.'_options'] ) && is_array( $aOptions[$sType.'_options'] ) ) ? $aOptions[$sType.'_options'] : array();
+	}
+
+	/**
+	 * @param string $sType - wp or wpms
+	 * @return array
+	 */
+	public function getOptionsPagesToRestrict( $sType = '' ) {
+		$sType = empty( $sType ) ? ( $this->loadWpFunctionsProcessor()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$aOptions = $this->getRestrictedOptions();
+		return ( isset( $aOptions[$sType.'_pages'] ) && is_array( $aOptions[$sType.'_pages'] ) ) ? $aOptions[$sType.'_pages'] : array();
 	}
 
 	/**

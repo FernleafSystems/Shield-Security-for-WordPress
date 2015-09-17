@@ -49,7 +49,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
-			if ( !in_array( $sCurrentPage, array( 'options-general.php', 'options-discussion.php', 'options-reading.php' ) ) ) {
+			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) ) {
 				return;
 			}
 

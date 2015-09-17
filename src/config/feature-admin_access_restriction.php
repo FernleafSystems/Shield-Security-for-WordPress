@@ -128,16 +128,28 @@ options:
   -
     key: 'admin_access_options_to_restrict'
     section: 'section_non_ui'
+    immutable: true
     value:
-      - 'blogname'
-      - 'blogdescription'
-      - 'siteurl'
-      - 'home'
-      - 'admin_email'
-      - 'users_can_register'
-      - 'comments_notify'
-      - 'comment_moderation'
-      - 'blog_public'
+      wpms_options:
+        - 'admin_email'
+        - 'site_name'
+        - 'registration'
+      wpms_pages:
+        - 'settings.php'
+      wp_options:
+        - 'blogname'
+        - 'blogdescription'
+        - 'siteurl'
+        - 'home'
+        - 'admin_email'
+        - 'users_can_register'
+        - 'comments_notify'
+        - 'comment_moderation'
+        - 'blog_public'
+      wp_pages:
+        - 'options-general.php'
+        - 'options-discussion.php'
+        - 'options-reading.php'
   -
     key: 'admin_access_key_cookie_name'
     section: 'section_non_ui'
