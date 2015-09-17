@@ -1025,25 +1025,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sFeature
-	 * @return string
-	 */
-	public function getPluginUrl_AdminPage( $sFeature = 'plugin' ) {
-		$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $sFeature ) );
-		if ( $this->getIsWpmsNetworkAdminOnly() ) {
-			$sUrl = network_admin_url( $sUrl );
-		}
-		else {
-			$sUrl = admin_url( $sUrl );
-		}
-		return $sUrl;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->getPluginUrl_AdminPage();
+		return $this->loadCorePluginFeatureHandler()->getFeatureAdminPageUrl();
 	}
 
 	/**

@@ -61,9 +61,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 					'unlock_link' => sprintf(
 						'<a href="%s" title="%s" class="thickbox">%s</a>',
 						'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-						_wpsf__( 'Admin Access Login.' ),
+						_wpsf__( 'Admin Access Login' ),
 						_wpsf__('Unlock')
 					),
+				),
+				'hrefs' => array(
+					'setting_page' => sprintf(
+						'<a href="%s" title="%s">%s</a>',
+						$oFO->getFeatureAdminPageUrl(),
+						_wpsf__( 'Admin Access Login' ),
+						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
+					)
 				),
 				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
 				'js_snippets' => array(

@@ -1,6 +1,5 @@
-<p>
-	<?php echo $strings['notice_message']; ?>
-</p>
+<p><?php echo $strings['notice_message']; ?></p>
+<p><?php echo $hrefs['setting_page']; ?></p>
 
 <div id="WpsfAdminAccessLogin" style="display:none;">
 	<div class="bootstrap-wpadmin wpsf-admin-access-login" id="AdminAccessLogin-<?php echo $unique_render_id;?>"></div>

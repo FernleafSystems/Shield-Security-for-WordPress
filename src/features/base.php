@@ -273,6 +273,20 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getFeatureAdminPageUrl() {
+			$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $this->getFeatureSlug() ) );
+			if ( $this->getController()->getIsWpmsNetworkAdminOnly() ) {
+				$sUrl = network_admin_url( $sUrl );
+			}
+			else {
+				$sUrl = admin_url( $sUrl );
+			}
+			return $sUrl;
+		}
+
+		/**
 		 * @return ICWP_WPSF_FeatureHandler_Email
 		 */
 		public function getEmailHandler() {
