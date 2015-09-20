@@ -811,6 +811,28 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getTimeFormat() {
+			$sFormat = $this->getOption( 'time_format' );
+			if ( empty( $sFormat ) ) {
+				$sFormat = 'H:i';
+			}
+			return $sFormat;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getDateFormat() {
+			$sFormat = $this->getOption( 'date_format' );
+			if ( empty( $sFormat ) ) {
+				$sFormat = 'F j, Y';
+			}
+			return $sFormat;
+		}
+
+		/**
 		 * @return false|WP_Automatic_Updater
 		 */
 		public function getWpAutomaticUpdater() {

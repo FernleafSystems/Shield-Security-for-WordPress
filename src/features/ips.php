@@ -96,8 +96,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 */
 		protected function formatIpListData( $aListData ) {
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sTimeFormat = $oWp->getOption( 'time_format' );
-			$sDateFormat = $oWp->getOption( 'date_format' );
+			$sTimeFormat = $oWp->getTimeFormat();
+			$sDateFormat = $oWp->getDateFormat();
 
 			foreach( $aListData as &$aListItem ) {
 				$aListItem[ 'ip_link' ] =
@@ -219,12 +219,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		protected function renderListTable( $sListToRender ) {
 
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sTimeFormat = $oWp->getOption( 'time_format' );
-			$sDateFormat = $oWp->getOption( 'date_format' );
 			$aRenderData = array(
 				'list_id' => $sListToRender,
 				'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,
-				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat . ' ' . $sDateFormat, $this->loadDataProcessor()->time() ) ),
+				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $oWp->getTimeFormat() . ' ' . $oWp->getDateFormat(), $this->loadDataProcessor()->time() ) ),
 				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ),
 				'sTableId' => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
 			);
