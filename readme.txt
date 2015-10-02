@@ -271,10 +271,10 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 = 4.10.5 Point Release =
 
-* **(v.5)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info]()
+* **(v.5)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](http://icwp.io/wpsf30)
 * **(v.5)**  FIXED:       	Small bugs with the IP Manager ajax.
 * **(v.5)**  FIXED:       	Uncaught PHP Exception when a site's hosting isn't properly configured to handle IPv6 addresses.
-* **(v.5)**  TRANSLATIONS:  Danish - 54%
+* **(v.5)**  TRANSLATIONS:  Danish - 57%, Czech - 100%, Finnish - 94%
 
 *Released: 14th September, 2015*
 
