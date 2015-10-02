@@ -36,6 +36,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			if ( !empty( $aPostRestrictions ) ) {
 				add_filter( 'user_has_cap', array( $this, 'disablePostsManipulation' ), 0, 3 );
 			}
+
+			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
 		}
 
 		/**
@@ -238,6 +240,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				$this->sOptionRegexPattern = '/^'. $this->getFeatureOptions()->getOptionStoragePrefix() . '.*_options$/';
 			}
 			return $this->sOptionRegexPattern;
+		}
+
+		public function printAdminAccessAjaxForm() {
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			$aRenderData = array(
+				'strings' => array(
+					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+					'unlock_link' => sprintf(
+						'<a href="%s" title="%s" class="thickbox">%s</a>',
+						'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
+						_wpsf__( 'Admin Access Login' ),
+						_wpsf__('Unlock')
+					),
+				),
+				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
+				'js_snippets' => array(
+					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+				)
+			);
+			add_thickbox();
+			echo $oFO->renderTemplate( 'snippets'.ICWP_DS.'admin_access_login_box.php', $aRenderData );
 		}
 	}
 
