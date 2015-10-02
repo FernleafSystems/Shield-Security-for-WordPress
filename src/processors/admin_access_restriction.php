@@ -56,7 +56,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' ),
+					'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' )
+						.' '._wpsf__( 'Repeated failed attempts to authenticate will probably lock you out of this site.' ),
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
 					'unlock_link' => sprintf(
 						'<a href="%s" title="%s" class="thickbox">%s</a>',
