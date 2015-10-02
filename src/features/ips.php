@@ -217,6 +217,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		protected function renderListTable( $sListToRender ) {
+			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+			$oProcessor = $this->getProcessor();
 
 			$oWp = $this->loadWpFunctionsProcessor();
 			$aRenderData = array(

@@ -716,6 +716,9 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @return bool
 		 */
 		public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = false ) {
+			if ( function_exists( 'headers_sent' ) && headers_sent() ) {
+				return false;
+			}
 			return setcookie(
 				$sKey,
 				$mValue,
