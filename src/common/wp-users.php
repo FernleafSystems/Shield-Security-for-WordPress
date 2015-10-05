@@ -58,7 +58,7 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		public function getCanAddUpdateCurrentUserMeta() {
 			$bCanMeta = false;
 			try {
-				if ( $this->getIsUserLoggedIn() ) {
+				if ( $this->isUserLoggedIn() ) {
 					$sKey = 'icwp-flag-can-store-user-meta';
 					$sMeta = $this->getUserMeta( $sKey );
 					if ( $sMeta == 'icwp' ) {
@@ -93,17 +93,6 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 			$oUser = $this->getCurrentWpUser();
 			$nId = is_null( $oUser ) ? 0 : $oUser->ID;
 			return $nId;
-		}
-
-		/**
-		 * @return bool
-		 * @throws Exception
-		 */
-		public function getIsUserLoggedIn() {
-			if ( !function_exists( 'is_user_logged_in' ) ) {
-				throw new Exception( sprintf( 'Function %s is not ready - you are calling it too early in the WP load.', 'is_user_logged_in' ) );
-			}
-			return is_user_logged_in();
 		}
 
 		/**
@@ -151,6 +140,24 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 				$mResult = get_user_meta( $nUserId, $sKey, true );
 			}
 			return $mResult;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function isUserAdmin() {
+			return $this->isUserLoggedIn() && current_user_can( 'manage_options' );
+		}
+
+		/**
+		 * @return bool
+		 * @throws Exception
+		 */
+		public function isUserLoggedIn() {
+			if ( !function_exists( 'is_user_logged_in' ) ) {
+				throw new Exception( sprintf( 'Function %s is not ready - you are calling it too early in the WP load.', 'is_user_logged_in()' ) );
+			}
+			return is_user_logged_in();
 		}
 
 		/**

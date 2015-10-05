@@ -269,13 +269,18 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.11.0 Point Release =
+= 4.11.1 Point Release =
 *Released: 5th October, 2015*
 
-* **(v.5)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](http://icwp.io/wpsf30)
-* **(v.5)**  FIXED:       	Various small bugs with the IP Manager UI ajax.
-* **(v.5)**  FIXED:       	Uncaught PHP Exception when a site's hosting isn't properly configured to handle IPv6 addresses.
-* **(v.5)**  TRANSLATIONS:  Danish - 57%, Czech - 100%, Finnish - 94%
+* **(v.1)**  CHANGED:		Automatic redirection to admin area only happens for administrator users
+
+= 4.11.0 Release =
+*Released: 5th October, 2015*
+
+* **(v.0)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](http://icwp.io/wpsf30)
+* **(v.0)**  FIXED:			Various small bugs with the IP Manager UI ajax.
+* **(v.0)**  FIXED:			Uncaught PHP Exception when a site's hosting isn't properly configured to handle IPv6 addresses.
+* **(v.0)**  TRANSLATIONS:	Danish - 57%, Czech - 100%, Finnish - 94%
 
 = 4.10 Series =
 *Released: 23rd August, 2015*
