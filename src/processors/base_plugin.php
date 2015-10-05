@@ -36,7 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
-					'dismiss' => _wpsf__( "I'd rather not show this support" ),
+					'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
 					'forums' => __( 'Support Forums' )
 				),
 				'hrefs' => array(

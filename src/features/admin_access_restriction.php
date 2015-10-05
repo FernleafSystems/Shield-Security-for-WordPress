@@ -162,7 +162,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sValue = md5( $sAccessKey );
 			$sTimeout = $this->getOpt( 'admin_access_timeout' ) * 60;
 			$_COOKIE[ $this->getAdminAccessKeyCookieName() ] = $sValue;
-			setcookie( $this->getAdminAccessKeyCookieName(), $sValue, time()+$sTimeout, COOKIEPATH, COOKIE_DOMAIN, false );
+			$this->loadDataProcessor()->setCookie(
+				$this->getAdminAccessKeyCookieName(),
+				$sValue,
+				$sTimeout
+			);
 		}
 	}
 

@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.10.4
+Stable tag: 4.11.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -269,14 +269,13 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.10.5 Point Release =
+= 4.11.0 Point Release =
+*Released: 5th October, 2015*
 
-* **(v.5)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info]()
-* **(v.5)**  FIXED:       	Small bugs with the IP Manager ajax.
+* **(v.5)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](http://icwp.io/wpsf30)
+* **(v.5)**  FIXED:       	Various small bugs with the IP Manager UI ajax.
 * **(v.5)**  FIXED:       	Uncaught PHP Exception when a site's hosting isn't properly configured to handle IPv6 addresses.
-* **(v.5)**  TRANSLATIONS:  Danish - 54%
-
-*Released: 14th September, 2015*
+* **(v.5)**  TRANSLATIONS:  Danish - 57%, Czech - 100%, Finnish - 94%
 
 = 4.10 Series =
 *Released: 23rd August, 2015*
