@@ -42,8 +42,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 			);
 
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sTimeFormat = $oWp->getOption( 'time_format' );
-			$sDateFormat = $oWp->getOption( 'date_format' );
+			$sTimeFormat = $oWp->getTimeFormat();
+			$sDateFormat = $oWp->getDateFormat();
 
 			$aAudits = array();
 			foreach( $aContexts as $sContext ) {

@@ -273,6 +273,20 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getFeatureAdminPageUrl() {
+			$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $this->getFeatureSlug() ) );
+			if ( $this->getController()->getIsWpmsNetworkAdminOnly() ) {
+				$sUrl = network_admin_url( $sUrl );
+			}
+			else {
+				$sUrl = admin_url( $sUrl );
+			}
+			return $sUrl;
+		}
+
+		/**
 		 * @return ICWP_WPSF_FeatureHandler_Email
 		 */
 		public function getEmailHandler() {
@@ -1179,7 +1193,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function renderTemplate( $sTemplate, $aData ) {
 			if ( empty( $aData['unique_render_id'] ) ) {
-				$aData[ 'unique_render_id' ] = uniqid( $this->doPluginPrefix( 'render' ) );
+				$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 			}
 			try {
 				$sOutput = $this

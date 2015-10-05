@@ -9,6 +9,14 @@ properties:
   storage_key: 'admin_access_restriction' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
   menu_title: '%s'
+
+admin_notices:
+  'certain-options-restricted':
+    id: 'certain-options-restricted'
+    schedule: 'conditions'
+    valid_admin: true
+    type: 'warning'
+
 # Options Sections
 sections:
   -
@@ -46,6 +54,13 @@ options:
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/41'
+    link_blog: ''
+  -
+    key: 'admin_access_restrict_options'
+    section: 'section_admin_access_restriction_areas'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
     link_blog: ''
   -
     key: 'admin_access_restrict_plugins'
@@ -110,6 +125,31 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+  -
+    key: 'admin_access_options_to_restrict'
+    section: 'section_non_ui'
+    immutable: true
+    value:
+      wpms_options:
+        - 'admin_email'
+        - 'site_name'
+        - 'registration'
+      wpms_pages:
+        - 'settings.php'
+      wp_options:
+        - 'blogname'
+        - 'blogdescription'
+        - 'siteurl'
+        - 'home'
+        - 'admin_email'
+        - 'users_can_register'
+        - 'comments_notify'
+        - 'comment_moderation'
+        - 'blog_public'
+      wp_pages:
+        - 'options-general.php'
+        - 'options-discussion.php'
+        - 'options-reading.php'
   -
     key: 'admin_access_key_cookie_name'
     section: 'section_non_ui'

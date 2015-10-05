@@ -47,6 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_Ip', false ) ):
 		 * @param string|array $ips       List of IPs or subnets (can be a string if only a single one)
 		 *
 		 * @return bool Whether the IP is valid
+		 * @throws Exception When IPV6 support is not enabled
 		 */
 		public static function checkIp($requestIp, $ips)
 		{

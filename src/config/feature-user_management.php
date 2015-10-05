@@ -45,14 +45,14 @@ options:
     section: 'section_admin_login_notification'
     default: ''
     type: 'email'
-    link_info: 'http://icwp.io/3u'
+    link_info: ''
     link_blog: ''
   -
     key: 'session_timeout_interval'
     section: 'section_user_session_management'
     default: '2'
     type: 'integer'
-    link_info: 'http://icwp.io/3x'
+    link_info: ''
     link_blog: ''
   -
     key: 'session_idle_timeout_interval'

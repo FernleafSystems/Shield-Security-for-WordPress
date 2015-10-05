@@ -95,3 +95,15 @@ tr.icwp-plugin-vulnerability dl {
 tr.icwp-plugin-vulnerability dd {
 	margin-bottom: 3px;
 }
+
+.restricted-option {
+	background-color: rgba(255, 255, 255, 0.6);
+	border: 1px solid;
+	border-radius: 3px;
+	clear: both;
+	color: rgba(195, 71, 76, 0.9);
+	display: inline-block;
+	line-height: 22px;
+	margin: 2px 0 4px;
+	padding: 7px 8px 5px 6px;
+}

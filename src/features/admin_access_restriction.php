@@ -14,6 +14,50 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( 'wp_ajax_icwp_wpsf_AdminAccessLogin', array( $this, 'ajaxAdminAccessLogin' ) );
+		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
+	}
+
+	public function ajaxLoadAdminAccessForm() {
+		$bSuccess = $this->checkAjaxNonce();
+		if ( $bSuccess ) {
+			$sResponseData = array();
+			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm();
+			$this->sendAjaxResponse( true, $sResponseData );
+		}
+	}
+
+	/**
+	 * @param string $sMessage
+	 * @return string
+	 */
+	protected function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
+		$aRenderData = array(
+			'admin_access_message' => empty( $sMessage ) ? _wpsf__('Enter your Admin Access Key') : $sMessage,
+			'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' )
+		);
+		return $this->renderTemplate( 'snippets/admin_access_login.php', $aRenderData );
+	}
+
+	public function ajaxAdminAccessLogin() {
+		$bSuccess = $this->checkAjaxNonce();
+		if ( $bSuccess ) {
+
+			$sResponseData = array();
+			$bSuccess = $this->checkAdminAccessKeySubmission();
+			if ( $bSuccess ) {
+				$this->setPermissionToSubmit( true );
+				$sResponseData[ 'html' ] = _wpsf__( 'Admin Access Key Accepted.' ). ' '. _wpsf__('Please wait');
+			}
+			else {
+				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+			}
+			$this->sendAjaxResponse( $bSuccess, $sResponseData );
+		}
+	}
+
 	/**
 	 * @param bool $fHasPermission
 	 * @return bool
@@ -43,6 +87,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 		}
 		return $this->bHasPermissionToSubmit;
+	}
+
+	/** TODO
+	 * @return bool
+	 */
+	public function getAdminAccessArea_Options() {
+		return $this->getOptIs( 'admin_access_restrict_options', 'Y' );
 	}
 
 	/**
@@ -76,6 +127,34 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getRestrictedOptions() {
+		$aOptions = $this->getOpt( 'admin_access_options_to_restrict', array() );
+		return is_array( $aOptions ) ? $aOptions : array();
+	}
+
+	/**
+	 * @param string $sType - wp or wpms
+	 * @return array
+	 */
+	public function getOptionsToRestrict( $sType = '' ) {
+		$sType = empty( $sType ) ? ( $this->loadWpFunctionsProcessor()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$aOptions = $this->getRestrictedOptions();
+		return ( isset( $aOptions[$sType.'_options'] ) && is_array( $aOptions[$sType.'_options'] ) ) ? $aOptions[$sType.'_options'] : array();
+	}
+
+	/**
+	 * @param string $sType - wp or wpms
+	 * @return array
+	 */
+	public function getOptionsPagesToRestrict( $sType = '' ) {
+		$sType = empty( $sType ) ? ( $this->loadWpFunctionsProcessor()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$aOptions = $this->getRestrictedOptions();
+		return ( isset( $aOptions[$sType.'_pages'] ) && is_array( $aOptions[$sType.'_pages'] ) ) ? $aOptions[$sType.'_pages'] : array();
+	}
+
+	/**
 	 */
 	protected function setAdminAccessCookie() {
 		$sAccessKey = $this->getOpt( 'admin_access_key' );
@@ -83,7 +162,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sValue = md5( $sAccessKey );
 			$sTimeout = $this->getOpt( 'admin_access_timeout' ) * 60;
 			$_COOKIE[ $this->getAdminAccessKeyCookieName() ] = $sValue;
-			setcookie( $this->getAdminAccessKeyCookieName(), $sValue, time()+$sTimeout, COOKIEPATH, COOKIE_DOMAIN, false );
+			$this->loadDataProcessor()->setCookie(
+				$this->getAdminAccessKeyCookieName(),
+				$sValue,
+				$sTimeout
+			);
 		}
 	}
 
@@ -228,6 +311,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'admin_access_restrict_plugins' :
 				$sName = _wpsf__( 'Admin Access Plugins' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
+								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
+				break;
+
+			case 'admin_access_restrict_options' :
+				$sName = _wpsf__( 'Admin Access Options' );
+				$sSummary = _wpsf__( 'Restrict Access To Changing Admin Options' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
 								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
 				break;

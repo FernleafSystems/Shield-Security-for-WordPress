@@ -133,7 +133,7 @@ options:
         value_key: 'reject'
         text: 'Reject And Redirect'
 
-    link_info: 'http://icwp.io/3x'
+    link_info: 'http://icwp.io/6j'
     link_blog: ''
   -
     key: 'comments_cooldown_interval'

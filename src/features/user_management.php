@@ -38,8 +38,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 			$aActiveSessions = $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
 
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sTimeFormat = $oWp->getOption( 'time_format' );
-			$sDateFormat = $oWp->getOption( 'date_format' );
+			$sTimeFormat = $oWp->getTimeFormat();
+			$sDateFormat = $oWp->getDateFormat();
 			foreach( $aActiveSessions as &$aSession ) {
 				$aSession[ 'logged_in_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aSession[ 'logged_in_at' ] );
 				$aSession[ 'last_activity_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aSession[ 'last_activity_at' ] );

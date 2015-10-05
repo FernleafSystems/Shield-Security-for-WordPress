@@ -410,9 +410,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			$aResult = $this->query_getListData( $aLists );
 			foreach( $aResult as $aRow ) {
-				if ( $this->loadIpProcessor()->checkIp( $sIp, $aRow[ 'ip' ] ) ) {
-					$aData[] = $aRow;
+				try {
+					if ( $this->loadIpProcessor()->checkIp( $sIp, $aRow[ 'ip' ] ) ) {
+						$aData[] = $aRow;
+					}
 				}
+				catch( Exception $oE ) {}
 			}
 
 			return $aData;
