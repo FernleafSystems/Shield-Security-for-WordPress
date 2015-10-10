@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.11.0
+Stable tag: 4.12.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -269,12 +269,19 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.11.1 Point Release =
-*Released: 5th October, 2015*
+= 4.12.0 Point Release =
+*Released: 10th October, 2015*
 
-* **(v.1)**  CHANGED:		Automatic redirection to admin area only happens for administrator users
+* **(v.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](http://icwp.io/wpsf31)
+* **(v.0)**  CHANGED:		Logged-in users are automatically forwarded to the WordPress admin only if they are Administrators.
 
-= 4.11.0 Release =
+= 4.12 Series =
+*Released: 10th October, 2015*
+
+* **(v.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](http://icwp.io/wpsf31)
+* **(v.0)**  CHANGED:		Logged-in users are automatically forwarded to the WordPress admin only if they are Administrators.
+
+= 4.11 Series =
 *Released: 5th October, 2015*
 
 * **(v.0)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](http://icwp.io/wpsf30)
