@@ -46,6 +46,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
+				case 'section_system_lockdown' :
+					$sTitle = _wpsf__( 'WordPress System Lockdown' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown certain core WordPress system feature.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
+					);
+					$sTitleShort = _wpsf__( 'Lockdown' );
+					break;
+
 				case 'section_permission_access_options' :
 					$sTitle = _wpsf__( 'Permissions and Access Options' );
 					$aSummary = array(
@@ -87,6 +96,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
 					$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), $this->getMainFeatureName() );
 					$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
+					break;
+
+				case 'disable_xmlrpc' :
+					$sName = sprintf( _wpsf__( 'Disable %s' ), 'XML-RPC' );
+					$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), 'XML-RPC' );
+					$sDescription = sprintf( _wpsf__( 'Checking this option will completely turn off the whole %s system.' ), 'XML-RPC' );
 					break;
 
 				case 'disable_file_editing' :

@@ -14,6 +14,8 @@ sections:
     slug: 'section_enable_plugin_feature_wordpress_lockdown'
     primary: true
   -
+    slug: 'section_system_lockdown'
+  -
     slug: 'section_permission_access_options'
   -
     slug: 'section_wordpress_obscurity_options'
@@ -29,6 +31,13 @@ options:
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/4r'
+    link_blog: ''
+  -
+    key: 'disable_xmlrpc'
+    section: 'section_system_lockdown'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
     link_blog: ''
   -
     key: 'disable_file_editing'

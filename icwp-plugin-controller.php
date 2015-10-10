@@ -96,7 +96,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ) ); // this hook then registers everything
+		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
 	}
 
 	/**
