@@ -75,7 +75,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			// At this point session is validated
 			$oDp = $this->loadDataProcessor();
 			$oWp = $this->loadWpFunctionsProcessor();
-			if ( $oWp->getIsLoginUrl() ) {
+			if ( $oWp->getIsLoginUrl() && $this->loadWpUsersProcessor()->isUserAdmin() ) {
 				$sLoginAction = $oDp->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
 					$oWp->redirectToAdmin();
