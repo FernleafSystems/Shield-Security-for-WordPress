@@ -642,14 +642,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @return bool
-		 */
-		public function getIsXmlrpc() {
-			// XML-RPC Compatibility
-			return ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST );
-		}
-
-		/**
 		 * @return string
 		 */
 		public function getSiteName() {
@@ -688,6 +680,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function getIsCron() {
 			return defined( 'DOING_CRON' ) && DOING_CRON;
+		}
+
+		/**
+		 * @return boolean
+		 */
+		public function getIsXmlrpc() {
+			return defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 		}
 
 		/**

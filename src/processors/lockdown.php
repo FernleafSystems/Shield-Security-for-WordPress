@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists('ICWP_LockdownProcessor_V1') ):
+if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_LockdownProcessor_V1 extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_Base {
 
 		/**
 		 */
@@ -50,6 +50,10 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
 				// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
 				add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
+			}
+
+			if ( $this->getIsOption( 'disable_xmlrpc', 'Y' ) ) {
+				add_filter( 'xmlrpc_enabled', '__return_false', 1000 );
 			}
 
 		}
@@ -149,8 +153,4 @@ if ( !class_exists('ICWP_LockdownProcessor_V1') ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_Lockdown', false ) ):
-	class ICWP_WPSF_Processor_Lockdown extends ICWP_LockdownProcessor_V1 { }
 endif;
