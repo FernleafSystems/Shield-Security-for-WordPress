@@ -175,8 +175,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				}
 			}
 
-			$fHasPermissionToChangeOptions = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
-			if ( !$fHasPermissionToChangeOptions ) {
+			if ( !$this->getIsSuperAdmin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Attempt to save/update option "%s" was blocked.'), $sOption );
 //			    $this->addToAuditEntry( $sAuditMessage, 3, 'admin_access_option_block' );
 				return $mOldValue;
@@ -218,8 +217,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we can do everything!
-			$bHasAdminAccess = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
-			if ( $bHasAdminAccess ) {
+			if ( $this->getIsSuperAdmin() ) {
 				return $aAllCaps;
 			}
 
