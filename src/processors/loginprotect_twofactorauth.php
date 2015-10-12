@@ -347,10 +347,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @param $sUniqueId
 		 */
 		public function setAuthActiveCookie( $sUniqueId ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-			$nWeek = defined( 'WEEK_IN_SECONDS' )? WEEK_IN_SECONDS : 24*60*60;
-			setcookie( $oFO->getTwoFactorAuthCookieName(), $sUniqueId, $this->time()+$nWeek, COOKIEPATH, COOKIE_DOMAIN, false );
+			$this->loadDataProcessor()->setCookie(
+				$this->getTwoFactorAuthCookieName(),
+				$sUniqueId,
+				defined( 'WEEK_IN_SECONDS' ) ? WEEK_IN_SECONDS : 24*60*60
+			);
 		}
 
 		/**
@@ -377,13 +378,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getTwoFactorAuthCookieName() {
+			return $this->getOption( 'two_factor_auth_cookie_name' );
+		}
+
+		/**
 		 * @param $sUniqueId
 		 * @return bool
 		 */
 		protected function getIsAuthCookieValid( $sUniqueId ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-			return $this->loadDataProcessor()->FetchCookie( $oFO->getTwoFactorAuthCookieName() ) == $sUniqueId;
+			return $this->loadDataProcessor()->FetchCookie( $this->getTwoFactorAuthCookieName() ) == $sUniqueId;
 		}
 
 		/**
