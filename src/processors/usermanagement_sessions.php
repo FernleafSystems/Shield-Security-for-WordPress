@@ -307,7 +307,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			return false;
 		}
 		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
-		$this->loadDataProcessor()->setDeleteCookie( $this->getUserSessionCookieName() );
+		$this->getController()->clearSession();
 		return $mResult;
 	}
 
