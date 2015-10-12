@@ -56,7 +56,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 
 		$this->doAddNewActiveUserSessionRecord( $sUsername );
-		$this->setSessionCookie();
 		$this->doLimitUserSession( $sUsername );
 		return true;
 	}
@@ -167,11 +166,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getSessionId() {
 		if ( empty( $this->sSessionId ) ) {
-			$this->sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getUserSessionCookieName() );
-			if ( empty( $this->sSessionId ) ) {
-				$this->sSessionId = $this->getController()->getSessionId();
-				$this->setSessionCookie();
-			}
+			$this->sSessionId = $this->getController()->getSessionId();
 		}
 		return $this->sSessionId;
 	}
@@ -197,18 +192,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getUserSessionCookieName() {
 		return $this->getOption( 'user_session_cookie_name' );
-	}
-
-	/**
-	 */
-	protected function setSessionCookie() {
-		if ( $this->getSessionTimeoutInterval() > 0 ) {
-			$this->loadDataProcessor()->setCookie(
-				$this->getUserSessionCookieName(),
-				$this->getSessionId(),
-				$this->getSessionTimeoutInterval()
-			);
-		}
 	}
 
 	/**
