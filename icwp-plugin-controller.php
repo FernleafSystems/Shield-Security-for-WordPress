@@ -1295,7 +1295,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		setcookie(
+		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
 			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,

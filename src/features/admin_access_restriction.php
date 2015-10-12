@@ -175,8 +175,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 */
 	protected function clearAdminAccessCookie() {
-		unset( $_COOKIE[ $this->getAdminAccessKeyCookieName() ] );
-		setcookie( $this->getAdminAccessKeyCookieName(), "", time()-3600, COOKIEPATH, COOKIE_DOMAIN, false );
+		$this->loadDataProcessor()->setDeleteCookie( $this->getAdminAccessKeyCookieName() );
 	}
 
 	/**

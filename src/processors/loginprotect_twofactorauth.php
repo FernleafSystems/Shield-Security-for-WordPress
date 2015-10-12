@@ -349,8 +349,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		public function setAuthActiveCookie( $sUniqueId ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
-			$nWeek = defined( 'WEEK_IN_SECONDS' )? WEEK_IN_SECONDS : 24*60*60;
-			setcookie( $oFO->getTwoFactorAuthCookieName(), $sUniqueId, $this->time()+$nWeek, COOKIEPATH, COOKIE_DOMAIN, false );
+			$this->loadDataProcessor()->setCookie(
+				$oFO->getTwoFactorAuthCookieName(),
+				$sUniqueId,
+				defined( 'WEEK_IN_SECONDS' ) ? WEEK_IN_SECONDS : 24*60*60
+			);
 		}
 
 		/**

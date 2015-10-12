@@ -198,16 +198,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	protected function setSessionCookie() {
 		if ( $this->getSessionTimeoutInterval() > 0 ) {
-			$oWp = $this->loadWpFunctionsProcessor();
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeatureOptions();
-			setcookie(
+			$this->loadDataProcessor()->setCookie(
 				$oFO->getUserSessionCookieName(),
 				$this->getSessionId(),
-				$this->time() + $this->getSessionTimeoutInterval(),
-				$oWp->getCookiePath(),
-				$oWp->getCookieDomain(),
-				false
+				$this->getSessionTimeoutInterval()
 			);
 		}
 	}
@@ -326,10 +322,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeatureOptions();
-
 		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
-		unset( $_COOKIE[ $oFO->getUserSessionCookieName() ] );
-		setcookie( $oFO->getUserSessionCookieName(), "", time()-3600, COOKIEPATH, COOKIE_DOMAIN, false );
+		$this->loadDataProcessor()->setDeleteCookie( $oFO->getUserSessionCookieName() );
 		return $mResult;
 	}
 
