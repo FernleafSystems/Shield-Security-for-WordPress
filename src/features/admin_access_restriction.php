@@ -317,10 +317,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				break;
 
 			case 'admin_access_restrict_options' :
-				$sName = _wpsf__( 'Admin Access Options' );
-				$sSummary = _wpsf__( 'Restrict Access To Changing Admin Options' );
-				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
-								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
+				$sName = _wpsf__( 'WordPress Admin Options' );
+				$sSummary = _wpsf__( 'Restrict Access To WordPress Admin Options' );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict the ability of WordPress administrators from changing key WordPress settings.' ) );
 				break;
 
 			case 'admin_access_restrict_themes' :
