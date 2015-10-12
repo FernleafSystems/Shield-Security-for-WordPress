@@ -212,13 +212,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 		}
 
 		/**
-		 * @return string
-		 */
-		public function getUserSessionCookieName() {
-			return $this->getOpt( 'user_session_cookie_name' );
-		}
-
-		/**
 		 */
 		protected function updateHandler() {
 			parent::updateHandler();

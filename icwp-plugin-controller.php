@@ -1267,10 +1267,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 */
+	public function clearSession() {
+		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		self::$sSessionId = null;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getSessionId() {
-		if ( !isset( self::$sSessionId ) ) {
+		if ( empty( self::$sSessionId ) ) {
 			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
@@ -1295,7 +1302,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		setcookie(
+		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
 			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,
