@@ -269,11 +269,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.12.0 Point Release =
+= 4.12.1 Point Release =
 *Released: 10th October, 2015*
 
-* **(v.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](http://icwp.io/wpsf31)
-* **(v.0)**  CHANGED:		Logged-in users are automatically forwarded to the WordPress admin only if they are Administrators.
+* **(v.1)**  CHANGED:		Consolidated the use of cookies with user sessions.
+* **(v.1)**  CHANGED:		Various small code optimizations and cleaning.
 
 = 4.12 Series =
 *Released: 10th October, 2015*

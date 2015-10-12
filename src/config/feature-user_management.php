@@ -15,11 +15,11 @@ sections:
     slug: 'section_enable_plugin_feature_user_accounts_management'
     primary: true
   -
+    slug: 'section_user_session_management'
+  -
     slug: 'section_bypass_user_accounts_management'
   -
     slug: 'section_admin_login_notification'
-  -
-    slug: 'section_user_session_management'
   -
     slug: 'section_non_ui'
     hidden: true
