@@ -188,13 +188,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getUserSessionCookieName() {
-		return $this->getOption( 'user_session_cookie_name' );
-	}
-
-	/**
 	 * Checks for and gets a user session.
 	 *
 	 * @param string $sWpUsername
@@ -244,7 +237,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param string $sUsername
-	 *
 	 * @return bool|int
 	 */
 	protected function doAddNewActiveUserSessionRecord( $sUsername ) {
@@ -274,7 +266,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param string $sUsername
-	 *
 	 * @return boolean
 	 */
 	protected function doLimitUserSession( $sUsername ) {
@@ -314,7 +305,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @param string $sUsername
 	 * @param string $sSessionId
 	 * @param bool $bHardDelete
-	 *
 	 * @return bool|int
 	 */
 	protected function doTerminateUserSession( $sUsername, $sSessionId, $bHardDelete = true ) {
@@ -335,7 +325,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param string $sWpUsername
-	 *
 	 * @return array|bool
 	 */
 	public function getActiveUserSessionRecords( $sWpUsername = '' ) {

@@ -115,10 +115,6 @@ options:
       - 'created_at'
       - 'deleted_at'
   -
-    key: 'user_session_cookie_name'
-    section: 'section_non_ui'
-    value: 'wpsf_sesh_id'
-  -
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
