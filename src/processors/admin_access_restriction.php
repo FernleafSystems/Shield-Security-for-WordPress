@@ -22,6 +22,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 			}
 
+			if ( $oFO->getOptIs( 'admin_access_restrict_admin_users', 'Y') ) {
+				add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 0, 3 );
+				add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 0, 1 );
+			}
+
 			$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
 			if ( !empty( $aPluginRestrictions ) ) {
 				add_filter( 'user_has_cap', array( $this, 'disablePluginManipulation' ), 0, 3 );
@@ -38,6 +43,84 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+		}
+
+		protected function getIsSuperAdmin() {
+			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+		}
+
+		public function restrictAdminUserDelete( $nId ) {
+			if ( $this->getIsSuperAdmin() ) {
+				return false;
+			}
+
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oUser = $oWpUsers->getUserById( $nId );
+			if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
+				$this->loadWpFunctionsProcessor()
+					->wpDie( 'Sorry, deleting administrators is currently restricted to your security Super Admin' );
+			}
+		}
+
+		/**
+		 * @param array $aAllCaps
+		 * @param $cap
+		 * @param array $aArgs
+		 * @return array
+		 */
+		public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
+			// If we're registered with Admin Access we don't modify anything
+			if ( $this->getIsSuperAdmin() ) {
+				return $aAllCaps;
+			}
+
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oDp = $this->loadDataProcessor();
+
+			/** @var string $sRequestedCapability */
+			$sRequestedCapability = $aArgs[0];
+			$aUserCapabilities = array( 'edit_users', 'create_users' );
+
+			$bBlockCapability = false;
+
+			if ( in_array( $sRequestedCapability, $aUserCapabilities ) ) {
+				$oCurrentUser = $oWpUsers->getCurrentWpUser();
+
+				// Find the WP_User for the POST
+				$oPostUser = false;
+				$sPostUserlogin = $oDp->FetchPost( 'user_login' );
+				if ( empty( $sPostUserlogin ) ) {
+					$nPostUserId = $oDp->FetchPost( 'user_id' );
+					if ( !empty( $nPostUserId ) ) {
+						$oPostUser = $oWpUsers->getUserById( $nPostUserId );
+					}
+				}
+				else {
+					$oPostUser = $oWpUsers->getUserByUsername( $sPostUserlogin );
+				}
+
+				// if it's a form submission to edit or create a new user and NOT EDITING themselves
+				if ( $oWpUsers->isUserAdmin() && $oPostUser && ( $oPostUser->get( 'user_login' ) != $oCurrentUser->get( 'user_login' ) ) ) {
+
+					$sPostUserRole = $oDp->FetchPost( 'role' );
+					if ( $sPostUserRole == 'administrator' ) {
+						//block editing of any administrator
+						$bBlockCapability = true;
+					}
+					else {
+						//perhaps they're demoting a existing administrator so we find out what the role of the user was before this POST
+						if ( $oWpUsers->isUserAdmin( $oPostUser ) ) {
+							$bBlockCapability = true;
+						}
+					}
+				}
+			}
+
+			if ( $bBlockCapability ) {
+				$aAllCaps[ $sRequestedCapability ] = false;
+			}
+
+			return $aAllCaps;
 		}
 
 		/**

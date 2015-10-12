@@ -63,6 +63,13 @@ options:
     link_info: 'http://icwp.io/wpsf32'
     link_blog: ''
   -
+    key: 'admin_access_restrict_admin_users'
+    section: 'section_admin_access_restriction_areas'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'admin_access_restrict_plugins'
     section: 'section_admin_access_restriction_areas'
     type: 'multiple_select'
