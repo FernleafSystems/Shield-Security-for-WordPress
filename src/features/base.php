@@ -1046,7 +1046,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 					'save_all_settings' => _wpsf__( 'Save All Settings' ),
 
 					'aar_what_should_you_enter' => _wpsf__( 'What should you enter here?' ),
-					'aar_must_supply_key_first' => _wpsf__( 'At some point you supplied an Admin Access Key - to manage this plugin, you must supply it here first.' ),
+					'aar_must_supply_key_first' => _wpsf__( 'At some point you entered a Super Admin Access Key - to manage this plugin, you must supply it here first.' ),
 					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 					'aar_enter_access_key' => _wpsf__( 'Enter Access Key' ),
 					'aar_submit_access_key' => _wpsf__( 'Submit Access Key' ),
