@@ -167,11 +167,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getSessionId() {
 		if ( empty( $this->sSessionId ) ) {
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeatureOptions();
-			$this->sSessionId = $this->loadDataProcessor()->FetchCookie( $oFO->getUserSessionCookieName() );
+			$this->sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getUserSessionCookieName() );
 			if ( empty( $this->sSessionId ) ) {
-				$this->sSessionId = $oFO->getController()->getSessionId();
+				$this->sSessionId = $this->getController()->getSessionId();
 				$this->setSessionCookie();
 			}
 		}
@@ -195,13 +193,18 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getUserSessionCookieName() {
+		return $this->getOption( 'user_session_cookie_name' );
+	}
+
+	/**
 	 */
 	protected function setSessionCookie() {
 		if ( $this->getSessionTimeoutInterval() > 0 ) {
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeatureOptions();
 			$this->loadDataProcessor()->setCookie(
-				$oFO->getUserSessionCookieName(),
+				$this->getUserSessionCookieName(),
 				$this->getSessionId(),
 				$this->getSessionTimeoutInterval()
 			);
@@ -320,10 +323,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
 			return false;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeatureOptions();
 		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
-		$this->loadDataProcessor()->setDeleteCookie( $oFO->getUserSessionCookieName() );
+		$this->loadDataProcessor()->setDeleteCookie( $this->getUserSessionCookieName() );
 		return $mResult;
 	}
 
