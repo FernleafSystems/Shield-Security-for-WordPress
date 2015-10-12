@@ -391,13 +391,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		/**
 		 * @return string
 		 */
-		public function getTwoFactorAuthCookieName() {
-			return $this->getOpt( 'two_factor_auth_cookie_name' );
-		}
-
-		/**
-		 * @return string
-		 */
 		public function getTwoAuthSecretKey() {
 			$sKey = $this->getOpt( 'two_factor_secret_key' );
 			if ( empty( $sKey ) ) {
