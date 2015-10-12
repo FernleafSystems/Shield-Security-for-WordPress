@@ -252,22 +252,21 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			return false;
 		}
 
-		$sSessionId = $this->getSessionId();
+		$nTimeStamp = $this->time();
 
-		$oDp = $this->loadDataProcessor();
 		// Add new session entry
 		// set attempts = 1 and then when we know it's a valid login, we zero it.
 		// First set any other entries for the given user to be deleted.
 		$aNewData = array();
-		$aNewData[ 'session_id' ]			= $sSessionId;
-		$aNewData[ 'ip' ]			    	= $oDp->getVisitorIpAddress( true );
+		$aNewData[ 'session_id' ]			= $this->getSessionId();
+		$aNewData[ 'ip' ]			    	= $this->human_ip();
 		$aNewData[ 'wp_username' ]			= $sUsername;
 		$aNewData[ 'login_attempts' ]		= 0;
 		$aNewData[ 'pending' ]				= 0;
-		$aNewData[ 'logged_in_at' ]			= $this->time();
-		$aNewData[ 'last_activity_at' ]		= $this->time();
-		$aNewData[ 'last_activity_uri' ]	= $oDp->FetchServer( 'REQUEST_URI' );
-		$aNewData[ 'created_at' ]			= $this->time();
+		$aNewData[ 'logged_in_at' ]			= $nTimeStamp;
+		$aNewData[ 'last_activity_at' ]		= $nTimeStamp;
+		$aNewData[ 'last_activity_uri' ]	= $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' );
+		$aNewData[ 'created_at' ]			= $nTimeStamp;
 		$mResult = $this->insertData( $aNewData );
 
 		return $mResult;
