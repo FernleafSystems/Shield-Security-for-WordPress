@@ -43,7 +43,7 @@ options:
     link_blog: 'http://icwp.io/wpsf02'
   -
     key: 'admin_access_key'
-    section: 'section_admin_access_restriction_settings'
+    section: 'section_enable_plugin_feature_admin_access_restriction'
     default: ''
     type: 'password'
     link_info: 'http://icwp.io/42'
