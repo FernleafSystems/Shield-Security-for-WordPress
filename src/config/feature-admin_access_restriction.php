@@ -167,7 +167,7 @@ options:
     section: 'section_non_ui'
     value: 'icwp_wpsf_aakcook'
 ",
-		_wpsf__( 'WordPress Super Admin' ), //name
+		_wpsf__( 'WordPress Security Admin' ), //name
 		_wpsf__( 'Protect your security plugin not just your WordPress site' ), //tagline
-		_wpsf__( 'Super Admin' )
+		_wpsf__( 'Security Admin' )
 	);

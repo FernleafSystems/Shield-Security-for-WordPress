@@ -45,12 +45,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
 		}
 
-		protected function getIsSuperAdmin() {
+		protected function isSecurityAdmin() {
 			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
 		}
 
 		public function restrictAdminUserDelete( $nId ) {
-			if ( $this->getIsSuperAdmin() ) {
+			if ( $this->isSecurityAdmin() ) {
 				return false;
 			}
 
@@ -58,7 +58,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oUser = $oWpUsers->getUserById( $nId );
 			if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
 				$this->loadWpFunctionsProcessor()
-					->wpDie( 'Sorry, deleting administrators is currently restricted to your security Super Admin' );
+					->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
 			}
 		}
 
@@ -70,7 +70,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we don't modify anything
-			if ( $this->getIsSuperAdmin() ) {
+			if ( $this->isSecurityAdmin() ) {
 				return $aAllCaps;
 			}
 
@@ -177,13 +177,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
 					'notice_message' => _wpsf__( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.' )
-						.' '._wpsf__( 'Please authenticate with the Super Admin system before attempting any administrator user modifications.' )
+						.' '._wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' )
 				),
 				'hrefs' => array(
 					'setting_page' => sprintf(
 						'<a href="%s" title="%s">%s</a>',
 						$oFO->getFeatureAdminPageUrl(),
-						_wpsf__( 'Super Admin Login' ),
+						_wpsf__( 'Security Admin Login' ),
 						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
 					)
 				)
@@ -219,7 +219,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				}
 			}
 
-			if ( !$this->getIsSuperAdmin() ) {
+			if ( !$this->isSecurityAdmin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Attempt to save/update option "%s" was blocked.'), $sOption );
 //			    $this->addToAuditEntry( $sAuditMessage, 3, 'admin_access_option_block' );
 				return $mOldValue;
@@ -261,7 +261,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we can do everything!
-			if ( $this->getIsSuperAdmin() ) {
+			if ( $this->isSecurityAdmin() ) {
 				return $aAllCaps;
 			}
 
