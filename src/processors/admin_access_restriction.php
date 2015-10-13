@@ -177,7 +177,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
 					'notice_message' => _wpsf__( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.' )
-						.' '._wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' )
+						. ' ' . _wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' ),
+					'unlock_link' => $this->getUnlockLinkHtml( _wpsf__( 'Unlock Now' ) ),
 				),
 				'hrefs' => array(
 					'setting_page' => sprintf(
@@ -367,12 +368,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$aRenderData = array(
 				'strings' => array(
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
-					'unlock_link' => sprintf(
-						'<a href="%s" title="%s" class="thickbox">%s</a>',
-						'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-						_wpsf__( 'Admin Access Login' ),
-						_wpsf__('Unlock')
-					),
+					'unlock_link' => $this->getUnlockLinkHtml(),
 				),
 				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
 				'js_snippets' => array(
@@ -381,6 +377,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			);
 			add_thickbox();
 			echo $oFO->renderTemplate( 'snippets'.ICWP_DS.'admin_access_login_box.php', $aRenderData );
+		}
+
+		/**
+		 * @param string $sLinkText
+		 * @return string
+		 */
+		protected function getUnlockLinkHtml( $sLinkText = '' ) {
+			if ( empty( $sLinkText ) ) {
+				$sLinkText = _wpsf__( 'Unlock' );
+			}
+			return sprintf(
+				'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
+				'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
+				_wpsf__( 'Security Admin Login' ),
+				$sLinkText
+			);
 		}
 	}
 
