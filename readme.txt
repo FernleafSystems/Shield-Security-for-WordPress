@@ -272,7 +272,9 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.12.1 Point Release =
 *Released: 10th October, 2015*
 
-* **(v.1)**  CHANGED:		Consolidated the use of cookies with user sessions.
+* **(v.1)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
+* **(v.1)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
+* **(v.1)**  CHANGED:		Simplified and consolidated the use of cookies for user sessions.
 * **(v.1)**  CHANGED:		Various small code optimizations and cleaning.
 
 = 4.12 Series =
