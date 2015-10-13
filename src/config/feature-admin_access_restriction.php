@@ -16,6 +16,11 @@ admin_notices:
     schedule: 'conditions'
     valid_admin: true
     type: 'warning'
+  'admin-users-restricted':
+    id: 'admin-users-restricted'
+    schedule: 'conditions'
+    valid_admin: true
+    type: 'warning'
 
 # Options Sections
 sections:
@@ -65,7 +70,7 @@ options:
   -
     key: 'admin_access_restrict_admin_users'
     section: 'section_admin_access_restriction_areas'
-    default: 'Y'
+    default: 'N'
     type: 'checkbox'
     link_info: ''
     link_blog: ''

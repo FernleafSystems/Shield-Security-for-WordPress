@@ -84,7 +84,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$bBlockCapability = false;
 
 			if ( in_array( $sRequestedCapability, $aUserCapabilities ) ) {
-				$oCurrentUser = $oWpUsers->getCurrentWpUser();
 
 				// Find the WP_User for the POST
 				$oPostUser = false;
@@ -99,19 +98,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 					$oPostUser = $oWpUsers->getUserByUsername( $sPostUserlogin );
 				}
 
-				// if it's a form submission to edit or create a new user and NOT EDITING themselves
-				if ( $oWpUsers->isUserAdmin() && $oPostUser && ( $oPostUser->get( 'user_login' ) != $oCurrentUser->get( 'user_login' ) ) ) {
+				$sRequestRole = $oDp->FetchPost( 'role', '' );
 
-					$sPostUserRole = $oDp->FetchPost( 'role' );
-					if ( $sPostUserRole == 'administrator' ) {
-						//block editing of any administrator
-						$bBlockCapability = true;
-					}
-					else {
-						//perhaps they're demoting a existing administrator so we find out what the role of the user was before this POST
-						if ( $oWpUsers->isUserAdmin( $oPostUser ) ) {
+				if ( $oPostUser ) {
+					// editing an existing user other than yourself?
+					if ( $oPostUser->get( 'user_login' ) != $oWpUsers->getCurrentWpUser()->get( 'user_login' ) ) {
+
+						if ( $oWpUsers->isUserAdmin( $oPostUser ) || ( $sRequestRole == 'administrator' ) ) {
 							$bBlockCapability = true;
 						}
+					}
+				}
+				else {
+					//creating a new admin user?
+					if ( $sRequestRole == 'administrator' ) {
+						$bBlockCapability = true;
 					}
 				}
 			}
@@ -157,6 +158,49 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$this->insertAdminNotice( $aRenderData );
 		}
 
+		/**
+		 * @param array $aNoticeAttributes
+		 */
+		public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->doCheckHasPermissionToSubmit() ) {
+				return;
+			}
+
+			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
+			if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
+				return;
+			}
+
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'notice_message' => _wpsf__( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.' )
+						.' '._wpsf__( 'Please authenticate with the Super Admin system before attempting any administrator user modifications.' )
+				),
+				'hrefs' => array(
+					'setting_page' => sprintf(
+						'<a href="%s" title="%s">%s</a>',
+						$oFO->getFeatureAdminPageUrl(),
+						_wpsf__( 'Super Admin Login' ),
+						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
+					)
+				)
+			);
+			$this->insertAdminNotice( $aRenderData );
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getUserPagesToRestrict() {
+			return array(
+				'user-new.php',
+				'user-edit.php',
+				'users.php',
+			);
+		}
 
 		/**
 		 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
