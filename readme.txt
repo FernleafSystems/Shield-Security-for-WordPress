@@ -270,7 +270,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.12.1 Point Release =
-*Released: 10th October, 2015*
+*Released: 13th October, 2015*
 
 * **(v.1)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
 * **(v.1)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.

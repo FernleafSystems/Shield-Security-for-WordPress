@@ -6,6 +6,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_Base {
 
+		/**
+		 * @return boolean
+		 */
+		public function getIfDoCommentsCheck() {
+			return (bool) apply_filters( $this->doPluginPrefix( 'if-do-comments-check' ), true );
+		}
+
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();

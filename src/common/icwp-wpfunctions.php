@@ -88,7 +88,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 			$sQuery = sprintf(
 				$sQuery,
 				$oDb->getTable_Comments(),
-				$sAuthorEmail
+				esc_sql( $sAuthorEmail )
 			);
 			return $oDb->getVar( $sQuery ) == 1;
 		}
