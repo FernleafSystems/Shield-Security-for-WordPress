@@ -316,15 +316,17 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				cb$sId.onclick			= cb_click$sId;
 			
 				var label$sId			= document.createElement( 'label' );
+				var labelspan$sId		= document.createElement( 'span' );
 				label$sId.htmlFor		= 'checkbox$sId';
-				label$sId.innerHTML		= \"$sConfirm\";
+				labelspan$sId.innerHTML	= \"$sConfirm\";
 
 				var cb_name$sId			= document.createElement('input');
 				cb_name$sId.type		= 'hidden';
 				cb_name$sId.name		= 'cb_nombre';
 
-				$sId.appendChild( cb$sId );
 				$sId.appendChild( label$sId );
+				label$sId.appendChild( labelspan$sId );
+				label$sId.insertBefore( cb$sId, labelspan$sId );
 				$sId.appendChild( cb_name$sId );
 
 				var frm$sId					= cb$sId.form;
