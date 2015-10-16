@@ -71,8 +71,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 			return false;
 		}
 
-		$oWp = $this->loadWpFunctionsProcessor();
-		if ( !$oWp->comments_getIfCommentsOpen() ) {
+		if ( !$this->loadWpCommentsProcessor()->isCommentsOpen() ) {
 			return false;
 		}
 

@@ -52,19 +52,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function __construct() {}
 
 		/**
-		 * @param WP_Post $oPost
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentsOpen( $oPost = null ) {
-			if ( is_null( $oPost ) ) {
-				global $post;
-				$oPost = $post;
-			}
-			return $oPost->comment_status == 'open';
-		}
-
-		/**
 		 * @return null|string
 		 */
 		public function findWpLoad() {
@@ -945,6 +932,15 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
 			return $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $sAuthorEmail );
+		}
+
+		/**
+		 * @deprecated
+		 * @param WP_Post $oPost
+		 * @return bool
+		 */
+		public function comments_getIfCommentsOpen( $oPost = null ) {
+			return $this->loadWpCommentsProcessor()->isCommentsOpen( $oPost );
 		}
 	}
 endif;

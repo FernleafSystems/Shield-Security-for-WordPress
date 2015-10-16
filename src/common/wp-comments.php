@@ -21,6 +21,25 @@ if ( !class_exists( 'ICWP_WPSF_WpComments', false ) ):
 		}
 
 		/**
+		 * @param WP_Post|null $oPost - queries the current post if null
+		 * @return bool
+		 */
+		public function isCommentsOpen( $oPost = null ) {
+			if ( is_null( $oPost ) || !is_a( $oPost, 'WP_Post' )) {
+				global $post;
+				$oPost = $post;
+			}
+			return ( is_a( $oPost, 'WP_Post' ) ? ( $oPost->comment_status == 'open' ) : $this->isCommentsOpenByDefault() );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function isCommentsOpenByDefault() {
+			return ( $this->loadWpFunctionsProcessor()->getOption( 'default_comment_status' ) == 'open' );
+		}
+
+		/**
 		 * @param string $sAuthorEmail
 		 * @return bool
 		 */
