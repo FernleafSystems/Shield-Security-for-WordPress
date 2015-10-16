@@ -39,7 +39,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * @param bool $fIfDoCheck
-	 *
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $fIfDoCheck ) {
@@ -47,10 +46,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return $fIfDoCheck;
 		}
 
-		$oWp = $this->loadWpFunctionsProcessor();
-		if ( ( $oWp->getOption( 'comment_whitelist' ) == 1 ) && $oWp->comments_getIfCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
-			return false;
+		$oWpComments = $this->loadWpCommentsProcessor();
+		if ( $oWpComments->getIfCommentsMustBePreviouslyApproved()
+			&& $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+			$fIfDoCheck = false;
 		}
+
 		return $fIfDoCheck;
 	}
 
@@ -122,7 +123,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	public function doCommentChecking( $aCommentData ) {
 		$this->aRawCommentData = $aCommentData;
 
-		if ( !apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), true ) ) {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeatureOptions();
+		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
 
@@ -313,15 +316,17 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				cb$sId.onclick			= cb_click$sId;
 			
 				var label$sId			= document.createElement( 'label' );
+				var labelspan$sId		= document.createElement( 'span' );
 				label$sId.htmlFor		= 'checkbox$sId';
-				label$sId.innerHTML		= \"$sConfirm\";
+				labelspan$sId.innerHTML	= \"$sConfirm\";
 
 				var cb_name$sId			= document.createElement('input');
 				cb_name$sId.type		= 'hidden';
 				cb_name$sId.name		= 'cb_nombre';
 
-				$sId.appendChild( cb$sId );
 				$sId.appendChild( label$sId );
+				label$sId.appendChild( cb$sId );
+				label$sId.appendChild( labelspan$sId );
 				$sId.appendChild( cb_name$sId );
 
 				var frm$sId					= cb$sId.form;
