@@ -727,7 +727,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		/**
 		 */
 		protected function updateOptionsVersion() {
-			if ( $this->getIsUpgrading() ) {
+			if ( $this->getIsUpgrading() || $this->getController()->getIsRebuildOptionsFromFile() ) {
 				$this->setOpt( self::PluginVersionKey, $this->getController()->getVersion() );
 				$this->getOptionsVo()->cleanTransientStorage();
 			}
