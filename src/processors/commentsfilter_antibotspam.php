@@ -325,8 +325,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				cb_name$sId.name		= 'cb_nombre';
 
 				$sId.appendChild( label$sId );
+				label$sId.appendChild( cb$sId );
 				label$sId.appendChild( labelspan$sId );
-				label$sId.insertBefore( cb$sId, labelspan$sId );
 				$sId.appendChild( cb_name$sId );
 
 				var frm$sId					= cb$sId.form;
