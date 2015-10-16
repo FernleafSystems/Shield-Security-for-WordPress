@@ -39,7 +39,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * @param bool $fIfDoCheck
-	 *
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $fIfDoCheck ) {
@@ -47,10 +46,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return $fIfDoCheck;
 		}
 
-		if ( ( $this->loadWpFunctionsProcessor()->getOption( 'comment_whitelist' ) == 1 )
-			&& $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
-			return false;
+		$oWpComments = $this->loadWpCommentsProcessor();
+		if ( $oWpComments->getIfCommentsMustBePreviouslyApproved()
+			&& $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+			$fIfDoCheck = false;
 		}
+
 		return $fIfDoCheck;
 	}
 

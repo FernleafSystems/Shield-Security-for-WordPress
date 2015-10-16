@@ -21,6 +21,13 @@ if ( !class_exists( 'ICWP_WPSF_WpComments', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getIfCommentsMustBePreviouslyApproved() {
+			return ( $this->loadWpFunctionsProcessor()->getOption( 'comment_whitelist' ) == 1 );
+		}
+
+		/**
 		 * @param WP_Post|null $oPost - queries the current post if null
 		 * @return bool
 		 */

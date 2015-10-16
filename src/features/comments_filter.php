@@ -10,11 +10,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 * @return boolean
 		 */
 		public function getIfDoCommentsCheck() {
-			return (bool) apply_filters( $this->doPluginPrefix( 'if-do-comments-check' ), true );
+			return $this->loadWpCommentsProcessor()->isCommentsOpen()
+				&& !$this->loadWpUsersProcessor()->isUserLoggedIn()
+				&& apply_filters( $this->doPluginPrefix( 'if-do-comments-check' ), true );
 		}
 
 		protected function doExecuteProcessor() {
-			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			if ( !apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) && $this->getIfDoCommentsCheck() ) {
 				parent::doExecuteProcessor();
 			}
 		}

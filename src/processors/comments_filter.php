@@ -11,8 +11,6 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
-		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-
 		if ( $this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
 			require_once( dirname(__FILE__).ICWP_DS.'commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
@@ -54,28 +52,6 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 				$this->insertAdminNotice( $aRenderData );
 			}
 		}
-	}
-
-	/**
-	 * Always default to true, and if false, return that.
-	 *
-	 * @param boolean $fIfDoCheck
-	 * @return boolean
-	 */
-	public function getIfDoCommentsCheck( $fIfDoCheck ) {
-		if ( !$fIfDoCheck ) {
-			return $fIfDoCheck;
-		}
-
-		if ( is_user_logged_in() ) {
-			return false;
-		}
-
-		if ( !$this->loadWpCommentsProcessor()->isCommentsOpen() ) {
-			return false;
-		}
-
-		return $fIfDoCheck;
 	}
 
 	/**
