@@ -29,6 +29,17 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	protected $sCommentStatusExplanation = '';
 
 	/**
+	 */
+	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeatureOptions();
+		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
+		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $oFO->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
+		add_filter( $oFO->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
+	}
+
+	/**
 	 * @param bool $fIfDoCheck
 	 *
 	 * @return bool
@@ -38,7 +49,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 			return $fIfDoCheck;
 		}
 
-		if ( $this->loadWpFunctionsProcessor()->comments_getIfCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+		if ( $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
 			return false;
 		}
 		return $fIfDoCheck;
@@ -67,17 +78,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 		$this->sCommentStatus = '';
 		$this->sCommentStatusExplanation = '';
 		self::$sSpamBlacklistFile = $this->getFeatureOptions()->getResourcesDir().'spamblacklist.txt';
-	}
-	
-	/**
-	 */
-	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
-		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
-		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-		add_filter( $oFO->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
-		add_filter( $oFO->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
 	}
 
 	/**

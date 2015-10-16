@@ -47,8 +47,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return $fIfDoCheck;
 		}
 
-		$oWp = $this->loadWpFunctionsProcessor();
-		if ( ( $oWp->getOption( 'comment_whitelist' ) == 1 ) && $oWp->comments_getIfCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+		if ( ( $this->loadWpFunctionsProcessor()->getOption( 'comment_whitelist' ) == 1 )
+			&& $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
 			return false;
 		}
 		return $fIfDoCheck;

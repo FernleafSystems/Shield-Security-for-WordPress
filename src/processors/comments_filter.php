@@ -19,7 +19,7 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 			$oBotSpamProcessor->run();
 		}
 
-		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->loadWpFunctionsProcessor()->comments_getIsCommentPost() ) {
+		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->loadWpCommentsProcessor()->isCommentPost() ) {
 			require_once( dirname(__FILE__).ICWP_DS.'commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
