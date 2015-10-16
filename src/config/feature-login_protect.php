@@ -199,10 +199,11 @@ options:
     value: 'login_auth'
   -
     key: 'two_factor_auth_table_columns'
+    immutable: true
     section: 'section_non_ui'
     value:
       - 'id'
-      - 'unique_id'
+      - 'session_id'
       - 'wp_username'
       - 'ip'
       - 'pending'
