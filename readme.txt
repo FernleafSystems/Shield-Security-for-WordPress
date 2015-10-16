@@ -270,13 +270,14 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.12.1 Point Release =
-*Released: 13th October, 2015*
+*Released: 18th October, 2015*
 
 * **(v.1)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
 * **(v.1)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
 * **(v.1)**  CHANGED:		Simplified and consolidated the use of cookies for user sessions - sets and removes cookies better to reduce their usage.
+* **(v.1)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication - sets and removes cookies better to reduce their usage.
 * **(v.1)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
-* **(v.1)**  CHANGED:		Comments Filter doesn't set/use cookies unless one already exists for the plugin.
+* **(v.1)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
 * **(v.1)**  CHANGED:		Various small code optimizations and cleaning.
 
 = 4.12 Series =
