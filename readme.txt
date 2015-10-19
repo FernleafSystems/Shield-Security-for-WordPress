@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.12.0
+Stable tag: 4.13.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -269,17 +269,29 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
-= 4.12.1 Point Release =
+= 4.13.0 Point Release =
 *Released: 19th October, 2015*
 
-* **(v.1)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
-* **(v.1)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
-* **(v.1)**  CHANGED:		Simplified and consolidated the use of cookies for user sessions - sets and removes cookies better to reduce their usage.
-* **(v.1)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
-* **(v.1)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
-* **(v.1)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
-* **(v.1)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
-* **(v.1)**  CHANGED:		Various code optimizations and cleaning.
+* **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
+* **(v.0)**  NEW:			Renamed 'Admin Access' module to 'Security Admin'.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for User Session - sets and removes cookies better to reduce their usage.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
+* **(v.0)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
+* **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
+* **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
+* **(v.0)**  CHANGED:		Various code optimizations and cleaning.
+
+= 4.13 Series =
+*Released: 19th October, 2015*
+
+* **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
+* **(v.0)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for user sessions - sets and removes cookies better to reduce their usage.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
+* **(v.0)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
+* **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
+* **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
+* **(v.0)**  CHANGED:		Various code optimizations and cleaning.
 
 = 4.12 Series =
 *Released: 10th October, 2015*
