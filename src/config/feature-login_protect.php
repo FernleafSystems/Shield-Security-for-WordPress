@@ -74,13 +74,6 @@ options:
     link_info: 'http://icwp.io/3t'
     link_blog: ''
   -
-    key: 'enable_two_factor_bypass_on_email_fail'
-    section: 'section_two_factor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'two_factor_auth_user_roles'
     section: 'section_two_factor_authentication'
     type: 'multiple_select'
@@ -210,10 +203,6 @@ options:
       - 'expired_at'
       - 'created_at'
       - 'deleted_at'
-  -
-    key: 'two_factor_auth_cookie_name'
-    section: 'section_non_ui'
-    value: 'wpsf_auth'
   -
     key: 'two_factor_auth_table_created'
     section: 'section_non_ui'

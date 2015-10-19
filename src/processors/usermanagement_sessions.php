@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function setWordpressTimeoutCookieExpiration_Filter( $nTimeout ) {
 		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		return ( ( $nSessionTimeoutInterval > 0 )? $nSessionTimeoutInterval : $nTimeout );
+		return ( ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout );
 	}
 
 	/**

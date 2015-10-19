@@ -37,9 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 		/**
 		 * Checks whether the current user that is logged-in is authenticated by IP address.
-		 *
 		 * If the user is not found to be valid, they're logged out.
-		 *
 		 * Should be hooked to 'init' so we have is_user_logged_in()
 		 */
 		public function checkCurrentUserAuth() {
@@ -184,12 +182,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 					// We put this right at the end so as to nullify the effect of black marking on failed login (which this appears to be due to WP_Error)
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_false', 1000 );
-
-					// Failure to send email - log them in.
-					if ( !$fEmailSuccess && $this->getIsOption( 'enable_two_factor_bypass_on_email_fail', 'Y' ) ) {
-						$this->setLoginAuthActive( $aNewAuthData['session_id'], $aNewAuthData['wp_username'] );
-						return $oUser;
-					}
 				}
 			}
 
@@ -368,13 +360,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && count( $mResult ) == 1 ) ? $mResult[0] : null ;
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getTwoFactorAuthCookieName() {
-			return $this->getOption( 'two_factor_auth_cookie_name' );
 		}
 
 		/**
