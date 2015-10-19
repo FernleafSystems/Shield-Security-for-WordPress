@@ -40,7 +40,7 @@ includes:
 
 menu:
   show: true
-  title: 'Simple Firewall'
+  title: 'Security Firewall'
   top_level: true # to-do is allow for non-top-level menu items.
   do_submenu_fix: true
   callback: 'onDisplayTopMenu'
@@ -49,9 +49,9 @@ menu:
 
 
 labels: #the keys below must correspond exactly for the 'all_plugins' filter
-  Name: 'WordPress Simple Firewall'
+  Name: 'WordPress Security Firewall'
   Description: \"Secure Your Sites With The World's Most Powerful WordPress Security Protection System\"
-  Title: 'WordPress Simple Firewall'
+  Title: 'WordPress Security Firewall'
   Author: 'iControlWP'
   AuthorName: 'iControlWP'
   PluginURI: 'http://icwp.io/home'
