@@ -270,7 +270,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 == Changelog ==
 
 = 4.12.1 Point Release =
-*Released: 18th October, 2015*
+*Released: 19th October, 2015*
 
 * **(v.1)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
 * **(v.1)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
@@ -278,6 +278,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 * **(v.1)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
 * **(v.1)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
 * **(v.1)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
+* **(v.1)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
 * **(v.1)**  CHANGED:		Various code optimizations and cleaning.
 
 = 4.12 Series =
