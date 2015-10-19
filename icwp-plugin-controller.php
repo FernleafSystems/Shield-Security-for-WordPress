@@ -609,12 +609,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpShutdown() {
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
-		$this->deleteRebuildFlag();
+		$this->deleteFlags();
 	}
 
 	/**
 	 */
-	protected function deleteRebuildFlag() {
+	protected function deleteFlags() {
 		if ( $this->getIsRebuildOptionsFromFile() ) {
 			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
