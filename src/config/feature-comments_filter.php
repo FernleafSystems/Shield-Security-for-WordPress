@@ -187,6 +187,7 @@ options:
   -
     key: 'spambot_comments_filter_table_columns'
     section: 'section_non_ui'
+    immutable: true
     value:
       - 'id'
       - 'post_id'

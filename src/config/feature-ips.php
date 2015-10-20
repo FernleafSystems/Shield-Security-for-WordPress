@@ -81,6 +81,7 @@ options:
   -
     key: 'ip_list_table_columns'
     section: 'section_non_ui'
+    immutable: true
     value:
       - 'id'
       - 'ip'
