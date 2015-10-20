@@ -639,20 +639,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return string
 		 */
 		public function getCreateTableSql() {
-			$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-				`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				`ip` varchar(40) NOT NULL DEFAULT '',
-				`label` varchar(255) NOT NULL DEFAULT '',
-				`list` varchar(4) NOT NULL DEFAULT '',
-				`ip6` TINYINT(1) NOT NULL DEFAULT 0,
-				`range` TINYINT(1) NOT NULL DEFAULT 0,
-				`transgressions` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
-				`last_access_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				PRIMARY KEY (`id`)
-			) DEFAULT CHARSET=utf8;";
-			return sprintf( $sSqlTables, $this->getTableName() );
+			$sSqlTables = "CREATE TABLE %s (
+				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				ip varchar(40) NOT NULL DEFAULT '',
+				label varchar(255) NOT NULL DEFAULT '',
+				list varchar(4) NOT NULL DEFAULT '',
+				ip6 tinyint(1) NOT NULL DEFAULT 0,
+				range tinyint(1) NOT NULL DEFAULT 0,
+				transgressions tinyint(2) UNSIGNED NOT NULL DEFAULT 0,
+				last_access_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				PRIMARY KEY  (id)
+			) %s;";
+			return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 		}
 
 		/**

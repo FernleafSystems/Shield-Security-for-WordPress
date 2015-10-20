@@ -46,7 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		protected function createTable() {
 			$sSql = $this->getCreateTableSql();
 			if ( !empty( $sSql ) ) {
-				return $this->loadDbProcessor()->doSql( $sSql );
+				return $this->loadDbProcessor()->dbDelta( $sSql );
 			}
 			return true;
 		}

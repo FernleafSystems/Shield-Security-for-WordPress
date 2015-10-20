@@ -127,22 +127,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 		 * @return string
 		 */
 		protected function getCreateTableSql() {
-			$sSqlTables = "
-				CREATE TABLE IF NOT EXISTS `%s` (
-				`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				`ip` VARCHAR(40) NOT NULL DEFAULT '0',
-				`wp_username` VARCHAR(255) NOT NULL DEFAULT 'none',
-				`context` VARCHAR(32) NOT NULL DEFAULT 'none',
-				`event` VARCHAR(50) NOT NULL DEFAULT 'none',
-				`category` INT(3) UNSIGNED NOT NULL DEFAULT '0',
-				`message` TEXT,
-				`immutable` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
-				`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				PRIMARY KEY (`id`)
-			) DEFAULT CHARSET=utf8;";
-
-			return sprintf( $sSqlTables, $this->getTableName() );
+			$sSqlTables = "CREATE TABLE %s (
+				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				ip varchar(40) NOT NULL DEFAULT '0',
+				wp_username varchar(255) NOT NULL DEFAULT 'none',
+				context varchar(32) NOT NULL DEFAULT 'none',
+				event varchar(50) NOT NULL DEFAULT 'none',
+				category int(3) UNSIGNED NOT NULL DEFAULT 0,
+				message text,
+				immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				PRIMARY KEY  (id)
+			) %s;";
+			return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 		}
 
 		/**
