@@ -87,7 +87,7 @@ options:
       - 'label'
       - 'list'
       - 'ip6'
-      - 'range'
+      - 'is_range'
       - 'transgressions'
       - 'last_access_at'
       - 'created_at'

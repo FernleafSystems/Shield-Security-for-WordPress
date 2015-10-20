@@ -463,7 +463,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aNewData[ 'list' ]				= self::LIST_MANUAL_WHITE;
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
 			$aNewData[ 'transgressions' ]	= 0;
-			$aNewData[ 'range' ]			= strpos( $sIp, '/' );
+			$aNewData[ 'is_range' ]			= strpos( $sIp, '/' ) !== false;
 			$aNewData[ 'last_access_at' ]	= 0;
 			$aNewData[ 'created_at' ]		= $this->time();
 
@@ -487,7 +487,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aNewData[ 'list' ]				= self::LIST_AUTO_BLACK;
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
 			$aNewData[ 'transgressions' ]	= 1;
-			$aNewData[ 'range' ]			= 0;
+			$aNewData[ 'is_range' ]			= 0;
 			$aNewData[ 'last_access_at' ]	= $this->time();
 			$aNewData[ 'created_at' ]		= $this->time();
 
@@ -645,8 +645,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 				label varchar(255) NOT NULL DEFAULT '',
 				list varchar(4) NOT NULL DEFAULT '',
 				ip6 tinyint(1) NOT NULL DEFAULT 0,
-				range tinyint(1) NOT NULL DEFAULT 0,
-				transgressions tinyint(2) UNSIGNED NOT NULL DEFAULT 0,
+				is_range tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+				transgressions tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 				last_access_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
