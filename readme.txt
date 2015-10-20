@@ -279,6 +279,7 @@ You can either manually upgrade, or WordPress will handle it in due course.
 * **(v.0)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
 * **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
 * **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
+* **(v.0)**  CHANGED:		Improvements to the database create queries: use MySQL Engine defaults (instead of MyISAM); use WordPress dbDelta() for updates.
 * **(v.0)**  CHANGED:		Various code optimizations and cleaning.
 
 = 4.13 Series =
