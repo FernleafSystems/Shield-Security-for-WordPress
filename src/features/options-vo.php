@@ -76,7 +76,9 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function doOptionsDelete() {
-		return $this->loadWpFunctionsProcessor()->deleteOption( $this->getOptionsStorageKey() );
+		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
+		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 
 	/**
