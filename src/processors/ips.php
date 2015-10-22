@@ -659,7 +659,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getOption( 'ip_list_table_columns' );
+			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'ip_list_table_columns' );
 		}
 
 		/**
