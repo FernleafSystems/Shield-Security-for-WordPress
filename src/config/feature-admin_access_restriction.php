@@ -16,6 +16,11 @@ admin_notices:
     schedule: 'conditions'
     valid_admin: true
     type: 'warning'
+  'admin-users-restricted':
+    id: 'admin-users-restricted'
+    schedule: 'conditions'
+    valid_admin: true
+    type: 'warning'
 
 # Options Sections
 sections:
@@ -43,7 +48,7 @@ options:
     link_blog: 'http://icwp.io/wpsf02'
   -
     key: 'admin_access_key'
-    section: 'section_admin_access_restriction_settings'
+    section: 'section_enable_plugin_feature_admin_access_restriction'
     default: ''
     type: 'password'
     link_info: 'http://icwp.io/42'
@@ -59,6 +64,13 @@ options:
     key: 'admin_access_restrict_options'
     section: 'section_admin_access_restriction_areas'
     default: 'Y'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/wpsf32'
+    link_blog: ''
+  -
+    key: 'admin_access_restrict_admin_users'
+    section: 'section_admin_access_restriction_areas'
+    default: 'N'
     type: 'checkbox'
     link_info: ''
     link_blog: ''
@@ -155,7 +167,7 @@ options:
     section: 'section_non_ui'
     value: 'icwp_wpsf_aakcook'
 ",
-		_wpsf__( 'Admin Access Restriction' ), //name
+		_wpsf__( 'WordPress Security Admin' ), //name
 		_wpsf__( 'Protect your security plugin not just your WordPress site' ), //tagline
-		_wpsf__( 'Admin Access' )
+		_wpsf__( 'Security Admin' )
 	);

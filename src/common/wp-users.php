@@ -97,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 
 		/**
 		 * @param $sUsername
-		 * @return bool|WP_User
+		 * @return false|WP_User
 		 */
 		public function getUserByUsername( $sUsername ) {
 			if ( empty( $sUsername ) ) {
@@ -143,10 +143,17 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		}
 
 		/**
+		 * @param WP_User|null $oUser
 		 * @return bool
 		 */
-		public function isUserAdmin() {
-			return $this->isUserLoggedIn() && current_user_can( 'manage_options' );
+		public function isUserAdmin( $oUser = null ) {
+			if ( empty( $oUser ) ) {
+				$bIsAdmin = $this->isUserLoggedIn() && current_user_can( 'manage_options' );
+			}
+			else {
+				$bIsAdmin = user_can( $oUser, 'manage_options' );
+			}
+			return $bIsAdmin;
 		}
 
 		/**

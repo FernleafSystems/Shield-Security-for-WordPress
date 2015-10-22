@@ -207,7 +207,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			// Manual black list first.
 			$bKill = false;
-//			$bKill = $this->getIsIpOnManualBlackList( $sIp ); // TODO: Not currently implemented
 
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
@@ -227,6 +226,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 					).'</h3>'
 					.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
 					.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
+					.'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime() / 60 ) )
+					.'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
+					.'</p>'
 					.'<p><a href="http://icwp.io/6i" target="_blank">'._wpsf__( 'Click here if you are the site owner.' ).'</a></p>'
 				);
 			}
@@ -461,7 +463,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aNewData[ 'list' ]				= self::LIST_MANUAL_WHITE;
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
 			$aNewData[ 'transgressions' ]	= 0;
-			$aNewData[ 'range' ]			= strpos( $sIp, '/' );
+			$aNewData[ 'is_range' ]			= strpos( $sIp, '/' ) !== false;
 			$aNewData[ 'last_access_at' ]	= 0;
 			$aNewData[ 'created_at' ]		= $this->time();
 
@@ -485,7 +487,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 			$aNewData[ 'list' ]				= self::LIST_AUTO_BLACK;
 			$aNewData[ 'ip6' ]				= $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
 			$aNewData[ 'transgressions' ]	= 1;
-			$aNewData[ 'range' ]			= 0;
+			$aNewData[ 'is_range' ]			= 0;
 			$aNewData[ 'last_access_at' ]	= $this->time();
 			$aNewData[ 'created_at' ]		= $this->time();
 
@@ -637,27 +639,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		 * @return string
 		 */
 		public function getCreateTableSql() {
-			$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-				`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				`ip` varchar(40) NOT NULL DEFAULT '',
-				`label` varchar(255) NOT NULL DEFAULT '',
-				`list` varchar(4) NOT NULL DEFAULT '',
-				`ip6` TINYINT(1) NOT NULL DEFAULT 0,
-				`range` TINYINT(1) NOT NULL DEFAULT 0,
-				`transgressions` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
-				`last_access_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-			return sprintf( $sSqlTables, $this->getTableName() );
+			$sSqlTables = "CREATE TABLE %s (
+				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				ip varchar(40) NOT NULL DEFAULT '',
+				label varchar(255) NOT NULL DEFAULT '',
+				list varchar(4) NOT NULL DEFAULT '',
+				ip6 tinyint(1) NOT NULL DEFAULT 0,
+				is_range tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+				transgressions tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+				last_access_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				PRIMARY KEY  (id)
+			) %s;";
+			return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 		}
 
 		/**
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getOption( 'ip_list_table_columns' );
+			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'ip_list_table_columns' );
 		}
 
 		/**

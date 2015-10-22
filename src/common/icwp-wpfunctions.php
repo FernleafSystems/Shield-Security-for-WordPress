@@ -52,55 +52,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function __construct() {}
 
 		/**
-		 * @param WP_Post $oPost
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentsOpen( $oPost = null ) {
-			if ( is_null( $oPost ) ) {
-				global $post;
-				$oPost = $post;
-			}
-			return $oPost->comment_status == 'open';
-		}
-
-		/**
-		 * @param string $sAuthorEmail
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
-
-			if ( empty( $sAuthorEmail ) || !is_email( $sAuthorEmail ) ) {
-				return false;
-			}
-
-			$oDb = $this->loadDbProcessor();
-			$sQuery = "
-				SELECT comment_approved
-				FROM %s
-				WHERE
-					comment_author_email = '%s'
-					AND comment_approved = '1'
-					LIMIT 1
-			";
-
-			$sQuery = sprintf(
-				$sQuery,
-				$oDb->getTable_Comments(),
-				$sAuthorEmail
-			);
-			return $oDb->getVar( $sQuery ) == 1;
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function comments_getIsCommentPost() {
-			return $this->loadDataProcessor()->GetIsRequestPost() && $this->getIsCurrentPage( 'wp-comments-post.php' );
-		}
-
-		/**
 		 * @return null|string
 		 */
 		public function findWpLoad() {
@@ -964,6 +915,32 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function setUserLoggedIn( $sUsername ) {
 			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
+		}
+
+		/**
+		 * @deprecated
+		 * @return bool
+		 */
+		public function comments_getIsCommentPost() {
+			return $this->loadWpCommentsProcessor()->isCommentPost();
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sAuthorEmail
+		 * @return bool
+		 */
+		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
+			return $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $sAuthorEmail );
+		}
+
+		/**
+		 * @deprecated
+		 * @param WP_Post $oPost
+		 * @return bool
+		 */
+		public function comments_getIfCommentsOpen( $oPost = null ) {
+			return $this->loadWpCommentsProcessor()->isCommentsOpen( $oPost );
 		}
 	}
 endif;

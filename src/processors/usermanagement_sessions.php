@@ -56,7 +56,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 
 		$this->doAddNewActiveUserSessionRecord( $sUsername );
-		$this->setSessionCookie();
 		$this->doLimitUserSession( $sUsername );
 		return true;
 	}
@@ -167,13 +166,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getSessionId() {
 		if ( empty( $this->sSessionId ) ) {
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeatureOptions();
-			$this->sSessionId = $this->loadDataProcessor()->FetchCookie( $oFO->getUserSessionCookieName() );
-			if ( empty( $this->sSessionId ) ) {
-				$this->sSessionId = $oFO->getController()->getSessionId();
-				$this->setSessionCookie();
-			}
+			$this->sSessionId = $this->getController()->getSessionId();
 		}
 		return $this->sSessionId;
 	}
@@ -184,7 +177,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function setWordpressTimeoutCookieExpiration_Filter( $nTimeout ) {
 		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		return ( ( $nSessionTimeoutInterval > 0 )? $nSessionTimeoutInterval : $nTimeout );
+		return ( ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout );
 	}
 
 	/**
@@ -192,24 +185,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	protected function getSessionTimeoutInterval( ) {
 		return $this->getOption( 'session_timeout_interval' ) * DAY_IN_SECONDS;
-	}
-
-	/**
-	 */
-	protected function setSessionCookie() {
-		if ( $this->getSessionTimeoutInterval() > 0 ) {
-			$oWp = $this->loadWpFunctionsProcessor();
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeatureOptions();
-			setcookie(
-				$oFO->getUserSessionCookieName(),
-				$this->getSessionId(),
-				$this->time() + $this->getSessionTimeoutInterval(),
-				$oWp->getCookiePath(),
-				$oWp->getCookieDomain(),
-				false
-			);
-		}
 	}
 
 	/**
@@ -262,7 +237,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param string $sUsername
-	 *
 	 * @return bool|int
 	 */
 	protected function doAddNewActiveUserSessionRecord( $sUsername ) {
@@ -270,22 +244,21 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			return false;
 		}
 
-		$sSessionId = $this->getSessionId();
+		$nTimeStamp = $this->time();
 
-		$oDp = $this->loadDataProcessor();
 		// Add new session entry
 		// set attempts = 1 and then when we know it's a valid login, we zero it.
 		// First set any other entries for the given user to be deleted.
 		$aNewData = array();
-		$aNewData[ 'session_id' ]			= $sSessionId;
-		$aNewData[ 'ip' ]			    	= $oDp->getVisitorIpAddress( true );
+		$aNewData[ 'session_id' ]			= $this->getSessionId();
+		$aNewData[ 'ip' ]			    	= $this->human_ip();
 		$aNewData[ 'wp_username' ]			= $sUsername;
 		$aNewData[ 'login_attempts' ]		= 0;
 		$aNewData[ 'pending' ]				= 0;
-		$aNewData[ 'logged_in_at' ]			= $this->time();
-		$aNewData[ 'last_activity_at' ]		= $this->time();
-		$aNewData[ 'last_activity_uri' ]	= $oDp->FetchServer( 'REQUEST_URI' );
-		$aNewData[ 'created_at' ]			= $this->time();
+		$aNewData[ 'logged_in_at' ]			= $nTimeStamp;
+		$aNewData[ 'last_activity_at' ]		= $nTimeStamp;
+		$aNewData[ 'last_activity_uri' ]	= $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' );
+		$aNewData[ 'created_at' ]			= $nTimeStamp;
 		$mResult = $this->insertData( $aNewData );
 
 		return $mResult;
@@ -293,7 +266,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param string $sUsername
-	 *
 	 * @return boolean
 	 */
 	protected function doLimitUserSession( $sUsername ) {
@@ -324,12 +296,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
 			return false;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeatureOptions();
-
 		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
-		unset( $_COOKIE[ $oFO->getUserSessionCookieName() ] );
-		setcookie( $oFO->getUserSessionCookieName(), "", time()-3600, COOKIEPATH, COOKIE_DOMAIN, false );
+		$this->getController()->clearSession();
 		return $mResult;
 	}
 
@@ -337,7 +305,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @param string $sUsername
 	 * @param string $sSessionId
 	 * @param bool $bHardDelete
-	 *
 	 * @return bool|int
 	 */
 	protected function doTerminateUserSession( $sUsername, $sSessionId, $bHardDelete = true ) {
@@ -358,7 +325,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param string $sWpUsername
-	 *
 	 * @return array|bool
 	 */
 	public function getActiveUserSessionRecords( $sWpUsername = '' ) {
@@ -434,22 +400,22 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-			`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			`session_id` VARCHAR(32) NOT NULL DEFAULT '',
-			`wp_username` VARCHAR(255) NOT NULL DEFAULT '',
-			`ip` VARCHAR(40) NOT NULL DEFAULT '0',
-			`logged_in_at` INT(15) NOT NULL DEFAULT '0',
-			`last_activity_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-			`last_activity_uri` text NOT NULL DEFAULT '',
-			`used_mfa` INT(1) NOT NULL DEFAULT '0',
-			`pending` TINYINT(1) NOT NULL DEFAULT '0',
-			`login_attempts` INT(1) NOT NULL DEFAULT '0',
-			`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-			`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
- 			PRIMARY KEY (`id`)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-		return sprintf( $sSqlTables, $this->getTableName() );
+		$sSqlTables = "CREATE TABLE %s (
+			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			session_id varchar(32) NOT NULL DEFAULT '',
+			wp_username varchar(255) NOT NULL DEFAULT '',
+			ip varchar(40) NOT NULL DEFAULT '0',
+			logged_in_at int(15) NOT NULL DEFAULT 0,
+			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			last_activity_uri text NOT NULL DEFAULT '',
+			used_mfa int(1) NOT NULL DEFAULT 0,
+			pending tinyint(1) NOT NULL DEFAULT 0,
+			login_attempts int(1) NOT NULL DEFAULT 0,
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+ 			PRIMARY KEY  (id)
+		) %s;";
+		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**

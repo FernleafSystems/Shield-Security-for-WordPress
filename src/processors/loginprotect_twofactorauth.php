@@ -37,9 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 		/**
 		 * Checks whether the current user that is logged-in is authenticated by IP address.
-		 *
 		 * If the user is not found to be valid, they're logged out.
-		 *
 		 * Should be hooked to 'init' so we have is_user_logged_in()
 		 */
 		public function checkCurrentUserAuth() {
@@ -90,7 +88,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 					$fVerified = false;
 				}
 
-				if ( $fVerified && $oFO->getIsTwoFactorAuthOn('cookie') && !$this->getIsAuthCookieValid( $aUserAuthData['unique_id'] ) ) {
+				if ( $fVerified && $oFO->getIsTwoFactorAuthOn('cookie') && !$this->getIsAuthCookieValid( $aUserAuthData['session_id'] ) ) {
 					$fVerified = false;
 				}
 			}
@@ -110,21 +108,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oDp = $this->loadDataProcessor();
-			// wpsfkey=%s&wpsf-action=%s&username=%s&uniqueid
+			// wpsfkey=%s&wpsf-action=%s&username=%s&sessionid
 
 			if ( $oDp->FetchGet( 'wpsfkey' ) !== $oFO->getTwoAuthSecretKey() ) {
 				return false;
 			}
 
 			$sUsername = $oDp->FetchGet( 'username' );
-			$sUniqueId = $oDp->FetchGet( 'uniqueid' );
+			$sSessionId = $oDp->FetchGet( 'sessionid' );
 
-			if ( empty( $sUsername ) || empty( $sUniqueId ) ) {
+			if ( empty( $sUsername ) || empty( $sSessionId ) ) {
 				return false;
 			}
 
 			$oWp = $this->loadWpFunctionsProcessor();
-			if ( $this->setLoginAuthActive( $sUniqueId, $sUsername ) ) {
+			if ( $this->setLoginAuthActive( $sSessionId, $sUsername ) ) {
 				$sAuditMessage = sprintf( _wpsf__('User "%s" verified their identity using Two-Factor Authentication.'), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
@@ -180,16 +178,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				// Now send email with authentication link for user.
 				if ( is_array( $aNewAuthData ) ) {
 					$this->doStatIncrement( 'login.twofactor.started' );
-					$fEmailSuccess = $this->sendEmailTwoFactorVerify( $oUser, $aNewAuthData['ip'], $aNewAuthData['unique_id'] );
+					$fEmailSuccess = $this->sendEmailTwoFactorVerify( $oUser, $aNewAuthData['ip'], $aNewAuthData['session_id'] );
 
 					// We put this right at the end so as to nullify the effect of black marking on failed login (which this appears to be due to WP_Error)
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_false', 1000 );
-
-					// Failure to send email - log them in.
-					if ( !$fEmailSuccess && $this->getIsOption( 'enable_two_factor_bypass_on_email_fail', 'Y' ) ) {
-						$this->setLoginAuthActive( $aNewAuthData['unique_id'], $aNewAuthData['wp_username'] );
-						return $oUser;
-					}
 				}
 			}
 
@@ -207,23 +199,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * @param string $sUniqueId
+		 * @param string $sSessionId
 		 * @param string $sUsername
 		 * @return boolean
 		 */
-		public function setLoginAuthActive( $sUniqueId, $sUsername ) {
+		public function setLoginAuthActive( $sSessionId, $sUsername ) {
 			// 1. Terminate old entries
 			$this->query_DoTerminateActiveLogins( $sUsername );
 
 			// 2. Authenticate new entry
 			$aWhere = array(
-				'unique_id'		=> $sUniqueId,
+				'session_id'	=> $sSessionId,
 				'wp_username'	=> $sUsername
 			);
 			$this->query_DoMakePendingLoginAuthActive( $aWhere );
-			// 3. Set Auth Cookie
-			$this->setAuthActiveCookie( $sUniqueId );
-
 			return true;
 		}
 
@@ -257,6 +246,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		protected function getSessionId() {
+			return $this->getController()->getSessionId();
+		}
+
+		/**
 		 * @param string $sUsername
 		 * @return boolean
 		 */
@@ -280,7 +276,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 			// Now add new pending entry
 			$aNewData = array();
-			$aNewData[ 'unique_id' ]	= uniqid();
+			$aNewData[ 'session_id' ]	= $this->getSessionId();
 			$aNewData[ 'ip' ]			= $this->loadDataProcessor()->getVisitorIpAddress( true );
 			$aNewData[ 'wp_username' ]	= $sUsername;
 			$aNewData[ 'pending' ]		= 1;
@@ -291,16 +287,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * Must provide "unique_id" and "wp_username".
+		 * Must provide "session_id" and "wp_username".
 		 *
 		 * Will update the authentication table so that it is active (pending=0).
 		 *
-		 * @param array $aWhere - unique_id, wp_username
+		 * @param array $aWhere - session_id, wp_username
 		 * @return boolean
 		 */
 		protected function query_DoMakePendingLoginAuthActive( $aWhere ) {
 
-			if ( empty( $aWhere['unique_id'] ) || empty( $aWhere['wp_username'] ) ) {
+			if ( empty( $aWhere['session_id'] ) || empty( $aWhere['wp_username'] ) ) {
 				return false;
 			}
 
@@ -344,16 +340,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * @param $sUniqueId
-		 */
-		public function setAuthActiveCookie( $sUniqueId ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-			$nWeek = defined( 'WEEK_IN_SECONDS' )? WEEK_IN_SECONDS : 24*60*60;
-			setcookie( $oFO->getTwoFactorAuthCookieName(), $sUniqueId, $this->time()+$nWeek, COOKIEPATH, COOKIE_DOMAIN, false );
-		}
-
-		/**
 		 * @param WP_User $oUser
 		 * @return mixed
 		 */
@@ -377,30 +363,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * @param $sUniqueId
+		 * @param string $sId
 		 * @return bool
 		 */
-		protected function getIsAuthCookieValid( $sUniqueId ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-			return $this->loadDataProcessor()->FetchCookie( $oFO->getTwoFactorAuthCookieName() ) == $sUniqueId;
+		protected function getIsAuthCookieValid( $sId ) {
+			return ( !empty( $sId ) && ( $sId == $this->getSessionId() ) );
 		}
 
 		/**
 		 * Given the necessary components, creates the 2-factor verification link for giving to the user.
 		 *
 		 * @param string $sUser
-		 * @param string $sUniqueId
+		 * @param string $sSessionId
 		 * @return string
 		 */
-		protected function generateTwoFactorVerifyLink( $sUser, $sUniqueId ) {
+		protected function generateTwoFactorVerifyLink( $sUser, $sSessionId ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$aQueryArgs = array(
 				'wpsfkey' 		=> $oFO->getTwoAuthSecretKey(),
 				'wpsf-action'	=> 'linkauth',
 				'username'		=> $sUser,
-				'uniqueid'		=> $sUniqueId
+				'sessionid'		=> $sSessionId
 			);
 			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
 		}
@@ -408,13 +392,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		/**
 		 * @param WP_User $oUser
 		 * @param string $sIpAddress
-		 * @param string $sUniqueId
+		 * @param string $sSessionId
 		 * @return boolean
 		 */
-		public function sendEmailTwoFactorVerify( WP_User $oUser, $sIpAddress, $sUniqueId ) {
+		public function sendEmailTwoFactorVerify( WP_User $oUser, $sIpAddress, $sSessionId ) {
 
 			$sEmail = $oUser->get( 'user_email' );
-			$sAuthLink = $this->generateTwoFactorVerifyLink( $oUser->get( 'user_login' ), $sUniqueId );
+			$sAuthLink = $this->generateTwoFactorVerifyLink( $oUser->get( 'user_login' ), $sSessionId );
 
 			$aMessage = array(
 				_wpsf__( 'You, or someone pretending to be you, just attempted to login into your WordPress site.' ),
@@ -442,25 +426,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return string
 		 */
 		public function getCreateTableSql() {
-			$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-				`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				`unique_id` varchar(20) NOT NULL DEFAULT '',
-				`wp_username` varchar(255) NOT NULL DEFAULT '',
-				`ip` varchar(40) NOT NULL DEFAULT '',
-				`pending` TINYINT(1) NOT NULL DEFAULT '0',
-				`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`expired_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-			return sprintf( $sSqlTables, $this->getTableName() );
+			$sSqlTables = "CREATE TABLE %s (
+				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				session_id varchar(32) NOT NULL DEFAULT '',
+				wp_username varchar(255) NOT NULL DEFAULT '',
+				ip varchar(40) NOT NULL DEFAULT '',
+				pending tinyint(1) NOT NULL DEFAULT 0,
+				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				expired_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				PRIMARY KEY  (id)
+			) %s;";
+			return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 		}
 
 		/**
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getOption( 'two_factor_auth_table_columns' );
+			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'two_factor_auth_table_columns' );
 		}
 
 		/**

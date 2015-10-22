@@ -46,7 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		protected function createTable() {
 			$sSql = $this->getCreateTableSql();
 			if ( !empty( $sSql ) ) {
-				return $this->loadDbProcessor()->doSql( $sSql );
+				return $this->loadDbProcessor()->dbDelta( $sSql );
 			}
 			return true;
 		}
@@ -147,8 +147,9 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		protected function tableIsValid() {
 			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 			$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
-			return ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
-					 && ( count( array_diff( $aColumnsByDefinition, $aActualColumns ) ) <= 0 ) );
+			$bValid = ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
+				&& ( count( array_diff( $aColumnsByDefinition, $aActualColumns ) ) <= 0 ) );
+			return $bValid;
 		}
 
 		abstract protected function getTableColumnsByDefinition();

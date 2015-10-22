@@ -263,6 +263,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
+						.'<br />'._wpsf__( 'You should also carefully review the automatic black list settings.' )
 					);
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
@@ -310,7 +311,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 				case 'auto_expire' :
 					$sName = _wpsf__( 'Auto Block Expiration' );
-					$sSummary = _wpsf__( 'A 1 X a black listed IP will be removed from the black list' );
+					$sSummary = _wpsf__( 'After 1 "X" a black listed IP will be removed from the black list' );
 					$sDescription = _wpsf__( 'Permanent and lengthy IP Black Lists are harmful to performance.' )
 						.'<br />'. _wpsf__( 'You should allow IP addresses on the black list to be eventually removed over time.' )
 						.'<br />'. _wpsf__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.' );

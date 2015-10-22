@@ -8,8 +8,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 
 	const Spam_Blacklist_Source = 'https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt';
 
-	const TWODAYS = 172800;
-
 	/**
 	 * @var array
 	 */
@@ -31,6 +29,17 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	protected $sCommentStatusExplanation = '';
 
 	/**
+	 */
+	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeatureOptions();
+		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
+		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $oFO->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
+		add_filter( $oFO->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
+	}
+
+	/**
 	 * @param bool $fIfDoCheck
 	 *
 	 * @return bool
@@ -40,8 +49,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 			return $fIfDoCheck;
 		}
 
-		$oWp = $this->loadWpFunctionsProcessor();
-		if ( $oWp->comments_getIfCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+		if ( $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
 			return false;
 		}
 		return $fIfDoCheck;
@@ -71,17 +79,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 		$this->sCommentStatusExplanation = '';
 		self::$sSpamBlacklistFile = $this->getFeatureOptions()->getResourcesDir().'spamblacklist.txt';
 	}
-	
-	/**
-	 */
-	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
-		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
-		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-		add_filter( $oFO->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
-		add_filter( $oFO->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
-	}
 
 	/**
 	 * A private plugin filter that lets us return up the newly set comment status.
@@ -110,7 +107,9 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	public function doCommentChecking( $aCommentData ) {
 		$this->aRawCommentData = $aCommentData;
 
-		if ( !apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), true ) ) {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeatureOptions();
+		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
 
@@ -219,7 +218,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 			$this->doSpamBlacklistImport();
 		}
 		// second, if it exists and it's older than 48hrs, update
-		else if ( $this->time() - $oFs->getModifiedTime( self::$sSpamBlacklistFile ) > self::TWODAYS ) {
+		else if ( $this->time() - $oFs->getModifiedTime( self::$sSpamBlacklistFile ) > ( DAY_IN_SECONDS * 2 ) ) {
 			$this->doSpamBlacklistUpdate();
 		}
 

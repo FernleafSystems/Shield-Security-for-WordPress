@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		private static $oWpCron;
 		/**
-		 * @var ICWP_WPSF_WpFilesystem
+		 * @var ICWP_WPSF_WpFunctions
 		 */
 		private static $oWp;
 		/**
@@ -43,6 +43,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_WpUsers
 		 */
 		private static $oWpUsers;
+		/**
+		 * @var ICWP_WPSF_WpComments
+		 */
+		private static $oWpComments;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -164,6 +168,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oWpUsers = ICWP_WPSF_WpUsers::GetInstance();
 			}
 			return self::$oWpUsers;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpComments
+		 */
+		static public function loadWpCommentsProcessor() {
+			if ( !isset( self::$oWpComments ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-comments.php' );
+				self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
+			}
+			return self::$oWpComments;
 		}
 
 		/**

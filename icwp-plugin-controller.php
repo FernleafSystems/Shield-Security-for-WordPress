@@ -609,12 +609,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpShutdown() {
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
-		$this->deleteRebuildFlag();
+		$this->deleteFlags();
 	}
 
 	/**
 	 */
-	protected function deleteRebuildFlag() {
+	protected function deleteFlags() {
 		if ( $this->getIsRebuildOptionsFromFile() ) {
 			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
@@ -1267,12 +1267,20 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 */
+	public function clearSession() {
+		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		self::$sSessionId = null;
+	}
+
+	/**
+	 * @param boolean $bSetIfNeeded
 	 * @return string
 	 */
-	public function getSessionId() {
-		if ( !isset( self::$sSessionId ) ) {
+	public function getSessionId( $bSetIfNeeded = true ) {
+		if ( empty( self::$sSessionId ) ) {
 			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
-			if ( empty( self::$sSessionId ) ) {
+			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
 			}
@@ -1286,16 +1294,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId().$oDp->getVisitorIpAddress().$oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( false ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function hasSessionId() {
+		$sSessionId = $this->getSessionId( false );
+		return !empty( $sSessionId );
 	}
 
 	/**
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWpFunctionsProcessor();
-		setcookie(
+		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
 			$this->loadDataProcessor()->time() + DAY_IN_SECONDS*30,

@@ -49,16 +49,16 @@
 
 <style type="text/css">
 	.input-holder label {
-	font-size: 24px;
+		font-size: 24px;
 	}
 	.input-holder label {
-	font-size: inherit;
+		font-size: inherit;
 		display: block;
-		margin: 10% 107px;
+		margin: 6% 107px;
 		vertical-align: middle;
 	}
 	.input-holder input {
-	font-size: inherit;
+		font-size: inherit;
 		height: 60px;
 		vertical-align: middle;
 		width: 180px;
