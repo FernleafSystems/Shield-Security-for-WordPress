@@ -529,8 +529,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {
-				$oYaml = $this->loadYamlProcessor();
-				$aConfig = $oYaml->parseYamlString( $sContents );
+				$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
 				if ( is_null( $aConfig ) ) {
 					throw new Exception( 'YAML parser could not load to process the options configuration.' );
 				}
