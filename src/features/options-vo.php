@@ -76,7 +76,9 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function doOptionsDelete() {
-		return $this->loadWpFunctionsProcessor()->deleteOption( $this->getOptionsStorageKey() );
+		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
+		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 
 	/**
@@ -529,8 +531,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			$sConfigFile = $this->getConfigFilePath();
 			$sContents = include( $sConfigFile );
 			if ( !empty( $sContents ) ) {
-				$oYaml = $this->loadYamlProcessor();
-				$aConfig = $oYaml->parseYamlString( $sContents );
+				$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
 				if ( is_null( $aConfig ) ) {
 					throw new Exception( 'YAML parser could not load to process the options configuration.' );
 				}

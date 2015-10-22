@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '4.12.0'
+  version: '4.13.0'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
   human_name: 'WordPress Security Firewall'

@@ -101,6 +101,7 @@ options:
   -
     key: 'user_sessions_table_columns'
     section: 'section_non_ui'
+    immutable: true
     value:
       - 'id'
       - 'session_id'

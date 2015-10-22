@@ -413,17 +413,16 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		// Set up comments ID table
-		$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-			`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			`post_id` INT(11) NOT NULL DEFAULT '0',
-			`unique_token` VARCHAR(32) NOT NULL DEFAULT '',
-			`ip` VARCHAR(40) NOT NULL DEFAULT '0',
-			`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-			`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
- 			PRIMARY KEY (`id`)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-		return sprintf( $sSqlTables, $this->getTableName() );
+		$sSqlTables = "CREATE TABLE %s (
+			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			post_id int(11) NOT NULL DEFAULT 0,
+			unique_token VARCHAR(32) NOT NULL DEFAULT '',
+			ip varchar(40) NOT NULL DEFAULT '0',
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+ 			PRIMARY KEY  (id)
+		) %s;";
+		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**

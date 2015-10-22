@@ -81,13 +81,14 @@ options:
   -
     key: 'ip_list_table_columns'
     section: 'section_non_ui'
+    immutable: true
     value:
       - 'id'
       - 'ip'
       - 'label'
       - 'list'
       - 'ip6'
-      - 'range'
+      - 'is_range'
       - 'transgressions'
       - 'last_access_at'
       - 'created_at'

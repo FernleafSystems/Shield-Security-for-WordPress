@@ -426,25 +426,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return string
 		 */
 		public function getCreateTableSql() {
-			$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-				`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				`session_id` varchar(32) NOT NULL DEFAULT '',
-				`wp_username` varchar(255) NOT NULL DEFAULT '',
-				`ip` varchar(40) NOT NULL DEFAULT '',
-				`pending` TINYINT(1) NOT NULL DEFAULT '0',
-				`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				`expired_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-				PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-			return sprintf( $sSqlTables, $this->getTableName() );
+			$sSqlTables = "CREATE TABLE %s (
+				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				session_id varchar(32) NOT NULL DEFAULT '',
+				wp_username varchar(255) NOT NULL DEFAULT '',
+				ip varchar(40) NOT NULL DEFAULT '',
+				pending tinyint(1) NOT NULL DEFAULT 0,
+				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				expired_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+				PRIMARY KEY  (id)
+			) %s;";
+			return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 		}
 
 		/**
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getOption( 'two_factor_auth_table_columns' );
+			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'two_factor_auth_table_columns' );
 		}
 
 		/**
