@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement_V4', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ):
 
 require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
+class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * @var ICWP_WPSF_Processor_UserManagement_Sessions
@@ -15,7 +15,6 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	public function run() {
-		$oWp = $this->loadWpFunctionsProcessor();
 
 		// Adds last login indicator column to all plugins in plugin listing.
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
@@ -25,7 +24,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		// XML-RPC Compatibility
-		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
+		if ( $this->loadWpFunctionsProcessor()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
 			return true;
 		}
 
@@ -145,7 +144,9 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 	protected function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
 			require_once( dirname(__FILE__).ICWP_DS.'usermanagement_sessions.php' );
-			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $this->getFeatureOptions() );
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getFeatureOptions();
+			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
 		}
 		return $this->oProcessorSessions;
 	}
@@ -173,8 +174,4 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 		return $this->getController()->doPluginOptionPrefix( 'userlastlogin' );
 	}
 }
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ):
-	class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_UserManagement_V4 { }
 endif;
