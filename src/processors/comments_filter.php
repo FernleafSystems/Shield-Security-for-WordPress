@@ -4,7 +4,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter', false ) ):
 
 require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
+class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 */
@@ -111,8 +111,4 @@ class ICWP_WPSF_Processor_CommentsFilter_V2 extends ICWP_WPSF_Processor_Base {
 	}
 
 }
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter', false ) ):
-	class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_CommentsFilter_V2 { }
 endif;

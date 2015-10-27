@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
 
-	class ICWP_WPSF_Processor_Ips_V1 extends ICWP_WPSF_BaseDbProcessor {
+	class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		const LIST_MANUAL_WHITE =	'MW';
 		const LIST_MANUAL_BLACK =	'MB';
@@ -701,8 +701,4 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
-	class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_Processor_Ips_V1 { }
 endif;
