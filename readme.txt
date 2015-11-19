@@ -265,6 +265,12 @@ This is best [described on the blog](http://icwp.io/2u)
 The Automatic (Background) WordPress updates happens on a WordPress schedule - it doesn't happen immediately when an update is detected.
 You can either manually upgrade, or WordPress will handle it in due course.
 
+= How can I remove the WordPress admin footer message that displays my IP address? =
+
+You can add some custom code to your functions.php exactly as the following:
+
+`add_filter( 'icwp_wpsf_print_admin_ip_footer', '__return_false' );`
+
 == Screenshots ==
 
 == Changelog ==
@@ -272,7 +278,9 @@ You can either manually upgrade, or WordPress will handle it in due course.
 = 4.14.0 Point Release =
 *Released: 19th November, 2015*
 
+* **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
+* **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
 
 = 4.13.0 Point Release =
 *Released: 22nd October, 2015*
