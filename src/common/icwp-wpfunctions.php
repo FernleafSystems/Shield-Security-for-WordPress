@@ -763,6 +763,23 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		/**
 		 * @return string
 		 */
+		public function getTimeAsGmtOffset( $nTime = null ) {
+
+			$nTimezoneOffset = wp_timezone_override_offset();
+			if ( $nTimezoneOffset === false ) {
+				$nTimezoneOffset = $this->getOption( 'gmt_offset' );
+				if ( empty( $nTimezoneOffset ) ) {
+					$nTimezoneOffset = 0;
+				}
+			}
+
+			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+			return $nTime + ( $nTimezoneOffset * HOUR_IN_SECONDS );
+		}
+
+		/**
+		 * @return string
+		 */
 		public function getTimeFormat() {
 			$sFormat = $this->getOption( 'time_format' );
 			if ( empty( $sFormat ) ) {
