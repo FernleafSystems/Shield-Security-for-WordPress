@@ -116,13 +116,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			}
 
 			$bRequestIsPermitted = true;
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) && $this->doPassCheckBlockDirTraversal();
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_sql_queries', 'Y' ) && $this->doPassCheckBlockSqlQueries();
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_wordpress_terms', 'Y' ) && $this->doPassCheckBlockWordpressTerms();
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_field_truncation', 'Y' ) && $this->doPassCheckBlockFieldTruncation();
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) && $this->doPassCheckPhpCode();
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) && $this->doPassCheckBlockExeFileUploads();
-			$bRequestIsPermitted = $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) && $this->doPassCheckBlockLeadingSchema();
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockDirTraversal();
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_sql_queries', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockSqlQueries();
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_wordpress_terms', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockWordpressTerms();
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_field_truncation', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockFieldTruncation();
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckPhpCode();
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockLeadingSchema();
+			}
 			return $bRequestIsPermitted;
 		}
 
