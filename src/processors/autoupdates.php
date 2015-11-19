@@ -343,7 +343,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				_wpsf__( "Notice - %s" ),
 				sprintf( "Automatic Updates Completed For %s", $this->loadWpFunctionsProcessor()->getSiteName() )
 			);
-			$this->getEmailProcessor()->sendEmail( $sTitle, $aEmailContent );
+			$this->getEmailProcessor()->sendEmailTo( $this->getOption( 'override_email_address', '' ), $sTitle, $aEmailContent );
 		}
 
 		/**
