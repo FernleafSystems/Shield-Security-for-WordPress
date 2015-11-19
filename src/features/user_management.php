@@ -41,8 +41,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 			$sTimeFormat = $oWp->getTimeFormat();
 			$sDateFormat = $oWp->getDateFormat();
 			foreach( $aActiveSessions as &$aSession ) {
-				$aSession[ 'logged_in_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aSession[ 'logged_in_at' ] );
-				$aSession[ 'last_activity_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aSession[ 'last_activity_at' ] );
+				$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'logged_in_at' ] );
+				$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
 			}
 
 			$aData = array(

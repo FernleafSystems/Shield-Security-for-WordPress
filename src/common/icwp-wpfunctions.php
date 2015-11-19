@@ -761,6 +761,25 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param int|null $nTime
+		 * @param bool $bShowTime
+		 * @param bool $bShowDate
+		 * @return string
+		 */
+		public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
+			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+
+			$sFullTimeString = $bShowTime ? $this->getTimeFormat() : '';
+			if ( empty( $sFullTimeString ) ) {
+				$sFullTimeString = $bShowDate ? $this->getDateFormat() : '';
+			}
+			else {
+				$sFullTimeString = $bShowDate ? ( $sFullTimeString . ' '. $this->getDateFormat() ) : $sFullTimeString;
+			}
+			return date_i18n( $sFullTimeString, $this->getTimeAsGmtOffset( $nTime ) );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getTimeAsGmtOffset( $nTime = null ) {

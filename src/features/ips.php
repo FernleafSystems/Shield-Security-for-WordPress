@@ -109,8 +109,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 						),
 						$aListItem['ip']
 					);
-				$aListItem[ 'last_access_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'last_access_at' ] );
-				$aListItem[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aListItem[ 'created_at' ] );
+				$aListItem[ 'last_access_at' ] = $oWp->getTimeStringForDisplay( $aListItem[ 'last_access_at' ] ) ;
+				$aListItem[ 'created_at' ] = $oWp->getTimeStringForDisplay( $aListItem[ 'created_at' ] ) ;
 			}
 			return $aListData;
 		}
@@ -224,7 +224,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 			$aRenderData = array(
 				'list_id' => $sListToRender,
 				'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,
-				'time_now' => sprintf( _wpsf__( 'now: %s' ), date_i18n( $oWp->getTimeFormat() . ' ' . $oWp->getDateFormat(), $this->loadDataProcessor()->time() ) ),
+				'time_now' => sprintf( _wpsf__( 'now: %s' ), $oWp->getTimeStringForDisplay() ),
 				'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ),
 				'sTableId' => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
 			);

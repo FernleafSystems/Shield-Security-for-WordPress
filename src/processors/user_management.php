@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_UserManagement_V4 extends ICWP_WPSF_Processor_Base {
 
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
 		if ( !empty( $nLastLoginTime ) && is_numeric( $nLastLoginTime ) ) {
-			$sLastLoginText = date_i18n( $oWp->getTimeFormat().' '.$oWp->getDateFormat(), $nLastLoginTime );
+			$sLastLoginText = $oWp->getTimeStringForDisplay( $nLastLoginTime );
 		}
 		return $sLastLoginText;
 	}
