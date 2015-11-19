@@ -310,7 +310,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				sprintf(
 					_wpsf__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.' ),
 					$this->getController()->getHumanName()
-				)
+				),
+				''
 			);
 
 			if ( !empty( $aUpdateResults['plugin'] ) && is_array( $aUpdateResults['plugin'] ) ) {
@@ -325,6 +326,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				foreach( $aUpdateResults['theme'] as $oUpdateItem ) {
 					$aEmailContent[] = ' - '.sprintf( 'Theme "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
 				}
+				$aEmailContent[] = '';
 			}
 
 			if ( !empty( $aUpdateResults['core'] ) && is_array( $aUpdateResults['core'] ) ) {
@@ -332,10 +334,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				foreach( $aUpdateResults['core'] as $oUpdateItem ) {
 					$aEmailContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdateItem->name );
 				}
+				$aEmailContent[] = '';
 			}
 
-			$aEmailContent[] = '';
-			$aEmailContent[] = _wpsf__('Thank you.');
+			$aEmailContent[] = _wpsf__( 'Thank you.' );
 
 			$sTitle = sprintf(
 				_wpsf__( "Notice - %s" ),

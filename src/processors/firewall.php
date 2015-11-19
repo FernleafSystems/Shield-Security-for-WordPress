@@ -189,7 +189,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 
 			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
 			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('WordPress Terms') );
+				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'WordPress Terms' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
 				$this->doStatIncrement( 'firewall.blocked.wpterms' );
 				$this->setFirewallTrip_Class( 'wpterms' );
@@ -207,7 +207,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			);
 			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
 			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('Field Truncation') );
+				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Field Truncation' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
 				$this->doStatIncrement( 'firewall.blocked.fieldtruncation' );
 				$this->setFirewallTrip_Class( 'fieldtruncation' );
