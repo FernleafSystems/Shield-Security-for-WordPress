@@ -269,6 +269,11 @@ You can either manually upgrade, or WordPress will handle it in due course.
 
 == Changelog ==
 
+= 4.14.0 Point Release =
+*Released: 19th November, 2015*
+
+* **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
+
 = 4.13.0 Point Release =
 *Released: 22nd October, 2015*
 

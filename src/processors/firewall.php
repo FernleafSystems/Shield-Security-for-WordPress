@@ -512,11 +512,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 					'/wp-admin/'					=> array(
 						'_wp_original_http_referer',
 						'_wp_http_referer'
+					),
+					'*' => array(
+						'verify_sign'
 					)
 				);
 
 				$aCustomWhitelistPageParams = is_array( $this->getOption( 'page_params_whitelist' ) )? $this->getOption( 'page_params_whitelist' ) : array();
-				$this->aWhitelistPages = array_merge( $aDefaultWlPages, $aCustomWhitelistPageParams );
+				$this->aWhitelistPages = array_merge_recursive( $aDefaultWlPages, $aCustomWhitelistPageParams );
 			}
 
 			return $this->aWhitelistPages;
