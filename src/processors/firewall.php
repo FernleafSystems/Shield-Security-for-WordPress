@@ -183,7 +183,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				'/^wp_/i',
 				'/^user_login/i',
 				'/^user_pass/i',
-				'/0x[0-9a-f][0-9a-f]/i',
+				'/[^0-9]0x[0-9a-f][0-9a-f]/i',
 				'/\/\*\*\//'
 			);
 
