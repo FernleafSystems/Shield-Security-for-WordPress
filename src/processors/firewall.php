@@ -102,15 +102,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				return true;
 			}
 
-			// Check if the visitor is excluded from the firewall from the outset.
-			if ( $this->isVisitorOnBlacklist() ) {
-				$this->addToFirewallDieMessage( _wpsf__( 'Your IP is Blacklisted.' ) );
-				$sAuditMessage =  _wpsf__('Visitor was black-listed by IP Address.')
-					.' '.sprintf( _wpsf__('Label: %s.'), empty( $this->sListItemLabel )? _wpsf__('No label') : $this->sListItemLabel );
-				$this->doStatIncrement( 'firewall.blocked.blacklist' );
-				return false;
-			}
-
 			if ( $this->getOption('ignore_search_engines') == 'Y' && $oDp->IsSearchEngineBot() ) {
 				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Visitor detected as Search Engine Bot') );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
@@ -515,11 +506,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			}
 
 			return $this->aWhitelistPages;
-		}
-
-		public function isVisitorOnBlacklist() {
-			return false;
-			/* return $this->isIpOnlist( $this->getOption( 'ips_blacklist', array() ), $this->ip(), $this->sListItemLabel ); */
 		}
 
 		/**
