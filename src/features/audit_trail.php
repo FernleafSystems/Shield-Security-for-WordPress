@@ -55,7 +55,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 					foreach( $aAuditData as &$aAuditEntry ) {
 						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
 						$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
-						$aAuditEntry[ 'created_at' ] = date_i18n( $sTimeFormat . ' ' . $sDateFormat, $aAuditEntry[ 'created_at' ] );
+						$aAuditEntry[ 'created_at' ] = $oWp->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
 					}
 				}
 				$aAuditContext['trail'] = $aAuditData;

@@ -72,10 +72,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			}
 
 			// At this point session is validated
-			$oDp = $this->loadDataProcessor();
 			$oWp = $this->loadWpFunctionsProcessor();
 			if ( $oWp->getIsLoginUrl() && $this->loadWpUsersProcessor()->isUserAdmin() ) {
-				$sLoginAction = $oDp->FetchGet( 'action' );
+				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
 					$oWp->redirectToAdmin();
 				}
@@ -177,7 +176,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function setWordpressTimeoutCookieExpiration_Filter( $nTimeout ) {
 		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		return ( ( $nSessionTimeoutInterval > 0 )? $nSessionTimeoutInterval : $nTimeout );
+		return ( ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout );
 	}
 
 	/**
@@ -400,22 +399,22 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE IF NOT EXISTS `%s` (
-			`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			`session_id` VARCHAR(32) NOT NULL DEFAULT '',
-			`wp_username` VARCHAR(255) NOT NULL DEFAULT '',
-			`ip` VARCHAR(40) NOT NULL DEFAULT '0',
-			`logged_in_at` INT(15) NOT NULL DEFAULT '0',
-			`last_activity_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-			`last_activity_uri` text NOT NULL DEFAULT '',
-			`used_mfa` INT(1) NOT NULL DEFAULT '0',
-			`pending` TINYINT(1) NOT NULL DEFAULT '0',
-			`login_attempts` INT(1) NOT NULL DEFAULT '0',
-			`created_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
-			`deleted_at` INT(15) UNSIGNED NOT NULL DEFAULT '0',
- 			PRIMARY KEY (`id`)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-		return sprintf( $sSqlTables, $this->getTableName() );
+		$sSqlTables = "CREATE TABLE %s (
+			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			session_id varchar(32) NOT NULL DEFAULT '',
+			wp_username varchar(255) NOT NULL DEFAULT '',
+			ip varchar(40) NOT NULL DEFAULT '0',
+			logged_in_at int(15) NOT NULL DEFAULT 0,
+			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			last_activity_uri text NOT NULL DEFAULT '',
+			used_mfa int(1) NOT NULL DEFAULT 0,
+			pending tinyint(1) NOT NULL DEFAULT 0,
+			login_attempts int(1) NOT NULL DEFAULT 0,
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+ 			PRIMARY KEY  (id)
+		) %s;";
+		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**

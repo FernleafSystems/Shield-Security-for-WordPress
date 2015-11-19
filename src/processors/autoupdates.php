@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_WPSF_AutoupdatesProcessor_V7 extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_Base {
 
 		/**
 		 * @var boolean
@@ -35,7 +35,6 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 			if ( $oDp->FetchGet( 'forcerun' ) == 1 ) {
 				$this->setForceRunAutoupdates( true );
 			}
-
 			add_filter( 'allow_minor_auto_core_updates',	array( $this, 'autoupdate_core_minor' ), $nFilterPriority );
 			add_filter( 'allow_major_auto_core_updates',	array( $this, 'autoupdate_core_major' ), $nFilterPriority );
 
@@ -61,6 +60,14 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 
 			// Adds automatic update indicator column to all plugins in plugin listing.
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn') );
+
+			if ( $this->getIsOption( 'enable_upgrade_notification_email', 'Y' ) ) {
+				add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
+			}
+
+			if ( isset( $_GET['auto'] ) ) {
+				$this->loadWpFunctionsProcessor()->doForceRunAutomaticUpdates();
+			}
 		}
 
 		/**
@@ -270,7 +277,6 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 		 * Adds the column to the plugins listing table to indicate whether WordPress will automatically update the plugins
 		 *
 		 * @param array $aColumns
-		 *
 		 * @return array
 		 */
 		public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
@@ -291,6 +297,53 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 			}
 			$bUpdate = $this->loadWpFunctionsProcessor()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 			echo $this->getPluginAutoupdateIconHtml( $bUpdate );
+		}
+
+		/**
+		 * @param array $aUpdateResults
+		 */
+		public function sendNotificationEmail( $aUpdateResults ) {
+			if ( empty( $aUpdateResults ) || !is_array( $aUpdateResults ) ) {
+				return;
+			}
+			$aEmailContent = array(
+				sprintf(
+					_wpsf__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.' ),
+					$this->getController()->getHumanName()
+				),
+				''
+			);
+
+			if ( !empty( $aUpdateResults['plugin'] ) && is_array( $aUpdateResults['plugin'] ) ) {
+				$aEmailContent[] = _wpsf__( 'Plugins Updated:' );
+				foreach( $aUpdateResults['plugin'] as $oUpdateItem ) {
+					$aEmailContent[] = ' - '.sprintf( 'Plugin "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
+				}
+			}
+
+			if ( !empty( $aUpdateResults['theme'] ) && is_array( $aUpdateResults['theme'] ) ) {
+				$aEmailContent[] = _wpsf__( 'Themes Updated:' );
+				foreach( $aUpdateResults['theme'] as $oUpdateItem ) {
+					$aEmailContent[] = ' - '.sprintf( 'Theme "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
+				}
+				$aEmailContent[] = '';
+			}
+
+			if ( !empty( $aUpdateResults['core'] ) && is_array( $aUpdateResults['core'] ) ) {
+				$aEmailContent[] = _wpsf__( 'WordPress Core Updated:' );
+				foreach( $aUpdateResults['core'] as $oUpdateItem ) {
+					$aEmailContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdateItem->name );
+				}
+				$aEmailContent[] = '';
+			}
+
+			$aEmailContent[] = _wpsf__( 'Thank you.' );
+
+			$sTitle = sprintf(
+				_wpsf__( "Notice - %s" ),
+				sprintf( "Automatic Updates Completed For %s", $this->loadWpFunctionsProcessor()->getSiteName() )
+			);
+			$this->getEmailProcessor()->sendEmailTo( $this->getOption( 'override_email_address', '' ), $sTitle, $aEmailContent );
 		}
 
 		/**
@@ -332,8 +385,4 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists('ICWP_WPSF_Processor_Autoupdates') ):
-	class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_AutoupdatesProcessor_V7 { }
 endif;

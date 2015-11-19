@@ -24,7 +24,6 @@
 		);
 	}
 
-
 	jQuery( document ).ready(function() {
 		load_admin_access_form( jQuery('#AdminAccessLogin-<?php echo $unique_render_id;?>') );
 	});

@@ -22,6 +22,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 			}
 
+			if ( $oFO->getOptIs( 'admin_access_restrict_admin_users', 'Y') ) {
+				add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 0, 3 );
+				add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 0, 1 );
+			}
+
 			$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
 			if ( !empty( $aPluginRestrictions ) ) {
 				add_filter( 'user_has_cap', array( $this, 'disablePluginManipulation' ), 0, 3 );
@@ -38,6 +43,85 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+		}
+
+		protected function isSecurityAdmin() {
+			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+		}
+
+		public function restrictAdminUserDelete( $nId ) {
+			if ( $this->isSecurityAdmin() ) {
+				return false;
+			}
+
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oUser = $oWpUsers->getUserById( $nId );
+			if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
+				$this->loadWpFunctionsProcessor()
+					->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
+			}
+		}
+
+		/**
+		 * @param array $aAllCaps
+		 * @param $cap
+		 * @param array $aArgs
+		 * @return array
+		 */
+		public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
+			// If we're registered with Admin Access we don't modify anything
+			if ( $this->isSecurityAdmin() ) {
+				return $aAllCaps;
+			}
+
+			$oWpUsers = $this->loadWpUsersProcessor();
+			$oDp = $this->loadDataProcessor();
+
+			/** @var string $sRequestedCapability */
+			$sRequestedCapability = $aArgs[0];
+			$aUserCapabilities = array( 'edit_users', 'create_users' );
+
+			$bBlockCapability = false;
+
+			if ( in_array( $sRequestedCapability, $aUserCapabilities ) ) {
+
+				// Find the WP_User for the POST
+				$oPostUser = false;
+				$sPostUserlogin = $oDp->FetchPost( 'user_login' );
+				if ( empty( $sPostUserlogin ) ) {
+					$nPostUserId = $oDp->FetchPost( 'user_id' );
+					if ( !empty( $nPostUserId ) ) {
+						$oPostUser = $oWpUsers->getUserById( $nPostUserId );
+					}
+				}
+				else {
+					$oPostUser = $oWpUsers->getUserByUsername( $sPostUserlogin );
+				}
+
+				$sRequestRole = $oDp->FetchPost( 'role', '' );
+
+				if ( $oPostUser ) {
+					// editing an existing user other than yourself?
+					if ( $oPostUser->get( 'user_login' ) != $oWpUsers->getCurrentWpUser()->get( 'user_login' ) ) {
+
+						if ( $oWpUsers->isUserAdmin( $oPostUser ) || ( $sRequestRole == 'administrator' ) ) {
+							$bBlockCapability = true;
+						}
+					}
+				}
+				else {
+					//creating a new admin user?
+					if ( $sRequestRole == 'administrator' ) {
+						$bBlockCapability = true;
+					}
+				}
+			}
+
+			if ( $bBlockCapability ) {
+				$aAllCaps[ $sRequestedCapability ] = false;
+			}
+
+			return $aAllCaps;
 		}
 
 		/**
@@ -74,6 +158,50 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$this->insertAdminNotice( $aRenderData );
 		}
 
+		/**
+		 * @param array $aNoticeAttributes
+		 */
+		public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->doCheckHasPermissionToSubmit() ) {
+				return;
+			}
+
+			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
+			if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
+				return;
+			}
+
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'notice_message' => _wpsf__( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.' )
+						. ' ' . _wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' ),
+					'unlock_link' => $this->getUnlockLinkHtml( _wpsf__( 'Unlock Now' ) ),
+				),
+				'hrefs' => array(
+					'setting_page' => sprintf(
+						'<a href="%s" title="%s">%s</a>',
+						$oFO->getFeatureAdminPageUrl(),
+						_wpsf__( 'Security Admin Login' ),
+						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
+					)
+				)
+			);
+			$this->insertAdminNotice( $aRenderData );
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getUserPagesToRestrict() {
+			return array(
+				'user-new.php',
+				'user-edit.php',
+				'users.php',
+			);
+		}
 
 		/**
 		 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
@@ -92,8 +220,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				}
 			}
 
-			$fHasPermissionToChangeOptions = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
-			if ( !$fHasPermissionToChangeOptions ) {
+			if ( !$this->isSecurityAdmin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Attempt to save/update option "%s" was blocked.'), $sOption );
 //			    $this->addToAuditEntry( $sAuditMessage, 3, 'admin_access_option_block' );
 				return $mOldValue;
@@ -135,8 +262,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we can do everything!
-			$bHasAdminAccess = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
-			if ( $bHasAdminAccess ) {
+			if ( $this->isSecurityAdmin() ) {
 				return $aAllCaps;
 			}
 
@@ -242,12 +368,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$aRenderData = array(
 				'strings' => array(
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
-					'unlock_link' => sprintf(
-						'<a href="%s" title="%s" class="thickbox">%s</a>',
-						'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-						_wpsf__( 'Admin Access Login' ),
-						_wpsf__('Unlock')
-					),
+					'unlock_link' => $this->getUnlockLinkHtml(),
 				),
 				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
 				'js_snippets' => array(
@@ -256,6 +377,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			);
 			add_thickbox();
 			echo $oFO->renderTemplate( 'snippets'.ICWP_DS.'admin_access_login_box.php', $aRenderData );
+		}
+
+		/**
+		 * @param string $sLinkText
+		 * @return string
+		 */
+		protected function getUnlockLinkHtml( $sLinkText = '' ) {
+			if ( empty( $sLinkText ) ) {
+				$sLinkText = _wpsf__( 'Unlock' );
+			}
+			return sprintf(
+				'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
+				'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
+				_wpsf__( 'Security Admin Login' ),
+				$sLinkText
+			);
 		}
 	}
 

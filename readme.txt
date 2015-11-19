@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.3
-Stable tag: 4.12.0
+Stable tag: 4.13.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -265,15 +265,49 @@ This is best [described on the blog](http://icwp.io/2u)
 The Automatic (Background) WordPress updates happens on a WordPress schedule - it doesn't happen immediately when an update is detected.
 You can either manually upgrade, or WordPress will handle it in due course.
 
+= How can I remove the WordPress admin footer message that displays my IP address? =
+
+You can add some custom code to your functions.php exactly as the following:
+
+`add_filter( 'icwp_wpsf_print_admin_ip_footer', '__return_false' );`
+
 == Screenshots ==
 
 == Changelog ==
 
-= 4.12.1 Point Release =
-*Released: 10th October, 2015*
+= 4.14.0 Point Release =
+*Released: 20th November, 2015*
 
-* **(v.1)**  CHANGED:		Consolidated the use of cookies with user sessions.
-* **(v.1)**  CHANGED:		Various small code optimizations and cleaning.
+* **(v.0)**  ADDED:			Custom Automatic Update Notifications Email that runs separately to the in-built WordPress core notification email.
+* **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
+* **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
+* **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
+* **(v.0)**  TRANSLATIONS:	Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),
+
+= 4.13.0 Point Release =
+*Released: 22nd October, 2015*
+
+* **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
+* **(v.0)**  NEW:			Renamed 'Admin Access' module to 'Security Admin'.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for User Session - sets and removes cookies better to reduce their usage.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
+* **(v.0)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
+* **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
+* **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
+* **(v.0)**  CHANGED:		Improvements to the database create queries: use MySQL Engine defaults (instead of MyISAM); use WordPress dbDelta() for updates.
+* **(v.0)**  CHANGED:		Various code optimizations and cleaning.
+
+= 4.13 Series =
+*Released: 19th October, 2015*
+
+* **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
+* **(v.0)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for user sessions - sets and removes cookies better to reduce their usage.
+* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
+* **(v.0)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
+* **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
+* **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
+* **(v.0)**  CHANGED:		Various code optimizations and cleaning.
 
 = 4.12 Series =
 *Released: 10th October, 2015*

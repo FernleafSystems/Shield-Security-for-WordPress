@@ -42,6 +42,15 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		public function __construct() {}
 
 		/**
+		 * @param string $sSQL
+		 * @return array
+		 */
+		public function dbDelta( $sSQL ) {
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			return dbDelta( $sSQL );
+		}
+
+		/**
 		 * @param string $sTable
 		 * @param array $aWhere - delete where (associative array)
 		 *
@@ -97,6 +106,10 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 			}
 			$sQuery = sprintf( 'TRUNCATE TABLE `%s`', $sTable );
 			return $this->doSql( $sQuery );
+		}
+
+		public function getCharCollate() {
+			return $this->getWpdb()->get_charset_collate();
 		}
 
 		/**

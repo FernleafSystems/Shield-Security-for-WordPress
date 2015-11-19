@@ -52,55 +52,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function __construct() {}
 
 		/**
-		 * @param WP_Post $oPost
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentsOpen( $oPost = null ) {
-			if ( is_null( $oPost ) ) {
-				global $post;
-				$oPost = $post;
-			}
-			return $oPost->comment_status == 'open';
-		}
-
-		/**
-		 * @param string $sAuthorEmail
-		 *
-		 * @return bool
-		 */
-		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
-
-			if ( empty( $sAuthorEmail ) || !is_email( $sAuthorEmail ) ) {
-				return false;
-			}
-
-			$oDb = $this->loadDbProcessor();
-			$sQuery = "
-				SELECT comment_approved
-				FROM %s
-				WHERE
-					comment_author_email = '%s'
-					AND comment_approved = '1'
-					LIMIT 1
-			";
-
-			$sQuery = sprintf(
-				$sQuery,
-				$oDb->getTable_Comments(),
-				$sAuthorEmail
-			);
-			return $oDb->getVar( $sQuery ) == 1;
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function comments_getIsCommentPost() {
-			return $this->loadDataProcessor()->GetIsRequestPost() && $this->getIsCurrentPage( 'wp-comments-post.php' );
-		}
-
-		/**
 		 * @return null|string
 		 */
 		public function findWpLoad() {
@@ -810,6 +761,42 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param int|null $nTime
+		 * @param bool $bShowTime
+		 * @param bool $bShowDate
+		 * @return string
+		 */
+		public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
+			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+
+			$sFullTimeString = $bShowTime ? $this->getTimeFormat() : '';
+			if ( empty( $sFullTimeString ) ) {
+				$sFullTimeString = $bShowDate ? $this->getDateFormat() : '';
+			}
+			else {
+				$sFullTimeString = $bShowDate ? ( $sFullTimeString . ' '. $this->getDateFormat() ) : $sFullTimeString;
+			}
+			return date_i18n( $sFullTimeString, $this->getTimeAsGmtOffset( $nTime ) );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getTimeAsGmtOffset( $nTime = null ) {
+
+			$nTimezoneOffset = wp_timezone_override_offset();
+			if ( $nTimezoneOffset === false ) {
+				$nTimezoneOffset = $this->getOption( 'gmt_offset' );
+				if ( empty( $nTimezoneOffset ) ) {
+					$nTimezoneOffset = 0;
+				}
+			}
+
+			$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+			return $nTime + ( $nTimezoneOffset * HOUR_IN_SECONDS );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getTimeFormat() {
@@ -964,6 +951,32 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function setUserLoggedIn( $sUsername ) {
 			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
+		}
+
+		/**
+		 * @deprecated
+		 * @return bool
+		 */
+		public function comments_getIsCommentPost() {
+			return $this->loadWpCommentsProcessor()->isCommentPost();
+		}
+
+		/**
+		 * @deprecated
+		 * @param string $sAuthorEmail
+		 * @return bool
+		 */
+		public function comments_getIfCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
+			return $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $sAuthorEmail );
+		}
+
+		/**
+		 * @deprecated
+		 * @param WP_Post $oPost
+		 * @return bool
+		 */
+		public function comments_getIfCommentsOpen( $oPost = null ) {
+			return $this->loadWpCommentsProcessor()->isCommentsOpen( $oPost );
 		}
 	}
 endif;

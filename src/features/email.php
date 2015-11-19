@@ -9,6 +9,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 		protected function doPostConstruction() {
 			// add filters to email sending (for now only Mandrill)
 			add_filter( 'mandrill_payload', array( $this, 'customiseMandrill' ) );
+			add_filter( 'mandrill_nl2br', '__return_true' );
 		}
 
 		/**

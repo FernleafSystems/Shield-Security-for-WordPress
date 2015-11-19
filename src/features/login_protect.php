@@ -78,7 +78,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				'wpsfkey' 		=> $this->getTwoAuthSecretKey(),
 				'wpsf-action'	=> 'emailsendverify'
 			);
-			return add_query_arg( $aQueryArgs, site_url() );
+			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
 		}
 
 		/**
