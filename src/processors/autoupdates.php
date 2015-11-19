@@ -61,6 +61,8 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 
 			// Adds automatic update indicator column to all plugins in plugin listing.
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn') );
+
+			add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
 		}
 
 		/**
@@ -270,7 +272,6 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 		 * Adds the column to the plugins listing table to indicate whether WordPress will automatically update the plugins
 		 *
 		 * @param array $aColumns
-		 *
 		 * @return array
 		 */
 		public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
@@ -291,6 +292,10 @@ if ( !class_exists( 'ICWP_WPSF_AutoupdatesProcessor_V7', false ) ):
 			}
 			$bUpdate = $this->loadWpFunctionsProcessor()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 			echo $this->getPluginAutoupdateIconHtml( $bUpdate );
+		}
+
+		public function sendNotificationEmail( $oUpdateResults ) {
+
 		}
 
 		/**
