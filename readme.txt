@@ -282,6 +282,7 @@ You can add some custom code to your functions.php exactly as the following:
 * **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
 * **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
+* **(v.0)**  TRANSLATIONS:	Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),
 
 = 4.13.0 Point Release =
 *Released: 22nd October, 2015*
