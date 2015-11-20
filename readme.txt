@@ -5,8 +5,8 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
-Tested up to: 4.3
-Stable tag: 4.13.0
+Tested up to: 4.4
+Stable tag: 4.14.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -265,9 +265,25 @@ This is best [described on the blog](http://icwp.io/2u)
 The Automatic (Background) WordPress updates happens on a WordPress schedule - it doesn't happen immediately when an update is detected.
 You can either manually upgrade, or WordPress will handle it in due course.
 
+= How can I remove the WordPress admin footer message that displays my IP address? =
+
+You can add some custom code to your functions.php exactly as the following:
+
+`add_filter( 'icwp_wpsf_print_admin_ip_footer', '__return_false' );`
+
 == Screenshots ==
 
 == Changelog ==
+
+= 4.14.0 Point Release =
+*Released: 20th November, 2015*
+
+* **(v.0)**  ADDED:			(Custom Automatic Update Notifications Email)[http://icwp.io/wpsf33] that runs separately to the in-built WordPress core notification email.
+* **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
+* **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
+* **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
+* **(v.0)**  TRANSLATIONS:	Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),
+* **(v.0)**  FIXED:			Small bugs and readying for WordPress 4.4
 
 = 4.13.0 Point Release =
 *Released: 22nd October, 2015*

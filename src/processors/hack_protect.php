@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_WPSF_Processor_HackProtect_V1 extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_Base {
 		/**
 		 * Override to set what this processor does when it's "run"
 		 */
@@ -68,8 +68,4 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
-	class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_HackProtect_V1 { }
 endif;

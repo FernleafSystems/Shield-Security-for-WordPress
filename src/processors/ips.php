@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
 
-	class ICWP_WPSF_Processor_Ips_V1 extends ICWP_WPSF_BaseDbProcessor {
+	class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		const LIST_MANUAL_WHITE =	'MW';
 		const LIST_MANUAL_BLACK =	'MB';
@@ -37,8 +37,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 
 			$this->processBlacklist();
 
+			// We add text of the current number of transgressions remaining in the Firewall die message
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
-				// We add text of the current number of transgressions remaining in the Firewall die message
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			}
 		}
@@ -106,12 +106,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 
 		/**
-		 * @param string $sCurrentMessage
+		 * @param array $aMessages
 		 * @return string
 		 */
-		public function fAugmentFirewallDieMessage( $sCurrentMessage ) {
-			$sCurrentMessage .= sprintf( '<p>%s</p>', $this->getTextOfRemainingTransgressions() );
-			return $sCurrentMessage;
+		public function fAugmentFirewallDieMessage( $aMessages ) {
+			if ( !is_array( $aMessages ) ) {
+				$aMessages = array();
+			}
+			$aMessages[] = sprintf( '<p>%s</p>', $this->getTextOfRemainingTransgressions() );
+			return $aMessages;
 		}
 
 		/**
@@ -698,8 +701,4 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
-	class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_Processor_Ips_V1 { }
 endif;
