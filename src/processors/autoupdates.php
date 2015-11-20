@@ -348,7 +348,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 
 		/**
 		 * @param boolean $bIsAutoupdate
-		 *
 		 * @return string
 		 */
 		protected function getPluginAutoupdateIconHtml( $bIsAutoupdate ) {
