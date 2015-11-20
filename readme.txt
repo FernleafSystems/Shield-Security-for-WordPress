@@ -278,11 +278,12 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.14.0 Point Release =
 *Released: 20th November, 2015*
 
-* **(v.0)**  ADDED:			Custom Automatic Update Notifications Email that runs separately to the in-built WordPress core notification email.
+* **(v.0)**  ADDED:			(Custom Automatic Update Notifications Email)[http://icwp.io/wpsf33] that runs separately to the in-built WordPress core notification email.
 * **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
 * **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
 * **(v.0)**  TRANSLATIONS:	Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),
+* **(v.0)**  FIXED:			Small bugs and readying for WordPress 4.4
 
 = 4.13.0 Point Release =
 *Released: 22nd October, 2015*
