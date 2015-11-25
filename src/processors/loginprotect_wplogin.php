@@ -114,7 +114,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		if ( $bDoBlock ) {
 			// We now black mark this IP
 //			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
-			$this->do404();
+			$this->doWpLoginFailedRedirect404();
 		}
 	}
 
@@ -160,7 +160,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		if ( !$this->loadWpFunctionsProcessor()->getIsLoginUrl() ) {
 			// We now black mark this IP
 //			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
-			$this->do404();
+			$this->doWpLoginFailedRedirect404();
 			die();
 		}
 	}
@@ -176,7 +176,18 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		return $aUrlExceptions;
 	}
 
-	protected function do404() {
+	/**
+	 * Will by default send a 404 response screen. Has a filter to specify redirect URL.
+	 */
+	protected function doWpLoginFailedRedirect404() {
+		$sRedirectUrl = apply_filters( 'icwp_shield_renamewplogin_redirect_url', false );
+		if ( !empty( $sRedirectUrl ) ) {
+			$sRedirectUrl = esc_url( $sRedirectUrl );
+			if ( @parse_url( $sRedirectUrl ) !== false ) {
+				$this->loadWpFunctionsProcessor()->doRedirect( $sRedirectUrl, array(), false );
+			}
+		}
+
 		$oDp = $this->loadDataProcessor();
 		$sRequestUrl = $oDp->FetchServer( 'REQUEST_URI' );
 		$oDp->doSendApache404(
