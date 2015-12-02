@@ -120,6 +120,10 @@ options:
     key: 'capability_can_remote_get'
     section: 'section_non_ui'
   -
+    key: 'unique_installation_id'
+    section: 'section_non_ui'
+    default: ''
+  -
     key: 'active_plugin_features'
     section: 'section_non_ui'
     value:
