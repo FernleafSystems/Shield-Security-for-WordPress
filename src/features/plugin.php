@@ -181,6 +181,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 						.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'http://icwp.io/wpsf20', _wpsf__('Read this carefully before enabling this option.') );
 					break;
 
+				case 'unique_installation_id' :
+					$sName = _wpsf__( 'Installation ID' );
+					$sSummary = _wpsf__( 'Unique Plugin Installation ID' );
+					$sDescription = _wpsf__( 'Keep this ID private.' );
+					break;
+
 				case 'delete_on_deactivate' :
 					$sName = _wpsf__( 'Delete Plugin Settings' );
 					$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
