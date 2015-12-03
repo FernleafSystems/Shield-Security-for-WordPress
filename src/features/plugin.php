@@ -181,6 +181,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 						.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'http://icwp.io/wpsf20', _wpsf__('Read this carefully before enabling this option.') );
 					break;
 
+				case 'unique_installation_id' :
+					$sName = _wpsf__( 'Installation ID' );
+					$sSummary = _wpsf__( 'Unique Plugin Installation ID' );
+					$sDescription = _wpsf__( 'Keep this ID private.' );
+					break;
+
 				case 'delete_on_deactivate' :
 					$sName = _wpsf__( 'Delete Plugin Settings' );
 					$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
@@ -202,10 +208,40 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		protected function doPrePluginOptionsSave() {
 
-			$nInstalledAt = $this->getOpt( 'installation_time' );
-			if ( empty($nInstalledAt) || $nInstalledAt <= 0 ) {
-				$this->setOpt( 'installation_time', time() );
+			$nInstalledAt = $this->getPluginInstallationTime();
+			if ( empty( $nInstalledAt ) || $nInstalledAt <= 0 ) {
+				$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
 			}
+
+			$sUniqueId = $this->getPluginInstallationId();
+			if ( empty( $sUniqueId ) || !is_string( $sUniqueId ) || strlen( $sUniqueId ) != 32 ) {
+				$this->setPluginInstallationId();
+			}
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getPluginInstallationId() {
+			return $this->getOpt( 'unique_installation_id', '' );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getPluginInstallationTime() {
+			return $this->getOpt( 'installation_time', 0 );
+		}
+
+		/**
+		 * @param string $sNewId - leave empty to reset
+		 * @return bool
+		 */
+		public function setPluginInstallationId( $sNewId = null ) {
+			if ( empty( $sNewId ) ) {
+				$sNewId = md5( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
+			}
+			return $this->setOpt( 'unique_installation_id', $sNewId );
 		}
 
 		protected function updateHandler() {

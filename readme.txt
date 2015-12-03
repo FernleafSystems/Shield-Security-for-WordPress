@@ -275,9 +275,10 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.14.1 Point Release =
+= 4.15.0 Point Release =
 
-* **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
+* **(v.0)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
+* **(v.0)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
 
 = 4.14.0 Series =
 *Released: 20th November, 2015*

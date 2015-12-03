@@ -213,7 +213,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					$bShow = false;
 				}
 			}
-
 			return $bShow;
 		}
 
@@ -221,11 +220,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return int
 		 */
 		protected function getInstallationDays() {
-			$nTimeInstalled = $this->getFeatureOptions()->getOpt( 'installation_time' );
+			$nTimeInstalled = $this->getFeatureOptions()->getPluginInstallationTime();
 			if ( empty( $nTimeInstalled ) ) {
 				return 0;
 			}
-			return round( ( time() - $nTimeInstalled ) / DAY_IN_SECONDS );
+			return round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
 		}
 
 		/**
