@@ -458,7 +458,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		 * @param int $nTime
 		 * @return bool|mixed
 		 */
-		public function touch( $sFilePath, $nTime ) {
+		public function touch( $sFilePath, $nTime = null ) {
 			$oFs = $this->getWpfs();
 			if ( $oFs && $oFs->touch( $sFilePath, $nTime ) ) {
 				return true;
