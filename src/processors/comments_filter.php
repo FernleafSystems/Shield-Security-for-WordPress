@@ -37,9 +37,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_Base {
 	 * @return boolean
 	 */
 	public function getIfDoCommentsCheck( $bDoCheck ) {
-		return $bDoCheck
-			&& $this->loadWpCommentsProcessor()->isCommentsOpen()
-			&& !$this->loadWpUsersProcessor()->isUserLoggedIn();
+		return $bDoCheck && !$this->loadWpUsersProcessor()->isUserLoggedIn();
 	}
 
 	/**

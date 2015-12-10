@@ -49,23 +49,33 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 			return $fIfDoCheck;
 		}
 
-		if ( $this->loadWpCommentsProcessor()->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
-			return false;
+		$oWpComments = $this->loadWpCommentsProcessor();
+
+		// 1st are comments enabled on this post?
+		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
+		$oPost = $nPostId ? $this->loadWpFunctionsProcessor()->getPostById( $nPostId ) : null;
+		if ( $oPost ) {
+			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
 		}
+
+		if ( $fIfDoCheck && $oWpComments->getIfCommentsMustBePreviouslyApproved()
+			&& $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+			$fIfDoCheck = false;
+		}
+
 		return $fIfDoCheck;
 	}
 
 	/**
 	 * @param string $sKey
-	 *
-	 * @return array|mixed
+	 * @return array|mixed|null
 	 */
 	public function getRawCommentData( $sKey = '' ) {
 		if ( !isset( $this->aRawCommentData ) ) {
 			$this->aRawCommentData = array();
 		}
-		if ( !empty( $sKey ) && isset( $this->aRawCommentData[$sKey] ) ) {
-			return $this->aRawCommentData[$sKey];
+		if ( !empty( $sKey ) ) {
+			return isset( $this->aRawCommentData[$sKey] ) ? $this->aRawCommentData[$sKey] : null;
 		}
 		return $this->aRawCommentData;
 	}

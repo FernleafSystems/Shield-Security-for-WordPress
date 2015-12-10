@@ -477,6 +477,14 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param $nPostId
+		 * @return false|WP_Post
+		 */
+		public function getPostById( $nPostId ) {
+			return WP_Post::get_instance( $nPostId );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getUrl_CurrentAdminPage() {

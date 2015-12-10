@@ -47,7 +47,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 
 		$oWpComments = $this->loadWpCommentsProcessor();
-		if ( $oWpComments->getIfCommentsMustBePreviouslyApproved()
+
+		// 1st are comments enabled on this post?
+		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
+		$oPost = $nPostId ? $this->loadWpFunctionsProcessor()->getPostById( $nPostId ) : null;
+		if ( $oPost ) {
+			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
+		}
+
+		if ( $fIfDoCheck && $oWpComments->getIfCommentsMustBePreviouslyApproved()
 			&& $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
 			$fIfDoCheck = false;
 		}
@@ -83,15 +91,14 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * @param string $sKey
-	 *
-	 * @return array|mixed
+	 * @return array|mixed|null
 	 */
 	public function getRawCommentData( $sKey = '' ) {
 		if ( !isset( $this->aRawCommentData ) ) {
 			$this->aRawCommentData = array();
 		}
-		if ( !empty( $sKey ) && isset( $this->aRawCommentData[$sKey] ) ) {
-			return $this->aRawCommentData[$sKey];
+		if ( !empty( $sKey ) ) {
+			return isset( $this->aRawCommentData[$sKey] ) ? $this->aRawCommentData[$sKey] : null;
 		}
 		return $this->aRawCommentData;
 	}
@@ -221,7 +228,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		if ( is_user_logged_in() ) {
 			return false;
 		}
-
 		// Compatibility with shoutbox WP Wall Plugin
 		// http://wordpress.org/plugins/wp-wall/
 		if ( function_exists( 'WPWall_Init' ) ) {
