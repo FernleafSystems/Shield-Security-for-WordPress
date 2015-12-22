@@ -48,7 +48,11 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 			$bConflicted = true;
 		}
 		else if ( class_exists( 'Rename_WP_Login', false ) ) {
-			$sMessage = _wpsf__( 'Can not use the Rename WP Login feature because you have the "Rename WP Login" plugin installed and active.' );
+			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.' ), 'Rename WP Login' );
+			$bConflicted = true;
+		}
+		else if ( class_exists( 'Theme_My_Login', false ) ) {
+			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.' ), 'Theme My Login' );
 			$bConflicted = true;
 		}
 		else if ( !$oWp->getIsPermalinksEnabled() ) {
