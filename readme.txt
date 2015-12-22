@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.14.0
+Stable tag: 4.14.1
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -275,7 +275,7 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.14.1 Point Release =
+= 4.14.1 Latest Point Release =
 *Released: 22nd December, 2015*
 
 * **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
@@ -285,6 +285,9 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.14.0 Series =
 *Released: 20th November, 2015*
 
+* **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
+* **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
+* **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
 * **(v.0)**  ADDED:			[Custom Automatic Update Notifications Email](http://icwp.io/wpsf33) that runs separately to the in-built WordPress core notification email.
 * **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
@@ -294,9 +297,6 @@ You can add some custom code to your functions.php exactly as the following:
 
 = 4.13.0 Series =
 *Released: 22nd October, 2015*
-
-= 4.13 Series =
-*Released: 19th October, 2015*
 
 * **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
 * **(v.0)**  NEW:			Renamed 'Admin Access' module to 'Security Admin'.
