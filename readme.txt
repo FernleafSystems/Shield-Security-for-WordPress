@@ -275,12 +275,10 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.14.1 Latest Point Release =
+= 4.14.2 Latest Point Release =
 *Released: 22nd December, 2015*
 
-* **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
-* **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
-* **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
+* **(v.2)**  ADDED:			User notice message displayed when the 'Theme My Login' plugin is active and you try to rename your login URL. It is not compatible.
 
 = 4.14.0 Series =
 *Released: 20th November, 2015*
