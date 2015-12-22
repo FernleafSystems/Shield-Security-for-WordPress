@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.14.0
+Stable tag: 4.14.1
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -275,17 +275,27 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.14.0 Point Release =
+= 4.14.1 Latest Point Release =
+*Released: 22nd December, 2015*
+
+* **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
+* **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
+* **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
+
+= 4.14.0 Series =
 *Released: 20th November, 2015*
 
-* **(v.0)**  ADDED:			(Custom Automatic Update Notifications Email)[http://icwp.io/wpsf33] that runs separately to the in-built WordPress core notification email.
+* **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
+* **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
+* **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
+* **(v.0)**  ADDED:			[Custom Automatic Update Notifications Email](http://icwp.io/wpsf33) that runs separately to the in-built WordPress core notification email.
 * **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
 * **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
 * **(v.0)**  TRANSLATIONS:	Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),
 * **(v.0)**  FIXED:			Small bugs and readying for WordPress 4.4
 
-= 4.13.0 Point Release =
+= 4.13.0 Series =
 *Released: 22nd October, 2015*
 
 * **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
@@ -296,18 +306,6 @@ You can add some custom code to your functions.php exactly as the following:
 * **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
 * **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
 * **(v.0)**  CHANGED:		Improvements to the database create queries: use MySQL Engine defaults (instead of MyISAM); use WordPress dbDelta() for updates.
-* **(v.0)**  CHANGED:		Various code optimizations and cleaning.
-
-= 4.13 Series =
-*Released: 19th October, 2015*
-
-* **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
-* **(v.0)**  CHANGED:		Renamed 'Admin Access' module to 'Security Admin'.
-* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for user sessions - sets and removes cookies better to reduce their usage.
-* **(v.0)**  CHANGED:		Simplified and consolidated the use of cookies for Two Factor Login Authentication.
-* **(v.0)**  CHANGED:		Cleaned up some Comment SPAM filtering code.
-* **(v.0)**  CHANGED:		Comments Filter doesn't use cookies unless a session cookie for the visitor already exists.
-* **(v.0)**  CHANGED:		IP Manager Automatic Black List - default black list duration is now 1 minute & default transgressions limit is 10
 * **(v.0)**  CHANGED:		Various code optimizations and cleaning.
 
 = 4.12 Series =

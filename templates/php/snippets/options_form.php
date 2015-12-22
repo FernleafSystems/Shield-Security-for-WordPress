@@ -67,6 +67,11 @@
 																<input type="text" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
 																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
 
+															<?php elseif ( $sOptionType == 'noneditable_text' ) : ?>
+
+																<p><?php echo $aOption['summary']; ?></p>
+																<input type="text" readonly value="<?php echo $aOption['value']; ?>" class="span5" />
+
 															<?php elseif ( $sOptionType == 'password' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>

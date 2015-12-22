@@ -105,6 +105,13 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'unique_installation_id'
+    section: 'section_general_plugin_options'
+    default: ''
+    type: 'noneditable_text'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
