@@ -275,14 +275,12 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.14.1 Latest Point Release =
+= 4.14.2 Latest Point Release =
 *Released: 22nd December, 2015*
 
-* **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
-* **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
-* **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
+* **(v.2)**  ADDED:			User notice message displayed when the 'Theme My Login' plugin is active and you try to rename your login URL. It is not compatible.
 
-= 4.14.0 Series =
+= 4.14 Series =
 *Released: 20th November, 2015*
 
 * **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
@@ -295,7 +293,7 @@ You can add some custom code to your functions.php exactly as the following:
 * **(v.0)**  TRANSLATIONS:	Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),
 * **(v.0)**  FIXED:			Small bugs and readying for WordPress 4.4
 
-= 4.13.0 Series =
+= 4.13 Series =
 *Released: 22nd October, 2015*
 
 * **(v.0)**  NEW:			Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the 'Security Admin' module.
