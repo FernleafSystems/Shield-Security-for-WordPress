@@ -143,6 +143,73 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+
+# Definitions for constant data that doesn't need store in the options
+definitions:
+  firewall_patterns:
+    dir_traversal:
+      simple:
+        - 'etc/passwd'
+        - 'proc/self/environ'
+        - 'etc/passwd'
+        - 'makefile'
+        - 'wwwroot'
+        - 'pingserver'
+        - '../'
+        - 'loopback'
+      regex:
+    wordpress:
+      simple:
+        - '/**/'
+        - 'wp-config.php'
+      regex:
+        - '^wp_'
+        - '^user_login'
+        - '^user_pass'
+        - '[^0-9]0x[0-9a-f][0-9a-f]'
+    field:
+      simple:
+      regex:
+        - '\\s{49,}'
+        - '\\x00'
+    sql:
+      regex:
+        - 'concat\\s*\\('
+        - 'group_concat'
+        - 'union.*select'
+    exe_file:
+      simple:
+      regex:
+        - '\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$'
+    schema:
+      simple:
+        - ''
+      regex:
+        - '^(http|https|ftp|file):'
+        - '\\.shtml'
+    php:
+      simple:
+      regex:
+        - '(include|include_once|require|require_once)\\s*\\(.*\\)'
+    advanced:
+      simple:
+        - 'eval('
+        - '(null)'
+        - 'base64_'
+        - 'localhost'
+        - '(function('
+        - '{x.html('
+        - ').html('
+        - '...'
+        - '<'
+        - '>'
+        - '/httpdocs/'
+        - '/tmp/'
+        - 'boot.ini'
+      regex:
+        - 'GLOBALS(=|[|%)'
+        - 'REQUEST(=|[|%)'
+        - '(`|<|>|[|]|{|}|?)'
 ",
 		_wpsf__( 'Firewall' ),
 		_wpsf__( 'Automatically block malicious URLs and data sent to your site' )
