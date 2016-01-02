@@ -98,6 +98,15 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string
+	 * @return null|array
+	 */
+	public function getFeatureDefinition( $sDefinition ) {
+		$aRawConfig = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRawConfig['definitions'] ) && isset( $aRawConfig['definitions'][$sDefinition] ) ) ? $aRawConfig['definitions'][$sDefinition] : null;
+	}
+
+	/**
 	 * @param string $sReq
 	 * @return null|mixed
 	 */
