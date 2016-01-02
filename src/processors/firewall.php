@@ -42,6 +42,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		/**
 		 * @var array
 		 */
+		protected $aPatterns;
+
+		/**
+		 * @var array
+		 */
 		protected $aRawRequestParams;
 
 		/**
@@ -141,6 +146,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		}
 
 		/**
+		 * @param string $sKey
+		 * @return array|null
+		 */
+		protected function getFirewallPatterns( $sKey = null ) {
+			if ( !isset( $this->aPatterns ) ) {
+				$this->aPatterns = $this->getFeatureOptions()->getOptionsVo()->getFeatureDefinition( 'firewall_patterns' );
+			}
+			if ( !empty( $sKey ) ) {
+				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
+			}
+			return $this->aPatterns;
+		}
+
+		/**
 		 * @return bool
 		 */
 		protected function doPassCheckBlockDirTraversal() {
@@ -149,7 +168,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				'proc/self/environ',
 				'../'
 			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms );
+			$fPass = $this->doPassCheck( $this->getParamsToCheck(), 'dir_traversal' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('Directory Traversal') );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -272,11 +291,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * Returns false when check fails - that is to say, it should be blocked by the firewall.
 		 *
 		 * @param array $aParamValues
-		 * @param array $aMatchTerms
+		 * @param string $sTermsKey
 		 * @param boolean $bTestRegex
 		 * @return boolean
 		 */
-		private function doPassCheck( $aParamValues, $aMatchTerms, $bTestRegex = false ) {
+		private function doPassCheck( $aParamValues, $sTermsKey, $bTestRegex = false ) {
+
+			$aMatchTerms = $this->getFirewallPatterns( $sTermsKey );
+
 
 			$bFAIL = false;
 			foreach ( $aParamValues as $sParam => $mValue ) {
