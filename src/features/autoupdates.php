@@ -6,24 +6,10 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 
 	class ICWP_WPSF_FeatureHandler_Autoupdates_V3 extends ICWP_WPSF_FeatureHandler_Base {
 
-		/**
-		 * this feature doesn't need to consider IP whitelists - it has no security implications.
-		 */
-		protected function doExecuteProcessor() {
-			parent::doExecuteProcessor();
-		}
-
-		/**
-		 * @return bool|void
-		 */
-		protected function doExtraSubmitProcessing() {
+		protected function doPostConstruction() {
 			// Force run automatic updates
-			$oDp = $this->loadDataProcessor();
-			if ( $oDp->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
-				/** @var ICWP_WPSF_Processor_Autoupdates $oProc */
-				$oProc = $this->getProcessor();
-				$oProc->setForceRunAutoupdates( true );
-				return;
+			if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
+				add_filter( $this->doPluginPrefix( 'force_autoupdate' ), '__return_true' );
 			}
 		}
 
