@@ -178,15 +178,13 @@ definitions:
         - 'group_concat'
         - 'union.*select'
     exe_file:
-      simple:
       regex:
         - '\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$'
     schema:
       simple:
-        - ''
+        - '.shtml'
       regex:
         - '^(http|https|ftp|file):'
-        - '\\.shtml'
     php:
       simple:
       regex:

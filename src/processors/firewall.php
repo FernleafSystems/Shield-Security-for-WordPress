@@ -163,12 +163,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		protected function doPassCheckBlockDirTraversal() {
-			$aTerms = array(
-				'etc/passwd',
-				'proc/self/environ',
-				'../'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), 'dir_traversal' );
+			$fPass = $this->doPassCheck( 'dir_traversal' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('Directory Traversal') );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -179,12 +174,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		}
 
 		protected function doPassCheckBlockSqlQueries() {
-			$aTerms = array(
-				'/concat\s*\(/i',
-				'/group_concat/i',
-				'/union.*select/i'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
+			$fPass = $this->doPassCheck( 'sql' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'SQL Queries' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -198,15 +188,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		protected function doPassCheckBlockWordpressTerms() {
-			$aTerms = array(
-				'/^wp_/i',
-				'/^user_login/i',
-				'/^user_pass/i',
-				'/[^0-9]0x[0-9a-f][0-9a-f]/i',
-				'/\/\*\*\//'
-			);
-
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
+			$fPass = $this->doPassCheck( 'wordpress' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'WordPress Terms' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -220,11 +202,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		protected function doPassCheckBlockFieldTruncation() {
-			$aTerms = array(
-				'/\s{49,}/i',
-				'/\x00/'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
+			$fPass = $this->doPassCheck( 'field' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Field Truncation' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -235,10 +213,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		}
 
 		protected function doPassCheckPhpCode() {
-			$aTerms = array(
-				'/(include|include_once|require|require_once)(\s*\(|\s*\'|\s*"|\s+\w+)/i'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
+			$fPass = $this->doPassCheck( 'php' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'PHP Code' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -249,11 +224,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		}
 
 		protected function doPassCheckBlockExeFileUploads() {
-			$aTerms = array(
-				'/\.dll$/i', '/\.rb$/i', '/\.py$/i', '/\.exe$/i', '/\.php[3-6]?$/i', '/\.pl$/i',
-				'/\.perl$/i', '/\.ph[34]$/i', '/\.phl$/i', '/\.phtml$/i', '/\.phtm$/i'
-			);
-
+			$bFAIL = false;
 			if ( isset( $_FILES ) && !empty( $_FILES ) ) {
 				$aFileNames = array();
 				foreach( $_FILES as $aFile ) {
@@ -261,23 +232,31 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						$aFileNames[] = $aFile['name'];
 					}
 				}
-				$fPass = $this->doPassCheck( $aFileNames, $aTerms, true );
-				if ( !$fPass ) {
+				$aMatchTerms = $this->getFirewallPatterns( 'exe_file' );
+				if ( isset( $aMatchTerms['regex'] ) && is_array( $aMatchTerms['regex'] ) ) {
+
+					$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+					foreach ( $aMatchTerms['regex'] as $sTerm ) {
+						foreach ( $aFileNames as $sParam => $mValue ) {
+							if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
+								$bFAIL = true;
+								break(2);
+							}
+						}
+					}
+				}
+				if ( $bFAIL ) {
 					$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'EXE File Uploads' ) );
 					$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
 					$this->doStatIncrement( 'firewall.blocked.exefile' );
 					$this->setFirewallTrip_Class( 'exefile' );
 				}
-				return $fPass;
 			}
-			return true;
+			return !$bFAIL;
 		}
 
 		protected function doPassCheckBlockLeadingSchema() {
-			$aTerms = array(
-				'/^http/i', '/\.shtml$/i'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
+			$fPass = $this->doPassCheck( 'schema' );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Leading Schema' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
@@ -290,60 +269,64 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		/**
 		 * Returns false when check fails - that is to say, it should be blocked by the firewall.
 		 *
-		 * @param array $aParamValues
 		 * @param string $sTermsKey
-		 * @param boolean $bTestRegex
 		 * @return boolean
 		 */
-		private function doPassCheck( $aParamValues, $sTermsKey, $bTestRegex = false ) {
+		private function doPassCheck( $sTermsKey ) {
 
 			$aMatchTerms = $this->getFirewallPatterns( $sTermsKey );
+			$aParamValues = $this->getParamsToCheck();
+			if ( empty( $aMatchTerms ) || empty( $aParamValues ) ) {
+				return true;
+			}
 
+			$sParam = '';
+			$mValue = '';
 
 			$bFAIL = false;
-			foreach ( $aParamValues as $sParam => $mValue ) {
-				if ( is_array( $mValue ) ) {
+			if ( isset( $aMatchTerms['simple'] ) && is_array( $aMatchTerms['simple'] ) ) {
 
-					// Protection against an infinite loop and we limit depth to 3.
-					if ( $this->nLoopProtect > 2 ) {
-						return true;
-					}
-					else {
-						$this->nLoopProtect++;
-					}
-
-					if ( !$this->doPassCheck( $mValue, $aMatchTerms, $bTestRegex ) ) {
-						return false;
-					}
-
-					$this->nLoopProtect--;
-				}
-				else {
-					$mValue = (string) $mValue;
-					foreach ( $aMatchTerms as $sTerm ) {
-
-						if ( $bTestRegex && preg_match( $sTerm, $mValue ) ) { //dodgy term pattern found in a parameter value
+				foreach ( $aMatchTerms['simple'] as $sTerm ) {
+					foreach ( $aParamValues as $sParam => $mValue ) {
+						if ( is_scalar( $mValue ) && ( strpos( (string)$mValue, $sTerm ) !== false ) ) {
 							$bFAIL = true;
+							break(2);
 						}
-						else if ( strpos( $mValue, $sTerm ) !== false ) { //dodgy term found in a parameter value
-							$bFAIL = true;
-						}
-
-						if ( $bFAIL ) {
-							$this->addToFirewallDieMessage( _wpsf__( "Something in the URL, Form or Cookie data wasn't appropriate." ) );
-							$sAuditMessage = _wpsf__( 'Page parameter failed firewall check.' )
-								. ' ' . sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue );
-							$this->addToAuditEntry( $sAuditMessage, 3 );
-							$this->setFirewallTrip_Parameter( $sParam );
-							$this->setFirewallTrip_Value( $mValue );
-							return false;
-						}
-
-					}//foreach
+					}
 				}
-			}//foreach
+			}
+
+			if ( !$bFAIL && isset( $aMatchTerms['regex'] ) && is_array( $aMatchTerms['regex'] ) ) {
+				$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+				foreach ( $aMatchTerms['regex'] as $sTerm ) {
+					foreach ( $aParamValues as $sParam => $mValue ) {
+						if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
+							$bFAIL = true;
+							break(2);
+						}
+					}
+				}
+			}
+
+			if ( $bFAIL ) {
+				$this->addToFirewallDieMessage( _wpsf__( "Something in the URL, Form or Cookie data wasn't appropriate." ) );
+				$sAuditMessage = _wpsf__( 'Page parameter failed firewall check.' )
+					. ' ' . sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue );
+				$this->addToAuditEntry( $sAuditMessage, 3 );
+				$this->setFirewallTrip_Parameter( $sParam );
+				$this->setFirewallTrip_Value( $mValue );
+				return false;
+			}
 
 			return true;
+		}
+
+		/**
+		 * @param string $sTerm
+		 * @return string
+		 */
+		private function prepRegexTerms( $sTerm ) {
+			return '/' . $sTerm . '/i';
 		}
 
 		protected function doPreFirewallBlock() {
