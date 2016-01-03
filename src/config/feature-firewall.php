@@ -205,8 +205,8 @@ definitions:
         - '/tmp/'
         - 'boot.ini'
       regex:
-        - 'GLOBALS(=|[|%)'
-        - 'REQUEST(=|[|%)'
+        - 'GLOBALS(=|[|%%)'
+        - 'REQUEST(=|[|%%)'
         - '(`|<|>|[|]|{|}|?)'
 ",
 		_wpsf__( 'Firewall' ),
