@@ -147,7 +147,7 @@ options:
 # Definitions for constant data that doesn't need store in the options
 definitions:
   firewall_patterns:
-    dir_traversal:
+    dirtraversal:
       simple:
         - 'etc/passwd'
         - 'proc/self/environ'
@@ -157,8 +157,7 @@ definitions:
         - 'pingserver'
         - '../'
         - 'loopback'
-      regex:
-    wordpress:
+    wpterms:
       simple:
         - '/**/'
         - 'wp-config.php'
@@ -167,17 +166,16 @@ definitions:
         - '^user_login'
         - '^user_pass'
         - '[^0-9]0x[0-9a-f][0-9a-f]'
-    field:
-      simple:
+    fieldtruncation:
       regex:
         - '\\s{49,}'
         - '\\x00'
-    sql:
+    sqlqueries:
       regex:
         - 'concat\\s*\\('
         - 'group_concat'
         - 'union.*select'
-    exe_file:
+    exefile:
       regex:
         - '\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$'
     schema:
@@ -185,7 +183,7 @@ definitions:
         - '.shtml'
       regex:
         - '^(http|https|ftp|file):'
-    php:
+    phpcode:
       simple:
       regex:
         - '(include|include_once|require|require_once)\\s*\\(.*\\)'

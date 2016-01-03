@@ -163,23 +163,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		protected function doPassCheckBlockDirTraversal() {
-			$fPass = $this->doPassCheck( 'dir_traversal' );
+			$sKey = 'dirtraversal';
+			$fPass = $this->doPassCheck( $sKey );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('Directory Traversal') );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.dirtraversal' );
-				$this->setFirewallTrip_Class( 'dirtraversal' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->setFirewallTrip_Class( $sKey );
 			}
 			return $fPass;
 		}
 
 		protected function doPassCheckBlockSqlQueries() {
-			$fPass = $this->doPassCheck( 'sql' );
+			$sKey = 'sqlqueries';
+			$fPass = $this->doPassCheck( $sKey );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'SQL Queries' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.sqlqueries' );
-				$this->setFirewallTrip_Class( 'sqlqueries' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->setFirewallTrip_Class( $sKey );
 			}
 			return $fPass;
 		}
@@ -188,12 +190,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		protected function doPassCheckBlockWordpressTerms() {
-			$fPass = $this->doPassCheck( 'wordpress' );
+			$sKey = 'wpterms';
+			$fPass = $this->doPassCheck( $sKey );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'WordPress Terms' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.wpterms' );
-				$this->setFirewallTrip_Class( 'wpterms' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->setFirewallTrip_Class( $sKey );
 			}
 			return $fPass;
 		}
@@ -202,28 +205,52 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		protected function doPassCheckBlockFieldTruncation() {
-			$fPass = $this->doPassCheck( 'field' );
+			$sKey = 'fieldtruncation';
+			$fPass = $this->doPassCheck( $sKey );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Field Truncation' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.fieldtruncation' );
-				$this->setFirewallTrip_Class( 'fieldtruncation' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->setFirewallTrip_Class( $sKey );
 			}
 			return $fPass;
 		}
 
+		/**
+		 * @return bool
+		 */
 		protected function doPassCheckPhpCode() {
-			$fPass = $this->doPassCheck( 'php' );
+			$sKey = 'phpcode';
+			$fPass = $this->doPassCheck( $sKey );
 			if ( !$fPass ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'PHP Code' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.phpcode' );
-				$this->setFirewallTrip_Class( 'phpcode' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->setFirewallTrip_Class( $sKey );
 			}
 			return $fPass;
 		}
 
+		/**
+		 * @return bool
+		 */
+		protected function doPassCheckBlockLeadingSchema() {
+			$sKey = 'schema';
+			$fPass = $this->doPassCheck( $sKey );
+			if ( !$fPass ) {
+				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Leading Schema' ) );
+				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->setFirewallTrip_Class( $sKey );
+			}
+			return $fPass;
+		}
+
+		/**
+		 * @return bool
+		 */
 		protected function doPassCheckBlockExeFileUploads() {
+			$sKey = 'exefile';
 			$bFAIL = false;
 			if ( isset( $_FILES ) && !empty( $_FILES ) ) {
 				$aFileNames = array();
@@ -232,7 +259,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						$aFileNames[] = $aFile['name'];
 					}
 				}
-				$aMatchTerms = $this->getFirewallPatterns( 'exe_file' );
+				$aMatchTerms = $this->getFirewallPatterns( 'exefile' );
 				if ( isset( $aMatchTerms['regex'] ) && is_array( $aMatchTerms['regex'] ) ) {
 
 					$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
@@ -248,26 +275,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				if ( $bFAIL ) {
 					$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'EXE File Uploads' ) );
 					$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-					$this->doStatIncrement( 'firewall.blocked.exefile' );
-					$this->setFirewallTrip_Class( 'exefile' );
+					$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+					$this->setFirewallTrip_Class( $sKey );
 				}
 			}
 			return !$bFAIL;
 		}
 
-		protected function doPassCheckBlockLeadingSchema() {
-			$fPass = $this->doPassCheck( 'schema' );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Leading Schema' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.schema' );
-				$this->setFirewallTrip_Class( 'schema' );
-			}
-			return $fPass;
-		}
-
 		/**
-		 * Returns false when check fails - that is to say, it should be blocked by the firewall.
+		 * Returns false when check fails - that is, it should be blocked by the firewall.
 		 *
 		 * @param string $sTermsKey
 		 * @return boolean
@@ -315,10 +331,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 3 );
 				$this->setFirewallTrip_Parameter( $sParam );
 				$this->setFirewallTrip_Value( $mValue );
-				return false;
 			}
 
-			return true;
+			return !$bFAIL;
 		}
 
 		/**
