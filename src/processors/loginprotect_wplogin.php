@@ -107,12 +107,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 			$sPath = isset( $aRequestParts[ 'path' ] ) ? trim( $aRequestParts[ 'path' ], '/' ) : '';
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
-				trim( site_url( 'wp-login.php', 'relative' ), '/' ),
+				// trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
+				trim( rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			);
-
-			$bDoBlock = in_array( $sPath, $aPossiblePaths );
+			$bDoBlock = !empty( $sPath ) && in_array( $sPath, $aPossiblePaths );
 		}
 
 		if ( $bDoBlock ) {
