@@ -17,12 +17,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		}
 
 		// Loads the wp-login.php is the correct URL is loaded
-		add_action( 'init', array( $this, 'doBlockPossibleAutoRedirection' ) );
+		add_action( 'init', array( $this, 'doBlockPossibleWpLoginLoad' ) );
 
 		// Loads the wp-login.php is the correct URL is loaded
 		add_filter( 'wp_loaded', array( $this, 'aLoadWpLogin' ) );
 
-		// kills the wp-login.php if it's being loaded by anything but the virtual URL
+		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
 		add_action( 'login_init', array( $this, 'aLoginFormAction' ), 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 
 	/**
 	 */
-	public function doBlockPossibleAutoRedirection() {
+	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
 		$bDoBlock = ( is_admin() && !is_user_logged_in() && !defined( 'DOING_AJAX' ) );
@@ -107,12 +107,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 			$sPath = isset( $aRequestParts[ 'path' ] ) ? trim( $aRequestParts[ 'path' ], '/' ) : '';
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
-				trim( site_url( 'wp-login.php', 'relative' ), '/' ),
+				// trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
+				trim( rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			);
-
-			$bDoBlock = in_array( $sPath, $aPossiblePaths );
+			$bDoBlock = !empty( $sPath ) && in_array( $sPath, $aPossiblePaths );
 		}
 
 		if ( $bDoBlock ) {
