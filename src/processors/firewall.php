@@ -436,13 +436,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 					'/wp-login.php'					=> array(
 						'redirect_to'
 					),
-					'/wp-admin/'					=> array(
-						'_wp_original_http_referer'
-					),
 					'*' => array(
 						'verify_sign',
 						'txn_id',
 						'_wp_http_referer',
+						'_wp_original_http_referer',
 						'url',
 						'referredby',
 					)
