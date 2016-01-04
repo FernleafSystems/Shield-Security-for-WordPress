@@ -45,8 +45,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		protected $aRawRequestParams;
 
 		public function run() {
-			$this->doPreFirewallBlock();
-			$this->doFirewallBlock();
+			if ( $this->getIfDoFirewallBlock() ) {
+				$this->doPreFirewallBlock();
+				$this->doFirewallBlock();
+			}
 		}
 
 		/**
@@ -113,11 +115,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) ) {
 				$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 			}
-			if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
-			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
 				$bRequestIsPermitted = $this->doPassCheck( 'schema' );
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 			}
 			return $bRequestIsPermitted;
 		}
