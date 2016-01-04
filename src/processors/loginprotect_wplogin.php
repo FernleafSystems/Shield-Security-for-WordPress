@@ -17,12 +17,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 		}
 
 		// Loads the wp-login.php is the correct URL is loaded
-		add_action( 'init', array( $this, 'doBlockPossibleAutoRedirection' ) );
+		add_action( 'init', array( $this, 'doBlockPossibleWpLoginLoad' ) );
 
 		// Loads the wp-login.php is the correct URL is loaded
 		add_filter( 'wp_loaded', array( $this, 'aLoadWpLogin' ) );
 
-		// kills the wp-login.php if it's being loaded by anything but the virtual URL
+		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
 		add_action( 'login_init', array( $this, 'aLoginFormAction' ), 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base 
 
 	/**
 	 */
-	public function doBlockPossibleAutoRedirection() {
+	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
 		$bDoBlock = ( is_admin() && !is_user_logged_in() && !defined( 'DOING_AJAX' ) );
