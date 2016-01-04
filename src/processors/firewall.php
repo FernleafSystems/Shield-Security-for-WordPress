@@ -19,17 +19,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		private $bDoFirewallBlock;
 
 		/**
-		 * @var string
-		 */
-		protected $sListItemLabel;
-
-		/**
-		 * This is $m_aOrigPageParams after any parameter whitelisting has taken place
-		 * @var array
-		 */
-		protected $aPageParams;
-
-		/**
 		 * @var array
 		 */
 		protected $aFirewallTripData;
@@ -40,12 +29,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		protected $aPatterns;
 
 		/**
+		 * After any parameter whitelisting has been accounted for
+		 * @var array
+		 */
+		protected $aPageParams;
+
+		/**
 		 * @var array
 		 */
 		protected $aRawRequestParams;
 
 		public function run() {
-			if ( $this->getIfDoFirewallBlock() ) {
+			if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
 				$this->doPreFirewallBlock();
 				$this->doFirewallBlock();
 			}
@@ -62,42 +57,50 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		}
 
 		/**
-		 * @return boolean - true if visitor is permitted, false if it should be blocked.
+		 * @return bool
 		 */
-		protected function isVisitorRequestPermitted() {
-			// Nothing to check in the first place
-			if ( count( $this->getRawRequestParams() ) < 1 ) {
-				return true;
-			}
-
+		protected function getIfPerformFirewallScan() {
+			$bPerformScan = true;
 			$oDp = $this->loadDataProcessor();
+
+			if ( count( $this->getRawRequestParams() ) == 0 ) {
+				$bPerformScan = false;
+			}
 
 			// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
 			$aRequestParts = $oDp->getRequestUriParts();
-			if ( empty( $aRequestParts ) ) {
+			if ( $bPerformScan && empty( $aRequestParts ) ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				return true;
+				$bPerformScan = false;
 			}
 
-			if ( $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
+			if ( $bPerformScan && $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
 //				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				return true;
-			}
-
-			if ( $this->getOption('ignore_search_engines') == 'Y' && $oDp->IsSearchEngineBot() ) {
-				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Visitor detected as Search Engine Bot') );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				return true;
+				$bPerformScan = false;
 			}
 
 			$aPageParamsToCheck = $this->getParamsToCheck();
-			if ( empty( $aPageParamsToCheck ) ) {
+			if ( $bPerformScan && empty( $aPageParamsToCheck ) ) {
 //				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('After whitelist options were applied, there were no page parameters to check') );
 //				$this->addToAuditEntry( $sAuditMessage, 1, 'firewall_skip' );
-				return true;
+				$bPerformScan = false;
 			}
+
+			if ( $bPerformScan && $this->getOption('ignore_search_engines') == 'Y' && $oDp->IsSearchEngineBot() ) {
+				$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Visitor detected as Search Engine Bot' ) );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+				$bPerformScan = false;
+			}
+
+			return $bPerformScan;
+		}
+
+		/**
+		 * @return boolean - true if visitor is permitted, false if it should be blocked.
+		 */
+		protected function isVisitorRequestPermitted() {
 
 			$bRequestIsPermitted = true;
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) ) {
@@ -122,20 +125,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 			}
 			return $bRequestIsPermitted;
-		}
-
-		/**
-		 * @param string $sKey
-		 * @return array|null
-		 */
-		protected function getFirewallPatterns( $sKey = null ) {
-			if ( !isset( $this->aPatterns ) ) {
-				$this->aPatterns = $this->getFeatureOptions()->getOptionsVo()->getFeatureDefinition( 'firewall_patterns' );
-			}
-			if ( !empty( $sKey ) ) {
-				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
-			}
-			return $this->aPatterns;
 		}
 
 		/**
@@ -231,6 +220,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			}
 
 			return !$bFAIL;
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return array|null
+		 */
+		protected function getFirewallPatterns( $sKey = null ) {
+			if ( !isset( $this->aPatterns ) ) {
+				$this->aPatterns = $this->getFeatureOptions()->getOptionsVo()->getFeatureDefinition( 'firewall_patterns' );
+			}
+			if ( !empty( $sKey ) ) {
+				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
+			}
+			return $this->aPatterns;
 		}
 
 		/**
