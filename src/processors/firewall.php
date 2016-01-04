@@ -9,11 +9,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		protected $aWhitelistPages;
 
 		/**
-		 * @var int
-		 */
-		private $nLoopProtect;
-
-		/**
 		 * @var array
 		 */
 		private $aFirewallDieMessage;
@@ -49,28 +44,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		protected $aRawRequestParams;
 
-		/**
-		 * @param ICWP_WPSF_FeatureHandler_Firewall $oFeatureOptions
-		 */
-		public function __construct( ICWP_WPSF_FeatureHandler_Firewall $oFeatureOptions ) {
-			parent::__construct( $oFeatureOptions );
-
-			$sMessage = _wpsf__( "You were blocked by the %s." );
-			$this->addToFirewallDieMessage(
-				sprintf(
-					$sMessage,
-					'<a href="http://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
-				)
-			);
-		}
-
-		public function reset() {
-			parent::reset();
-			$this->nLoopProtect = 0;
-		}
-
 		public function run() {
-			$this->bDoFirewallBlock = !$this->doFirewallCheck();
 			$this->doPreFirewallBlock();
 			$this->doFirewallBlock();
 		}
@@ -79,13 +53,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return bool
 		 */
 		public function getIfDoFirewallBlock() {
-			return isset( $this->bDoFirewallBlock ) ? $this->bDoFirewallBlock : false;
+			if ( !isset( $this->bDoFirewallBlock ) ) {
+				$this->bDoFirewallBlock = !$this->isVisitorRequestPermitted();
+			}
+			return $this->bDoFirewallBlock;
 		}
 
 		/**
 		 * @return boolean - true if visitor is permitted, false if it should be blocked.
 		 */
-		public function doFirewallCheck() {
+		protected function isVisitorRequestPermitted() {
 			// Nothing to check in the first place
 			if ( count( $this->getRawRequestParams() ) < 1 ) {
 				return true;
@@ -96,7 +73,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
 			$aRequestParts = $oDp->getRequestUriParts();
 			if ( empty( $aRequestParts ) ) {
-				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Parsing the URI failed') );
+				$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 				return true;
 			}
@@ -262,74 +239,73 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			return '/' . $sTerm . '/i';
 		}
 
+		/**
+		 */
 		protected function doPreFirewallBlock() {
-			if ( !$this->getIfDoFirewallBlock() ) {
-				return;
-			}
 
-			switch( $this->getOption( 'block_response' ) ) {
-				case 'redirect_die':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor connection was killed with wp_die()') );
-					break;
-				case 'redirect_die_message':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor connection was killed with wp_die() and a message') );
-					break;
-				case 'redirect_home':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor was sent HOME') );
-					break;
-				case 'redirect_404':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor was sent 404') );
-					break;
-				default:
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor connection was killed with wp_die() and a message') );
-					break;
-			}
+			if ( $this->getIfDoFirewallBlock() ) {
 
-			$this->addToAuditEntry( $sEntry );
-
-			if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
-
-				$sRecipient = $this->getPluginDefaultRecipientAddress();
-				$fSendSuccess = $this->sendBlockEmail( $sRecipient );
-				if ( $fSendSuccess ) {
-					$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
+				switch( $this->getOption( 'block_response' ) ) {
+					case 'redirect_die':
+						$sMessage = _wpsf__( 'Visitor connection was killed with wp_die()' );
+						break;
+					case 'redirect_die_message':
+						$sMessage = _wpsf__( 'Visitor connection was killed with wp_die() and a message' );
+						break;
+					case 'redirect_home':
+						$sMessage = _wpsf__( 'Visitor was sent HOME' );
+						break;
+					case 'redirect_404':
+						$sMessage = _wpsf__( 'Visitor was sent 404' );
+						break;
+					default:
+						$sMessage = _wpsf__( 'Unknown' );
+						break;
 				}
-				else {
-					$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
-				}
-			}
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Firewall Block Response: %s.' ), $sMessage ) );
 
-			// We now black mark this IP
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+				if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
+
+					$sRecipient = $this->getPluginDefaultRecipientAddress();
+					$fSendSuccess = $this->sendBlockEmail( $sRecipient );
+					if ( $fSendSuccess ) {
+						$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
+					}
+					else {
+						$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
+					}
+				}
+
+				// black mark this IP
+				add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			}
 		}
 
 		/**
 		 */
 		protected function doFirewallBlock() {
 
-			if ( !$this->getIfDoFirewallBlock() ) {
-				return true;
-			}
+			if ( $this->getIfDoFirewallBlock() ) {
 
-			$oWp = $this->loadWpFunctionsProcessor();
-			$sHomeUrl = $oWp->getHomeUrl();
-			switch( $this->getOption( 'block_response' ) ) {
-				case 'redirect_die':
-					break;
-				case 'redirect_die_message':
-					$oWp->wpDie( $this->getFirewallDieMessageForDisplay() );
-					break;
-				case 'redirect_home':
-					header( "Location: ".$sHomeUrl );
-					exit();
-					break;
-				case 'redirect_404':
-					header( "Location: ".$sHomeUrl.'/404' );
-					break;
-				default:
-					break;
+				$oWp = $this->loadWpFunctionsProcessor();
+				$sHomeUrl = $oWp->getHomeUrl();
+				switch( $this->getOption( 'block_response' ) ) {
+					case 'redirect_die':
+						break;
+					case 'redirect_die_message':
+						$oWp->wpDie( $this->getFirewallDieMessageForDisplay() );
+						break;
+					case 'redirect_home':
+						header( "Location: ".$sHomeUrl );
+						break;
+					case 'redirect_404':
+						header( "Location: ".$sHomeUrl.'/404' );
+						break;
+					default:
+						break;
+				}
+				exit();
 			}
-			exit();
 		}
 
 		/**
@@ -337,7 +313,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		protected function getFirewallDieMessage() {
 			if ( !isset( $this->aFirewallDieMessage ) || !is_array( $this->aFirewallDieMessage ) ) {
-				$this->aFirewallDieMessage = array();
+				$this->aFirewallDieMessage = array(
+					sprintf(
+						_wpsf__( "You were blocked by the %s." ),
+						'<a href="http://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
+					)
+				);
 			}
 			return $this->aFirewallDieMessage;
 		}
@@ -534,39 +515,30 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		private function getFirewallBlockKeyName( $sBlockKey ) {
 			switch ( $sBlockKey ) {
-
 				case 'dirtraversal':
 					$sName = _wpsf__( 'Directory Traversal' );
 					break;
-
 				case 'wpterms':
 					$sName = _wpsf__( 'WordPress Terms' );
 					break;
-
 				case 'fieldtruncation':
 					$sName = _wpsf__( 'Field Truncation' );
 					break;
-
 				case 'sqlqueries':
 					$sName = _wpsf__( 'SQL Queries' );
 					break;
-
 				case 'exefile':
 					$sName = _wpsf__( 'EXE File Uploads' );
 					break;
-
 				case 'schema':
 					$sName = _wpsf__( 'Leading Schema' );
 					break;
-
 				case 'phpcode':
 					$sName = _wpsf__( 'PHP Code' );
 					break;
-
 				case 'advanced':
 					$sName = _wpsf__( 'Advanced Rules' );
 					break;
-
 				default:
 					$sName = _wpsf__( 'Unknown Rules' );
 					break;
