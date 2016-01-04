@@ -122,25 +122,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 
 			$bRequestIsPermitted = true;
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockDirTraversal();
+				$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_sql_queries', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockSqlQueries();
+				$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_wordpress_terms', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockWordpressTerms();
+				$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_field_truncation', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockFieldTruncation();
+				$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckPhpCode();
+				$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
 				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockLeadingSchema();
+				$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 			}
 			return $bRequestIsPermitted;
 		}
@@ -157,93 +157,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
 			}
 			return $this->aPatterns;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckBlockDirTraversal() {
-			$sKey = 'dirtraversal';
-			$fPass = $this->doPassCheck( $sKey );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('Directory Traversal') );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
-			}
-			return $fPass;
-		}
-
-		protected function doPassCheckBlockSqlQueries() {
-			$sKey = 'sqlqueries';
-			$fPass = $this->doPassCheck( $sKey );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'SQL Queries' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
-			}
-			return $fPass;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckBlockWordpressTerms() {
-			$sKey = 'wpterms';
-			$fPass = $this->doPassCheck( $sKey );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'WordPress Terms' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
-			}
-			return $fPass;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckBlockFieldTruncation() {
-			$sKey = 'fieldtruncation';
-			$fPass = $this->doPassCheck( $sKey );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Field Truncation' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
-			}
-			return $fPass;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckPhpCode() {
-			$sKey = 'phpcode';
-			$fPass = $this->doPassCheck( $sKey );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'PHP Code' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
-			}
-			return $fPass;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckBlockLeadingSchema() {
-			$sKey = 'schema';
-			$fPass = $this->doPassCheck( $sKey );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Leading Schema' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
-			}
-			return $fPass;
 		}
 
 		/**
@@ -331,6 +244,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 3 );
 				$this->setFirewallTrip_Parameter( $sParam );
 				$this->setFirewallTrip_Value( $mValue );
+
+				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), $this->getFirewallBlockKeyName( $sTermsKey ) );
+				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sTermsKey );
+				$this->setFirewallTrip_Class( $sTermsKey );
 			}
 
 			return !$bFAIL;
@@ -608,6 +526,52 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			$aData = $this->getFirewallTripData();
 			$aData['class'] = $sData;
 			$this->aFirewallTripData = $aData;
+		}
+
+		/**
+		 * @param string $sBlockKey
+		 * @return string
+		 */
+		private function getFirewallBlockKeyName( $sBlockKey ) {
+			switch ( $sBlockKey ) {
+
+				case 'dirtraversal':
+					$sName = _wpsf__( 'Directory Traversal' );
+					break;
+
+				case 'wpterms':
+					$sName = _wpsf__( 'WordPress Terms' );
+					break;
+
+				case 'fieldtruncation':
+					$sName = _wpsf__( 'Field Truncation' );
+					break;
+
+				case 'sqlqueries':
+					$sName = _wpsf__( 'SQL Queries' );
+					break;
+
+				case 'exefile':
+					$sName = _wpsf__( 'EXE File Uploads' );
+					break;
+
+				case 'schema':
+					$sName = _wpsf__( 'Leading Schema' );
+					break;
+
+				case 'phpcode':
+					$sName = _wpsf__( 'PHP Code' );
+					break;
+
+				case 'advanced':
+					$sName = _wpsf__( 'Advanced Rules' );
+					break;
+
+				default:
+					$sName = _wpsf__( 'Unknown Rules' );
+					break;
+			}
+			return $sName;
 		}
 	}
 
