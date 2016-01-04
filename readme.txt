@@ -281,7 +281,7 @@ You can add some custom code to your functions.php exactly as the following:
 
 = 4.15.0 Latest Point Release =
 *Released: 4th January, 2015*
-* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
+* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive Rules' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
 * **(v.0)**  CHANGED:		Improved and optimized Firewall processing.
 * **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
 * **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
