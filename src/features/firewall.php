@@ -162,6 +162,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sDescription = _wpsf__( 'This will block executable file uploads (.php, .exe, etc.).' );
 					break;
 
+				case 'block_aggressive' :
+					$sName = _wpsf__( 'Aggressive Scan' );
+					$sSummary = _wpsf__( 'Aggressively Block Data' );
+					$sDescription = _wpsf__( 'Uses a set of aggressive rules to detect and block data submitted to your site.' );
+					break;
+
 				case 'block_leading_schema' :
 					$sName = _wpsf__( 'Leading Schemas' );
 					$sSummary = _wpsf__( 'Block Leading Schemas (HTTPS / HTTP)' );

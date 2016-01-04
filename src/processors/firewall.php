@@ -121,6 +121,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
 				$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_aggressive', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
+			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
 				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 			}
@@ -185,7 +188,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 
 				foreach ( $aMatchTerms['simple'] as $sTerm ) {
 					foreach ( $aParamValues as $sParam => $mValue ) {
-						if ( is_scalar( $mValue ) && ( strpos( (string)$mValue, $sTerm ) !== false ) ) {
+						if ( is_scalar( $mValue ) && ( stripos( (string)$mValue, $sTerm ) !== false ) ) {
 							$bFAIL = true;
 							break(2);
 						}
@@ -541,8 +544,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				case 'phpcode':
 					$sName = _wpsf__( 'PHP Code' );
 					break;
-				case 'advanced':
-					$sName = _wpsf__( 'Advanced Rules' );
+				case 'aggressive':
+					$sName = _wpsf__( 'Aggressive Rules' );
 					break;
 				default:
 					$sName = _wpsf__( 'Unknown Rules' );

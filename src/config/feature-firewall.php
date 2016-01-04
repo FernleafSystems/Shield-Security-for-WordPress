@@ -93,6 +93,13 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'block_aggressive'
+    section: 'section_firewall_blocking_options'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'block_response'
     section: 'section_choose_firewall_block_response'
     default: 'redirect_die_message'
@@ -187,7 +194,7 @@ definitions:
       simple:
       regex:
         - '(include|include_once|require|require_once)\\s*\\(.*\\)'
-    advanced:
+    aggressive:
       simple:
         - 'eval('
         - '(null)'
@@ -197,15 +204,13 @@ definitions:
         - '{x.html('
         - ').html('
         - '...'
-        - '<'
-        - '>'
         - '/httpdocs/'
         - '/tmp/'
         - 'boot.ini'
       regex:
-        - 'GLOBALS(=|[|%%)'
-        - 'REQUEST(=|[|%%)'
-        - '(`|<|>|[|]|{|}|?)'
+        - 'GLOBALS(=|\\[|%%)'
+        - 'REQUEST(=|\\[|%%)'
+        - '(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)'
 ",
 		_wpsf__( 'Firewall' ),
 		_wpsf__( 'Automatically block malicious URLs and data sent to your site' )
