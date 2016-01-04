@@ -9,11 +9,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		protected $aWhitelistPages;
 
 		/**
-		 * @var int
-		 */
-		private $nLoopProtect;
-
-		/**
 		 * @var array
 		 */
 		private $aFirewallDieMessage;
@@ -24,17 +19,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		private $bDoFirewallBlock;
 
 		/**
-		 * @var string
-		 */
-		protected $sListItemLabel;
-
-		/**
-		 * This is $m_aOrigPageParams after any parameter whitelisting has taken place
-		 * @var array
-		 */
-		protected $aPageParams;
-
-		/**
 		 * @var array
 		 */
 		protected $aFirewallTripData;
@@ -42,100 +26,106 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		/**
 		 * @var array
 		 */
-		protected $aRawRequestParams;
+		protected $aPatterns;
 
 		/**
-		 * @param ICWP_WPSF_FeatureHandler_Firewall $oFeatureOptions
+		 * After any parameter whitelisting has been accounted for
+		 * @var array
 		 */
-		public function __construct( ICWP_WPSF_FeatureHandler_Firewall $oFeatureOptions ) {
-			parent::__construct( $oFeatureOptions );
+		protected $aPageParams;
 
-			$sMessage = _wpsf__( "You were blocked by the %s." );
-			$this->addToFirewallDieMessage(
-				sprintf(
-					$sMessage,
-					'<a href="http://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
-				)
-			);
-		}
-
-		public function reset() {
-			parent::reset();
-			$this->nLoopProtect = 0;
-		}
+		/**
+		 * @var array
+		 */
+		protected $aRawRequestParams;
 
 		public function run() {
-			$this->bDoFirewallBlock = !$this->doFirewallCheck();
-			$this->doPreFirewallBlock();
-			$this->doFirewallBlock();
+			if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
+				$this->doPreFirewallBlock();
+				$this->doFirewallBlock();
+			}
 		}
 
 		/**
 		 * @return bool
 		 */
 		public function getIfDoFirewallBlock() {
-			return isset( $this->bDoFirewallBlock ) ? $this->bDoFirewallBlock : false;
+			if ( !isset( $this->bDoFirewallBlock ) ) {
+				$this->bDoFirewallBlock = !$this->isVisitorRequestPermitted();
+			}
+			return $this->bDoFirewallBlock;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getIfPerformFirewallScan() {
+			$bPerformScan = true;
+			$oDp = $this->loadDataProcessor();
+
+			if ( count( $this->getRawRequestParams() ) == 0 ) {
+				$bPerformScan = false;
+			}
+
+			// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
+			$aRequestParts = $oDp->getRequestUriParts();
+			if ( $bPerformScan && empty( $aRequestParts ) ) {
+				$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+				$bPerformScan = false;
+			}
+
+			if ( $bPerformScan && $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
+//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
+//				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+				$bPerformScan = false;
+			}
+
+			$aPageParamsToCheck = $this->getParamsToCheck();
+			if ( $bPerformScan && empty( $aPageParamsToCheck ) ) {
+//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('After whitelist options were applied, there were no page parameters to check') );
+//				$this->addToAuditEntry( $sAuditMessage, 1, 'firewall_skip' );
+				$bPerformScan = false;
+			}
+
+			if ( $bPerformScan && $this->getOption('ignore_search_engines') == 'Y' && $oDp->IsSearchEngineBot() ) {
+				$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Visitor detected as Search Engine Bot' ) );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+				$bPerformScan = false;
+			}
+
+			return $bPerformScan;
 		}
 
 		/**
 		 * @return boolean - true if visitor is permitted, false if it should be blocked.
 		 */
-		public function doFirewallCheck() {
-			// Nothing to check in the first place
-			if ( count( $this->getRawRequestParams() ) < 1 ) {
-				return true;
-			}
-
-			$oDp = $this->loadDataProcessor();
-
-			// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
-			$aRequestParts = $oDp->getRequestUriParts();
-			if ( empty( $aRequestParts ) ) {
-				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Parsing the URI failed') );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				return true;
-			}
-
-			if ( $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
-//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
-//				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				return true;
-			}
-
-			if ( $this->getOption('ignore_search_engines') == 'Y' && $oDp->IsSearchEngineBot() ) {
-				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Visitor detected as Search Engine Bot') );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				return true;
-			}
-
-			$aPageParamsToCheck = $this->getParamsToCheck();
-			if ( empty( $aPageParamsToCheck ) ) {
-//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('After whitelist options were applied, there were no page parameters to check') );
-//				$this->addToAuditEntry( $sAuditMessage, 1, 'firewall_skip' );
-				return true;
-			}
+		protected function isVisitorRequestPermitted() {
 
 			$bRequestIsPermitted = true;
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockDirTraversal();
+				$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_sql_queries', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockSqlQueries();
+				$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_wordpress_terms', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockWordpressTerms();
+				$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_field_truncation', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockFieldTruncation();
+				$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckPhpCode();
+				$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheck( 'schema' );
+			}
+			if ( $bRequestIsPermitted && $this->getIsOption( 'block_aggressive', 'Y' ) ) {
+				$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
 			}
 			if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
 				$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
-			}
-			if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
-				$bRequestIsPermitted = $this->doPassCheckBlockLeadingSchema();
 			}
 			return $bRequestIsPermitted;
 		}
@@ -143,98 +133,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		/**
 		 * @return bool
 		 */
-		protected function doPassCheckBlockDirTraversal() {
-			$aTerms = array(
-				'etc/passwd',
-				'proc/self/environ',
-				'../'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__('Firewall Trigger: %s.'), _wpsf__('Directory Traversal') );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.dirtraversal' );
-				$this->setFirewallTrip_Class( 'dirtraversal' );
-			}
-			return $fPass;
-		}
-
-		protected function doPassCheckBlockSqlQueries() {
-			$aTerms = array(
-				'/concat\s*\(/i',
-				'/group_concat/i',
-				'/union.*select/i'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'SQL Queries' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.sqlqueries' );
-				$this->setFirewallTrip_Class( 'sqlqueries' );
-			}
-			return $fPass;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckBlockWordpressTerms() {
-			$aTerms = array(
-				'/^wp_/i',
-				'/^user_login/i',
-				'/^user_pass/i',
-				'/[^0-9]0x[0-9a-f][0-9a-f]/i',
-				'/\/\*\*\//'
-			);
-
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'WordPress Terms' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.wpterms' );
-				$this->setFirewallTrip_Class( 'wpterms' );
-			}
-			return $fPass;
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function doPassCheckBlockFieldTruncation() {
-			$aTerms = array(
-				'/\s{49,}/i',
-				'/\x00/'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Field Truncation' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.fieldtruncation' );
-				$this->setFirewallTrip_Class( 'fieldtruncation' );
-			}
-			return $fPass;
-		}
-
-		protected function doPassCheckPhpCode() {
-			$aTerms = array(
-				'/(include|include_once|require|require_once)(\s*\(|\s*\'|\s*"|\s+\w+)/i'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'PHP Code' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.phpcode' );
-				$this->setFirewallTrip_Class( 'phpcode' );
-			}
-			return $fPass;
-		}
-
 		protected function doPassCheckBlockExeFileUploads() {
-			$aTerms = array(
-				'/\.dll$/i', '/\.rb$/i', '/\.py$/i', '/\.exe$/i', '/\.php[3-6]?$/i', '/\.pl$/i',
-				'/\.perl$/i', '/\.ph[34]$/i', '/\.phl$/i', '/\.phtml$/i', '/\.phtm$/i'
-			);
-
+			$sKey = 'exefile';
+			$bFAIL = false;
 			if ( isset( $_FILES ) && !empty( $_FILES ) ) {
 				$aFileNames = array();
 				foreach( $_FILES as $aFile ) {
@@ -242,156 +143,177 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						$aFileNames[] = $aFile['name'];
 					}
 				}
-				$fPass = $this->doPassCheck( $aFileNames, $aTerms, true );
-				if ( !$fPass ) {
+				$aMatchTerms = $this->getFirewallPatterns( 'exefile' );
+				if ( isset( $aMatchTerms['regex'] ) && is_array( $aMatchTerms['regex'] ) ) {
+
+					$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+					foreach ( $aMatchTerms['regex'] as $sTerm ) {
+						foreach ( $aFileNames as $sParam => $mValue ) {
+							if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
+								$bFAIL = true;
+								break(2);
+							}
+						}
+					}
+				}
+				if ( $bFAIL ) {
 					$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'EXE File Uploads' ) );
 					$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-					$this->doStatIncrement( 'firewall.blocked.exefile' );
-					$this->setFirewallTrip_Class( 'exefile' );
+					$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+					$this->setFirewallTrip_Class( $sKey );
 				}
-				return $fPass;
 			}
-			return true;
-		}
-
-		protected function doPassCheckBlockLeadingSchema() {
-			$aTerms = array(
-				'/^http/i', '/\.shtml$/i'
-			);
-			$fPass = $this->doPassCheck( $this->getParamsToCheck(), $aTerms, true );
-			if ( !$fPass ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'Leading Schema' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.schema' );
-				$this->setFirewallTrip_Class( 'schema' );
-			}
-			return $fPass;
+			return !$bFAIL;
 		}
 
 		/**
-		 * Returns false when check fails - that is to say, it should be blocked by the firewall.
+		 * Returns false when check fails - that is, it should be blocked by the firewall.
 		 *
-		 * @param array $aParamValues
-		 * @param array $aMatchTerms
-		 * @param boolean $bTestRegex
+		 * @param string $sTermsKey
 		 * @return boolean
 		 */
-		private function doPassCheck( $aParamValues, $aMatchTerms, $bTestRegex = false ) {
+		private function doPassCheck( $sTermsKey ) {
+
+			$aMatchTerms = $this->getFirewallPatterns( $sTermsKey );
+			$aParamValues = $this->getParamsToCheck();
+			if ( empty( $aMatchTerms ) || empty( $aParamValues ) ) {
+				return true;
+			}
+
+			$sParam = '';
+			$mValue = '';
 
 			$bFAIL = false;
-			foreach ( $aParamValues as $sParam => $mValue ) {
-				if ( is_array( $mValue ) ) {
+			if ( isset( $aMatchTerms['simple'] ) && is_array( $aMatchTerms['simple'] ) ) {
 
-					// Protection against an infinite loop and we limit depth to 3.
-					if ( $this->nLoopProtect > 2 ) {
-						return true;
-					}
-					else {
-						$this->nLoopProtect++;
-					}
-
-					if ( !$this->doPassCheck( $mValue, $aMatchTerms, $bTestRegex ) ) {
-						return false;
-					}
-
-					$this->nLoopProtect--;
-				}
-				else {
-					$mValue = (string) $mValue;
-					foreach ( $aMatchTerms as $sTerm ) {
-
-						if ( $bTestRegex && preg_match( $sTerm, $mValue ) ) { //dodgy term pattern found in a parameter value
+				foreach ( $aMatchTerms['simple'] as $sTerm ) {
+					foreach ( $aParamValues as $sParam => $mValue ) {
+						if ( is_scalar( $mValue ) && ( stripos( (string)$mValue, $sTerm ) !== false ) ) {
 							$bFAIL = true;
+							break(2);
 						}
-						else if ( strpos( $mValue, $sTerm ) !== false ) { //dodgy term found in a parameter value
-							$bFAIL = true;
-						}
-
-						if ( $bFAIL ) {
-							$this->addToFirewallDieMessage( _wpsf__( "Something in the URL, Form or Cookie data wasn't appropriate." ) );
-							$sAuditMessage = _wpsf__( 'Page parameter failed firewall check.' )
-								. ' ' . sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue );
-							$this->addToAuditEntry( $sAuditMessage, 3 );
-							$this->setFirewallTrip_Parameter( $sParam );
-							$this->setFirewallTrip_Value( $mValue );
-							return false;
-						}
-
-					}//foreach
+					}
 				}
-			}//foreach
+			}
 
-			return true;
+			if ( !$bFAIL && isset( $aMatchTerms['regex'] ) && is_array( $aMatchTerms['regex'] ) ) {
+				$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+				foreach ( $aMatchTerms['regex'] as $sTerm ) {
+					foreach ( $aParamValues as $sParam => $mValue ) {
+						if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
+							$bFAIL = true;
+							break(2);
+						}
+					}
+				}
+			}
+
+			if ( $bFAIL ) {
+				$this->addToFirewallDieMessage( _wpsf__( "Something in the URL, Form or Cookie data wasn't appropriate." ) );
+				$sAuditMessage = _wpsf__( 'Page parameter failed firewall check.' )
+					. ' ' . sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue );
+				$this->addToAuditEntry( $sAuditMessage, 3 );
+				$this->setFirewallTrip_Parameter( $sParam );
+				$this->setFirewallTrip_Value( $mValue );
+
+				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), $this->getFirewallBlockKeyName( $sTermsKey ) );
+				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
+				$this->doStatIncrement( 'firewall.blocked.'.$sTermsKey );
+				$this->setFirewallTrip_Class( $sTermsKey );
+			}
+
+			return !$bFAIL;
 		}
 
+		/**
+		 * @param string $sKey
+		 * @return array|null
+		 */
+		protected function getFirewallPatterns( $sKey = null ) {
+			if ( !isset( $this->aPatterns ) ) {
+				$this->aPatterns = $this->getFeatureOptions()->getOptionsVo()->getFeatureDefinition( 'firewall_patterns' );
+			}
+			if ( !empty( $sKey ) ) {
+				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
+			}
+			return $this->aPatterns;
+		}
+
+		/**
+		 * @param string $sTerm
+		 * @return string
+		 */
+		private function prepRegexTerms( $sTerm ) {
+			return '/' . $sTerm . '/i';
+		}
+
+		/**
+		 */
 		protected function doPreFirewallBlock() {
-			if ( !$this->getIfDoFirewallBlock() ) {
-				return;
-			}
 
-			switch( $this->getOption( 'block_response' ) ) {
-				case 'redirect_die':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor connection was killed with wp_die()') );
-					break;
-				case 'redirect_die_message':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor connection was killed with wp_die() and a message') );
-					break;
-				case 'redirect_home':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor was sent HOME') );
-					break;
-				case 'redirect_404':
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor was sent 404') );
-					break;
-				default:
-					$sEntry = sprintf( _wpsf__('Firewall Block Response: %s.'), _wpsf__('Visitor connection was killed with wp_die() and a message') );
-					break;
-			}
+			if ( $this->getIfDoFirewallBlock() ) {
 
-			$this->addToAuditEntry( $sEntry );
-
-			if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
-
-				$sRecipient = $this->getPluginDefaultRecipientAddress();
-				$fSendSuccess = $this->sendBlockEmail( $sRecipient );
-				if ( $fSendSuccess ) {
-					$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
+				switch( $this->getOption( 'block_response' ) ) {
+					case 'redirect_die':
+						$sMessage = _wpsf__( 'Visitor connection was killed with wp_die()' );
+						break;
+					case 'redirect_die_message':
+						$sMessage = _wpsf__( 'Visitor connection was killed with wp_die() and a message' );
+						break;
+					case 'redirect_home':
+						$sMessage = _wpsf__( 'Visitor was sent HOME' );
+						break;
+					case 'redirect_404':
+						$sMessage = _wpsf__( 'Visitor was sent 404' );
+						break;
+					default:
+						$sMessage = _wpsf__( 'Unknown' );
+						break;
 				}
-				else {
-					$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
-				}
-			}
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Firewall Block Response: %s.' ), $sMessage ) );
 
-			// We now black mark this IP
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+				if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
+
+					$sRecipient = $this->getPluginDefaultRecipientAddress();
+					$fSendSuccess = $this->sendBlockEmail( $sRecipient );
+					if ( $fSendSuccess ) {
+						$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
+					}
+					else {
+						$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
+					}
+				}
+
+				// black mark this IP
+				add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			}
 		}
 
 		/**
 		 */
 		protected function doFirewallBlock() {
 
-			if ( !$this->getIfDoFirewallBlock() ) {
-				return true;
-			}
+			if ( $this->getIfDoFirewallBlock() ) {
 
-			$oWp = $this->loadWpFunctionsProcessor();
-			$sHomeUrl = $oWp->getHomeUrl();
-			switch( $this->getOption( 'block_response' ) ) {
-				case 'redirect_die':
-					break;
-				case 'redirect_die_message':
-					$oWp->wpDie( $this->getFirewallDieMessageForDisplay() );
-					break;
-				case 'redirect_home':
-					header( "Location: ".$sHomeUrl );
-					exit();
-					break;
-				case 'redirect_404':
-					header( "Location: ".$sHomeUrl.'/404' );
-					break;
-				default:
-					break;
+				$oWp = $this->loadWpFunctionsProcessor();
+				$sHomeUrl = $oWp->getHomeUrl();
+				switch( $this->getOption( 'block_response' ) ) {
+					case 'redirect_die':
+						break;
+					case 'redirect_die_message':
+						$oWp->wpDie( $this->getFirewallDieMessageForDisplay() );
+						break;
+					case 'redirect_home':
+						header( "Location: ".$sHomeUrl );
+						break;
+					case 'redirect_404':
+						header( "Location: ".$sHomeUrl.'/404' );
+						break;
+					default:
+						break;
+				}
+				exit();
 			}
-			exit();
 		}
 
 		/**
@@ -399,7 +321,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		protected function getFirewallDieMessage() {
 			if ( !isset( $this->aFirewallDieMessage ) || !is_array( $this->aFirewallDieMessage ) ) {
-				$this->aFirewallDieMessage = array();
+				$this->aFirewallDieMessage = array(
+					sprintf(
+						_wpsf__( "You were blocked by the %s." ),
+						'<a href="http://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
+					)
+				);
 			}
 			return $this->aFirewallDieMessage;
 		}
@@ -509,13 +436,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 					'/wp-login.php'					=> array(
 						'redirect_to'
 					),
-					'/wp-admin/'					=> array(
-						'_wp_original_http_referer'
-					),
 					'*' => array(
 						'verify_sign',
 						'txn_id',
 						'_wp_http_referer',
+						'_wp_original_http_referer',
 						'url',
 						'referredby',
 					)
@@ -588,6 +513,43 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			$aData = $this->getFirewallTripData();
 			$aData['class'] = $sData;
 			$this->aFirewallTripData = $aData;
+		}
+
+		/**
+		 * @param string $sBlockKey
+		 * @return string
+		 */
+		private function getFirewallBlockKeyName( $sBlockKey ) {
+			switch ( $sBlockKey ) {
+				case 'dirtraversal':
+					$sName = _wpsf__( 'Directory Traversal' );
+					break;
+				case 'wpterms':
+					$sName = _wpsf__( 'WordPress Terms' );
+					break;
+				case 'fieldtruncation':
+					$sName = _wpsf__( 'Field Truncation' );
+					break;
+				case 'sqlqueries':
+					$sName = _wpsf__( 'SQL Queries' );
+					break;
+				case 'exefile':
+					$sName = _wpsf__( 'EXE File Uploads' );
+					break;
+				case 'schema':
+					$sName = _wpsf__( 'Leading Schema' );
+					break;
+				case 'phpcode':
+					$sName = _wpsf__( 'PHP Code' );
+					break;
+				case 'aggressive':
+					$sName = _wpsf__( 'Aggressive Rules' );
+					break;
+				default:
+					$sName = _wpsf__( 'Unknown Rules' );
+					break;
+			}
+			return $sName;
 		}
 	}
 
