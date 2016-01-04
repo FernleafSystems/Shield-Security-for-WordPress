@@ -282,6 +282,7 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.14.3 Latest Point Release =
 *Released: 4th January, 2015*
 
+* **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
 * **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
 * **(v.0)**  TRANSLATIONS:	Czech (91%), Finnish (98%), Turkish (98%).
 
