@@ -279,9 +279,18 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.14.3 Latest Point Release =
+= 4.15.0 Latest Point Release =
 *Released: 4th January, 2015*
+* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
+* **(v.0)**  CHANGED:		Improved and optimized Firewall processing.
+* **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
+* **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
+* **(v.0)**  TRANSLATIONS:	Czech (91%), Finnish (98%), Turkish (98%).
 
+= 4.15 Series =
+*Released: 5th January, 2015*
+* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
+* **(v.0)**  CHANGED:		Improved and optimized Firewall processing.
 * **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
 * **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
 * **(v.0)**  TRANSLATIONS:	Czech (91%), Finnish (98%), Turkish (98%).
@@ -289,7 +298,7 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.14 Series =
 *Released: 20th November, 2015*
 
-* **(v.2)**  ADDED:			User notice message displayed when the 'Theme My Login' plugin is active and you try to rename your login URL. It is not compatible.
+* **(v.2)**  ADDED:			User notice message displayed when the 'Theme My Login' plugin is active and you try to rename your login URL - It is not compatible.
 * **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
 * **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
 * **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
