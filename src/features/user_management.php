@@ -88,7 +88,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 					break;
 
 				case 'section_bypass_user_accounts_management' :
-					$sTitle = _wpsf__('By-Pass User Accounts Management');
+					$sTitle = _wpsf__( 'By-Pass User Accounts Management' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned off unless you know you need it.' ) )
@@ -97,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 					break;
 
 				case 'section_admin_login_notification' :
-					$sTitle = _wpsf__('Admin Login Notification');
+					$sTitle = _wpsf__( 'Admin Login Notification' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -105,8 +105,17 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 					$sTitleShort = _wpsf__( 'Notifications' );
 					break;
 
+				case 'section_two_factor_auth' :
+					$sTitle = _wpsf__( 'Two Factor Authentication' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
+					);
+					$sTitleShort = _wpsf__( 'Notifications' );
+					break;
+
 				case 'section_user_session_management' :
-					$sTitle = _wpsf__('User Session Management');
+					$sTitle = _wpsf__( 'User Session Management' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -150,6 +159,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 					$sSummary = _wpsf__( 'Send An Notification Email When Administrator Logs In' );
 					$sDescription = _wpsf__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.' )
 									.'<br />'._wpsf__( 'No email address - No Notification.' );
+					break;
+
+				case 'enable_email_based_two_factor_auth' :
+					$sName = _wpsf__( 'Email Based Two-Factor Authentication' );
+					$sSummary = sprintf( _wpsf__( 'Two-Factor Login Authentication By %s' ), _wpsf__('Email') );
+					$sDescription = _wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication.' );
 					break;
 
 				case 'session_timeout_interval' :

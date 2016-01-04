@@ -19,6 +19,8 @@ sections:
   -
     slug: 'section_bypass_user_accounts_management'
   -
+    slug: 'section_two_factor_auth'
+  -
     slug: 'section_admin_login_notification'
   -
     slug: 'section_non_ui'
@@ -45,6 +47,13 @@ options:
     section: 'section_admin_login_notification'
     default: ''
     type: 'email'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'enable_email_based_two_factor_auth'
+    section: 'section_two_factor_auth'
+    default: 'N'
+    type: 'checkbox'
     link_info: ''
     link_blog: ''
   -
