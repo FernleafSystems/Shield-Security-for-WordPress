@@ -157,14 +157,6 @@ options:
     link_info: 'http://icwp.io/4h'
     link_blog: ''
   -
-    key: 'enable_login_protect_log'
-    section: 'section_login_logging'
-    hidden: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/4h'
-    link_blog: ''
-  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -

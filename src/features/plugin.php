@@ -257,12 +257,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'IP Address White List' );
 			_wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' );
 			_wpsf__( 'Your IP address is: %s' );
-			_wpsf__('Choose IP Addresses To Blacklist');
-			_wpsf__( 'IP Address blacklists are nearly completely useless but is provided here in case absolutely required.' );
+			_wpsf__( 'Choose IP Addresses To Blacklist' );
 			_wpsf__( 'Recommendation - %s' );
-			_wpsf__( 'Do not blacklist anything unless you are confident in what you are doing.' );
 			_wpsf__( 'Blacklist' );
-			_wpsf__( 'Firewall Logging Options' );
 			_wpsf__( 'Logging' );
 		}
 	}
