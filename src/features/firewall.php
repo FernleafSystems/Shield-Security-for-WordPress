@@ -76,11 +76,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sTitleShort = _wpsf__( 'Whitelist' );
 					break;
 
-				case 'section_firewall_logging' :
-					$sTitle = _wpsf__( 'Firewall Logging Options' );
-					$sTitleShort = _wpsf__( 'Logging' );
-					break;
-
 				default:
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );

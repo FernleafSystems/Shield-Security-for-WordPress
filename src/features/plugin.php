@@ -262,6 +262,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'Recommendation - %s' );
 			_wpsf__( 'Do not blacklist anything unless you are confident in what you are doing.' );
 			_wpsf__( 'Blacklist' );
+			_wpsf__( 'Firewall Logging Options' );
+			_wpsf__( 'Logging' );
 		}
 	}
 
