@@ -96,8 +96,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 */
 		protected function formatIpListData( $aListData ) {
 			$oWp = $this->loadWpFunctionsProcessor();
-			$sTimeFormat = $oWp->getTimeFormat();
-			$sDateFormat = $oWp->getDateFormat();
 
 			foreach( $aListData as &$aListItem ) {
 				$aListItem[ 'ip_link' ] =
@@ -217,9 +215,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		protected function renderListTable( $sListToRender ) {
-			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-			$oProcessor = $this->getProcessor();
-
 			$oWp = $this->loadWpFunctionsProcessor();
 			$aRenderData = array(
 				'list_id' => $sListToRender,
