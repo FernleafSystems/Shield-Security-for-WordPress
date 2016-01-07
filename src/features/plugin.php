@@ -52,17 +52,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return array
-		 */
-		public function getIpWhitelistOption() {
-			$aList = $this->getOpt( 'ip_whitelist', array() );
-			if ( empty( $aList ) || !is_array( $aList ) ){
-				$aList = array();
-			}
-			return $aList;
-		}
-
-		/**
 		 * @param array $aSummaryData
 		 * @return array
 		 */
@@ -151,14 +140,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
 					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $this->getController()->getHumanName() );
-					break;
-
-				case 'ip_whitelist' :
-					$sName = _wpsf__( 'IP Whitelist' );
-					$sSummary = _wpsf__( 'IP Address White List' );
-					$sDescription = sprintf( _wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' ) )
-									.'<br />'.sprintf( _wpsf__( 'Your IP address is: %s' ), '<span class="code">'.( $this->loadDataProcessor()->getVisitorIpAddress() ).'</span>' )
-									.'<br /><strong>This option is deprecated - Please use the IP Manager to set white list IPs.</strong>';
 					break;
 
 				case 'block_send_email_address' :
@@ -266,6 +247,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$oWpUsers->deleteUserMeta( $this->prefixOptionKey( $sOldMeta ) );
 				}
 			}
+		}
+
+		/**
+		 * Kept just in-case.
+		 */
+		private function old_translations() {
+			_wpsf__( 'IP Whitelist' );
+			_wpsf__( 'IP Address White List' );
+			_wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' );
+			_wpsf__( 'Your IP address is: %s' );
 		}
 	}
 

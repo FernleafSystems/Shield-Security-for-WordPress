@@ -332,7 +332,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 */
 		public function action_doFeatureShutdown() {
 			if ( ! $this->getIsPluginDeleting() ) {
-				$this->moveIpsFromLegacyWhiteList();
 				$this->addFilterIpsToWhiteList();
 				$this->ensureFeatureEnabled();
 			}
@@ -346,23 +345,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				$oProcessor = $this->getProcessor();
 				foreach( $aIps as $sIP => $sLabel ) {
 					$oProcessor->addIpToWhiteList( $sIP, $sLabel );
-				}
-			}
-		}
-
-		protected function moveIpsFromLegacyWhiteList() {
-			$oCore =& $this->getController()->loadCorePluginFeatureHandler();
-			$aIps = $oCore->getIpWhitelistOption();
-			if ( !empty( $aIps ) && is_array( $aIps ) ) {
-				/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-				$oProcessor = $this->getProcessor();
-				foreach( $aIps as $nIndex => $sIP ) {
-					$mResult = $oProcessor->addIpToWhiteList( $sIP, 'legacy' );
-					if ( $mResult != false ) {
-						unset( $aIps[ $nIndex ] );
-						$oCore->setOpt( 'ip_whitelist', $aIps );
-						$oCore->savePluginOptions(); // clearly not efficient to set every time, but simpler as this should only get run once.
-					}
 				}
 			}
 		}

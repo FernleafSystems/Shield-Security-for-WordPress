@@ -70,13 +70,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'ip_whitelist'
-    section: 'section_global_security_options'
-    default: ''
-    type: 'array'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'block_send_email_address'
     section: 'section_general_plugin_options'
     default: ''
