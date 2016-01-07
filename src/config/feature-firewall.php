@@ -20,8 +20,6 @@ sections:
   -
     slug: 'section_whitelist'
   -
-    slug: 'section_blacklist'
-  -
     slug: 'section_firewall_logging'
   -
     slug: 'section_non_ui'

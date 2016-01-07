@@ -76,15 +76,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sTitleShort = _wpsf__( 'Whitelist' );
 					break;
 
-				case 'section_blacklist' :
-					$sTitle = _wpsf__('Choose IP Addresses To Blacklist');
-					$aSummary = array(
-						_wpsf__( 'IP Address blacklists are nearly completely useless but is provided here in case absolutely required.' ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not blacklist anything unless you are confident in what you are doing.' ) )
-					);
-					$sTitleShort = _wpsf__( 'Blacklist' );
-					break;
-
 				case 'section_firewall_logging' :
 					$sTitle = _wpsf__( 'Firewall Logging Options' );
 					$sTitleShort = _wpsf__( 'Logging' );
