@@ -306,6 +306,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 			if ( empty( $aUpdateResults ) || !is_array( $aUpdateResults ) ) {
 				return;
 			}
+
+			// Are there really updates?
+			$bReallyUpdates = false;
+
 			$aEmailContent = array(
 				sprintf(
 					_wpsf__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.' ),
@@ -315,26 +319,58 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 			);
 
 			if ( !empty( $aUpdateResults['plugin'] ) && is_array( $aUpdateResults['plugin'] ) ) {
-				$aEmailContent[] = _wpsf__( 'Plugins Updated:' );
+				$bHasPluginUpdates = false;
+				$aTempContent[] = _wpsf__( 'Plugins Updated:' );
 				foreach( $aUpdateResults['plugin'] as $oUpdateItem ) {
-					$aEmailContent[] = ' - '.sprintf( 'Plugin "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
+					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result ) {
+						$aTempContent[] = ' - '.sprintf( 'Plugin "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
+						$bHasPluginUpdates = true;
+					}
+				}
+				$aTempContent[] = '';
+
+				if ( $bHasPluginUpdates ) {
+					$bReallyUpdates = true;
+					$aEmailContent = array_merge( $aEmailContent, $aTempContent );
 				}
 			}
 
 			if ( !empty( $aUpdateResults['theme'] ) && is_array( $aUpdateResults['theme'] ) ) {
-				$aEmailContent[] = _wpsf__( 'Themes Updated:' );
+				$bHasThemesUpdates = false;
+				$aTempContent = array( _wpsf__( 'Themes Updated:' ) );
 				foreach( $aUpdateResults['theme'] as $oUpdateItem ) {
-					$aEmailContent[] = ' - '.sprintf( 'Theme "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
+					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result ) {
+						$aTempContent[] = ' - '.sprintf( 'Theme "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
+						$bHasThemesUpdates = true;
+					}
 				}
-				$aEmailContent[] = '';
+				$aTempContent[] = '';
+
+				if ( $bHasThemesUpdates ) {
+					$bReallyUpdates = true;
+					$aEmailContent = array_merge( $aEmailContent, $aTempContent );
+				}
 			}
 
 			if ( !empty( $aUpdateResults['core'] ) && is_array( $aUpdateResults['core'] ) ) {
-				$aEmailContent[] = _wpsf__( 'WordPress Core Updated:' );
+				$bHasCoreUpdates = false;
+				$aTempContent = array( _wpsf__( 'WordPress Core Updated:' ) );
 				foreach( $aUpdateResults['core'] as $oUpdateItem ) {
-					$aEmailContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdateItem->name );
+					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result ) {
+						$aTempContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdateItem->name );
+						$bHasCoreUpdates = true;
+					}
 				}
-				$aEmailContent[] = '';
+				$aTempContent[] = '';
+
+				if ( $bHasCoreUpdates ) {
+					$bReallyUpdates = true;
+					$aEmailContent = array_merge( $aEmailContent, $aTempContent );
+				}
+			}
+
+			if ( !$bReallyUpdates ) {
+				return;
 			}
 
 			$aEmailContent[] = _wpsf__( 'Thank you.' );

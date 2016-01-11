@@ -13,14 +13,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 		}
 
 		public function doPrePluginOptionsSave() {
-
-//		if ( $this->getOpt( 'action_reset_auth_salts' ) == 'Y' ) {
-//			$this->setOpt( 'action_reset_auth_salts', 'P' );
-//		}
-//		else if ( $this->getOpt( 'action_reset_auth_salts' ) == 'P' ) {
-//			$this->setOpt( 'action_reset_auth_salts', 'N' );
-//		}
-
 			$sCurrent = $this->getOpt( 'mask_wordpress_version' );
 			if ( !empty( $sCurrent ) ) {
 				$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sCurrent ) );

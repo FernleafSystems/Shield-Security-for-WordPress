@@ -20,10 +20,6 @@ sections:
   -
     slug: 'section_whitelist'
   -
-    slug: 'section_blacklist'
-  -
-    slug: 'section_firewall_logging'
-  -
     slug: 'section_non_ui'
     hidden: true
 
@@ -93,6 +89,13 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'block_aggressive'
+    section: 'section_firewall_blocking_options'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'block_response'
     section: 'section_choose_firewall_block_response'
     default: 'redirect_die_message'
@@ -143,6 +146,67 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+
+# Definitions for constant data that doesn't need store in the options
+definitions:
+  firewall_patterns:
+    dirtraversal:
+      simple:
+        - 'etc/passwd'
+        - 'proc/self/environ'
+        - 'etc/passwd'
+        - 'makefile'
+        - 'wwwroot'
+        - 'pingserver'
+        - '../'
+        - 'loopback'
+    wpterms:
+      simple:
+        - '/**/'
+        - 'wp-config.php'
+      regex:
+        - '^wp_'
+        - '^user_login'
+        - '^user_pass'
+        - '[^0-9]0x[0-9a-f][0-9a-f]'
+    fieldtruncation:
+      regex:
+        - '\\s{49,}'
+        - '\\x00'
+    sqlqueries:
+      regex:
+        - 'concat\\s*\\('
+        - 'group_concat'
+        - 'union.*select'
+    exefile:
+      regex:
+        - '\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$'
+    schema:
+      simple:
+        - '.shtml'
+      regex:
+        - '^(http|https|ftp|file):'
+    phpcode:
+      simple:
+      regex:
+        - '(include|include_once|require|require_once)\\s*\\(.*\\)'
+    aggressive:
+      simple:
+        - 'eval('
+        - '(null)'
+        - 'base64_'
+        - 'localhost'
+        - '(function('
+        - '{x.html('
+        - ').html('
+        - '...'
+        - '/httpdocs/'
+        - '/tmp/'
+        - 'boot.ini'
+      regex:
+        - 'GLOBALS(=|\\[|%%)'
+        - 'REQUEST(=|\\[|%%)'
+        - '(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)'
 ",
 		_wpsf__( 'Firewall' ),
 		_wpsf__( 'Automatically block malicious URLs and data sent to your site' )

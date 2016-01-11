@@ -32,13 +32,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 	protected $oProcessorYubikey;
 
 	/**
-	 * @return bool|void
-	 */
-	public function getIsLogging() {
-		return $this->getIsOption( 'enable_login_protect_log', 'Y' );
-	}
-
-	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
