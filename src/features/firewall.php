@@ -76,20 +76,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sTitleShort = _wpsf__( 'Whitelist' );
 					break;
 
-				case 'section_blacklist' :
-					$sTitle = _wpsf__('Choose IP Addresses To Blacklist');
-					$aSummary = array(
-						_wpsf__( 'IP Address blacklists are nearly completely useless but is provided here in case absolutely required.' ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not blacklist anything unless you are confident in what you are doing.' ) )
-					);
-					$sTitleShort = _wpsf__( 'Blacklist' );
-					break;
-
-				case 'section_firewall_logging' :
-					$sTitle = _wpsf__( 'Firewall Logging Options' );
-					$sTitleShort = _wpsf__( 'Logging' );
-					break;
-
 				default:
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
@@ -165,7 +151,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 				case 'block_aggressive' :
 					$sName = _wpsf__( 'Aggressive Scan' );
 					$sSummary = _wpsf__( 'Aggressively Block Data' );
-					$sDescription = _wpsf__( 'Uses a set of aggressive rules to detect and block data submitted to your site.' );
+					$sDescription = _wpsf__( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.' )
+						.'<br />'. sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'May cause an increase in false-positive firewall blocks.' ) );
 					break;
 
 				case 'block_leading_schema' :

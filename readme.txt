@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.14.3
+Stable tag: 4.15.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -280,15 +280,16 @@ You can add some custom code to your functions.php exactly as the following:
 == Changelog ==
 
 = 4.15.0 Latest Point Release =
-*Released: 4th January, 2015*
-* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive Rules' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
+*Released: 6th January, 2015*
+* **(v.0)**  ADDED:			New and updated Firewall rules, as well as a new 'Aggressive Rules' option that looks for additional malicious request data. Disabled by default, but may cause an increase in false positives.
 * **(v.0)**  CHANGED:		Improved and optimized Firewall processing.
 * **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
 * **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
 * **(v.0)**  TRANSLATIONS:	Czech (91%), Finnish (98%), Turkish (98%).
+* **(v.0)**  REMOVED:		Removed old code pertaining to outdated and unused options - including the old IP White List.
 
 = 4.15 Series =
-*Released: 5th January, 2015*
+*Released: 6th January, 2015*
 * **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
 * **(v.0)**  CHANGED:		Improved and optimized Firewall processing.
 * **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).

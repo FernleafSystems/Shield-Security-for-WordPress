@@ -1,10 +1,9 @@
 <?php
-
-if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_WPSF_FeatureHandler_AuditTrail_V1 extends ICWP_WPSF_FeatureHandler_Base {
+	class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_Base {
 
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
@@ -41,10 +40,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 				'sFeatureName'		=> _wpsf__('Audit Trail Viewer')
 			);
 
-			$oWp = $this->loadWpFunctionsProcessor();
-			$sTimeFormat = $oWp->getTimeFormat();
-			$sDateFormat = $oWp->getDateFormat();
-
 			$aAudits = array();
 			foreach( $aContexts as $sContext ) {
 				$aAuditContext = array();
@@ -55,7 +50,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 					foreach( $aAuditData as &$aAuditEntry ) {
 						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
 						$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
-						$aAuditEntry[ 'created_at' ] = $oWp->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
+						$aAuditEntry[ 'created_at' ] = $this->loadWpFunctionsProcessor()->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
 					}
 				}
 				$aAuditContext['trail'] = $aAuditData;
@@ -228,5 +223,3 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail_V1', false ) ):
 	}
 
 endif;
-
-class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_AuditTrail_V1 { }

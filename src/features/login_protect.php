@@ -301,13 +301,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 									.'<br />- '. _wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
 					break;
 
-				case 'enable_login_protect_log' :
-					$sName = _wpsf__( 'Login Protect Logging' );
-					$sSummary = _wpsf__( 'Turn on a detailed Login Protect Log' );
-					$sDescription = _wpsf__( 'Will log every event related to login protection and how it is processed. ' )
-									.'<br />'. _wpsf__( 'Not recommended to leave on unless you want to debug something and check the login protection is working as you expect.' );
-					break;
-
 				default:
 					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 			}
