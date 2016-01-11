@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.15.0-beta
+Stable tag: 4.15.0
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -286,6 +286,7 @@ You can add some custom code to your functions.php exactly as the following:
 * **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
 * **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
 * **(v.0)**  TRANSLATIONS:	Czech (91%), Finnish (98%), Turkish (98%).
+* **(v.0)**  REMOVED:		Removed old code pertaining to outdated and unused options - including the old IP White List.
 
 = 4.15 Series =
 *Released: 6th January, 2015*
