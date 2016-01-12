@@ -34,8 +34,8 @@ options:
     section: 'section_plugin_vulnerabilities_scan'
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/wpsf34'
+    link_blog: 'http://icwp.io/wpsf35'
   -
     key: 'enable_core_file_integrity_scan'
     section: 'section_core_file_integrity_scan'
