@@ -31,9 +31,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		public function cron_dailyChecksumScan() {
 			$sChecksumContent = $this->loadFileSystemProcessor()->getUrlContent( $this->getChecksumUrl() );
 
-			$oFS = $this->loadFileSystemProcessor();
-
-			$aExclusions = array( 'wp-config-sample.php' );
+			$aExclusions = array(
+				'hello\.php',
+				'wp-config-sample\.php',
+				'akismet'
+			);
+			$sExclusionsPattern = '/('.implode('|', $aExclusions).')/i';
 
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
@@ -44,19 +47,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 						'missing' => array(),
 					);
 
+					$oFS = $this->loadFileSystemProcessor();
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
-						if ( in_array( $oChecksumData->checksums, $aExclusions ) ) {
+						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
 							continue;
 						}
+
+						$bBad = false;
 
 						$sFullPath = ABSPATH . $sFilePath;
 						if ( $oFS->isFile( $sFullPath ) ) {
 							if ( $sChecksum != md5_file( $sFullPath ) ) {
 								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
+								$bBad = true;
 							}
 						}
 						else {
 							$aFiles[ 'missing' ][] = $sFilePath;
+							$bBad = true;
+						}
+
+						if ( $bBad ) {
+							$this->replaceFileContentsWithOfficial( $sFilePath );
 						}
 					}
 
