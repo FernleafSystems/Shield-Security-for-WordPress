@@ -33,6 +33,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 			$oFS = $this->loadFileSystemProcessor();
 
+			$aExclusions = array( 'wp-config-sample.php' );
+
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
 				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
@@ -43,24 +45,45 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					);
 
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
-						if ( $oFS->isFile( ABSPATH.$sFilePath ) ) {
-							if ( $sChecksum != md5_file( ABSPATH . $sFilePath ) ) {
-								echo $sFilePath;
-								var_dump( $this->downloadSingleWordPressCoreFile( $sFilePath ) );
+						if ( in_array( $oChecksumData->checksums, $aExclusions ) ) {
+							continue;
+						}
+
+						$sFullPath = ABSPATH . $sFilePath;
+						if ( $oFS->isFile( $sFullPath ) ) {
+							if ( $sChecksum != md5_file( $sFullPath ) ) {
+								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
 							}
 						}
+						else {
+							$aFiles[ 'missing' ][] = $sFilePath;
+						}
 					}
-				}
 
+					if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {
+						$sRecipient = $this->getPluginDefaultRecipientAddress();
+						$this->sendChecksumErrorNotification( $aFiles, $sRecipient );
+					}
+
+
+				}
 			}
-//			$sRecipient = $this->getPluginDefaultRecipientAddress();
-//			$this->sendVulnerabilityNotification( $sRecipient );
 		}
 
+		/**
+		 * @param $sPath
+		 * @return false|string
+		 */
 		protected function downloadSingleWordPressCoreFile( $sPath ) {
 			$sBaseSvnUrl = $this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
 			$sFileUrl = path_join( $sBaseSvnUrl, $sPath );
 			return $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
+		}
+
+		protected function replaceFileContentsWithOfficial( $sPath ) {
+			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sPath );
+			if ( !empty( $sOfficialContent ) ) {
+			}
 		}
 
 		/**
@@ -77,33 +100,46 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
+		 * @param array $aFiles
 		 * @param string $sRecipient
 		 * @return bool
 		 */
-		protected function sendVulnerabilityNotification( $sRecipient ) {
-
-			if ( empty( $this->aPluginVulnerabilitiesEmailContents ) ) {
+		protected function sendChecksumErrorNotification( $aFiles, $sRecipient ) {
+			if ( empty( $aFiles ) && empty( $aFiles['missing'] ) && empty( $aFiles['checksum_mismatch'] ) ) {
 				return true;
 			}
 
-			$aPreamble = array(
-				sprintf( _wpsf__( '%s has detected a plugin with a known security vulnerability on your site.' ), $this->getController()->getHumanName() ),
-				_wpsf__( 'Details for the plugin(s) are below:' ),
+			$aContent = array(
+				sprintf( _wpsf__( '%s has detected files on your site with problems.' ), $this->getController()->getHumanName() ),
+				_wpsf__( 'Details for the files are below:' ),
 				'',
 			);
 
-			$this->aPluginVulnerabilitiesEmailContents = array_merge( $aPreamble, $this->aPluginVulnerabilitiesEmailContents );
-			$this->aPluginVulnerabilitiesEmailContents[ ] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
+			if ( !empty( $aFiles['checksum_mismatch'] ) ) {
+				$aContent[] = '';
+				$aContent[] = _wpsf__('The MD5 Checksum Hashes for following core files do not match the official WordPress.org Checksum Hashes:');
+				foreach( $aFiles['checksum_mismatch'] as $sFile ) {
+					$aContent[] = ' - ' . $sFile;
+				}
+			}
+			if ( !empty( $aFiles['missing'] ) ) {
+				$aContent[] = '';
+				$aContent[] = _wpsf__('The following official WordPress core files are missing from your site:');
+				foreach( $aFiles['missing'] as $sFile ) {
+					$aContent[] = ' - ' . $sFile;
+				}
+			}
 
-			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
+			$aContent[] = _wpsf__( 'You should replace these files with official versions.' );
 
-			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $this->aPluginVulnerabilitiesEmailContents );
+			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Discovered Core WordPress Files(s) That May Have Been Modified.' ) );
+			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 
 			if ( $bSendSuccess ) {
-				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Checksum Scan Notification email alert to: %s' ), $sRecipient ) );
 			}
 			else {
-				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Checksum Scan Notification email alert to: %s' ), $sRecipient ) );
 			}
 			return $bSendSuccess;
 		}
