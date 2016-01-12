@@ -64,8 +64,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 						$sRecipient = $this->getPluginDefaultRecipientAddress();
 						$this->sendChecksumErrorNotification( $aFiles, $sRecipient );
 					}
-
-
 				}
 			}
 		}
@@ -80,10 +78,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			return $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
 		}
 
+		/**
+		 * @param string $sPath
+		 * @return bool|null
+		 */
 		protected function replaceFileContentsWithOfficial( $sPath ) {
 			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sPath );
 			if ( !empty( $sOfficialContent ) ) {
+				return $this->loadFileSystemProcessor()->putFileContent( path_join( ABSPATH, $sPath ), $sOfficialContent );
 			}
+			return false;
 		}
 
 		/**
