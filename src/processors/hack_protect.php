@@ -21,6 +21,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 			add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
 			$this->runPluginVulnerabilities();
+			$this->runChecksumScan();
 		}
 
 		/**
@@ -28,6 +29,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		protected function runPluginVulnerabilities() {
 			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_pluginvulnerabilities.php' );
 			$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeatureOptions() );
+			$oPv->run();
+		}
+
+		/**
+		 */
+		protected function runChecksumScan() {
+			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_corechecksum.php' );
+			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksum( $this->getFeatureOptions() );
 			$oPv->run();
 		}
 

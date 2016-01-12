@@ -231,7 +231,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		protected function getFirewallPatterns( $sKey = null ) {
 			if ( !isset( $this->aPatterns ) ) {
-				$this->aPatterns = $this->getFeatureOptions()->getOptionsVo()->getFeatureDefinition( 'firewall_patterns' );
+				$this->aPatterns = $this->getFeatureOptions()->getDefinition( 'firewall_patterns' );
 			}
 			if ( !empty( $sKey ) ) {
 				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
