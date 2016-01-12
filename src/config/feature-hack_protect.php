@@ -5,20 +5,51 @@ return
 slug: 'hack_protect'
 properties:
   name: '%s'
-  show_feature_menu_item: false
+  show_feature_menu_item: true
   storage_key: 'hack_protect' # should correspond exactly to that in the plugin.yaml
-  auto_enabled: true
 # Options Sections
 sections:
   -
     slug: 'section_enable_plugin_feature_hack_protection_tools'
     primary: true
   -
+    slug: 'section_plugin_vulnerabilities_scan'
+  -
+    slug: 'section_core_file_integrity_scan'
+  -
     slug: 'section_non_ui'
     hidden: true
 
 # Define Options
 options:
+  -
+    key: 'enable_hack_protect'
+    section: 'section_enable_plugin_feature_hack_protection_tools'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'enable_plugin_vulnerabilities_scan'
+    section: 'section_plugin_vulnerabilities_scan'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'enable_core_file_integrity_scan'
+    section: 'section_core_file_integrity_scan'
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'attempt_auto_file_repair'
+    section: 'section_core_file_integrity_scan'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'

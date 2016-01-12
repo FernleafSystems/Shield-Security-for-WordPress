@@ -94,7 +94,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
 
-			$oDp = $this->loadDataProcessor();
 			$sKey = $aOptionsParams['key'];
 
 			switch( $sKey ) {

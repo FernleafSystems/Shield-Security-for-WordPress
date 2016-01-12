@@ -9,7 +9,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		/**
 		 */
 		public function run() {
-			$this->cron_dailyChecksumScan();
+			$this->setupChecksumCron();
 		}
 
 		protected function setupChecksumCron() {
@@ -67,7 +67,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 							$bBad = true;
 						}
 
-						if ( $bBad ) {
+						if ( $bBad && $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
 							$this->replaceFileContentsWithOfficial( $sFilePath );
 						}
 					}
