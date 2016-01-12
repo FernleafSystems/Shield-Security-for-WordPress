@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksum', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_WPSF_Processor_HackProtect_CoreChecksum extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_Base {
 
 		/**
 		 */
@@ -29,7 +29,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksum', false ) ):
 		}
 
 		public function cron_dailyChecksumScan() {
-			var_dump( $this->getChecksumUrl() );
 			$sChecksumContent = $this->loadFileSystemProcessor()->getUrlContent( $this->getChecksumUrl() );
 
 			$oFS = $this->loadFileSystemProcessor();
@@ -37,6 +36,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksum', false ) ):
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
 				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
+
+					$aFiles = array(
+						'checksum_mismatch' => array(),
+						'missing' => array(),
+					);
+
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
 						if ( $oFS->isFile( ABSPATH.$sFilePath ) ) {
 							if ( $sChecksum != md5_file( ABSPATH . $sFilePath ) ) {
@@ -46,7 +51,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksum', false ) ):
 						}
 					}
 				}
-				die('dione');
+
 			}
 //			$sRecipient = $this->getPluginDefaultRecipientAddress();
 //			$this->sendVulnerabilityNotification( $sRecipient );
@@ -55,9 +60,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksum', false ) ):
 		protected function downloadSingleWordPressCoreFile( $sPath ) {
 			$sBaseSvnUrl = $this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
 			$sFileUrl = path_join( $sBaseSvnUrl, $sPath );
-			var_dump( $sFileUrl );
-			$sData = $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
-			return $sData;
+			return $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
 		}
 
 		/**

@@ -36,7 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		 */
 		protected function runChecksumScan() {
 			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_corechecksum.php' );
-			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksum( $this->getFeatureOptions() );
+			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeatureOptions() );
 			$oPv->run();
 		}
 

@@ -38,7 +38,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		protected function setupNotificationsCron() {
 			$oWpCron = $this->loadWpCronProcessor();
 			$oWpCron->createCronJob(
-				$this->getFeatureOptions()->prefixOptionKey( $this->getOption( 'notifications_cron_name' ) ),
+				$this->getCronName(),
 				array( $this, 'cron_dailyPluginVulnerabilitiesScan' ),
 				'daily'
 			);
@@ -48,8 +48,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		/**
 		 */
 		public function deleteCron() {
-			$oWpCron = $this->loadWpCronProcessor();
-			$oWpCron->deleteCronJob( $this->getFeatureOptions()->prefixOptionKey( $this->getOption( 'notifications_cron_name' ) ) );
+			$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
 		}
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
@@ -215,7 +214,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			$oWp = $this->loadWpFunctionsProcessor();
 			$oFO = $this->getFeatureOptions();
 
-			$sSource = $this->getOption( 'plugin_vulnerabilities_data_source' );
+			$sSource = $oFO->getDefinition( 'plugin_vulnerabilities_data_source' );
 			$sRawSource = $this->loadFileSystemProcessor()->getUrlContent( $sSource );
 			if ( $sRawSource === false ) {
 				return false;
@@ -227,6 +226,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 				return $aPluginVulnerabilitiesParsed;
 			}
 			return false;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getCronName() {
+			$oFO = $this->getFeatureOptions();
+			return $oFO->prefixOptionKey( $oFO->getDefinition( 'notifications_cron_name' ) );
 		}
 	}
 
