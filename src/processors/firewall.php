@@ -433,9 +433,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'url',
 						'comment'
 					),
-					'/wp-login.php'					=> array(
-						'redirect_to'
-					),
 					'*' => array(
 						'verify_sign',
 						'txn_id',
@@ -443,6 +440,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'_wp_original_http_referer',
 						'url',
 						'referredby',
+						'redirect_to'
 					)
 				);
 
