@@ -69,20 +69,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ):
 
 				case 'enable_plugin_vulnerabilities_scan' :
 					$sName = _wpsf__( 'Plugin Vulnerabilities Scanner' );
-					$sSummary = _wpsf__( 'Scans Plugins For Known Vulnerabilities' );
+					$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) ) ;
 					$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.' );
 					break;
 
 				case 'enable_core_file_integrity_scan' :
 					$sName = _wpsf__( 'Core File Scanner' );
-					$sSummary = _wpsf__( 'Scans WordPress Core Files For Changes' );
-					$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' );
+					$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans WordPress Core Files For Alterations' ) ) ;
+					$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
+					.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
 					break;
 
 				case 'attempt_auto_file_repair' :
 					$sName = _wpsf__( 'Auto Repair' );
-					$sSummary = _wpsf__( 'Automatically Repairs Changed Core Files' );
-					$sDescription = _wpsf__( 'Attempts to automatically repair WordPress Core files with official WordPress file data, for files that have changed or missing.' );
+					$sSummary = _wpsf__( 'Automatically Repair WordPress Core Files That Have Been Altered' );
+					$sDescription = _wpsf__( 'Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing.' );
 					break;
 
 				default:
