@@ -287,6 +287,8 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.16 Series =
 *Released: 17th January, 2016*
 
+* **(v.0)**  ADDED:			New Cron: Automatically scans WordPress Core files and looks for alterations from the default WordPress Core File data
+
 = 4.15 Series =
 *Released: 6th January, 2016*
 
