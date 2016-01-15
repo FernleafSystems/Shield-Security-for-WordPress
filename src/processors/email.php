@@ -9,7 +9,6 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	const Slug = 'email';
 	
 	protected $m_sRecipientAddress;
-	protected $m_sSiteName;
 
 	/**
 	 * @var string
@@ -55,11 +54,11 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getEmailFooter() {
 		return array(
-			'',
+			'', '',
 			sprintf(
 				_wpsf__( 'This email was sent as part of the %s plugin, provided by %s.' ),
 				$this->getController()->getHumanName(),
-				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP Multiple WordPress Management' )
+				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP - WordPress Management and Backup Protection For Professionals' )
 			)
 		);
 	}

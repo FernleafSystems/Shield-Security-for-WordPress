@@ -10,6 +10,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 */
 		public function run() {
 			$this->setupChecksumCron();
+			if ( $this->loadDataProcessor()->FetchGet( 'force_checksumscan' ) == 1 ) {
+				$this->cron_dailyChecksumScan();
+			}
 		}
 
 		protected function setupChecksumCron() {
@@ -31,8 +34,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		public function cron_dailyChecksumScan() {
 			$sChecksumContent = $this->loadFileSystemProcessor()->getUrlContent( $this->getChecksumUrl() );
 
-			$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
-
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
 				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
@@ -43,6 +44,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					);
 
 					$oFS = $this->loadFileSystemProcessor();
+					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
 						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
 							continue;
@@ -159,7 +161,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 			$aContent[] = '';
 			if ( $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
-				$aContent[] = _wpsf__( 'We have already attempted to repair these files based on your current settings.' );
+				$aContent[] = _wpsf__( 'We have already attempted to repair these files based on your current settings.' )
+				.' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
 			}
 			else {
 				$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
