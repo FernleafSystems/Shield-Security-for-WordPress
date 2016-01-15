@@ -134,10 +134,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				return true;
 			}
 
+			$oWp = $this->loadWpFunctionsProcessor();
 			$aContent = array(
-				sprintf( _wpsf__( '%s has detected files on your site with problems.' ), $this->getController()->getHumanName() ),
+				sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()->getHumanName() )
+				. ' <a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').'</a>',
+				sprintf( 'Site - %s', sprintf( '<a href="%s" target="_blank">%s</a>', $oWp->getHomeUrl(), $oWp->getSiteName() ) ),
 				_wpsf__( 'Details for the files are below:' ),
-				'',
 			);
 
 			if ( !empty( $aFiles['checksum_mismatch'] ) ) {
@@ -155,9 +157,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				}
 			}
 
-			$aContent[] = _wpsf__( 'You should replace these files with official versions.' );
+			$aContent[] = '';
+			if ( $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
+				$aContent[] = _wpsf__( 'We have already attempted to repair these files based on your current settings.' );
+			}
+			else {
+				$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
+			}
 
-			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Discovered Core WordPress Files(s) That May Have Been Modified.' ) );
+			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Core WordPress Files(s) Discovered That May Have Been Modified.' ) );
 			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 
 			if ( $bSendSuccess ) {
