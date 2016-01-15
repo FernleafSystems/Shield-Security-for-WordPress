@@ -91,7 +91,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 		}
 
 		$aMessage = array_merge( $aMessage, $this->getEmailFooter() );
-		
+
 		$fSuccess = wp_mail( $sEmailTo, $sEmailSubject, implode( "\r\n", $aMessage ), implode( "\r\n", $aHeaders ) );
 		return $fSuccess;
 	}

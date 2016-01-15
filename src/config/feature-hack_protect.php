@@ -61,6 +61,13 @@ definitions:
   corechecksum_cron_name: 'core-checksum-notification'
   url_checksum_api: 'https://api.wordpress.org/core/checksums/1.0/'
   url_wordress_core_svn: 'https://core.svn.wordpress.org/'
+  corechecksum_exclusions:
+    - 'readme.html'
+    - 'license.txt'
+    - 'hello.php'
+    - 'wp-config-sample.php'
+    - 'akismet'
+    - 'themes/twenty'
 ",
 		_wpsf__( 'Hack Protection' )
 	);

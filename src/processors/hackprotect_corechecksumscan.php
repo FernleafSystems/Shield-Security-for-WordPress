@@ -31,12 +31,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		public function cron_dailyChecksumScan() {
 			$sChecksumContent = $this->loadFileSystemProcessor()->getUrlContent( $this->getChecksumUrl() );
 
-			$aExclusions = array(
-				'hello\.php',
-				'wp-config-sample\.php',
-				'akismet'
-			);
-			$sExclusionsPattern = '/('.implode('|', $aExclusions).')/i';
+			$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
 
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
@@ -78,6 +73,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					}
 				}
 			}
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getExclusions() {
+			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions' );
+			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
+				$aExclusions = array();
+			}
+			foreach ( $aExclusions as $nKey => $sExclusion ) {
+				$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
+			}
+			return $aExclusions;
 		}
 
 		/**
