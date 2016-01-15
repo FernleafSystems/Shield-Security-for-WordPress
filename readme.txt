@@ -283,6 +283,8 @@ You can add some custom code to your functions.php exactly as the following:
 *Released: 17th January, 2016*
 
 * **(v.0)**  ADDED:			New Cron: Automatically scans WordPress Core files and looks for alterations from the default WordPress Core File data
+* **(v.0)**  ADDED:			Option to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
+* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/).
 
 = 4.16 Series =
 *Released: 17th January, 2016*
