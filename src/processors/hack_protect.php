@@ -16,11 +16,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 				$this->revSliderPatch_LFI();
 				$this->revSliderPatch_AFU();
 			}
-
 			// not probably necessary any longer since it's patched in the Core
 			add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
-			$this->runPluginVulnerabilities();
+			if ( $this->getIsOption( 'enable_plugin_vulnerabilities_scan', 'Y' ) ) {
+				$this->runPluginVulnerabilities();
+			}
+			if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
+				$this->runChecksumScan();
+			}
 		}
 
 		/**
@@ -28,6 +32,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		protected function runPluginVulnerabilities() {
 			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_pluginvulnerabilities.php' );
 			$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeatureOptions() );
+			$oPv->run();
+		}
+
+		/**
+		 */
+		protected function runChecksumScan() {
+			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_corechecksumscan.php' );
+			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeatureOptions() );
 			$oPv->run();
 		}
 
