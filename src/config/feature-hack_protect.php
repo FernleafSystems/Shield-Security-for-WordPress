@@ -27,7 +27,7 @@ options:
     section: 'section_enable_plugin_feature_hack_protection_tools'
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf38'
     link_blog: ''
   -
     key: 'enable_plugin_vulnerabilities_scan'

@@ -281,17 +281,17 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.16.0 Latest Point Release =
 *Released: 20th January, 2016*
 
-* **(v.0)**  ADDED:			Feature: Automatically scans WordPress Core files and looks for alterations from the default WordPress Core File data
+* **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](http://icwp.io/wpsf40) and detects alterations from the default WordPress Core File data
 * **(v.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
-* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/).
+* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](http://icwp.io/wpsf41).
 * **(v.0)**  ADDED:			Two-Factor Authentication links now honour the WordPress 'redirect_to' parameter.
 
 = 4.16 Series =
 *Released: 20th January, 2016*
 
-* **(v.0)**  ADDED:			Feature: Automatically scans WordPress Core files and looks for alterations from the default WordPress Core File data
+* **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](http://icwp.io/wpsf40) and detects alterations from the default WordPress Core File data
 * **(v.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
-* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/).
+* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](http://icwp.io/wpsf41).
 * **(v.0)**  ADDED:			Two-Factor Authentication links now honour the WordPress 'redirect_to' parameter.
 
 = 4.15 Series =
