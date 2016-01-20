@@ -53,8 +53,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
 
-			$oWp = $this->loadWpFunctionsProcessor();
-			$aPlugins = $oWp->getPlugins();
+			$aPlugins = $this->loadWpFunctionsProcessor()->getPlugins();
 
 			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
