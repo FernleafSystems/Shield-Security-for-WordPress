@@ -70,13 +70,14 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorTwoFactor()->run();
 		}
 
-		add_action( 'wp_login_failed', array( $this, 'blackMarkFailedLogin' ), 10, 0 );
+		add_action( 'wp_login_failed', array( $this, 'onWpLoginFailed' ), 10, 0 );
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
 	}
 
-	public function blackMarkFailedLogin() {
+	public function onWpLoginFailed() {
+		// Black Mark
 		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 	}
 

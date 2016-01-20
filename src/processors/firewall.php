@@ -231,7 +231,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		protected function getFirewallPatterns( $sKey = null ) {
 			if ( !isset( $this->aPatterns ) ) {
-				$this->aPatterns = $this->getFeatureOptions()->getOptionsVo()->getFeatureDefinition( 'firewall_patterns' );
+				$this->aPatterns = $this->getFeatureOptions()->getDefinition( 'firewall_patterns' );
 			}
 			if ( !empty( $sKey ) ) {
 				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
@@ -433,9 +433,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'url',
 						'comment'
 					),
-					'/wp-login.php'					=> array(
-						'redirect_to'
-					),
 					'*' => array(
 						'verify_sign',
 						'txn_id',
@@ -443,6 +440,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'_wp_original_http_referer',
 						'url',
 						'referredby',
+						'redirect_to'
 					)
 				);
 

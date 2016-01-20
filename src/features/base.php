@@ -482,6 +482,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		}
 
 		/**
+		 * @param string $sDefinitionKey
+		 * @return mixed|null
+		 */
+		public function getDefinition( $sDefinitionKey ) {
+			return $this->getOptionsVo()->getFeatureDefinition( $sDefinitionKey );
+		}
+
+		/**
 		 * @param string $sOptionKey
 		 * @param mixed $mDefault
 		 * @return mixed

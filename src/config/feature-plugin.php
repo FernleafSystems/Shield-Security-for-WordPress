@@ -132,6 +132,9 @@ options:
         storage_key: 'firewall'
         load_priority: 13
       -
+        slug: 'hack_protect'
+        storage_key: 'hack_protect'
+      -
         slug: 'login_protect'
         storage_key: 'loginprotect'
       -
@@ -155,9 +158,6 @@ options:
         storage_key: 'audit_trail'
         load_priority: 11
         hidden: false
-      -
-        slug: 'hack_protect'
-        storage_key: 'hack_protect'
       -
         slug: 'email'
         storage_key: 'email'

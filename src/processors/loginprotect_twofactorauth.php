@@ -126,7 +126,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
 				$this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
-				$oWp->redirectToAdmin();
+
+				$sRedirectTo = esc_url( $oDp->FetchGet( 'redirect_to' ) );
+				if ( !empty( $sRedirectTo ) ) {
+					$oWp->doRedirect( urldecode( $sRedirectTo ) );
+				}
+				else {
+					$oWp->redirectToAdmin();
+				}
 			}
 			else {
 				$oWp->redirectToLogin();
@@ -385,6 +392,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				'username'		=> $sUser,
 				'sessionid'		=> $sSessionId
 			);
+			$sRedirectTo = esc_url( $this->loadDataProcessor()->FetchPost( 'redirect_to' ) );
+			if ( !empty( $sRedirectTo ) ) {
+				$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
+			}
 			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
 		}
 
