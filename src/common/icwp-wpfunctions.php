@@ -273,6 +273,16 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return array
+		 */
+		public function getThemes() {
+			if ( !function_exists( 'wp_get_themes' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/theme.php' );
+			}
+			return function_exists( 'wp_get_themes' ) ? wp_get_themes() : array();
+		}
+
+		/**
 		 * @param string $sType - plugins, themes
 		 * @return array
 		 */
