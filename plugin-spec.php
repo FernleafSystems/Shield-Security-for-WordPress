@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '4.16.0-beta'
+  version: '4.16.0'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
   human_name: 'WordPress Security Firewall'
