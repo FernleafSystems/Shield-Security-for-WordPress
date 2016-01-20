@@ -27,7 +27,7 @@ options:
     section: 'section_enable_plugin_feature_hack_protection_tools'
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/wpsf38'
     link_blog: ''
   -
     key: 'enable_plugin_vulnerabilities_scan'
@@ -41,15 +41,15 @@ options:
     section: 'section_core_file_integrity_scan'
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/wpsf36'
+    link_blog: 'http://icwp.io/wpsf37'
   -
     key: 'attempt_auto_file_repair'
     section: 'section_core_file_integrity_scan'
     default: 'N'
     type: 'checkbox'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/wpsf36'
+    link_blog: 'http://icwp.io/wpsf37'
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
