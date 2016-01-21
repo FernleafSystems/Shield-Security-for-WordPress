@@ -146,18 +146,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				_wpsf__( 'Details for the problem files are below:' ),
 			);
 
+			$sBaseSvnUrl = $this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
 			if ( !empty( $aFiles['checksum_mismatch'] ) ) {
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The MD5 Checksum Hashes for following core files do not match the official WordPress.org Checksum Hashes:');
 				foreach( $aFiles['checksum_mismatch'] as $sFile ) {
-					$aContent[] = ' - ' . $sFile;
+					$sSource = $sBaseSvnUrl . $sFile;
+					$aContent[] = ' - ' . $sFile .sprintf( ' (<a href="%s">', $sSource )._wpsf__( 'WordPress.org source file' ).'</a>)';
 				}
 			}
 			if ( !empty( $aFiles['missing'] ) ) {
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The following official WordPress core files are missing from your site:');
 				foreach( $aFiles['missing'] as $sFile ) {
-					$aContent[] = ' - ' . $sFile;
+					$sSource = $sBaseSvnUrl . $sFile;
+					$aContent[] = ' - ' . $sFile .sprintf( ' (<a href="%s">', $sSource )._wpsf__( 'WordPress.org source file' ).'</a>)';
 				}
 			}
 
