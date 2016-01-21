@@ -36,6 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
+
 				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
 
 					$aFiles = array(
@@ -43,28 +44,36 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 						'missing' => array(),
 					);
 
+					$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+					if ( empty( $aAutoFixIndexFiles ) ) {
+						$aAutoFixIndexFiles = array();
+					}
 					$oFS = $this->loadFileSystemProcessor();
 					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
+					$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
 						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
 							continue;
 						}
 
-						$bBad = false;
-
+						$bRepairThis = false;
 						$sFullPath = ABSPATH . $sFilePath;
-						if ( $oFS->isFile( $sFullPath ) ) {
+
+						if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
+							$bRepairThis = true;
+						}
+						else if ( $oFS->isFile( $sFullPath ) ) {
 							if ( $sChecksum != md5_file( $sFullPath ) ) {
 								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
-								$bBad = true;
+								$bRepairThis = $bOptionRepair;
 							}
 						}
 						else {
 							$aFiles[ 'missing' ][] = $sFilePath;
-							$bBad = true;
+							$bRepairThis = $bOptionRepair;
 						}
 
-						if ( $bBad && $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
+						if ( $bRepairThis ) {
 							$this->replaceFileContentsWithOfficial( $sFilePath );
 						}
 					}
@@ -114,14 +123,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
+		 * Could be replaced with get_core_checksums() WPv3.7+
 		 * @return string
 		 */
 		protected function getChecksumUrl() {
-			$oFO = $this->getFeatureOptions();
-			$sBaseUrl = $oFO->getDefinition( 'url_checksum_api' );
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sBaseUrl = $this->getFeatureOptions()->getDefinition( 'url_checksum_api' );
 			$aQueryArgs = array(
-				'version' 	=> $this->loadWpFunctionsProcessor()->getWordpressVersion(),
-				'locale'	=> get_locale()
+				'version' 	=> $oWp->getWordpressVersion(),
+				'locale'	=> $oWp->getLocale()
 			);
 			return add_query_arg( $aQueryArgs, $sBaseUrl );
 		}

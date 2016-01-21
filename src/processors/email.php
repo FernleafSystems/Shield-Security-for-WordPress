@@ -54,7 +54,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getEmailHeader() {
 		return array(
-			_wpsf__('Hi Administrator!'), '',
+			_wpsf__('Hi !'), '',
 		);
 	}
 	/**

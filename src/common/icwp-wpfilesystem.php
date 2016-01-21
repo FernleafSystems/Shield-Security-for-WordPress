@@ -335,6 +335,18 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		}
 
 		/**
+		 * @param $sFilePath
+		 * @return bool
+		 */
+		public function getFileSize( $sFilePath ) {
+			$oFs = $this->getWpfs();
+			if ( $oFs && ( $oFs->size( $sFilePath ) > 0 ) ) {
+				return $oFs->size( $sFilePath );
+			}
+			return @filesize( $sFilePath );
+		}
+
+		/**
 		 * @param string|null $sBaseDir
 		 * @param string $sPrefix
 		 * @param string $outsRandomDir
