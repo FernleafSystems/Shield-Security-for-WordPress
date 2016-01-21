@@ -36,6 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
+
 				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
 
 					$aFiles = array(
@@ -43,6 +44,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 						'missing' => array(),
 					);
 
+					$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+					if ( empty( $aAutoFixIndexFiles ) ) {
+						$aAutoFixIndexFiles = array();
+					}
 					$oFS = $this->loadFileSystemProcessor();
 					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
@@ -64,7 +69,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 							$bBad = true;
 						}
 
-						if ( $bBad && $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
+						$bReplace = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
+							|| ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( ABSPATH.$sFilePath ) == 32 ) ;
+
+						if ( $bBad && $bReplace ) {
 							$this->replaceFileContentsWithOfficial( $sFilePath );
 						}
 					}
