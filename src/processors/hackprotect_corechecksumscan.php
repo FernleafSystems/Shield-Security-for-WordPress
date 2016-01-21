@@ -50,29 +50,30 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					}
 					$oFS = $this->loadFileSystemProcessor();
 					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
+					$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
 						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
 							continue;
 						}
 
-						$bBad = false;
-
+						$bRepairThis = false;
 						$sFullPath = ABSPATH . $sFilePath;
-						if ( $oFS->isFile( $sFullPath ) ) {
+
+						if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
+							$bRepairThis = true;
+						}
+						else if ( $oFS->isFile( $sFullPath ) ) {
 							if ( $sChecksum != md5_file( $sFullPath ) ) {
 								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
-								$bBad = true;
+								$bRepairThis = $bOptionRepair;
 							}
 						}
 						else {
 							$aFiles[ 'missing' ][] = $sFilePath;
-							$bBad = true;
+							$bRepairThis = $bOptionRepair;
 						}
 
-						$bReplace = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
-							|| ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( ABSPATH.$sFilePath ) == 32 ) ;
-
-						if ( $bBad && $bReplace ) {
+						if ( $bRepairThis ) {
 							$this->replaceFileContentsWithOfficial( $sFilePath );
 						}
 					}
