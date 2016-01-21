@@ -273,6 +273,14 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getLocale() {
+			global $wp_local_package;
+			return empty( $wp_local_package ) ? get_locale() : $wp_local_package;
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getThemes() {

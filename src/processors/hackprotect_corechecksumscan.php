@@ -114,14 +114,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
+		 * Could be replaced with get_core_checksums() WPv3.7+
 		 * @return string
 		 */
 		protected function getChecksumUrl() {
-			$oFO = $this->getFeatureOptions();
-			$sBaseUrl = $oFO->getDefinition( 'url_checksum_api' );
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sBaseUrl = $this->getFeatureOptions()->getDefinition( 'url_checksum_api' );
 			$aQueryArgs = array(
-				'version' 	=> $this->loadWpFunctionsProcessor()->getWordpressVersion(),
-				'locale'	=> get_locale()
+				'version' 	=> $oWp->getWordpressVersion(),
+				'locale'	=> $oWp->getLocale()
 			);
 			return add_query_arg( $aQueryArgs, $sBaseUrl );
 		}

@@ -68,7 +68,7 @@ definitions:
     - 'wp-config-sample.php'
     - 'akismet'
     - 'themes/twenty'
-    - 'wp-content/languages'
+    - 'wp-content/languages/'
 ",
 		_wpsf__( 'Hack Protection' )
 	);
