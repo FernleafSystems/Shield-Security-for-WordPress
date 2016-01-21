@@ -52,6 +52,14 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	/**
 	 * @return array
 	 */
+	protected function getEmailHeader() {
+		return array(
+			_wpsf__('Hi Administrator!'), '',
+		);
+	}
+	/**
+	 * @return array
+	 */
 	protected function getEmailFooter() {
 		return array(
 			'', '',
@@ -76,7 +84,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 
 		$aHeaders = array(
 			'MIME-Version: 1.0',
-			'Content-type: text/plain;',
+			'Content-type: text/html;',
 			sprintf( 'From: %s - %s <%s>', $this->getSiteName(), $this->getController()->getHumanName(), $sEmailTo ),
 			sprintf( "Subject: %s", $sEmailSubject ),
 			'X-Mailer: PHP/'.phpversion()
@@ -89,9 +97,9 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 			return true;
 		}
 
-		$aMessage = array_merge( $aMessage, $this->getEmailFooter() );
+		$aMessage = array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() );
 
-		$fSuccess = wp_mail( $sEmailTo, $sEmailSubject, implode( "\r\n", $aMessage ), implode( "\r\n", $aHeaders ) );
+		$fSuccess = wp_mail( $sEmailTo, $sEmailSubject, implode( "<br />", $aMessage ), implode( "\r\n", $aHeaders ) );
 		return $fSuccess;
 	}
 
