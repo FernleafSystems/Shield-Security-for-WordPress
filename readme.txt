@@ -281,16 +281,16 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.16.1 Latest Point Release =
 *Released: 21st January, 2016*
 
-* **(v.1)**  CHANGED:		Improved the contents of the Core File Scanner notification email with links to original source files.
-* **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may also update independently.
-* **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](http://icwp.io/wpsf40) and detects alterations from the default WordPress Core File data
-* **(v.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
-* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](http://icwp.io/wpsf41).
-* **(v.0)**  ADDED:			Two-Factor Authentication links now honour the WordPress 'redirect_to' parameter.
+* **(v.1)**  CHANGED:		Improved the contents of the [Core File Scanner](http://icwp.io/wpsf40) notification email with links to original source files.
+* **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may update independently.
+* **(v.1)**  CHANGED:		Handles the special case of [old index.php files](https://wordpress.org/support/topic/problem-with-checksum-hashes)
 
 = 4.16 Series =
 *Released: 20th January, 2016*
 
+* **(v.1)**  CHANGED:		Improved the contents of the [Core File Scanner](http://icwp.io/wpsf40) notification email with links to original source files.
+* **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may update independently.
+* **(v.1)**  CHANGED:		Handles the special case of [old index.php files](https://wordpress.org/support/topic/problem-with-checksum-hashes)
 * **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](http://icwp.io/wpsf40) and detects alterations from the default WordPress Core File data
 * **(v.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
 * **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](http://icwp.io/wpsf41).
@@ -299,7 +299,7 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.15 Series =
 *Released: 6th January, 2016*
 
-* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Agressive' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
+* **(v.0)**  ADDED:			New and updated Firewall rules as well as a new 'Aggressive' option that looks for additional request data. Disabled by default, but may cause an increase in false positives.
 * **(v.0)**  CHANGED:		Improved and optimized Firewall processing.
 * **(v.0)**  FIXED:			[Issue](https://github.com/FernleafSystems/wp-simple-firewall/issues/3) where automatic update notification emails are sent out without any update notices (probably due to failed updates).
 * **(v.0)**  FIXED:			Small conflict with WP Login Rename and other security plugins.
