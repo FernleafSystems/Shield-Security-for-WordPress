@@ -346,6 +346,9 @@ label input[type=checkbox] {
 #feature-user_management .feature-icon:before {
 	content: "\f307";
 }
+#feature-hack_protect .feature-icon:before {
+	content: "\f312";
+}
 #feature-login_protect .feature-icon:before {
 	content: "\f112";
 }

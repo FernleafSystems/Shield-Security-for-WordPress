@@ -68,6 +68,11 @@ definitions:
     - 'wp-config-sample.php'
     - 'akismet'
     - 'themes/twenty'
+    - 'wp-content/languages/'
+  corechecksum_autofix_index_files:
+    - 'wp-content/index.php'
+    - 'wp-content/plugins/index.php'
+    - 'wp-content/themes/index.php'
 ",
 		_wpsf__( 'Hack Protection' )
 	);

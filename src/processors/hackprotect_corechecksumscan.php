@@ -36,6 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 			if ( !empty( $sChecksumContent ) ) {
 				$oChecksumData = json_decode( $sChecksumContent );
+
 				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
 
 					$aFiles = array(
@@ -43,28 +44,36 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 						'missing' => array(),
 					);
 
+					$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+					if ( empty( $aAutoFixIndexFiles ) ) {
+						$aAutoFixIndexFiles = array();
+					}
 					$oFS = $this->loadFileSystemProcessor();
 					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
+					$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
 					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
 						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
 							continue;
 						}
 
-						$bBad = false;
-
+						$bRepairThis = false;
 						$sFullPath = ABSPATH . $sFilePath;
-						if ( $oFS->isFile( $sFullPath ) ) {
+
+						if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
+							$bRepairThis = true;
+						}
+						else if ( $oFS->isFile( $sFullPath ) ) {
 							if ( $sChecksum != md5_file( $sFullPath ) ) {
 								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
-								$bBad = true;
+								$bRepairThis = $bOptionRepair;
 							}
 						}
 						else {
 							$aFiles[ 'missing' ][] = $sFilePath;
-							$bBad = true;
+							$bRepairThis = $bOptionRepair;
 						}
 
-						if ( $bBad && $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
+						if ( $bRepairThis ) {
 							$this->replaceFileContentsWithOfficial( $sFilePath );
 						}
 					}
@@ -114,14 +123,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
+		 * Could be replaced with get_core_checksums() WPv3.7+
 		 * @return string
 		 */
 		protected function getChecksumUrl() {
-			$oFO = $this->getFeatureOptions();
-			$sBaseUrl = $oFO->getDefinition( 'url_checksum_api' );
+			$oWp = $this->loadWpFunctionsProcessor();
+			$sBaseUrl = $this->getFeatureOptions()->getDefinition( 'url_checksum_api' );
 			$aQueryArgs = array(
-				'version' 	=> $this->loadWpFunctionsProcessor()->getWordpressVersion(),
-				'locale'	=> get_locale()
+				'version' 	=> $oWp->getWordpressVersion(),
+				'locale'	=> $oWp->getLocale()
 			);
 			return add_query_arg( $aQueryArgs, $sBaseUrl );
 		}
@@ -138,24 +148,29 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 			$oWp = $this->loadWpFunctionsProcessor();
 			$aContent = array(
-				sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()->getHumanName() )
-				. ' <a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').'</a>',
+				sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()->getHumanName() ),
+				_wpsf__( 'This is part of the Hack Protection feature for the WordPress Core File Scanner.' )
+				. ' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').']</a>',
 				sprintf( 'Site - %s', sprintf( '<a href="%s" target="_blank">%s</a>', $oWp->getHomeUrl(), $oWp->getSiteName() ) ),
-				_wpsf__( 'Details for the files are below:' ),
+				'',
+				_wpsf__( 'Details for the problem files are below:' ),
 			);
 
+			$sBaseSvnUrl = $this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
 			if ( !empty( $aFiles['checksum_mismatch'] ) ) {
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The MD5 Checksum Hashes for following core files do not match the official WordPress.org Checksum Hashes:');
 				foreach( $aFiles['checksum_mismatch'] as $sFile ) {
-					$aContent[] = ' - ' . $sFile;
+					$sSource = $sBaseSvnUrl . $sFile;
+					$aContent[] = ' - ' . $sFile .sprintf( ' (<a href="%s">', $sSource )._wpsf__( 'WordPress.org source file' ).'</a>)';
 				}
 			}
 			if ( !empty( $aFiles['missing'] ) ) {
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The following official WordPress core files are missing from your site:');
 				foreach( $aFiles['missing'] as $sFile ) {
-					$aContent[] = ' - ' . $sFile;
+					$sSource = $sBaseSvnUrl . $sFile;
+					$aContent[] = ' - ' . $sFile .sprintf( ' (<a href="%s">', $sSource )._wpsf__( 'WordPress.org source file' ).'</a>)';
 				}
 			}
 
@@ -166,6 +181,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			}
 			else {
 				$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
+				$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
+					. ' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').']</a>';
 			}
 
 			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Core WordPress Files(s) Discovered That May Have Been Modified.' ) );
