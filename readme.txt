@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.16.0
+Stable tag: 4.16.1
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
@@ -278,9 +278,11 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.16.0 Latest Point Release =
-*Released: 20th January, 2016*
+= 4.16.1 Latest Point Release =
+*Released: 21st January, 2016*
 
+* **(v.1)**  CHANGED:		Improved the contents of the Core File Scanner notification email with links to original source files.
+* **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may also update independently.
 * **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](http://icwp.io/wpsf40) and detects alterations from the default WordPress Core File data
 * **(v.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
 * **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](http://icwp.io/wpsf41).
