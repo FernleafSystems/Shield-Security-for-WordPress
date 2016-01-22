@@ -32,56 +32,54 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		public function cron_dailyChecksumScan() {
-			$sChecksumContent = $this->loadFileSystemProcessor()->getUrlContent( $this->getChecksumUrl() );
 
-			if ( !empty( $sChecksumContent ) ) {
-				$oChecksumData = json_decode( $sChecksumContent );
+			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
 
-				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
+			if ( !empty( $aChecksumData ) && is_array( $aChecksumData ) ) {
 
-					$aFiles = array(
-						'checksum_mismatch' => array(),
-						'missing' => array(),
-					);
+				$aDiscoveredFiles = array(
+					'checksum_mismatch' => array(),
+					'missing' => array(),
+				);
 
-					$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
-					if ( empty( $aAutoFixIndexFiles ) ) {
-						$aAutoFixIndexFiles = array();
+				$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+				if ( empty( $aAutoFixIndexFiles ) ) {
+					$aAutoFixIndexFiles = array();
+				}
+
+				$oFS = $this->loadFileSystemProcessor();
+				$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
+				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
+
+				foreach ( $aChecksumData as $sFilePath => $sChecksum ) {
+					if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
+						continue;
 					}
-					$oFS = $this->loadFileSystemProcessor();
-					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
-					$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
-					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
-						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
-							continue;
-						}
 
-						$bRepairThis = false;
-						$sFullPath = ABSPATH . $sFilePath;
+					$bRepairThis = false;
+					$sFullPath = ABSPATH . $sFilePath;
 
-						if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
-							$bRepairThis = true;
-						}
-						else if ( $oFS->isFile( $sFullPath ) ) {
-							if ( $sChecksum != md5_file( $sFullPath ) ) {
-								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
-								$bRepairThis = $bOptionRepair;
-							}
-						}
-						else {
-							$aFiles[ 'missing' ][] = $sFilePath;
+					if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
+						$bRepairThis = true;
+					}
+					else if ( $oFS->isFile( $sFullPath ) ) {
+						if ( $sChecksum != md5_file( $sFullPath ) ) {
+							$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sFilePath;
 							$bRepairThis = $bOptionRepair;
 						}
-
-						if ( $bRepairThis ) {
-							$this->replaceFileContentsWithOfficial( $sFilePath );
-						}
+					}
+					else {
+						$aDiscoveredFiles[ 'missing' ][] = $sFilePath;
+						$bRepairThis = $bOptionRepair;
 					}
 
-					if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {
-						$sRecipient = $this->getPluginDefaultRecipientAddress();
-						$this->sendChecksumErrorNotification( $aFiles, $sRecipient );
+					if ( $bRepairThis ) {
+						$this->replaceFileContentsWithOfficial( $sFilePath );
 					}
+				}
+
+				if ( !empty( $aDiscoveredFiles[ 'checksum_mismatch' ] ) || !empty( $aDiscoveredFiles[ 'missing' ] ) ) {
+					$this->sendChecksumErrorNotification( $aDiscoveredFiles );
 				}
 			}
 		}
@@ -138,10 +136,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 		/**
 		 * @param array $aFiles
-		 * @param string $sRecipient
 		 * @return bool
 		 */
-		protected function sendChecksumErrorNotification( $aFiles, $sRecipient ) {
+		protected function sendChecksumErrorNotification( $aFiles ) {
 			if ( empty( $aFiles ) && empty( $aFiles['missing'] ) && empty( $aFiles['checksum_mismatch'] ) ) {
 				return true;
 			}
@@ -185,6 +182,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					. ' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').']</a>';
 			}
 
+			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Core WordPress Files(s) Discovered That May Have Been Modified.' ) );
 			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 
