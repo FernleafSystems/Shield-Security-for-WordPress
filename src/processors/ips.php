@@ -41,6 +41,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			}
+
+			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
+		}
+
+		public function doBlackMarkIp() {
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 		}
 
 		public function action_doFeatureProcessorShutdown () {

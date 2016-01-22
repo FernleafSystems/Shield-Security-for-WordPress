@@ -7,31 +7,6 @@ require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 
 	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_Gasp
-	 */
-	protected $oProcessorGasp;
-
-	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_WpLogin
-	 */
-	protected $oProcessorWpLogin;
-
-	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_Cooldown
-	 */
-	protected $oProcessorCooldown;
-
-	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
-	 */
-	protected $oProcessorTwoFactor;
-
-	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_Yubikey
-	 */
-	protected $oProcessorYubikey;
-
-	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -70,15 +45,8 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorTwoFactor()->run();
 		}
 
-		add_action( 'wp_login_failed', array( $this, 'onWpLoginFailed' ), 10, 0 );
-
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
-	}
-
-	public function onWpLoginFailed() {
-		// Black Mark
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 	}
 
 	/**
@@ -160,57 +128,47 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
-		if ( !isset( $this->oProcessorCooldown ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'loginprotect_cooldown.php' );
-			$this->oProcessorCooldown = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeatureOptions() );
-		}
-		return $this->oProcessorCooldown;
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_cooldown.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeatureOptions() );
+		return $oProc;
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
 	 */
 	protected function getProcessorTwoFactor() {
-		if ( !isset( $this->oProcessorTwoFactor ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'loginprotect_twofactorauth.php' );
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-			$this->oProcessorTwoFactor = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
-		}
-		return $this->oProcessorTwoFactor;
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_twofactorauth.php' );
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
+		return $oProc;
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
 	protected function getProcessorGasp() {
-		if ( !isset( $this->oProcessorGasp ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'loginprotect_gasp.php' );
-			$this->oProcessorGasp = new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getFeatureOptions() );
-		}
-		return $this->oProcessorGasp;
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_gasp.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getFeatureOptions() );
+		return $oProc;
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
 	 */
 	protected function getProcessorWpLogin() {
-		if ( !isset( $this->oProcessorWpLogin ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'loginprotect_wplogin.php' );
-			$this->oProcessorWpLogin = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getFeatureOptions() );
-		}
-		return $this->oProcessorWpLogin;
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_wplogin.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getFeatureOptions() );
+		return $oProc;
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
 	 */
 	protected function getProcessorYubikey() {
-		if ( !isset( $this->oProcessorYubikey ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'loginprotect_yubikey.php' );
-			$this->oProcessorYubikey = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
-		}
-		return $this->oProcessorYubikey;
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_yubikey.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
+		return $oProc;
 	}
 }
 endif;
