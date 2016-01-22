@@ -47,19 +47,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					$aAutoFixIndexFiles = array();
 				}
 
-				$oFS = $this->loadFileSystemProcessor();
-				$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
+				$sFullExclusionsPattern = '#('.implode('|', $this->getFullExclusions() ).')#i';
+				$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
 				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
 
+				$oFS = $this->loadFileSystemProcessor();
 				foreach ( $aChecksumData as $sFilePath => $sChecksum ) {
-					if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
+					if ( preg_match( $sFullExclusionsPattern, $sFilePath ) ) {
 						continue;
 					}
 
 					$bRepairThis = false;
 					$sFullPath = ABSPATH . $sFilePath;
 
-					if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
+					if ( in_array( $sFilePath, $aAutoFixIndexFiles ) ) {
 						$bRepairThis = true;
 					}
 					else if ( $oFS->isFile( $sFullPath ) ) {
@@ -68,7 +69,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 							$bRepairThis = $bOptionRepair;
 						}
 					}
-					else {
+					else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sFilePath ) ) {
+						// If the file is missing and it's not in the missing-only exclusions
 						$aDiscoveredFiles[ 'missing' ][] = $sFilePath;
 						$bRepairThis = $bOptionRepair;
 					}
@@ -87,8 +89,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		/**
 		 * @return array
 		 */
-		protected function getExclusions() {
+		protected function getFullExclusions() {
 			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions' );
+			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
+				$aExclusions = array();
+			}
+			foreach ( $aExclusions as $nKey => $sExclusion ) {
+				$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
+			}
+			return $aExclusions;
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getMissingOnlyExclusions() {
+			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions_missing_only' );
 			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 				$aExclusions = array();
 			}
@@ -118,20 +134,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				return $this->loadFileSystemProcessor()->putFileContent( path_join( ABSPATH, $sPath ), $sOfficialContent );
 			}
 			return false;
-		}
-
-		/**
-		 * Could be replaced with get_core_checksums() WPv3.7+
-		 * @return string
-		 */
-		protected function getChecksumUrl() {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$sBaseUrl = $this->getFeatureOptions()->getDefinition( 'url_checksum_api' );
-			$aQueryArgs = array(
-				'version' 	=> $oWp->getWordpressVersion(),
-				'locale'	=> $oWp->getLocale( true )
-			);
-			return add_query_arg( $aQueryArgs, $sBaseUrl );
 		}
 
 		/**

@@ -136,7 +136,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 			$aChecksumData = false;
 			$sCurrentVersion = $this->getWordpressVersion();
 
-			if ( function_exists( 'get_core_checksums' ) ) {
+			if ( function_exists( 'get_core_checksums' ) ) { // if it's loaded, we use it.
 				$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocale( true ) );
 			}
 			else {
