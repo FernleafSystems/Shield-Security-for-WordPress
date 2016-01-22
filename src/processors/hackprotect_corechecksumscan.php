@@ -131,7 +131,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			$sBaseUrl = $this->getFeatureOptions()->getDefinition( 'url_checksum_api' );
 			$aQueryArgs = array(
 				'version' 	=> $oWp->getWordpressVersion(),
-				'locale'	=> $oWp->getLocale()
+				'locale'	=> $oWp->getLocale( true )
 			);
 			return add_query_arg( $aQueryArgs, $sBaseUrl );
 		}

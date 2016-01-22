@@ -273,11 +273,16 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param bool $bForChecksums
 		 * @return string
 		 */
-		public function getLocale() {
-			global $wp_local_package;
-			return empty( $wp_local_package ) ? get_locale() : $wp_local_package;
+		public function getLocale( $bForChecksums = false ) {
+			$sLocale = get_locale();
+			if ( $bForChecksums ) {
+				global $wp_local_package;
+				$sLocale = empty( $wp_local_package ) ? 'en_US' : $wp_local_package;
+			}
+			return $sLocale;
 		}
 
 		/**
