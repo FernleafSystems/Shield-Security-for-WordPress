@@ -60,13 +60,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					$bRepairThis = false;
 					$sFullPath = ABSPATH . $sFilePath;
 
-					if ( in_array( $sFilePath, $aAutoFixIndexFiles ) ) {
-						$bRepairThis = true;
-					}
-					else if ( $oFS->isFile( $sFullPath ) ) {
+					if ( $oFS->isFile( $sFullPath ) ) {
 						if ( $sChecksum != md5_file( $sFullPath ) ) {
-							$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sFilePath;
-							$bRepairThis = $bOptionRepair;
+
+							if ( in_array( $sFilePath, $aAutoFixIndexFiles ) ) {
+								$bRepairThis = true;
+							}
+							else {
+								$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sFilePath;
+								$bRepairThis = $bOptionRepair;
+							}
 						}
 					}
 					else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sFilePath ) ) {
