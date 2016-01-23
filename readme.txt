@@ -283,6 +283,7 @@ You can add some custom code to your functions.php exactly as the following:
 
 * **(v.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](http://icwp.io/wpsf40).
 * **(v.2)**  CHANGED:		Improvements to the [automatic black list system](http://icwp.io/wpsf27) for failed login attempts.
+* **(v.2)**  CHANGED:		Provided the option to [manually force a Core File Scan](https://icontrolwp.freshdesk.com/support/solutions/articles/3000047513).
 * **(v.2)**  TRANSLATIONS:	Turkish (100%)
 
 = 4.16 Series =
