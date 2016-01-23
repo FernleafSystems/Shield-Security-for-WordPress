@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 */
 		public function run() {
 			$this->setupChecksumCron();
-			if ( $this->loadDataProcessor()->FetchGet( 'force_checksumscan' ) == 1 ) {
+			if ( $this->loadDataProcessor()->FetchGet( 'force_checksumscan' ) == 1 && $this->getController()->getIsValidAdminArea() ) {
 				$this->cron_dailyChecksumScan();
 			}
 		}
