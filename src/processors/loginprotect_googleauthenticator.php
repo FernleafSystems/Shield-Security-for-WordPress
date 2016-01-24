@@ -12,8 +12,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		// after GASP but before email-based two-factor auth
 		add_filter( 'wp_authenticate_user', array( $this, 'checkLoginForGoogleAuthenticator_Filter' ), 23, 2 );
 
-		add_action( 'show_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
+		add_action( 'show_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
 
 		// Add field to login Form
 		add_action( 'login_form',			array( $this, 'printGoogleAuthenticatorLoginField' ) );
@@ -31,6 +31,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$aData = array(
 			'user_has_google_authenticator_validated' => $oFO->getUserHasGoogleAuthenticator( $oUser ),
 			'user_google_authenticator_secret' => $oFO->getUserGoogleAuthenticatorSecret( $oUser ),
+			'strings' => array(
+				'description_otp_code' => _wpsf__( 'You must provide the current code from your Google Authenticator app.' ),
+				'description_chart_url' => _wpsf__( 'Use your Google Authenticator app to scan this QR code and enter the one time password below.' ),
+				'label_check_to_remove' => _wpsf__( 'Check To Remove Google Authenticator' ),
+				'label_enter_code' => _wpsf__( 'Enter Code From Google Authenticator app' ),
+				'title' => _wpsf__( 'Google Authenticator' ),
+			)
 		);
 
 		if ( !$aData['user_has_google_authenticator_validated'] ) {
@@ -57,22 +64,29 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		$oUser = $oWpUsers->getUserById( $nUserId );
 
-		// Trying to validate a new QR.
-		$sShieldQrCodeOtp = $oDp->FetchPost( 'shield_qr_code_otp' );
-		if ( !$oFO->getUserHasGoogleAuthenticator( $oUser ) && !empty( $sShieldQrCodeOtp ) ) {
-			$bValid = $this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sShieldQrCodeOtp );
-			if ( $bValid ) {
-				$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nUserId );
-			}
-			else {
-				// TODO: ERROR MESSAGE
-			}
+		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
+
+		if ( empty( $sGaOtpCode ) ) {
+			return;
+		}
+		else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtpCode ) ) {
+			// TODO: ERROR MESSAGE
+			return;
 		}
 
-		$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
-		if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
-			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $nUserId );
-			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $nUserId );
+		// At this stage we have a validated GA Code for this user's Secret.
+
+		// Trying to validate a new QR.
+		if ( !$oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
+			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nUserId );
+		}
+		else {
+			// Trying to turn it off.
+			$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
+			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
+				$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $nUserId );
+				$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $nUserId );
+			}
 		}
 	}
 
