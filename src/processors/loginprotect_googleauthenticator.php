@@ -82,15 +82,26 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function checkLoginForGoogleAuthenticator_Filter( $oUser ) {
 
+		$oError = new WP_Error();
+
 		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
 		$oDp = $this->loadDataProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		if ( $bIsUser && $oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
-			$sGaOtp = preg_replace( '/[^0_9]/', '', $sGaOtp );
-			if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtp ) ) {
-				$oUser = new WP_Error( 'Google Authenticator OTP Failed' );
+			if ( empty( $sGaOtp ) ) {
+				$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Whoops.' )
+					.' '. _wpsf__( 'Did we forget to use the Google Authenticator?' ) );
+				$oUser = $oError;
+			}
+			else {
+				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
+				if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtp ) ) {
+					$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Oh dear.' )
+						.' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
+					$oUser = $oError;
+				}
 			}
 		}
 		return $oUser;
