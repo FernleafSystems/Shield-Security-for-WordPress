@@ -173,9 +173,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
-				case 'section_login_logging' :
-					$sTitle = _wpsf__( 'Logging' );
-					$sTitleShort = _wpsf__( 'Logging' );
+				case 'section_google_authenticator' :
+					$sTitle = _wpsf__( 'Google Authenticator' );
+					$sTitleShort = _wpsf__( 'Google Authenticator' );
 					break;
 
 				default:
@@ -270,6 +270,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sDescription = _wpsf__( 'Prevents login by bots attempting to login remotely to your site.' )
 									.' '._wpsf__( 'You will not be able to enable this option if your web server does not support it.' )
 									.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__('ON') );
+					break;
+
+				case 'enable_google_authenticator' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
+					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
+					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
 					break;
 
 				case 'enable_yubikey' :
@@ -457,6 +463,34 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$nDateAt = 0;
 			}
 			return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getGoogleAuthenticatorSecret() {
+			$sSecret = $this->getOpt( 'googleauthenticator_secret' );
+			if ( empty( $sSecret ) ) {
+				$sSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
+				$this->setOpt( 'googleauthenticator_secret', $sSecret );
+			}
+			return $sSecret;
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getCurrentUserHasGoogleAuthenticator() {
+			$sSecret = $this->getCurrentUserGoogleAuthenticatorSecret();
+			return !empty( $sSecret );
+		}
+
+		/**
+		 * @return null|string
+		 */
+		public function getCurrentUserGoogleAuthenticatorSecret() {
+			$sSecret = $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_secret' ) );
+			return empty( $sSecret ) ? null : $sSecret;
 		}
 	}
 

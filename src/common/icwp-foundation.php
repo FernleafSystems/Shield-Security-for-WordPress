@@ -35,6 +35,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		private static $oIp;
 		/**
+		 * @var ICWP_WPSF_GoogleAuthenticator
+		 */
+		private static $oGA;
+		/**
 		 * @var ICWP_WPSF_WpAdminNotices
 		 */
 		private static $oAdminNotices;
@@ -118,6 +122,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oIp = ICWP_WPSF_Ip::GetInstance();
 			}
 			return self::$oIp;
+		}
+
+		/**
+		 * @return ICWP_WPSF_GoogleAuthenticator
+		 */
+		static public function loadGoogleAuthenticatorProcessor() {
+			if ( !isset( self::$oGA ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-googleauthenticator.php' );
+				self::$oGA = ICWP_WPSF_GoogleAuthenticator::GetInstance();
+			}
+			return self::$oGA;
 		}
 
 		/**
