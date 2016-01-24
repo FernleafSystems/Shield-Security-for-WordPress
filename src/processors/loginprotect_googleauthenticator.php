@@ -10,10 +10,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function run() {
 		// after GASP but before email-based two-factor auth
-		add_filter( 'authenticate', array( $this, 'checkLoginForGoogleAuthenticator_Filter' ), 23, 2 );
+		add_filter( 'wp_authenticate_user', array( $this, 'checkLoginForGoogleAuthenticator_Filter' ), 23, 2 );
 
 		add_action( 'show_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
+
+		// Add field to login Form
+		add_action( 'login_form',			array( $this, 'printGoogleAuthenticatorLoginField' ) );
 	}
 
 	/**
@@ -26,13 +29,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$aData = array(
-			'user_has_google_authenticator_validated' => $oFO->getCurrentUserHasGoogleAuthenticator(),
-			'google_authenticator_secret' => $oFO->getCurrentUserGoogleAuthenticatorSecret(),
+			'user_has_google_authenticator_validated' => $oFO->getUserHasGoogleAuthenticator( $oUser ),
+			'user_google_authenticator_secret' => $oFO->getUserGoogleAuthenticatorSecret( $oUser ),
 		);
 
-		if ( !$oFO->getCurrentUserHasGoogleAuthenticator() ) {
+		if ( !$aData['user_has_google_authenticator_validated'] ) {
 			$sChartUrl = $this->loadGoogleAuthenticatorProcessor()->getGoogleQrChartUrl(
-				$oFO->getCurrentUserGoogleAuthenticatorSecret(),
+				$aData['user_google_authenticator_secret'],
 				$oUser->get('user_login').'@'.$this->loadWpFunctionsProcessor()->getSiteName()
 			);
 			$aData[ 'chart_url' ] = $sChartUrl;
@@ -44,22 +47,22 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param $oUser
+	 * @param int $nUserId
 	 */
-	public function handleUserProfileSubmit( $oUser ) {
+	public function handleUserProfileSubmit( $nUserId ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
 		$oWpUsers = $this->loadWpUsersProcessor();
 
-		$sSecret = $oFO->getCurrentUserGoogleAuthenticatorSecret();
+		$oUser = $oWpUsers->getUserById( $nUserId );
 
 		// Trying to validate a new QR.
 		$sShieldQrCodeOtp = $oDp->FetchPost( 'shield_qr_code_otp' );
-		if ( !$oFO->getCurrentUserHasGoogleAuthenticator() && !empty( $sShieldQrCodeOtp ) ) {
-			$bValid = $this->loadGoogleAuthenticatorProcessor()->verifyOtp( $sSecret, $sShieldQrCodeOtp );
+		if ( !$oFO->getUserHasGoogleAuthenticator( $oUser ) && !empty( $sShieldQrCodeOtp ) ) {
+			$bValid = $this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sShieldQrCodeOtp );
 			if ( $bValid ) {
-				$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $oUser );
+				$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nUserId );
 			}
 			else {
 				// TODO: ERROR MESSAGE
@@ -68,28 +71,45 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
 		if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
-			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $oUser );
-			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $oUser );
+			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $nUserId );
+			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $nUserId );
 		}
 	}
 
-	public function checkLoginForGoogleAuthenticator_Filter( $oUser, $sUsername, $sPassword ) {
-		if ( empty( $sUsername ) ) {
-			return $oUser;
-		}
+	/**
+	 * @param WP_User $oUser
+	 * @return WP_Error
+	 */
+	public function checkLoginForGoogleAuthenticator_Filter( $oUser ) {
 
-		$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
+		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
 		$oDp = $this->loadDataProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-		if ( $bUserLoginSuccess && $oFO->getCurrentUserHasGoogleAuthenticator() ) {
+		if ( $bIsUser && $oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
 			$sGaOtp = preg_replace( '/[^0_9]/', '', $sGaOtp );
-			if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getCurrentUserGoogleAuthenticatorSecret(), $sGaOtp ) ) {
+			if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtp ) ) {
 				$oUser = new WP_Error( 'Google Authenticator OTP Failed' );
 			}
 		}
 		return $oUser;
+	}
+
+	/**
+	 */
+	public function printGoogleAuthenticatorLoginField() {
+		$sHtml =
+			'<p class="shield-google-authenticator-otp">
+				<label>%s<br />
+					<input type="text" name="%s" class="input" value="" size="20" />
+				</label>
+			</p>
+		';
+		echo sprintf( $sHtml,
+			'<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Google Authenticator').'</a>',
+			$this->getLoginFormParameter()
+		);
 	}
 
 	/**
