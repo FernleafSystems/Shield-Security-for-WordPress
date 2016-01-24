@@ -130,7 +130,7 @@ options:
     link_blog: ''
   -
     key: 'enable_google_authenticator'
-    section: 'section_google_authentication'
+    section: 'section_google_authenticator'
     default: 'N'
     type: 'checkbox'
     link_info: ''

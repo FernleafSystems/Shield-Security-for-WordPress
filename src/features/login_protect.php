@@ -466,31 +466,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @return string
-		 */
-		public function getGoogleAuthenticatorSecret() {
-			$sSecret = $this->getOpt( 'googleauthenticator_secret' );
-			if ( empty( $sSecret ) ) {
-				$sSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
-				$this->setOpt( 'googleauthenticator_secret', $sSecret );
-			}
-			return $sSecret;
-		}
-
-		/**
 		 * @return bool
 		 */
 		public function getCurrentUserHasGoogleAuthenticator() {
 			$sSecret = $this->getCurrentUserGoogleAuthenticatorSecret();
-			return !empty( $sSecret );
+			return !empty( $sSecret ) && ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ) ) == 'Y' );
 		}
 
 		/**
-		 * @return null|string
+		 * @return string
 		 */
 		public function getCurrentUserGoogleAuthenticatorSecret() {
-			$sSecret = $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_secret' ) );
-			return empty( $sSecret ) ? null : $sSecret;
+			$oWpUser = $this->loadWpUsersProcessor();
+			$sSecret = $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_secret' ) );
+			if ( empty( $sSecret ) ) {
+				$sSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
+				$oWpUser->updateUserMeta( $this->prefixOptionKey( 'ga_secret' ), $sSecret );
+			}
+			return $sSecret;
 		}
 	}
 

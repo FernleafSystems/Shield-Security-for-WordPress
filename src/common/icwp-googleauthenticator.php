@@ -32,6 +32,15 @@ if ( !class_exists( 'ICWP_WPSF_GoogleAuthenticator', false ) ):
 
 		/**
 		 * @param string $sSecret
+		 * @param string $sName
+		 * @return string
+		 */
+		public function getGoogleQrChartUrl( $sSecret, $sName = 'icwp' ) {
+			return $this->getGoogleAuthenticatorLib()->getQRCodeGoogleUrl( $sName, $sSecret );
+		}
+
+		/**
+		 * @param string $sSecret
 		 * @param string $sPassword
 		 * @return bool
 		 */
