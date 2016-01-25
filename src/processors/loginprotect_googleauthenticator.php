@@ -74,26 +74,29 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		$oUser = $oWpUsers->getUserById( $nUserId );
 		$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$bEditingMyOwnProfile = $oCurrentUser->ID == $oUser->ID;
 
-		if ( ( $oCurrentUser->ID != $oUser->ID ) && $oWpUsers->isUserAdmin( $oUser ) ) {
-			// TODO: Show error to say you cannot turn on/off another Administrator GA setting
-			return;
+		if ( !$bEditingMyOwnProfile ) {
+			// No OTP checking here as you're not on your own profile, but...
+			if ( $oWpUsers->isUserAdmin( $oUser ) ) {
+				// TODO: Show error to say you cannot turn on/off another Administrator GA setting
+				return;
+			}
+		}
+		else {
+			$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
+			if ( empty( $sGaOtpCode ) ) {
+				return; // not doing anything related to GA
+			}
+			else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtpCode ) ) {
+				// TODO: ERROR MESSAGE because OTP wasn't valid.
+				return;
+			}
+			// At this stage we have a validated GA Code for this user's Secret if applicable.
 		}
 
-		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
-
-		if ( empty( $sGaOtpCode ) ) {
-			return;
-		}
-		else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtpCode ) ) {
-			// TODO: ERROR MESSAGE
-			return;
-		}
-
-		// At this stage we have a validated GA Code for this user's Secret.
-
-		// Trying to validate a new QR.
-		if ( !$oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
+		// Trying to validate a new QR for my own profile
+		if ( $bEditingMyOwnProfile && !$oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
 			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nUserId );
 		}
 		else {
