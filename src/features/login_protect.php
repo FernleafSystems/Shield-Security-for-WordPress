@@ -58,6 +58,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				}
 			}
 
+			if ( $this->getIsTwoFactorAuthOn() ) {
+				$this->setOpt( 'enable_email_authentication', 'Y' );
+			}
+
 			$this->cleanLoginUrlPath();
 
 			if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
@@ -220,22 +224,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sDescription = _wpsf__( 'Select which types of users/roles will be subject to two-factor login authentication.' );
 					break;
 
-				case 'enable_two_factor_auth_by_ip' :
-					$sName = sprintf( _wpsf__( 'Two-Factor Authentication (%s)' ), _wpsf__('IP') );
-					$sSummary = sprintf( _wpsf__( 'Two-Factor Login Authentication By %s' ), _wpsf__('IP Address') );
-					$sDescription = _wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication, when logging in from a new IP address' );
-					break;
-
-				case 'enable_two_factor_auth_by_cookie' :
-					$sName = sprintf( _wpsf__( 'Two-Factor Authentication (%s)' ), _wpsf__('Cookie') );
-					$sSummary = sprintf( _wpsf__( 'Two-Factor Login Authentication By %s' ), _wpsf__('Cookie') );
-					$sDescription = _wpsf__( 'This will restrict all user login sessions to a single browser. Use this if your users have dynamic IP addresses.' );
-					break;
-
-				case 'enable_two_factor_bypass_on_email_fail' :
-					$sName = _wpsf__( 'By-Pass On Failure' );
-					$sSummary = _wpsf__( 'If Sending Verification Email Sending Fails, Two-Factor Login Authentication Is Ignored' );
-					$sDescription = _wpsf__( 'If you enable two-factor authentication and sending the email with the verification link fails, turning this setting on will by-pass the verification step. Use with caution.' );
+				case 'enable_email_authentication' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Email Authentication' ) );
+					$sSummary = sprintf( _wpsf__( 'Two-Factor Login Authentication By %s' ), _wpsf__('Email') );
+					$sDescription = _wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication.' );
 					break;
 
 				case 'enable_user_register_checking' :
@@ -245,8 +237,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					break;
 
 				case 'login_limit_interval' :
-					$sName = _wpsf__('Login Cooldown Interval');
-					$sSummary = _wpsf__('Limit login attempts to every X seconds');
+					$sName = _wpsf__( 'Login Cooldown Interval' );
+					$sSummary = _wpsf__( 'Limit login attempts to every X seconds' );
 					$sDescription = _wpsf__( 'WordPress will process only ONE login attempt for every number of seconds specified.' )
 									.'<br />'._wpsf__( 'Zero (0) turns this off.' )
 									.' '.sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'login_limit_interval' ) );
@@ -394,19 +386,25 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 */
 		public function getIsTwoFactorAuthOn( $sType = '' ) {
 
-			$fIp = $this->getOptIs( 'enable_two_factor_auth_by_ip', 'Y' );
-			$fCookie = $this->getOptIs( 'enable_two_factor_auth_by_cookie', 'Y' );
+			$bEmail = $this->getOptIs( 'enable_email_authentication', 'Y' );
+			if ( $bEmail ) {
+				return $bEmail;
+			}
+			else { //TODO: remove this later on once most people have upgraded to having email-only version
+				$fIp = $this->getOptIs( 'enable_two_factor_auth_by_ip', 'Y' );
+				$fCookie = $this->getOptIs( 'enable_two_factor_auth_by_cookie', 'Y' );
 
-			switch( $sType ) {
-				case 'ip':
-					return $fIp;
-					break;
-				case 'cookie':
-					return $fCookie;
-					break;
-				default:
-					return $fIp || $fCookie;
-					break;
+				switch( $sType ) {
+					case 'ip':
+						return $fIp;
+						break;
+					case 'cookie':
+						return $fCookie;
+						break;
+					default:
+						return $fIp || $fCookie;
+						break;
+				}
 			}
 		}
 
