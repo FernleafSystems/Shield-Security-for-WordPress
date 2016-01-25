@@ -15,8 +15,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 		add_action( 'show_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
 
+		if ( $this->getController()->getIsValidAdminArea( true ) ) {
+			add_action( 'edit_user_profile_update', array( $this, 'handleUserProfileSubmit' ) );
+			add_action( 'edit_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
+		}
+
 		// Add field to login Form
-		add_action( 'login_form',			array( $this, 'printGoogleAuthenticatorLoginField' ) );
+		add_action( 'login_form', array( $this, 'printGoogleAuthenticatorLoginField' ) );
 	}
 
 	/**
@@ -31,12 +36,17 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$aData = array(
 			'user_has_google_authenticator_validated' => $oFO->getUserHasGoogleAuthenticator( $oUser ),
 			'user_google_authenticator_secret' => $oFO->getUserGoogleAuthenticatorSecret( $oUser ),
+			'is_my_user_profile' => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
+			'i_am_valid_admin' => $this->getController()->getIsValidAdminArea( true ),
+			'user_to_edit_is_admin' => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
 			'strings' => array(
 				'description_otp_code' => _wpsf__( 'You must provide the current code from your Google Authenticator app.' ),
 				'description_chart_url' => _wpsf__( 'Use your Google Authenticator app to scan this QR code and enter the one time password below.' ),
 				'label_check_to_remove' => _wpsf__( 'Check To Remove Google Authenticator' ),
 				'label_enter_code' => _wpsf__( 'Enter Code From Google Authenticator app' ),
 				'title' => _wpsf__( 'Google Authenticator' ),
+				'sorry_cant_add_to_other_user' => _wpsf__( "Sorry, Google Authenticator may not be added to another user's account." ),
+				'sorry_cant_remove_from_to_other_admins' => _wpsf__( "Sorry, Google Authenticator may not be removed from another administrator's account." ),
 			)
 		);
 
@@ -63,6 +73,12 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsersProcessor();
 
 		$oUser = $oWpUsers->getUserById( $nUserId );
+		$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+
+		if ( ( $oCurrentUser->ID != $oUser->ID ) && $oWpUsers->isUserAdmin( $oUser ) ) {
+			// TODO: Show error to say you cannot turn on/off another Administrator GA setting
+			return;
+		}
 
 		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
 
