@@ -25,7 +25,7 @@ sections:
   -
     slug: 'section_rename_wplogin'
   -
-    slug: 'section_two_factor_authentication'
+    slug: 'section_multifactor_authentication'
   -
     slug: 'section_brute_force_login_protection'
   -
@@ -58,8 +58,15 @@ options:
     link_info: 'http://icwp.io/5q'
     link_blog: 'http://icwp.io/5r'
   -
+    key: 'enable_google_authenticator'
+    section: 'section_multifactor_authentication'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'enable_email_authentication'
-    section: 'section_two_factor_authentication'
+    section: 'section_multifactor_authentication'
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/3s'
@@ -72,7 +79,7 @@ options:
     section: 'section_non_ui'
   -
     key: 'two_factor_auth_user_roles'
-    section: 'section_two_factor_authentication'
+    section: 'section_multifactor_authentication'
     type: 'multiple_select'
     default:
       - 1

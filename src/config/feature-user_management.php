@@ -43,13 +43,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'enable_google_authenticator'
-    section: 'section_multifactor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'enable_admin_login_email_notification'
     section: 'section_admin_login_notification'
     default: ''

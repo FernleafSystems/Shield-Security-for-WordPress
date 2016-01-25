@@ -150,8 +150,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 					break;
 
-				case 'section_two_factor_authentication' :
-					$sTitle = _wpsf__('Two-Factor Authentication');
+				case 'section_multifactor_authentication' :
+					$sTitle = _wpsf__( 'Two-Factor Authentication' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
@@ -218,16 +218,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					;
 					break;
 
-				case 'two_factor_auth_user_roles' :
-					$sName = _wpsf__( 'Two-Factor Auth User Roles' );
-					$sSummary = _wpsf__( 'All User Roles Subject To Two-Factor Authentication' );
-					$sDescription = _wpsf__( 'Select which types of users/roles will be subject to two-factor login authentication.' );
+				case 'enable_google_authenticator' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
+					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
+					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
 					break;
 
 				case 'enable_email_authentication' :
 					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Email Authentication' ) );
 					$sSummary = sprintf( _wpsf__( 'Two-Factor Login Authentication By %s' ), _wpsf__('Email') );
 					$sDescription = _wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication.' );
+					break;
+
+				case 'two_factor_auth_user_roles' :
+					$sName = _wpsf__( 'Two-Factor Auth User Roles' );
+					$sSummary = _wpsf__( 'All User Roles Subject To Two-Factor Authentication' );
+					$sDescription = _wpsf__( 'Select which types of users/roles will be subject to two-factor login authentication.' );
 					break;
 
 				case 'enable_user_register_checking' :

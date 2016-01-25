@@ -190,12 +190,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 									.'<br />'._wpsf__( "Zero (0) will allow unlimited simultaneous sessions." );
 					break;
 
-				case 'enable_google_authenticator' :
-					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
-					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
-					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
-					break;
-
 				default:
 					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 			}
