@@ -13,13 +13,13 @@ Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Sup
 == Description ==
 
 > The Simple Security Firewall is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
-It's designed for maximum compatibility with your WordPress sites, while offering an uncomplicated approach for beginner
-and advanced user alike - with NO nasty site lockouts. Experience the difference that a great security plugin makes,
-alongside common-sense user security design.  You'll never look back!
+We're designed for maximum compatibility with your WordPress sites, while providing an uncomplicated approach for beginner
+and advanced users alike - with NO nasty site lockouts. Experience the difference that a great security plugin makes,
+alongside common-sense security design.  You'll never look back!
 
-Are you looking to secure your WordPress site but without getting overwhelmed?
+Do you want to secure your WordPress site, without getting overwhelmed?
 
-What makes the it different?
+Stand out from the herd - what makes ours different?
 
 * No restrictive PRO/Premium version - it's all there.
 * Easy-To-Setup Interface.
