@@ -17,6 +17,8 @@ sections:
   -
     slug: 'section_user_session_management'
   -
+    slug: 'section_multifactor_authentication'
+  -
     slug: 'section_bypass_user_accounts_management'
   -
     slug: 'section_admin_login_notification'
@@ -37,6 +39,13 @@ options:
     key: 'enable_xmlrpc_compatibility'
     section: 'section_bypass_user_accounts_management'
     default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'enable_google_authenticator'
+    section: 'section_multifactor_authentication'
+    default: 'N'
     type: 'checkbox'
     link_info: ''
     link_blog: ''

@@ -105,6 +105,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 					$sTitleShort = _wpsf__( 'Notifications' );
 					break;
 
+				case 'section_multifactor_authentication' :
+					$sTitle = _wpsf__( 'Multi-Factor User Authentication' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
+					);
+					$sTitleShort = _wpsf__( 'Multi-Factor Authentication' );
+					break;
+
 				case 'section_user_session_management' :
 					$sTitle = _wpsf__('User Session Management');
 					$aSummary = array(
@@ -192,6 +201,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 					$sSummary = _wpsf__( 'Automatically Redirect To WP Admin When Valid Session Detected' );
 					$sDescription = _wpsf__( 'When selected, users will be automatically forwarded to the WordPress admin screen when they visit wp-login.php.' )
 									.'<br />'. _wpsf__( 'It removes the extra step to get to the admin screen for already-authenticated users.' );
+					break;
+
+				case 'enable_google_authenticator' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
+					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
+					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
 					break;
 
 				default:

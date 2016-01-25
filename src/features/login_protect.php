@@ -173,11 +173,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
-				case 'section_google_authenticator' :
-					$sTitle = _wpsf__( 'Google Authenticator' );
-					$sTitleShort = _wpsf__( 'Google Authenticator' );
-					break;
-
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
@@ -270,12 +265,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sDescription = _wpsf__( 'Prevents login by bots attempting to login remotely to your site.' )
 									.' '._wpsf__( 'You will not be able to enable this option if your web server does not support it.' )
 									.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__('ON') );
-					break;
-
-				case 'enable_google_authenticator' :
-					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
-					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
-					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
 					break;
 
 				case 'enable_yubikey' :

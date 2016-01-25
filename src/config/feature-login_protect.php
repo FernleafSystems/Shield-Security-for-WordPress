@@ -29,8 +29,6 @@ sections:
   -
     slug: 'section_brute_force_login_protection'
   -
-    slug: 'section_google_authenticator'
-  -
     slug: 'section_yubikey_authentication'
   -
     slug: 'section_non_ui'
@@ -129,13 +127,6 @@ options:
     link_info: 'http://icwp.io/4n'
     link_blog: ''
   -
-    key: 'enable_google_authenticator'
-    section: 'section_google_authenticator'
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'enable_yubikey'
     section: 'section_yubikey_authentication'
     default: 'N'
@@ -202,9 +193,6 @@ options:
       - 'expired_at'
       - 'created_at'
       - 'deleted_at'
-  -
-    key: 'googleauthenticator_secret'
-    section: 'section_non_ui'
   -
     key: 'two_factor_auth_table_created'
     section: 'section_non_ui'
