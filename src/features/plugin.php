@@ -261,6 +261,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'Recommendation - %s' );
 			_wpsf__( 'Blacklist' );
 			_wpsf__( 'Logging' );
+			_wpsf__( 'User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).' );
+			_wpsf__( 'User "%s" was found to be un-verified at the given IP Address: "%s".' );
 		}
 	}
 
