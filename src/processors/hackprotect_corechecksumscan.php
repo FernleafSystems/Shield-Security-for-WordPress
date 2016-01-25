@@ -49,7 +49,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 				$sFullExclusionsPattern = '#('.implode('|', $this->getFullExclusions() ).')#i';
 				$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
-				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
+				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
+					|| ( $this->loadDataProcessor()->FetchGet( 'checksum_repair' ) == 1 );
 
 				$oFS = $this->loadFileSystemProcessor();
 				foreach ( $aChecksumData as $sFilePath => $sChecksum ) {

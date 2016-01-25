@@ -278,16 +278,17 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.16.2 Latest Point Release =
-*Released: 25th January, 2016*
+= 4.17.0 Latest Point Release =
+*Released: 1st February, 2016*
 
-* **(v.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](http://icwp.io/wpsf40).
-* **(v.2)**  CHANGED:		Improvements to the [automatic black list system](http://icwp.io/wpsf27) for failed login attempts.
-* **(v.2)**  CHANGED:		Provided the option to [manually force a Core File Scan](https://icontrolwp.freshdesk.com/support/solutions/articles/3000047513).
-* **(v.2)**  TRANSLATIONS:	Turkish (100%)
+* **(v.0)**  ADDED:			NEW feature - Google Authenticator Login option.
+* **(v.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
+* **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
 
 = 4.17 Series =
 
+* **(v.0)**  ADDED:			NEW feature - Google Authenticator Login option.
+* **(v.0)**  CHANGED:		Changes to the email-based authentication system - only 1 option and it no longer locks to IP or browser.
 * **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
 
 = 4.16 Series =
