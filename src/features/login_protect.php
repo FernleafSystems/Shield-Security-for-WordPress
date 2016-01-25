@@ -154,9 +154,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sTitle = _wpsf__( 'Two-Factor Authentication' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
+						sprintf( _wpsf__( 'Note: %s' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
 					);
-					$sTitleShort = _wpsf__( '2-Factor Auth' );
+					$sTitleShort = _wpsf__( 'Two-Factor Authentication' );
 					break;
 
 				case 'section_brute_force_login_protection' :
@@ -220,8 +221,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 				case 'enable_google_authenticator' :
 					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
-					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
-					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
+					$sSummary = _wpsf__( 'Allow Users To Use Google Authenticator' );
+					$sDescription = _wpsf__('When enabled, users will have the option to add Google Authenticator authentication to their WordPress user profile');
 					break;
 
 				case 'enable_email_authentication' :
@@ -231,9 +232,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					break;
 
 				case 'two_factor_auth_user_roles' :
-					$sName = _wpsf__( 'Two-Factor Auth User Roles' );
-					$sSummary = _wpsf__( 'All User Roles Subject To Two-Factor Authentication' );
-					$sDescription = _wpsf__( 'Select which types of users/roles will be subject to two-factor login authentication.' );
+					$sName = sprintf( _wpsf__( 'Enforce - %s' ), _wpsf__( 'Email Authentication' ) );
+					$sSummary = _wpsf__( 'All User Roles Subject To Email Authentication' );
+					$sDescription = _wpsf__( 'Enforces email-based authentication on all users with the selected roles.' )
+						. '<br /><strong>' . sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'This setting only applies to %s.' ), _wpsf__( 'Email Authentication' ) ) ).'</strong>';
 					break;
 
 				case 'enable_user_register_checking' :

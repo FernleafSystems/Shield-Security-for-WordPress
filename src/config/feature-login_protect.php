@@ -21,15 +21,15 @@ sections:
     slug: 'section_enable_plugin_feature_login_protection'
     primary: true
   -
-    slug: 'section_bypass_login_protection'
-  -
-    slug: 'section_rename_wplogin'
+    slug: 'section_brute_force_login_protection'
   -
     slug: 'section_multifactor_authentication'
   -
-    slug: 'section_brute_force_login_protection'
+    slug: 'section_rename_wplogin'
   -
     slug: 'section_yubikey_authentication'
+  -
+    slug: 'section_bypass_login_protection'
   -
     slug: 'section_non_ui'
     hidden: true
