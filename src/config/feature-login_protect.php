@@ -21,15 +21,15 @@ sections:
     slug: 'section_enable_plugin_feature_login_protection'
     primary: true
   -
-    slug: 'section_bypass_login_protection'
+    slug: 'section_brute_force_login_protection'
+  -
+    slug: 'section_multifactor_authentication'
   -
     slug: 'section_rename_wplogin'
   -
-    slug: 'section_two_factor_authentication'
-  -
-    slug: 'section_brute_force_login_protection'
-  -
     slug: 'section_yubikey_authentication'
+  -
+    slug: 'section_bypass_login_protection'
   -
     slug: 'section_non_ui'
     hidden: true
@@ -58,22 +58,28 @@ options:
     link_info: 'http://icwp.io/5q'
     link_blog: 'http://icwp.io/5r'
   -
-    key: 'enable_two_factor_auth_by_ip'
-    section: 'section_two_factor_authentication'
+    key: 'enable_google_authenticator'
+    section: 'section_multifactor_authentication'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'enable_email_authentication'
+    section: 'section_multifactor_authentication'
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/3s'
     link_blog: ''
   -
+    key: 'enable_two_factor_auth_by_ip'
+    section: 'section_non_ui'
+  -
     key: 'enable_two_factor_auth_by_cookie'
-    section: 'section_two_factor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/3t'
-    link_blog: ''
+    section: 'section_non_ui'
   -
     key: 'two_factor_auth_user_roles'
-    section: 'section_two_factor_authentication'
+    section: 'section_multifactor_authentication'
     type: 'multiple_select'
     default:
       - 1

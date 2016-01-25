@@ -43,13 +43,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'enable_google_authenticator'
-    section: 'section_multifactor_authentication'
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'enable_admin_login_email_notification'
     section: 'section_admin_login_notification'
     default: ''
@@ -82,22 +75,6 @@ options:
     section: 'section_user_session_management'
     default: '0'
     type: 'integer'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'session_check_admin_area_only'
-    hidden: true
-    section: 'section_user_session_management'
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'session_auto_forward_to_admin_area'
-    hidden: true
-    section: 'section_user_session_management'
-    default: 'Y'
-    type: 'checkbox'
     link_info: ''
     link_blog: ''
   -

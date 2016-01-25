@@ -286,6 +286,10 @@ You can add some custom code to your functions.php exactly as the following:
 * **(v.2)**  CHANGED:		Provided the option to [manually force a Core File Scan](https://icontrolwp.freshdesk.com/support/solutions/articles/3000047513).
 * **(v.2)**  TRANSLATIONS:	Turkish (100%)
 
+= 4.17 Series =
+
+* **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
+
 = 4.16 Series =
 *Released: 20th January, 2016*
 
