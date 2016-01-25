@@ -69,6 +69,8 @@ definitions:
     - 'akismet'
     - 'themes/twenty'
     - 'wp-content/languages/'
+  corechecksum_exclusions_missing_only:
+    - 'wp-admin/install.php'
   corechecksum_autofix_index_files:
     - 'wp-content/index.php'
     - 'wp-content/plugins/index.php'

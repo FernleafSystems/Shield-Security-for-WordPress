@@ -607,6 +607,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
+		do_action( $this->doPluginPrefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();

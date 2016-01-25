@@ -41,15 +41,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				add_filter( $oFO->doPluginPrefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			}
+
+			add_action( $oFO->doPluginPrefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
 		}
 
-		public function action_doFeatureProcessorShutdown () {
-			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			if ( ! $oFO->getIsPluginDeleting() ) {
-				$this->blackMarkCurrentVisitor();
-			}
+		public function doBlackMarkIp() {
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 		}
 
 		/**
@@ -214,42 +212,26 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
 				$bKill = $this->getIsIpAutoBlackListed( $sIp );
-				if ( $bKill ) {
-					$this->query_updateLastAccessForAutoBlackListIp( $sIp );
-				}
 			}
 
 			if ( $bKill ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connection was killed.' ), $sIp );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 
-				$this->loadWpFunctionsProcessor()->wpDie(
-					'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
-						'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
-					).'</h3>'
-					.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
-					.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
-					.'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime() / 60 ) )
-					.'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
-					.'</p>'
-					.'<p><a href="http://icwp.io/6i" target="_blank">'._wpsf__( 'Click here if you are the site owner.' ).'</a></p>'
-				);
-			}
-		}
+				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 
-		/**
-		 * @return boolean
-		 */
-		public function action_blackMarkIp() {
-
-			// Never black mark IPs that are on the whitelist
-			if ( $this->getIsVisitorWhitelisted() ) {
-				return;
-			}
-
-			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
-			if ( $bDoBlackMark ) {
-				$this->blackMarkIp( $this->human_ip() );
+				$this->loadWpFunctionsProcessor()
+					->wpDie(
+						'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
+							'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'
+						).'</h3>'
+						.'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
+						.'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
+						.'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime() / 60 ) )
+						.'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
+						.'</p>'
+						.'<p><a href="http://icwp.io/6i" target="_blank">'._wpsf__( 'Click here if you are the site owner.' ).'</a></p>'
+					);
 			}
 		}
 
@@ -261,13 +243,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		}
 
 		/**
+		 * @return boolean
+		 */
+		public function action_blackMarkIp() {
+			$this->blackMarkCurrentVisitor();
+		}
+
+		/**
 		 */
 		protected function blackMarkCurrentVisitor() {
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
 
 			// Never black mark IPs that are on the whitelist
-			if ( !$oFO->getIsAutoBlackListFeatureEnabled() || $this->getIsVisitorWhitelisted() ) {
+			if ( $oFO->getIsPluginDeleting() || !$oFO->getIsAutoBlackListFeatureEnabled() || $this->getIsVisitorWhitelisted() ) {
 				return;
 			}
 

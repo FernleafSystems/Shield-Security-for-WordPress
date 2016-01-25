@@ -64,10 +64,11 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 		return array(
 			'', '',
 			sprintf(
-				_wpsf__( 'This email was sent as part of the %s plugin, provided by %s.' ),
+				_wpsf__( 'This email was sent from the %s plugin, provided by %s.' ),
 				$this->getController()->getHumanName(),
 				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP - WordPress Management and Backup Protection For Professionals' )
-			)
+			),
+			sprintf( _wpsf__( 'Current Plugin Version: %s.' ), $this->getController()->getVersion() ),
 		);
 	}
 

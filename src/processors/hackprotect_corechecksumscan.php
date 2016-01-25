@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 */
 		public function run() {
 			$this->setupChecksumCron();
-			if ( $this->loadDataProcessor()->FetchGet( 'force_checksumscan' ) == 1 ) {
+			if ( $this->loadDataProcessor()->FetchGet( 'force_checksumscan' ) == 1 && $this->loadWpUsersProcessor()->isUserAdmin() ) {
 				$this->cron_dailyChecksumScan();
 			}
 		}
@@ -32,56 +32,59 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		public function cron_dailyChecksumScan() {
-			$sChecksumContent = $this->loadFileSystemProcessor()->getUrlContent( $this->getChecksumUrl() );
 
-			if ( !empty( $sChecksumContent ) ) {
-				$oChecksumData = json_decode( $sChecksumContent );
+			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
 
-				if ( is_object( $oChecksumData ) && isset( $oChecksumData->checksums ) && is_object( $oChecksumData->checksums ) ) {
+			if ( !empty( $aChecksumData ) && is_array( $aChecksumData ) ) {
 
-					$aFiles = array(
-						'checksum_mismatch' => array(),
-						'missing' => array(),
-					);
+				$aDiscoveredFiles = array(
+					'checksum_mismatch' => array(),
+					'missing' => array(),
+				);
 
-					$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
-					if ( empty( $aAutoFixIndexFiles ) ) {
-						$aAutoFixIndexFiles = array();
+				$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+				if ( empty( $aAutoFixIndexFiles ) ) {
+					$aAutoFixIndexFiles = array();
+				}
+
+				$sFullExclusionsPattern = '#('.implode('|', $this->getFullExclusions() ).')#i';
+				$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
+				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
+
+				$oFS = $this->loadFileSystemProcessor();
+				foreach ( $aChecksumData as $sFilePath => $sChecksum ) {
+					if ( preg_match( $sFullExclusionsPattern, $sFilePath ) ) {
+						continue;
 					}
-					$oFS = $this->loadFileSystemProcessor();
-					$sExclusionsPattern = '#('.implode('|', $this->getExclusions() ).')#i';
-					$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' );
-					foreach ( $oChecksumData->checksums as $sFilePath => $sChecksum ) {
-						if ( preg_match( $sExclusionsPattern, $sFilePath ) ) {
-							continue;
-						}
 
-						$bRepairThis = false;
-						$sFullPath = ABSPATH . $sFilePath;
+					$bRepairThis = false;
+					$sFullPath = ABSPATH . $sFilePath;
 
-						if ( in_array( $sFilePath, $aAutoFixIndexFiles ) && $oFS->getFileSize( $sFullPath ) == 32 ) {
-							$bRepairThis = true;
-						}
-						else if ( $oFS->isFile( $sFullPath ) ) {
-							if ( $sChecksum != md5_file( $sFullPath ) ) {
-								$aFiles[ 'checksum_mismatch' ][] = $sFilePath;
+					if ( $oFS->isFile( $sFullPath ) ) {
+						if ( $sChecksum != md5_file( $sFullPath ) ) {
+
+							if ( in_array( $sFilePath, $aAutoFixIndexFiles ) ) {
+								$bRepairThis = true;
+							}
+							else {
+								$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sFilePath;
 								$bRepairThis = $bOptionRepair;
 							}
 						}
-						else {
-							$aFiles[ 'missing' ][] = $sFilePath;
-							$bRepairThis = $bOptionRepair;
-						}
-
-						if ( $bRepairThis ) {
-							$this->replaceFileContentsWithOfficial( $sFilePath );
-						}
+					}
+					else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sFilePath ) ) {
+						// If the file is missing and it's not in the missing-only exclusions
+						$aDiscoveredFiles[ 'missing' ][] = $sFilePath;
+						$bRepairThis = $bOptionRepair;
 					}
 
-					if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {
-						$sRecipient = $this->getPluginDefaultRecipientAddress();
-						$this->sendChecksumErrorNotification( $aFiles, $sRecipient );
+					if ( $bRepairThis ) {
+						$this->replaceFileContentsWithOfficial( $sFilePath );
 					}
+				}
+
+				if ( !empty( $aDiscoveredFiles[ 'checksum_mismatch' ] ) || !empty( $aDiscoveredFiles[ 'missing' ] ) ) {
+					$this->sendChecksumErrorNotification( $aDiscoveredFiles );
 				}
 			}
 		}
@@ -89,8 +92,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		/**
 		 * @return array
 		 */
-		protected function getExclusions() {
+		protected function getFullExclusions() {
 			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions' );
+			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
+				$aExclusions = array();
+			}
+			foreach ( $aExclusions as $nKey => $sExclusion ) {
+				$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
+			}
+			return $aExclusions;
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getMissingOnlyExclusions() {
+			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions_missing_only' );
 			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 				$aExclusions = array();
 			}
@@ -123,25 +140,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
-		 * Could be replaced with get_core_checksums() WPv3.7+
-		 * @return string
-		 */
-		protected function getChecksumUrl() {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$sBaseUrl = $this->getFeatureOptions()->getDefinition( 'url_checksum_api' );
-			$aQueryArgs = array(
-				'version' 	=> $oWp->getWordpressVersion(),
-				'locale'	=> $oWp->getLocale()
-			);
-			return add_query_arg( $aQueryArgs, $sBaseUrl );
-		}
-
-		/**
 		 * @param array $aFiles
-		 * @param string $sRecipient
 		 * @return bool
 		 */
-		protected function sendChecksumErrorNotification( $aFiles, $sRecipient ) {
+		protected function sendChecksumErrorNotification( $aFiles ) {
 			if ( empty( $aFiles ) && empty( $aFiles['missing'] ) && empty( $aFiles['checksum_mismatch'] ) ) {
 				return true;
 			}
@@ -185,6 +187,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					. ' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').']</a>';
 			}
 
+			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Core WordPress Files(s) Discovered That May Have Been Modified.' ) );
 			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 

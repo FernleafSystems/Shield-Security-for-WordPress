@@ -6,20 +6,20 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.16.1
+Stable tag: 4.16.2
 
 Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
 
 == Description ==
 
 > The Simple Security Firewall is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
-It's designed for maximum compatibility with your WordPress sites, while offering an uncomplicated approach for beginner
-and advanced user alike - with NO nasty site lockouts. Experience the difference that a great security plugin makes,
-alongside common-sense user security design.  You'll never look back!
+We're designed for maximum compatibility with your WordPress sites, while providing an uncomplicated approach for beginner
+and advanced users alike - with NO nasty site lockouts. Experience the difference that a great security plugin makes,
+alongside common-sense security design.  You'll never look back!
 
-Are you looking to secure your WordPress site but without getting overwhelmed?
+Do you want to secure your WordPress site, without getting overwhelmed?
 
-What makes the it different?
+Stand out from the herd - what makes ours different?
 
 * No restrictive PRO/Premium version - it's all there.
 * Easy-To-Setup Interface.
@@ -278,16 +278,20 @@ You can add some custom code to your functions.php exactly as the following:
 
 == Changelog ==
 
-= 4.16.1 Latest Point Release =
-*Released: 21st January, 2016*
+= 4.16.2 Latest Point Release =
+*Released: 25th January, 2016*
 
-* **(v.1)**  CHANGED:		Improved the contents of the [Core File Scanner](http://icwp.io/wpsf40) notification email with links to original source files.
-* **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may update independently.
-* **(v.1)**  CHANGED:		Handles the special case of [old index.php files](https://wordpress.org/support/topic/problem-with-checksum-hashes)
+* **(v.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](http://icwp.io/wpsf40).
+* **(v.2)**  CHANGED:		Improvements to the [automatic black list system](http://icwp.io/wpsf27) for failed login attempts.
+* **(v.2)**  CHANGED:		Provided the option to [manually force a Core File Scan](https://icontrolwp.freshdesk.com/support/solutions/articles/3000047513).
+* **(v.2)**  TRANSLATIONS:	Turkish (100%)
 
 = 4.16 Series =
 *Released: 20th January, 2016*
 
+* **(v.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](http://icwp.io/wpsf40).
+* **(v.2)**  CHANGED:		Improvements to the [automatic black list system](http://icwp.io/wpsf27) for failed login attempts.
+* **(v.2)**  TRANSLATIONS:	Turkish (100%)
 * **(v.1)**  CHANGED:		Improved the contents of the [Core File Scanner](http://icwp.io/wpsf40) notification email with links to original source files.
 * **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may update independently.
 * **(v.1)**  CHANGED:		Handles the special case of [old index.php files](https://wordpress.org/support/topic/problem-with-checksum-hashes)

@@ -130,6 +130,33 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return array|false
+		 */
+		public function getCoreChecksums() {
+			$aChecksumData = false;
+			$sCurrentVersion = $this->getWordpressVersion();
+
+			if ( function_exists( 'get_core_checksums' ) ) { // if it's loaded, we use it.
+				$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocale( true ) );
+			}
+			else {
+				$aQueryArgs = array(
+					'version' 	=> $sCurrentVersion,
+					'locale'	=> $this->getLocale( true )
+				);
+				$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
+				$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sQueryUrl );
+				if ( !empty( $sResponse ) ) {
+					$aDecodedResponse = json_decode( trim( $sResponse ), true );
+					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse['checksums'] ) && is_array( $aDecodedResponse['checksums'] ) ) {
+						$aChecksumData = $aDecodedResponse[ 'checksums' ];
+					}
+				}
+			}
+			return $aChecksumData;
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getHomeUrl() {
@@ -139,6 +166,19 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 				$sUrl = home_url();
 			}
 			return $sUrl;
+		}
+
+		/**
+		 * @param bool $bForChecksums
+		 * @return string
+		 */
+		public function getLocale( $bForChecksums = false ) {
+			$sLocale = get_locale();
+			if ( $bForChecksums ) {
+				global $wp_local_package;
+				$sLocale = empty( $wp_local_package ) ? 'en_US' : $wp_local_package;
+			}
+			return $sLocale;
 		}
 
 		/**
@@ -270,14 +310,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 				'_wpnonce'	=> wp_create_nonce( 'upgrade-plugin_' . $sPluginFile )
 			);
 			return add_query_arg( $aQueryArgs, $sUrl );
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getLocale() {
-			global $wp_local_package;
-			return empty( $wp_local_package ) ? get_locale() : $wp_local_package;
 		}
 
 		/**

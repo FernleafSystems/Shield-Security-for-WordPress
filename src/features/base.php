@@ -1029,6 +1029,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
 				'sPluginName'		=> $oCon->getHumanName(),
 				'sFeatureName'		=> $this->getMainFeatureName(),
+				'bFeatureEnabled'	=> $this->getIsMainFeatureEnabled(),
 				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
 				'fShowAds'			=> $this->getIsShowMarketing(),
 				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
