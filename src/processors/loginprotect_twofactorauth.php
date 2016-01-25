@@ -32,72 +32,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * Checks whether the current user that is logged-in is authenticated by IP address.
-		 * If the user is not found to be valid, they're logged out.
-		 * Should be hooked to 'init' so we have is_user_logged_in()
-		 */
-		public function checkCurrentUserAuth() {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			if ( is_user_logged_in() ) {
-				$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-				if ( !is_null( $oUser ) ) {
-
-					if ( $this->getUserHasValidAuth( $oUser ) ) {
-						// we do this for active users who already have verified
-						if ( !$oFO->getIfCanSendEmailVerified() ) {
-							$oFO->setIfCanSendEmail( true );
-						}
-					}
-					else if ( $this->getIsUserLevelSubjectToTwoFactorAuth( $oUser->get( 'user_level' ) ) ) {
-
-						$sAuditMessage = sprintf( _wpsf__('User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).'), $oUser->get( 'user_login' ) );
-						$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_logout_unverified' );
-						$this->doStatIncrement( 'login.userverify.fail' );
-						$this->loadWpUsersProcessor()->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
-					}
-				}
-			}
-		}
-
-		/**
-		 * Checks whether a given user is authenticated.
-		 *
-		 * @param WP_User $oUser
-		 * @return boolean
-		 */
-		protected function getUserHasValidAuth( $oUser ) {
-
-			$fVerified = false;
-			$aUserAuthData = $this->query_GetActiveAuthForUser( $oUser );
-
-			$oDp = $this->loadDataProcessor();
-			$sVisitorIp = $oDp->getVisitorIpAddress( true );
-			if ( !is_null( $aUserAuthData ) ) {
-				/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-				$oFO = $this->getFeatureOptions();
-
-				// Now we test based on which types of 2-factor auth is enabled
-				$fVerified = true;
-				if ( $oFO->getIsTwoFactorAuthOn('ip') && ( $sVisitorIp != $aUserAuthData['ip'] ) ) {
-					$fVerified = false;
-				}
-
-				if ( $fVerified && $oFO->getIsTwoFactorAuthOn('cookie') && !$this->getIsAuthCookieValid( $aUserAuthData['session_id'] ) ) {
-					$fVerified = false;
-				}
-			}
-
-			if ( !$fVerified ) {
-				$sAuditMessage = sprintf( _wpsf__('User "%s" was found to be un-verified at the given IP Address: "%s".'), $oUser->get( 'user_login' ), $oDp->getVisitorIpAddress( true ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_unverified_ip', $oUser->get( 'user_login' ) );
-			}
-
-			return $fVerified;
-		}
-
-		/**
 		 * Checks the link details to ensure all is valid before authorizing the user.
 		 */
 		public function validateUserAuthLink() {
@@ -249,13 +183,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * @return string
-		 */
-		protected function getSessionId() {
-			return $this->getController()->getSessionId();
-		}
-
-		/**
 		 * Note: Username should be UNESCAPED as it uses wpdb::insert()
 		 *
 		 * @param string $sUsername
@@ -281,7 +208,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 			// Now add new pending entry
 			$aNewData = array();
-			$aNewData[ 'session_id' ]	= $this->getSessionId();
+			$aNewData[ 'session_id' ]	= $this->getController()->getSessionId();
 			$aNewData[ 'ip' ]			= $this->loadDataProcessor()->getVisitorIpAddress( true );
 			$aNewData[ 'wp_username' ]	= $sUsername;
 			$aNewData[ 'pending' ]		= 1;
@@ -293,7 +220,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 		/**
 		 * Must provide "session_id" and "wp_username".
-		 *
 		 * Will update the authentication table so that it is active (pending=0).
 		 *
 		 * Note: Data should be UNESCAPED as it uses wpdb::update()
@@ -338,29 +264,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
-		 * @param WP_User $oUser
-		 * @return mixed
-		 */
-		protected function query_GetActiveAuthForUser( $oUser ) {
-			$sQuery = "
-				SELECT *
-				FROM `%s`
-				WHERE
-					`wp_username`		= '%s'
-					AND `pending`		= '0'
-					AND `deleted_at`	= '0'
-					AND `expired_at`	= '0'
-			";
-
-			$sQuery = sprintf( $sQuery,
-				$this->getTableName(),
-				$oUser->get( 'user_login' )
-			);
-			$mResult = $this->selectCustom( $sQuery );
-			return ( is_array( $mResult ) && count( $mResult ) == 1 ) ? $mResult[0] : null ;
-		}
-
-		/**
 		 * @param string $sUsername
 		 * @return array|null
 		 */
@@ -381,14 +284,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && count( $mResult ) == 1 ) ? $mResult[0] : null ;
-		}
-
-		/**
-		 * @param string $sId
-		 * @return bool
-		 */
-		protected function getIsAuthCookieValid( $sId ) {
-			return ( !empty( $sId ) && ( $sId == $this->getSessionId() ) );
 		}
 
 		/**

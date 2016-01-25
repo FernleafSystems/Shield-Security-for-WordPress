@@ -313,7 +313,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Plugins' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
-								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Activate') ) );
+					. '<br />' . sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__( 'Activate' ) ) );
 				break;
 
 			case 'admin_access_restrict_options' :

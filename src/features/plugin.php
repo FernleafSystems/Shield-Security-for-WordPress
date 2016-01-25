@@ -261,6 +261,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'Recommendation - %s' );
 			_wpsf__( 'Blacklist' );
 			_wpsf__( 'Logging' );
+			_wpsf__( 'User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).' );
+			_wpsf__( 'User "%s" was found to be un-verified at the given IP Address: "%s".' );
+			_wpsf__( 'Cookie' );
+			_wpsf__( 'IP Address' );
+			_wpsf__( 'IP' );
+			_wpsf__( 'This will restrict all user login sessions to a single browser. Use this if your users have dynamic IP addresses.' );
+			_wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication, when logging in from a new IP address' );
+			_wpsf__( '2-Factor Auth' );
 		}
 	}
 

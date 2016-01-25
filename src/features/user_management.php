@@ -190,25 +190,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 									.'<br />'._wpsf__( "Zero (0) will allow unlimited simultaneous sessions." );
 					break;
 
-				case 'session_check_admin_area_only' :
-					$sName = _wpsf__( 'Check Admin Area Only' );
-					$sSummary = _wpsf__( 'Perform Session Checking For Logged In Users Only In Admin Area' );
-					$sDescription = _wpsf__( 'When selected, session timeouts will only be checked on visits to the WordPress admin area.' );
-					break;
-
-				case 'session_auto_forward_to_admin_area' :
-					$sName = _wpsf__( 'Auto Redirect To Admin' );
-					$sSummary = _wpsf__( 'Automatically Redirect To WP Admin When Valid Session Detected' );
-					$sDescription = _wpsf__( 'When selected, users will be automatically forwarded to the WordPress admin screen when they visit wp-login.php.' )
-									.'<br />'. _wpsf__( 'It removes the extra step to get to the admin screen for already-authenticated users.' );
-					break;
-
-				case 'enable_google_authenticator' :
-					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
-					$sSummary = _wpsf__( 'Allow Users To Enable Google Authenticator' );
-					$sDescription = _wpsf__('When enabled, users will have the option to turn on Google Authenticator-based two-factor authentication in their WordPress user profile');
-					break;
-
 				default:
 					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 			}
