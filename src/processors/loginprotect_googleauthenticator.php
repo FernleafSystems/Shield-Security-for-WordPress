@@ -30,7 +30,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param WP_User $oUser
 	 */
 	public function addGoogleAuthenticatorOptionsToUserProfile( $oUser ) {
-
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$aData = array(

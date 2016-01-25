@@ -6,7 +6,7 @@
 
 		<?php if ( $user_has_google_authenticator_validated ) : ?>
 
-			<?php if ( $is_my_user_profile || ( $is_valid_admin && !$user_to_edit_is_admin ) ) : ?>
+			<?php if ( $is_my_user_profile || ( $i_am_valid_admin && !$user_to_edit_is_admin ) ) : ?>
 				<tr>
 					<th><label for="shield_turn_off_google_authenticator"><?php echo $strings['label_check_to_remove']; ?></label></th>
 					<td>
