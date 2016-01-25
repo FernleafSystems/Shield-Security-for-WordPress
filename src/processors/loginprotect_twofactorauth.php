@@ -26,12 +26,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				add_action( 'init', array( $this, 'validateUserAuthLink' ), 10 );
 			}
 
-			// Check the current logged-in user every page load.
-			add_action( 'init', array( $this, 'checkCurrentUserAuth' ), 11 );
-
 			// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
 			// is valid, the filter will have a valid WP_User object passed to it.
-			add_filter( 'authenticate', array( $this, 'doUserTwoFactorAuth' ), 30, 3 );
+			add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30, 2 );
 		}
 
 		/**
@@ -110,19 +107,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			// wpsfkey=%s&wpsf-action=%s&username=%s&sessionid
 
 			if ( $oDp->FetchGet( 'wpsfkey' ) !== $oFO->getTwoAuthSecretKey() ) {
-				return false;
+				return;
 			}
 
 			$sUsername = $oDp->FetchGet( 'username' );
 			$sSessionId = $oDp->FetchGet( 'sessionid' );
 
 			if ( empty( $sUsername ) || empty( $sSessionId ) ) {
-				return false;
+				return;
 			}
 
 			$oWp = $this->loadWpFunctionsProcessor();
+
+			// First, determine if there's a pending auth for the given username + Session ID
+			$aCurrentlyPending = $this->query_GetPendingAuthForUsername( $sUsername );
+			if ( empty( $aCurrentlyPending ) || !is_array( $aCurrentlyPending ) || $aCurrentlyPending['session_id'] != $sSessionId ) {
+				$oWp->redirectToHome();
+				return;
+			}
+
 			if ( $this->setLoginAuthActive( $sSessionId, $sUsername ) ) {
-				$sAuditMessage = sprintf( _wpsf__('User "%s" verified their identity using Two-Factor Authentication.'), $sUsername );
+				$sAuditMessage = sprintf( _wpsf__( 'User "%s" verified their identity using Two-Factor Authentication.' ), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
 				$this->doStatIncrement( 'login.twofactor.verified' );
 				$this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
@@ -135,10 +140,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 					$oWp->redirectToAdmin();
 				}
 			}
-			else {
-				$oWp->redirectToLogin();
-			}
-			return true;
+			$oWp->redirectToHome();
 		}
 
 		/**
@@ -158,23 +160,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 *
 		 * @param WP_User|WP_Error|null $oUser
 		 * @param string $sUsername
-		 * @param string $sPassword
 		 * @return WP_Error|WP_User|null	- WP_User when the login success AND the IP is authenticated. null when login not successful but IP is valid. WP_Error otherwise.
 		 */
-		public function doUserTwoFactorAuth( $oUser, $sUsername, $sPassword ) {
+		public function setupPendingTwoFactorAuth( $oUser, $sUsername ) {
 
 			if ( empty( $sUsername ) ) {
 				return $oUser;
 			}
 
-			$fUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
+			$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
 
-			if ( $fUserLoginSuccess ) {
+			if ( $bUserLoginSuccess ) {
 
 				if ( !$this->getIsUserLevelSubjectToTwoFactorAuth( $oUser->get( 'user_level' ) ) ) {
-					return $oUser;
-				}
-				if ( $this->getUserHasValidAuth( $oUser ) ) {
 					return $oUser;
 				}
 
@@ -184,7 +182,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				// Now send email with authentication link for user.
 				if ( is_array( $aNewAuthData ) ) {
 					$this->doStatIncrement( 'login.twofactor.started' );
-					$fEmailSuccess = $this->sendEmailTwoFactorVerify( $oUser, $aNewAuthData['ip'], $aNewAuthData['session_id'] );
+					$this->sendEmailTwoFactorVerify( $oUser, $aNewAuthData['ip'], $aNewAuthData['session_id'] );
 
 					// We put this right at the end so as to nullify the effect of black marking on failed login (which this appears to be due to WP_Error)
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_false', 1000 );
@@ -218,8 +216,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				'session_id'	=> $sSessionId,
 				'wp_username'	=> $sUsername
 			);
-			$this->query_DoMakePendingLoginAuthActive( $aWhere );
-			return true;
+			return $this->query_DoMakePendingLoginAuthActive( $aWhere );
 		}
 
 		/**
@@ -259,6 +256,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
+		 * Note: Username should be UNESCAPED as it uses wpdb::insert()
+		 *
 		 * @param string $sUsername
 		 * @return boolean
 		 */
@@ -297,6 +296,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 *
 		 * Will update the authentication table so that it is active (pending=0).
 		 *
+		 * Note: Data should be UNESCAPED as it uses wpdb::update()
+		 *
 		 * @param array $aWhere - session_id, wp_username
 		 * @return boolean
 		 */
@@ -310,20 +311,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$aWhere['pending'] 		= 1;
 			$aWhere['deleted_at']	= 0;
 			$mResult = $this->updateRowsWhere( array( 'pending' => 0 ), $aWhere );
-			return $mResult;
-		}
-
-		/**
-		 * Invalidates all currently active two-factor logins and redirects to admin (->login)
-		 */
-		public function doTerminateAllVerifiedLogins() {
-			$this->query_DoTerminateActiveLogins();
-			$this->loadWpFunctionsProcessor()->redirectToAdmin();
+			return ( $mResult > 0 );
 		}
 
 		/**
 		 * @param string $sWpUsername Specify a username to terminate only those logins
-		 *
 		 * @return bool|int
 		 */
 		protected function query_DoTerminateActiveLogins( $sWpUsername = '' ) {
@@ -363,6 +355,29 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
 				$oUser->get( 'user_login' )
+			);
+			$mResult = $this->selectCustom( $sQuery );
+			return ( is_array( $mResult ) && count( $mResult ) == 1 ) ? $mResult[0] : null ;
+		}
+
+		/**
+		 * @param string $sUsername
+		 * @return array|null
+		 */
+		protected function query_GetPendingAuthForUsername( $sUsername ) {
+			$sQuery = "
+				SELECT *
+				FROM `%s`
+				WHERE
+					`wp_username`		= '%s'
+					AND `pending`		= '1'
+					AND `deleted_at`	= '0'
+					AND `expired_at`	= '0'
+			";
+
+			$sQuery = sprintf( $sQuery,
+				$this->getTableName(),
+				$sUsername
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && count( $mResult ) == 1 ) ? $mResult[0] : null ;
