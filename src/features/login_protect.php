@@ -151,7 +151,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					break;
 
 				case 'section_multifactor_authentication' :
-					$sTitle = _wpsf__( 'Two-Factor Authentication' );
+					$sTitle = _wpsf__( 'Multi-Factor Authentication' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
