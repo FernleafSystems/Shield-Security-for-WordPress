@@ -132,9 +132,6 @@ options:
         storage_key: 'firewall'
         load_priority: 13
       -
-        slug: 'hack_protect'
-        storage_key: 'hack_protect'
-      -
         slug: 'login_protect'
         storage_key: 'loginprotect'
       -
@@ -146,6 +143,9 @@ options:
       -
         slug: 'autoupdates'
         storage_key: 'autoupdates'
+      -
+        slug: 'hack_protect'
+        storage_key: 'hack_protect'
       -
         slug: 'lockdown'
         storage_key: 'lockdown'

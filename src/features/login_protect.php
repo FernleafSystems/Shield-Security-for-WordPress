@@ -173,11 +173,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
-				case 'section_login_logging' :
-					$sTitle = _wpsf__( 'Logging' );
-					$sTitleShort = _wpsf__( 'Logging' );
-					break;
-
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
@@ -457,6 +452,30 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$nDateAt = 0;
 			}
 			return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
+		}
+
+		/**
+		 * @param WP_User $oUser
+		 * @return bool
+		 */
+		public function getUserHasGoogleAuthenticator( WP_User $oUser ) {
+			$sSecret = $this->getUserGoogleAuthenticatorSecret( $oUser );
+			return !empty( $sSecret )
+			&& ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) == 'Y' );
+		}
+
+		/**
+		 * @param WP_User $oUser
+		 * @return false|string
+		 */
+		public function getUserGoogleAuthenticatorSecret( WP_User $oUser ) {
+			$oWpUser = $this->loadWpUsersProcessor();
+			$sSecret = $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_secret' ), $oUser->ID );
+			if ( empty( $sSecret ) ) {
+				$sSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
+				$oWpUser->updateUserMeta( $this->prefixOptionKey( 'ga_secret' ), $sSecret, $oUser->ID );
+			}
+			return $sSecret;
 		}
 	}
 

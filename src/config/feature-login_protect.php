@@ -31,8 +31,6 @@ sections:
   -
     slug: 'section_yubikey_authentication'
   -
-    slug: 'section_login_logging'
-  -
     slug: 'section_non_ui'
     hidden: true
 

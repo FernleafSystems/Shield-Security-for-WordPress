@@ -37,6 +37,11 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 		}
 
 		// check for Yubikey auth after user is authenticated with WordPress.
+		if ( $this->getIsOption( 'enable_google_authenticator', 'Y' ) ) {
+			$this->getProcessorGoogleAuthenticator()->run();
+		}
+
+		// check for Yubikey auth after user is authenticated with WordPress.
 		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
 			$this->getProcessorYubikey()->run();
 		}
@@ -168,6 +173,15 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 	protected function getProcessorYubikey() {
 		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_yubikey.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
+	 */
+	protected function getProcessorGoogleAuthenticator() {
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_googleauthenticator.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeatureOptions() );
 		return $oProc;
 	}
 }
