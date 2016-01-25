@@ -85,22 +85,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'session_check_admin_area_only'
-    hidden: true
-    section: 'section_user_session_management'
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'session_auto_forward_to_admin_area'
-    hidden: true
-    section: 'section_user_session_management'
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
