@@ -130,7 +130,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 		/**
 		 * @param string $sPath
-		 * @return bool|null
+		 * @return bool
 		 */
 		protected function replaceFileContentsWithOfficial( $sPath ) {
 			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sPath );
