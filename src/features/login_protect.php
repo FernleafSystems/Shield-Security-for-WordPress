@@ -60,6 +60,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 			if ( $this->getIsTwoFactorAuthOn() ) {
 				$this->setOpt( 'enable_email_authentication', 'Y' );
+				$this->setOpt( 'enable_two_factor_auth_by_ip', 'N' );
+				$this->setOpt( 'enable_two_factor_auth_by_cookie', 'N' );
 			}
 
 			$this->cleanLoginUrlPath();
