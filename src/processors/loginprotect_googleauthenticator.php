@@ -145,7 +145,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$sHtml =
 			'<p class="shield-google-authenticator-otp">
 				<label>%s<br />
-					<input type="text" name="%s" class="input" value="" size="20" />
+					<input type="text" name="%s" class="input" value="" size="20" autocomplete="off" />
 				</label>
 			</p>
 		';
