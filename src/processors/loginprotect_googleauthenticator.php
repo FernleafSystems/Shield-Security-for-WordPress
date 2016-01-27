@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oFO = $this->getFeatureOptions();
 		$aData = array(
 			'user_has_google_authenticator_validated' => $oFO->getUserHasGoogleAuthenticator( $oUser ),
-			'user_google_authenticator_secret' => $oFO->getUserGoogleAuthenticatorSecret( $oUser ),
+			'user_google_authenticator_secret' => $oFO->getUserGoogleAuthenticatorSecret( $oUser, true ),
 			'is_my_user_profile' => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
 			'i_am_valid_admin' => $this->getController()->getIsValidAdminArea( true ),
 			'user_to_edit_is_admin' => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
@@ -93,7 +93,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			}
 			// At this stage we have a validated GA Code for this user's Secret if applicable.
 		}
-
 		// Trying to validate a new QR for my own profile
 		if ( $bEditingMyOwnProfile && !$oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
 			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nUserId );
@@ -129,7 +128,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			}
 			else {
 				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
-				if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser ), $sGaOtp ) ) {
+				if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser, false ), $sGaOtp ) ) {
 					$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Oh dear.' )
 						.' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
 					$oUser = $oError;
