@@ -1,4 +1,4 @@
-<div id="shield-options-email-authentication">
+<div id="shield-options-email-authentication" class="shield-user-options-block">
 	<h3><?php echo $strings['title']; ?>
 		<small>(<?php echo $strings['provided_by']; ?>)</small>
 	</h3>
