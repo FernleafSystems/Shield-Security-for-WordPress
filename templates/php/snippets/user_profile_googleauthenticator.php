@@ -1,6 +1,7 @@
-<div id="shield-options-google-authenticator">
-	<h3 id="shield-googleauthenticator"><?php echo $strings['title']; ?></h3>
-
+<div id="shield-options-google-authenticator" class="shield-user-options-block">
+	<h3><?php echo $strings['title']; ?>
+		<small>(<?php echo $strings['provided_by']; ?>)</small>
+	</h3>
 	<table class="form-table">
 		<tbody>
 
@@ -11,6 +12,7 @@
 					<th><label for="shield_turn_off_google_authenticator"><?php echo $strings['label_check_to_remove']; ?></label></th>
 					<td>
 						<input type="checkbox" name="shield_turn_off_google_authenticator" id="shield_turn_off_google_authenticator" value="Y" />
+						<p class="description"><?php echo $strings['description_remove_google_authenticator']; ?></p>
 					</td>
 				</tr>
 				<?php if ( $is_my_user_profile ) : ?>

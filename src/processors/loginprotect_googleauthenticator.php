@@ -41,11 +41,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			'strings' => array(
 				'description_otp_code' => _wpsf__( 'You must provide the current code from your Google Authenticator app.' ),
 				'description_chart_url' => _wpsf__( 'Use your Google Authenticator app to scan this QR code and enter the one time password below.' ),
-				'label_check_to_remove' => _wpsf__( 'Check To Remove Google Authenticator' ),
-				'label_enter_code' => _wpsf__( 'Enter Code From Google Authenticator app' ),
+				'description_remove_google_authenticator' => _wpsf__( 'Check the box to remove Google Authenticator login authentication.' ),
+				'label_check_to_remove' => _wpsf__( 'Remove Google Authenticator' ),
+				'label_enter_code' => _wpsf__( 'Google Authenticator Code' ),
 				'title' => _wpsf__( 'Google Authenticator' ),
 				'sorry_cant_add_to_other_user' => _wpsf__( "Sorry, Google Authenticator may not be added to another user's account." ),
 				'sorry_cant_remove_from_to_other_admins' => _wpsf__( "Sorry, Google Authenticator may not be removed from another administrator's account." ),
+				'provided_by' => sprintf( _wpsf__( 'Provided by %s' ), $this->getController()->getHumanName() )
 			)
 		);
 

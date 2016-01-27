@@ -108,3 +108,9 @@ tr.icwp-plugin-vulnerability dd {
 	margin: 2px 0 4px;
 	padding: 7px 8px 5px 6px;
 }
+
+.shield-user-options-block {
+}
+.shield-user-options-block table {
+	margin-left: 1em;
+}
