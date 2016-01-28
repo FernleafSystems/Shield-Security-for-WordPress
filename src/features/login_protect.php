@@ -37,7 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$oWp->resavePermalinks();
 			}
 		 */
-			if ( $this->getIsTwoFactorAuthOn() && !$this->getIfCanSendEmailVerified() ) {
+			if ( $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
 				$this->setIfCanSendEmail( false );
 				$this->sendEmailVerifyCanSend();
 			}
@@ -58,7 +58,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				}
 			}
 
-			if ( $this->getIsTwoFactorAuthOn() ) {
+			if ( $this->getIsEmailAuthenticationOptionOn() ) {
 				$this->setOpt( 'enable_email_authentication', 'Y' );
 				$this->setOpt( 'enable_two_factor_auth_by_ip', 'N' );
 				$this->setOpt( 'enable_two_factor_auth_by_cookie', 'N' );
@@ -394,7 +394,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @param string $sType		can be either 'ip' or 'cookie'. If empty, both are checked looking for either.
 		 * @return bool
 		 */
-		public function getIsTwoFactorAuthOn( $sType = '' ) {
+		public function getIsEmailAuthenticationOptionOn( $sType = '' ) {
 
 			$bEmail = $this->getOptIs( 'enable_email_authentication', 'Y' );
 			if ( $bEmail ) {
@@ -422,8 +422,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * Also considers whether email sending ability has been verified
 		 * @return bool
 		 */
-		public function getIsEmailTwoFactorAuthEnabled() {
-			return $this->getIfCanSendEmail() && $this->getIsTwoFactorAuthOn();
+		public function getIsEmailAuthenticationEnabled() {
+			return $this->getIfCanSendEmail() && $this->getIsEmailAuthenticationOptionOn();
 		}
 
 		/**
@@ -467,8 +467,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return bool
 		 */
 		public function getUserHasEmailAuthenticationActive( WP_User $oUser ) {
-			// Currently it's a global setting but this will evolve to be like Google Authenticator so it's a user meta
-			return $this->getIsEmailTwoFactorAuthEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser );
+			// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
+			return ( $this->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
 		}
 
 		/**

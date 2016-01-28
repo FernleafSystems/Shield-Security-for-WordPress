@@ -100,7 +100,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 */
 		public function setupPendingTwoFactorAuth( $oUser, $sUsername ) {
 
-			if ( empty( $sUsername ) ) {
+			if ( empty( $sUsername ) || is_wp_error( $oUser ) ) {
 				return $oUser;
 			}
 
@@ -124,14 +124,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 					// We put this right at the end so as to nullify the effect of black marking on failed login (which this appears to be due to WP_Error)
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_false', 1000 );
-				}
-			}
-
-			// We default to returning a login cooldown error if that's in place.
-			if ( is_wp_error( $oUser ) ) {
-				$aCodes = $oUser->get_error_codes();
-				if ( in_array( 'wpsf_logininterval', $aCodes ) ) {
-					return $oUser;
 				}
 			}
 
