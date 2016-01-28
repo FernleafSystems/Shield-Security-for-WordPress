@@ -29,8 +29,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		protected function toggleForceOff() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$sForceOff = $oFO->loadWpUsersProcessor()->isUserAdmin()
-				&& $this->loadDataProcessor()->FetchGet( 'shield_forceoff', '' );
+			$sForceOff = $this->loadDataProcessor()->FetchGet( 'shield_forceoff', '' );
 			if ( !empty( $sForceOff ) ) {
 				if ( $sForceOff == $oFO->getPluginInstallationId() ) {
 					$oFs = $this->loadFileSystemProcessor();
