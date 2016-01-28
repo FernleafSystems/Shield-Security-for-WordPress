@@ -42,8 +42,8 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 		parent::__construct( $oFeatureOptions );
 	}
 	
-	public function reset() {
-		parent::reset();
+	public function init() {
+		parent::init();
 		self::$sModeFile_EmailThrottled = dirname( __FILE__ ).'/../mode.email_throttled';
 	}
 

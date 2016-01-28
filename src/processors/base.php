@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 			if ( method_exists( $this, 'addToAdminNotices' ) ) {
 				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 			}
-			$this->reset();
+			$this->init();
 		}
 
 		/**
@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		/**
 		 * Resets the object values to be re-used anew
 		 */
-		public function reset() { }
+		public function init() {}
 
 		/**
 		 * Override to set what this processor does when it's "run"

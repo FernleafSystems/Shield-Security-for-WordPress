@@ -83,8 +83,8 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	/**
 	 * Resets the object values to be re-used anew
 	 */
-	public function reset() {
-		parent::reset();
+	public function init() {
+		parent::init();
 		$this->sCommentStatus = '';
 		$this->sCommentStatusExplanation = '';
 		self::$sSpamBlacklistFile = $this->getFeatureOptions()->getResourcesDir().'spamblacklist.txt';

@@ -9,16 +9,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		protected function doPostConstruction() {
 			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
 			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
-			add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fIsPluginGloballyEnabled' ) );
+			add_filter( $this->doPluginPrefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 		}
 
 		/**
-		 * @param $bOverrideOff
-		 *
+		 * @param boolean $bGloballyDisabled
 		 * @return boolean
 		 */
-		public function fIsPluginGloballyEnabled( $bOverrideOff ) {
-			return $bOverrideOff || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
+		public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
+			return $bGloballyDisabled || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
 		}
 
 		public function doExtraSubmitProcessing() {

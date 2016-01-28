@@ -64,11 +64,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		protected $oFeatureProcessor;
 
 		/**
-		 * @var boolean
-		 */
-		protected $bOverrideState;
-
-		/**
 		 * @param ICWP_WPSF_Plugin_Controller $oPluginController
 		 * @param array $aFeatureProperties
 		 * @throws Exception
@@ -100,7 +95,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 				add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
-				add_filter( $this->doPluginPrefix( 'override_off' ), array( $this, 'fDoCheckForForceOffFile' ) );
 
 				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 
@@ -165,8 +159,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		public function onWpPluginsLoaded() {
 			if ( $this->getIsMainFeatureEnabled() ) {
-				$this->doExecutePreProcessor();
-				$this->doExecuteProcessor();
+				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
+					$this->doExecuteProcessor();
+				}
 			}
 		}
 
@@ -174,13 +169,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * Used to effect certain processing that is to do with options etc. but isn't related to processing
 		 * functionality of the plugin.
 		 */
-		protected function doExecutePreProcessor() { }
+		protected function doExecutePreProcessor() {
+			$oProcessor = $this->getProcessor();
+			return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base );
+		}
 
 		protected function doExecuteProcessor() {
-			$oProcessor = $this->getProcessor();
-			if ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base ) {
-				$oProcessor->run();
-			}
+			$this->getProcessor()->run();
 		}
 
 		/**
@@ -316,41 +311,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
-			if ( $this->getIfOverrideOff() ) {
+			if ( apply_filters( $this->doPluginPrefix( 'globally_disabled' ), false ) ) {
 				return false;
 			}
 
-			$bEnabled = $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' ) || $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true );
-			// we have the option to auto-enable a feature
-			$bEnabled = $bEnabled || ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
+			$bEnabled =
+				$this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' )
+				|| $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true )
+				|| ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 			return $bEnabled;
-		}
-
-		/**
-		 * @param $bOverrideOff
-		 *
-		 * @return boolean
-		 */
-		public function fDoCheckForForceOffFile( $bOverrideOff ) {
-			if ( $bOverrideOff ) {
-				return $bOverrideOff;
-			}
-			if ( !isset( self::$bForceOffFileExists ) ) {
-				self::$bForceOffFileExists = $this->loadFileSystemProcessor()
-					->fileExistsInDir( 'forceOff', $this->getController()->getRootDir(), false );
-			}
-			return self::$bForceOffFileExists;
-		}
-
-		/**
-		 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
-		 */
-		public function getIfOverrideOff() {
-			if ( !is_null( $this->bOverrideState ) ) {
-				return $this->bOverrideState;
-			}
-			$this->bOverrideState = apply_filters( $this->doPluginPrefix( 'override_off' ), false );
-			return $this->bOverrideState;
 		}
 
 		/**
