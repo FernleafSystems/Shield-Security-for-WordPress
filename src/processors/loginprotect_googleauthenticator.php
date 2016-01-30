@@ -57,7 +57,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		if ( !$aData['user_has_google_authenticator_validated'] ) {
 			$sChartUrl = $this->loadGoogleAuthenticatorProcessor()->getGoogleQrChartUrl(
 				$aData['user_google_authenticator_secret'],
-				$oUser->get('user_login').'@'.$this->loadWpFunctionsProcessor()->getSiteName()
+				$oUser->get('user_login').'@'.$this->loadWpFunctionsProcessor()->getHomeUrl( true )
 			);
 			$aData[ 'chart_url' ] = $sChartUrl;
 		}
