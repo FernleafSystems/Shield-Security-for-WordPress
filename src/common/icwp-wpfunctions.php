@@ -159,6 +159,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		/**
 		 * @return string
 		 */
+		public function getUrl_WpAdmin() {
+			return get_admin_url();
+		}
+
+		/**
+		 * @return string
+		 */
 		public function getHomeUrl() {
 			$sUrl = home_url();
 			if ( empty( $sUrl ) ) {

@@ -10,8 +10,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 */
 		public function run() {
 			$this->setupChecksumCron();
-			if ( $this->loadDataProcessor()->FetchGet( 'force_checksumscan' ) == 1 && $this->loadWpUsersProcessor()->isUserAdmin() ) {
-				$this->cron_dailyChecksumScan();
+
+			if ( $this->loadWpUsersProcessor()->isUserAdmin() ) {
+				$oDp = $this->loadDataProcessor();
+
+				if ( $oDp->FetchGet( 'force_checksumscan' ) == 1 ) {
+					$this->cron_dailyChecksumScan();
+				}
+				else {
+					$sNonce = $oDp->FetchGet( '_wpnonce' );
+					if ( wp_verify_nonce( $sNonce, 'shield_action' ) ) {
+
+						$sAction = $oDp->FetchGet( 'shield_action' );
+						switch ( $sAction ) {
+
+							case 'repair_file':
+								$sFilePath = urldecode( esc_url( trim( $oDp->FetchGet( 'repair_file_path' ) ) ) );
+								if ( !empty( $sFilePath ) ) {
+									$this->replaceFileContentsWithOfficial( $sFilePath );
+								}
+						}
+					}
+				}
 			}
 		}
 
@@ -164,16 +184,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The MD5 Checksum Hashes for following core files do not match the official WordPress.org Checksum Hashes:');
 				foreach( $aFiles['checksum_mismatch'] as $sFile ) {
-					$sSource = $sBaseSvnUrl . $sFile;
-					$aContent[] = ' - ' . $sFile .sprintf( ' (<a href="%s">', $sSource )._wpsf__( 'WordPress.org source file' ).'</a>)';
+					$aContent[] = ' - ' . $sFile . $this->getFileRepairLink( $sFile );
 				}
 			}
 			if ( !empty( $aFiles['missing'] ) ) {
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The following official WordPress core files are missing from your site:');
 				foreach( $aFiles['missing'] as $sFile ) {
-					$sSource = $sBaseSvnUrl . $sFile;
-					$aContent[] = ' - ' . $sFile .sprintf( ' (<a href="%s">', $sSource )._wpsf__( 'WordPress.org source file' ).'</a>)';
+					$aContent[] = ' - ' . $sFile . $this->getFileRepairLink( $sFile );
 				}
 			}
 
@@ -199,6 +217,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Checksum Scan Notification email alert to: %s' ), $sRecipient ) );
 			}
 			return $bSendSuccess;
+		}
+
+		/**
+		 * @param string $sFile
+		 * @return string
+		 */
+		protected function getFileRepairLink( $sFile ) {
+			return sprintf( ' ( <a href="%s">%s</a> / <a href="%s">%s</a> )',
+				wp_nonce_url(
+					add_query_arg(
+						array(
+							'shield_action' => 'repair_file',
+							'repair_file_path' => urlencode( $sFile )
+						),
+						$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+					),
+					'shield_action'
+				),
+				_wpsf__( 'Repair file now' ),
+				$this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/'.$sFile,
+				_wpsf__( 'WordPress.org source file' )
+			);
 		}
 
 		/**
