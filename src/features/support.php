@@ -6,7 +6,25 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_Support extends ICWP_WPSF_FeatureHandler_Base {
 
-		public function doPrePluginOptionsSave() { }
+		public function getHasPremiumSupport() {
+			apply_filters( $this->doPluginPrefix( 'has_premium_support' ), $this->getIcwpLinked() );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getHasIcwpPluginActive() {
+			return ( class_exists( 'ICWP_Plugin' ) && method_exists( 'ICWP_Plugin', 'IsLinked' ) );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getIcwpLinked() {
+			return ( $this->getHasIcwpPluginActive() && ICWP_Plugin::IsLinked() );
+		}
+
+		public function doPrePluginOptionsSave() {}
 
 		/**
 		 * @param array $aOptionsParams
