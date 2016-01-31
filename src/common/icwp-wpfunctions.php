@@ -159,11 +159,22 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		/**
 		 * @return string
 		 */
-		public function getHomeUrl() {
+		public function getUrl_WpAdmin() {
+			return get_admin_url();
+		}
+
+		/**
+		 * @param bool $bRemoveSchema
+		 * @return string
+		 */
+		public function getHomeUrl( $bRemoveSchema = false ) {
 			$sUrl = home_url();
 			if ( empty( $sUrl ) ) {
 				remove_all_filters( 'home_url' );
 				$sUrl = home_url();
+			}
+			if ( $bRemoveSchema ) {
+				$sUrl = preg_replace( '#^((http|https):)?\/\/#i', '', $sUrl );
 			}
 			return $sUrl;
 		}

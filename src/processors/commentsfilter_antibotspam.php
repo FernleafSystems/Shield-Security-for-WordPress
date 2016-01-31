@@ -66,8 +66,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 * Resets the object values to be re-used anew
 	 */
-	public function reset() {
-		parent::reset();
+	public function init() {
+		parent::init();
 		$this->sCommentStatus = '';
 		$this->sCommentStatusExplanation = '';
 		$this->getUniqueCommentToken(); //ensures the necessary cookie is set early
@@ -76,8 +76,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 */
 	public function run() {
-		$this->reset();
-
 		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.

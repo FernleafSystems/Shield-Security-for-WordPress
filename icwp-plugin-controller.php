@@ -46,6 +46,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
+	protected $bForceOffState;
+
+	/**
+	 * @var boolean
+	 */
 	protected $bResetPlugin;
 
 	/**
@@ -1272,6 +1277,16 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function clearSession() {
 		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
 		self::$sSessionId = null;
+	}
+
+	/**
+	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
+	 */
+	public function getIfOverrideOff() {
+		if ( !isset( $this->bForceOffState ) ) {
+			$this->bForceOffState = $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
+		}
+		return $this->bForceOffState;
 	}
 
 	/**

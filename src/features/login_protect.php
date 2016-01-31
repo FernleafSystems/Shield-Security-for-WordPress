@@ -37,7 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$oWp->resavePermalinks();
 			}
 		 */
-			if ( $this->getIsTwoFactorAuthOn() && !$this->getIfCanSendEmailVerified() ) {
+			if ( $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
 				$this->setIfCanSendEmail( false );
 				$this->sendEmailVerifyCanSend();
 			}
@@ -58,8 +58,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				}
 			}
 
-			if ( $this->getIsTwoFactorAuthOn() ) {
+			if ( $this->getIsEmailAuthenticationOptionOn() ) {
 				$this->setOpt( 'enable_email_authentication', 'Y' );
+				$this->setOpt( 'enable_two_factor_auth_by_ip', 'N' );
+				$this->setOpt( 'enable_two_factor_auth_by_cookie', 'N' );
 			}
 
 			$this->cleanLoginUrlPath();
@@ -392,7 +394,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @param string $sType		can be either 'ip' or 'cookie'. If empty, both are checked looking for either.
 		 * @return bool
 		 */
-		public function getIsTwoFactorAuthOn( $sType = '' ) {
+		public function getIsEmailAuthenticationOptionOn( $sType = '' ) {
 
 			$bEmail = $this->getOptIs( 'enable_email_authentication', 'Y' );
 			if ( $bEmail ) {
@@ -420,8 +422,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * Also considers whether email sending ability has been verified
 		 * @return bool
 		 */
-		public function getIsEmailTwoFactorAuthEnabled() {
-			return $this->getIfCanSendEmail() && $this->getIsTwoFactorAuthOn();
+		public function getIsEmailAuthenticationEnabled() {
+			return $this->getIfCanSendEmail() && $this->getIsEmailAuthenticationOptionOn();
 		}
 
 		/**
@@ -464,20 +466,58 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @param WP_User $oUser
 		 * @return bool
 		 */
-		public function getUserHasGoogleAuthenticator( WP_User $oUser ) {
-			$sSecret = $this->getUserGoogleAuthenticatorSecret( $oUser );
-			return !empty( $sSecret )
-			&& ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) == 'Y' );
+		public function getUserHasEmailAuthenticationActive( WP_User $oUser ) {
+			// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
+			return ( $this->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
+		}
+
+		/**
+		 * TODO: http://stackoverflow.com/questions/3499104/how-to-know-the-role-of-current-user-in-wordpress
+		 * @param WP_User $oUser
+		 * @return bool
+		 */
+		public function getIsUserSubjectToEmailAuthentication( $oUser ) {
+			$nUserLevel = $oUser->get( 'user_level' );
+
+			$aSubjectedUserLevels = $this->getOpt( 'two_factor_auth_user_roles' );
+			if ( empty($aSubjectedUserLevels) || !is_array($aSubjectedUserLevels) ) {
+				$aSubjectedUserLevels = array( 1, 2, 3, 8 ); // by default all roles except subscribers!
+			}
+
+			// see: https://codex.wordpress.org/Roles_and_Capabilities#User_Level_to_Role_Conversion
+
+			// authors, contributors and subscribers
+			if ( $nUserLevel < 3 && in_array( $nUserLevel, $aSubjectedUserLevels ) ) {
+				return true;
+			}
+			// editors
+			if ( $nUserLevel >= 3 && $nUserLevel < 8 && in_array( 3, $aSubjectedUserLevels ) ) {
+				return true;
+			}
+			// administrators
+			if ( $nUserLevel >= 8 && $nUserLevel <= 10 && in_array( 8, $aSubjectedUserLevels ) ) {
+				return true;
+			}
+			return false;
 		}
 
 		/**
 		 * @param WP_User $oUser
+		 * @return bool
+		 */
+		public function getUserHasGoogleAuthenticator( WP_User $oUser ) {
+			return ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) == 'Y' );
+		}
+
+		/**
+		 * @param WP_User $oUser
+		 * @param bool    $bResetIfNotValidated
 		 * @return false|string
 		 */
-		public function getUserGoogleAuthenticatorSecret( WP_User $oUser ) {
+		public function getUserGoogleAuthenticatorSecret( WP_User $oUser, $bResetIfNotValidated = false ) {
 			$oWpUser = $this->loadWpUsersProcessor();
 			$sSecret = $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_secret' ), $oUser->ID );
-			if ( empty( $sSecret ) ) {
+			if ( empty( $sSecret ) || ( $bResetIfNotValidated && $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) != 'Y' ) )  {
 				$sSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
 				$oWpUser->updateUserMeta( $this->prefixOptionKey( 'ga_secret' ), $sSecret, $oUser->ID );
 			}

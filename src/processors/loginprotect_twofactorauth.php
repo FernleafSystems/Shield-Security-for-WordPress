@@ -26,6 +26,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				add_action( 'init', array( $this, 'validateUserAuthLink' ), 10 );
 			}
 
+			add_action( 'show_user_profile', array( $this, 'addEmailAuthenticationOptionsToUserProfile' ) );
+
 			// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
 			// is valid, the filter will have a valid WP_User object passed to it.
 			add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30, 2 );
@@ -98,7 +100,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 */
 		public function setupPendingTwoFactorAuth( $oUser, $sUsername ) {
 
-			if ( empty( $sUsername ) ) {
+			if ( empty( $sUsername ) || is_wp_error( $oUser ) ) {
 				return $oUser;
 			}
 
@@ -106,7 +108,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 			if ( $bUserLoginSuccess ) {
 
-				if ( !$this->getIsUserLevelSubjectToTwoFactorAuth( $oUser->get( 'user_level' ) ) ) {
+				/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+				$oFO = $this->getFeatureOptions();
+				if ( !$oFO->getUserHasEmailAuthenticationActive( $oUser ) ) {
 					return $oUser;
 				}
 
@@ -120,14 +124,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 					// We put this right at the end so as to nullify the effect of black marking on failed login (which this appears to be due to WP_Error)
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_false', 1000 );
-				}
-			}
-
-			// We default to returning a login cooldown error if that's in place.
-			if ( is_wp_error( $oUser ) ) {
-				$aCodes = $oUser->get_error_codes();
-				if ( in_array( 'wpsf_logininterval', $aCodes ) ) {
-					return $oUser;
 				}
 			}
 
@@ -151,35 +147,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				'wp_username'	=> $sUsername
 			);
 			return $this->query_DoMakePendingLoginAuthActive( $aWhere );
-		}
-
-		/**
-		 * TODO: http://stackoverflow.com/questions/3499104/how-to-know-the-role-of-current-user-in-wordpress
-		 * @param integer $nUserLevel
-		 * @return bool
-		 */
-		protected function getIsUserLevelSubjectToTwoFactorAuth( $nUserLevel ) {
-
-			$aSubjectedUserLevels = $this->getOption( 'two_factor_auth_user_roles' );
-			if ( empty($aSubjectedUserLevels) || !is_array($aSubjectedUserLevels) ) {
-				$aSubjectedUserLevels = array( 1, 2, 3, 8 ); // by default all roles except subscribers!
-			}
-
-			// see: https://codex.wordpress.org/Roles_and_Capabilities#User_Level_to_Role_Conversion
-
-			// authors, contributors and subscribers
-			if ( $nUserLevel < 3 && in_array( $nUserLevel, $aSubjectedUserLevels ) ) {
-				return true;
-			}
-			// editors
-			if ( $nUserLevel >= 3 && $nUserLevel < 8 && in_array( 3, $aSubjectedUserLevels ) ) {
-				return true;
-			}
-			// administrators
-			if ( $nUserLevel >= 8 && $nUserLevel <= 10 && in_array( 8, $aSubjectedUserLevels ) ) {
-				return true;
-			}
-			return false;
 		}
 
 		/**
@@ -340,6 +307,36 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
 			}
 			return $bResult;
+		}
+
+		/**
+		 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
+		 * functions.  Otherwise we need to be careful of mixing up users.
+		 * @param WP_User $oUser
+		 */
+		public function addEmailAuthenticationOptionsToUserProfile( $oUser ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			$aData = array(
+				'user_has_email_authentication_active' => $oFO->getUserHasEmailAuthenticationActive( $oUser ),
+				'user_has_email_authentication_enforced' => $oFO->getIsUserSubjectToEmailAuthentication( $oUser ),
+				'is_my_user_profile' => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
+				'i_am_valid_admin' => $this->getController()->getIsValidAdminArea( true ),
+				'user_to_edit_is_admin' => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
+				'strings' => array(
+					'label_email_authentication' => _wpsf__( 'Email Authentication' ),
+					'title' => _wpsf__( 'Email Authentication' ),
+					'description_email_authentication_checkbox' => _wpsf__( 'Check the box to enable email-based login authentication.' ),
+					'provided_by' => sprintf( _wpsf__( 'Provided by %s' ), $this->getController()->getHumanName() )
+				)
+			);
+
+			$aData['bools'] = array(
+				'checked' => $aData[ 'user_has_email_authentication_active' ] || $aData[ 'user_has_email_authentication_enforced' ],
+				'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ] //TODO: Make email authentication a per-user setting
+			);
+
+			echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
 		}
 
 		/**

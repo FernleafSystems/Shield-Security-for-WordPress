@@ -27,14 +27,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		}
 
 		protected function toggleForceOff() {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
 			$sForceOff = $this->loadDataProcessor()->FetchGet( 'shield_forceoff', '' );
 			if ( !empty( $sForceOff ) ) {
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeatureOptions();
 				if ( $sForceOff == $oFO->getPluginInstallationId() ) {
 					$oFs = $this->loadFileSystemProcessor();
-					$sPath = $this->getController()->getRootDir() . 'forceOff';
-					if ( $oFO->getIfOverrideOff() ) {
+					$oCon = $this->getController();
+					$sPath = $oCon->getRootDir() . 'forceOff';
+					if ( $oCon->getIfOverrideOff() ) {
 						$oFs->deleteFile( $sPath );
 					}
 					else {
@@ -90,11 +91,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		protected function addNotice_override_forceoff( $aNoticeAttributes ) {
 
-			if ( $this->getFeatureOptions()->getIfOverrideOff() ) {
+			if ( $this->getController()->getIfOverrideOff() ) {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
-						'message' => sprintf( _wpsf__( 'Warning - %s.' ), sprintf( _wpsf__( '%s is not currently running' ), $this->getController()->getHumanName() ) ),
+						'message' => sprintf( _wpsf__( 'Warning - %s' ), sprintf( _wpsf__( '%s is not currently running' ), $this->getController()->getHumanName() ) ),
 						'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
 					)
 				);

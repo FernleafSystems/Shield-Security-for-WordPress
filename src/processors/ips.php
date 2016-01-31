@@ -25,6 +25,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		/**
 		 */
 		public function run() {
+
 			// Before anything else, verify we can actually get a valid remote visitor IP address
 			if ( $this->getIsValidRemoteIp() === false ) {
 				return;
@@ -44,10 +45,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 			add_action( $oFO->doPluginPrefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
+			add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 ); // 10000 ensures we're at the end
 		}
 
 		public function doBlackMarkIp() {
 			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+		}
+
+		/**
+		 * @param WP_User|WP_Error $oUserOrError
+		 * @return WP_User|WP_Error
+		 */
+		public function addLoginFailedWarningMessage( $oUserOrError ) {
+			if ( is_wp_error( $oUserOrError ) ) {
+				$oUserOrError->add(
+					$this->getFeatureOptions()->doPluginPrefix( 'transgression-warning' ),
+					sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' ) )
+				);
+			}
+			return $oUserOrError;
 		}
 
 		/**

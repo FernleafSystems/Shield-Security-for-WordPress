@@ -1,6 +1,18 @@
-<div id="shield-options-google-authenticator">
-	<h3 id="shield-googleauthenticator"><?php echo $strings['title']; ?></h3>
-
+<style type="text/css">
+	#shield_ga_secret {
+		letter-spacing: 5px;
+		font-family: monospace;
+		font-size: 24px;
+		text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+		border: 1px solid rgba(0,0,0,0.1);
+		padding: 0 7px;
+		background-color: whitesmoke;
+	}
+</style>
+<div id="shield-options-google-authenticator" class="shield-user-options-block">
+	<h3><?php echo $strings['title']; ?>
+		<small>(<?php echo $strings['provided_by']; ?>)</small>
+	</h3>
 	<table class="form-table">
 		<tbody>
 
@@ -11,13 +23,16 @@
 					<th><label for="shield_turn_off_google_authenticator"><?php echo $strings['label_check_to_remove']; ?></label></th>
 					<td>
 						<input type="checkbox" name="shield_turn_off_google_authenticator" id="shield_turn_off_google_authenticator" value="Y" />
+						<p class="description">
+							<?php echo $strings['description_remove_google_authenticator']; ?>
+						</p>
 					</td>
 				</tr>
 				<?php if ( $is_my_user_profile ) : ?>
 					<tr>
 						<th><label for="shield_ga_otp_code"><?php echo $strings['label_enter_code']; ?></label></th>
 						<td>
-							<input class="regular-text" type="text" id="shield_ga_otp_code" name="shield_ga_otp_code" value="">
+							<input class="regular-text" type="text" id="shield_ga_otp_code" name="shield_ga_otp_code" value="" autocomplete="off" />
 							<p class="description"><?php echo $strings['description_otp_code']; ?></p>
 						</td>
 					</tr>
@@ -32,16 +47,23 @@
 
 			<?php if ( $is_my_user_profile ) : ?>
 				<tr>
-					<th>Scan This QR Code</th>
+					<th><?php echo $strings['label_scan_qr_code']; ?></th>
 					<td>
 						<img src="<?php echo $chart_url; ?>" />
 						<p class="description"><?php echo $strings['description_chart_url']; ?></p>
 					</td>
 				</tr>
 				<tr>
+					<th><label for="shield_ga_secret"><?php echo $strings['label_ga_secret']; ?></label></th>
+					<td>
+						<span id="shield_ga_secret"><?php echo $user_google_authenticator_secret; ?></span>
+						<p class="description"><?php echo $strings['description_ga_secret']; ?></p>
+					</td>
+				</tr>
+				<tr>
 					<th><label for="shield_ga_otp_code"><?php echo $strings['label_enter_code']; ?></label></th>
 					<td>
-						<input class="regular-text" type="text" id="shield_ga_otp_code" name="shield_ga_otp_code" value="">
+						<input class="regular-text" type="text" id="shield_ga_otp_code" name="shield_ga_otp_code" value="" autocomplete="off" />
 						<p class="description"><?php echo $strings['description_otp_code']; ?></p>
 					</td>
 				</tr>

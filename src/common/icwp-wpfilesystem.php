@@ -376,18 +376,18 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * @param string $sFilePath
 		 * @param string $sContents
-		 * @return boolean|null
+		 * @return boolean
 		 */
 		public function putFileContent( $sFilePath, $sContents ) {
 			$oFs = $this->getWpfs();
-			if ( $oFs ) {
-				return $oFs->put_contents( $sFilePath, $sContents, FS_CHMOD_FILE );
+			if ( $oFs && $oFs->put_contents( $sFilePath, $sContents, FS_CHMOD_FILE ) ) {
+				return true;
 			}
 
 			if ( function_exists( 'file_put_contents' ) ) {
 				return file_put_contents( $sFilePath, $sContents ) !== false;
 			}
-			return null;
+			return false;
 		}
 
 		/**

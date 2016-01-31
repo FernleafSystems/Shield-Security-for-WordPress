@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 			$this->getProcessorYubikey()->run();
 		}
 
-		if ( $oFO->getIsEmailTwoFactorAuthEnabled() ) {
+		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
 			$this->getProcessorTwoFactor()->run();
 		}
 
@@ -61,7 +61,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_Base {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( $oFO->getIsTwoFactorAuthOn() && !$oFO->getIsEmailTwoFactorAuthEnabled() && !$oFO->getIfCanSendEmail() ) {
+		if ( $oFO->getIsEmailAuthenticationOptionOn() && !$oFO->getIsEmailAuthenticationEnabled() && !$oFO->getIfCanSendEmail() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings' => array(
