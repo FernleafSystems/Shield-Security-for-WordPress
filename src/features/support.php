@@ -6,8 +6,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_Support extends ICWP_WPSF_FeatureHandler_Base {
 
+		/**
+		 * @return bool
+		 */
 		public function getHasPremiumSupport() {
-			apply_filters( $this->doPluginPrefix( 'has_premium_support' ), $this->getIcwpLinked() );
+			return apply_filters( $this->doPluginPrefix( 'has_premium_support' ), $this->getIcwpLinked() );
 		}
 
 		/**
