@@ -159,6 +159,11 @@ options:
         load_priority: 11
         hidden: false
       -
+        slug: 'support'
+        storage_key: 'support'
+        load_priority: 20
+        hidden: false
+      -
         slug: 'email'
         storage_key: 'email'
 ",
