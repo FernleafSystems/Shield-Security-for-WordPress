@@ -20,6 +20,9 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_Base {
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
 
+		// Various stuff.
+		add_action( 'init', array( $this, 'onInit' ), 1 );
+
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
@@ -30,11 +33,40 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_Base {
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
-		if ( $this->getIsOption( 'enable_user_management', 'Y' ) ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeatureOptions();
+
+		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
 			$this->getProcessorSessions()->run();
 		}
 
 		return true;
+	}
+
+	public function onInit() {
+		add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
+	}
+
+	/**
+	 * Only show Go To Admin link for Authors and above.
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
+	public function printLinkToAdmin( $sMessage = '' ) {
+		$oWpUsers = $this->loadWpUsersProcessor();
+		if ( $oWpUsers->isUserLoggedIn() ) {
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()->getCurrentUserHasValidSession() ) {
+				$sMessage = sprintf(
+					'<p class="message">%s<br />%s<hr/></p>',
+					_wpsf__( "It looks like you're already logged-in." ),
+					( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWpFunctionsProcessor()->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ) . ' &rarr;' ) : ''
+				).$sMessage;
+			}
+		}
+		return $sMessage;
 	}
 
 	/**

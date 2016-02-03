@@ -283,6 +283,7 @@ You can add some custom code to your functions.php exactly as the following:
 
 * **(v.0)**  ADDED:			NEW feature - Google Authenticator Login option.
 * **(v.0)**  ADDED:			Core File Scanner now includes an automatic link to repair files (you must be logged in as admin).
+* **(v.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you will be provided with a link to go straight to the admin area.
 * **(v.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
 * **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
 

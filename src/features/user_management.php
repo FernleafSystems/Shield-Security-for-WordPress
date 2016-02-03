@@ -13,6 +13,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 		}
 
 		/**
+		 * Currently no distinction between the module and user sessions.
+		 * @return bool
+		 */
+		public function getIsUserSessionsManagementEnabled() {
+			return $this->getOptIs( 'enable_user_management', 'Y' );
+		}
+
+		/**
 		 */
 		public function doPrePluginOptionsSave() {
 
