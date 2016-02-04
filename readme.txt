@@ -286,6 +286,7 @@ You can add some custom code to your functions.php exactly as the following:
 * **(v.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you will be provided with a link to go straight to the admin area.
 * **(v.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
 * **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
+* **(v.0)**  CHANGED:		Various efficiency improvements including reduced SQL updates.
 
 = 4.17 Series =
 
