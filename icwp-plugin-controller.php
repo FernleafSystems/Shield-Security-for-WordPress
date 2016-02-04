@@ -304,8 +304,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$sMenuTitle = $this->getHumanName();
 			}
 
-			$sMenuIcon = $this->getPluginSpec_Menu( 'icon_image' );
-			$sIconUrl = empty( $sMenuIcon ) ? $aPluginLabels['icon_url_16x16'] : $this->getPluginUrl_Image( $sMenuIcon );
+			$sMenuIcon = $this->getPluginUrl_Image( $this->getPluginSpec_Menu( 'icon_image' ) );
+			$sIconUrl = empty( $aPluginLabels['icon_url_16x16'] ) ? $sMenuIcon : $aPluginLabels['icon_url_16x16'];
 
 			$sFullParentMenuId = $this->getPluginPrefix();
 			add_menu_page(
@@ -357,6 +357,25 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onDisplayTopMenu() { }
 
 	/**
+	 * @param array $aPluginMeta
+	 * @param string $sPluginFile
+	 * @return array
+	 */
+	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
+
+		if ( $sPluginFile == $this->getPluginBaseFile() ) {
+			$aMeta = $this->getPluginSpec_PluginMeta();
+
+			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
+			foreach( $aMeta as $aMetaLink ){
+				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
+				array_push( $aPluginMeta, $sSettingsLink );
+			}
+		}
+		return $aPluginMeta;
+	}
+
+	/**
 	 * @param array $aActionLinks
 	 * @return array
 	 */
@@ -389,25 +408,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aActionLinks;
-	}
-
-	/**
-	 * @param array $aPluginMeta
-	 * @param string $sPluginFile
-	 * @return array
-	 */
-	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
-
-		if ( $sPluginFile == $this->getPluginBaseFile() ) {
-			$aMeta = $this->getPluginSpec_PluginMeta();
-
-			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
-			foreach( $aMeta as $aMetaLink ){
-				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink['href'], "_blank", $aMetaLink['name'] ); ;
-				array_push( $aPluginMeta, $sSettingsLink );
-			}
-		}
-		return $aPluginMeta;
 	}
 
 	public function onWpEnqueueFrontendCss() {
