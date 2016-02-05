@@ -18,18 +18,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					$this->cron_dailyChecksumScan();
 				}
 				else {
-					$sNonce = $oDp->FetchGet( '_wpnonce' );
-					if ( wp_verify_nonce( $sNonce, 'shield_action' ) ) {
+					$sAction = $oDp->FetchGet( 'shield_action' );
+					switch ( $sAction ) {
 
-						$sAction = $oDp->FetchGet( 'shield_action' );
-						switch ( $sAction ) {
-
-							case 'repair_file':
-								$sFilePath = urldecode( esc_url( trim( $oDp->FetchGet( 'repair_file_path' ) ) ) );
-								if ( !empty( $sFilePath ) ) {
-									$this->replaceFileContentsWithOfficial( $sFilePath );
-								}
-						}
+						case 'repair_file':
+							$sFilePath = urldecode( esc_url( trim( $oDp->FetchGet( 'repair_file_path' ) ) ) );
+							if ( !empty( $sFilePath ) ) {
+								$this->replaceFileContentsWithOfficial( $sFilePath );
+							}
 					}
 				}
 			}
@@ -225,15 +221,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 */
 		protected function getFileRepairLink( $sFile ) {
 			return sprintf( ' ( <a href="%s">%s</a> / <a href="%s">%s</a> )',
-				wp_nonce_url(
-					add_query_arg(
-						array(
-							'shield_action' => 'repair_file',
-							'repair_file_path' => urlencode( $sFile )
-						),
-						$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+				add_query_arg(
+					array(
+						'shield_action' => 'repair_file',
+						'repair_file_path' => urlencode( $sFile )
 					),
-					'shield_action'
+					$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
 				),
 				_wpsf__( 'Repair file now' ),
 				$this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/'.$sFile,
