@@ -1054,6 +1054,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		protected function display( $aData = array(), $sSubView = '' ) {
+			$oRndr = $this->loadRenderer( $this->getController()->getPath_Templates());
 
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
@@ -1063,24 +1064,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$sSubView = 'subfeature-access_restricted';
 			}
 
-			if ( empty( $sSubView ) ) {
-				$oWpFs = $this->loadFileSystemProcessor();
-				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
-				if ( $oWpFs->exists( $this->getController()->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
-					$sSubView = $sFeatureInclude;
-				}
-				else {
-					$sSubView = 'feature-default';
-				}
+			if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
+				$sSubView = 'feature-default';
 			}
 
-			$sSubView = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
-			$aData[ 'sFeatureInclude' ] = $sSubView;
-
-			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
+			$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+			$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 			try {
-				echo $this
-					->loadRenderer( $this->getController()->getPath_Templates() )
+				echo $oRndr
 					->setTemplate( 'index.php' )
 					->setRenderVars( $aData )
 					->render();
