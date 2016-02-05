@@ -1,13 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 
-	abstract class ICWP_WPSF_BaseProcessor_V3 extends ICWP_WPSF_Foundation {
-
-		/**
-		 * @var array
-		 */
-		private $aAuditEntry;
+	abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_FeatureHandler_Base
@@ -20,7 +15,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		public function __construct( $oFeatureOptions ) {
 			$this->oFeatureOptions = $oFeatureOptions;
 			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
-			add_filter( $oFeatureOptions->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
 			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 			if ( method_exists( $this, 'addToAdminNotices' ) ) {
 				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
@@ -126,92 +120,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
 			$mOptionValue = $this->getOption( $sKey );
 			return $bStrict? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
-		}
-
-		/**
-		 * @param array $aAuditEntries
-		 *
-		 * @return array
-		 */
-		public function getAuditEntry( $aAuditEntries ) {
-			if ( isset( $this->aAuditEntry ) && is_array( $this->aAuditEntry ) ) {
-				$aAuditEntries[] = $this->aAuditEntry;
-			}
-			return $aAuditEntries;
-		}
-
-		/**
-		 * @param string $sAdditionalMessage
-		 * @param int $nCategory
-		 * @param string $sEvent
-		 * @param string $sWpUsername
-		 */
-		protected function addToAuditEntry( $sAdditionalMessage = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
-			if ( !isset( $this->aAuditEntry ) ) {
-
-				if ( empty( $sWpUsername ) ) {
-					$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-					$sWpUsername = empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' );
-				}
-
-				$this->aAuditEntry = array(
-					'created_at' => $this->time(),
-					'wp_username' => $sWpUsername,
-					'context' => 'wpsf',
-					'event' => $sEvent,
-					'category' => $nCategory,
-					'message' => array()
-				);
-			}
-
-			$this->aAuditEntry['message'][] = $sAdditionalMessage;
-
-			if ( $nCategory > $this->aAuditEntry['category'] ) {
-				$this->aAuditEntry['category'] = $nCategory;
-			}
-			if ( !empty( $sEvent ) ) {
-				$this->aAuditEntry['event'] = $sEvent;
-			}
-		}
-
-		/**
-		 * @param string $sSeparator
-		 * @return string
-		 */
-		protected function getAuditMessage( $sSeparator = ' ' ) {
-			return implode( $sSeparator, $this->getRawAuditMessage() );
-		}
-
-		/**
-		 * @param string $sLinePrefix
-		 * @return array
-		 */
-		protected function getRawAuditMessage( $sLinePrefix = '' ) {
-			if ( isset( $this->aAuditEntry['message'] ) && is_array( $this->aAuditEntry['message'] ) && !empty( $sLinePrefix ) ) {
-				$aAuditMessages = array();
-				foreach( $this->aAuditEntry['message'] as $sMessage ) {
-					$aAuditMessages[] = $sLinePrefix.$sMessage;
-				}
-				return $aAuditMessages;
-			}
-			return isset( $this->aAuditEntry['message'] ) ? $this->aAuditEntry['message'] : array();
-		}
-
-		/**
-		 * @param string $sEvent
-		 * @param int $nCategory
-		 * @param string $sMessage
-		 */
-		public function writeAuditEntry( $sEvent, $nCategory = 1, $sMessage = '' ) {
-			$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			$this->aAuditEntry = array(
-				'created_at' => $this->time(),
-				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),
-				'context' => 'wpsf',
-				'event' => $sEvent,
-				'category' => $nCategory,
-				'message' => $sMessage
-			);
 		}
 
 		/**
@@ -324,8 +232,4 @@ if ( !class_exists( 'ICWP_WPSF_BaseProcessor_V3', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
-	abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_BaseProcessor_V3 { }
 endif;

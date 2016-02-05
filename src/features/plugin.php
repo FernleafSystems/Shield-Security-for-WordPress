@@ -207,13 +207,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return string
-		 */
-		public function getPluginInstallationTime() {
-			return $this->getOpt( 'installation_time', 0 );
-		}
-
-		/**
 		 * @param string $sNewId - leave empty to reset
 		 * @return bool
 		 */

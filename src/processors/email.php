@@ -4,7 +4,7 @@ if ( !class_exists( 'ICWP_EmailProcessor_V1', false ) ):
 
 require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
+class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
 	

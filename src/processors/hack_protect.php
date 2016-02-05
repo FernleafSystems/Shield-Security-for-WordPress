@@ -4,7 +4,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
-	class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_Base {
+	class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/**
 		 * Override to set what this processor does when it's "run"
 		 */

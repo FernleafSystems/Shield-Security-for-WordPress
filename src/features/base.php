@@ -1,8 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
+if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
-	abstract class ICWP_WPSF_FeatureHandler_Base_V3 extends ICWP_WPSF_Foundation {
+	abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_Plugin_Controller
@@ -340,6 +340,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$this->sFeatureSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );
 			}
 			return $this->sFeatureSlug;
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getPluginInstallationTime() {
+			return $this->getOpt( 'installation_time', 0 );
 		}
 
 		/**
@@ -1079,18 +1086,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			catch( Exception $oE ) {
 				echo $oE->getMessage();
 			}
-
-//			if ( count( $aData ) > 0 ) {
-//				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
-//			}
-//
-//			ob_start();
-//			include( $sFile );
-//			$sContents = ob_get_contents();
-//			ob_end_clean();
-//
-//			echo $sContents;
-//			return true;
 		}
 
 		/**
@@ -1211,5 +1206,3 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 	}
 
 endif;
-
-abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_FeatureHandler_Base_V3 { }
