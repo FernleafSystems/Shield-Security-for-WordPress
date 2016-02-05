@@ -2,6 +2,8 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 
+	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+
 	abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 		/**
