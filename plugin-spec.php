@@ -20,7 +20,6 @@ paths:
   source: 'src'
   assets: 'resources'
   languages: 'languages'
-  views: 'templates'
   templates: 'templates'
   flags: 'flags'
 includes:
