@@ -1023,6 +1023,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
 				'aPluginLabels'		=> $oCon->getPluginLabels(),
+				'bShowStateSummary'	=> false,
 
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),

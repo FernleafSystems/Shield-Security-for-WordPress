@@ -28,6 +28,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ):
 					'aar_submit_access_key' => _wpsf__( 'Submit Access Key' )
 				)
 			);
+			$aData[ 'bShowStateSummary' ] = true;
 			return $aData;
 		}
 
