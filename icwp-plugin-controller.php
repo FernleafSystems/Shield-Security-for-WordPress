@@ -115,8 +115,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sSpecPath = $this->getRootDir().'plugin-spec.php';
-		$sContents = include( $sSpecPath );
+		$sContents = include( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
 			$aSpec = $this->loadYamlProcessor()->parseYamlString( $sContents );
 			if ( is_null( $aSpec ) ) {
@@ -1156,6 +1155,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function getPathPluginSpec() {
+		return $this->getRootDir().'plugin-spec.php';
+	}
+
+	/**
 	 * Get the root directory for the plugin with the trailing slash
 	 *
 	 * @return string
@@ -1199,18 +1205,18 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				self::$oControllerOptions = new stdClass();
 			}
 
-			if ( $this->getIsRebuildOptionsFromFile()
-				 || ( $this->loadDataProcessor()->time() > ( isset( self::$oControllerOptions->rebuild_time ) ? self::$oControllerOptions->rebuild_time : 0 ) )
-				 || !isset( self::$oControllerOptions->plugin_spec ) || empty( self::$oControllerOptions->plugin_spec ) ) {
-
-				self::$oControllerOptions->plugin_spec = $this->readPluginSpecification();
-				self::$oControllerOptions->rebuild_time = $this->loadDataProcessor()->time() + MINUTE_IN_SECONDS * 5;
+			// Used at the time of saving during WP Shutdown to determine whether saving is necessary. TODO: Extend to plugin options
+			if ( empty( $this->sConfigOptionsHashWhenLoaded ) ) {
+				$this->sConfigOptionsHashWhenLoaded = md5( serialize( self::$oControllerOptions ) );
 			}
-		}
 
-		// Used at the time of saving during WP Shutdown to determine whether saving is necessary. TODO: Extend to plugin options
-		if ( empty( $this->sConfigOptionsHashWhenLoaded ) ) {
-			$this->sConfigOptionsHashWhenLoaded = md5( serialize( self::$oControllerOptions ) );
+			if ( $this->getIsRebuildOptionsFromFile()
+				|| !isset( self::$oControllerOptions->plugin_spec ) || empty( self::$oControllerOptions->plugin_spec )
+				|| ( isset( self::$oControllerOptions->rebuild_time ) ? ( $this->loadFileSystemProcessor()->getModifiedTime( $this->getPathPluginSpec() ) > self::$oControllerOptions->rebuild_time ) : true )
+			) {
+				self::$oControllerOptions->plugin_spec = $this->readPluginSpecification();
+				self::$oControllerOptions->rebuild_time = $this->loadDataProcessor()->time();
+			}
 		}
 		return self::$oControllerOptions;
 	}
