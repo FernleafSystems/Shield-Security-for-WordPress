@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-	class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Base {
+	class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		/**
 		 * A action added to WordPress 'init' hook
@@ -160,10 +160,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 						sprintf( _wpsf__( 'Note: %s' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
 					);
 					$sTitleShort = _wpsf__( 'Two-Factor Authentication' );
+					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					break;
 
 				case 'section_brute_force_login_protection' :
-					$sTitle = _wpsf__('Brute Force Login Protection');
+					$sTitle = _wpsf__( 'Brute Force Login Protection' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -172,7 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					break;
 
 				case 'section_yubikey_authentication' :
-					$sTitle = _wpsf__('Yubikey Authentication');
+					$sTitle = _wpsf__( 'Yubikey Authentication' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'Note: you must own the appropriate Yubikey hardware device.' ) )

@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-	class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_Base {
+	class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		/**
 		 * @return string

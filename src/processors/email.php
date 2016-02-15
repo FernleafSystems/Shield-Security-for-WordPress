@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_EmailProcessor_V1', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
+class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
 	
@@ -57,6 +57,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 			_wpsf__('Hi !'), '',
 		);
 	}
+
 	/**
 	 * @return array
 	 */
@@ -81,17 +82,18 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 	 */
 	public function sendEmailTo( $sEmailAddress = '', $sEmailSubject = '', $aMessage = array() ) {
 
+		// Add our filters for From.
+		add_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
+		add_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
+
 		$sEmailTo = $this->verifyEmailAddress( $sEmailAddress );
 
 		$aHeaders = array(
 			'MIME-Version: 1.0',
 			'Content-type: text/html;',
-			sprintf( 'From: %s - %s <%s>', $this->getSiteName(), $this->getController()->getHumanName(), $sEmailTo ),
-			sprintf( "Subject: %s", $sEmailSubject ),
 			'X-Mailer: PHP/'.phpversion()
 		);
 
-		
 		$this->updateEmailThrottle();
 		// We make it appear to have "succeeded" if the throttle is applied.
 		if ( $this->fEmailIsThrottled ) {
@@ -100,8 +102,40 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_Base {
 
 		$aMessage = array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() );
 
-		$fSuccess = wp_mail( $sEmailTo, $sEmailSubject, implode( "<br />", $aMessage ), implode( "\r\n", $aHeaders ) );
-		return $fSuccess;
+		$bSuccess = wp_mail( $sEmailTo, $sEmailSubject, implode( "<br />", $aMessage ), implode( "\r\n", $aHeaders ) );
+
+		// Remove our Filters for From
+		remove_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
+		remove_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param string $sFrom
+	 * @return string
+	 */
+	public function setMailFrom( $sFrom ) {
+		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
+		if ( !empty( $sProposedFrom ) && is_email( $sProposedFrom ) ) {
+			$sFrom = $sProposedFrom;
+		}
+		return $sFrom;
+	}
+
+	/**
+	 * @param string $sFromName
+	 * @return string
+	 */
+	public function setMailFromName( $sFromName ) {
+		$sProposedFromName = apply_filters( 'icwp_shield_from_email_name', '' );
+		if ( !empty( $sProposedFromName ) ) {
+			$sFromName = $sProposedFromName;
+		}
+		else {
+			$sFromName = sprintf( '%s - %s', $this->getSiteName(), $this->getController()->getHumanName() );
+		}
+		return $sFromName;
 	}
 
 	/**

@@ -13,8 +13,10 @@ include_once( $sBaseDirName.'widgets'.ICWP_DS.'icwp_widgets.php' ); ?>
 				<?php endif; ?>
 			</h2>
 		</div>
-		<div class="row">
-			<div class="span12">
-				<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>
+		<?php if ( isset( $bShowStateSummary ) && $bShowStateSummary ) : ?>
+			<div class="row">
+				<div class="span12">
+					<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>
+				</div>
 			</div>
-		</div>
+		<?php endif; ?>

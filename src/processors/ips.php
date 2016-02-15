@@ -57,7 +57,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 * @return WP_User|WP_Error
 		 */
 		public function addLoginFailedWarningMessage( $oUserOrError ) {
-			if ( is_wp_error( $oUserOrError ) ) {
+			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() && is_wp_error( $oUserOrError ) ) {
 				$oUserOrError->add(
 					$this->getFeatureOptions()->doPluginPrefix( 'transgression-warning' ),
 					sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' ) )

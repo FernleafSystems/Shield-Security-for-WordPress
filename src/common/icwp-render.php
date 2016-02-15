@@ -86,7 +86,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 */
 		private function renderHtml() {
 			ob_start();
-			@include( $this->getTemplatePath().ltrim( $this->getTemplate(), ICWP_DS ) );
+			@include( $this->getTemplateRoot().ltrim( $this->getTemplate(), ICWP_DS ) );
 			$sContents = ob_get_contents();
 			ob_end_clean();
 			return $sContents;
@@ -100,7 +100,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 				extract( $this->getRenderVars() );
 			}
 
-			$sTemplate = $this->getTemplatePath() . ltrim( $this->getTemplate(), ICWP_DS );
+			$sTemplate = $this->getTemplateRoot() . ltrim( $this->getTemplate(), ICWP_DS );
 			if ( $this->loadFileSystemProcessor()->isFile( $sTemplate ) ) {
 				ob_start();
 				include( $sTemplate );
@@ -167,7 +167,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		protected function getTwigLoader() {
 			if ( !isset( $this->oTwigLoader )  ) {
 				$this->autoload();
-				$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplatePath() );
+				$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplateRoot() );
 			}
 			return $this->oTwigLoader;
 		}
@@ -176,12 +176,8 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		public function getTemplate() {
-			$sTemplate = $this->sTemplate;
-			$sStub = $this->getEngineStub();
-			if ( !preg_match( sprintf( '#\.%s$#', $sStub ), $sTemplate ) ) {
-				$sTemplate = $sTemplate.'.'.$sStub;
-			}
-			return $sTemplate;
+			$this->sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
+			return $this->sTemplate;
 		}
 
 		/**
@@ -196,9 +192,30 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		}
 
 		/**
+		 * @param string $sTemplate
 		 * @return string
 		 */
-		public function getTemplatePath() {
+		public function getTemplateExists( $sTemplate = '' ) {
+			$sFullPath = $this->getTemplateFullPath( $sTemplate );
+			return $this->loadFileSystemProcessor()->exists( $sFullPath );
+		}
+
+		/**
+		 * @param string $sTemplate
+		 * @return string
+		 */
+		public function getTemplateFullPath( $sTemplate = '' ) {
+			if ( empty( $sTemplate ) ) {
+				$sTemplate = $this->getTemplate();
+			}
+			$sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
+			return path_join( $this->getTemplateRoot(), $sTemplate );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getTemplateRoot() {
 			$sPath = rtrim( $this->sTemplatePath, ICWP_DS );
 			$sStub = $this->getEngineStub();
 			if ( !preg_match( sprintf( '#%s$#', $sStub ), $sPath ) ) {
@@ -278,7 +295,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @param string $sPath
 		 * @return $this
 		 */
-		public function setTemplatePath( $sPath ) {
+		public function setTemplateRoot( $sPath ) {
 			$this->sTemplatePath = $sPath;
 			return $this;
 		}

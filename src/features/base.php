@@ -1,8 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
+if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
-	abstract class ICWP_WPSF_FeatureHandler_Base_V3 extends ICWP_WPSF_Foundation {
+	abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_Plugin_Controller
@@ -192,7 +192,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				@include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
+				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
@@ -340,6 +340,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$this->sFeatureSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );
 			}
 			return $this->sFeatureSlug;
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getPluginInstallationTime() {
+			return $this->getOpt( 'installation_time', 0 );
 		}
 
 		/**
@@ -536,10 +543,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 
 			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
 			if ( empty( $sNonce ) ) {
-				$sMessage = _wpsf__( 'Nonce security checking failed - the nonce value was empty.' );
+				$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
 			}
 			else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
-				$sMessage = sprintf( _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ), $sNonce );
+				$sMessage = $this->getTranslatedString( 'nonce_failed_supplied', 'Nonce security checking failed - the nonce supplied was "%s".' );
+				$sMessage = sprintf( $sMessage, $sNonce );
 			}
 			else {
 				return true; // At this stage we passed the nonce check
@@ -548,6 +556,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			// At this stage we haven't returned after success so we failed the nonce check
 			$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
 			return false; //unreachable
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param string $sDefault
+		 * @return string
+		 */
+		protected function getTranslatedString( $sKey, $sDefault ) {
+			return $sDefault;
 		}
 
 		/**
@@ -1006,28 +1023,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
 				'aPluginLabels'		=> $oCon->getPluginLabels(),
+				'bShowStateSummary'	=> false,
 
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
 				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
 
 				'sPageTitle'		=> $this->getMainFeatureName(),
-//				'sPageTitle'		=> sprintf( '%s :: %s (from %s)', $this->getMainFeatureName(), $oCon->getHumanName(), '<a href="http://icwp.io/3a" target="_blank">iControlWP</a>' ),
 				'strings'			=> array(
-					'go_to_settings' => _wpsf__( 'Settings' ),
-//					'go_to_settings' => _wpsf__( 'Go To Settings' ),
-					'on' => _wpsf__( 'On' ),
-					'off' => _wpsf__( 'Off' ),
-					'more_info' => _wpsf__( 'More Info' ),
-					'blog' => _wpsf__( 'Blog' ),
-					'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
-					'save_all_settings' => _wpsf__( 'Save All Settings' ),
-
-					'aar_what_should_you_enter' => _wpsf__( 'What should you enter here?' ),
-					'aar_must_supply_key_first' => _wpsf__( 'At some point you entered a Security Admin Access Key - to manage this plugin, you must supply it here first.' ),
-					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
-					'aar_enter_access_key' => _wpsf__( 'Enter Access Key' ),
-					'aar_submit_access_key' => _wpsf__( 'Submit Access Key' ),
+					'go_to_settings' => __( 'Settings' ),
+					'on' => __( 'On' ),
+					'off' => __( 'Off' ),
+					'more_info' => __( 'More Info' ),
+					'blog' => __( 'Blog' ),
+					'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
+					'save_all_settings' => __( 'Save All Settings' ),
 				)
 			);
 		}
@@ -1045,6 +1055,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 		 * @return bool
 		 */
 		protected function display( $aData = array(), $sSubView = '' ) {
+			$oRndr = $this->loadRenderer( $this->getController()->getPath_Templates());
 
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
@@ -1054,24 +1065,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 				$sSubView = 'subfeature-access_restricted';
 			}
 
-			if ( empty( $sSubView ) ) {
-				$oWpFs = $this->loadFileSystemProcessor();
-				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
-				if ( $oWpFs->exists( $this->getController()->getPath_ViewsFile( $sFeatureInclude ) ) ) {
-					$sSubView = $sFeatureInclude;
-				}
-				else {
-					$sSubView = 'feature-default';
-				}
+			if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
+				$sSubView = 'feature-default';
 			}
 
-			$sSubView = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
-			$aData[ 'sFeatureInclude' ] = $sSubView;
-
-			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
+			$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+			$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 			try {
-				echo $this
-					->loadRenderer( $this->getController()->getPath_Templates() )
+				echo $oRndr
 					->setTemplate( 'index.php' )
 					->setRenderVars( $aData )
 					->render();
@@ -1079,18 +1080,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 			catch( Exception $oE ) {
 				echo $oE->getMessage();
 			}
-
-//			if ( count( $aData ) > 0 ) {
-//				extract( $aData, EXTR_PREFIX_ALL, $this->getController()->getParentSlug() ); //slug being 'icwp'
-//			}
-//
-//			ob_start();
-//			include( $sFile );
-//			$sContents = ob_get_contents();
-//			ob_end_clean();
-//
-//			echo $sContents;
-//			return true;
 		}
 
 		/**
@@ -1211,5 +1200,3 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base_V3', false ) ):
 	}
 
 endif;
-
-abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_FeatureHandler_Base_V3 { }

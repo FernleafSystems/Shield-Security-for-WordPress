@@ -161,6 +161,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeatureOptions();
+
 		$bIsSpam = true;
 		$sStatKey = '';
 		$sExplanation = '';
@@ -172,17 +175,17 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// we have the cb name, is it set?
 		if( !$sFieldCheckboxName || !$oDp->FetchPost( $sFieldCheckboxName ) ) {
-			$sExplanation = sprintf( _wpsf__('Failed GASP Bot Filter Test (%s)' ), _wpsf__('checkbox') );
+			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'checkbox' ) );
 			$sStatKey = 'checkbox';
 		}
 		// honeypot check
 		else if ( !empty( $sFieldHoney ) ) {
-			$sExplanation = sprintf( _wpsf__('Failed GASP Bot Filter Test (%s)' ), _wpsf__('honeypot') );
+			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'honeypot' ) );
 			$sStatKey = 'honeypot';
 		}
 		// check the unique comment token is present
-		else if ( empty( $sFieldCommentToken ) || !$this->checkCommentToken( $sFieldCommentToken, $nPostId ) ) {
-			$sExplanation = sprintf( _wpsf__('Failed GASP Bot Filter Test (%s)' ), _wpsf__('comment token failure') );
+		else if ( $oFO->getIfCheckCommentToken() && ( empty( $sFieldCommentToken ) || !$this->checkCommentToken( $sFieldCommentToken, $nPostId ) ) ) {
+			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'comment token failure' ) );
 			$sStatKey = 'token';
 		}
 		else {
@@ -195,7 +198,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->setCommentStatusExplanation( $sExplanation );
 
 			// We now black mark this IP
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 		}
 	}
 
@@ -452,7 +455,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * @param int|null $sPostId
-	 *
 	 * @return bool|int
 	 */
 	protected function deleteOldPostCommentTokens( $sPostId = null ) {

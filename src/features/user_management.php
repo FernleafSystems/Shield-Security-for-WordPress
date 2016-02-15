@@ -2,14 +2,22 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-	class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_Base {
+	class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
 			}
+		}
+
+		/**
+		 * Currently no distinction between the module and user sessions.
+		 * @return bool
+		 */
+		public function getIsUserSessionsManagementEnabled() {
+			return $this->getOptIs( 'enable_user_management', 'Y' );
 		}
 
 		/**

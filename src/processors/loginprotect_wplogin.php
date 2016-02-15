@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_Base {
+class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */

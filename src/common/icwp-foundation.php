@@ -146,7 +146,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 					->setAutoloaderPath( dirname( __FILE__ ) . ICWP_DS . 'Twig' . ICWP_DS . 'Autoloader.php' );
 			}
 			if ( !empty( $sTemplatePath ) ) {
-				self::$oRender->setTemplatePath( $sTemplatePath );
+				self::$oRender->setTemplateRoot( $sTemplatePath );
 			}
 			return self::$oRender;
 		}

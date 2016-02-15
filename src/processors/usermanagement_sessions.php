@@ -61,6 +61,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
+	 * @return array|false
+	 */
+	public function getCurrentUserHasValidSession() {
+		return $this->doVerifyCurrentSession();
+	}
+
+	/**
 	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
 	public function checkCurrentUser_Action() {
@@ -68,7 +75,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		if ( is_user_logged_in() ) {
 
 			if ( is_admin() ) {
-				$this->doVerifyCurrentSession();
+				$this->doVerifyCurrentSession( true );
 			}
 
 			// At this point session is validated
@@ -76,7 +83,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			if ( $oWp->getIsLoginUrl() && $this->loadWpUsersProcessor()->isUserAdmin() ) {
 				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
-					$oWp->redirectToAdmin();
+//					$oWp->redirectToAdmin();
 				}
 			}
 
@@ -121,43 +128,50 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
-	 * If it cannot verify current user, will forcefully log them out and redirect to login
+	 * If it cannot verify current user, it may forcefully log them out and redirect to login
 	 *
+	 * @param bool $bForceRelogin
 	 * @return bool
 	 */
-	protected function doVerifyCurrentSession() {
+	protected function doVerifyCurrentSession( $bForceRelogin = false ) {
 		$oWpUsers = $this->loadWpUsersProcessor();
-		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$oUser = $oWpUsers->getCurrentWpUser();
+
+		$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
 		if ( !is_object( $oUser ) || ! ( $oUser instanceof WP_User ) ) {
-			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 6 ) );
+			$nForceLogOutCode = 6;
 		}
 
 		$aLoginSessionData = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
-		if ( !$aLoginSessionData ) {
-			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 4 ) );
+		if ( ( $nForceLogOutCode == 0 ) && !$aLoginSessionData ) {
+			$nForceLogOutCode = 4;
 		}
 
 		// check timeout interval
 		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		if ( $nSessionTimeoutInterval > 0 && ( $this->time() - $aLoginSessionData['logged_in_at'] > $nSessionTimeoutInterval ) ) {
-			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 1 ) );
+		if ( ( $nForceLogOutCode == 0 ) && $nSessionTimeoutInterval > 0 && ( $this->time() - $aLoginSessionData['logged_in_at'] > $nSessionTimeoutInterval ) ) {
+			$nForceLogOutCode = 1;
 		}
 
 		// check idle timeout interval
 		$nSessionIdleTimeoutInterval = $this->getOption( 'session_idle_timeout_interval', 0 ) * HOUR_IN_SECONDS;
-		if ( intval($nSessionIdleTimeoutInterval) > 0 && ( ($this->time() - $aLoginSessionData['last_activity_at']) > $nSessionIdleTimeoutInterval ) ) {
-			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 2 ) );
+		if ( ( $nForceLogOutCode == 0 ) && intval($nSessionIdleTimeoutInterval) > 0 && ( ($this->time() - $aLoginSessionData['last_activity_at']) > $nSessionIdleTimeoutInterval ) ) {
+			$nForceLogOutCode = 2;
 		}
 
 		// check login ip address
 		$fLockToIp = $this->getIsOption( 'session_lock_location', 'Y' );
 		$sVisitorIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
-		if ( $fLockToIp && $sVisitorIp != $aLoginSessionData['ip'] ) {
-			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => 3 ) );
+		if ( ( $nForceLogOutCode == 0 ) && $fLockToIp && $sVisitorIp != $aLoginSessionData['ip'] ) {
+			$nForceLogOutCode = 3;
 		}
 
-		return true;
+		if ( $bForceRelogin && $nForceLogOutCode > 0 ) {
+			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nForceLogOutCode ) );
+		}
+
+		return ( $nForceLogOutCode == 0 );
 	}
 
 	/**
@@ -202,7 +216,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @param string $sUsername
 	 * @param string $sSessionId
 	 *
-	 * @return array|bool
+	 * @return array|false
 	 */
 	protected function getUserSessionRecord( $sUsername, $sSessionId ) {
 

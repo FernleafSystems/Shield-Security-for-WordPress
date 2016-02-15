@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-	class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_Base {
+	class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		protected function doExecuteProcessor() {
 			if ( !apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
@@ -17,6 +17,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 */
 		public function getIfDoCommentsCheck() {
 			return apply_filters( $this->doPluginPrefix( 'if-do-comments-check' ), true );
+		}
+
+		/**
+		 * @return boolean
+		 */
+		public function getIfCheckCommentToken() {
+			return ( $this->getOpt( 'comments_token_expire_interval' ) > 0 || $this->getOpt( 'comments_cooldown_interval' ) > 0 );
 		}
 
 		/**
