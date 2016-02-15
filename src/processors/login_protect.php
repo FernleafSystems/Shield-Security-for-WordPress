@@ -50,6 +50,10 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorTwoFactor()->run();
 		}
 
+		if ( $oFO->getIsGoogleRecaptchaEnabled() ) {
+			$this->getProcessorGoogleRecaptcha()->run();
+		}
+
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
 	}
@@ -164,6 +168,15 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorWpLogin() {
 		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_wplogin.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getFeatureOptions() );
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
+	 */
+	protected function getProcessorGoogleRecaptcha() {
+		require_once( dirname(__FILE__).ICWP_DS.'loginprotect_googlerecaptcha.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeatureOptions() );
 		return $oProc;
 	}
 

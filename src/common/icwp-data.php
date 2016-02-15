@@ -765,10 +765,18 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @param string $sAtLeastVersion
+		 * @return bool
 		 */
 		public function getPhpVersionIsAtLeast( $sAtLeastVersion ) {
-			return ( version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' ) );
+			return version_compare( $this->getPhpVersion(), $sAtLeastVersion, '>=' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getPhpSupportsNamespaces() {
+			return $this->getPhpVersionIsAtLeast( '5.3' );
 		}
 
 		/**

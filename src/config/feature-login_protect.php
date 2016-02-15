@@ -126,6 +126,13 @@ options:
     link_info: 'http://icwp.io/3r'
     link_blog: ''
   -
+    key: 'enable_google_recaptcha'
+    section: 'section_brute_force_login_protection'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'enable_prevent_remote_post'
     section: 'section_brute_force_login_protection'
     default: 'Y'
