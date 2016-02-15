@@ -20,6 +20,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		}
 
 		/**
+		 * @return boolean
+		 */
+		public function getIfCheckCommentToken() {
+			return ( $this->getOpt( 'comments_token_expire_interval' ) > 0 || $this->getOpt( 'comments_cooldown_interval' ) > 0 );
+		}
+
+		/**
 		 * @param array $aOptionsParams
 		 * @return array
 		 * @throws Exception
