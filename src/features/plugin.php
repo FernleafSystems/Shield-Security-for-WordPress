@@ -19,7 +19,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		public function getGoogleRecaptchaSecretKey( $sKey ) {
-			return $this->getOpt( 'google_recaptcha_secret_key', '' );
+			return $this->getOpt( 'google_recaptcha_secret_key', $sKey );
 		}
 
 		/**
@@ -27,7 +27,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		public function getGoogleRecaptchaSiteKey( $sKey ) {
-			return $this->getOpt( 'google_recaptcha_site_key', '' );
+			return $this->getOpt( 'google_recaptcha_site_key', $sKey );
 		}
 
 		/**

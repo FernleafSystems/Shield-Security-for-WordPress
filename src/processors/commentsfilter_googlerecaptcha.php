@@ -1,15 +1,15 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha', false ) ):
 
 require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
 
 		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces()
@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLoginHtml() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
 		return sprintf(
@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return WP_Error
 	 */
 	public function checkLoginForGoogleRecaptcha_Filter( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
 
 		$oError = new WP_Error();

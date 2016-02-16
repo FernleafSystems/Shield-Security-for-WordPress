@@ -23,11 +23,11 @@ sections:
     slug: 'section_enable_plugin_feature_spam_comments_protection_filter'
     primary: true
   -
-    slug: 'section_enable_automatic_bot_comment_spam_protection_filter'
+    slug: 'section_bot_comment_spam_protection_filter'
+  -
+    slug: 'section_human_spam_filter'
   -
     slug: 'section_customize_messages_shown_to_user'
-  -
-    slug: 'section_enable_human_comment_spam_protection_filter'
   -
     slug: 'section_non_ui'
     hidden: true
@@ -43,14 +43,14 @@ options:
     link_blog: 'http://icwp.io/wpsf04'
   -
     key: 'enable_comments_human_spam_filter'
-    section: 'section_enable_human_comment_spam_protection_filter'
+    section: 'section_human_spam_filter'
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/57'
     link_blog: ''
   -
     key: 'enable_comments_human_spam_filter_items'
-    section: 'section_enable_human_comment_spam_protection_filter'
+    section: 'section_human_spam_filter'
     type: 'multiple_select'
     default:
       - 'author_name'
@@ -83,7 +83,7 @@ options:
     link_blog: ''
   -
     key: 'comments_default_action_human_spam'
-    section: 'section_enable_human_comment_spam_protection_filter'
+    section: 'section_human_spam_filter'
     default: 0
     type: 'select'
     value_options:
@@ -101,14 +101,21 @@ options:
         text: 'Reject And Redirect'
   -
     key: 'enable_comments_gasp_protection'
-    section: 'section_enable_automatic_bot_comment_spam_protection_filter'
+    section: 'section_bot_comment_spam_protection_filter'
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/3n'
     link_blog: 'http://icwp.io/2n'
   -
+    key: 'enable_google_recaptcha'
+    section: 'section_brute_force_login_protection'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'enable_comments_gasp_protection_for_logged_in'
-    section: 'section_enable_automatic_bot_comment_spam_protection_filter'
+    section: 'section_bot_comment_spam_protection_filter'
     hidden: true #since version v4.0.1 this has been removed.
     default: 'N'
     type: 'checkbox'
@@ -116,7 +123,7 @@ options:
     link_blog: ''
   -
     key: 'comments_default_action_spam_bot'
-    section: 'section_enable_automatic_bot_comment_spam_protection_filter'
+    section: 'section_bot_comment_spam_protection_filter'
     default: 'trash'
     type: 'select'
     value_options:
@@ -137,14 +144,14 @@ options:
     link_blog: ''
   -
     key: 'comments_cooldown_interval'
-    section: 'section_enable_automatic_bot_comment_spam_protection_filter'
+    section: 'section_bot_comment_spam_protection_filter'
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/3o'
     link_blog: ''
   -
     key: 'comments_token_expire_interval'
-    section: 'section_enable_automatic_bot_comment_spam_protection_filter'
+    section: 'section_bot_comment_spam_protection_filter'
     default: 600
     type: 'integer'
     link_info: 'http://icwp.io/3o'
@@ -200,6 +207,6 @@ options:
     section: 'section_non_ui'
     default: false
 ",
-		_wpsf__( 'Comments Filter' ),
+		_wpsf__( 'Comments SPAM' ),
 		_wpsf__( 'Block comment SPAM and retain your privacy' ) //tagline
 	);
