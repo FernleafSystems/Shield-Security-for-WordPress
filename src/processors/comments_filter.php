@@ -25,6 +25,12 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$oHumanSpamProcessor->run();
 		}
 
+		if ( $this->getIsOption( 'enable_google_recaptcha', 'Y' ) ) {
+			require_once( dirname(__FILE__).ICWP_DS.'commentsfilter_googlerecaptcha.php' );
+			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
+			$oHumanSpamProcessor->run();
+		}
+
 		add_filter( 'pre_comment_approved',				array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content',				array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
 		add_filter( 'comment_notification_recipients',	array( $this, 'doClearCommentNotificationEmail_Filter' ), 100, 1 );

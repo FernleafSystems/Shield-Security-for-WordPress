@@ -7,25 +7,24 @@ require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
+	 * @var string
+	 */
+	protected $sCommentStatusExplanation = '';
+
+	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces()
-			|| !$this->loadWpFunctionsProcessor()->getIsLoginUrl()
+		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces() || !$this->loadWpFunctionsProcessor()->getIsLoginUrl()
 			|| !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 
-		add_action( 'login_enqueue_scripts',	array( $this, 'loadGoogleRecaptchaJs' ), 99 );
-
-		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaLoginCheck' ) );
-		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaLoginCheck' ) );
-		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaLoginCheck_Filter' ) );
-
-		// after GASP but before email-based two-factor auth
-		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 24, 3 );
+		add_action( 'wp_enqueue_scripts',		array( $this, 'loadGoogleRecaptchaJs' ), 99 );
+		add_action( 'comment_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
+		add_filter( 'preprocess_comment',		array( $this, 'doCommentChecking' ), 1, 1 );
 	}
 
 	public function loadGoogleRecaptchaJs() {
@@ -36,20 +35,20 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	/**
 	 * @return string
 	 */
-	public function printGoogleRecaptchaLoginCheck_Filter() {
-		return $this->getGoogleRecaptchaLoginHtml();
+	public function printGoogleRecaptchaCheck() {
+		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
 	public function printGoogleRecaptchaLoginCheck() {
-		echo $this->getGoogleRecaptchaLoginHtml();
+		echo $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getGoogleRecaptchaLoginHtml() {
+	protected function getGoogleRecaptchaHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
@@ -62,36 +61,66 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @return WP_Error
+	 * @param array $aCommentData
+	 * @return array
 	 */
-	public function checkLoginForGoogleRecaptcha_Filter( $oUser ) {
+	public function doCommentChecking( $aCommentData ) {
+
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
+		if ( !$oFO->getIfDoCommentsCheck() ) {
+			return $aCommentData;
+		}
 
-		$oError = new WP_Error();
-		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
+		$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
 
-		if ( $bIsUser ) {
-
-			$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
-
-			if ( empty( $sCaptchaResponse ) ) {
-				$oError->add( 'shield_google_recaptcha_empty', _wpsf__( 'Whoops.' )
-					.' '. _wpsf__( 'Google Recaptcha was not submitted.' ) );
-				$oUser = $oError;
-			}
-			else {
-				$oRecaptcha = $this->loadGoogleRecaptcha()->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() );
-				$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->human_ip() );
-				if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-					$oError->add( 'shield_google_recaptcha_failed', _wpsf__( 'Whoops.' )
-						.' '. _wpsf__( 'Google Recaptcha verification failed.' ) );
-					$oUser = $oError;
-				}
+		$bIsSpam = false;
+		$sStatKey = '';
+		$sExplanation = '';
+		if ( empty( $sCaptchaResponse ) ) {
+			$bIsSpam = true;
+			$sStatKey = 'empty';
+			$sExplanation = _wpsf__( 'Google Recaptcha was not submitted.' );
+		}
+		else {
+			$oRecaptcha = $this->loadGoogleRecaptcha()->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() );
+			$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->human_ip() );
+			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
+				$bIsSpam = true;
+				$sStatKey = 'failed';
+				$sExplanation = _wpsf__( 'Google Recaptcha verification failed.' );
 			}
 		}
-		return $oUser;
+
+		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
+
+		if ( $bIsSpam ) {
+			$this->doStatIncrement( sprintf( 'spam.recaptcha.%s', $sStatKey ) );
+			$this->setCommentStatusExplanation( $sExplanation );
+
+			// We now black mark this IP
+			add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+		}
+
+		if ( $this->getOption( 'comments_default_action_spam_bot' ) == 'reject' ) {
+			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+		}
+
+		return $aCommentData;
+	}
+
+	/**
+	 * @param $sExplanation
+	 */
+	protected function setCommentStatusExplanation( $sExplanation ) {
+		$this->sCommentStatusExplanation =
+			'[* '.sprintf(
+				_wpsf__('%s plugin marked this comment as "%s".').' '._wpsf__( 'Reason: %s' ),
+				$this->getController()->getHumanName(),
+				$this->getOption( 'comments_default_action_spam_bot' ),
+				$sExplanation
+			)." *]\n";
 	}
 }
 endif;

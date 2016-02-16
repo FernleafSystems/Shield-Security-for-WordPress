@@ -20,9 +20,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 		add_action( 'login_enqueue_scripts',	array( $this, 'loadGoogleRecaptchaJs' ), 99 );
 
-		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaLoginCheck' ) );
-		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaLoginCheck' ) );
-		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaLoginCheck_Filter' ) );
+		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
+		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ) );
+		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ) );
 
 		// after GASP but before email-based two-factor auth
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 24, 3 );
@@ -36,20 +36,20 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	/**
 	 * @return string
 	 */
-	public function printGoogleRecaptchaLoginCheck_Filter() {
-		return $this->getGoogleRecaptchaLoginHtml();
+	public function printGoogleRecaptchaCheck_Filter() {
+		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
-	public function printGoogleRecaptchaLoginCheck() {
-		echo $this->getGoogleRecaptchaLoginHtml();
+	public function printGoogleRecaptchaCheck() {
+		echo $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getGoogleRecaptchaLoginHtml() {
+	protected function getGoogleRecaptchaHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
