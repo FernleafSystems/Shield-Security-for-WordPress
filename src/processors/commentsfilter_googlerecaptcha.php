@@ -16,9 +16,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
-
-		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces() || !$this->loadWpFunctionsProcessor()->getIsLoginUrl()
-			|| !$oFO->getIsGoogleRecaptchaReady() ) {
+		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces() || !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 
@@ -35,13 +33,13 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	/**
 	 * @return string
 	 */
-	public function printGoogleRecaptchaCheck() {
+	public function printGoogleRecaptchaCheck_Filter() {
 		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
-	public function printGoogleRecaptchaLoginCheck() {
+	public function printGoogleRecaptchaCheck() {
 		echo $this->getGoogleRecaptchaHtml();
 	}
 

@@ -108,7 +108,7 @@ options:
     link_blog: 'http://icwp.io/2n'
   -
     key: 'enable_google_recaptcha'
-    section: 'section_brute_force_login_protection'
+    section: 'section_bot_comment_spam_protection_filter'
     default: 'N'
     type: 'checkbox'
     link_info: ''
