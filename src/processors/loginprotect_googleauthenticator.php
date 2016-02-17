@@ -148,14 +148,19 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function printGoogleAuthenticatorLoginField() {
 		$sHtml =
 			'<p class="shield-google-authenticator-otp">
-				<label>%s<br />
-					<input type="text" name="%s" class="input" value="" size="20" autocomplete="off" />
+				<label for="_%s">%s [%s]<br />
+					<input type="text" name="%s" id="_%s" class="input" value="" autocomplete="off" maxlength="6"
+					onkeyup="this.value=this.value.replace(/[^\d]/g,\'\')" />
 				</label>
 			</p>
 		';
+		$sParam = $this->getLoginFormParameter();
 		echo sprintf( $sHtml,
-			'<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Google Authenticator').'</a>',
-			$this->getLoginFormParameter()
+			$sParam,
+			_wpsf__( 'Google Authenticator Code' ),
+			'<a href="http://icwp.io/wpsf42" target="_blank" style="font-weight: bolder; margin:0 3px">&#63;</a>',
+			$sParam,
+			$sParam
 		);
 	}
 

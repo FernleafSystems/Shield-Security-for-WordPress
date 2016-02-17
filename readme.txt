@@ -6,9 +6,9 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.4
-Stable tag: 4.17.0-beta2
+Stable tag: 4.17.0
 
-Comprehensive and Easy-To-Use WordPress Security - Comes With Business Grade Support, with no "premium" restrictions
+Comprehensive and Easy-To-Use WordPress Security - No "Premium" Features
 
 == Description ==
 
@@ -21,9 +21,9 @@ Do you want to secure your WordPress site, without getting overwhelmed?
 
 Stand out from the herd - what makes ours different?
 
-* No restrictive PRO/Premium version - it's all there.
+* No restriction on security features - it's all there.
 * Easy-To-Setup Interface.
-* It won't ever break your website - you'll never get that horrible,
+* It won't break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
 * Plugin Self Security Protection - the *only* WordPress Security Plugin that protects against tampering.
 * Exclusive membership to a private security group where you can learn more about WordPress security.
@@ -281,18 +281,23 @@ You can add some custom code to your functions.php exactly as the following:
 = 4.17.0 Latest Point Release =
 *Released: 1st February, 2016*
 
-* **(v.0)**  ADDED:			NEW feature - Google Authenticator Login option.
-* **(v.0)**  ADDED:			Core File Scanner now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
-* **(v.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you will be provided with a link to go straight to the admin area.
+* **(v.0)**  ADDED:			NEW feature - [Google Authenticator Login option](http://icwp.io/wpsf43).
+* **(v.0)**  ADDED:			[Core File Scanner](http://icwp.io/wpsf40) now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
+* **(v.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you'll be provided with a link to go straight to the admin area.
+* **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load.
 * **(v.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
-* **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
 * **(v.0)**  CHANGED:		Various efficiency improvements including reduced SQL updates.
+* **(v.0)**  CHANGED:		Email system is improved and now send emails from the default WordPress sender. This may be [changed with filter](https://icontrolwp.freshdesk.com/support/solutions/articles/3000048723).
 
 = 4.17 Series =
 
-* **(v.0)**  ADDED:			NEW feature - Google Authenticator Login option.
-* **(v.0)**  CHANGED:		Changes to the email-based authentication system - only 1 option and it no longer locks to IP or browser.
-* **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load
+* **(v.0)**  ADDED:			NEW feature - [Google Authenticator Login option](http://icwp.io/wpsf43).
+* **(v.0)**  ADDED:			[Core File Scanner](http://icwp.io/wpsf40) now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
+* **(v.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you'll be provided with a link to go straight to the admin area.
+* **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load.
+* **(v.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
+* **(v.0)**  CHANGED:		Various efficiency improvements including reduced SQL updates.
+* **(v.0)**  CHANGED:		Email system is improved and now send emails from the default WordPress sender. This may be [changed with filter](https://icontrolwp.freshdesk.com/support/solutions/articles/3000048723).
 
 = 4.16 Series =
 *Released: 20th January, 2016*
