@@ -77,16 +77,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 */
-		public function displayFeatureConfigPage( ) {
-			$aPluginSummaryData = apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), array() );
-			$aData = array(
-				'aSummaryData'		=> $aPluginSummaryData
-			);
-			$this->display( $aData );
-		}
-
-		/**
 		 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
 		 *
 		 * @param string $sPlugin
