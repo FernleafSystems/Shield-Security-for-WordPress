@@ -218,18 +218,19 @@ p.code-description {
 	margin-bottom: 0;
 }
 .form-horizontal .item_group {
+	border: 1px solid rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 	box-sizing: border-box;
 	margin-bottom: 10px;
 	padding: 20px 20px 20px 0;
  }
 .form-horizontal .selected_item_group {
+	background-color: rgba(135, 232, 38, 0.05);
 	border: 1px solid rgba(135, 232, 38, 0.55);
-	background-color: rgba(135, 232, 38, 0.1);
 }
 .option_section {
 	background-color: rgba(0, 0, 0, 0.008);
-	border: 1px solid #E6E6E6;
+	border: 1px dashed rgba(0, 0, 0, 0.1);
 	border-radius: 4px;
 	padding: 8px 10px;
 }
@@ -252,8 +253,6 @@ p.code-description {
 }
 
 .option_section.active {
-	background-color: #f6f6f6;
-	border-color: #dddddd;
 }
 table.table th {
 	border-bottom: 1px solid #777777;
@@ -282,9 +281,7 @@ table#tbl_tbs_options_javascript td {
 
 /** OPTIONS PAGES **/
 .bootstrap-wpadmin .row.row_number_1 {
-	padding-top: 18px;
 }
-
 label input[type=checkbox] {
 	height: 16px !important;
 }
