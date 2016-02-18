@@ -5,6 +5,32 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ):
 	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
+
+		/**
+		 * Overriden in the plugin handler getting the option value
+		 * @return string
+		 */
+		public function getGoogleRecaptchaSecretKey() {
+			return apply_filters( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), '' );
+		}
+
+		/**
+		 * Overriden in the plugin handler getting the option value
+		 * @return string
+		 */
+		public function getGoogleRecaptchaSiteKey() {
+			return apply_filters( $this->doPluginPrefix( 'google_recaptcha_site_key' ), '' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIsGoogleRecaptchaReady() {
+			$sKey = $this->getGoogleRecaptchaSiteKey();
+			$sSecret = $this->getGoogleRecaptchaSecretKey();
+			return ( !empty( $sSecret ) && !empty( $sKey ) );
+		}
+
 		/**
 		 * @return array
 		 */

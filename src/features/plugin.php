@@ -10,6 +10,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
 			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
 			add_filter( $this->doPluginPrefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
+			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'getGoogleRecaptchaSecretKey' ) );
+			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'getGoogleRecaptchaSiteKey' ) );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return string
+		 */
+		public function getGoogleRecaptchaSecretKey( $sKey ) {
+			return $this->getOpt( 'google_recaptcha_secret_key', $sKey );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return string
+		 */
+		public function getGoogleRecaptchaSiteKey( $sKey ) {
+			return $this->getOpt( 'google_recaptcha_site_key', $sKey );
 		}
 
 		/**
@@ -59,16 +77,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 */
-		public function displayFeatureConfigPage( ) {
-			$aPluginSummaryData = apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), array() );
-			$aData = array(
-				'aSummaryData'		=> $aPluginSummaryData
-			);
-			$this->display( $aData );
-		}
-
-		/**
 		 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
 		 *
 		 * @param string $sPlugin
@@ -114,6 +122,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'section_general_plugin_options' :
 					$sTitle = _wpsf__( 'General Plugin Options' );
 					$sTitleShort = _wpsf__( 'General Options' );
+					break;
+
+				case 'section_third_party' :
+					$sTitle = _wpsf__( 'Third Party Services' );
+					$sTitleShort = _wpsf__( 'Third Party Services' );
 					break;
 
 				default:
@@ -170,6 +183,18 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'delete_on_deactivate' :
 					$sName = _wpsf__( 'Delete Plugin Settings' );
 					$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
+					$sDescription = _wpsf__( 'Enter your Google Recaptcha secret key for use throughout the plugin.' );
+					break;
+
+				case 'google_recaptcha_secret_key' :
+					$sName = _wpsf__( 'Recaptcha Secret' );
+					$sSummary = _wpsf__( 'Google Recaptcha Secret Key' );
+					$sDescription = _wpsf__( 'Enter your Google Recaptcha site key for use throughout the plugin.' );
+					break;
+
+				case 'google_recaptcha_site_key' :
+					$sName = _wpsf__( 'Recaptcha Site Key' );
+					$sSummary = _wpsf__( 'Google Recaptcha Site Key' );
 					$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
 					break;
 

@@ -14,9 +14,5 @@ include_once( $sBaseDirName.'widgets'.ICWP_DS.'icwp_widgets.php' ); ?>
 			</h2>
 		</div>
 		<?php if ( isset( $bShowStateSummary ) && $bShowStateSummary ) : ?>
-			<div class="row">
-				<div class="span12">
-					<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>
-				</div>
-			</div>
+			<?php include_once( $sBaseDirName.'snippets'.ICWP_DS.'state_summary.php' ); ?>
 		<?php endif; ?>
