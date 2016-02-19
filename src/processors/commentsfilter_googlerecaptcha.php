@@ -91,18 +91,17 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 
 		if ( $bIsSpam ) {
 			$this->doStatIncrement( sprintf( 'spam.recaptcha.%s', $sStatKey ) );
-			$this->sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
+			self::$sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
 			$this->setCommentStatusExplanation( $sExplanation );
 
 			// We now black mark this IP
 			add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
-		}
 
-		if ( $this->getOption( 'comments_default_action_spam_bot' ) == 'reject' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+			if ( self::$sCommentStatus == 'reject' ) {
+				$oWp = $this->loadWpFunctionsProcessor();
+				$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+			}
 		}
-
 		return $aCommentData;
 	}
 }
