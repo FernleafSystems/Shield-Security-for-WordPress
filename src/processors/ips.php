@@ -23,6 +23,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		}
 
 		/**
+		 * Resets the object values to be re-used anew
+		 */
+		public function init() {
+			parent::init();
+
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getFeatureOptions();
+			$this->setAutoExpirePeriod( $oFO->getAutoExpireTime() );
+		}
+
+		/**
 		 */
 		public function run() {
 
@@ -668,22 +679,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 */
 		protected function getTableColumnsByDefinition() {
 			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'ip_list_table_columns' );
-		}
-
-		/**
-		 * This is hooked into a cron in the base class and overrides the parent method.
-		 * It'll delete everything older than 24hrs.
-		 */
-		public function cleanupDatabase() {
-
-			if ( !$this->getTableExists() ) {
-				return;
-			}
-
-			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-			$oFO = $this->getFeatureOptions();
-			$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
-			$this->deleteAllRowsOlderThan( $nSinceTimeToConsider );
 		}
 
 		/**
