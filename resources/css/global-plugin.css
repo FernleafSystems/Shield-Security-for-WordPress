@@ -123,3 +123,7 @@ tr.icwp-plugin-vulnerability dd {
 	padding: 0 7px;
 	background-color: whitesmoke;
 }
+
+.wp-submenu-wrap a .icwp_highlighted {
+	color: yellow;
+}

@@ -376,7 +376,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 				$sHumanName = $this->getController()->getHumanName();
 
-				$sMenuPageTitle = $sHumanName.' - '.$sMenuTitleName;
+				$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
+				if ( $bMenuHighlighted ) {
+					$sMenuTitleName = sprintf( '<span class="icwp_highlighted">%s</span>', $sMenuTitleName );
+				}
+				$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
 				$aItems[ $sMenuPageTitle ] = array(
 					$sMenuTitleName,
 					$this->doPluginPrefix( $this->getFeatureSlug() ),

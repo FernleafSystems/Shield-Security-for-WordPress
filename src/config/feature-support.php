@@ -9,6 +9,7 @@ properties:
   storage_key: 'support' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
   auto_enabled: true
+  highlight_menu_item: true
 # Options Sections
 sections:
   -
