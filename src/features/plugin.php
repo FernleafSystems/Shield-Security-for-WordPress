@@ -10,15 +10,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
 			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
 			add_filter( $this->doPluginPrefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
-			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'getGoogleRecaptchaSecretKey' ) );
-			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'getGoogleRecaptchaSiteKey' ) );
+			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
+			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
 		}
 
 		/**
 		 * @param string $sKey
 		 * @return string
 		 */
-		public function getGoogleRecaptchaSecretKey( $sKey ) {
+		public function supplyGoogleRecaptchaSecretKey( $sKey ) {
 			return $this->getOpt( 'google_recaptcha_secret_key', $sKey );
 		}
 
@@ -26,7 +26,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @param string $sKey
 		 * @return string
 		 */
-		public function getGoogleRecaptchaSiteKey( $sKey ) {
+		public function supplyGoogleRecaptchaSiteKey( $sKey ) {
 			return $this->getOpt( 'google_recaptcha_site_key', $sKey );
 		}
 
