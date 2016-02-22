@@ -18,6 +18,11 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		protected $bTableExists;
 
 		/**
+		 * @var integer
+		 */
+		protected $nAutoExpirePeriod = null;
+
+		/**
 		 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
 		 * @param string $sTableName
 		 *
@@ -209,8 +214,17 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 			return $this->getController()->doPluginPrefix( $this->getFeatureOptions()->getFeatureSlug().'_db_cleanup' );
 		}
 
-		// by default does nothing - override this method
-		public function cleanupDatabase() { }
+		/**
+		 * @return bool|int
+		 */
+		public function cleanupDatabase() {
+			$nAutoExpirePeriod = $this->getAutoExpirePeriod();
+			if ( is_null( $nAutoExpirePeriod ) || !$this->getTableExists() ) {
+				return false;
+			}
+			$nTimeStamp = $this->time() - $nAutoExpirePeriod;
+			return $this->deleteAllRowsOlderThan( $nTimeStamp );
+		}
 
 		/**
 		 * @return bool
@@ -224,6 +238,22 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 			$this->bTableExists = $this->loadDbProcessor()->getIfTableExists( $this->getTableName() );
 			return $this->bTableExists;
+		}
+
+		/**
+		 * @return int
+		 */
+		protected function getAutoExpirePeriod() {
+			return $this->nAutoExpirePeriod;
+		}
+
+		/**
+		 * @param int $nTimePeriod
+		 * @return $this
+		 */
+		protected function setAutoExpirePeriod( $nTimePeriod ) {
+			$this->nAutoExpirePeriod = $nTimePeriod;
+			return $this;
 		}
 	}
 

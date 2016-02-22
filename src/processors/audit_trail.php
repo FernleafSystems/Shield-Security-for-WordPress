@@ -13,6 +13,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 			parent::__construct( $oFeatureOptions, $oFeatureOptions->getAuditTrailTableName() );
 		}
 
+		/**
+		 * Resets the object values to be re-used anew
+		 */
+		public function init() {
+			parent::init();
+
+			// Auto delete db entries
+			$nDays = $this->getOption( 'audit_trail_auto_clean' );
+			if ( $nDays > 0 ) {
+				$this->setAutoExpirePeriod( $nDays * DAY_IN_SECONDS );
+			}
+		}
+
 		public function action_doFeatureProcessorShutdown () {
 			if ( ! $this->getFeatureOptions()->getIsPluginDeleting() ) {
 				$this->commitAuditTrial();
@@ -148,20 +161,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 		 */
 		protected function getTableColumnsByDefinition() {
 			return $this->getOption( 'audit_trail_table_columns' );
-		}
-
-		/**
-		 * This is hooked into a cron in the base class and overrides the parent method.
-		 *
-		 * It'll delete everything older than 30 days.
-		 */
-		public function cleanupDatabase() {
-			$nDays = $this->getOption( 'audit_trail_auto_clean' );
-			if ( !$this->getTableExists() || $nDays <= 0 ) {
-				return;
-			}
-			$nTimeStamp = $this->time() - $nDays * DAY_IN_SECONDS;
-			$this->deleteAllRowsOlderThan( $nTimeStamp );
 		}
 	}
 

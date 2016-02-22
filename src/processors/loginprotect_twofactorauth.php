@@ -19,6 +19,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
+		 * Resets the object values to be re-used anew
+		 */
+		public function init() {
+			parent::init();
+			$this->setAutoExpirePeriod( DAY_IN_SECONDS * $this->nDaysToKeepLog );
+		}
+
+		/**
 		 */
 		public function run() {
 
@@ -362,18 +370,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 */
 		protected function getTableColumnsByDefinition() {
 			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'two_factor_auth_table_columns' );
-		}
-
-		/**
-		 * This is hooked into a cron in the base class and overrides the parent method.
-		 * It'll delete everything older than 24hrs.
-		 */
-		public function cleanupDatabase() {
-			if ( !$this->getTableExists() ) {
-				return;
-			}
-			$nTimeStamp = $this->time() - ( DAY_IN_SECONDS * $this->nDaysToKeepLog );
-			$this->deleteAllRowsOlderThan( $nTimeStamp );
 		}
 
 		/**

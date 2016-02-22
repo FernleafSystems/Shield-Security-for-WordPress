@@ -38,6 +38,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
+	 * Resets the object values to be re-used anew
+	 */
+	public function init() {
+		parent::init();
+		$this->setAutoExpirePeriod( DAY_IN_SECONDS );
+		$this->getUniqueCommentToken(); //ensures the necessary cookie is set early
+	}
+
+	/**
 	 * @param bool $fIfDoCheck
 	 * @return bool
 	 */
@@ -61,16 +70,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 
 		return $fIfDoCheck;
-	}
-
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$this->sCommentStatus = '';
-		$this->sCommentStatusExplanation = '';
-		$this->getUniqueCommentToken(); //ensures the necessary cookie is set early
 	}
 	
 	/**
@@ -497,18 +496,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				$this->sCommentStatus,
 				$sExplanation
 			)." *]\n";
-	}
-	
-	/**
-	 * This is hooked into a cron in the base class and overrides the parent method.
-	 * It'll delete everything older than 24hrs.
-	 */
-	public function cleanupDatabase() {
-		if ( !$this->getTableExists() ) {
-			return;
-		}
-		$nTimeStamp = $this->time() - DAY_IN_SECONDS;
-		$this->deleteAllRowsOlderThan( $nTimeStamp );
 	}
 }
 endif;

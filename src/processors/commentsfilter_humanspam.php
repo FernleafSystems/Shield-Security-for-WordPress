@@ -4,39 +4,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter_HumanSpam', false ) ):
 
 require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
 	const Spam_Blacklist_Source = 'https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt';
-
-	/**
-	 * @var array
-	 */
-	private $aRawCommentData;
-
-	/**
-	 * @var string
-	 */
-	static protected $sSpamBlacklistFile;
-
-	/**
-	 * @var string
-	 */
-	protected $sCommentStatus = '';
-
-	/**
-	 * @var string
-	 */
-	protected $sCommentStatusExplanation = '';
 
 	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
-		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
 		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-		add_filter( $oFO->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 2 );
-		add_filter( $oFO->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 2 );
 	}
 
 	/**
@@ -67,55 +44,11 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return array|mixed|null
-	 */
-	public function getRawCommentData( $sKey = '' ) {
-		if ( !isset( $this->aRawCommentData ) ) {
-			$this->aRawCommentData = array();
-		}
-		if ( !empty( $sKey ) ) {
-			return isset( $this->aRawCommentData[$sKey] ) ? $this->aRawCommentData[$sKey] : null;
-		}
-		return $this->aRawCommentData;
-	}
-
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$this->sCommentStatus = '';
-		$this->sCommentStatusExplanation = '';
-		self::$sSpamBlacklistFile = $this->getFeatureOptions()->getResourcesDir().'spamblacklist.txt';
-	}
-
-	/**
-	 * A private plugin filter that lets us return up the newly set comment status.
-	 *
-	 * @param $sCurrentCommentStatus
-	 * @return string
-	 */
-	public function getCommentStatus( $sCurrentCommentStatus ) {
-		return empty( $sCurrentCommentStatus )? $this->sCommentStatus : $sCurrentCommentStatus;
-	}
-
-	/**
-	 * A private plugin filter that lets us return up the newly set comment status explanation
-	 *
-	 * @param $sCurrentCommentStatusExplanation
-	 * @return string
-	 */
-	public function getCommentStatusExplanation( $sCurrentCommentStatusExplanation ) {
-		return empty( $sCurrentCommentStatusExplanation )? $this->sCommentStatusExplanation : $sCurrentCommentStatusExplanation;
-	}
-
-	/**
 	 * @param array $aCommentData
 	 * @return array
 	 */
 	public function doCommentChecking( $aCommentData ) {
-		$this->aRawCommentData = $aCommentData;
+		parent::doCommentChecking( $aCommentData );
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
@@ -126,7 +59,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 		$this->doBlacklistSpamCheck( $aCommentData );
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
-		if ( $this->sCommentStatus == 'reject' ) {
+		if ( self::$sCommentStatus == 'reject' ) {
 			$oWp = $this->loadWpFunctionsProcessor();
 			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
 		}
@@ -163,8 +96,9 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	 */
 	public function doBlacklistSpamCheck_Action( $sAuthor, $sEmail, $sUrl, $sComment, $sUserIp, $sUserAgent ) {
 
+		$sCurrentStatus = $this->getStatus();
 		// Check that we haven't already marked the comment through another scan, say GASP
-		if ( !empty( $this->sCommentStatus ) || !$this->getIsOption('enable_comments_human_spam_filter', 'Y') ) {
+		if ( !empty( $sCurrentStatus ) || !$this->getIsOption('enable_comments_human_spam_filter', 'Y') ) {
 			return;
 		}
 
@@ -195,12 +129,11 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 					//mark as spam and exit;
 					$this->doStatIncrement( sprintf( 'spam.human.%s', $sKey ) );
 					$this->doStatHumanSpamWords( $sWord );
-					$this->sCommentStatus = $this->getOption( 'comments_default_action_human_spam' );
-					$this->setCommentStatusExplanation( sprintf( _wpsf__('Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
+					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
+					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
 
 					// We now black mark this IP
 					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
-
 					break 2;
 				}
 			}
@@ -222,17 +155,18 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	 */
 	protected function getSpamBlacklist() {
 		$oFs = $this->loadFileSystemProcessor();
+		$sBLFile = $this->getSpamBlacklistFile();
 
 		// first, does the file exist? If not import
-		if ( !$oFs->exists( self::$sSpamBlacklistFile ) ) {
+		if ( !$oFs->exists( $sBLFile ) ) {
 			$this->doSpamBlacklistImport();
 		}
 		// second, if it exists and it's older than 48hrs, update
-		else if ( $this->time() - $oFs->getModifiedTime( self::$sSpamBlacklistFile ) > ( DAY_IN_SECONDS * 2 ) ) {
+		else if ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > ( DAY_IN_SECONDS * 2 ) ) {
 			$this->doSpamBlacklistUpdate();
 		}
 
-		$sList = $oFs->getFileContent( self::$sSpamBlacklistFile );
+		$sList = $oFs->getFileContent( $sBLFile );
 		return empty($sList)? '' : $sList;
 	}
 
@@ -240,7 +174,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	 */
 	protected function doSpamBlacklistUpdate() {
 		$oFs = $this->loadFileSystemProcessor();
-		$oFs->deleteFile( self::$sSpamBlacklistFile );
+		$oFs->deleteFile( $this->getSpamBlacklistFile() );
 		$this->doSpamBlacklistImport();
 	}
 
@@ -248,7 +182,8 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	 */
 	protected function doSpamBlacklistImport() {
 		$oFs = $this->loadFileSystemProcessor();
-		if ( !$oFs->exists( self::$sSpamBlacklistFile ) ) {
+		$sBLFile = $this->getSpamBlacklistFile();
+		if ( !$oFs->exists( $sBLFile ) ) {
 
 			$sRawList = $this->doSpamBlacklistDownload();
 
@@ -268,7 +203,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 			}
 
 			// save the list to disk for the future.
-			$oFs->putFileContent( self::$sSpamBlacklistFile, $sList );
+			$oFs->putFileContent( $sBLFile, $sList );
 		}
 	}
 
@@ -281,16 +216,10 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_B
 	}
 
 	/**
-	 * @param $sExplanation
+	 * @return string
 	 */
-	protected function setCommentStatusExplanation( $sExplanation ) {
-		$this->sCommentStatusExplanation =
-			'[* '.sprintf(
-				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
-				$this->getController()->getHumanName(),
-				( $this->sCommentStatus == 0 ) ? _wpsf__('pending') : $this->sCommentStatus,
-				$sExplanation
-			)." *]\n";
+	protected function getSpamBlacklistFile() {
+		return $this->getFeatureOptions()->getResourcesDir() . 'spamblacklist.txt';
 	}
 }
 endif;
