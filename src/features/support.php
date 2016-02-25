@@ -7,6 +7,34 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 	class ICWP_WPSF_FeatureHandler_Support extends ICWP_WPSF_FeatureHandler_Base {
 
 		/**
+		 */
+		public function displayFeatureConfigPage( ) {
+			$aData = array(
+				'has_premium_support' => $this->getHasPremiumSupport(),
+				'premium_support_registered_email' => $this->getPremiumSupportRegisteredEmail(),
+				'aHrefs' => array(
+					'support_centre_sso' => $this->getPremiumSupportHelpdeskUrl(),
+					'shield_pro_url' => 'http://icwp.io/shieldpro'
+				)
+			);
+			$this->display( $aData, 'feature-support' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getPremiumSupportRegisteredEmail() {
+			return $this->getHasPremiumSupport() ? ICWP_Plugin::GetAssignedToEmail() : '';
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getPremiumSupportHelpdeskUrl() {
+			return $this->getHasPremiumSupport() ? ICWP_Plugin::GetHelpdeskSsoUrl() : '';
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getHasPremiumSupport() {
@@ -24,7 +52,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		 * @return bool
 		 */
 		protected function getIcwpLinked() {
-			return ( $this->getHasIcwpPluginActive() && ICWP_Plugin::IsLinked() );
+			return ( $this->getHasIcwpPluginActive() && ICWP_Plugin::IsLinked() && $this->getIcwpPluginMeetsMinimumVersion() );
+		}
+
+		/**
+		 * @return boolean
+		 */
+		protected function getIcwpPluginMeetsMinimumVersion() {
+			return version_compare( ICWP_Plugin::GetVersion(), '2.13', '>=' );
 		}
 
 		public function doPrePluginOptionsSave() {}
