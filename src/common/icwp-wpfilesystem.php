@@ -476,14 +476,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		 */
 		private function initFileSystem() {
 			if ( is_null( $this->oWpfs ) ) {
+				$this->oWpfs = false;
 				require_once( ABSPATH . 'wp-admin'.ICWP_DS.'includes'.ICWP_DS.'file.php' );
-				WP_Filesystem();
-				global $wp_filesystem;
-				if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
-					$this->oWpfs = $wp_filesystem;
-				}
-				else {
-					$this->oWpfs = false;
+				if ( WP_Filesystem() ) {
+					global $wp_filesystem;
+					if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
+						$this->oWpfs = $wp_filesystem;
+					}
 				}
 			}
 		}

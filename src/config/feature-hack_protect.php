@@ -67,6 +67,8 @@ definitions:
     - 'hello.php'
     - 'wp-config-sample.php'
     - 'akismet'
+    - '/azigen/'
+    - '/magyar-video-embed/'
     - 'themes/twenty'
     - 'wp-content/languages/'
   corechecksum_exclusions_missing_only:
