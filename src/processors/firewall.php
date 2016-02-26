@@ -438,6 +438,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'txn_id',
 						'_wp_http_referer',
 						'_wp_original_http_referer',
+						'pwd',
 						'url',
 						'referredby',
 						'redirect_to'
