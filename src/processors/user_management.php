@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()->getCurrentUserHasValidSession() ) {
 				$sMessage = sprintf(
 					'<p class="message">%s<br />%s</p>',
-					_wpsf__( "It looks like you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()->get('user_login') ),
+					_wpsf__( "It appears you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()->get('user_login') ),
 					( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWpFunctionsProcessor()->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ) . ' &rarr;' ) : ''
 				).$sMessage;
 			}
