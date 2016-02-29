@@ -1,4 +1,4 @@
-=== Simple Security Firewall ===
+=== Shield ===
 Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
@@ -8,13 +8,13 @@ Requires at least: 3.5.0
 Tested up to: 4.5
 Stable tag: 5.0.0
 
-Comprehensive and Easy-To-Use WordPress Security - No "Premium" Features
+The Comprehensive and Easy-To-Use Security System for WordPress
 
 == Description ==
 
-> The Simple Security Firewall is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
-We're designed for maximum compatibility with your WordPress sites, while providing an uncomplicated approach for beginner
-and advanced users alike - with NO nasty site lockouts. Experience the difference that a great security plugin makes,
+> Shield is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
+Designed for maximum compatibility with your WordPress sites, it provides a super simple approach for both beginner
+and advanced users. NO more nasty site lockouts! Experience the difference that a great security plugin makes,
 alongside common-sense security design.  You'll never look back!
 
 Do you want to secure your WordPress site, without getting overwhelmed?
@@ -66,13 +66,13 @@ Take back control of your WordPress Automatic Updates.
 
 [youtube http://www.youtube.com/watch?v=r307fu3Eqbo]
 
-= The Simple Security Firewall Explained =
+= Shield Security Explained =
 
-The WordPress Simple Security Firewall is built to be highly reliable, and easy to use by **anyone**!
+The Shield is built to be highly reliable and easy to use by **anyone**!
 
 Originally built off the WordPress Firewall 2, it now includes much more:
 
-*	7 Simple, clear, Firewall blocking options - pick and choose for ultimate protection and compatibility.
+*	9 effective and clear, Firewall blocking options - pick and choose for ultimate protection and compatibility.
 *	Option: Ignore already logged-in Administrators so you don't firewall yourself as you work on the site.
 *	Option: IP Address Whitelist. So you can vet your own IP addresses and 3rd Party Services.
 *	Option: Developer option for 3rd Party Services to dynamically add IP Addresses to whitelist
@@ -146,23 +146,23 @@ See FAQs.
 Note: When you enable the plugin, the firewall is not automatically turned on. This plugin contains various different sections of
 protection for your site and you should choose which you need based on your own requirements.
 
-Why do we do this?  Simple, performance and optimization - there is no reason to automatically turn on features for people that don't
+Why do we do this? It's simple: performance and optimization - there is no reason to automatically turn on features for people that don't
 need it as each site and set of requirements is different.
 
 This plugin should install as any other WordPress.org respository plugin.
 
 1.	Browse to Plugins -> Add Plugin
-1.	Search: WordPress Simple Firewall
+1.	Search: Shield
 1.	Click Install
 1.	Click to Activate.
 
-A new menu item will appear on the left-hand side called 'Simple Firewall'.
+A new menu item will appear on the left-hand side called 'Shield'.
 
 == Frequently Asked Questions ==
 
 Please see the dedicated [help centre](http://icwp.io/firewallhelp) for details on features and some FAQs.
 
-= How does the Simple Security Firewall compare with other WordPress Security Plugins? =
+= How does the Shield compare with other WordPress Security Plugins? =
 
 Easy - we're just better! ;)
 
@@ -177,7 +177,7 @@ Ideally you shouldn't use this along side other Anti-SPAM plugins or security pl
 This plugin is an application layer firewall, not a server/network firewall.  It is designed to interpret web calls to your site to
 look for attempts to circumvent it and gain unauthorized access.
 
-Your network firewall is designed to restrict access to your server based on certain types of network traffic.  The WordPress Simple Firewall
+Your network firewall is designed to restrict access to your server based on certain types of network traffic.  The Shield
 is designed to restrict access to your site, based on certain type of web calls.
 
 = How does the IP Whitelist work? =
@@ -199,14 +199,14 @@ This happens when any the following 3 conditions are met:
 *	you have added your IP address to the firewall blacklist,
 *	you have enabled 2 factor authentication and email doesn't work on your site (and you haven't chosen the override option)
 
-You can completely turn OFF (and ON) the WordPress Simple Firewall by creating a special file in the plugin folder.
+You can completely turn OFF (and ON) the Shield by creating a special file in the plugin folder.
 
 Here's how:
 
 1.	Open up an FTP connection to your site, browse to the plugin folder <your site WordPress root>/wp-content/plugins/wp-simple-firewall/
 1.	Create a new file in here called: "forceOff".
 1.	Load any page on your WordPress site.
-1.	After this, you'll find your WordPress Simple Firewall has been switched off.
+1.	After this, you'll find your Shield has been switched off.
 
 If you want to turn the firewall on in the same way, create a file called "forceOn".
 
@@ -570,9 +570,9 @@ Which actions will trigger an ABLE transgression?
 = 4.0.0 =
 
 *   ADDED:      New Feature - Audit Trail
-*   ADDED:      Audit Trail options include: Plugins, Themes, Email, WordPress Core, Posts/Pages, WordPress Simple Firewall
+*   ADDED:      Audit Trail options include: Plugins, Themes, Email, WordPress Core, Posts/Pages, Shield plugin
 *   FIXED:      Full and proper cleanup of plugin options, crons, and databases upon deactivation.
-*   REMOVED:    Firewall Log. This is no longer an option and is instead integrated into the "WordPress Simple Firewall" Audit Trail.
+*   REMOVED:    Firewall Log. This is no longer an option and is instead integrated into the "Shield" Audit Trail.
 
 = 3.5.5 =
 
@@ -685,7 +685,7 @@ Which actions will trigger an ABLE transgression?
 
 1.  More robust cookie values using MD5s
 1.  Blocks plugin options updating right at the point of WordPress options update so nothing can rewrite the actual plugin options.
-1.  Locks the current Admin Access session to your IP address - effectively only 1 Simple Firewall admin allowed at a time.
+1.  Locks the current Admin Access session to your IP address - effectively only 1 Shield admin allowed at a time.
 
 = 2.6.2 =
 

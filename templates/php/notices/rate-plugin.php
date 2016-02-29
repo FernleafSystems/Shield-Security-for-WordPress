@@ -6,7 +6,7 @@
 	<div class="notice-content">
 		<h3>Would you like show us your support? We need only your words &hellip;</h3>
 
-		<p>The authors of the Simple Firewall plugin need your help to spread the word about this Firewall plugin.</p>
+		<p>The authors of the Shield plugin need your help to spread the word about this Security plugin.</p>
 
 		<p>Simply by talking about our plugin to other people in the community about how effective it has been for your site security, you lend us your
 			incredible support.</p>

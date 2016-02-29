@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: Simple Security Firewall
+ * Plugin Name: Shield
  * Plugin URI: http://icwp.io/2f
  * Description: Easy-To-Use WordPress Security System
  * Version: 4.17.0

@@ -4,8 +4,8 @@ properties:
   version: '4.17.0'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
-  human_name: 'WordPress Security Firewall'
-  menu_title: 'Security Firewall'
+  human_name: 'Shield'
+  menu_title: 'Shield Security'
   text_domain: 'wp-simple-firewall'
   base_permissions: 'manage_options'
   wpms_network_admin_only: true
