@@ -14,7 +14,7 @@
  * Copyright (c) 2016 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
- * "WordPress Simple Security Firewall" is distributed under the GNU General Public License, Version 2,
+ * "Shield" is distributed under the GNU General Public License, Version 2,
  * June 1991. Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin
  * St, Fifth Floor, Boston, MA 02110, USA
  *

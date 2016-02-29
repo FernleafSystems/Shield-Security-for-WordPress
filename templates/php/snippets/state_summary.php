@@ -4,7 +4,6 @@ if ( empty($aSummaryData) ) {
 } ?>
 
 <div class="row-fluid feature-summary-blocks">
-	<div class="span1"></div>
 	<?php foreach( $aSummaryData as $nKey => $aSummary ) : ?>
 		<div class="span1 summary-state state-<?php echo $aSummary['enabled'] ? 'on' : 'off'; ?> <?php echo $aSummary['active'] ? 'active-feature' : ''; ?> " id="feature-<?php echo $aSummary['slug']; ?>" >
 			<a class="feature-icon span3"

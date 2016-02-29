@@ -290,6 +290,9 @@ label input[type=checkbox] {
 
 .feature-summary-blocks {
 	margin: 10px 0 25px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: 99.0%;
 }
 
 .feature-summary-blocks .feature-icon:before {
@@ -334,6 +337,9 @@ label input[type=checkbox] {
 	.feature-summary-blocks .summary-state p {
 		font-size: 8px;
 	}
+	.feature-summary-blocks .feature-icon:before {
+		font-size: 32px;
+	}
 }
 .feature-summary-blocks .state-on a {
 	color: rgba( 82, 196, 45, 0.85 );
@@ -354,7 +360,9 @@ label input[type=checkbox] {
 .feature-summary-blocks .feature-summary-block.state-off {
 	background-color: rgba( 239, 141, 49, 0.2 );
 }
-#feature-dashboard .feature-icon:before,
+#feature-plugin .feature-icon:before{
+	content: "\f111";
+}
 #feature-admin_access_restriction .feature-icon:before {
 	content: "\f332";
 }
@@ -365,7 +373,7 @@ label input[type=checkbox] {
 	content: "\f307";
 }
 #feature-hack_protect .feature-icon:before {
-	content: "\f312";
+	content: "\f153";
 }
 #feature-login_protect .feature-icon:before {
 	content: "\f112";
@@ -384,6 +392,9 @@ label input[type=checkbox] {
 }
 #feature-ips .feature-icon:before {
 	content: "\f230";
+}
+#feature-support .feature-icon:before {
+	content: "\f525";
 }
 
 input[type="email"] {
