@@ -105,11 +105,18 @@ options:
     link_info: 'http://icwp.io/4v'
     link_blog: ''
   -
-    key: 'enable_user_register_checking'
+    key: 'enable_google_recaptcha'
+    section: 'section_brute_force_login_protection'
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'enable_login_gasp_check'
     section: 'section_brute_force_login_protection'
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/3r'
     link_blog: ''
   -
     key: 'login_limit_interval'
@@ -119,11 +126,11 @@ options:
     link_info: 'http://icwp.io/3q'
     link_blog: ''
   -
-    key: 'enable_login_gasp_check'
+    key: 'enable_user_register_checking'
     section: 'section_brute_force_login_protection'
     default: 'Y'
     type: 'checkbox'
-    link_info: 'http://icwp.io/3r'
+    link_info: ''
     link_blog: ''
   -
     key: 'enable_prevent_remote_post'

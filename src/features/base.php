@@ -64,6 +64,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected $oFeatureProcessor;
 
 		/**
+		 * @var string
+		 */
+		protected static $sActivelyDisplayedModuleOptions = '';
+
+		/**
 		 * @param ICWP_WPSF_Plugin_Controller $oPluginController
 		 * @param array $aFeatureProperties
 		 * @throws Exception
@@ -371,7 +376,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 				$sHumanName = $this->getController()->getHumanName();
 
-				$sMenuPageTitle = $sHumanName.' - '.$sMenuTitleName;
+				$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
+				if ( $bMenuHighlighted ) {
+					$sMenuTitleName = sprintf( '<span class="icwp_highlighted">%s</span>', $sMenuTitleName );
+				}
+				$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
 				$aItems[ $sMenuPageTitle ] = array(
 					$sMenuTitleName,
 					$this->doPluginPrefix( $this->getFeatureSlug() ),
@@ -415,10 +424,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				return $aSummaryData;
 			}
 
+			$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
 			$aSummaryData[] = array(
 				'enabled' => $this->getIsMainFeatureEnabled(),
+				'active' => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
 				'slug' => $this->getFeatureSlug(),
 				'name' => $this->getMainFeatureName(),
+				'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 				'href' => network_admin_url( 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ) )
 			);
 
@@ -1011,6 +1023,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function getBaseDisplayData() {
 			$oCon = $this->getController();
+			self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 			return array(
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
 				'sPluginName'		=> $oCon->getHumanName(),
@@ -1023,7 +1036,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
 				'aPluginLabels'		=> $oCon->getPluginLabels(),
+
 				'bShowStateSummary'	=> false,
+				'aSummaryData'		=> apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), array() ),
 
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),

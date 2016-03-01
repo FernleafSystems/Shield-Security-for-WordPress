@@ -57,6 +57,8 @@ sections:
   -
     slug: 'section_general_plugin_options'
   -
+    slug: 'section_third_party'
+  -
     slug: 'section_non_ui'
     hidden: true
 
@@ -102,6 +104,20 @@ options:
     section: 'section_general_plugin_options'
     default: ''
     type: 'noneditable_text'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'google_recaptcha_secret_key'
+    section: 'section_third_party'
+    default: ''
+    type: 'text'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'google_recaptcha_site_key'
+    section: 'section_third_party'
+    default: ''
+    type: 'text'
     link_info: ''
     link_blog: ''
   -
@@ -157,6 +173,11 @@ options:
         slug: 'audit_trail'
         storage_key: 'audit_trail'
         load_priority: 11
+        hidden: false
+      -
+        slug: 'support'
+        storage_key: 'support'
+        load_priority: 20
         hidden: false
       -
         slug: 'email'

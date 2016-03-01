@@ -23,6 +23,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		parent::__construct( $oFeatureOptions, $oFeatureOptions->getUserSessionsTableName() );
 	}
 
+	/**
+	 * Resets the object values to be re-used anew
+	 */
+	public function init() {
+		parent::init();
+		$this->setAutoExpirePeriod( DAY_IN_SECONDS * $this->nDaysToKeepLog );
+	}
+
 	public function run() {
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
@@ -461,19 +469,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		);
 
 		return $this->selectCustom( $sQuery );
-	}
-
-	/**
-	 * This is hooked into a cron in the base class and overrides the parent method.
-	 *
-	 * It'll delete everything older than 24hrs.
-	 */
-	public function cleanupDatabase() {
-		if ( !$this->getTableExists() ) {
-			return;
-		}
-		$nTimeStamp = $this->time() - (DAY_IN_SECONDS * $this->nDaysToKeepLog);
-		$this->deleteAllRowsOlderThan( $nTimeStamp );
 	}
 }
 endif;

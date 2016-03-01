@@ -251,23 +251,29 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sName = _wpsf__( 'Login Cooldown Interval' );
 					$sSummary = _wpsf__( 'Limit login attempts to every X seconds' );
 					$sDescription = _wpsf__( 'WordPress will process only ONE login attempt for every number of seconds specified.' )
-									.'<br />'._wpsf__( 'Zero (0) turns this off.' )
-									.' '.sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'login_limit_interval' ) );
+						. '<br />' . _wpsf__( 'Zero (0) turns this off.' )
+						. ' ' . sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'login_limit_interval' ) );
 					break;
 
 				case 'enable_login_gasp_check' :
 					$sName = _wpsf__( 'G.A.S.P Protection' );
 					$sSummary = _wpsf__( 'Use G.A.S.P. Protection To Prevent Login Attempts By Bots' );
 					$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.' )
-									.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__('ON') );
+						. ' ' . sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__( 'ON' ) );
+					break;
+
+				case 'enable_google_recaptcha' :
+					$sName = _wpsf__( 'Google ReCaptcha' );
+					$sSummary = _wpsf__( 'Enable Google ReCaptcha' );
+					$sDescription = _wpsf__( 'Use Google ReCaptcha on the login screen.' );
 					break;
 
 				case 'enable_prevent_remote_post' :
 					$sName = _wpsf__( 'Prevent Remote Login' );
 					$sSummary = _wpsf__( 'Prevents Remote Login Attempts From Anywhere Except Your Site' );
 					$sDescription = _wpsf__( 'Prevents login by bots attempting to login remotely to your site.' )
-									.' '._wpsf__( 'You will not be able to enable this option if your web server does not support it.' )
-									.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__('ON') );
+						. ' ' . _wpsf__( 'You will not be able to enable this option if your web server does not support it.' )
+						. ' ' . sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__( 'ON' ) );
 					break;
 
 				case 'enable_yubikey' :
@@ -280,23 +286,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sName = _wpsf__( 'Yubikey App ID' );
 					$sSummary = _wpsf__( 'Your Unique Yubikey App ID' );
 					$sDescription = _wpsf__( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication' )
-									. _wpsf__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.' );
+						. _wpsf__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.' );
 					break;
 
 				case 'yubikey_api_key' :
 					$sName = _wpsf__( 'Yubikey API Key' );
 					$sSummary = _wpsf__( 'Your Unique Yubikey App API Key' );
 					$sDescription = _wpsf__( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.' )
-									. _wpsf__( 'Please review the info link on how to get your own Yubikey App ID and API Key.' );
+						. _wpsf__( 'Please review the info link on how to get your own Yubikey App ID and API Key.' );
 					break;
 
 				case 'yubikey_unique_keys' :
 					$sName = _wpsf__( 'Yubikey Unique Keys' );
 					$sSummary = _wpsf__( 'Permitted "Username - Yubikey" Pairs For This Site' );
-					$sDescription = '<strong>'. sprintf( _wpsf__( 'Format: %s' ), 'Username,Yubikey' ).'</strong>'
-									.'<br />- '. _wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.')
-									.'<br />- '. _wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
-									.'<br />- '. _wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
+					$sDescription = '<strong>' . sprintf( _wpsf__( 'Format: %s' ), 'Username,Yubikey' ) . '</strong>'
+						. '<br />- ' . _wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
+						. '<br />- ' . _wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
+						. '<br />- ' . _wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
 					break;
 
 				default:
@@ -425,6 +431,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 */
 		public function getIsEmailAuthenticationEnabled() {
 			return $this->getIfCanSendEmail() && $this->getIsEmailAuthenticationOptionOn();
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIsGoogleRecaptchaEnabled() {
+			return ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) && $this->loadDataProcessor()->getPhpSupportsNamespaces() );
 		}
 
 		/**

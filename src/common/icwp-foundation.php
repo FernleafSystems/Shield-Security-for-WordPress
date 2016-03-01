@@ -50,6 +50,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_WpComments
 		 */
 		private static $oWpComments;
+		/**
+		 * @var ICWP_WPSF_GoogleRecaptcha
+		 */
+		private static $oGR;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -133,6 +137,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oGA = ICWP_WPSF_GoogleAuthenticator::GetInstance();
 			}
 			return self::$oGA;
+		}
+
+		/**
+		 * @return ICWP_WPSF_GoogleRecaptcha
+		 */
+		static public function loadGoogleRecaptcha() {
+			if ( !isset( self::$oGR ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'icwp-googlearecaptcha.php' );
+				self::$oGR = ICWP_WPSF_GoogleRecaptcha::GetInstance();
+			}
+			return self::$oGR;
 		}
 
 		/**

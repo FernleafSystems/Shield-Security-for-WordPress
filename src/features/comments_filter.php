@@ -45,7 +45,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
-				case 'section_enable_automatic_bot_comment_spam_protection_filter' :
+				case 'section_bot_comment_spam_protection_filter' :
 					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Automatic Bot') );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sTitleShort = _wpsf__( 'Bot SPAM' );
 					break;
 
-				case 'section_enable_human_comment_spam_protection_filter' :
+				case 'section_human_spam_filter' :
 					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Human') );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.' ) ),
@@ -114,6 +114,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sName = _wpsf__( 'Default SPAM Action' );
 					$sSummary = _wpsf__( 'How To Categorise Comments When Identified To Be SPAM' );
 					$sDescription = sprintf( _wpsf__( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.' ), '<span style"text-decoration:underline;">'._wpsf__('a human commenter').'</span>' );
+					break;
+
+				case 'enable_google_recaptcha' :
+					$sName = _wpsf__( 'Google ReCaptcha' );
+					$sSummary = _wpsf__( 'Enable Google ReCaptcha For Comments' );
+					$sDescription = _wpsf__( 'Use Google ReCaptcha on the comments form to prevent bot-spam comments.' );
 					break;
 
 				case 'enable_comments_gasp_protection' :
