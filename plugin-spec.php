@@ -1,11 +1,11 @@
 <?php
 return "---
 properties:
-  version: '4.17.0'
+  version: '5.0.0'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
-  human_name: 'WordPress Security Firewall'
-  menu_title: 'Security Firewall'
+  human_name: 'Shield'
+  menu_title: 'Shield'
   text_domain: 'wp-simple-firewall'
   base_permissions: 'manage_options'
   wpms_network_admin_only: true
@@ -39,18 +39,17 @@ includes:
 
 menu:
   show: true
-  title: 'Security Firewall'
+  title: 'Shield'
   top_level: true # to-do is allow for non-top-level menu items.
   do_submenu_fix: true
   callback: 'onDisplayTopMenu'
   icon_image: 'pluginlogo_16x16.png'
   has_submenu: true # to-do is allow for non-top-level menu items.
 
-
 labels: #the keys below must correspond exactly for the 'all_plugins' filter
-  Name: 'WordPress Security Firewall'
+  Name: 'Shield'
   Description: \"Secure Your Sites With The World's Most Powerful WordPress Security Protection System\"
-  Title: 'WordPress Security Firewall'
+  Title: 'Shield'
   Author: 'iControlWP'
   AuthorName: 'iControlWP'
   PluginURI: 'http://icwp.io/home'

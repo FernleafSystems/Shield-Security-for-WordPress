@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
 		return sprintf(
 			'%s<div class="g-recaptcha" data-sitekey="%s"></div>',
-			'<style>@media screen and (max-height: 575px){
+			'<style>@media screen {
 #rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>',
 			$sSiteKey
 		);

@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
 
-	class ICWP_WPSF_FeatureHandler_Support extends ICWP_WPSF_FeatureHandler_Base {
+	class ICWP_WPSF_FeatureHandler_Support extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		/**
 		 */
@@ -14,7 +14,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 				'premium_support_registered_email' => $this->getPremiumSupportRegisteredEmail(),
 				'aHrefs' => array(
 					'support_centre_sso' => $this->getPremiumSupportHelpdeskUrl(),
-					'shield_pro_url' => 'http://icwp.io/shieldpro'
+					'shield_pro_url' => 'http://icwp.io/shieldpro',
+					'shield_pro_more_info_url' => 'http://icwp.io/shld1'
 				)
 			);
 			$this->display( $aData, 'feature-support' );
@@ -31,7 +32,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		 * @return bool
 		 */
 		public function getPremiumSupportHelpdeskUrl() {
-			return $this->getHasPremiumSupport() ? ICWP_Plugin::GetHelpdeskSsoUrl() : '';
+			$sHelpdesk = $this->getHasPremiumSupport() ? ICWP_Plugin::GetHelpdeskSsoUrl() : '';
+			return empty( $sHelpdesk ) ? $this->getDefinition( 'default_helpdesk_url' ) : $sHelpdesk;
 		}
 
 		/**

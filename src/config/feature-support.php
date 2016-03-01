@@ -31,6 +31,10 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
+
+# Definitions for constant data that doesn't need store in the options
+definitions:
+  default_helpdesk_url: 'http://icwp.io/shieldhelpdesk'
 ",
 		_wpsf__( 'Premium Support' ),
 		_wpsf__( 'Premium Plugin Support Centre' ) //tagline

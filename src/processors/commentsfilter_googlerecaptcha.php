@@ -47,9 +47,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 		$oFO = $this->getFeatureOptions();
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
 		return sprintf(
-			'%s<div class="g-recaptcha" data-sitekey="%s" style="margin: 10px 0;"></div>',
-			'<style>@media screen and (max-height: 575px){
-#rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>',
+			'<div class="g-recaptcha" data-sitekey="%s" style="margin: 10px 0;"></div>',
 			$sSiteKey
 		);
 	}

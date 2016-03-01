@@ -120,8 +120,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 						'your_name' => _wpsf__( 'Your Name' ),
 						'your_email' => _wpsf__( 'Your Email' ),
 						'dismiss' => "No thanks, I'm not interested in such informative groups",
-						'summary' => 'The WordPress Simple Firewall team is running an initiative (with currently 1500+ members) to raise awareness of WordPress Security
-				and to provide further help with the WordPress Simple Firewall plugin. Get Involved here:',
+						'summary' => 'The Shield security team is running an initiative (with currently 2000+ members) to raise awareness of WordPress Security
+				and to provide further help with the Shield security plugin. Get Involved here:',
 					),
 					'hrefs' => array(
 						'form_action' => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259'

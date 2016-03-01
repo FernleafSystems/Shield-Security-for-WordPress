@@ -69,14 +69,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @param array $aSummaryData
-		 * @return array
-		 */
-		public function filter_getFeatureSummaryData( $aSummaryData ) {
-			return $aSummaryData;
-		}
-
-		/**
 		 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
 		 *
 		 * @param string $sPlugin
