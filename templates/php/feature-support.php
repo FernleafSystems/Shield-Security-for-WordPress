@@ -1,4 +1,4 @@
-<?php if ( $has_premium_support ) : ?>
+<?php if ( false && $has_premium_support ) : ?>
 
 	<div class="row">
 		<div class="span12">
@@ -18,7 +18,7 @@
 <?php else : ?>
 
 	<div class="row">
-		<div class="span6">
+		<div class="span6 shield-free-block">
 			<h2>Shield Free</h2>
 			<p>
 				We offer Shield as-is without business-grade support.
@@ -47,7 +47,7 @@
 			</p>
 			<p>
 				<a href="<?php echo $aHrefs['shield_pro_url']; ?>" class="btn btn-success btn-large" target="_blank">Go Pro!</a>
-				<a href="<?php echo $aHrefs['shield_pro_more_info_url']; ?>" class="btn btn-large" target="_blank">Learn More</a>
+				<br/><a style="float:right" href="<?php echo $aHrefs['shield_pro_more_info_url']; ?>" class="" target="_blank">Learn More</a>
 			</p>
 		</div>
 	</div>
