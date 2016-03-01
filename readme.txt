@@ -1,4 +1,4 @@
-=== Shield ===
+=== Shield (formerly Simple Firewall) ===
 Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
@@ -281,9 +281,9 @@ You can add some custom code to your functions.php exactly as the following:
 = 5.0.0 Latest Point Release =
 *Released: 1st March, 2016*
 
-* **(v.0)**  NEW:			WordPress Simple Firewall plugin has been re-branded and is called **Shield**
-* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](http://icwp.io/wpsf43) for Comment SPAM and Login protection.
-* **(v.0)**  ADDED:			Support for this plugin is now Premium. Added Premium Support page that links to Helpdesk.
+* **(v.0)**  NEW:			WordPress Simple Firewall plugin has been [re-branded and is called **Shield**](http://icwp.io/shld4)
+* **(v.0)**  ADDED:			Support for this plugin [is now Premium](http://icwp.io/shld3). Added Premium Support page that links to Helpdesk.
+* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](http://icwp.io/shld2) for Comment SPAM and Login protection.
 * **(v.0)**  CHANGED:		Refactor of comment spam code.
 * **(v.0)**  CHANGED:		[Core File Scanner](http://icwp.io/wpsf40) now handles the odd Hungarian distribution.
 
