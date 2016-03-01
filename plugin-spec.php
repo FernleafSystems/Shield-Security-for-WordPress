@@ -5,7 +5,7 @@ properties:
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
   human_name: 'Shield'
-  menu_title: 'Shield Security'
+  menu_title: 'Shield'
   text_domain: 'wp-simple-firewall'
   base_permissions: 'manage_options'
   wpms_network_admin_only: true
@@ -39,7 +39,7 @@ includes:
 
 menu:
   show: true
-  title: 'Shield Security'
+  title: 'Shield'
   top_level: true # to-do is allow for non-top-level menu items.
   do_submenu_fix: true
   callback: 'onDisplayTopMenu'

@@ -14,7 +14,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 				'premium_support_registered_email' => $this->getPremiumSupportRegisteredEmail(),
 				'aHrefs' => array(
 					'support_centre_sso' => $this->getPremiumSupportHelpdeskUrl(),
-					'shield_pro_url' => 'http://icwp.io/shieldpro'
+					'shield_pro_url' => 'http://icwp.io/shieldpro',
+					'shield_pro_more_info_url' => 'http://icwp.io/shld1'
 				)
 			);
 			$this->display( $aData, 'feature-support' );
