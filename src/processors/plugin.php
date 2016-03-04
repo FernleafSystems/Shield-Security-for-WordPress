@@ -76,7 +76,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				->setTemplate( 'plugin_badge' )
 				->setTemplateEngineHtml()
 				->render();
-			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $oCon->getHumanName() );
+			$sBadgeText = sprintf(
+				'This Site Is Protected By<br /><span style="font-style: italic;">The</span>%s &rarr;',
+				$oCon->getHumanName()
+			);
+			$sBadgeText = esc_html( apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText ) );
+			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 		}
 
 		public function printVisitorIpFooter() {
