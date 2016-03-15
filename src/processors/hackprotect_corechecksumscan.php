@@ -177,7 +177,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				_wpsf__( 'Details for the problem files are below:' ),
 			);
 
-			$sBaseSvnUrl = $this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
 			if ( !empty( $aFiles['checksum_mismatch'] ) ) {
 				$aContent[] = '';
 				$aContent[] = _wpsf__('The MD5 Checksum Hashes for following core files do not match the official WordPress.org Checksum Hashes:');
