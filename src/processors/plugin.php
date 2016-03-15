@@ -83,7 +83,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 					$oCon->getHumanName()
 				)
 			);
-			$sBadgeText = ( apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText ) );
+			$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
 			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 		}
 

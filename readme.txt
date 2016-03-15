@@ -274,23 +274,29 @@ You can add some custom code to your functions.php exactly as the following:
 
 `add_filter( 'icwp_wpsf_print_admin_ip_footer', '__return_false' );`
 
+= How can I change the text/html in the Plugin Badge? =
+
+Use the following filter and return the HTML/Text you wish to display:
+
+`add_filter( 'icwp_shield_plugin_badge_text', 'your_function_to_return_text' );`
+
 == Screenshots ==
 
 == Changelog ==
 
-= 5.0.0 Latest Point Release =
-*Released: 1st March, 2016*
+= 5.0.1 Latest Point Release =
+*Released: 15st March, 2016*
 
-* **(v.0)**  NEW:			WordPress Simple Firewall plugin has been [re-branded and is called **Shield**](http://icwp.io/shld4)
-* **(v.0)**  ADDED:			Support for this plugin [is now Premium](http://icwp.io/shld3). Added Premium Support page that links to Helpdesk.
-* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](http://icwp.io/shld2) for Comment SPAM and Login protection.
-* **(v.0)**  CHANGED:		Refactor of comment spam code.
-* **(v.0)**  CHANGED:		[Core File Scanner](http://icwp.io/wpsf40) now handles the odd Hungarian distribution.
+* **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](http://icwp.io/wpsf40) feature.
+* **(v.1)**  CHANGED:		A WordPress filter to change the plugin badge text content (see FAQ)
+* **(v.1)**  CHANGED:		Tweaked the plugin badge styling.
+* **(v.1)**  CHANGED:		All emails sent by the plugin contain the name of the site and the current plugin version in the email footer.
+* **(v.1)**  ADDED:			In-plugin links to blogs and info articles for [Google ReCaptcha](http://icwp.io/shld2) and [Google Authenticator](http://icwp.io/wpsf43)
 
 = 5.0 Series =
 
 * **(v.0)**  NEW:			WordPress Simple Firewall plugin has been re-branded and is called **Shield**
-* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](http://icwp.io/wpsf43) for Comment SPAM and Login protection.
+* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](http://icwp.io/shld2) for Comment SPAM and Login protection.
 * **(v.0)**  ADDED:			Support for this plugin is now Premium. Added Premium Support page that links to Helpdesk.
 * **(v.0)**  CHANGED:		Refactor of comment spam code.
 * **(v.0)**  CHANGED:		[Core File Scanner](http://icwp.io/wpsf40) now handles the odd Hungarian distribution.
