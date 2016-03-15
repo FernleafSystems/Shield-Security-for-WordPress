@@ -12,9 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces()
-			|| !$this->loadWpFunctionsProcessor()->getIsLoginUrl()
-			|| !$oFO->getIsGoogleRecaptchaReady() ) {
+		if ( !$this->loadWpFunctionsProcessor()->getIsLoginUrl() || !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 
