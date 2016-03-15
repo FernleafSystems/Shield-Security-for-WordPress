@@ -111,7 +111,7 @@ options:
     section: 'section_bot_comment_spam_protection_filter'
     default: 'N'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/shld5'
     link_blog: ''
   -
     key: 'enable_comments_gasp_protection_for_logged_in'

@@ -62,8 +62,8 @@ options:
     section: 'section_multifactor_authentication'
     default: 'N'
     type: 'checkbox'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/shld7'
+    link_blog: 'http://icwp.io/shld6'
   -
     key: 'enable_email_authentication'
     section: 'section_multifactor_authentication'
@@ -109,7 +109,7 @@ options:
     section: 'section_brute_force_login_protection'
     default: 'N'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/shld5'
     link_blog: ''
   -
     key: 'enable_login_gasp_check'
