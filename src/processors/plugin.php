@@ -79,11 +79,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			$sBadgeText = sprintf(
 				_wpsf__( 'This Site Is Protected By %s' ),
 				sprintf(
-					'<br /><span style="font-style: italic;">The</span>%s &rarr;',
+					'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
 					$oCon->getHumanName()
 				)
 			);
-			$sBadgeText = esc_html( apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText ) );
+			$sBadgeText = ( apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText ) );
 			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 		}
 
