@@ -215,6 +215,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getIsGoogleRecaptchaEnabled() {
+			return ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getCommentsFilterTableName() {

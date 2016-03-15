@@ -64,13 +64,8 @@ definitions:
   corechecksum_exclusions:
     - 'readme.html'
     - 'license.txt'
-    - 'hello.php'
     - 'wp-config-sample.php'
-    - 'akismet'
-    - '/azigen/'
-    - '/magyar-video-embed/'
-    - 'themes/twenty'
-    - 'wp-content/languages/'
+    - 'wp-content/'
   corechecksum_exclusions_missing_only:
     - 'wp-admin/install.php'
   corechecksum_autofix_index_files:

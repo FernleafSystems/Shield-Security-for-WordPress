@@ -25,7 +25,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$oHumanSpamProcessor->run();
 		}
 
-		if ( $this->getIsOption( 'enable_google_recaptcha', 'Y' ) ) {
+		if ( $oFO->getIsGoogleRecaptchaEnabled() ) {
 			require_once( dirname(__FILE__).ICWP_DS.'commentsfilter_googlerecaptcha.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
 			$oHumanSpamProcessor->run();

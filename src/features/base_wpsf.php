@@ -28,7 +28,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ):
 		public function getIsGoogleRecaptchaReady() {
 			$sKey = $this->getGoogleRecaptchaSiteKey();
 			$sSecret = $this->getGoogleRecaptchaSecretKey();
-			return ( !empty( $sSecret ) && !empty( $sKey ) );
+			return ( !empty( $sSecret ) && !empty( $sKey ) && $this->loadDataProcessor()->getPhpSupportsNamespaces() );
 		}
 
 		/**

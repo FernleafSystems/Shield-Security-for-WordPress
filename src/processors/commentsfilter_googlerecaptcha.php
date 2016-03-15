@@ -11,7 +11,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeatureOptions();
-		if ( !$this->loadDataProcessor()->getPhpSupportsNamespaces() || !$oFO->getIsGoogleRecaptchaReady() ) {
+		if ( !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 

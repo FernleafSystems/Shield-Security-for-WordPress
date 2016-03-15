@@ -437,7 +437,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return bool
 		 */
 		public function getIsGoogleRecaptchaEnabled() {
-			return ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) && $this->loadDataProcessor()->getPhpSupportsNamespaces() );
+			return ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
 		}
 
 		/**
