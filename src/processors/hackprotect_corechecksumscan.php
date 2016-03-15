@@ -22,9 +22,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					switch ( $sAction ) {
 
 						case 'repair_file':
-							$sFilePath = urldecode( esc_url( trim( $oDp->FetchGet( 'repair_file_path' ) ) ) );
-							if ( !empty( $sFilePath ) ) {
-								$this->replaceFileContentsWithOfficial( $sFilePath );
+							$sMd5FilePath = urldecode( esc_url( trim( $oDp->FetchGet( 'repair_file_path' ) ) ) );
+							if ( !empty( $sMd5FilePath ) ) {
+								$this->replaceFileContentsWithOfficial( $sMd5FilePath );
 							}
 					}
 				}
@@ -68,35 +68,36 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
 					|| ( $this->loadDataProcessor()->FetchGet( 'checksum_repair' ) == 1 );
 
+
 				$oFS = $this->loadFileSystemProcessor();
-				foreach ( $aChecksumData as $sFilePath => $sChecksum ) {
-					if ( preg_match( $sFullExclusionsPattern, $sFilePath ) ) {
+				foreach ( $aChecksumData as $sMd5FilePath => $sChecksum ) {
+					if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
 						continue;
 					}
 
 					$bRepairThis = false;
-					$sFullPath = ABSPATH . $sFilePath;
+					$sFullPath = $this->convertMd5FilePathToActual( $sMd5FilePath );
 
 					if ( $oFS->isFile( $sFullPath ) ) {
 						if ( $sChecksum != md5_file( $sFullPath ) ) {
 
-							if ( in_array( $sFilePath, $aAutoFixIndexFiles ) ) {
+							if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
 								$bRepairThis = true;
 							}
 							else {
-								$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sFilePath;
+								$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sMd5FilePath;
 								$bRepairThis = $bOptionRepair;
 							}
 						}
 					}
-					else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sFilePath ) ) {
+					else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
 						// If the file is missing and it's not in the missing-only exclusions
-						$aDiscoveredFiles[ 'missing' ][] = $sFilePath;
+						$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
 						$bRepairThis = $bOptionRepair;
 					}
 
 					if ( $bRepairThis ) {
-						$this->replaceFileContentsWithOfficial( $sFilePath );
+						$this->replaceFileContentsWithOfficial( $sMd5FilePath );
 					}
 				}
 
@@ -145,13 +146,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
-		 * @param string $sPath
+		 * @param string $sMd5FilePath
 		 * @return bool
 		 */
-		protected function replaceFileContentsWithOfficial( $sPath ) {
-			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sPath );
+		protected function replaceFileContentsWithOfficial( $sMd5FilePath ) {
+			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sMd5FilePath );
 			if ( !empty( $sOfficialContent ) ) {
-				return $this->loadFileSystemProcessor()->putFileContent( path_join( ABSPATH, $sPath ), $sOfficialContent );
+				return $this->loadFileSystemProcessor()->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );
 			}
 			return false;
 		}
@@ -241,6 +242,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		protected function getCronName() {
 			$oFO = $this->getFeatureOptions();
 			return $oFO->prefixOptionKey( $oFO->getDefinition( 'corechecksum_cron_name' ) );
+		}
+
+		private function convertMd5FilePathToActual( $sMd5FilePath ) {
+			if ( strpos( $sMd5FilePath, 'wp-content/' ) === 0 ) {
+				$sFullPath = path_join( WP_CONTENT_DIR, str_replace( 'wp-content/', '', $sMd5FilePath ) );
+			}
+			else {
+				$sFullPath = ABSPATH . $sMd5FilePath;
+			}
+			return $sFullPath;
 		}
 	}
 
