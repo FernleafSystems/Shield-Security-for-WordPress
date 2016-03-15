@@ -69,7 +69,9 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->getController()->getHumanName(),
 				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP - WordPress Management and Backup Protection For Professionals' )
 			),
-			sprintf( _wpsf__( 'Current Plugin Version: %s.' ), $this->getController()->getVersion() ),
+			'',
+			sprintf( _wpsf__( 'WordPress Site URL- %s.' ), $this->loadWpFunctionsProcessor()->getHomeUrl() )
+			.' / ' .sprintf( _wpsf__( 'Current Plugin Version- %s.' ), $this->getController()->getVersion() ),
 		);
 	}
 

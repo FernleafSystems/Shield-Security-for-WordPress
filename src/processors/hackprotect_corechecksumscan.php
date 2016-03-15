@@ -166,11 +166,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			}
 
 			$oWp = $this->loadWpFunctionsProcessor();
+			$sHomeUrl = $oWp->getHomeUrl();
 			$aContent = array(
 				sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()->getHumanName() ),
 				_wpsf__( 'This is part of the Hack Protection feature for the WordPress Core File Scanner.' )
 				. ' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__('More Info').']</a>',
-				sprintf( 'Site - %s', sprintf( '<a href="%s" target="_blank">%s</a>', $oWp->getHomeUrl(), $oWp->getSiteName() ) ),
+				sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 				'',
 				_wpsf__( 'Details for the problem files are below:' ),
 			);
