@@ -517,11 +517,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				}
 				$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
 			}
-
-			if ( empty( $this->aOptionsValues ) ) {
-				$this->aOptionsValues = array();
-				$this->setNeedSave( true );
-			}
+		}
+		if ( !is_array( $this->aOptionsValues ) ) {
+			$this->aOptionsValues = array();
+			$this->setNeedSave( true );
 		}
 		return $this->aOptionsValues;
 	}
