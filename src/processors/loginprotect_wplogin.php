@@ -113,7 +113,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			);
-			$bDoBlock = !empty( $sPath ) && in_array( $sPath, $aPossiblePaths );
+			$bDoBlock = !empty( $sPath )
+				&& ( in_array( $sPath, $aPossiblePaths ) || preg_match( '/wp-login\.php/i', $sPath ));
 		}
 
 		if ( $bDoBlock ) {
