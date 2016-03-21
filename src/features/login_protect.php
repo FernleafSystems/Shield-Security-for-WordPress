@@ -263,9 +263,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					break;
 
 				case 'enable_google_recaptcha' :
-					$sName = _wpsf__( 'Google reCAPTCHA' );
-					$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
-					$sDescription = _wpsf__( 'Use Google reCAPTCHA on the login screen.' );
+					$sName = _wpsf__( 'Google ReCaptcha' );
+					$sSummary = _wpsf__( 'Enable Google ReCaptcha' );
+					$sDescription = _wpsf__( 'Use Google ReCaptcha on the login screen.' );
 					break;
 
 				case 'enable_prevent_remote_post' :

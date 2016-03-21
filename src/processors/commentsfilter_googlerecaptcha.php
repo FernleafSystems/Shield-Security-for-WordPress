@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 		if ( empty( $sCaptchaResponse ) ) {
 			$bIsSpam = true;
 			$sStatKey = 'empty';
-			$sExplanation = _wpsf__( 'Google reCAPTCHA was not submitted.' );
+			$sExplanation = _wpsf__( 'Google Recaptcha was not submitted.' );
 		}
 		else {
 			$oRecaptcha = $this->loadGoogleRecaptcha()->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() );
@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
 				$bIsSpam = true;
 				$sStatKey = 'failed';
-				$sExplanation = _wpsf__( 'Google reCAPTCHA verification failed.' );
+				$sExplanation = _wpsf__( 'Google Recaptcha verification failed.' );
 			}
 		}
 

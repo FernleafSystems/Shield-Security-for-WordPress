@@ -117,9 +117,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					break;
 
 				case 'enable_google_recaptcha' :
-					$sName = 'Google reCAPTCHA';
-					$sSummary = _wpsf__( 'Enable Google reCAPTCHA For Comments' );
-					$sDescription = _wpsf__( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.' );
+					$sName = _wpsf__( 'Google ReCaptcha' );
+					$sSummary = _wpsf__( 'Enable Google ReCaptcha For Comments' );
+					$sDescription = _wpsf__( 'Use Google ReCaptcha on the comments form to prevent bot-spam comments.' );
 					break;
 
 				case 'enable_comments_gasp_protection' :

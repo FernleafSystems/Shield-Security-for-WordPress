@@ -107,18 +107,18 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'google_recaptcha_site_key'
-    section: 'section_third_party'
-    default: ''
-    type: 'text'
-    link_info: 'http://icwp.io/shld5'
-    link_blog: ''
-  -
     key: 'google_recaptcha_secret_key'
     section: 'section_third_party'
     default: ''
     type: 'text'
-    link_info: 'http://icwp.io/shld5'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'google_recaptcha_site_key'
+    section: 'section_third_party'
+    default: ''
+    type: 'text'
+    link_info: ''
     link_blog: ''
   -
     key: 'current_plugin_version'

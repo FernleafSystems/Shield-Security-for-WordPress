@@ -179,14 +179,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					break;
 
 				case 'google_recaptcha_secret_key' :
-					$sName = _wpsf__( 'reCAPTCHA Secret' );
-					$sSummary = _wpsf__( 'Google reCAPTCHA Secret Key' );
-					$sDescription = _wpsf__( 'Enter your Google reCAPTCHA site key for use throughout the plugin.' );
+					$sName = _wpsf__( 'Recaptcha Secret' );
+					$sSummary = _wpsf__( 'Google Recaptcha Secret Key' );
+					$sDescription = _wpsf__( 'Enter your Google Recaptcha site key for use throughout the plugin.' );
 					break;
 
 				case 'google_recaptcha_site_key' :
-					$sName = _wpsf__( 'reCAPTCHA Site Key' );
-					$sSummary = _wpsf__( 'Google reCAPTCHA Site Key' );
+					$sName = _wpsf__( 'Recaptcha Site Key' );
+					$sSummary = _wpsf__( 'Google Recaptcha Site Key' );
 					$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
 					break;
 
