@@ -175,7 +175,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'delete_on_deactivate' :
 					$sName = _wpsf__( 'Delete Plugin Settings' );
 					$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
-					$sDescription = _wpsf__( 'Enter your Google Recaptcha secret key for use throughout the plugin.' );
+					$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
 					break;
 
 				case 'google_recaptcha_secret_key' :
