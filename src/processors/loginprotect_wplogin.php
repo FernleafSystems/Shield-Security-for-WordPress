@@ -16,14 +16,14 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			return false;
 		}
 
-		// Loads the wp-login.php is the correct URL is loaded
+		// Loads the wp-login.php if the correct URL is loaded
 		add_action( 'init', array( $this, 'doBlockPossibleWpLoginLoad' ) );
 
 		// Loads the wp-login.php is the correct URL is loaded
 		add_filter( 'wp_loaded', array( $this, 'aLoadWpLogin' ) );
 
 		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
-		add_action( 'wp_loaded', array( $this, 'aLoginFormAction' ), 0 );
+		add_action( 'login_init', array( $this, 'aLoginFormAction' ), 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
 		add_filter( 'site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
@@ -105,6 +105,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		if ( !$bDoBlock ) {
 			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
 			$sPath = isset( $aRequestParts[ 'path' ] ) ? trim( $aRequestParts[ 'path' ], '/' ) : '';
+			$sPath = preg_replace( '/(\/){2,}/', '/', $sPath );
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				// trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
