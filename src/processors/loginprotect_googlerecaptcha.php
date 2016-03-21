@@ -76,7 +76,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 			if ( empty( $sCaptchaResponse ) ) {
 				$oError->add( 'shield_google_recaptcha_empty', _wpsf__( 'Whoops.' )
-					.' '. _wpsf__( 'Google Recaptcha was not submitted.' ) );
+					.' '. _wpsf__( 'Google reCAPTCHA was not submitted.' ) );
 				$oUser = $oError;
 			}
 			else {
@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 				$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->human_ip() );
 				if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
 					$oError->add( 'shield_google_recaptcha_failed', _wpsf__( 'Whoops.' )
-						.' '. _wpsf__( 'Google Recaptcha verification failed.' ) );
+						.' '. _wpsf__( 'Google reCAPTCHA verification failed.' ) );
 					$oUser = $oError;
 				}
 			}
