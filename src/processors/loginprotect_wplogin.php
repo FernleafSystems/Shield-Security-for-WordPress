@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		add_filter( 'wp_loaded', array( $this, 'aLoadWpLogin' ) );
 
 		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
-		add_action( 'login_init', array( $this, 'aLoginFormAction' ), 0 );
+		add_action( 'wp_loaded', array( $this, 'aLoginFormAction' ), 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
 		add_filter( 'site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
