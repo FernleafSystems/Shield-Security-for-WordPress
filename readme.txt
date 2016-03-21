@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.5
-Stable tag: 5.0.1
+Stable tag: 5.0.2
 
 The Comprehensive and Easy-To-Use Security System for WordPress
 
@@ -284,22 +284,24 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.0.1 Latest Point Release =
-*Released: 15st March, 2016*
+= 5.0.2 Latest Point Release =
+*Released: 22nd March, 2016*
+
+* **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
+* **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
+
+= 5.0 Series =
 
 * **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](http://icwp.io/wpsf40) feature.
 * **(v.1)**  CHANGED:		A WordPress filter to change the plugin badge text content (see FAQ)
 * **(v.1)**  CHANGED:		Tweaked the plugin badge styling.
 * **(v.1)**  CHANGED:		All emails sent by the plugin contain the name of the site and the current plugin version in the email footer.
-* **(v.1)**  ADDED:			In-plugin links to blogs and info articles for [Google ReCaptcha](http://icwp.io/shld2) and [Google Authenticator](http://icwp.io/wpsf43)
-
-= 5.0 Series =
-
+* **(v.1)**  ADDED:			In-plugin links to blogs and info articles for Google ReCaptcha and [Google Authenticator](http://icwp.io/wpsf43)
 * **(v.0)**  NEW:			WordPress Simple Firewall plugin has been re-branded and is called **Shield**
 * **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](http://icwp.io/shld2) for Comment SPAM and Login protection.
 * **(v.0)**  ADDED:			Support for this plugin is now Premium. Added Premium Support page that links to Helpdesk.
 * **(v.0)**  CHANGED:		Refactor of comment spam code.
-* **(v.0)**  CHANGED:		[Core File Scanner](http://icwp.io/wpsf40) now handles the odd Hungarian distribution.
+* **(v.0)**  CHANGED:		Core File Scanner now handles the odd Hungarian distribution.
 
 = 4.17 Series =
 *Released: 17th February, 2016*
