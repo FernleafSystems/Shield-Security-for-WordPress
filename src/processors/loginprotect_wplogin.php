@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			return false;
 		}
 
-		// Loads the wp-login.php is the correct URL is loaded
+		// Loads the wp-login.php if the correct URL is loaded
 		add_action( 'init', array( $this, 'doBlockPossibleWpLoginLoad' ) );
 
 		// Loads the wp-login.php is the correct URL is loaded
@@ -105,6 +105,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		if ( !$bDoBlock ) {
 			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
 			$sPath = isset( $aRequestParts[ 'path' ] ) ? trim( $aRequestParts[ 'path' ], '/' ) : '';
+			$sPath = preg_replace( '/(\/){2,}/', '/', $sPath );
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				// trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
@@ -112,7 +113,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			);
-			$bDoBlock = !empty( $sPath ) && in_array( $sPath, $aPossiblePaths );
+			$bDoBlock = !empty( $sPath )
+				&& ( in_array( $sPath, $aPossiblePaths ) || preg_match( '/wp-login\.php/i', $sPath ));
 		}
 
 		if ( $bDoBlock ) {
