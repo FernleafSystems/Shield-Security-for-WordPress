@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Tested up to: 4.5
 Stable tag: 5.0.3
 
-The Most Comprehensive and Easy-To-Use Security System for WordPress (formerly the WordPress Simple Firewall).
+The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
 == Description ==
 
