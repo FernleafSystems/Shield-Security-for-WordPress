@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.5
-Stable tag: 5.0.2
+Stable tag: 5.0.3
 
 The Comprehensive and Easy-To-Use Security System for WordPress
 
@@ -284,14 +284,15 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.0.2 Latest Point Release =
-*Released: 22nd March, 2016*
+= 5.0.3 Latest Point Release =
+*Released: 31st March, 2016*
 
-* **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
-* **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
+* **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
 
 = 5.0 Series =
 
+* **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
+* **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
 * **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](http://icwp.io/wpsf40) feature.
 * **(v.1)**  CHANGED:		A WordPress filter to change the plugin badge text content (see FAQ)
 * **(v.1)**  CHANGED:		Tweaked the plugin badge styling.
