@@ -89,6 +89,22 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Returns an array of all the transferable options and their values
+	 * @return array
+	 */
+	public function getTransferableOptions() {
+
+		$aOptions = $this->getAllOptionsValues();
+		$aRawOptions = $this->getRawData_AllOptions();
+		foreach( $aRawOptions as $nKey => $aOptionData ) {
+			if ( !isset( $aOptionData['transferable'] ) || $aOptionData['transferable'] !== true ) {
+				unset( $aOptions[ $aOptionData['key'] ] );
+			}
+		}
+		return $aOptions;
+	}
+
+	/**
 	 * @param $sProperty
 	 * @return null|mixed
 	 */
@@ -128,14 +144,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getFeatureTagline() {
 		return $this->getFeatureProperty( 'tagline' );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return boolean
-	 */
-	public function getIsOptionKey( $sKey ) {
-		return in_array( $sKey, $this->getOptionsKeys() );
 	}
 
 	/**

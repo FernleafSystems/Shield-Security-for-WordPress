@@ -102,10 +102,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 
 				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+				add_filter($this->doPluginPrefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
 				$this->doPostConstruction();
 			}
-
 		}
 
 		/**
@@ -1211,6 +1211,18 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getController() {
 			return $this->oPluginController;
+		}
+
+		/**
+		 * @param array $aTransferableOptions
+		 * @return array
+		 */
+		public function exportTransferableOptions( $aTransferableOptions ) {
+			if ( !is_array( $aTransferableOptions ) ) {
+				$aTransferableOptions = array();
+			}
+			$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
+			return $aTransferableOptions;
 		}
 	}
 
