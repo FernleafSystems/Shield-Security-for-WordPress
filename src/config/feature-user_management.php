@@ -31,6 +31,7 @@ options:
   -
     key: 'enable_user_management'
     section: 'section_enable_plugin_feature_user_accounts_management'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -38,6 +39,7 @@ options:
   -
     key: 'enable_xmlrpc_compatibility'
     section: 'section_bypass_user_accounts_management'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -45,6 +47,7 @@ options:
   -
     key: 'enable_admin_login_email_notification'
     section: 'section_admin_login_notification'
+    transferable: true
     default: ''
     type: 'email'
     link_info: ''
@@ -52,20 +55,23 @@ options:
   -
     key: 'session_timeout_interval'
     section: 'section_user_session_management'
-    default: '2'
+    transferable: true
+    default: 2
     type: 'integer'
     link_info: ''
     link_blog: ''
   -
     key: 'session_idle_timeout_interval'
     section: 'section_user_session_management'
-    default: '0'
+    transferable: true
+    default: 0
     type: 'integer'
     link_info: ''
     link_blog: ''
   -
     key: 'session_lock_location'
     section: 'section_user_session_management'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''
@@ -73,7 +79,8 @@ options:
   -
     key: 'session_username_concurrent_limit'
     section: 'section_user_session_management'
-    default: '0'
+    transferable: true
+    default: 0
     type: 'integer'
     link_info: ''
     link_blog: ''

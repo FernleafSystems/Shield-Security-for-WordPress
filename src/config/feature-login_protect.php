@@ -39,6 +39,7 @@ options:
   -
     key: 'enable_login_protect'
     section: 'section_enable_plugin_feature_login_protection'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/51'
@@ -46,6 +47,7 @@ options:
   -
     key: 'enable_xmlrpc_compatibility'
     section: 'section_bypass_login_protection'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -53,6 +55,7 @@ options:
   -
     key: 'rename_wplogin_path'
     section: 'section_rename_wplogin'
+    transferable: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/5q'
@@ -60,6 +63,7 @@ options:
   -
     key: 'enable_google_authenticator'
     section: 'section_multifactor_authentication'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/shld7'
@@ -67,6 +71,7 @@ options:
   -
     key: 'enable_email_authentication'
     section: 'section_multifactor_authentication'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/3s'
@@ -80,6 +85,7 @@ options:
   -
     key: 'two_factor_auth_user_roles'
     section: 'section_multifactor_authentication'
+    transferable: true
     type: 'multiple_select'
     default:
       - 1
@@ -107,6 +113,7 @@ options:
   -
     key: 'enable_google_recaptcha'
     section: 'section_brute_force_login_protection'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/shld5'
@@ -114,6 +121,7 @@ options:
   -
     key: 'enable_login_gasp_check'
     section: 'section_brute_force_login_protection'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/3r'
@@ -121,6 +129,7 @@ options:
   -
     key: 'login_limit_interval'
     section: 'section_brute_force_login_protection'
+    transferable: true
     default: '10'
     type: 'integer'
     link_info: 'http://icwp.io/3q'
@@ -128,6 +137,7 @@ options:
   -
     key: 'enable_user_register_checking'
     section: 'section_brute_force_login_protection'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -135,6 +145,7 @@ options:
   -
     key: 'enable_prevent_remote_post'
     section: 'section_brute_force_login_protection'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/4n'
@@ -142,6 +153,7 @@ options:
   -
     key: 'enable_yubikey'
     section: 'section_yubikey_authentication'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/4f'
@@ -149,6 +161,7 @@ options:
   -
     key: 'yubikey_app_id'
     section: 'section_yubikey_authentication'
+    transferable: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/4g'
@@ -156,6 +169,7 @@ options:
   -
     key: 'yubikey_api_key'
     section: 'section_yubikey_authentication'
+    transferable: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/4g'
@@ -163,6 +177,7 @@ options:
   -
     key: 'yubikey_unique_keys'
     section: 'section_yubikey_authentication'
+    transferable: true
     default: ''
     type: 'yubikey_unique_keys'
     link_info: 'http://icwp.io/4h'

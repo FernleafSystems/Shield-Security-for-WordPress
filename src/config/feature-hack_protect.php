@@ -25,6 +25,7 @@ options:
   -
     key: 'enable_hack_protect'
     section: 'section_enable_plugin_feature_hack_protection_tools'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/wpsf38'
@@ -32,6 +33,7 @@ options:
   -
     key: 'enable_plugin_vulnerabilities_scan'
     section: 'section_plugin_vulnerabilities_scan'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/wpsf34'
@@ -39,6 +41,7 @@ options:
   -
     key: 'enable_core_file_integrity_scan'
     section: 'section_core_file_integrity_scan'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/wpsf36'
@@ -46,6 +49,7 @@ options:
   -
     key: 'attempt_auto_file_repair'
     section: 'section_core_file_integrity_scan'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/wpsf36'
