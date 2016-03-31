@@ -1,31 +1,37 @@
-=== Shield (formerly Simple Firewall) ===
+=== Shield WordPress Security ===
 Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
+Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.5
-Stable tag: 5.0.2
+Stable tag: 5.0.3
 
-The Comprehensive and Easy-To-Use Security System for WordPress
+The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
 == Description ==
 
+> <strong>All-Over WordPress Security Protection</strong><br />
 > Shield is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
 Designed for maximum compatibility with your WordPress sites, it provides a super simple approach for both beginner
-and advanced users. NO more nasty site lockouts! Experience the difference that a great security plugin makes,
-alongside common-sense security design.  You'll never look back!
+and advanced users.
+>
+> NO more nasty site lockouts! Experience the difference that a great security plugin makes,
+alongside common-sense security design.
+>
+> <strong>Premium Support For Businesses</strong><br />
+> Shield, combined [with iControlWP](http://icwp.io/shld8), offers professionals and businesses a powerful management platform
+> for website security, automated backups, and business continuity and disaster recovery. Can you afford not to protect your
+> business's most important online assets?
 
-Do you want to secure your WordPress site, without getting overwhelmed?
+= What makes the Shield different? =
 
-Stand out from the herd - what makes ours different?
-
-* No restriction on security features - it's all there.
-* Easy-To-Setup Interface.
+* No restriction on security features - it's all there for you.
+* Easy-To-Setup USer Interface.
 * It won't break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
-* Plugin Self Security Protection - the *only* WordPress Security Plugin that protects against tampering.
+* Super Admin Security - the *only* WordPress Security Plugin that protects against tampering.
 * Exclusive membership to a private security group where you can learn more about WordPress security.
 
 = Awesome Features =
@@ -40,7 +46,7 @@ Stand out from the herd - what makes ours different?
 * Turn on and turn off WordPress Automatic Updates separately for plugins, themes and Core
 * Easy to use kill switch to temporarily turn off all Firewall Features without disabling the plugin or even logging into WordPress.
 
-= Plugin Admin Access Protection =
+= Super Admin Security Protection =
 The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](http://icwp.io/wpsf05)
 
 = Audit Trail Activity Monitor =
@@ -284,14 +290,15 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.0.2 Latest Point Release =
-*Released: 22nd March, 2016*
+= 5.0.3 Latest Point Release =
+*Released: 31st March, 2016*
 
-* **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
-* **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
+* **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
 
 = 5.0 Series =
 
+* **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
+* **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
 * **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](http://icwp.io/wpsf40) feature.
 * **(v.1)**  CHANGED:		A WordPress filter to change the plugin badge text content (see FAQ)
 * **(v.1)**  CHANGED:		Tweaked the plugin badge styling.
