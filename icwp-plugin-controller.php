@@ -269,6 +269,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpLoaded() {
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
+			$this->downloadOptionsExport();
 		}
 	}
 
@@ -283,6 +284,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpAdminMenu() {
 		return ( $this->getIsValidAdminArea() ? $this->createPluginMenu() : true );
+	}
+
+	/**
+	 * @uses die()
+	 */
+	private function downloadOptionsExport() {
+		$oDp = $this->loadDataProcessor();
+		if ( $oDp->FetchGet( 'icwp_shield_export' ) == 1 ) {
+			$aExportOptions = apply_filters( $this->doPluginPrefix( 'gather_options_for_export' ), array() );
+			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
+				$oDp->downloadStringAsFile(
+					$this->loadYamlProcessor()->dumpArrayToYaml( $aExportOptions ),
+					'shield_options_export-'
+					. $this->loadWpFunctionsProcessor()->getHomeUrl( true )
+					.'-'.date('ymdHis').'.txt'
+				);
+			}
+		}
 	}
 
 	/**

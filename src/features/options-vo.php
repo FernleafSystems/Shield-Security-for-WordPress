@@ -96,12 +96,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 		$aOptions = $this->getAllOptionsValues();
 		$aRawOptions = $this->getRawData_AllOptions();
+		$aTransferable = array();
 		foreach( $aRawOptions as $nKey => $aOptionData ) {
-			if ( !isset( $aOptionData['transferable'] ) || $aOptionData['transferable'] !== true ) {
-				unset( $aOptions[ $aOptionData['key'] ] );
+			if ( isset( $aOptionData['transferable'] ) && $aOptionData['transferable'] === true ) {
+				$aTransferable[ $aOptionData['key'] ] = $aOptions[ $aOptionData['key'] ];
 			}
 		}
-		return $aOptions;
+		return $aTransferable;
 	}
 
 	/**

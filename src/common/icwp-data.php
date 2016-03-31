@@ -689,6 +689,20 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param string $sStringContent
+		 * @param string $sFilename
+		 * @return bool
+		 */
+		public function downloadStringAsFile( $sStringContent, $sFilename ) {
+			header( "Content-type: application/octet-stream" );
+			header( "Content-disposition: attachment; filename=".$sFilename );
+			header( "Content-Transfer-Encoding: binary");
+			header( "Content-Length: ".filesize( $sStringContent ) );
+			echo $sStringContent;
+			die();
+		}
+
+		/**
 		 * @param $sKey
 		 * @param $mValue
 		 * @param int $nExpireLength
