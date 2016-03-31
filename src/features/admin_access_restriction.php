@@ -130,7 +130,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getRestrictedOptions() {
-		$aOptions = $this->getOpt( 'admin_access_options_to_restrict', array() );
+		$aOptions = $this->getDefinition( 'admin_access_options_to_restrict' );
 		return is_array( $aOptions ) ? $aOptions : array();
 	}
 
@@ -192,7 +192,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string
 	 */
 	public function getAdminAccessKeyCookieName() {
-		return $this->getOpt( 'admin_access_key_cookie_name' );
+		return $this->getDefinition( 'admin_access_key_cookie_name' );
 	}
 
 	/**

@@ -78,25 +78,6 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'ip_lists_table_name'
-    section: 'section_non_ui'
-    value: 'ip_lists'
-  -
-    key: 'ip_list_table_columns'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      - 'id'
-      - 'ip'
-      - 'label'
-      - 'list'
-      - 'ip6'
-      - 'is_range'
-      - 'transgressions'
-      - 'last_access_at'
-      - 'created_at'
-      - 'deleted_at'
-  -
     key: 'this_server_ip'
     section: 'section_non_ui'
     value: ''
@@ -104,6 +85,21 @@ options:
     key: 'this_server_ip_last_check_at'
     section: 'section_non_ui'
     value: 0
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  ip_lists_table_name: 'ip_lists'
+  ip_list_table_columns:
+    - 'id'
+    - 'ip'
+    - 'label'
+    - 'list'
+    - 'ip6'
+    - 'is_range'
+    - 'transgressions'
+    - 'last_access_at'
+    - 'created_at'
+    - 'deleted_at'
 ",
 		_wpsf__( 'IP Manager' ),
 		_wpsf__( 'Manage Visitor IP Address' )

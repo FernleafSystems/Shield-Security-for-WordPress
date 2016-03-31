@@ -201,24 +201,20 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'spambot_comments_filter_table_name'
-    section: 'section_non_ui'
-    value: 'spambot_comments_filter'
-  -
-    key: 'spambot_comments_filter_table_columns'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      - 'id'
-      - 'post_id'
-      - 'unique_token'
-      - 'ip'
-      - 'created_at'
-      - 'deleted_at'
-  -
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  spambot_comments_filter_table_name: 'spambot_comments_filter'
+  spambot_comments_filter_table_columns:
+    - 'id'
+    - 'post_id'
+    - 'unique_token'
+    - 'ip'
+    - 'created_at'
+    - 'deleted_at'
 ",
 		_wpsf__( 'Comments SPAM' ),
 		_wpsf__( 'Block comment SPAM and retain your privacy' ) //tagline
