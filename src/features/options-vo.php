@@ -67,7 +67,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		$this->cleanOptions();
-		$this->verifyImmutableOptions();
 		$this->setNeedSave( false );
 		return $this->loadWpFunctionsProcessor()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
 	}
@@ -470,14 +469,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 					return $this->resetOptToDefault( $sOptionKey );
 				}
 			}
-
-			// Prevent overwriting of immutable options
-			if ( isset( $aOption['immutable'] ) && $aOption['immutable'] === true ) {
-				$this->aOptionsValues[ $sOptionKey ] = $this->getOptDefault( $sOptionKey );
-			}
-			else {
-				$this->aOptionsValues[ $sOptionKey ] = $mValue;
-			}
+			$this->aOptionsValues[ $sOptionKey ] = $mValue;
 		}
 		return true;
 	}
@@ -505,17 +497,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			if ( !$this->getIsValidOptionKey( $sKey ) ) {
 				$this->setNeedSave( true );
 				unset( $this->aOptionsValues[$sKey] );
-			}
-		}
-	}
-
-	private function verifyImmutableOptions() {
-		$aRawOptions = $this->getRawData_AllOptions();
-		foreach( $aRawOptions as $aRawOption ) {
-			if ( isset( $aRawOption['immutable'] ) && $aRawOption['immutable'] === true ) {
-				if ( ! $this->getOptIs( $aRawOption['key'], $aRawOption['value'] ) ) {
-					$this->setOpt( $aRawOption[ 'key' ], $aRawOption[ 'value' ] );
-				}
 			}
 		}
 	}
