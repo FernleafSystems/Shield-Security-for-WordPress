@@ -442,6 +442,17 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param array $aOptions
+	 */
+	public function setMultipleOptions( $aOptions ) {
+		if ( is_array( $aOptions ) ) {
+			foreach( $aOptions as $sKey => $mValue ) {
+				$this->setOpt( $sKey, $mValue );
+			}
+		}
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @param mixed $mValue
 	 * @param boolean $bForce

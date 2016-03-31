@@ -94,6 +94,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				// Handle any upgrades as necessary (only go near this if it's the admin area)
 				add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
 				add_action( 'init', array( $this, 'onWpInit' ), 1 );
+				add_action( 'admin_init', array( $this, 'onAdminInit' ), 1 );
 				add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
 				add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 				add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
@@ -189,6 +190,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		public function onWpInit() {
 			$this->updateHandler();
 			$this->setupAjaxHandlers();
+		}
+
+		/**
+		 * A action added to WordPress 'init' hook
+		 */
+		public function onAdminInit() {
+			$this->importOptions();
+		}
+
+		protected function importOptions() {
+			$aOptions = $this->getController()->getOptionsImportFromFile();
+			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
+				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+				$this->doSaveByPassAdminProtection();
+			}
 		}
 
 		/**

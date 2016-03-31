@@ -67,6 +67,7 @@ options:
   -
     key: 'global_enable_plugin_features'
     section: 'section_global_security_options'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''

@@ -69,6 +69,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private $aRequirementsMessages;
 
 	/**
+	 * @var array
+	 */
+	private $aImportedOptions;
+
+	/**
 	 * @var string
 	 */
 	protected static $sSessionId;
@@ -302,6 +307,29 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				);
 			}
 		}
+	}
+
+	/**
+	 * @uses die()
+	 */
+	public function getOptionsImportFromFile() {
+
+		if ( !isset( $this->aImportedOptions ) ) {
+			$this->aImportedOptions = array();
+
+			$sFile = path_join( $this->getRootDir(), 'shield_options_export.txt' );
+			$oFS = $this->loadFileSystemProcessor();
+			if ( $oFS->isFile( $sFile ) ) {
+				$sOptionsString = $oFS->getFileContent( $sFile );
+				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
+					$aOptions = $this->loadYamlProcessor()->parseYamlString( $sOptionsString );
+					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
+						$this->aImportedOptions = $aOptions;
+					}
+				}
+			}
+		}
+		return $this->aImportedOptions;
 	}
 
 	/**
