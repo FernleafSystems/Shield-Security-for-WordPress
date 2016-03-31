@@ -666,16 +666,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						}
 						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
-					else if ( $sOptionType == 'ip_addresses' ) {
-
-						if ( empty( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$mCurrentOptionVal = implode( "\n", $this->convertIpListForDisplay( $mCurrentOptionVal ) );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
-					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) {
 
 						if ( empty( $mCurrentOptionVal ) ) {
@@ -764,38 +754,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$this->getOptionsVo()->doOptionsDelete();
 				$this->bPluginDeleting = true;
 			}
-		}
-
-		/**
-		 * @param array $aIpList
-		 *
-		 * @return array
-		 */
-		protected function convertIpListForDisplay( $aIpList = array() ) {
-
-			$aDisplay = array();
-			if ( empty( $aIpList ) || empty( $aIpList['ips'] ) ) {
-				return $aDisplay;
-			}
-
-			foreach( $aIpList['ips'] as $sAddress ) {
-				// offset=1 in the case that it's a range and the first number is negative on 32-bit systems
-				$mPos = strpos( $sAddress, '-', 1 );
-
-				if ( $mPos === false ) { //plain IP address
-					$sDisplayText = is_long( $sAddress ) ? long2ip( $sAddress ) : $sAddress;
-				}
-				else {
-					//we remove the first character in case this is '-'
-					$aParts = array( substr( $sAddress, 0, 1 ), substr( $sAddress, 1 ) );
-					list( $nStart, $nEnd ) = explode( '-', $aParts[1], 2 );
-					$sDisplayText = long2ip( $aParts[0].$nStart ) .'-'. long2ip( $nEnd );
-				}
-				$sLabel = $aIpList['meta'][ md5($sAddress) ];
-				$sLabel = trim( $sLabel, '()' );
-				$aDisplay[] = $sDisplayText . ' ('.$sLabel.')';
-			}
-			return $aDisplay;
 		}
 
 		/**
@@ -913,9 +871,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 						$sOptionValue = array_filter( explode( "\n", $sOptionValue ), 'trim' );
 					}
-					else if ( $sOptionType == 'ip_addresses' ) { //ip addresses are textareas, where each is separated by newline
-						$sOptionValue = $oDp->extractIpAddresses( $sOptionValue );
-					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) { //ip addresses are textareas, where each is separated by newline and are 12 chars long
 						$sOptionValue = $oDp->CleanYubikeyUniqueKeys( $sOptionValue );
 					}
@@ -975,45 +930,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getOptionStoragePrefix() {
 			return $this->getController()->getOptionStoragePrefix();
-		}
-
-		/**
-		 * @param string $sExistingListKey
-		 * @param string $sFilterName
-		 * @return array|false
-		 */
-		protected function processIpFilter( $sExistingListKey, $sFilterName ) {
-			$aFilterIps = apply_filters( $sFilterName, array() );
-			if ( empty( $aFilterIps ) ) {
-				return false;
-			}
-
-			$aNewIps = array();
-			foreach( $aFilterIps as $mKey => $sValue ) {
-				if ( is_string( $mKey ) ) { //it's the IP
-					$sIP = $mKey;
-					$sLabel = $sValue;
-				}
-				else { //it's not an associative array, so the value is the IP
-					$sIP = $sValue;
-					$sLabel = '';
-				}
-				$aNewIps[ $sIP ] = $sLabel;
-			}
-
-			// now add and store the new IPs
-			$aExistingIpList = $this->getOpt( $sExistingListKey );
-			if ( !is_array( $aExistingIpList ) ) {
-				$aExistingIpList = array();
-			}
-
-			$oDp = $this->loadDataProcessor();
-			$nNewAddedCount = 0;
-			$aNewList = $oDp->addNewRawIps( $aExistingIpList, $aNewIps, $nNewAddedCount );
-			if ( $nNewAddedCount > 0 ) {
-				$this->setOpt( $sExistingListKey, $aNewList );
-			}
-			return true;
 		}
 
 		/**
