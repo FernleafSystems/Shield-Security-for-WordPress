@@ -290,13 +290,18 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.0.3 Latest Point Release =
-*Released: 31st March, 2016*
+= 5.1.0 Latest Point Release =
+*Released: 7th April, 2016*
 
-* **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
+* **(v.0)**  ADDED:			Ability to manually export/import options - further preparation for iControlWP+Shield integration.
+
+= 5.1 Series =
+
+* **(v.0)**  ADDED:			Ability to manually export/import options - further preparation for iControlWP+Shield integration.
 
 = 5.0 Series =
 
+* **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
 * **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
 * **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
 * **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](http://icwp.io/wpsf40) feature.
