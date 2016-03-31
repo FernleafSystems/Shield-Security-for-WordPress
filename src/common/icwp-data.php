@@ -207,17 +207,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * Assumes a valid IPv4 address is provided as we're only testing for a whether the IP is public or not.
-		 *
-		 * @param string $sIpAddress
-		 * @uses filter_var
-		 * @return boolean
-		 */
-		public static function IsAddressInPublicIpRange( $sIpAddress ) {
-			return function_exists('filter_var') && filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE );
-		}
-
-		/**
 		 * @param string $sRawList
 		 * @return array
 		 */
@@ -571,36 +560,17 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		/**
 		 * Effectively validates and IP Address.
 		 *
-		 * With IPv6, we only support this if filter_var() is supported.
-		 *
 		 * @param string $sIpAddress
-		 *
-		 * @return bool|int
+		 * @return int|false
 		 */
 		public function getIpAddressVersion( $sIpAddress ) {
 
-			if ( function_exists( 'filter_var' ) ) {
-
-				if ( defined( 'FILTER_FLAG_IPV4' ) && filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-					return 4;
-				}
-
-				if ( defined( 'FILTER_FLAG_IPV6' ) && filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
-					return 6;
-				}
-			}
-
-			if ( preg_match( '/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $sIpAddress ) ) { //It's a valid IPv4 format, now check components
-				$aParts = explode( '.', $sIpAddress );
-				foreach ( $aParts as $sPart ) {
-					$sPart = intval( $sPart );
-					if ( $sPart < 0 || $sPart > 255 ) {
-						return false;
-					}
-				}
+			if ( filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 				return 4;
 			}
-
+			if ( filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+				return 6;
+			}
 			return false;
 		}
 
