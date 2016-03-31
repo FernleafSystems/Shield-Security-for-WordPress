@@ -161,12 +161,29 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function doPostConstruction() { }
 
 		/**
-		 * A action added to WordPress 'plugins_loaded' hook
+		 * Added to WordPress 'plugins_loaded' hook
 		 */
 		public function onWpPluginsLoaded() {
+
+			$this->importOptions();
+
 			if ( $this->getIsMainFeatureEnabled() ) {
 				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
 					$this->doExecuteProcessor();
+				}
+			}
+		}
+
+		/**
+		 * for now only import by file is supported
+		 */
+		protected function importOptions() {
+			// So we don't poll for the file every page load.
+			if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
+				$aOptions = $this->getController()->getOptionsImportFromFile();
+				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
+					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+					$this->doSaveByPassAdminProtection();
 				}
 			}
 		}
@@ -190,21 +207,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		public function onWpInit() {
 			$this->updateHandler();
 			$this->setupAjaxHandlers();
-		}
-
-		/**
-		 * A action added to WordPress 'init' hook
-		 */
-		public function onAdminInit() {
-			$this->importOptions();
-		}
-
-		protected function importOptions() {
-			$aOptions = $this->getController()->getOptionsImportFromFile();
-			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-				$this->doSaveByPassAdminProtection();
-			}
 		}
 
 		/**
