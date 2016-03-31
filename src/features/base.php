@@ -94,6 +94,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				// Handle any upgrades as necessary (only go near this if it's the admin area)
 				add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
 				add_action( 'init', array( $this, 'onWpInit' ), 1 );
+				add_action( 'admin_init', array( $this, 'onAdminInit' ), 1 );
 				add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
 				add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 				add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
@@ -102,10 +103,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 
 				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+				add_filter($this->doPluginPrefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
 				$this->doPostConstruction();
 			}
-
 		}
 
 		/**
@@ -160,12 +161,29 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function doPostConstruction() { }
 
 		/**
-		 * A action added to WordPress 'plugins_loaded' hook
+		 * Added to WordPress 'plugins_loaded' hook
 		 */
 		public function onWpPluginsLoaded() {
+
+			$this->importOptions();
+
 			if ( $this->getIsMainFeatureEnabled() ) {
 				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
 					$this->doExecuteProcessor();
+				}
+			}
+		}
+
+		/**
+		 * for now only import by file is supported
+		 */
+		protected function importOptions() {
+			// So we don't poll for the file every page load.
+			if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
+				$aOptions = $this->getController()->getOptionsImportFromFile();
+				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
+					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+					$this->doSaveByPassAdminProtection();
 				}
 			}
 		}
@@ -1211,6 +1229,18 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getController() {
 			return $this->oPluginController;
+		}
+
+		/**
+		 * @param array $aTransferableOptions
+		 * @return array
+		 */
+		public function exportTransferableOptions( $aTransferableOptions ) {
+			if ( !is_array( $aTransferableOptions ) ) {
+				$aTransferableOptions = array();
+			}
+			$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
+			return $aTransferableOptions;
 		}
 	}
 

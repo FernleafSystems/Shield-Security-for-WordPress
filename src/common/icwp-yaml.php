@@ -36,6 +36,15 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
 		}
 
 		/**
+		 * @param array $aDataToDump
+		 * @return string
+		 */
+		public function dumpArrayToYaml( $aDataToDump ) {
+			$oParser = $this->getSymfonyYamlParser();
+			return $oParser->dump( $aDataToDump );
+		}
+
+		/**
 		 * @param string $sYamlString
 		 * @return array|null
 		 */

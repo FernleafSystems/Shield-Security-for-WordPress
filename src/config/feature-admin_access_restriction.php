@@ -42,6 +42,7 @@ options:
   -
     key: 'enable_admin_access_restriction'
     section: 'section_enable_plugin_feature_admin_access_restriction'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/40'
@@ -49,6 +50,7 @@ options:
   -
     key: 'admin_access_key'
     section: 'section_enable_plugin_feature_admin_access_restriction'
+    transferable: true
     default: ''
     type: 'password'
     link_info: 'http://icwp.io/42'
@@ -56,6 +58,7 @@ options:
   -
     key: 'admin_access_timeout'
     section: 'section_admin_access_restriction_settings'
+    transferable: true
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/41'
@@ -63,6 +66,7 @@ options:
   -
     key: 'admin_access_restrict_options'
     section: 'section_admin_access_restriction_areas'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/wpsf32'
@@ -70,6 +74,7 @@ options:
   -
     key: 'admin_access_restrict_admin_users'
     section: 'section_admin_access_restriction_areas'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''
@@ -77,6 +82,7 @@ options:
   -
     key: 'admin_access_restrict_plugins'
     section: 'section_admin_access_restriction_areas'
+    transferable: true
     type: 'multiple_select'
     default:
     value_options:
@@ -97,6 +103,7 @@ options:
   -
     key: 'admin_access_restrict_themes'
     section: 'section_admin_access_restriction_areas'
+    transferable: true
     type: 'multiple_select'
     default:
     value_options:
@@ -120,6 +127,7 @@ options:
   -
     key: 'admin_access_restrict_posts'
     section: 'section_admin_access_restriction_areas'
+    transferable: true
     type: 'multiple_select'
     default:
     value_options:

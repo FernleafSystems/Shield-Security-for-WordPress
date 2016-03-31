@@ -30,6 +30,7 @@ options:
   -
     key: 'enable_autoupdates'
     section: 'section_enable_plugin_feature_automatic_updates_control'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/3w'
@@ -37,6 +38,7 @@ options:
   -
     key: 'enable_autoupdate_disable_all'
     section: 'section_disable_all_wordpress_automatic_updates'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/3v'
@@ -44,6 +46,7 @@ options:
   -
     key: 'autoupdate_plugin_self'
     section: 'section_automatic_plugin_self_update'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/3u'
@@ -51,6 +54,7 @@ options:
   -
     key: 'autoupdate_core'
     section: 'section_automatic_updates_for_wordpress_components'
+    transferable: true
     default: 'core_minor'
     type: 'select'
     value_options:
@@ -68,6 +72,7 @@ options:
   -
     key: 'enable_autoupdate_plugins'
     section: 'section_automatic_updates_for_wordpress_components'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''
@@ -75,6 +80,7 @@ options:
   -
     key: 'enable_autoupdate_themes'
     section: 'section_automatic_updates_for_wordpress_components'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''
@@ -82,6 +88,7 @@ options:
   -
     key: 'enable_autoupdate_translations'
     section: 'section_automatic_updates_for_wordpress_components'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -89,6 +96,7 @@ options:
   -
     key: 'enable_autoupdate_ignore_vcs'
     section: 'section_automatic_updates_for_wordpress_components'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''
@@ -96,6 +104,7 @@ options:
   -
     key: 'enable_upgrade_notification_email'
     section: 'section_automatic_update_email_notifications'
+    transferable: true
     default: ''
     type: 'checkbox'
     link_info: ''
@@ -103,6 +112,7 @@ options:
   -
     key: 'override_email_address'
     section: 'section_automatic_update_email_notifications'
+    transferable: true
     default: ''
     type: 'email'
     link_info: ''

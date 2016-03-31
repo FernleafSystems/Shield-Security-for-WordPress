@@ -37,6 +37,7 @@ options:
   -
     key: 'enable_comments_filter'
     section: 'section_enable_plugin_feature_spam_comments_protection_filter'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/3z'
@@ -44,6 +45,7 @@ options:
   -
     key: 'enable_comments_human_spam_filter'
     section: 'section_human_spam_filter'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/57'
@@ -51,6 +53,7 @@ options:
   -
     key: 'enable_comments_human_spam_filter_items'
     section: 'section_human_spam_filter'
+    transferable: true
     type: 'multiple_select'
     default:
       - 'author_name'
@@ -84,6 +87,7 @@ options:
   -
     key: 'comments_default_action_human_spam'
     section: 'section_human_spam_filter'
+    transferable: true
     default: 0
     type: 'select'
     value_options:
@@ -102,6 +106,7 @@ options:
   -
     key: 'enable_comments_gasp_protection'
     section: 'section_bot_comment_spam_protection_filter'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/3n'
@@ -109,6 +114,7 @@ options:
   -
     key: 'enable_google_recaptcha'
     section: 'section_bot_comment_spam_protection_filter'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/shld5'
@@ -124,6 +130,7 @@ options:
   -
     key: 'comments_default_action_spam_bot'
     section: 'section_bot_comment_spam_protection_filter'
+    transferable: true
     default: 'trash'
     type: 'select'
     value_options:
@@ -145,6 +152,7 @@ options:
   -
     key: 'comments_cooldown_interval'
     section: 'section_bot_comment_spam_protection_filter'
+    transferable: true
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/3o'
@@ -152,6 +160,7 @@ options:
   -
     key: 'comments_token_expire_interval'
     section: 'section_bot_comment_spam_protection_filter'
+    transferable: true
     default: 600
     type: 'integer'
     link_info: 'http://icwp.io/3o'
@@ -159,6 +168,7 @@ options:
   -
     key: 'custom_message_checkbox'
     section: 'section_customize_messages_shown_to_user'
+    transferable: true
     default: \"I'm not a spammer\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
@@ -166,6 +176,7 @@ options:
   -
     key: 'custom_message_alert'
     section: 'section_customize_messages_shown_to_user'
+    transferable: true
     default: \"Please check the box to confirm you're not a spammer\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
@@ -173,6 +184,7 @@ options:
   -
     key: 'custom_message_comment_wait'
     section: 'section_customize_messages_shown_to_user'
+    transferable: true
     default: \"Please wait %%s seconds before posting your comment\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
@@ -180,6 +192,7 @@ options:
   -
     key: 'custom_message_comment_reload'
     section: 'section_customize_messages_shown_to_user'
+    transferable: true
     default: \"Please reload this page to post a comment\"
     type: 'text'
     link_info: 'http://icwp.io/3p'

@@ -21,6 +21,7 @@ options:
   -
     key: 'block_send_email_address'
     section: 'section_email_options'
+    transferable: true
     default: ''
     type: 'email'
     link_info: ''
