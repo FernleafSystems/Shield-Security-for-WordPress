@@ -88,30 +88,26 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'user_sessions_table_name'
-    section: 'section_non_ui'
-    value: 'user_management'
-  -
-    key: 'user_sessions_table_columns'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      - 'id'
-      - 'session_id'
-      - 'wp_username'
-      - 'ip'
-      - 'logged_in_at'
-      - 'last_activity_at'
-      - 'last_activity_uri'
-      - 'used_mfa'
-      - 'pending'
-      - 'login_attempts'
-      - 'created_at'
-      - 'deleted_at'
-  -
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  user_sessions_table_name: 'user_management'
+  user_sessions_table_columns:
+    - 'id'
+    - 'session_id'
+    - 'wp_username'
+    - 'ip'
+    - 'logged_in_at'
+    - 'last_activity_at'
+    - 'last_activity_uri'
+    - 'used_mfa'
+    - 'pending'
+    - 'login_attempts'
+    - 'created_at'
+    - 'deleted_at'
 ",
 		_wpsf__( 'User Management' ),
 		_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' ) //tagline

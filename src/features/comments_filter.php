@@ -225,7 +225,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 * @return string
 		 */
 		public function getCommentsFilterTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'spambot_comments_filter_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
 		}
 
 		/**

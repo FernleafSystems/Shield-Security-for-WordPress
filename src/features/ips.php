@@ -117,7 +117,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 * @return string
 		 */
 		public function getIpListsTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'ip_lists_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'ip_lists_table_name' ), '_' );
 		}
 
 		public function doPrePluginOptionsSave() {

@@ -162,7 +162,7 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
 
-# Definitions for constant data that doesn't need store in the options
+# Definitions for constant data that doesn't need stored in the options
 definitions:
   firewall_patterns:
     dirtraversal:

@@ -435,7 +435,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		return $this->getOption( 'spambot_comments_filter_table_columns' );
+		return $this->getFeatureOptions()->getDefinition( 'spambot_comments_filter_table_columns' );
 	}
 
 	/**

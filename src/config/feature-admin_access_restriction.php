@@ -145,35 +145,31 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-  -
-    key: 'admin_access_options_to_restrict'
-    section: 'section_non_ui'
-    immutable: true
-    value:
-      wpms_options:
-        - 'admin_email'
-        - 'site_name'
-        - 'registration'
-      wpms_pages:
-        - 'settings.php'
-      wp_options:
-        - 'blogname'
-        - 'blogdescription'
-        - 'siteurl'
-        - 'home'
-        - 'admin_email'
-        - 'users_can_register'
-        - 'comments_notify'
-        - 'comment_moderation'
-        - 'blog_public'
-      wp_pages:
-        - 'options-general.php'
-        - 'options-discussion.php'
-        - 'options-reading.php'
-  -
-    key: 'admin_access_key_cookie_name'
-    section: 'section_non_ui'
-    value: 'icwp_wpsf_aakcook'
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  admin_access_key_cookie_name: 'icwp_wpsf_aakcook'
+  admin_access_options_to_restrict:
+    wpms_options:
+      - 'admin_email'
+      - 'site_name'
+      - 'registration'
+    wpms_pages:
+      - 'settings.php'
+    wp_options:
+      - 'blogname'
+      - 'blogdescription'
+      - 'siteurl'
+      - 'home'
+      - 'admin_email'
+      - 'users_can_register'
+      - 'comments_notify'
+      - 'comment_moderation'
+      - 'blog_public'
+    wp_pages:
+      - 'options-general.php'
+      - 'options-discussion.php'
+      - 'options-reading.php'
 ",
 		_wpsf__( 'WordPress Security Admin' ), //name
 		_wpsf__( 'Protect your security plugin not just your WordPress site' ), //tagline

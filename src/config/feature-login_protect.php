@@ -205,29 +205,25 @@ options:
     key: 'log_category'
     section: 'section_non_ui'
   -
-    key: 'two_factor_auth_table_name'
-    section: 'section_non_ui'
-    value: 'login_auth'
-  -
-    key: 'two_factor_auth_table_columns'
-    immutable: true
-    section: 'section_non_ui'
-    value:
-      - 'id'
-      - 'session_id'
-      - 'wp_username'
-      - 'ip'
-      - 'pending'
-      - 'expired_at'
-      - 'created_at'
-      - 'deleted_at'
-  -
     key: 'two_factor_auth_table_created'
     section: 'section_non_ui'
   -
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  two_factor_auth_table_name: 'login_auth'
+  two_factor_auth_table_columns:
+    - 'id'
+    - 'session_id'
+    - 'wp_username'
+    - 'ip'
+    - 'pending'
+    - 'expired_at'
+    - 'created_at'
+    - 'deleted_at'
 ",
 		_wpsf__( 'Login Protection' ),
 		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' ) //tagline
