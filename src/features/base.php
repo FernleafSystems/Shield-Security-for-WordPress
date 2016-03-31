@@ -938,12 +938,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 *
 		 * Called upon construction and after plugin options are initialized.
 		 */
-		protected function updateHandler() {
-			if ( version_compare( $this->getVersion(), '3.0.0', '<' ) ) {
-				$sKey = $this->doPluginPrefix( $this->getFeatureSlug().'_processor', '_' );
-				$this->loadWpFunctionsProcessor()->deleteOption( $sKey );
-			}
-		}
+		protected function updateHandler() { }
 
 		/**
 		 * @return boolean
