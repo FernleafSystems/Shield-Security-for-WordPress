@@ -117,6 +117,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
 		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
+		$this->loadWpTrack();
 	}
 
 	/**
@@ -196,15 +197,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Pass null to get the state of all tracked actions as an assoc array
-	 * @param string|null $sAction
-	 * @return array|bool
-	 */
-	protected function getWpActionHasFired( $sAction = null ) {
-		return ( empty( $sAction ) ? $this->aFiredWpActions : isset( $this->aFiredWpActions[ $sAction ] ) );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getRequirementsMessages() {
@@ -280,7 +272,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
-		$this->setWpActionHasFired( 'admin_init' );
 		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminCss' ), 99 );
 		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminJs' ), 99 );
 	}
@@ -288,7 +279,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpLoaded() {
-		$this->setWpActionHasFired( 'wp_loaded' );
 		if ( $this->getIsValidAdminArea() ) {
 			$this->doPluginFormSubmit();
 			$this->downloadOptionsExport();
@@ -298,7 +288,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpInit() {
-		$this->setWpActionHasFired( 'init' );
 		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueFrontendCss' ), 99 );
 	}
 
@@ -919,7 +908,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function getIsValidAdminArea( $bCheckUserPermissions = true ) {
-		if ( $bCheckUserPermissions && $this->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
+		if ( $bCheckUserPermissions && $this->loadWpTrack()->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
 			return false;
 		}
 
@@ -1404,18 +1393,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$oWp->getCookieDomain(),
 			false
 		);
-	}
-
-	/**
-	 * @param string $sAction
-	 * @return $this
-	 */
-	protected function setWpActionHasFired( $sAction ) {
-		if ( empty( $this->aFiredWpActions ) ) {
-			$this->aFiredWpActions = array();
-		}
-		$this->aFiredWpActions[ $sAction ] = true;
-		return $this;
 	}
 
 	/**
