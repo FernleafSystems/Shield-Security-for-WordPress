@@ -294,6 +294,9 @@ Use the following filter and return the HTML/Text you wish to display:
 *Released: 7th April, 2016*
 
 * **(v.0)**  ADDED:			Ability to manually export/import options - further preparation for iControlWP+Shield integration.
+* **(v.0)**  FIXED:			Improved compatibility with bbPress.
+* **(v.0)**  CHANGED:		Optimizations around options and definitions (storing less options data)
+* **(v.0)**  CHANGED:		Improved styling and responsiveness of plugin badge.
 
 = 5.1 Series =
 
