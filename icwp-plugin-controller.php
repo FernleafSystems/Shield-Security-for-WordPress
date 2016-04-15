@@ -84,11 +84,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected static $sRequestId;
 
 	/**
-	 * @var array
-	 */
-	protected $aFiredWpActions = array();
-
-	/**
 	 * @var string
 	 */
 	private $sConfigOptionsHashWhenLoaded;
@@ -232,7 +227,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpPluginsLoaded() {
-		$this->setWpActionHasFired( 'plugins_loaded' );
 		$this->doLoadTextDomain();
 		$this->doRegisterHooks();
 //		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
@@ -678,7 +672,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
-		$this->setWpActionHasFired( 'shutdown' );
 		do_action( $this->doPluginPrefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
