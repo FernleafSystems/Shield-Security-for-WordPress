@@ -54,6 +54,10 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @var ICWP_WPSF_GoogleRecaptcha
 		 */
 		private static $oGR;
+		/**
+		 * @var ICWP_WPSF_WpTrack
+		 */
+		private static $oTrack;
 
 		/**
 		 * @return ICWP_WPSF_DataProcessor
@@ -148,6 +152,17 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 				self::$oGR = ICWP_WPSF_GoogleRecaptcha::GetInstance();
 			}
 			return self::$oGR;
+		}
+
+		/**
+		 * @return ICWP_WPSF_WpTrack
+		 */
+		static public function loadWpTrack() {
+			if ( !isset( self::$oTrack ) ) {
+				require_once( dirname(__FILE__).ICWP_DS.'wp-track.php' );
+				self::$oTrack = ICWP_WPSF_WpTrack::GetInstance();
+			}
+			return self::$oTrack;
 		}
 
 		/**
