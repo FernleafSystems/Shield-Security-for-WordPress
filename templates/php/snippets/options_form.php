@@ -107,13 +107,6 @@
 																	<?php endforeach; ?>
 																</select>
 
-															<?php elseif ( $sOptionType == 'ip_addresses' ) : ?>
-
-																<p><?php echo $aOption['summary']; ?></p>
-																<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																		  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
-																		  class="span5" ><?php echo $aOption['value']; ?></textarea>
-
 															<?php elseif ( $sOptionType == 'array' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>

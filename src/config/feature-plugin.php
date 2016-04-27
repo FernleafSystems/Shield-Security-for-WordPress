@@ -57,7 +57,9 @@ sections:
   -
     slug: 'section_general_plugin_options'
   -
-    slug: 'section_third_party'
+    slug: 'section_third_party_google'
+  -
+    slug: 'section_third_party_duo'
   -
     slug: 'section_non_ui'
     hidden: true
@@ -67,6 +69,7 @@ options:
   -
     key: 'global_enable_plugin_features'
     section: 'section_global_security_options'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -74,6 +77,7 @@ options:
   -
     key: 'block_send_email_address'
     section: 'section_general_plugin_options'
+    transferable: true
     default: ''
     type: 'email'
     link_info: ''
@@ -81,6 +85,7 @@ options:
   -
     key: 'enable_upgrade_admin_notice'
     section: 'section_general_plugin_options'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -88,6 +93,7 @@ options:
   -
     key: 'display_plugin_badge'
     section: 'section_general_plugin_options'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/5v'
@@ -95,6 +101,7 @@ options:
   -
     key: 'delete_on_deactivate'
     section: 'section_general_plugin_options'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''
@@ -108,14 +115,16 @@ options:
     link_blog: ''
   -
     key: 'google_recaptcha_site_key'
-    section: 'section_third_party'
+    section: 'section_third_party_google'
+    transferable: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/shld5'
     link_blog: ''
   -
     key: 'google_recaptcha_secret_key'
-    section: 'section_third_party'
+    section: 'section_third_party_google'
+    transferable: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/shld5'

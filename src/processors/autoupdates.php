@@ -356,7 +356,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				$bHasCoreUpdates = false;
 				$aTempContent = array( _wpsf__( 'WordPress Core Updated:' ) );
 				foreach( $aUpdateResults['core'] as $oUpdateItem ) {
-					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result ) {
+					if ( isset( $oUpdateItem->result ) && !is_wp_error( $oUpdateItem->result ) ) {
 						$aTempContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdateItem->name );
 						$bHasCoreUpdates = true;
 					}

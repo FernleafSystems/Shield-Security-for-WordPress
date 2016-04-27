@@ -114,6 +114,16 @@ if ( !class_exists( 'ICWP_WPSF_Ip', false ) ):
 		}
 
 		/**
+		 * Assumes a valid IPv4 address is provided as we're only testing for a whether the IP is public or not.
+		 *
+		 * @param string $sIpAddress
+		 * @return boolean
+		 */
+		public function isAddressInPublicIpRange( $sIpAddress ) {
+			return filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE );
+		}
+
+		/**
 		 * @param string $sIp
 		 * @param bool $bOnlyPublicRemotes
 		 * @return boolean

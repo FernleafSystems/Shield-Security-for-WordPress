@@ -369,7 +369,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getFeatureOptions()->getOptionsVo()->getOptDefault( 'two_factor_auth_table_columns' );
+			return $this->getFeatureOptions()->getDefinition( 'two_factor_auth_table_columns' );
 		}
 
 		/**

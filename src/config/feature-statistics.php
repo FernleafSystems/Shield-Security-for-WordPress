@@ -24,6 +24,7 @@ options:
   -
     key: 'enable_statistics'
     section: 'section_enable_plugin_feature_statistics'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -31,6 +32,7 @@ options:
   -
     key: 'enable_stats_sharing'
     section: 'section_stats_sharing'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: ''

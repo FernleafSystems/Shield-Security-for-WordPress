@@ -26,6 +26,7 @@ options:
   -
     key: 'enable_audit_trail'
     section: 'section_enable_plugin_feature_audit_trail'
+    transferable: true
     default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/5p'
@@ -33,6 +34,7 @@ options:
   -
     key: 'audit_trail_auto_clean'
     section: 'section_audit_trail_options'
+    transferable: true
     default: 30
     type: 'integer'
     link_info: 'http://icwp.io/5p'
@@ -40,6 +42,7 @@ options:
   -
     key: 'enable_audit_context_users'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -47,6 +50,7 @@ options:
   -
     key: 'enable_audit_context_plugins'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -54,6 +58,7 @@ options:
   -
     key: 'enable_audit_context_themes'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -61,6 +66,7 @@ options:
   -
     key: 'enable_audit_context_posts'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -68,6 +74,7 @@ options:
   -
     key: 'enable_audit_context_wordpress'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -75,6 +82,7 @@ options:
   -
     key: 'enable_audit_context_emails'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -82,6 +90,7 @@ options:
   -
     key: 'enable_audit_context_wpsf'
     section: 'section_enable_audit_contexts'
+    transferable: true
     default: 'Y'
     type: 'checkbox'
     link_info: ''
@@ -111,6 +120,7 @@ options:
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
+
 menu_items:
   -
     slug: 'audit_trail_viewer'

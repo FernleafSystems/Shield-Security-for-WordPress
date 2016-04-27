@@ -212,7 +212,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 		 * @return string
 		 */
 		public function getUserSessionsTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'user_sessions_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'user_sessions_table_name' ), '_' );
 		}
 
 		/**

@@ -382,7 +382,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return string
 		 */
 		public function getTwoFactorAuthTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'two_factor_auth_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
 		}
 
 		/**

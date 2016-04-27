@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.5
-Stable tag: 5.0.3
+Stable tag: 5.1.0
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -290,13 +290,26 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.0.3 Latest Point Release =
-*Released: 31st March, 2016*
+= 5.1.0 Latest Point Release =
+*Released: 27th April, 2016*
 
-* **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
+* **(v.0)**  FIXED:			Improved compatibility with bbPress.
+* **(v.0)**  CHANGED:		Optimizations around options and definitions (storing fewer options data)
+* **(v.0)**  CHANGED:		Improved styling and responsiveness of plugin badge.
+* **(v.0)**  ADDED:			Ability to programmatically export/import options - further preparation for iControlWP+Shield integration.
+* **(v.0)**  FIXED:			Issue where Core automatic updates would fail, but notification email was sent anyway
+
+= 5.1 Series =
+
+* **(v.0)**  FIXED:			Improved compatibility with bbPress.
+* **(v.0)**  CHANGED:		Optimizations around options and definitions (storing fewer options data)
+* **(v.0)**  CHANGED:		Improved styling and responsiveness of plugin badge.
+* **(v.0)**  ADDED:			Ability to programmatically export/import options - further preparation for iControlWP+Shield integration.
+* **(v.0)**  FIXED:			Issue where Core automatic updates would fail, but notification email was sent anyway
 
 = 5.0 Series =
 
+* **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
 * **(v.2)**  FIXED:			[Rename WordPress Login URL](http://icwp.io/5s) bug
 * **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
 * **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](http://icwp.io/wpsf40) feature.
