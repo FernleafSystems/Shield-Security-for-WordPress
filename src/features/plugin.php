@@ -116,9 +116,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sTitleShort = _wpsf__( 'General Options' );
 					break;
 
-				case 'section_third_party' :
-					$sTitle = _wpsf__( 'Third Party Services' );
-					$sTitleShort = _wpsf__( 'Third Party Services' );
+				case 'section_third_party_google' :
+					$sTitle = _wpsf__( 'Google' );
+					$sTitleShort = _wpsf__( 'Google' );
+					break;
+
+				case 'section_third_party_duo' :
+					$sTitle = _wpsf__( 'Duo Security' );
+					$sTitleShort = _wpsf__( 'Duo Security' );
 					break;
 
 				default:
