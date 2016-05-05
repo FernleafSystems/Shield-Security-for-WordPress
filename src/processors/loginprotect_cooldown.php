@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+require_once( dirname(__FILE__).ICWP_DS.'loginprotect_base.php' );
 
-class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
 	 */
@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Base
 		$oFO = $this->getFeatureOptions();
 
 		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
-		add_filter( 'authenticate', array( $this, 'checkLoginInterval' ), 10, 2 );
+		add_filter( 'authenticate', array( $this, 'checkLoginInterval' ), 10, 1 );
 
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
@@ -26,12 +26,10 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Base
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
 	 *
 	 * @param null|WP_User|WP_Error $oUserOrError
-	 * @param string $sUsername
 	 * @return WP_User|WP_Error
 	 */
-	public function checkLoginInterval( $oUserOrError, $sUsername ) {
-		// No login attempt was made and we do nothing
-		if ( empty( $sUsername ) ) {
+	public function checkLoginInterval( $oUserOrError ) {
+		if ( !$this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
 			return $oUserOrError;
 		}
 
@@ -47,24 +45,20 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Base
 		// At this point someone has attempted to login within the previous login wait interval
 		// So we remove WordPress's authentication filter and our own user check authentication
 		// And finally return a WP_Error which will be reflected back to the user.
-		$this->doStatIncrement( 'login.cooldown.fail' );
-		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 
-		$oWp = $this->loadWpFunctionsProcessor();
 		$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
-						.sprintf(
-							_wpsf__( "You must wait %s seconds before attempting to %s again." ),
-							$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
-							$oWp->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
-						);
+			.sprintf(
+				_wpsf__( "You must wait %s seconds before attempting to %s again." ),
+				$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
+				$this->loadWpFunctionsProcessor()->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
+			);
 
 		if ( !is_wp_error( $oUserOrError ) ) {
 			$oUserOrError = new WP_Error();
 		}
 		$oUserOrError->add( 'wpsf_logininterval', $sErrorString );
 
-		// We now black mark this IP
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+		$this->setLoginAsFailed( 'login.cooldown.fail' );
 
 		return $oUserOrError;
 	}
