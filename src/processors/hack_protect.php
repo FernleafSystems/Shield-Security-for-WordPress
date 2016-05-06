@@ -19,9 +19,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 			// not probably necessary any longer since it's patched in the Core
 			add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
-			if ( $this->getIsOption( 'enable_plugin_vulnerabilities_scan', 'Y' ) ) {
-				$this->runPluginVulnerabilities();
-			}
 			if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
 				$this->runChecksumScan();
 			}

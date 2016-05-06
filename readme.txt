@@ -295,6 +295,7 @@ Use the following filter and return the HTML/Text you wish to display:
 
 * **(v.0)**  ADDED:			Guard against core file scanner and automatic WordPress updates clashing.
 * **(v.0)**  CHANGED:		Logic for brute force checking is improved - they all run before username/password checking
+* **(v.0)**  REMOVED:		Plugin vulnerabilities scanner. It's out-of-date and unsuitable.
 
 = 5.1.0 Latest Point Release =
 *Released: 27th April, 2016*
