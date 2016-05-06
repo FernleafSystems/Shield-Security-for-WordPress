@@ -290,10 +290,11 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.1.1 Latest Point Release =
+= 5.2.0 Latest Point Release =
 *Released: 10th May, 2016*
 
-* **(v.1)**  CHANGED:		Logic for brute force checking is improved - they all run before username/password checking
+* **(v.0)**  ADDED:			Guard against core file scanner and automatic WordPress updates clashing.
+* **(v.0)**  CHANGED:		Logic for brute force checking is improved - they all run before username/password checking
 
 = 5.1.0 Latest Point Release =
 *Released: 27th April, 2016*

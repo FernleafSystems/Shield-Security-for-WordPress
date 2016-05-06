@@ -49,6 +49,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 		public function cron_dailyChecksumScan() {
 
+			if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
+				return;
+			}
+
 			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
 
 			if ( !empty( $aChecksumData ) && is_array( $aChecksumData ) ) {
