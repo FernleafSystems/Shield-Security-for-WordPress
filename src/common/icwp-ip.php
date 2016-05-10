@@ -114,26 +114,30 @@ if ( !class_exists( 'ICWP_WPSF_Ip', false ) ):
 		}
 
 		/**
-		 * Assumes a valid IPv4 address is provided as we're only testing for a whether the IP is public or not.
-		 *
-		 * @param string $sIpAddress
+		 * @param string $sIp
+		 * @param bool $flags
 		 * @return boolean
 		 */
-		public function isAddressInPublicIpRange( $sIpAddress ) {
-			return filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE );
+		public function isValidIp( $sIp, $flags = null ) {
+			return filter_var( $sIp, FILTER_VALIDATE_IP, $flags );
+		}
+
+		/**
+		 * Assumes a valid IPv4 address is provided as we're only testing for a whether the IP is public or not.
+		 *
+		 * @param string $sIp
+		 * @return boolean
+		 */
+		public function isValidIp_PublicRange( $sIp ) {
+			return $this->isValidIp( $sIp, FILTER_FLAG_NO_PRIV_RANGE );
 		}
 
 		/**
 		 * @param string $sIp
-		 * @param bool $bOnlyPublicRemotes
 		 * @return boolean
 		 */
-		public function isValidIp( $sIp, $bOnlyPublicRemotes = false ) {
-			$flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-			if ( $bOnlyPublicRemotes ) {
-				$flags = $flags | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
-			}
-			return filter_var( $sIp, FILTER_VALIDATE_IP, $flags );
+		public function isValidIp_PublicRemote( $sIp ) {
+			return $this->isValidIp( $sIp, ( FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) );
 		}
 
 		/**
