@@ -1,4 +1,4 @@
-<?php if ( false && $has_premium_support ) : ?>
+<?php if ( $has_premium_support ) : ?>
 
 	<div class="row">
 		<div class="span12">

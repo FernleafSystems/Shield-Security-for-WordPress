@@ -33,7 +33,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		 */
 		public function getPremiumSupportHelpdeskUrl() {
 			$sHelpdesk = $this->getHasPremiumSupport() ? ICWP_Plugin::GetHelpdeskSsoUrl() : '';
-			return empty( $sHelpdesk ) ? $this->getDefinition( 'default_helpdesk_url' ) : $sHelpdesk;
+			return $this->getDefinition( 'default_helpdesk_url' );
+//			return empty( $sHelpdesk ) ? $this->getDefinition( 'default_helpdesk_url' ) : $sHelpdesk;
 		}
 
 		/**
