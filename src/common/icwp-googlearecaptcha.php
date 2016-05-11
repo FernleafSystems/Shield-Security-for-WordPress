@@ -36,7 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_GoogleRecaptcha', false ) ):
 		public function getGoogleRecaptchaLib( $sSecret ) {
 			if ( !isset( self::$oGR ) ) {
 				if ( $this->loadGoogleRecaptchaLib() ) {
-					self::$oGR = new \ReCaptcha\ReCaptcha( $sSecret );
+					self::$oGR = new \ReCaptcha\ReCaptcha( $sSecret, new \ReCaptcha\RequestMethod\WordpressPost() );
 				}
 			}
 			return self::$oGR;

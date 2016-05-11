@@ -118,7 +118,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			$sIp = $this->human_ip();
 
 			// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
-			return $this->loadIpProcessor()->isValidIp( $sIp, true ) && ( $sThisServerIp != $sIp );
+			return $this->loadIpProcessor()->isValidIp_PublicRemote( $sIp ) && ( $sThisServerIp != $sIp );
 		}
 
 		/**
@@ -127,7 +127,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 */
 		protected function isValidIpOrRange( $sIp ) {
 			$oIP = $this->loadIpProcessor();
-			return $oIP->isValidIp( $sIp, true ) || $oIP->isValidIpRange( $sIp );
+			return $oIP->isValidIp_PublicRemote( $sIp ) || $oIP->isValidIpRange( $sIp );
 		}
 
 		/**

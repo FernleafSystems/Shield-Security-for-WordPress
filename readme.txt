@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.5
-Stable tag: 5.1.0
+Stable tag: 5.2.0
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -290,14 +290,22 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.1.0 Latest Point Release =
-*Released: 27th April, 2016*
+= 5.2.0 Latest Point Release =
+*Released: 11th May, 2016*
 
-* **(v.0)**  FIXED:			Improved compatibility with bbPress.
-* **(v.0)**  CHANGED:		Optimizations around options and definitions (storing fewer options data)
-* **(v.0)**  CHANGED:		Improved styling and responsiveness of plugin badge.
-* **(v.0)**  ADDED:			Ability to programmatically export/import options - further preparation for iControlWP+Shield integration.
-* **(v.0)**  FIXED:			Issue where Core automatic updates would fail, but notification email was sent anyway
+* **(v.0)**  ADDED:			Guard against core file scanner and automatic WordPress updates clashing.
+* **(v.0)**  CHANGED:		Logic for brute force login checking is improved - they all run before username/password checking
+* **(v.0)**  FIXED:			Certain older versions of PHP don't like combined IPv4 and IPv6 filter flags
+* **(v.0)**  FIXED:			Google reCAPTCHA for WordPress sites that have restrictive settings for sockets etc.
+* **(v.0)**  REMOVED:		[Plugin vulnerabilities scanner](http://icwp.io/75). It's out-of-date and unsuitable.
+
+= 5.2 Series =
+
+* **(v.0)**  ADDED:			Guard against core file scanner and automatic WordPress updates clashing.
+* **(v.0)**  CHANGED:		Logic for brute force login checking is improved - they all run before username/password checking
+* **(v.0)**  FIXED:			Certain older versions of PHP don't like combined IPv4 and IPv6 filter flags
+* **(v.0)**  FIXED:			Google reCAPTCHA for WordPress sites that have restrictive settings for sockets etc.
+* **(v.0)**  REMOVED:		[Plugin vulnerabilities scanner](http://icwp.io/75). It's out-of-date and unsuitable.
 
 = 5.1 Series =
 

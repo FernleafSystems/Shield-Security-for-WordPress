@@ -31,14 +31,6 @@ options:
     link_info: 'http://icwp.io/wpsf38'
     link_blog: ''
   -
-    key: 'enable_plugin_vulnerabilities_scan'
-    section: 'section_plugin_vulnerabilities_scan'
-    transferable: true
-    default: 'Y'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/wpsf34'
-    link_blog: 'http://icwp.io/wpsf35'
-  -
     key: 'enable_core_file_integrity_scan'
     section: 'section_core_file_integrity_scan'
     transferable: true

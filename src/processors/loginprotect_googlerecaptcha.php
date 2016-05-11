@@ -2,9 +2,9 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+require_once( dirname(__FILE__).ICWP_DS.'loginprotect_base.php' );
 
-class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
 	 */
@@ -22,8 +22,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ) );
 		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ) );
 
-		// after GASP but before email-based two-factor auth
-		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 24, 3 );
+			// before username/password check (20)
+			add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
 	}
 
 	public function loadGoogleRecaptchaJs() {
@@ -60,18 +60,24 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	}
 
 	/**
+	 * This jumps in before user password is tested. If we fail the ReCaptcha check, we'll
+	 * block testing of username and password
+	 *
 	 * @param WP_User $oUser
 	 * @return WP_Error
 	 */
 	public function checkLoginForGoogleRecaptcha_Filter( $oUser ) {
+		if ( !$this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+			return $oUser;
+		}
+
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 
-		$oError = new WP_Error();
-		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
+		// we haven't already failed before now
+		if ( !is_wp_error( $oUser ) ) {
 
-		if ( $bIsUser ) {
-
+			$oError = new WP_Error();
 			$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
 
 			if ( empty( $sCaptchaResponse ) ) {
@@ -88,7 +94,12 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 					$oUser = $oError;
 				}
 			}
+
+			if ( is_wp_error( $oUser ) ) {
+				$this->setLoginAsFailed( 'login.recaptcha.fail' );
+			}
 		}
+
 		return $oUser;
 	}
 }

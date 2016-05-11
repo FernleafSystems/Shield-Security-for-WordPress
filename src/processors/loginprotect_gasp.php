@@ -16,7 +16,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		add_action( 'login_form',				array( $this, 'printGaspLoginCheck_Action' ), 100 );
 		add_action( 'woocommerce_login_form',	array( $this, 'printGaspLoginCheck_Action' ) );
 		add_filter( 'login_form_middle',		array( $this, 'printGaspLoginCheck_Filter' ) );
-		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 22, 3 );
+
+		// before username/password check (20)
+		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 3 );
 
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
@@ -50,6 +52,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return WP_Error
 	 */
 	public function checkLoginForGasp_Filter( $oUser, $sUsername, $sPassword ) {
+		if ( !$this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+			return $oUser;
+		}
 
 		if ( empty( $sUsername ) || is_wp_error( $oUser ) ) {
 			return $oUser;
