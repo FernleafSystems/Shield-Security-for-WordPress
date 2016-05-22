@@ -7,7 +7,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @var ICWP_WPSF_Plugin_Controller
 		 */
-		protected $oPluginController;
+		static protected $oPluginController;
 
 		/**
 		 * @var ICWP_WPSF_OptionsVO
@@ -77,7 +77,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			if ( empty( $oPluginController ) ) {
 				throw new Exception();
 			}
-			$this->oPluginController = $oPluginController;
+			else if ( empty( self::$oPluginController ) ) {
+				self::$oPluginController = $oPluginController;
+			}
 
 			if ( isset( $aFeatureProperties['storage_key'] ) ) {
 				$this->sOptionsStoreKey = $aFeatureProperties['storage_key'];
@@ -1137,8 +1139,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
-		public function getController() {
-			return $this->oPluginController;
+		static public function getController() {
+			return self::$oPluginController;
 		}
 
 		/**
