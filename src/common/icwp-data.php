@@ -495,7 +495,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 				return json_decode( $sData );
 			}
 			if ( !class_exists( 'JSON' )  ) {
-				require_once( dirname(__FILE__).ICWP_DS.'json/JSON.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'json/JSON.php' );
 			}
 			$oJson = new JSON();
 			return @$oJson->unserialize( $sData );

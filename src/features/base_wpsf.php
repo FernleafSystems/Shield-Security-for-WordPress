@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base.php' );
 
 	class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 

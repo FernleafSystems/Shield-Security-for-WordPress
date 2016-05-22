@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 	class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -158,7 +158,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 				return false;
 			}
 
-			$sWpConfigPath = $oWpFs->exists( ABSPATH.'wp-config.php' )? ABSPATH.'wp-config.php' : ABSPATH.'..'.ICWP_DS.'wp-config.php';
+			$sWpConfigPath = $oWpFs->exists( ABSPATH.'wp-config.php' )? ABSPATH.'wp-config.php' : ABSPATH.'..'.DIRECTORY_SEPARATOR.'wp-config.php';
 
 			if ( !$oWpFs->exists( $sWpConfigPath ) ) {
 				return false;

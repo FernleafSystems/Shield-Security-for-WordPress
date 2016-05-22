@@ -1,3 +1,3 @@
 <?php
 include_once( $sBaseDirName . 'feature-default.php' );
-include_once( $sBaseDirName . 'snippets'.ICWP_DS.'user_sessions.php' );
+include_once( $sBaseDirName . 'snippets'.DIRECTORY_SEPARATOR.'user_sessions.php' );

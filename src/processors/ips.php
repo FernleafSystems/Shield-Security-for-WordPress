@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'basedb.php' );
 
 	class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 

@@ -64,7 +64,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadDataProcessor() {
 			if ( !isset( self::$oDp ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-data.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-data.php' );
 				self::$oDp = ICWP_WPSF_DataProcessor::GetInstance();
 			}
 			return self::$oDp;
@@ -75,7 +75,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadFileSystemProcessor() {
 			if ( !isset( self::$oFs ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfilesystem.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-wpfilesystem.php' );
 				self::$oFs = ICWP_WPSF_WpFilesystem::GetInstance();
 			}
 			return self::$oFs;
@@ -86,7 +86,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadWpFunctionsProcessor() {
 			if ( !isset( self::$oWp ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpfunctions.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-wpfunctions.php' );
 				self::$oWp = ICWP_WPSF_WpFunctions::GetInstance();
 			}
 			return self::$oWp;
@@ -97,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadWpCronProcessor() {
 			if ( !isset( self::$oWpCron ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpcron.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-wpcron.php' );
 				self::$oWpCron = ICWP_WPSF_WpCron::GetInstance();
 			}
 			return self::$oWpCron;
@@ -107,7 +107,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @return void
 		 */
 		static public function loadWpWidgets() {
-			require_once( dirname( __FILE__ ).ICWP_DS.'wp-widget.php' );
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'wp-widget.php' );
 		}
 
 		/**
@@ -115,7 +115,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadDbProcessor() {
 			if ( !isset( self::$oWpDb ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-wpdb.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-wpdb.php' );
 				self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
 			}
 			return self::$oWpDb;
@@ -126,7 +126,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadIpProcessor() {
 			if ( !isset( self::$oIp ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-ip.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-ip.php' );
 				self::$oIp = ICWP_WPSF_Ip::GetInstance();
 			}
 			return self::$oIp;
@@ -137,7 +137,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadGoogleAuthenticatorProcessor() {
 			if ( !isset( self::$oGA ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-googleauthenticator.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-googleauthenticator.php' );
 				self::$oGA = ICWP_WPSF_GoogleAuthenticator::GetInstance();
 			}
 			return self::$oGA;
@@ -148,7 +148,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadGoogleRecaptcha() {
 			if ( !isset( self::$oGR ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-googlearecaptcha.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-googlearecaptcha.php' );
 				self::$oGR = ICWP_WPSF_GoogleRecaptcha::GetInstance();
 			}
 			return self::$oGR;
@@ -159,7 +159,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadWpTrack() {
 			if ( !isset( self::$oTrack ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'wp-track.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'wp-track.php' );
 				self::$oTrack = ICWP_WPSF_WpTrack::GetInstance();
 			}
 			return self::$oTrack;
@@ -171,9 +171,9 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadRenderer( $sTemplatePath = '' ) {
 			if ( !isset( self::$oRender ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-render.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-render.php' );
 				self::$oRender = ICWP_WPSF_Render::GetInstance()
-					->setAutoloaderPath( dirname( __FILE__ ) . ICWP_DS . 'Twig' . ICWP_DS . 'Autoloader.php' );
+					->setAutoloaderPath( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'Twig' . DIRECTORY_SEPARATOR . 'Autoloader.php' );
 			}
 			if ( !empty( $sTemplatePath ) ) {
 				self::$oRender->setTemplateRoot( $sTemplatePath );
@@ -186,7 +186,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadYamlProcessor() {
 			if ( !isset( self::$oYaml ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'icwp-yaml.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-yaml.php' );
 				self::$oYaml = ICWP_WPSF_YamlProcessor::GetInstance();
 			}
 			return self::$oYaml;
@@ -197,7 +197,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadAdminNoticesProcessor() {
 			if ( !isset( self::$oAdminNotices ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'wp-admin-notices.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'wp-admin-notices.php' );
 				self::$oAdminNotices = ICWP_WPSF_WpAdminNotices::GetInstance();
 			}
 			return self::$oAdminNotices;
@@ -208,7 +208,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadWpUsersProcessor() {
 			if ( !isset( self::$oWpUsers ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'wp-users.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'wp-users.php' );
 				self::$oWpUsers = ICWP_WPSF_WpUsers::GetInstance();
 			}
 			return self::$oWpUsers;
@@ -219,7 +219,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 */
 		static public function loadWpCommentsProcessor() {
 			if ( !isset( self::$oWpComments ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'wp-comments.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'wp-comments.php' );
 				self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
 			}
 			return self::$oWpComments;
@@ -229,7 +229,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		 * @return ICWP_Stats_WPSF
 		 */
 		public function loadStatsProcessor() {
-			require_once( dirname(__FILE__).ICWP_DS.'icwp-stats.php' );
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-stats.php' );
 		}
 	}
 
