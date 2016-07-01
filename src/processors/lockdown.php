@@ -59,9 +59,19 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		}
 
 		public function addSecurityHeaders() {
-			header( 'x-frame-options: SAMEORIGIN' );
-			header( 'X-XSS-Protection: 1; mode=block' );
-			header( 'X-Content-Type-Options: nosniff' );
+			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( $oFO->getOptIs( 'x_frame', 'Y' ) ) {
+				header( 'x-frame-options: SAMEORIGIN' );
+			}
+			if ( $oFO->getOptIs( 'x_xss_protect', 'Y' ) ) {
+				header( 'X-XSS-Protection: 1; mode=block' );
+			}
+			if ( $oFO->getOptIs( 'x_content_type', 'Y' ) ) {
+				header( 'X-Content-Type-Options: nosniff' );
+			}
+
 			$aDomains = array(
 				'fonts.googleapis.com',
 				'load.sumome.com',
@@ -84,7 +94,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				'*.yummly.com',
 				'*.facebook.com',
 			);
-			if ( true || isset( $_GET['test'] ) ) {
+			if ( isset( $_GET['test'] ) ) {
 				header( sprintf( "Content-Security-Policy: default-src 'self' 'unsafe-inline' data: %s", implode( " ", $aDomains ) ) );
 			}
 		}

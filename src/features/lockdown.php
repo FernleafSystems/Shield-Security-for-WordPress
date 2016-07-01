@@ -47,6 +47,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sTitleShort = _wpsf__( 'System' );
 					break;
 
+				case 'section_security_headers' :
+					$sTitle = _wpsf__( 'Advanced Security Headers' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					);
+					$sTitleShort = _wpsf__( 'Headers' );
+					break;
+
 				case 'section_permission_access_options' :
 					$sTitle = _wpsf__( 'Permissions and Access Options' );
 					$aSummary = array(
@@ -94,6 +103,25 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sName = sprintf( _wpsf__( 'Disable %s' ), 'XML-RPC' );
 					$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), 'XML-RPC' );
 					$sDescription = sprintf( _wpsf__( 'Checking this option will completely turn off the whole %s system.' ), 'XML-RPC' );
+					break;
+
+				case 'x_frame' :
+					$sName = _wpsf__( 'Block iFrames' );
+					$sSummary = _wpsf__( 'Block Remote iFrames Of This Site' );
+					$sDescription = _wpsf__( 'The setting prevents any external website from embedding your site in an iFrame.' )
+						._wpsf__( 'This is useful for preventing so-called "ClickJack attacks".' );
+					break;
+
+				case 'x_xss_protect' :
+					$sName = _wpsf__( 'XSS Protection' );
+					$sSummary = _wpsf__( 'Employ Built-In Browser XSS Protection' );
+					$sDescription = _wpsf__( 'Directs compatible browser to block what they detect as Reflective XSS attacks.' );
+					break;
+
+				case 'x_content_type' :
+					$sName = _wpsf__( 'Prevent Mime-Sniff' );
+					$sSummary = _wpsf__( 'Turn-Off Browser Mime-Sniff' );
+					$sDescription = _wpsf__( 'Reduces visitor exposure to malicious user-uploaded content.' );
 					break;
 
 				case 'disable_file_editing' :

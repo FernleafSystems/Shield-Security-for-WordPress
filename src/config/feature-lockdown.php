@@ -16,6 +16,8 @@ sections:
   -
     slug: 'section_system_lockdown'
   -
+    slug: 'section_security_headers'
+  -
     slug: 'section_permission_access_options'
   -
     slug: 'section_wordpress_obscurity_options'
@@ -40,6 +42,30 @@ options:
     default: 'N'
     type: 'checkbox'
     link_info: ''
+    link_blog: ''
+  -
+    key: 'x_frame'
+    section: 'section_security_headers'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/78'
+    link_blog: ''
+  -
+    key: 'x_xss_protect'
+    section: 'section_security_headers'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/79'
+    link_blog: ''
+  -
+    key: 'x_content_type'
+    section: 'section_security_headers'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: 'http://icwp.io/7a'
     link_blog: ''
   -
     key: 'disable_file_editing'
