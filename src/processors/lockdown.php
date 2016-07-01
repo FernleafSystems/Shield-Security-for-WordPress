@@ -55,6 +55,38 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 			if ( $this->getIsOption( 'disable_xmlrpc', 'Y' ) ) {
 				add_filter( 'xmlrpc_enabled', '__return_false', 1000 );
 			}
+			add_action( 'send_headers', array( $this, 'addSecurityHeaders' ) );
+		}
+
+		public function addSecurityHeaders() {
+			header( 'x-frame-options: SAMEORIGIN' );
+			header( 'X-XSS-Protection: 1; mode=block' );
+			header( 'X-Content-Type-Options: nosniff' );
+			$aDomains = array(
+				'fonts.googleapis.com',
+				'load.sumome.com',
+				'cdn.segment.com',
+				'www.googletagmanager.com',
+				'secure.gravatar.com',
+				'fonts.googleapis.com',
+				'fonts.gstatic.com',
+				'www.google-analytics.com',
+				'cdn.mxpnl.com',
+				'sumome.com',
+				'www.googletagmanager.com',
+				'api.mixpanel.com',
+				'*.kxcdn.com',
+				'*.google.com',
+				'*.reddit.com',
+				'*.bufferapp.com',
+				'*.pinterest.com',
+				'*.linkedin.com',
+				'*.pinterest.com',
+				'*.yummly.com',
+			);
+			if ( true || isset( $_GET['test'] ) ) {
+				header( sprintf( "Content-Security-Policy: default-src 'self' 'unsafe-inline' data: %s", implode( " ", $aDomains ) ) );
+			}
 		}
 
 		/**
