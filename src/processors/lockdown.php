@@ -72,31 +72,33 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				header( 'X-Content-Type-Options: nosniff' );
 			}
 
-			$aDomains = array(
-				'fonts.googleapis.com',
-				'load.sumome.com',
-				'cdn.segment.com',
-				'www.googletagmanager.com',
-				'secure.gravatar.com',
-				'fonts.googleapis.com',
-				'fonts.gstatic.com',
-				'www.google-analytics.com',
-				'cdn.mxpnl.com',
-				'sumome.com',
-				'www.googletagmanager.com',
-				'api.mixpanel.com',
-				'*.kxcdn.com',
-				'*.google.com',
-				'*.reddit.com',
-				'*.bufferapp.com',
-				'*.linkedin.com',
-				'*.pinterest.com',
-				'*.yummly.com',
-				'*.facebook.com',
-			);
-			if ( isset( $_GET['test'] ) ) {
+			$aDomains = $oFO->getContentSecurityPolicyDomains();
+			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 				header( sprintf( "Content-Security-Policy: default-src 'self' 'unsafe-inline' data: %s", implode( " ", $aDomains ) ) );
 			}
+//
+//			$aDomains = array(
+//				'fonts.googleapis.com',
+//				'load.sumome.com',
+//				'cdn.segment.com',
+//				'www.googletagmanager.com',
+//				'secure.gravatar.com',
+//				'fonts.googleapis.com',
+//				'fonts.gstatic.com',
+//				'www.google-analytics.com',
+//				'cdn.mxpnl.com',
+//				'sumome.com',
+//				'www.googletagmanager.com',
+//				'api.mixpanel.com',
+//				'*.kxcdn.com',
+//				'*.google.com',
+//				'*.reddit.com',
+//				'*.bufferapp.com',
+//				'*.linkedin.com',
+//				'*.pinterest.com',
+//				'*.yummly.com',
+//				'*.facebook.com',
+//			);
 		}
 
 		/**
