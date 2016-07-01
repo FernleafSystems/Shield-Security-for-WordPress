@@ -83,6 +83,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				'*.linkedin.com',
 				'*.pinterest.com',
 				'*.yummly.com',
+				'*.facebook.com',
 			);
 			if ( true || isset( $_GET['test'] ) ) {
 				header( sprintf( "Content-Security-Policy: default-src 'self' 'unsafe-inline' data: %s", implode( " ", $aDomains ) ) );
