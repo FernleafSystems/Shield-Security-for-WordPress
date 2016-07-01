@@ -654,6 +654,18 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * Taken from: http://stackoverflow.com/questions/1755144/how-to-validate-domain-name-in-php
+		 * 
+		 * @param string $sDomainName
+		 * @return bool
+		 */
+		public function isValidDomainName( $sDomainName ) {
+			return ( preg_match( "/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $sDomainName ) //valid chars check
+				&& preg_match( "/^.{1,253}$/", $sDomainName ) //overall length check
+				&& preg_match( "/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $sDomainName ) );//length of each label
+		}
+
+		/**
 		 * @return int
 		 */
 		public function time() {
