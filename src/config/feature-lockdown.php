@@ -68,6 +68,14 @@ options:
     link_info: 'http://icwp.io/7a'
     link_blog: ''
   -
+    key: 'x_content_security_policy'
+    section: 'section_security_headers'
+    transferable: true
+    default: 'N'
+    type: 'array'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'disable_file_editing'
     section: 'section_permission_access_options'
     transferable: true

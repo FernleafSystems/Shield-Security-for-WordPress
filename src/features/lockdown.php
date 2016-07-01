@@ -12,6 +12,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 			}
 		}
 
+		protected function doExtraSubmitProcessing() {
+			$aDomains = $this->getOpt( 'x_content_security_policy' );
+			if ( !empty( $aDomains ) ) {
+				$oDP = $this->loadDataProcessor();
+				foreach ( $aDomains as $nKey => $sDomain ) {
+					if ( $oDP->isValidDomainName( $sDomain ) ) {
+						$aDomains[ $nKey ] = $sDomain;
+					}
+					else {
+						unset( $aDomains[ $nKey ] );
+					}
+				}
+				$this->setOpt( 'x_content_security_policy', $aDomains );
+			}
+		}
+
 		public function doPrePluginOptionsSave() {
 			$sCurrent = $this->getOpt( 'mask_wordpress_version' );
 			if ( !empty( $sCurrent ) ) {
@@ -122,6 +138,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sName = _wpsf__( 'Prevent Mime-Sniff' );
 					$sSummary = _wpsf__( 'Turn-Off Browser Mime-Sniff' );
 					$sDescription = _wpsf__( 'Reduces visitor exposure to malicious user-uploaded content.' );
+					break;
+
+				case 'x_content_security_policy' :
+					$sName = _wpsf__( 'Content Security Policy' );
+					$sSummary = _wpsf__( 'Content Security Policy' );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
 					break;
 
 				case 'disable_file_editing' :
