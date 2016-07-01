@@ -79,7 +79,6 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				'*.google.com',
 				'*.reddit.com',
 				'*.bufferapp.com',
-				'*.pinterest.com',
 				'*.linkedin.com',
 				'*.pinterest.com',
 				'*.yummly.com',
