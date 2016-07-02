@@ -389,6 +389,9 @@ label input[type=checkbox] {
 #feature-ips .feature-icon:before {
 	content: "\f230";
 }
+#feature-support {
+	display: none;
+}
 #feature-support .feature-icon:before {
 	content: "\f525";
 }
