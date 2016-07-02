@@ -35,8 +35,19 @@ options:
     key: 'x_frame'
     section: 'section_security_headers'
     transferable: true
-    default: 'Y'
-    type: 'checkbox'
+    default: 'on_sameorigin'
+    type: 'select'
+    value_options:
+      -
+        value_key: 'off'
+        text: 'Off: Header Not Sent'
+      -
+        value_key: 'on_sameorigin'
+        text: 'On: Allow iFrames Of Yourself'
+      -
+        value_key: 'on_deny'
+        text: 'On: Block All iFrames'
+
     link_info: 'http://icwp.io/78'
     link_blog: ''
   -
@@ -56,10 +67,50 @@ options:
     link_info: 'http://icwp.io/7a'
     link_blog: ''
   -
-    key: 'x_content_security_policy'
+    key: 'enable_x_content_security_policy'
+    section: 'section_content_security_policy'
+    transferable: true
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'xcsp_inline'
+    section: 'section_content_security_policy'
+    transferable: true
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'xcsp_data'
+    section: 'section_content_security_policy'
+    transferable: true
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'xcsp_eval'
     section: 'section_content_security_policy'
     transferable: true
     default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'xcsp_https'
+    section: 'section_content_security_policy'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'xcsp_hosts'
+    section: 'section_content_security_policy'
+    transferable: true
+    default: ''
     type: 'array'
     link_info: ''
     link_blog: ''

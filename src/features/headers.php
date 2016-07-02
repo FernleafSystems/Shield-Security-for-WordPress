@@ -131,9 +131,39 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 					$sDescription = _wpsf__( 'Reduces visitor exposure to malicious user-uploaded content.' );
 					break;
 
-				case 'x_content_security_policy' :
-					$sName = _wpsf__( 'Content Security Policy' );
+				case 'enable_x_content_security_policy' :
+					$sSummary = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Content Security Policy' ) );
+					$sName = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					break;
+
+				case 'xcsp_inline' :
+					$sName = _wpsf__( 'Inline Entities' );
+					$sSummary = _wpsf__( 'Allow Inline Scripts and CSS' );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					break;
+
+				case 'xcsp_data' :
+					$sName = _wpsf__( 'Embedded Data' );
+					$sSummary = _wpsf__( 'Allow "data:" Directives' );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					break;
+
+				case 'xcsp_eval' :
+					$sName = _wpsf__( 'Allow eval()' );
 					$sSummary = _wpsf__( 'Content Security Policy' );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					break;
+
+				case 'xcsp_https' :
+					$sName = _wpsf__( 'HTTPS Only' );
+					$sSummary = _wpsf__( 'Content Security Policy' );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					break;
+
+				case 'xcsp_hosts' :
+					$sName = _wpsf__( 'Permitted Hosts' );
+					$sSummary = _wpsf__( 'Permitted Hosts and Domains' );
 					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
 					break;
 
