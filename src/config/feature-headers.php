@@ -27,7 +27,7 @@ options:
     key: 'enable_headers'
     section: 'section_enable_plugin_feature_headers'
     transferable: true
-    default: 'Y'
+    default: 'N'
     type: 'checkbox'
     link_info: ''
     link_blog: ''
@@ -40,7 +40,7 @@ options:
     value_options:
       -
         value_key: 'off'
-        text: 'Off: Header Not Sent'
+        text: 'Off: iFrames Not Blocked'
       -
         value_key: 'on_sameorigin'
         text: 'On: Allow iFrames Of Yourself'
@@ -68,6 +68,14 @@ options:
     link_blog: ''
   -
     key: 'enable_x_content_security_policy'
+    section: 'section_content_security_policy'
+    transferable: true
+    default: 'Y'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
+    key: 'xcsp_self'
     section: 'section_content_security_policy'
     transferable: true
     default: 'Y'

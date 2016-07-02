@@ -20,24 +20,25 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 		}
 
 		protected function doExtraSubmitProcessing() {
-			$aDomains = $this->getOpt( 'x_content_security_policy' );
+			$aDomains = $this->getOpt( 'xcsp_hosts' );
 			if ( !empty( $aDomains ) ) {
 				$oDP = $this->loadDataProcessor();
 				$aValidDomains = array();
 				foreach ( $aDomains as $sDomain ) {
 					$sDomain = trim( $sDomain );
 
+					// Special wildcard case
+					if ( $sDomain == '*' ) {
+						$aValidDomains[] = $sDomain;
+					}
+
 					// First we remove the wildcard and test domain, then add it back later.
 					$bWildCard = ( strpos( $sDomain, '*.' ) === 0 );
 					if ( $bWildCard ) {
-						$sDomain = str_replace( '*.', '', $sDomain );
+						$sDomain = preg_replace( '#^\*\.#', '', $sDomain );
 					}
 
-					if ( empty ( $sDomain ) ) {
-						continue;
-					}
-
-					if ( $oDP->isValidDomainName( $sDomain ) ) {
+					if ( !empty ( $sDomain ) && $oDP->isValidDomainName( $sDomain ) ) {
 						if ( $bWildCard ) {
 							$sDomain = '*.' . $sDomain;
 						}
@@ -46,7 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				}
 				asort( $aValidDomains );
 				$aValidDomains = array_unique( $aValidDomains );
-				$this->setOpt( 'x_content_security_policy', $aValidDomains );
+				$this->setOpt( 'xcsp_hosts', $aValidDomains );
 			}
 		}
 
@@ -134,6 +135,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				case 'enable_x_content_security_policy' :
 					$sSummary = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Content Security Policy' ) );
 					$sName = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					break;
+
+				case 'xcsp_self' :
+					$sName = _wpsf__( 'Self' );
+					$sSummary = _wpsf__( "Allow 'self' Directive" );
 					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
 					break;
 

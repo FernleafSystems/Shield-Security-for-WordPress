@@ -51,8 +51,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 
 			$sTemplate = 'Content-Security-Policy: default-src %s;';
 
-			$aDefaultSrcDirectives = array( "'self'" );
+			$aDefaultSrcDirectives = array();
 
+			if ( true ) {
+			}
+			if ( $oFO->getOptIs( 'xcsp_self', 'Y' ) ) {
+				$aDefaultSrcDirectives[] = "'self'";
+			}
 			if ( $oFO->getOptIs( 'xcsp_data', 'Y' ) ) {
 				$aDefaultSrcDirectives[] = "data:";
 			}
@@ -67,15 +72,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 			}
 
 			$aDomains = $oFO->getOpt( 'xcsp_hosts', 'Y' );
-			if ( empty( $aDomains ) || !is_array( $aDomains ) ) {
-				$sDomainsList = '*';
+			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
+				$aDefaultSrcDirectives[] = implode( " ", $aDomains );
 			}
-			else {
-				$sDomainsList = implode( " ", $aDomains );
-			}
-			$aDefaultSrcDirectives[] = $sDomainsList;
 
-			header( sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) );
+			$sFinal = sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) );
+			header( $sFinal );
 		}
 
 		public function addSecurityHeaders() {
