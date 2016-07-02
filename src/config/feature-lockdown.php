@@ -16,6 +16,8 @@ sections:
   -
     slug: 'section_system_lockdown'
   -
+    slug: 'section_security_headers'
+  -
     slug: 'section_permission_access_options'
   -
     slug: 'section_wordpress_obscurity_options'

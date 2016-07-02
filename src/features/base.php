@@ -660,13 +660,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					}
 					else if ( $sOptionType == 'array' ) {
 
-						if ( empty( $mCurrentOptionVal ) ) {
+						if ( empty( $mCurrentOptionVal ) || !is_array( $mCurrentOptionVal )  ) {
 							$mCurrentOptionVal = '';
 						}
 						else {
 							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
 						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 2;
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) {
 
@@ -871,7 +871,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						$sOptionValue = md5( $sTempValue );
 					}
 					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
-						$sOptionValue = array_filter( explode( "\n", $sOptionValue ), 'trim' );
+						$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) { //ip addresses are textareas, where each is separated by newline and are 12 chars long
 						$sOptionValue = $oDp->CleanYubikeyUniqueKeys( $sOptionValue );
