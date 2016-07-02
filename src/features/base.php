@@ -660,7 +660,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					}
 					else if ( $sOptionType == 'array' ) {
 
-						if ( empty( $mCurrentOptionVal ) ) {
+						if ( empty( $mCurrentOptionVal ) || !is_array( $mCurrentOptionVal )  ) {
 							$mCurrentOptionVal = '';
 						}
 						else {

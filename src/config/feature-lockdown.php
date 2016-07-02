@@ -44,38 +44,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'x_frame'
-    section: 'section_security_headers'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/78'
-    link_blog: ''
-  -
-    key: 'x_xss_protect'
-    section: 'section_security_headers'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/79'
-    link_blog: ''
-  -
-    key: 'x_content_type'
-    section: 'section_security_headers'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/7a'
-    link_blog: ''
-  -
-    key: 'x_content_security_policy'
-    section: 'section_security_headers'
-    transferable: true
-    default: 'N'
-    type: 'array'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'disable_file_editing'
     section: 'section_permission_access_options'
     transferable: true

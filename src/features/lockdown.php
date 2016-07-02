@@ -12,44 +12,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 			}
 		}
 
-		protected function doExtraSubmitProcessing() {
-			$aDomains = $this->getOpt( 'x_content_security_policy' );
-			if ( !empty( $aDomains ) ) {
-				$oDP = $this->loadDataProcessor();
-				$aValidDomains = array();
-				foreach ( $aDomains as $sDomain ) {
-					$sDomain = trim( $sDomain );
-
-					// First we remove the wildcard and test domain, then add it back later.
-					$bWildCard = ( strpos( $sDomain, '*.' ) === 0 );
-					if ( $bWildCard ) {
-						$sDomain = str_replace( '*.', '', $sDomain );
-					}
-
-					if ( empty ( $sDomain ) ) {
-						continue;
-					}
-
-					if ( $oDP->isValidDomainName( $sDomain ) ) {
-						if ( $bWildCard ) {
-							$sDomain = '*.' . $sDomain;
-						}
-						$aValidDomains[] = $sDomain;
-					}
-				}
-				asort( $aValidDomains );
-				$aValidDomains = array_unique( $aValidDomains );
-				$this->setOpt( 'x_content_security_policy', $aValidDomains );
-			}
-		}
-
-		/**
-		 * @return array
-		 */
-		public function getContentSecurityPolicyDomains() {
-			return $this->getOpt( 'x_content_security_policy' );
-		}
-
 		public function doPrePluginOptionsSave() {
 			$sCurrent = $this->getOpt( 'mask_wordpress_version' );
 			if ( !empty( $sCurrent ) ) {
@@ -83,15 +45,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
 					);
 					$sTitleShort = _wpsf__( 'System' );
-					break;
-
-				case 'section_security_headers' :
-					$sTitle = _wpsf__( 'Advanced Security Headers' );
-					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
-					);
-					$sTitleShort = _wpsf__( 'Security Headers' );
 					break;
 
 				case 'section_permission_access_options' :
@@ -141,31 +94,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sName = sprintf( _wpsf__( 'Disable %s' ), 'XML-RPC' );
 					$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), 'XML-RPC' );
 					$sDescription = sprintf( _wpsf__( 'Checking this option will completely turn off the whole %s system.' ), 'XML-RPC' );
-					break;
-
-				case 'x_frame' :
-					$sName = _wpsf__( 'Block iFrames' );
-					$sSummary = _wpsf__( 'Block Remote iFrames Of This Site' );
-					$sDescription = _wpsf__( 'The setting prevents any external website from embedding your site in an iFrame.' )
-						._wpsf__( 'This is useful for preventing so-called "ClickJack attacks".' );
-					break;
-
-				case 'x_xss_protect' :
-					$sName = _wpsf__( 'XSS Protection' );
-					$sSummary = _wpsf__( 'Employ Built-In Browser XSS Protection' );
-					$sDescription = _wpsf__( 'Directs compatible browser to block what they detect as Reflective XSS attacks.' );
-					break;
-
-				case 'x_content_type' :
-					$sName = _wpsf__( 'Prevent Mime-Sniff' );
-					$sSummary = _wpsf__( 'Turn-Off Browser Mime-Sniff' );
-					$sDescription = _wpsf__( 'Reduces visitor exposure to malicious user-uploaded content.' );
-					break;
-
-				case 'x_content_security_policy' :
-					$sName = _wpsf__( 'Content Security Policy' );
-					$sSummary = _wpsf__( 'Content Security Policy' );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
 					break;
 
 				case 'disable_file_editing' :
