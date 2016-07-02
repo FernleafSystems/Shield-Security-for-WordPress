@@ -3,7 +3,7 @@ if ( !class_exists( 'ICWP_WPSF_WpWidget', false ) ):
 	/**
 	 * Class ICWP_WPSF_WpWidget
 	 */
-	class ICWP_WPSF_WpWidget extends WP_Widget {
+	abstract class ICWP_WPSF_WpWidget extends WP_Widget {
 
 		/**
 		 * @param array $aWidgetArguments
