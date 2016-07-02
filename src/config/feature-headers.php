@@ -118,7 +118,7 @@ options:
     key: 'xcsp_hosts'
     section: 'section_content_security_policy'
     transferable: true
-    default: ''
+    default: '*'
     type: 'array'
     link_info: ''
     link_blog: ''
