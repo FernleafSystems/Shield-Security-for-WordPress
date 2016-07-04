@@ -27,8 +27,8 @@ alongside common-sense security design.
 
 = What makes the Shield different? =
 
-* No restriction on security features - it's all there for you.
-* Easy-To-Setup USer Interface.
+* No "Pro" restrictions on security features - it's ALL there for you.
+* Easy-To-Setup User Interface.
 * It won't break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
 * Super Admin Security - the *only* WordPress Security Plugin that protects against tampering.
