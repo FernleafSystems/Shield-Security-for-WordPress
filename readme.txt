@@ -3,7 +3,7 @@ Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
+Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
 Stable tag: 5.3.0
@@ -14,7 +14,7 @@ The Most Comprehensive and Highest-Rated Security System for WordPress (formerly
 
 > <strong>All-Over WordPress Security Protection</strong><br />
 > Shield is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
-Designed for maximum compatibility with your WordPress sites, it provides a super simple approach for both beginner
+Designed for maximum compatibility with your WordPress sites, it provides a super-simple platform for both beginner
 and advanced users.
 >
 > NO more nasty site lockouts! Experience the difference that a great security plugin makes,
