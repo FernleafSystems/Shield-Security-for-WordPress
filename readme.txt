@@ -293,12 +293,12 @@ Use the following filter and return the HTML/Text you wish to display:
 = 5.3.0 Latest Point Release =
 *Released: 4th July, 2016*
 
-* **(v.0)**  ADDED:			New Feature - HTTP Security Headers.
+* **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](http://icwp.io/7b).
 * **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
 = 5.3 Series =
 
-* **(v.0)**  ADDED:			New Feature - HTTP Security Headers.
+* **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](http://icwp.io/7b).
 * **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
 = 5.2 Series =
