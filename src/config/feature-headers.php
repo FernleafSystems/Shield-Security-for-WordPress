@@ -29,8 +29,8 @@ options:
     transferable: true
     default: 'N'
     type: 'checkbox'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/7c'
+    link_blog: 'http://icwp.io/7c'
   -
     key: 'x_frame'
     section: 'section_security_headers'
@@ -43,13 +43,13 @@ options:
         text: 'Off: iFrames Not Blocked'
       -
         value_key: 'on_sameorigin'
-        text: 'On: Allow iFrames Of Yourself'
+        text: 'On: Allow iFrames On The Same Domain'
       -
         value_key: 'on_deny'
         text: 'On: Block All iFrames'
 
     link_info: 'http://icwp.io/78'
-    link_blog: ''
+    link_blog: 'http://icwp.io/7c'
   -
     key: 'x_xss_protect'
     section: 'section_security_headers'
@@ -57,7 +57,7 @@ options:
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/79'
-    link_blog: ''
+    link_blog: 'http://icwp.io/7c'
   -
     key: 'x_content_type'
     section: 'section_security_headers'
@@ -65,15 +65,15 @@ options:
     default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/7a'
-    link_blog: ''
+    link_blog: 'http://icwp.io/7c'
   -
     key: 'enable_x_content_security_policy'
     section: 'section_content_security_policy'
     transferable: true
     default: 'Y'
     type: 'checkbox'
-    link_info: ''
-    link_blog: ''
+    link_info: 'http://icwp.io/7d'
+    link_blog: 'http://icwp.io/7c'
   -
     key: 'xcsp_self'
     section: 'section_content_security_policy'
@@ -118,7 +118,7 @@ options:
     key: 'xcsp_hosts'
     section: 'section_content_security_policy'
     transferable: true
-    default: ''
+    default: '*'
     type: 'array'
     link_info: ''
     link_blog: ''
