@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.3.0
+Stable tag: 5.3.1
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -290,14 +290,16 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.3.0 Latest Point Release =
+= 5.3.1 Latest Point Release =
 *Released: 4th July, 2016*
 
+* **(v.1)**  TRANSLATIONS:	Dutch (32%)
 * **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](http://icwp.io/7b).
 * **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
 = 5.3 Series =
 
+* **(v.1)**  TRANSLATIONS:	Dutch (32%)
 * **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](http://icwp.io/7b).
 * **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
