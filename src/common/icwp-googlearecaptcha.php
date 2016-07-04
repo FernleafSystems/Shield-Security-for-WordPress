@@ -26,7 +26,7 @@ if ( !class_exists( 'ICWP_WPSF_GoogleRecaptcha', false ) ):
 		/**
 		 */
 		protected function loadGoogleRecaptchaLib() {
-			return require_once( dirname(__FILE__).ICWP_DS.'googlerecaptcha/autoload.php' );
+			return require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'googlerecaptcha/autoload.php' );
 		}
 
 		/**

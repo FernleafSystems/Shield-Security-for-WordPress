@@ -52,7 +52,7 @@ if ( !class_exists( 'ICWP_WPSF_GoogleAuthenticator', false ) ):
 		 */
 		protected function loadGoogleAuthenticatorLib() {
 			if ( !class_exists( 'PHPGangsta_GoogleAuthenticator', false ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'googleauthenticator/googleauthenticator.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'googleauthenticator/googleauthenticator.php' );
 			}
 			return class_exists( 'PHPGangsta_GoogleAuthenticator', false );
 		}

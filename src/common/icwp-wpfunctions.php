@@ -130,6 +130,14 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @see wp_redirect_admin_locations()
+		 * @return array
+		 */
+		public function getAutoRedirectLocations() {
+			return array( 'wp-admin', 'dashboard', 'admin', 'login', 'wp-login.php' );
+		}
+
+		/**
 		 * @return array|false
 		 */
 		public function getCoreChecksums() {

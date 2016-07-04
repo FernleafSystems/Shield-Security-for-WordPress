@@ -3,10 +3,10 @@ Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, better wp security, all-in-one, lockdown, login, hack
+Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
-Tested up to: 4.5
-Stable tag: 5.2.0
+Tested up to: 4.6
+Stable tag: 5.3.0
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -14,7 +14,7 @@ The Most Comprehensive and Highest-Rated Security System for WordPress (formerly
 
 > <strong>All-Over WordPress Security Protection</strong><br />
 > Shield is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
-Designed for maximum compatibility with your WordPress sites, it provides a super simple approach for both beginner
+Designed for maximum compatibility with your WordPress sites, it provides a super-simple platform for both beginner
 and advanced users.
 >
 > NO more nasty site lockouts! Experience the difference that a great security plugin makes,
@@ -290,14 +290,16 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.2.0 Latest Point Release =
-*Released: 11th May, 2016*
+= 5.3.0 Latest Point Release =
+*Released: 4th July, 2016*
 
-* **(v.0)**  ADDED:			Guard against core file scanner and automatic WordPress updates clashing.
-* **(v.0)**  CHANGED:		Logic for brute force login checking is improved - they all run before username/password checking
-* **(v.0)**  FIXED:			Certain older versions of PHP don't like combined IPv4 and IPv6 filter flags
-* **(v.0)**  FIXED:			Google reCAPTCHA for WordPress sites that have restrictive settings for sockets etc.
-* **(v.0)**  REMOVED:		[Plugin vulnerabilities scanner](http://icwp.io/75). It's out-of-date and unsuitable.
+* **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](http://icwp.io/7b).
+* **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
+
+= 5.3 Series =
+
+* **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](http://icwp.io/7b).
+* **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
 = 5.2 Series =
 

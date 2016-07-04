@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 	class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -376,7 +376,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				)
 			);
 			add_thickbox();
-			echo $oFO->renderTemplate( 'snippets'.ICWP_DS.'admin_access_login_box.php', $aRenderData );
+			echo $oFO->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'admin_access_login_box.php', $aRenderData );
 		}
 
 		/**

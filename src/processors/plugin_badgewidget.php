@@ -57,7 +57,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ):
 
 			$sContents = $oRender
 				->setRenderVars( $aData )
-				->setTemplate( 'snippets'.ICWP_DS.'plugin_badge_widget' )
+				->setTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin_badge_widget' )
 				->setTemplateEnginePhp()
 				->render();
 

@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 	class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/**
@@ -27,7 +27,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		/**
 		 */
 		protected function runPluginVulnerabilities() {
-			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_pluginvulnerabilities.php' );
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_pluginvulnerabilities.php' );
 			$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeatureOptions() );
 			$oPv->run();
 		}
@@ -35,7 +35,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		/**
 		 */
 		protected function runChecksumScan() {
-			require_once( dirname(__FILE__).ICWP_DS.'hackprotect_corechecksumscan.php' );
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
 			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeatureOptions() );
 			$oPv->run();
 		}

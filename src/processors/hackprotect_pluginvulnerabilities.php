@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 	class ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -159,7 +159,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					),
 					'nColspan' => $this->nColumnsCount
 				);
-				echo $this->getFeatureOptions()->renderTemplate( 'snippets'.ICWP_DS.'plugin-vulnerability.php', $aRenderData );
+				echo $this->getFeatureOptions()->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin-vulnerability.php', $aRenderData );
 			}
 		}
 
@@ -175,7 +175,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 				return false;
 			}
 
-			$sSlug = !empty( $aPluginData['slug'] ) ? $aPluginData['slug'] : substr( $sPluginFile, 0, strpos( $sPluginFile, ICWP_DS ) );
+			$sSlug = !empty( $aPluginData['slug'] ) ? $aPluginData['slug'] : substr( $sPluginFile, 0, strpos( $sPluginFile, DIRECTORY_SEPARATOR ) );
 			if ( array_key_exists( $sSlug, $aPV ) ) {
 				foreach( $aPV[$sSlug] as $aVulnerabilityItem ) {
 

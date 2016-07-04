@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -42,6 +42,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		$sMessage = '';
 		$bConflicted = false;
 
+		$sCustomLoginPath = $this->getLoginPath();
+
 		$oWp = $this->loadWpFunctionsProcessor();
 		if ( $oWp->isMultisite() ) {
 			$sMessage = _wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.' );
@@ -59,8 +61,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have not enabled %s.' ), __( 'Permalinks' ) );
 			$bConflicted = true;
 		}
-		else if ( $oWp->getIsPermalinksEnabled() && $oWp->getDoesWpSlugExist( $this->getLoginPath() ) ) {
-			$sMessage = _wpsf__( 'Can not use the Rename WP Login feature because you have chosen a path that is already reserved on your WordPress site.' );
+		else if ( $oWp->getIsPermalinksEnabled() && ( $oWp->getDoesWpSlugExist( $sCustomLoginPath ) || in_array( $sCustomLoginPath, $oWp->getAutoRedirectLocations() ) ) ) {
+			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.' ), $sCustomLoginPath );
 			$bConflicted = true;
 		}
 

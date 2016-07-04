@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base_commentsfilter.php' );
+require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_commentsfilter.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_CommentsFilter_Base {
 

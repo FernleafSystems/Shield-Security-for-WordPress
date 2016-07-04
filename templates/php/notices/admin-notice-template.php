@@ -1,4 +1,4 @@
-<?php $sBaseDirName = dirname(__FILE__).ICWP_DS; ?>
+<?php $sBaseDirName = dirname(__FILE__).DIRECTORY_SEPARATOR; ?>
 
 <div id="<?php echo $unique_render_id;?>" class="<?php echo $notice_classes; ?> icwp-admin-notice notice is-dismissible notice-<?php echo $icwp_admin_notice_template; ?>">
 	<?php require_once( $sBaseDirName.$icwp_admin_notice_template.'.php' ); ?>

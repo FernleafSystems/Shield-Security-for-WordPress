@@ -1102,7 +1102,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).ICWP_DS.$sAsset;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
 	}
 
 	/**
@@ -1110,7 +1110,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Flags( $sFlag = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).ICWP_DS.$sFlag;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).DIRECTORY_SEPARATOR.$sFlag;
 	}
 
 	/**
@@ -1119,9 +1119,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
 		$oFs = $this->loadFileSystemProcessor();
-		$sTempPath = $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . ICWP_DS;
+		$sTempPath = $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . DIRECTORY_SEPARATOR;
 		if ( $oFs->mkdir( $sTempPath ) ) {
-			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).ICWP_DS.$sTmpFile;
+			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR.$sTmpFile;
 		}
 		return null;
 	}
@@ -1131,7 +1131,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetCss( $sAsset = '' ) {
-		return $this->getPath_Assets( 'css'.ICWP_DS.$sAsset );
+		return $this->getPath_Assets( 'css'.DIRECTORY_SEPARATOR.$sAsset );
 	}
 
 	/**
@@ -1139,7 +1139,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetJs( $sAsset = '' ) {
-		return $this->getPath_Assets( 'js'.ICWP_DS.$sAsset );
+		return $this->getPath_Assets( 'js'.DIRECTORY_SEPARATOR.$sAsset );
 	}
 
 	/**
@@ -1147,7 +1147,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetImage( $sAsset = '' ) {
-		return $this->getPath_Assets( 'images'.ICWP_DS.$sAsset );
+		return $this->getPath_Assets( 'images'.DIRECTORY_SEPARATOR.$sAsset );
 	}
 
 	/**
@@ -1156,7 +1156,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).ICWP_DS;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1165,7 +1165,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Source() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).ICWP_DS;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1185,14 +1185,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_LibFile( $sLibFile = '' ) {
-		return $this->getPath_Source().'lib'.ICWP_DS.$sLibFile;
+		return $this->getPath_Source().'lib'.DIRECTORY_SEPARATOR.$sLibFile;
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).ICWP_DS;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1216,7 +1216,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getRootDir() {
-		return dirname( $this->getRootFile() ).ICWP_DS;
+		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
 
 	/**

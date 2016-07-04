@@ -86,7 +86,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 */
 		private function renderHtml() {
 			ob_start();
-			@include( $this->getTemplateRoot().ltrim( $this->getTemplate(), ICWP_DS ) );
+			@include( $this->getTemplateRoot().ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR ) );
 			$sContents = ob_get_contents();
 			ob_end_clean();
 			return $sContents;
@@ -100,7 +100,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 				extract( $this->getRenderVars() );
 			}
 
-			$sTemplate = $this->getTemplateRoot() . ltrim( $this->getTemplate(), ICWP_DS );
+			$sTemplate = $this->getTemplateRoot() . ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR );
 			if ( $this->loadFileSystemProcessor()->isFile( $sTemplate ) ) {
 				ob_start();
 				include( $sTemplate );
@@ -216,12 +216,12 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @return string
 		 */
 		public function getTemplateRoot() {
-			$sPath = rtrim( $this->sTemplatePath, ICWP_DS );
+			$sPath = rtrim( $this->sTemplatePath, DIRECTORY_SEPARATOR );
 			$sStub = $this->getEngineStub();
 			if ( !preg_match( sprintf( '#%s$#', $sStub ), $sPath ) ) {
-				$sPath = $sPath.ICWP_DS.$sStub;
+				$sPath = $sPath.DIRECTORY_SEPARATOR.$sStub;
 			}
-			return $sPath.ICWP_DS;
+			return $sPath.DIRECTORY_SEPARATOR;
 		}
 
 		/**

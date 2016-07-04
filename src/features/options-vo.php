@@ -561,7 +561,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	private function getConfigFilePath() {
-		return dirname( __FILE__ ) . ICWP_DS . '..' . ICWP_DS . sprintf( 'config' . ICWP_DS . 'feature-%s.php', $this->getOptionsName() );
+		return dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . sprintf( 'config' . DIRECTORY_SEPARATOR . 'feature-%s.php', $this->getOptionsName() );
 	}
 }
 endif;

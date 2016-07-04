@@ -7,7 +7,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @var ICWP_WPSF_Plugin_Controller
 		 */
-		protected $oPluginController;
+		static protected $oPluginController;
 
 		/**
 		 * @var ICWP_WPSF_OptionsVO
@@ -77,7 +77,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			if ( empty( $oPluginController ) ) {
 				throw new Exception();
 			}
-			$this->oPluginController = $oPluginController;
+			else if ( empty( self::$oPluginController ) ) {
+				self::$oPluginController = $oPluginController;
+			}
 
 			if ( isset( $aFeatureProperties['storage_key'] ) ) {
 				$this->sOptionsStoreKey = $aFeatureProperties['storage_key'];
@@ -214,7 +216,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', ICWP_DS, $this->getFeatureSlug() ) ) );
+				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
@@ -238,7 +240,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
-				require_once( dirname(__FILE__).ICWP_DS.'options-vo.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'options-vo.php' );
 				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
 				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
@@ -377,7 +379,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function getResourcesDir( $sSourceFile = '' ) {
-			return $this->getController()->getRootDir().'resources'.ICWP_DS.ltrim( $sSourceFile, ICWP_DS );
+			return $this->getController()->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
 		}
 
 		/**
@@ -658,13 +660,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					}
 					else if ( $sOptionType == 'array' ) {
 
-						if ( empty( $mCurrentOptionVal ) ) {
+						if ( empty( $mCurrentOptionVal ) || !is_array( $mCurrentOptionVal )  ) {
 							$mCurrentOptionVal = '';
 						}
 						else {
 							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
 						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
+						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 2;
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) {
 
@@ -869,7 +871,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						$sOptionValue = md5( $sTempValue );
 					}
 					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
-						$sOptionValue = array_filter( explode( "\n", $sOptionValue ), 'trim' );
+						$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 					}
 					else if ( $sOptionType == 'yubikey_unique_keys' ) { //ip addresses are textareas, where each is separated by newline and are 12 chars long
 						$sOptionValue = $oDp->CleanYubikeyUniqueKeys( $sOptionValue );
@@ -1093,7 +1095,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			}
 			$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
 
-			return $this->renderTemplate( 'notices'.ICWP_DS.'admin-notice-template', $aData );
+			return $this->renderTemplate( 'notices'.DIRECTORY_SEPARATOR.'admin-notice-template', $aData );
 		}
 
 		/**
@@ -1137,8 +1139,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
-		public function getController() {
-			return $this->oPluginController;
+		static public function getController() {
+			return self::$oPluginController;
 		}
 
 		/**

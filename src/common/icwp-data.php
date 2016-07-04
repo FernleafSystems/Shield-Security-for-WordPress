@@ -495,7 +495,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 				return json_decode( $sData );
 			}
 			if ( !class_exists( 'JSON' )  ) {
-				require_once( dirname(__FILE__).ICWP_DS.'json/JSON.php' );
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'json/JSON.php' );
 			}
 			$oJson = new JSON();
 			return @$oJson->unserialize( $sData );
@@ -651,6 +651,19 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			}
 
 			return $aSubjectArray;
+		}
+
+		/**
+		 * Taken from: http://stackoverflow.com/questions/1755144/how-to-validate-domain-name-in-php
+		 * 
+		 * @param string $sDomainName
+		 * @return bool
+		 */
+		public function isValidDomainName( $sDomainName ) {
+			$sDomainName = trim( $sDomainName );
+			return ( preg_match( "/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $sDomainName ) //valid chars check
+				&& preg_match( "/^.{1,253}$/", $sDomainName ) //overall length check
+				&& preg_match( "/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $sDomainName ) );//length of each label
 		}
 
 		/**

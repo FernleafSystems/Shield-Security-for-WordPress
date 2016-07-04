@@ -172,6 +172,9 @@ options:
         slug: 'hack_protect'
         storage_key: 'hack_protect'
       -
+        slug: 'headers'
+        storage_key: 'headers'
+      -
         slug: 'lockdown'
         storage_key: 'lockdown'
       -

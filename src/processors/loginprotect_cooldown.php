@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'loginprotect_base.php' );
+require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_LoginProtect_Base {
 

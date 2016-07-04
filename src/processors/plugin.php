@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
-	require_once( dirname(__FILE__).ICWP_DS.'base_plugin.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_plugin.php' );
 
 	class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
@@ -63,7 +63,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 		public function addPluginBadgeWidget() {
 			$this->loadWpWidgets();
-			require_once( dirname(__FILE__).ICWP_DS.'plugin_badgewidget.php' );
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'plugin_badgewidget.php' );
 			ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getFeatureOptions() );
 			register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
 		}

@@ -2,7 +2,7 @@
 
 if ( !class_exists('ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam') ):
 
-require_once( dirname(__FILE__).ICWP_DS.'basedb.php' );
+require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'basedb.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbProcessor {
 

@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ):
 
-require_once( dirname(__FILE__).ICWP_DS.'base_wpsf.php' );
+require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -176,7 +176,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
-			require_once( dirname(__FILE__).ICWP_DS.'usermanagement_sessions.php' );
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeatureOptions();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );

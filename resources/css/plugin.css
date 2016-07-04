@@ -368,6 +368,9 @@ label input[type=checkbox] {
 #feature-hack_protect .feature-icon:before {
 	content: "\f153";
 }
+#feature-headers .feature-icon:before {
+	content: "\f163";
+}
 #feature-login_protect .feature-icon:before {
 	content: "\f112";
 }
@@ -385,6 +388,9 @@ label input[type=checkbox] {
 }
 #feature-ips .feature-icon:before {
 	content: "\f230";
+}
+#feature-support {
+	display: none;
 }
 #feature-support .feature-icon:before {
 	content: "\f525";
