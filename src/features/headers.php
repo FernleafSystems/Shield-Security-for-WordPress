@@ -21,7 +21,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 
 		protected function doExtraSubmitProcessing() {
 			$aDomains = $this->getOpt( 'xcsp_hosts' );
-			if ( !empty( $aDomains ) ) {
+			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 				$oDP = $this->loadDataProcessor();
 				$aValidDomains = array();
 				foreach ( $aDomains as $sDomain ) {
