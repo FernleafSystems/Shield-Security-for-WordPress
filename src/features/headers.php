@@ -7,10 +7,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 	class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		/**
+		 * @return boolean
+		 */
+		public function getIsContentSecurityPolicyEnabled() {
+			return $this->getOptIs( 'enable_x_content_security_policy', 'Y' );
+		}
+
+		/**
 		 * @return array
 		 */
-		public function getContentSecurityPolicyDomains() {
-			return $this->getOpt( 'x_content_security_policy' );
+		public function getCspHosts() {
+			$aHosts = $this->getOpt( 'xcsp_hosts', array() );
+			if ( empty( $aHosts ) || !is_array( $aHosts ) ) {
+				$aHosts = array();
+			}
+			return $aHosts;
 		}
 
 		protected function doExecuteProcessor() {
@@ -20,16 +31,28 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 		}
 
 		protected function doExtraSubmitProcessing() {
-			$aDomains = $this->getOpt( 'xcsp_hosts' );
+			$aDomains = $this->getCspHosts();
 			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 				$oDP = $this->loadDataProcessor();
 				$aValidDomains = array();
 				foreach ( $aDomains as $sDomain ) {
+					$bValidDomain = false;
 					$sDomain = trim( $sDomain );
+
+					$bHttps = ( strpos( $sDomain, 'https://' ) === 0 );
+					$bHttp = ( strpos( $sDomain, 'http://' ) === 0 );
+					if ( $bHttp || $bHttps ) {
+						$sDomain = preg_replace( '#^http(s)?://#', '', $sDomain );
+					}
 
 					// Special wildcard case
 					if ( $sDomain == '*' ) {
-						$aValidDomains[] = $sDomain;
+						if ( $bHttps ) {
+							$this->setOpt( 'xcsp_https', 'Y' );
+						}
+						else {
+							$bValidDomain = true;
+						}
 					}
 
 					// First we remove the wildcard and test domain, then add it back later.
@@ -39,8 +62,18 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 					}
 
 					if ( !empty ( $sDomain ) && $oDP->isValidDomainName( $sDomain ) ) {
+						$bValidDomain = true;
+					}
+
+					if ( $bValidDomain ) {
 						if ( $bWildCard ) {
-							$sDomain = '*.' . $sDomain;
+							$sDomain = '*.'.$sDomain;
+						}
+						if ( $bHttp ) {
+//							$sDomain = 'http://'.$sDomain; // it seems there's no need to "explicitly" state http://
+						}
+						if ( $bHttps ) {
+							$sDomain = 'https://'.$sDomain;
 						}
 						$aValidDomains[] = $sDomain;
 					}
@@ -159,22 +192,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 
 				case 'xcsp_eval' :
 					$sName = _wpsf__( 'Allow eval()' );
-					$sSummary = _wpsf__( 'Content Security Policy' );
-					$sDescription = _wpsf__( 'Permits the use of Javascript eval().' );
+					$sSummary = _wpsf__( 'Allow Javascript eval()' );
+					$sDescription = _wpsf__( 'Permits the use of Javascript the eval() function.' );
 					break;
 
 				case 'xcsp_https' :
 					$sName = _wpsf__( 'HTTPS' );
-					$sSummary = _wpsf__( 'Content Security Policy' );
-					$sDescription = _wpsf__( 'Allows loading of all content over HTTPS.' );
+					$sSummary = _wpsf__( 'HTTPS Resource Loading' );
+					$sDescription = _wpsf__( 'Allows loading of any content provided over HTTPS.' );
 					break;
 
 				case 'xcsp_hosts' :
 					$sName = _wpsf__( 'Permitted Hosts' );
 					$sSummary = _wpsf__( 'Permitted Hosts and Domains' );
 					$sDescription = _wpsf__( 'You can explicitly state which hosts/domain from which content may be loaded.' )
-						._wpsf__( 'Take great care and test your site since you may block legitimate resources.' )
-						._wpsf__( 'If in-doubt, leave blank or use "*" only.' );
+						. ' '._wpsf__( 'Take great care and test your site as you may block legitimate resources.' )
+						. '<br />- '._wpsf__( 'If in-doubt, leave blank or use "*" only.' )
+						. '<br />- ' . sprintf( _wpsf__( 'Note: %s' ), _wpsf__( 'You can force only HTTPS for a given domain by prefixing it with "https://".' ) );
 					break;
 
 				default:

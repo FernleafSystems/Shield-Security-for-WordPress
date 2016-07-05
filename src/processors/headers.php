@@ -43,9 +43,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 		}
 
 		protected function setContentSecurityPolicyHeader() {
-			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 			$oFO = $this->getFeatureOptions();
-			if ( !$oFO->getOptIs( 'enable_x_content_security_policy', 'Y' ) ) {
+			if ( !$oFO->getIsContentSecurityPolicyEnabled() ) {
 				return;
 			}
 
@@ -53,8 +53,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 
 			$aDefaultSrcDirectives = array();
 
-			if ( true ) {
-			}
 			if ( $oFO->getOptIs( 'xcsp_self', 'Y' ) ) {
 				$aDefaultSrcDirectives[] = "'self'";
 			}
@@ -71,7 +69,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 				$aDefaultSrcDirectives[] = "https:";
 			}
 
-			$aDomains = $oFO->getOpt( 'xcsp_hosts', 'Y' );
+			$aDomains = $oFO->getCspHosts();
 			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 				$aDefaultSrcDirectives[] = implode( " ", $aDomains );
 			}
@@ -81,20 +79,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 		}
 
 		public function addSecurityHeaders() {
-			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 			$oFO = $this->getFeatureOptions();
 
 			$this->setXFrameHeader();
 			$this->setXssProtectionHeader();
 			$this->setContentTypeOptionHeader();
-
-			if ( $oFO->getOptIs( 'enable_x_content_security_policy', 'Y' ) ) {
+			if ( $oFO->getIsContentSecurityPolicyEnabled() ) {
 				$this->setContentSecurityPolicyHeader();
-			}
-
-			$aDomains = $oFO->getContentSecurityPolicyDomains();
-			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
-				header( sprintf( "Content-Security-Policy: default-src 'self' 'unsafe-inline' data: %s", implode( " ", $aDomains ) ) );
 			}
 //
 //			$aDomains = array(
