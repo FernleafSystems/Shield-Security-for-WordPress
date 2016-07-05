@@ -11,14 +11,12 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
-		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		parent::run();
+		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 	}
 
 	/**
 	 * @param bool $fIfDoCheck
-	 *
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $fIfDoCheck ) {
@@ -101,7 +99,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		if ( !empty( $sCurrentStatus ) || !$this->getIsOption('enable_comments_human_spam_filter', 'Y') ) {
 			return;
 		}
-
 		// read the file of spam words
 		$sSpamWords = $this->getSpamBlacklist();
 		if ( empty($sSpamWords) ) {
@@ -117,10 +114,10 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			'ip_address'		=> $sUserIp,
 			'user_agent'		=> $sUserAgent
 		);
-		$aDesiredItemsToCheck = $this->getOption('enable_comments_human_spam_filter_items');
+		$aDesiredItemsToCheck = $this->getOption( 'enable_comments_human_spam_filter_items' );
 		$aItemsToCheck = array();
 		foreach( $aDesiredItemsToCheck as $sKey ) {
-			$aItemsToCheck[$sKey] = $aItemsMap[$sKey];
+			$aItemsToCheck[ $sKey ] = $aItemsMap[ $sKey ];
 		}
 
 		foreach( $aItemsToCheck as $sKey => $sItem ) {
@@ -195,8 +192,11 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				$aWords = explode( "\n", $sRawList );
 				foreach ( $aWords as $nIndex => $sWord ) {
 					$sWord = trim($sWord);
-					if ( empty($sWord) ) {
-						unset( $aWords[$nIndex] );
+					if ( empty( $sWord ) ) {
+						unset( $aWords[ $nIndex ] );
+					}
+					else {
+						$aWords[ $nIndex ] = $sWord;
 					}
 				}
 				$sList = implode( "\n", $aWords );
