@@ -164,7 +164,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 					break;
 
 				case 'xcsp_https' :
-					$sName = _wpsf__( 'HTTPS Only' );
+					$sName = _wpsf__( 'HTTPS' );
 					$sSummary = _wpsf__( 'Content Security Policy' );
 					$sDescription = _wpsf__( 'Allows loading of all content over HTTPS.' );
 					break;
