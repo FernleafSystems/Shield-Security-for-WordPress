@@ -148,7 +148,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function printGoogleAuthenticatorLoginField() {
 		$sHtml =
 			'<p class="shield-google-authenticator-otp">
-				<label for="_%s">%s [%s]<br />
+				<label for="_%s">%s [%s]<br /><span>(Use only if setup on your account)</span><br />
 					<input type="text" name="%s" id="_%s" class="input" value="" autocomplete="off" maxlength="6"
 					onkeyup="this.value=this.value.replace(/[^\d]/g,\'\')" />
 				</label>
