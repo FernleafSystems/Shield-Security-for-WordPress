@@ -82,7 +82,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				case 'section_content_security_policy' :
 					$sTitle = _wpsf__( 'Content Security Policy' );
 					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
 					);
 					$sTitleShort = _wpsf__( 'Content Security Policy' );
@@ -135,13 +135,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				case 'enable_x_content_security_policy' :
 					$sSummary = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Content Security Policy' ) );
 					$sName = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( 'Allows for permission and restriction of all resources loaded on your site.' );
 					break;
 
 				case 'xcsp_self' :
 					$sName = _wpsf__( 'Self' );
 					$sSummary = _wpsf__( "Allow 'self' Directive" );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( "Using 'self' is generally recommended." )
+						._wpsf__( "It essentially means that resources from your own host:protocol are permitted." );
 					break;
 
 				case 'xcsp_inline' :
@@ -153,25 +154,27 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				case 'xcsp_data' :
 					$sName = _wpsf__( 'Embedded Data' );
 					$sSummary = _wpsf__( 'Allow "data:" Directives' );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( 'Allows use of embedded data directives, most commonly used for images and fonts.' );
 					break;
 
 				case 'xcsp_eval' :
 					$sName = _wpsf__( 'Allow eval()' );
 					$sSummary = _wpsf__( 'Content Security Policy' );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( 'Permits the use of Javascript eval().' );
 					break;
 
 				case 'xcsp_https' :
 					$sName = _wpsf__( 'HTTPS Only' );
 					$sSummary = _wpsf__( 'Content Security Policy' );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( 'Allows loading of all content over HTTPS.' );
 					break;
 
 				case 'xcsp_hosts' :
 					$sName = _wpsf__( 'Permitted Hosts' );
 					$sSummary = _wpsf__( 'Permitted Hosts and Domains' );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( 'You can explicitly state which hosts/domain from which content may be loaded.' )
+						._wpsf__( 'Take great care and test your site since you may block legitimate resources.' )
+						._wpsf__( 'If in-doubt, leave blank or use "*" only.' );
 					break;
 
 				default:
