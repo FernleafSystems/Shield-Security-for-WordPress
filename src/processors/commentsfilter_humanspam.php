@@ -195,8 +195,11 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				$aWords = explode( "\n", $sRawList );
 				foreach ( $aWords as $nIndex => $sWord ) {
 					$sWord = trim($sWord);
-					if ( empty($sWord) ) {
-						unset( $aWords[$nIndex] );
+					if ( empty( $sWord ) ) {
+						unset( $aWords[ $nIndex ] );
+					}
+					else {
+						$aWords[ $nIndex ] = $sWord;
 					}
 				}
 				$sList = implode( "\n", $aWords );
