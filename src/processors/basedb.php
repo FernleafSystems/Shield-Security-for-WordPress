@@ -246,7 +246,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		 */
 		public function action_doFeatureProcessorShutdown() {
 			parent::action_doFeatureProcessorShutdown();
-			if ( ( rand( 1, 10 ) % 10 ) == 0 ) {
+			if ( rand( 1, 10 ) === 1 ) {
 				$this->cleanupDatabase();
 			}
 		}
