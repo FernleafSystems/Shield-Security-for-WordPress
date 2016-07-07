@@ -241,6 +241,17 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		}
 
 		/**
+		 * 1 in 10 page loads will clean the databases. This ensures that even if the crons don't run
+		 * correctly, we'll keep it trim.
+		 */
+		public function action_doFeatureProcessorShutdown() {
+			parent::action_doFeatureProcessorShutdown();
+			if ( ( rand( 1, 10 ) % 10 ) == 0 ) {
+				$this->cleanupDatabase();
+			}
+		}
+
+		/**
 		 * @return int
 		 */
 		protected function getAutoExpirePeriod() {
