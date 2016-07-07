@@ -27,6 +27,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 		}
 
 		public function action_doFeatureProcessorShutdown () {
+			parent::action_doFeatureProcessorShutdown();
 			if ( ! $this->getFeatureOptions()->getIsPluginDeleting() ) {
 				$this->commitAuditTrial();
 			}
