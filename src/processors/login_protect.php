@@ -18,11 +18,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 
-		// check for remote posting before anything else.
-		if ( $this->getIsOption( 'enable_prevent_remote_post', 'Y' ) && ( $oWp->getIsLoginRequest() || $oWp->getIsRegisterRequest() ) ) {
-			add_filter( 'authenticate', array( $this, 'checkRemotePostLogin_Filter' ), 9, 2 );
-		}
-
 		// Add GASP checking to the login form.
 		if ( $this->getIsOption( 'enable_login_gasp_check', 'Y' ) ) {
 			$this->getProcessorGasp()->run();

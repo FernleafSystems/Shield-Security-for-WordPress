@@ -1034,6 +1034,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
 
+			$oCon = $this->getController();
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
 			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
@@ -1045,7 +1046,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			if ( empty( $sSubView ) ) {
 				$oWpFs = $this->loadFileSystemProcessor();
 				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
-				if ( $oWpFs->exists( $this->getController()->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
+				if ( $oWpFs->exists( $oCon->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
 					$sSubView = $sFeatureInclude;
 				}
 				else {
@@ -1057,7 +1058,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$aData['strings'] = array_merge( $aData['strings'], $this->getDisplayStrings() );
 			try {
 				$this
-					->loadRenderer( $this->getController()->getPath_Templates() )
+					->loadRenderer( $oCon->getPath_Templates() )
 					->setTemplate( 'features/'.$sSubView )
 					->setRenderVars( $aData )
 					->display();

@@ -50,14 +50,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 		public function doPrePluginOptionsSave() {
 
-			// Prevent incompatibility
-			if ( $this->getOptIs( 'enable_prevent_remote_post', 'Y' ) && $this->getController()->getIsValidAdminArea() ) {
-				$sHttpRef = $this->loadDataProcessor()->FetchServer( 'HTTP_REFERER' );
-				if ( empty( $sHttpRef ) ) {
-					$this->setOpt( 'enable_prevent_remote_post', 'N' );
-				}
-			}
-
 			if ( $this->getIsEmailAuthenticationOptionOn() ) {
 				$this->setOpt( 'enable_email_authentication', 'Y' );
 				$this->setOpt( 'enable_two_factor_auth_by_ip', 'N' );
