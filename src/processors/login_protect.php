@@ -94,41 +94,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User|WP_Error $oUserOrError
-	 * @param string $sUsername
-	 * @return mixed
-	 */
-	public function checkRemotePostLogin_Filter( $oUserOrError, $sUsername ) {
-		$sHttpRef = $this->loadDataProcessor()->FetchServer( 'HTTP_REFERER' );
-
-		if ( !empty( $sHttpRef ) ) {
-			$aHttpRefererParts = parse_url( $sHttpRef );
-			$aHomeUrlParts = parse_url( $this->loadWpFunctionsProcessor()->getHomeUrl() );
-
-			if ( !empty( $aHttpRefererParts['host'] ) && !empty( $aHomeUrlParts['host'] ) && ( $aHttpRefererParts['host'] === $aHomeUrlParts['host'] ) ) {
-				$this->doStatIncrement( 'login.remotepost.success' );
-				return $oUserOrError;
-			}
-		}
-
-		$this->doStatIncrement( 'login.remotepost.fail' );
-		$sAuditMessage = sprintf(
-			_wpsf__( 'Blocked remote %s attempt by user "%s", where HTTP_REFERER was "%s".' ),
-			$this->loadWpFunctionsProcessor()->getIsLoginRequest() ? _wpsf__('login') : _wpsf__('register'),
-			$sUsername,
-			$sHttpRef
-		);
-		$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_block_remote' );
-
-		$this->loadWpFunctionsProcessor()->wpDie(
-			_wpsf__( 'Sorry, you must login directly from within the site.' )
-			.' '._wpsf__( 'Remote login is not supported.' )
-			.'<br /><a href="http://icwp.io/4n" target="_blank">&rarr;'._wpsf__('More Info').'</a>'
-		);
-		return $oUserOrError;
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
