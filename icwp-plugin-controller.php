@@ -229,8 +229,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpPluginsLoaded() {
 		$this->doLoadTextDomain();
 		$this->doRegisterHooks();
-//		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
-//		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ) );
+		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
+		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ), 1000 );
 	}
 
 	/**
