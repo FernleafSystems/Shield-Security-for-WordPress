@@ -143,7 +143,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				if ( !empty( $aPhpReqs['version'] ) ) {
 					$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs['version'] );
 				}
-
 				if ( !empty( $aPhpReqs['functions'] ) && is_array( $aPhpReqs['functions'] )  ) {
 					foreach( $aPhpReqs['functions'] as $sFunction ) {
 						$bMeetsReqs = $bMeetsReqs && function_exists( $sFunction );
