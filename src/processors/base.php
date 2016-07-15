@@ -197,13 +197,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		}
 
 		/**
-		 * @param $sStatKey
-		 */
-		protected function doStatIncrement( $sStatKey ) {
-			$this->getFeatureOptions()->doStatIncrement( $sStatKey );
-		}
-
-		/**
 		 * @return ICWP_WPSF_FeatureHandler_Base
 		 */
 		protected function getFeatureOptions() {

@@ -290,12 +290,20 @@ Use the following filter and return the HTML/Text you wish to display:
 
 == Changelog ==
 
-= 5.3.3 Latest Point Release =
-*Released: 6th July, 2016*
+= 5.4.0 Latest Point Release =
+*Released: 18th July, 2016*
 
-* **(v.3)**  REMOVED:		Option 'Prevent Remote Login' causes more trouble with than it's worth with too many hosting configurations.
-* **(v.3)**  CLEANED:		Removed Twig render code as it was never being used.
-* **(v.3)**  CHANGED:		For websites that don't run WP Crons correctly, added code for automatic database cleaning.
+* **(v.0)**  ADDED:			Private plugin statistic gathering - statistics disply to come.
+* **(v.0)**  REMOVED:		Option 'Prevent Remote Login' causes more trouble with than it's worth with too many hosting configurations.
+* **(v.0)**  CHANGED:		For websites that don't run WP Crons correctly, added code for automatic database cleaning.
+* **(v.0)**  CLEANED:		Removed Twig render code as it was never being used.
+
+= 5.4 Series =
+
+* **(v.0)**  ADDED:			Private plugin statistic gathering - statistics disply to come.
+* **(v.0)**  REMOVED:		Option 'Prevent Remote Login' causes more trouble with than it's worth with too many hosting configurations.
+* **(v.0)**  CHANGED:		For websites that don't run WP Crons correctly, added code for automatic database cleaning.
+* **(v.0)**  CLEANED:		Removed Twig render code as it was never being used.
 
 = 5.3 Series =
 

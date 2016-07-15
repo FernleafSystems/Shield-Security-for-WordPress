@@ -182,6 +182,11 @@ options:
         storage_key: 'ips'
         load_priority: 12
       -
+        slug: 'statistics'
+        storage_key: 'statistics'
+        load_priority: 11
+        hidden: false
+      -
         slug: 'audit_trail'
         storage_key: 'audit_trail'
         load_priority: 11
