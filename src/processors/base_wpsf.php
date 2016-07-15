@@ -12,10 +12,64 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		private $aAuditEntry;
 
 		/**
+		 * @var array
+		 */
+		private $aStatistics;
+
+		/**
 		 * Resets the object values to be re-used anew
 		 */
 		public function init() {
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'wpsf_audit_trail_gather' ), array( $this, 'getAuditEntry' ) );
+			$oFO = $this->getFeatureOptions();
+			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'getAuditEntry' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
+		}
+
+		/**
+		 * A filter used to collect all the stats gathered in the plugin.
+		 *
+		 * @param array $aStats
+		 * @return array
+		 */
+		public function stats_Collect( $aStats ) {
+			if ( !is_array( $aStats ) ) {
+				$aStats = array();
+			}
+			$aThisStats = $this->stats_Get();
+			if ( !empty( $aThisStats ) ) {
+				$aStats[] = $aThisStats;
+			}
+			return $aStats;
+		}
+
+		/**
+		 * @param string $sStatKey
+		 */
+		public function stats_Increment( $sStatKey ) {
+			$aStats = $this->stats_Get();
+			if ( !isset( $aStats[ $sStatKey ] ) ) {
+				$aStats[ $sStatKey ] = 0;
+			}
+			$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
+			$this->aStatistics = $aStats;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function stats_Get() {
+			if ( !isset( $this->aStatistics ) || !is_array( $this->aStatistics ) ) {
+				$this->aStatistics = array();
+			}
+			return $this->aStatistics;
+		}
+
+		/**
+		 * @param $sStatKey
+		 */
+		protected function doStatIncrement( $sStatKey ) {
+			parent::doStatIncrement( $sStatKey );
+			$this->stats_Increment( $sStatKey );
 		}
 
 		/**

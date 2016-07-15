@@ -6,19 +6,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-		public function doPrePluginOptionsSave() { }
-
-		public function displayStatisticsDataViewer() {
-
-			/** @var ICWP_WPSF_Processor_Statistics $oStatics */
-			$oStatics = $this->loadFeatureProcessor();
-
-			$aStatsData = $this->getStatsData();
-			ksort( $aStatsData );
-
-			$this->display( array( 'aStatsData' => $aStatsData ), 'subfeature-statistics_data_viewer.php' );
-		}
-
 		/**
 		 * @return array
 		 */
@@ -95,6 +82,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 			$aOptionsParams['summary'] = $sSummary;
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getStatisticsTableName() {
+			return $this->doPluginPrefix( $this->getDefinition( 'statistics_table_name' ), '_' );
 		}
 	}
 

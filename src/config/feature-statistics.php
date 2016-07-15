@@ -5,7 +5,7 @@ return
 properties:
   slug: 'statistics'
   name: '%s'
-  show_feature_menu_item: true
+  show_feature_menu_item: false
   storage_key: 'statistics' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
 # Options Sections
@@ -13,8 +13,6 @@ sections:
   -
     slug: 'section_enable_plugin_feature_statistics'
     primary: true
-  -
-    slug: 'section_stats_sharing'
   -
     slug: 'section_non_ui'
     hidden: true
@@ -30,21 +28,19 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'enable_stats_sharing'
-    section: 'section_stats_sharing'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-menu_items:
-  -
-    slug: 'statistics_data_viewer'
-    title: '%s'
-    callback: 'displayStatisticsDataViewer'
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  statistics_table_name: 'statistics'
+  statistics_table_columns:
+    - 'id'
+    - 'statkey'
+    - 'tally'
+    - 'created_at'
+    - 'modified_at'
+    - 'deleted_at'
 ",
 		_wpsf__( 'Statistics' ),
 		_wpsf__( 'Summary of the main security actions taken by this plugin' ), //tagline
