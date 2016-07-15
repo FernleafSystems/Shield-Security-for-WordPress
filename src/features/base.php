@@ -143,7 +143,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				if ( !empty( $aPhpReqs['version'] ) ) {
 					$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs['version'] );
 				}
-
 				if ( !empty( $aPhpReqs['functions'] ) && is_array( $aPhpReqs['functions'] )  ) {
 					foreach( $aPhpReqs['functions'] as $sFunction ) {
 						$bMeetsReqs = $bMeetsReqs && function_exists( $sFunction );
@@ -169,7 +168,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$this->importOptions();
 
 			if ( $this->getIsMainFeatureEnabled() ) {
-				if ( $this->doExecutePreProcessor() && !$this->getController()->getIfOverrideOff() ) {
+				if ( $this->doExecutePreProcessor() && !self::getController()->getIfOverrideOff() ) {
 					$this->doExecuteProcessor();
 				}
 			}
@@ -181,7 +180,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function importOptions() {
 			// So we don't poll for the file every page load.
 			if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
-				$aOptions = $this->getController()->getOptionsImportFromFile();
+				$aOptions = self::getController()->getOptionsImportFromFile();
 				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
 					$this->doSaveByPassAdminProtection();
@@ -216,7 +215,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function loadFeatureProcessor() {
 			if ( !isset( $this->oFeatureProcessor ) ) {
-				include_once( $this->getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
+				include_once( self::getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
 				$sClassName = $this->getProcessorClassName();
 				if ( !class_exists( $sClassName, false ) ) {
 					return null;
@@ -231,7 +230,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		protected function getProcessorClassName() {
-			return ucwords( $this->getController()->getOptionStoragePrefix() ).'Processor_'.
+			return ucwords( self::getController()->getOptionStoragePrefix() ).'Processor_'.
 				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
 		}
 
@@ -240,11 +239,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
+				$oCon = self::getController();
 				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'options-vo.php' );
 				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
-				$this->oOptions->setRebuildFromFile( $this->getController()->getIsRebuildOptionsFromFile() );
+				$this->oOptions->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
-				$this->oOptions->setIfLoadOptionsFromStorage( !$this->getController()->getIsResetPlugin() );
+				$this->oOptions->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 			}
 			return $this->oOptions;
 		}
@@ -253,7 +253,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		public function getIsUpgrading() {
-			return $this->getVersion() != $this->getController()->getVersion();
+			return $this->getVersion() != self::getController()->getVersion();
 		}
 
 		/**
@@ -296,7 +296,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getFeatureAdminPageUrl() {
 			$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $this->getFeatureSlug() ) );
-			if ( $this->getController()->getIsWpmsNetworkAdminOnly() ) {
+			if ( self::getController()->getIsWpmsNetworkAdminOnly() ) {
 				$sUrl = network_admin_url( $sUrl );
 			}
 			else {
@@ -310,7 +310,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getEmailHandler() {
 			if ( is_null( self::$oEmailHandler ) ) {
-				self::$oEmailHandler = $this->getController()->loadFeatureHandler( array( 'slug' => 'email' ) );
+				self::$oEmailHandler = self::getController()->loadFeatureHandler( array( 'slug' => 'email' ) );
 			}
 			return self::$oEmailHandler;
 		}
@@ -379,7 +379,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function getResourcesDir( $sSourceFile = '' ) {
-			return $this->getController()->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
+			return self::getController()->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
 		}
 
 		/**
@@ -393,7 +393,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			}
 			if ( $this->getIfShowFeatureMenuItem() && !empty( $sMenuTitleName ) ) {
 
-				$sHumanName = $this->getController()->getHumanName();
+				$sHumanName = self::getController()->getHumanName();
 
 				$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
 				if ( $bMenuHighlighted ) {
@@ -460,7 +460,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		public function hasPluginManageRights() {
-			if ( !current_user_can( $this->getController()->getBasePermissions() ) ) {
+			if ( !current_user_can( self::getController()->getBasePermissions() ) ) {
 				return false;
 			}
 
@@ -531,7 +531,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function getVersion() {
 			$sVersion = $this->getOpt( self::PluginVersionKey );
-			return empty( $sVersion )? $this->getController()->getVersion() : $sVersion;
+			return empty( $sVersion )? self::getController()->getVersion() : $sVersion;
 		}
 
 		/**
@@ -742,8 +742,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 */
 		protected function updateOptionsVersion() {
-			if ( $this->getIsUpgrading() || $this->getController()->getIsRebuildOptionsFromFile() ) {
-				$this->setOpt( self::PluginVersionKey, $this->getController()->getVersion() );
+			if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
+				$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );
 				$this->getOptionsVo()->cleanTransientStorage();
 			}
 		}
@@ -752,7 +752,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * Deletes all the options including direct save.
 		 */
 		public function deletePluginOptions() {
-			if ( apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+			if ( self::getController()->getHasPermissionToManage() ) {
 				$this->getOptionsVo()->doOptionsDelete();
 				$this->bPluginDeleting = true;
 			}
@@ -793,13 +793,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		protected function verifyFormSubmit() {
-			if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+			if ( !self::getController()->getHasPermissionToManage() ) {
 //				TODO: manage how we react to prohibited submissions
 				return false;
 			}
 
 			// Now verify this is really a valid submission.
-			return check_admin_referer( $this->getController()->getPluginPrefix() );
+			return check_admin_referer( self::getController()->getPluginPrefix() );
 		}
 
 		/**
@@ -822,9 +822,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * the admin access restriction feature.
 		 */
 		protected function doSaveByPassAdminProtection() {
-			add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 			$this->savePluginOptions();
-			remove_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 		}
 
 		/**
@@ -923,7 +923,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function doPluginPrefix( $sSuffix = '', $sGlue = '-' ) {
-			return $this->getController()->doPluginPrefix( $sSuffix, $sGlue );
+			return self::getController()->doPluginPrefix( $sSuffix, $sGlue );
 		}
 
 		/**
@@ -931,7 +931,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function getOptionStoragePrefix() {
-			return $this->getController()->getOptionStoragePrefix();
+			return self::getController()->getOptionStoragePrefix();
 		}
 
 		/**
@@ -952,7 +952,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return array
 		 */
 		protected function getBaseDisplayData() {
-			$oCon = $this->getController();
+			$oCon = self::getController();
 			self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 			return array(
 				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
@@ -1000,11 +1000,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		protected function display( $aData = array(), $sSubView = '' ) {
-			$oRndr = $this->loadRenderer( $this->getController()->getPath_Templates());
+			$oRndr = $this->loadRenderer( self::getController()->getPath_Templates());
 
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
+			$bPermissionToView = self::getController()->getHasPermissionToView();
 
 			if ( !$bPermissionToView ) {
 				$sSubView = 'subfeature-access_restricted';
@@ -1034,10 +1034,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
 
-			$oCon = $this->getController();
+			$oCon = self::getController();
 			// Get Base Data
 			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-			$bPermissionToView = apply_filters( $this->doPluginPrefix( 'has_permission_to_view' ), true );
+			$bPermissionToView = $oCon->getHasPermissionToView();
 
 			if ( !$bPermissionToView ) {
 				$sSubView = 'subfeature-access_restricted';
@@ -1110,7 +1110,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			}
 			try {
 				$sOutput = $this
-					->loadRenderer( $this->getController()->getPath_Templates() )
+					->loadRenderer( self::getController()->getPath_Templates() )
 					->setTemplate( $sTemplate )
 					->setRenderVars( $aData )
 					->render();

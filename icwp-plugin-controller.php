@@ -229,8 +229,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpPluginsLoaded() {
 		$this->doLoadTextDomain();
 		$this->doRegisterHooks();
-//		add_filter( $this->doPluginPrefix( 'has_permission_to_view' ), array( $this, 'filter_hasPermissionToView' ) );
-//		add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'filter_hasPermissionToSubmit' ) );
 	}
 
 	/**
@@ -293,6 +291,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getHasPermissionToManage() {
+		if ( apply_filters( $this->doPluginPrefix( 'bypass_permission_to_manage' ), false ) ) {
+			return true;
+		}
+		$bMeetsBasePermissions = is_super_admin() || current_user_can( $this->getBasePermissions() );
+		return $bMeetsBasePermissions && apply_filters( $this->doPluginPrefix( 'has_permission_to_manage' ), true );
+	}
+
+	/**
+	 */
+	public function getHasPermissionToView() {
+		return $this->getHasPermissionToManage(); // TODO: separate view vs manage
+	}
+
+	/**
 	 * @uses die()
 	 */
 	private function downloadOptionsExport() {
@@ -335,6 +350,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
 	 */
 	protected function createPluginMenu() {
 
@@ -726,32 +742,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->loadWpFunctionsProcessor()->getIsCron() ) {
 			return $oPlugins;
 		}
-
 		if ( ! apply_filters( $this->doPluginPrefix( 'hide_plugin_updates' ), false ) ) {
 			return $oPlugins;
 		}
-
 		if ( isset( $oPlugins->response[ $this->getPluginBaseFile() ] ) ) {
 			unset( $oPlugins->response[ $this->getPluginBaseFile() ] );
 		}
 		return $oPlugins;
-	}
-
-	/**
-	 * @param boolean $bHasPermission
-	 * @return boolean
-	 */
-	public function filter_hasPermissionToView( $bHasPermission = true ) {
-		return $this->filter_hasPermissionToSubmit( $bHasPermission );
-	}
-
-	/**
-	 * @param boolean $bHasPermission
-	 * @return boolean
-	 */
-	public function filter_hasPermissionToSubmit( $bHasPermission = true ) {
-		// first a basic admin check
-		return $bHasPermission && is_super_admin() && current_user_can( $this->getBasePermissions() );
 	}
 
 	/**
@@ -1284,9 +1281,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-			add_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 			$this->loadWpFunctionsProcessor()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
-			remove_filter( $this->doPluginPrefix( 'has_permission_to_submit' ), '__return_true' );
+			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 		}
 	}
 

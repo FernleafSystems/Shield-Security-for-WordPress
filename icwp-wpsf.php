@@ -96,7 +96,7 @@ if ( !class_exists( 'ICWP_Wordpress_Simple_Firewall', false ) ):
 			}
 
 			if ( $sPluginFile == $oCon->getPluginBaseFile() ) {
-				if ( !apply_filters( $oCon->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+				if ( !$oCon->getHasPermissionToManage() ) {
 
 					if ( array_key_exists( 'edit', $aActionLinks ) ) {
 						unset( $aActionLinks['edit'] );
