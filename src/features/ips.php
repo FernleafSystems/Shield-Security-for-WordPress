@@ -196,7 +196,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		protected function checkAjaxNonce() {
 
 			$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
-			if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+			if ( !self::getController()->getHasPermissionToManage() ) {
 				$sMessage = _wpsf__( 'You need to authenticate with the plugin Admin Access Protection system.' );
 			}
 			else if ( empty( $sNonce ) ) {
@@ -299,7 +299,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 				case 'transgression_limit' :
 					$sName = _wpsf__( 'Transgression Limit' );
 					$sSummary = _wpsf__( 'Visitor IP address will be Black Listed after X bad actions on your site' );
-					$sDescription = sprintf( _wpsf__( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.' ), $this->getController()->getHumanName() )
+					$sDescription = sprintf( _wpsf__( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.' ), self::getController()->getHumanName() )
 						.'<br />'. _wpsf__( 'When the number of these transgressions exceeds specified limit, they are automatically blocked from accessing the site.' )
 						.'<br />'. sprintf( _wpsf__( 'Set this to "0" to turn off the %s feature.' ), _wpsf__( 'Automatic IP Black List' ) );
 					break;

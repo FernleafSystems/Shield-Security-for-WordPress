@@ -43,7 +43,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 			$aAudits = array();
 			foreach( $aContexts as $sContext ) {
 				$aAuditContext = array();
-				$aAuditContext['title'] = ( $sContext == 'wpsf' ) ? $this->getController()->getHumanName() : _wpsf__( $sContext );
+				$aAuditContext['title'] = ( $sContext == 'wpsf' ) ? self::getController()->getHumanName() : _wpsf__( $sContext );
 
 				$aAuditData = $oAuditTrail->getAuditEntriesForContext( strtolower( $sContext ) );
 				if ( is_array( $aAuditData ) ) {
@@ -143,7 +143,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
 
-			$oCon = $this->getController();
+			$oCon = self::getController();
 
 			$sKey = $aOptionsParams['key'];
 			switch( $sKey ) {

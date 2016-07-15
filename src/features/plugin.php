@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		public function doExtraSubmitProcessing() {
-			$this->loadAdminNoticesProcessor()->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $this->getController()->getHumanName() ) );
+			$this->loadAdminNoticesProcessor()->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()->getHumanName() ) );
 		}
 
 		/**
@@ -74,8 +74,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @param string $sPlugin
 		 */
 		public function onWpHookDeactivatePlugin( $sPlugin ) {
-			if ( strpos( $this->getController()->getRootFile(), $sPlugin ) !== false ) {
-				if ( !apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true ) ) {
+			$oCon = self::getController();
+			if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
+				if ( !$oCon->getHasPermissionToManage() ) {
 					$this->loadWpFunctionsProcessor()->wpDie(
 						_wpsf__( 'Sorry, you do not have permission to disable this plugin.')
 						. _wpsf__( 'You need to authenticate first.' )
@@ -148,7 +149,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				case 'global_enable_plugin_features' :
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
-					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $this->getController()->getHumanName() );
+					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getController()->getHumanName() );
 					break;
 
 				case 'block_send_email_address' :

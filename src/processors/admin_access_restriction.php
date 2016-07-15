@@ -46,7 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		}
 
 		protected function isSecurityAdmin() {
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+			return self::getController()->getHasPermissionToManage();
 		}
 
 		public function restrictAdminUserDelete( $nId ) {
@@ -291,7 +291,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disableThemeManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we don't modify anything
-			$bHasAdminAccess = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+			$bHasAdminAccess = self::getController()->getHasPermissionToManage();
 			if ( $bHasAdminAccess ) {
 				return $aAllCaps;
 			}
@@ -321,7 +321,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disablePostsManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we don't modify anything
-			$bHasAdminAccess = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+			$bHasAdminAccess = self::getController()->getHasPermissionToManage();
 			if ( $bHasAdminAccess ) {
 				return $aAllCaps;
 			}
