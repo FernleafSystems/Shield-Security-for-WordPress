@@ -298,7 +298,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		$bMeetsBasePermissions = is_super_admin() || current_user_can( $this->getBasePermissions() );
-		return $bMeetsBasePermissions && apply_filters( $this->doPluginPrefix( 'has_permission_to_submit' ), true );
+		return $bMeetsBasePermissions && apply_filters( $this->doPluginPrefix( 'has_permission_to_manage' ), true );
 	}
 
 	/**

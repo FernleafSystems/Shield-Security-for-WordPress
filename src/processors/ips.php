@@ -57,7 +57,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			add_action( $oFO->doPluginPrefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
 			add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 ); // 10000 ensures we're at the end
-			add_filter( $oFO->doPluginPrefix( 'has_permission_to_submit' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
+			add_filter( $oFO->doPluginPrefix( 'has_permission_to_manage' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 		}
 
 		public function doBlackMarkIp() {
@@ -325,8 +325,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 */
 		public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
 			if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-				$sIp = $this->human_ip();
-				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $sIp );
+				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $this->human_ip() );
 			}
 			return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
 		}

@@ -16,8 +16,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oWp = $this->loadWpFunctionsProcessor();
 
-			add_filter( $oFO->doPluginPrefix( 'has_permission_to_submit' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
+			add_filter( $oFO->doPluginPrefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 			add_filter( $oFO->doPluginPrefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
+
 			if ( ! $oFO->getIsUpgrading() && ! $oWp->getIsLoginRequest() ) {
 				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 			}
