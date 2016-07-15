@@ -28,7 +28,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			// Now add new entry
 			$aNewData = array();
 			$aNewData[ 'stat_key' ]			= $sStatKey;
-			$aNewData[ 'parent_stat' ]		= $sParentStat;
+			$aNewData[ 'parent_stat_key' ]		= $sParentStat;
 			$aNewData[ 'tally' ]			= $nTally;
 			$aNewData[ 'modified_at' ]		= $this->time();
 			$aNewData[ 'created_at' ]		= $this->time();
@@ -39,16 +39,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 
 		/**
 		 * @param string $sStatKey
+		 * @param string $sParentStat
 		 * @param int $nNewTally
 		 * @return bool|int
 		 */
-		protected function query_updateTallyForStat( $sStatKey, $nNewTally ) {
+		protected function query_updateTallyForStat( $sStatKey, $nNewTally, $sParentStat = '' ) {
 			if ( empty( $sStatKey ) || empty( $nNewTally ) || !is_numeric( $nNewTally ) || $nNewTally < 0 ) {
 				return false;
 			}
 
 			$aCurrentData = array(
-				'stat_key'		=> $sStatKey
+				'stat_key'			=> $sStatKey,
+				'parent_stat_key'	=> $sParentStat,
 			);
 			$aUpdated = array(
 				'tally'			=> $nNewTally,
@@ -59,9 +61,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 
 		/**
 		 * @param string $sStatKey
+		 * @param string $sParentStatKey
 		 * @return array|bool|mixed
 		 */
-		protected function query_getStatData( $sStatKey ) {
+		protected function query_getStatData( $sStatKey, $sParentStatKey = '' ) {
 
 			$sStatKey = esc_sql( $sStatKey ); //just in-case someones tries to get all funky up in it
 			if ( empty( $sStatKey ) ) {
@@ -74,11 +77,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 					FROM `%s`
 				WHERE
 					`stat_key`			= '%s'
+					AND `parent_stat_key`	= '%s'
 					AND `deleted_at`	= '0'
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
-				$sStatKey
+				$sStatKey,
+				$sParentStatKey
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult[0] : array();
@@ -105,7 +110,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$sSqlTables = "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 				stat_key varchar(100) NOT NULL DEFAULT 0,
-				parent_stat varchar(100) NOT NULL DEFAULT '',
+				parent_stat_key varchar(100) NOT NULL DEFAULT '',
 				tally int(11) UNSIGNED NOT NULL DEFAULT 0,
 				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				modified_at int(15) UNSIGNED NOT NULL DEFAULT 0,
@@ -125,12 +130,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			foreach( $aEntries as $aCollection ) {
 				foreach( $aCollection as $sStatKey => $nTally ) {
 
-					$aCurrentData = $this->query_getStatData( $sStatKey );
+					$sParentStatKey = '-';
+					if ( strpos( $sStatKey, ':' ) > 0 ) {
+						list( $sStatKey, $sParentStatKey ) = explode( ':', $sStatKey, 2 );
+					}
+
+					$aCurrentData = $this->query_getStatData( $sStatKey, $sParentStatKey );
 					if ( empty( $aCurrentData ) ) {
-						$this->query_addNewStatEntry( $sStatKey, $nTally );
+						$this->query_addNewStatEntry( $sStatKey, $nTally, $sParentStatKey );
 					}
 					else {
-						$this->query_updateTallyForStat( $sStatKey, $aCurrentData[ 'tally' ] + $nTally );
+						$this->query_updateTallyForStat( $sStatKey, $aCurrentData[ 'tally' ] + $nTally, $sParentStatKey );
 					}
 				}
 			}

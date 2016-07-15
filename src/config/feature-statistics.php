@@ -37,7 +37,7 @@ definitions:
   statistics_table_columns:
     - 'id'
     - 'stat_key'
-    - 'parent_stat'
+    - 'parent_stat_key'
     - 'tally'
     - 'created_at'
     - 'modified_at'
