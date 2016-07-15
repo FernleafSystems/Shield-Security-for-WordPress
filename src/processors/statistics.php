@@ -20,6 +20,9 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 		 * @return bool|int
 		 */
 		protected function query_addNewStatEntry( $sStatKey, $nTally ) {
+			if ( empty( $sStatKey ) || empty( $nTally ) || !is_numeric( $nTally ) || $nTally < 0 ) {
+				return false;
+			}
 
 			// Now add new entry
 			$aNewData = array();
@@ -38,6 +41,10 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 		 * @return bool|int
 		 */
 		protected function query_updateTallyForStat( $sStatKey, $nNewTally ) {
+			if ( empty( $sStatKey ) || empty( $nNewTally ) || !is_numeric( $nNewTally ) || $nNewTally < 0 ) {
+				return false;
+			}
+
 			$aCurrentData = array(
 				'statkey'	=> $sStatKey
 			);
@@ -48,9 +55,16 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 			return $this->updateRowsWhere( $aUpdated, $aCurrentData );
 		}
 
+		/**
+		 * @param string $sStatKey
+		 * @return array|bool|mixed
+		 */
 		protected function query_getStatData( $sStatKey ) {
 
 			$sStatKey = esc_sql( $sStatKey ); //just in-case someones tries to get all funky up in it
+			if ( empty( $sStatKey ) ) {
+				return false;
+			}
 
 			// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
 			$sQuery = "
@@ -115,7 +129,6 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 					else {
 						$this->query_updateTallyForStat( $sStatKey, $aCurrentData[ 'tally' ] + $nTally );
 					}
-					
 				}
 			}
 		}
