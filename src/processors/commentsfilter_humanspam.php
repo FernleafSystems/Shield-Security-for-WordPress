@@ -125,7 +125,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				if ( stripos( $sItem, $sWord ) !== false ) {
 					//mark as spam and exit;
 					$this->doStatIncrement( sprintf( 'spam.human.%s', $sKey ) );
-					$this->doStatHumanSpamWords( $sWord );
 					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
 					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
 
@@ -134,16 +133,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					break 2;
 				}
 			}
-		}
-	}
-
-	/**
-	 * @param $sStatWord
-	 */
-	protected function doStatHumanSpamWords( $sStatWord = '' ) {
-		$this->loadStatsProcessor();
-		if ( !empty( $sStatWord ) ) {
-			ICWP_Stats_WPSF::DoStatIncrementKeyValue( 'spam.human.words', base64_encode( $sStatWord ) );
 		}
 	}
 

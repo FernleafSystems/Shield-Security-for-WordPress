@@ -1130,14 +1130,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @param $sStatKey
-		 */
-		public function doStatIncrement( $sStatKey ) {
-			$this->loadStatsProcessor();
-			ICWP_Stats_WPSF::DoStatIncrement( $sStatKey );
-		}
-
-		/**
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
 		static public function getController() {
