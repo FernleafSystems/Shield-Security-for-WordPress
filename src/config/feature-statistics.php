@@ -36,7 +36,8 @@ definitions:
   statistics_table_name: 'statistics'
   statistics_table_columns:
     - 'id'
-    - 'statkey'
+    - 'stat_key'
+    - 'parent_stat'
     - 'tally'
     - 'created_at'
     - 'modified_at'

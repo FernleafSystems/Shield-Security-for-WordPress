@@ -21,7 +21,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 */
 		public function init() {
 			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'getAuditEntry' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
 		}
 
@@ -36,7 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 				$aStats = array();
 			}
 			$aThisStats = $this->stats_Get();
-			if ( !empty( $aThisStats ) ) {
+			if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
 				$aStats[] = $aThisStats;
 			}
 			return $aStats;
@@ -76,7 +76,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * @param array $aAuditEntries
 		 * @return array
 		 */
-		public function getAuditEntry( $aAuditEntries ) {
+		public function audit_Collect( $aAuditEntries ) {
+			if ( !is_array( $aAuditEntries ) ) {
+				$aAuditEntries = array();
+			}
 			if ( isset( $this->aAuditEntry ) && is_array( $this->aAuditEntry ) ) {
 				$aAuditEntries[] = $this->aAuditEntry;
 			}

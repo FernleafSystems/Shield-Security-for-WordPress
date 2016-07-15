@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
+if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 
 	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'basedb.php' );
 
@@ -17,16 +17,18 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 		/**
 		 * @param string $sStatKey
 		 * @param int $nTally
+		 * @param string $sParentStat
 		 * @return bool|int
 		 */
-		protected function query_addNewStatEntry( $sStatKey, $nTally ) {
+		protected function query_addNewStatEntry( $sStatKey, $nTally, $sParentStat = '' ) {
 			if ( empty( $sStatKey ) || empty( $nTally ) || !is_numeric( $nTally ) || $nTally < 0 ) {
 				return false;
 			}
 
 			// Now add new entry
 			$aNewData = array();
-			$aNewData[ 'statKey' ]			= $sStatKey;
+			$aNewData[ 'stat_key' ]			= $sStatKey;
+			$aNewData[ 'parent_stat' ]		= $sParentStat;
 			$aNewData[ 'tally' ]			= $nTally;
 			$aNewData[ 'modified_at' ]		= $this->time();
 			$aNewData[ 'created_at' ]		= $this->time();
@@ -46,7 +48,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 			}
 
 			$aCurrentData = array(
-				'statkey'	=> $sStatKey
+				'stat_key'		=> $sStatKey
 			);
 			$aUpdated = array(
 				'tally'			=> $nNewTally,
@@ -71,7 +73,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 				SELECT *
 					FROM `%s`
 				WHERE
-					`statkey`			= '%s'
+					`stat_key`			= '%s'
 					AND `deleted_at`	= '0'
 			";
 			$sQuery = sprintf( $sQuery,
@@ -102,7 +104,8 @@ if ( !class_exists('ICWP_WPSF_Processor_Statistics') ):
 		protected function getCreateTableSql() {
 			$sSqlTables = "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				statkey varchar(100) NOT NULL DEFAULT 0,
+				stat_key varchar(100) NOT NULL DEFAULT 0,
+				parent_stat varchar(100) NOT NULL DEFAULT '',
 				tally int(11) UNSIGNED NOT NULL DEFAULT 0,
 				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				modified_at int(15) UNSIGNED NOT NULL DEFAULT 0,
