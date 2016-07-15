@@ -64,6 +64,14 @@ class ICWP_Stats_WPSF {
 			update_option( self::Stats_Key, self::$aStats );
 		}
 	}
+
+	/**
+	 */
+	public static function ClearStats() {
+		if ( !empty(self::$aStats) ) {
+			update_option( self::Stats_Key, array() );
+		}
+	}
 }
 
 endif;

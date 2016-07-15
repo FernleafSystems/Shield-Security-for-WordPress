@@ -7,13 +7,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 	class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		/**
-		 * @return array
-		 */
-		protected function getStatsData() {
-			$this->loadStatsProcessor();
-			return ICWP_Stats_WPSF::GetStatsData();}
-
-		/**
 		 * @param array $aOptionsParams
 		 * @return array
 		 * @throws Exception
