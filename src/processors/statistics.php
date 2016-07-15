@@ -17,6 +17,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) );
 		}
 
+		/**
+		 * Filter for importing the old statistics.
+		 *
+		 * @param $aStats
+		 * @return array
+		 */
 		public function audit_CollectOldStats( $aStats ) {
 			$this->loadStatsProcessor();
 			$aExisting = ICWP_Stats_WPSF::GetStatsData();

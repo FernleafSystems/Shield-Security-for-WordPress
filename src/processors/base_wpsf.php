@@ -69,7 +69,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * @param string $sParentStatKey
 		 */
 		protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? '-' : $sParentStatKey ) );
+			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? $this->getFeatureOptions()->getFeatureSlug() : $sParentStatKey ) );
 		}
 
 		/**
@@ -141,23 +141,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 				return $aAuditMessages;
 			}
 			return isset( $this->aAuditEntry['message'] ) ? $this->aAuditEntry['message'] : array();
-		}
-
-		/**
-		 * @param string $sEvent
-		 * @param int $nCategory
-		 * @param string $sMessage
-		 */
-		public function writeAuditEntry( $sEvent, $nCategory = 1, $sMessage = '' ) {
-			$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			$this->aAuditEntry = array(
-				'created_at' => $this->time(),
-				'wp_username' => empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' ),
-				'context' => 'wpsf',
-				'event' => $sEvent,
-				'category' => $nCategory,
-				'message' => $sMessage
-			);
 		}
 	}
 
