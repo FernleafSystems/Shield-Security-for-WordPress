@@ -65,11 +65,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		}
 
 		/**
-		 * @param $sStatKey
+		 * @param string $sStatKey
+		 * @param string $sParentStatKey
 		 */
-		protected function doStatIncrement( $sStatKey ) {
-			parent::doStatIncrement( $sStatKey );
-			$this->stats_Increment( $sStatKey );
+		protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
+			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? '-' : $sParentStatKey ) );
 		}
 
 		/**
