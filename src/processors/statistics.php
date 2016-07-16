@@ -34,6 +34,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$nTotalCommentSpamBlocked = 0;
 			$nTotalLoginBlocked = 0;
 			$nTotalFirewallBlocked = 0;
+			$nTotalConnectionKilled = 0;
+			$nTotalTransgressions = 0;
 
 			$aSpamCommentKeys = array(
 				'spam.gasp.checkbox',
@@ -66,13 +68,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
 					$nTotalLoginBlocked = $nTotalLoginBlocked + $nTally;
 				}
+				else if ( $sStatKey == 'ip.connection.killed' ) {
+					$nTotalConnectionKilled = $nTally;
+				}
+				else if ( $sStatKey == 'ip.transgression.incremented' ) {
+					$nTotalTransgressions = $nTally;
+				}
 			}
+
+			$aKeyStats = array(
+				'comments' => array( _wpsf__( 'Comment Blocked' ), $nTotalCommentSpamBlocked ),
+				'firewall' => array( _wpsf__( 'Firewall Blocked' ), $nTotalFirewallBlocked ),
+				'login' => array( _wpsf__( 'Login Blocked' ), $nTotalLoginBlocked ),
+				'ip_killed' => array( _wpsf__( 'IP Black Auto-Listed' ), $nTotalConnectionKilled ),
+				'ip_transgressions' => array( _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ),
+			);
 
 			$aDisplayData = array(
 				'aAllStats' => $aAllStats,
-				'nTotalCommentSpamBlocked' => $nTotalCommentSpamBlocked,
-				'nTotalFirewallBlocked' => $nTotalFirewallBlocked,
-				'nTotalLoginBlocked' => $nTotalLoginBlocked,
+				'aKeyStats' => $aKeyStats,
 			);
 			echo $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
 		}

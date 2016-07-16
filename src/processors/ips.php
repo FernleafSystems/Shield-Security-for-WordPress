@@ -231,11 +231,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
-
 			$sIp = $this->human_ip();
-
-			// Manual black list first.
-			$bKill = false;
+			$bKill = false; // Manual black list first.
 
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
@@ -245,6 +242,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			if ( $bKill ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connection was killed.' ), $sIp );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
+				$this->doStatIncrement( 'ip.connection.killed' );
 
 				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 
@@ -288,7 +286,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				return;
 			}
 
-			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
+			$bDoBlackMark = apply_filters( $oFO->doPluginPrefix( 'ip_black_mark' ), false );
 			if ( $bDoBlackMark ) {
 				$this->blackMarkIp( $this->human_ip() );
 			}
@@ -317,6 +315,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				);
 				$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
 			}
+			$this->doStatIncrement( 'ip.transgression.incremented' );
 		}
 
 		/**
