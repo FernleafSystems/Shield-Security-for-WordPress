@@ -77,10 +77,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			}
 
 			$aKeyStats = array(
-				'comments' => array( _wpsf__( 'Comment Blocked' ), $nTotalCommentSpamBlocked ),
-				'firewall' => array( _wpsf__( 'Firewall Blocked' ), $nTotalFirewallBlocked ),
-				'login' => array( _wpsf__( 'Login Blocked' ), $nTotalLoginBlocked ),
-				'ip_killed' => array( _wpsf__( 'IP Black Auto-Listed' ), $nTotalConnectionKilled ),
+				'comments' => array( _wpsf__( 'Comment Blocks' ), $nTotalCommentSpamBlocked ),
+				'firewall' => array( _wpsf__( 'Firewall Blocks' ), $nTotalFirewallBlocked ),
+				'login' => array( _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ),
+				'ip_killed' => array( _wpsf__( 'IP Auto Black-Listed' ), $nTotalConnectionKilled ),
 				'ip_transgressions' => array( _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ),
 			);
 
