@@ -436,6 +436,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 					'*' => array(
 						'verify_sign',
 						'txn_id',
+						'wp_http_referer',
 						'_wp_http_referer',
 						'_wp_original_http_referer',
 						'pwd',
