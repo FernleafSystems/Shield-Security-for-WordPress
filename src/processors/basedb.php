@@ -208,6 +208,20 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		}
 
 		/**
+		 * @param array $aColumns
+		 * @return array
+		 */
+		protected function validateColumnsParameter( $aColumns ) {
+			if ( !empty( $aColumns ) && is_array( $aColumns ) ) {
+				$aColumns = array_intersect( $this->getTableColumnsByDefinition(), $aColumns );
+			}
+			else {
+				$aColumns = array();
+			}
+			return $aColumns;
+		}
+
+		/**
 		 * @return string
 		 */
 		protected function getDbCleanupHookName() {

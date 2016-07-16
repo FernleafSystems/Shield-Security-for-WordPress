@@ -45,7 +45,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		/**
 		 * @param string $sStatKey
 		 */
-		public function stats_Increment( $sStatKey ) {
+		private function stats_Increment( $sStatKey ) {
 			$aStats = $this->stats_Get();
 			if ( !isset( $aStats[ $sStatKey ] ) ) {
 				$aStats[ $sStatKey ] = 0;
@@ -65,6 +65,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		}
 
 		/**
+		 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
+		 *
 		 * @param string $sStatKey
 		 * @param string $sParentStatKey
 		 */

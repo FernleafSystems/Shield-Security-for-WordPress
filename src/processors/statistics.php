@@ -15,6 +15,80 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		public function run() {
 			//temporary:
 			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) );
+			add_action( 'wp_dashboard_setup', array( $this, 'initDashboardWidget' ) );
+		}
+
+		public function initDashboardWidget() {
+			wp_add_dashboard_widget(
+				$this->getFeatureOptions()->doPluginPrefix( 'example_dashboard_widget' ),
+				_wpsf__('Shield Statistics'),
+				array( $this, 'displayStatsSummaryWidget' )
+			);
+		}
+
+		public function displayStatsSummaryWidget() {
+			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			$aAllStats = $this->query_getAllStatData( array( 'stat_key', 'tally' ) );
+			$nTotalCommentSpamBlocked = 0;
+			$nTotalLoginBlocked = 0;
+			$nTotalFirewallBlocked = 0;
+			$nTotalConnectionKilled = 0;
+			$nTotalTransgressions = 0;
+
+			$aSpamCommentKeys = array(
+				'spam.gasp.checkbox',
+				'spam.gasp.token',
+				'spam.gasp.honeypot',
+				'spam.recaptcha.empty',
+				'spam.recaptcha.failed',
+				'spam.human.comment_content',
+				'spam.human.url',
+				'spam.human.author_name',
+				'spam.human.author_email',
+				'spam.human.ip_address',
+				'spam.human.user_agent'
+			);
+			$aLoginFailKeys = array(
+				'login.cooldown.fail',
+				'login.recaptcha.fail',
+				'login.gasp.checkbox.fail',
+				'login.gasp.honeypot.fail',
+			);
+			foreach( $aAllStats as $aStat ) {
+				$sStatKey = $aStat[ 'stat_key' ];
+				$nTally = $aStat[ 'tally' ];
+				if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
+					$nTotalCommentSpamBlocked = $nTotalCommentSpamBlocked + $nTally;
+				}
+				else if ( strpos( $sStatKey, 'firewall.blocked.' ) ) {
+					$nTotalFirewallBlocked = $nTotalFirewallBlocked + $nTally;
+				}
+				else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
+					$nTotalLoginBlocked = $nTotalLoginBlocked + $nTally;
+				}
+				else if ( $sStatKey == 'ip.connection.killed' ) {
+					$nTotalConnectionKilled = $nTally;
+				}
+				else if ( $sStatKey == 'ip.transgression.incremented' ) {
+					$nTotalTransgressions = $nTally;
+				}
+			}
+
+			$aKeyStats = array(
+				'comments' => array( _wpsf__( 'Comment Blocked' ), $nTotalCommentSpamBlocked ),
+				'firewall' => array( _wpsf__( 'Firewall Blocked' ), $nTotalFirewallBlocked ),
+				'login' => array( _wpsf__( 'Login Blocked' ), $nTotalLoginBlocked ),
+				'ip_killed' => array( _wpsf__( 'IP Black Auto-Listed' ), $nTotalConnectionKilled ),
+				'ip_transgressions' => array( _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ),
+			);
+
+			$aDisplayData = array(
+				'aAllStats' => $aAllStats,
+				'aKeyStats' => $aKeyStats,
+			);
+			echo $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
 		}
 
 		/**
@@ -56,7 +130,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			// Now add new entry
 			$aNewData = array();
 			$aNewData[ 'stat_key' ]			= $sStatKey;
-			$aNewData[ 'parent_stat_key' ]		= $sParentStat;
+			$aNewData[ 'parent_stat_key' ]	= $sParentStat;
 			$aNewData[ 'tally' ]			= $nTally;
 			$aNewData[ 'modified_at' ]		= $this->time();
 			$aNewData[ 'created_at' ]		= $this->time();
@@ -115,6 +189,30 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			);
 			$mResult = $this->selectCustom( $sQuery );
 			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult[0] : array();
+		}
+
+		/**
+		 * @param array $aColumns Leave empty to select all (*) columns
+		 * @return array
+		 */
+		protected function query_getAllStatData( $aColumns = array() ) {
+
+			// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
+			$sQuery = "
+				SELECT %s
+					FROM `%s`
+				WHERE
+					`deleted_at`	= 0
+			";
+			$aColumns = $this->validateColumnsParameter( $aColumns );
+			$sSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
+
+			$sQuery = sprintf( $sQuery,
+				$sSelection,
+				$this->getTableName()
+			);
+			$mResult = $this->selectCustom( $sQuery );
+			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult : array();
 		}
 
 		public function action_doFeatureProcessorShutdown () {
