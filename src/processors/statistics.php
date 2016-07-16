@@ -30,8 +30,49 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 
+			$aAllStats = $this->query_getAllStatData( array( 'stat_key', 'tally' ) );
+			$nTotalCommentSpamBlocked = 0;
+			$nTotalLoginBlocked = 0;
+			$nTotalFirewallBlocked = 0;
+
+			$aSpamCommentKeys = array(
+				'spam.gasp.checkbox',
+				'spam.gasp.token',
+				'spam.gasp.honeypot',
+				'spam.recaptcha.empty',
+				'spam.recaptcha.failed',
+				'spam.human.comment_content',
+				'spam.human.url',
+				'spam.human.author_name',
+				'spam.human.author_email',
+				'spam.human.ip_address',
+				'spam.human.user_agent'
+			);
+			$aLoginFailKeys = array(
+				'login.cooldown.fail',
+				'login.recaptcha.fail',
+				'login.gasp.checkbox.fail',
+				'login.gasp.honeypot.fail',
+			);
+			foreach( $aAllStats as $aStat ) {
+				$sStatKey = $aStat[ 'stat_key' ];
+				$nTally = $aStat[ 'tally' ];
+				if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
+					$nTotalCommentSpamBlocked = $nTotalCommentSpamBlocked + $nTally;
+				}
+				else if ( strpos( $sStatKey, 'firewall.blocked.' ) ) {
+					$nTotalFirewallBlocked = $nTotalFirewallBlocked + $nTally;
+				}
+				else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
+					$nTotalLoginBlocked = $nTotalLoginBlocked + $nTally;
+				}
+			}
+
 			$aDisplayData = array(
-				'aAllStats' => $this->query_getAllStatData( array( 'stat_key', 'tally' ) )
+				'aAllStats' => $aAllStats,
+				'nTotalCommentSpamBlocked' => $nTotalCommentSpamBlocked,
+				'nTotalFirewallBlocked' => $nTotalFirewallBlocked,
+				'nTotalLoginBlocked' => $nTotalLoginBlocked,
 			);
 			echo $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
 		}
