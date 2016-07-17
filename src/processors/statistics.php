@@ -253,6 +253,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				}
 			}
 		}
+
+		/**
+		 */
+		public function deleteTable() { } //override and do not delete
 	}
 
 endif;
