@@ -13,20 +13,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		public function run() {
-			//temporary:
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) );
-			add_action( 'wp_dashboard_setup', array( $this, 'initDashboardWidget' ) );
+			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
+			$oFO = $this->getFeatureOptions();
+			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) ); //temporary
+			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'displayStatsSummaryWidget' ) );
 		}
 
-		public function initDashboardWidget() {
-			wp_add_dashboard_widget(
-				$this->getFeatureOptions()->doPluginPrefix( 'example_dashboard_widget' ),
-				_wpsf__('Shield Statistics'),
-				array( $this, 'displayStatsSummaryWidget' )
-			);
-		}
-
-		public function displayStatsSummaryWidget() {
+		public function displayStatsSummaryWidget( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 
@@ -88,7 +81,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				'aAllStats' => $aAllStats,
 				'aKeyStats' => $aKeyStats,
 			);
-			echo $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
+
+			$aContent[] = $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
+			return $aContent;
 		}
 
 		/**
