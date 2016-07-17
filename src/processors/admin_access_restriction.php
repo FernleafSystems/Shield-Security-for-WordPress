@@ -224,6 +224,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			if ( !$this->isSecurityAdmin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Attempt to save/update option "%s" was blocked.'), $sOption );
 //			    $this->addToAuditEntry( $sAuditMessage, 3, 'admin_access_option_block' );
+				$this->doStatIncrement( 'option.save.blocked' ); // TODO: Display stats
 				return $mOldValue;
 			}
 

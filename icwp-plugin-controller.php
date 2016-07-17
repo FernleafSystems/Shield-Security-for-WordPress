@@ -264,6 +264,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
+		if ( $this->getPluginSpec_Property( 'show_dashboard_widget' ) === true ) {
+			add_action( 'wp_dashboard_setup', array( $this, 'onWpDashboardSetup' ) );
+		}
 		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminCss' ), 99 );
 		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminJs' ), 99 );
 	}
@@ -288,6 +291,22 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpAdminMenu() {
 		return ( $this->getIsValidAdminArea() ? $this->createPluginMenu() : true );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function onWpDashboardSetup() {
+		wp_add_dashboard_widget(
+			$this->doPluginPrefix( 'dashboard_widget' ),
+			apply_filters( $this->doPluginPrefix( 'dashboard_widget_title' ), $this->getHumanName() ),
+			array( $this, 'displayDashboardWidget' )
+		);
+	}
+
+	public function displayDashboardWidget() {
+		$aContent = apply_filters( $this->doPluginPrefix( 'dashboard_widget_content' ), array() );
+		echo implode( '', $aContent );
 	}
 
 	/**

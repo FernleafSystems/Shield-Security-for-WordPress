@@ -86,15 +86,32 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		/**
 		 * Returns all active, non-deleted rows
 		 *
-		 * @return array|boolean (always an associative array format)
+		 * @return array
 		 */
-		public function selectAllRows() {
-			$sQuery = sprintf(
-				"SELECT * FROM `%s` %s",
+		public function selectAll() {
+			return $this->query_selectAll();
+		}
+
+		/**
+		 * @param array $aColumns Leave empty to select all (*) columns
+		 * @param bool  $bExcludeDeletedRows
+		 * @return array
+		 */
+		protected function query_selectAll( $aColumns = array(), $bExcludeDeletedRows = true ) {
+
+			// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
+			$sQuery = "SELECT %s FROM `%s` %s";
+
+			$aColumns = $this->validateColumnsParameter( $aColumns );
+			$sColumnsSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
+
+			$sQuery = sprintf( $sQuery,
+				$sColumnsSelection,
 				$this->getTableName(),
-				$this->getHasColumn( 'deleted_at' ) ? "WHERE `deleted_at` = '0'" : ''
+				( $bExcludeDeletedRows && $this->getHasColumn( 'deleted_at' ) ) ? "WHERE `deleted_at` = 0" : ''
 			);
-			return $this->selectCustom( $sQuery );
+			$mResult = $this->selectCustom( $sQuery );
+			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult : array();
 		}
 
 		/**
@@ -199,7 +216,6 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 		/**
 		 * @param string $sColumnName
-		 *
 		 * @return bool
 		 */
 		protected function getHasColumn( $sColumnName ) {

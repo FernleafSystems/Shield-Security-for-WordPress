@@ -1,5 +1,5 @@
-
-<table style="width: 100%;">
+<h4><?php echo $sHeading;?></h4>
+<table id="tableShieldStatisticsWidget">
 	<?php foreach( $aKeyStats as $sKey => $aKeyStat ) : ?>
 		<tr>
 			<td style="text-align: left">

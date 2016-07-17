@@ -1,7 +1,7 @@
 <?php
 return "---
 properties:
-  version: '5.3.2'
+  version: '5.4.0'
   slug_parent: 'icwp'
   slug_plugin: 'wpsf'
   human_name: 'Shield'
@@ -10,6 +10,7 @@ properties:
   base_permissions: 'manage_options'
   wpms_network_admin_only: true
   logging_enabled: true
+  show_dashboard_widget: true
   autoupdate: 'pass' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
 
 requirements:
