@@ -127,3 +127,12 @@ tr.icwp-plugin-vulnerability dd {
 .wp-submenu-wrap a .icwp_highlighted {
 	color: yellow;
 }
+
+#icwp-wpsf-dashboard_widget {
+}
+#tableShieldStatisticsWidget {
+	background-color: rgba(0, 0, 0, 0.02);
+	border: 1px solid #eeeeee;
+	padding: 5px 10px;
+	width: 100%;
+}

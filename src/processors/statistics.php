@@ -16,10 +16,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) ); //temporary
-			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'displayStatsSummaryWidget' ) );
+			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
-		public function displayStatsSummaryWidget( $aContent ) {
+		public function gatherStatsSummaryWidgetContent( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 
@@ -78,11 +78,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			);
 
 			$aDisplayData = array(
+				'sHeading' => _wpsf__('Shield Statistics'),
 				'aAllStats' => $aAllStats,
 				'aKeyStats' => $aKeyStats,
 			);
 
-			$aContent[] = $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
+			if ( !is_array( $aContent ) ) {
+				$aContent = array();
+			}
+			$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_statistics.php', $aDisplayData );
 			return $aContent;
 		}
 

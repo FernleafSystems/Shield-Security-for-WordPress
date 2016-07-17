@@ -24,6 +24,31 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( $this->getController()->getIsValidAdminArea() ) {
 				$this->maintainPluginLoadPosition();
 			}
+
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
+		}
+
+		/**
+		 * @param array $aContent
+		 * @return array
+		 */
+		public function gatherPluginWidgetContent( $aContent ) {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$oCon = $this->getController();
+
+			$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(), sprintf( '<a href="%s">iControlWP</a>', 'http://icwp.io/7f' )  );
+			$aDisplayData = array(
+				'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
+				'sFooter' => $sFooter,
+				'sIpAddress' =>	sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() )
+			);
+
+			if ( !is_array( $aContent ) ) {
+				$aContent = array();
+			}
+			$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
+			return $aContent;
 		}
 
 		protected function toggleForceOff() {
