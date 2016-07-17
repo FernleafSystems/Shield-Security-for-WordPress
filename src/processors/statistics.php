@@ -26,9 +26,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$aAllStats = $this->getAllTallys();
 			$nTotalCommentSpamBlocked = 0;
 			$nTotalLoginBlocked = 0;
+			$nTotalLoginVerified = 0;
 			$nTotalFirewallBlocked = 0;
 			$nTotalConnectionKilled = 0;
 			$nTotalTransgressions = 0;
+			$nTotalUserSessionsStarted = 0;
+			$nTotalFilesReplaced = 0;
 
 			$aSpamCommentKeys = array(
 				'spam.gasp.checkbox',
@@ -48,6 +51,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				'login.recaptcha.fail',
 				'login.gasp.checkbox.fail',
 				'login.gasp.honeypot.fail',
+				'login.googleauthenticator.fail',
+				'login.rename.fail',
+			);
+			$aLoginVerifiedKeys = array(
+				'login.googleauthenticator.verified',
+				'login.recaptcha.verified',
+				'login.twofactor.verified'
 			);
 			foreach( $aAllStats as $aStat ) {
 				$sStatKey = $aStat[ 'stat_key' ];
@@ -67,12 +77,24 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				else if ( $sStatKey == 'ip.transgression.incremented' ) {
 					$nTotalTransgressions = $nTally;
 				}
+				else if ( $sStatKey == 'user.session.start' ) {
+					$nTotalUserSessionsStarted = $nTally;
+				}
+				else if ( $sStatKey == 'file.corechecksum.replaced' ) {
+					$nTotalUserSessionsStarted = $nTally;
+				}
+				else if ( in_array( $sStatKey, $aLoginVerifiedKeys ) ) {
+					$nTotalLoginVerified = $nTotalLoginVerified + $nTally;
+				}
 			}
 
 			$aKeyStats = array(
 				'comments' => array( _wpsf__( 'Comment Blocks' ), $nTotalCommentSpamBlocked ),
 				'firewall' => array( _wpsf__( 'Firewall Blocks' ), $nTotalFirewallBlocked ),
-				'login' => array( _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ),
+				'login_fail' => array( _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ),
+				'login_verified' => array( _wpsf__( 'Login Verified' ), $nTotalLoginVerified ),
+				'session_start' => array( _wpsf__( 'User Sessions' ), $nTotalUserSessionsStarted ),
+//				'file_replaced' => array( _wpsf__( 'Files Replaced' ), $nTotalFilesReplaced ),
 				'ip_killed' => array( _wpsf__( 'IP Auto Black-Listed' ), $nTotalConnectionKilled ),
 				'ip_transgressions' => array( _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ),
 			);
