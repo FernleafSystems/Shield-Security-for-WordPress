@@ -30,7 +30,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$aAllStats = $this->query_getAllStatData( array( 'stat_key', 'tally' ) );
+			$aAllStats = $this->getAllTallys();
 			$nTotalCommentSpamBlocked = 0;
 			$nTotalLoginBlocked = 0;
 			$nTotalFirewallBlocked = 0;
@@ -178,9 +178,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				SELECT *
 					FROM `%s`
 				WHERE
-					`stat_key`			= '%s'
+					`stat_key`				= '%s'
 					AND `parent_stat_key`	= '%s'
-					AND `deleted_at`	= '0'
+					AND `deleted_at`		= 0
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
@@ -192,27 +192,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		/**
-		 * @param array $aColumns Leave empty to select all (*) columns
 		 * @return array
 		 */
-		protected function query_getAllStatData( $aColumns = array() ) {
-
-			// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
-			$sQuery = "
-				SELECT %s
-					FROM `%s`
-				WHERE
-					`deleted_at`	= 0
-			";
-			$aColumns = $this->validateColumnsParameter( $aColumns );
-			$sSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
-
-			$sQuery = sprintf( $sQuery,
-				$sSelection,
-				$this->getTableName()
-			);
-			$mResult = $this->selectCustom( $sQuery );
-			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult : array();
+		protected function getAllTallys() {
+			return $this->query_selectAll( array( 'stat_key', 'tally' ) );
 		}
 
 		public function action_doFeatureProcessorShutdown () {
