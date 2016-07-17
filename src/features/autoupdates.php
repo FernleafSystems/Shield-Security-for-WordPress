@@ -19,6 +19,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 		 * @throws Exception
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
+			$oCon = self::getController();
 
 			$sSectionSlug = $aOptionsParams['section_slug'];
 			switch( $sSectionSlug ) {
@@ -44,7 +45,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 				case 'section_automatic_plugin_self_update' :
 					$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
 					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), $this->getController()->getHumanName() ) ),
+						sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), $oCon->getHumanName() ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this option turned on.' ) )
 					);
 					$sTitleShort = _wpsf__( 'Self-Update' );
@@ -82,6 +83,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 		 * @throws Exception
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
+			$oCon = self::getController();
 
 			$sKey = $aOptionsParams['key'];
 			switch( $sKey ) {
@@ -101,7 +103,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 				case 'autoupdate_plugin_self' :
 					$sName = _wpsf__( 'Auto Update Plugin' );
 					$sSummary = _wpsf__( 'Always Automatically Update This Plugin' );
-					$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), $this->getController()->getHumanName() );
+					$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), $oCon->getHumanName() );
 					break;
 
 				case 'autoupdate_core' :

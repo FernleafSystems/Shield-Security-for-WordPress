@@ -97,8 +97,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 
 		$sLabel = _wpsf__( "I'm a human." );
 		$sAlert = _wpsf__( "Please check the box to show us you're a human." );
-	
-		$sUniqElem = 'icwp_wpsf_login_p'.uniqid();
+
+		$sUniqId = uniqid();
+		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
 		
 		$sStyles = '
 			<style>
@@ -118,7 +119,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	
 		$sHtml =
 			$sStyles.
-			'<p id="'.$sUniqElem.'"></p>
+			'<p id="'.$sUniqElem.'" class="icwpImHuman_'.$sUniqId.'"></p>
 			<script type="text/javascript">
 				var icwp_wpsf_login_p		= document.getElementById("'.$sUniqElem.'");
 				var icwp_wpsf_login_cb		= document.createElement("input");

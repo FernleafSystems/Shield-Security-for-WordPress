@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		/**
 		 */
 		public function deleteTable() {
-			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true ) && $this->getTableExists() ) {
+			if ( self::getController()->getHasPermissionToManage() && $this->getTableExists() ) {
 				$this->deleteCleanupCron();
 				$this->loadDbProcessor()->doDropTable( $this->getTableName() );
 			}
@@ -86,15 +86,32 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		/**
 		 * Returns all active, non-deleted rows
 		 *
-		 * @return array|boolean (always an associative array format)
+		 * @return array
 		 */
-		public function selectAllRows() {
-			$sQuery = sprintf(
-				"SELECT * FROM `%s` %s",
+		public function selectAll() {
+			return $this->query_selectAll();
+		}
+
+		/**
+		 * @param array $aColumns Leave empty to select all (*) columns
+		 * @param bool  $bExcludeDeletedRows
+		 * @return array
+		 */
+		protected function query_selectAll( $aColumns = array(), $bExcludeDeletedRows = true ) {
+
+			// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
+			$sQuery = "SELECT %s FROM `%s` %s";
+
+			$aColumns = $this->validateColumnsParameter( $aColumns );
+			$sColumnsSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
+
+			$sQuery = sprintf( $sQuery,
+				$sColumnsSelection,
 				$this->getTableName(),
-				$this->getHasColumn( 'deleted_at' ) ? "WHERE `deleted_at` = '0'" : ''
+				( $bExcludeDeletedRows && $this->getHasColumn( 'deleted_at' ) ) ? "WHERE `deleted_at` = 0" : ''
 			);
-			return $this->selectCustom( $sQuery );
+			$mResult = $this->selectCustom( $sQuery );
+			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult : array();
 		}
 
 		/**
@@ -199,12 +216,25 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 		/**
 		 * @param string $sColumnName
-		 *
 		 * @return bool
 		 */
 		protected function getHasColumn( $sColumnName ) {
 			$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 			return in_array( $sColumnName, $aColumnsByDefinition );
+		}
+
+		/**
+		 * @param array $aColumns
+		 * @return array
+		 */
+		protected function validateColumnsParameter( $aColumns ) {
+			if ( !empty( $aColumns ) && is_array( $aColumns ) ) {
+				$aColumns = array_intersect( $this->getTableColumnsByDefinition(), $aColumns );
+			}
+			else {
+				$aColumns = array();
+			}
+			return $aColumns;
 		}
 
 		/**
@@ -238,6 +268,17 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 			$this->bTableExists = $this->loadDbProcessor()->getIfTableExists( $this->getTableName() );
 			return $this->bTableExists;
+		}
+
+		/**
+		 * 1 in 10 page loads will clean the databases. This ensures that even if the crons don't run
+		 * correctly, we'll keep it trim.
+		 */
+		public function action_doFeatureProcessorShutdown() {
+			parent::action_doFeatureProcessorShutdown();
+			if ( rand( 1, 10 ) === 1 ) {
+				$this->cleanupDatabase();
+			}
 		}
 
 		/**

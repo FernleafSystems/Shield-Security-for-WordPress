@@ -35,7 +35,7 @@ options:
     key: 'audit_trail_auto_clean'
     section: 'section_audit_trail_options'
     transferable: true
-    default: 30
+    default: 14
     type: 'integer'
     link_info: 'http://icwp.io/5p'
     link_blog: ''

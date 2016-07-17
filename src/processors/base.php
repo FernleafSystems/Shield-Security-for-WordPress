@@ -76,7 +76,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 			return true;
 		}
 
-		public function action_doFeatureProcessorShutdown() { }
+		public function action_doFeatureProcessorShutdown() {}
 
 		/**
 		 * Resets the object values to be re-used anew
@@ -194,13 +194,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 */
 		public function getEmailProcessor() {
 			return $this->getFeatureOptions()->getEmailProcessor();
-		}
-
-		/**
-		 * @param $sStatKey
-		 */
-		protected function doStatIncrement( $sStatKey ) {
-			$this->getFeatureOptions()->doStatIncrement( $sStatKey );
 		}
 
 		/**

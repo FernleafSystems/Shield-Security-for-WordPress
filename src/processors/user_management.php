@@ -143,29 +143,54 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 
-		$fIsAdministrator = isset( $oUser->caps['administrator'] ) && $oUser->caps['administrator'];
+		$aUserCapToRolesMap = array(
+			'network_admin' => 'manage_network',
+			'administrator' => 'manage_options',
+			'editor' => 'edit_pages',
+			'author' => 'publish_posts',
+			'contributor' => 'delete_posts',
+			'subscriber' => 'read',
+		);
 
-		if ( !$fIsAdministrator ) {
+		$sRoleToCheck = strtolower( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'login-notification-email-role' ), 'network_admin' ) );
+		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
+			$sRoleToCheck = 'administrator';
+		}
+		$sHumanName = ucwords( str_replace( '_', ' ', $sRoleToCheck ) ).'+';
+
+		$bIsUserSignificantEnough = false;
+		foreach( $aUserCapToRolesMap as $sRole => $sCap ) {
+			if ( isset( $oUser->allcaps[ $sCap ] ) && $oUser->allcaps[ $sCap ] ) {
+				$bIsUserSignificantEnough = true;
+			}
+			if ( $sRoleToCheck == $sRole ) {
+				break; // we've hit our role limit.
+			}
+		}
+		if ( !$bIsUserSignificantEnough ) {
 			return false;
 		}
 
 		$oDp = $this->loadDataProcessor();
 		$oEmailer = $this->getFeatureOptions()->getEmailProcessor();
-
 		$sHomeUrl = $this->loadWpFunctionsProcessor()->getHomeUrl();
 
 		$aMessage = array(
-			sprintf( _wpsf__( 'As requested, %s is notifying you of an administrator login to a WordPress site that you manage.' ), $this->getController()->getHumanName() ),
+			sprintf( _wpsf__( 'As requested, %s is notifying you of %s login to a WordPress site that you manage.' ),
+				$this->getController()->getHumanName(),
+				$sHumanName
+			),
 			_wpsf__( 'Details for this user are below:' ),
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $sHomeUrl ),
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
+			'- '.sprintf( _wpsf__( 'User Email: %s' ), $oUser->get( 'user_email' ) ),
 			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $oDp->getVisitorIpAddress( true ) ),
 			_wpsf__( 'Thanks.' )
 		);
 
 		$bResult = $oEmailer->sendEmailTo(
 			$this->getOption( 'enable_admin_login_email_notification' ),
-			sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( 'An Administrator Just Logged Into %s' ), $sHomeUrl ) ),
+			sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
 			$aMessage
 		);
 		return $bResult;

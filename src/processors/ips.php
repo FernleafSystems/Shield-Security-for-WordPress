@@ -57,6 +57,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			add_action( $oFO->doPluginPrefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
 			add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 ); // 10000 ensures we're at the end
+			add_filter( $oFO->doPluginPrefix( 'has_permission_to_manage' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 		}
 
 		public function doBlackMarkIp() {
@@ -230,11 +231,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 			$oFO = $this->getFeatureOptions();
-
 			$sIp = $this->human_ip();
-
-			// Manual black list first.
-			$bKill = false;
+			$bKill = false; // Manual black list first.
 
 			// now try auto black list
 			if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
@@ -244,6 +242,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			if ( $bKill ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connection was killed.' ), $sIp );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
+				$this->doStatIncrement( 'ip.connection.killed' );
 
 				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 
@@ -287,7 +286,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				return;
 			}
 
-			$bDoBlackMark = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), false );
+			$bDoBlackMark = apply_filters( $oFO->doPluginPrefix( 'ip_black_mark' ), false );
 			if ( $bDoBlackMark ) {
 				$this->blackMarkIp( $this->human_ip() );
 			}
@@ -316,6 +315,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				);
 				$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
 			}
+			$this->doStatIncrement( 'ip.transgression.incremented' );
 		}
 
 		/**
@@ -324,8 +324,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 */
 		public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
 			if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-				$sIp = $this->human_ip();
-				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $sIp );
+				$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $this->human_ip() );
 			}
 			return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
 		}

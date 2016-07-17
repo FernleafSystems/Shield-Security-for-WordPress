@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		$oFO = $this->getFeatureOptions();
 
 		if ( !$oFO->getIsCustomLoginPathEnabled() || $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
-			return false;
+			return;
 		}
 
 		// Loads the wp-login.php if the correct URL is loaded
@@ -31,7 +31,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		add_filter( 'wp_redirect', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 
 		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) ) ;
-		return true;
 	}
 
 	/**
@@ -188,6 +187,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * Will by default send a 404 response screen. Has a filter to specify redirect URL.
 	 */
 	protected function doWpLoginFailedRedirect404() {
+
+		$this->doStatIncrement( 'login.rename.fail' );
+
 		$sRedirectUrl = apply_filters( 'icwp_shield_renamewplogin_redirect_url', false );
 		if ( !empty( $sRedirectUrl ) ) {
 			$sRedirectUrl = esc_url( $sRedirectUrl );

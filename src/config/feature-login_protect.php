@@ -143,14 +143,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'enable_prevent_remote_post'
-    section: 'section_brute_force_login_protection'
-    transferable: true
-    default: 'Y'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/4n'
-    link_blog: ''
-  -
     key: 'enable_yubikey'
     section: 'section_yubikey_authentication'
     transferable: true
