@@ -62,7 +62,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
 					$nTotalCommentSpamBlocked = $nTotalCommentSpamBlocked + $nTally;
 				}
-				else if ( strpos( $sStatKey, 'firewall.blocked.' ) ) {
+				else if ( strpos( $sStatKey, 'firewall.blocked.' ) !== false ) {
 					$nTotalFirewallBlocked = $nTotalFirewallBlocked + $nTally;
 				}
 				else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
