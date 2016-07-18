@@ -13,29 +13,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		public function run() {
-			//temporary:
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) );
-			add_action( 'wp_dashboard_setup', array( $this, 'initDashboardWidget' ) );
+			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
+			$oFO = $this->getFeatureOptions();
+			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) ); //temporary
+			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
-		public function initDashboardWidget() {
-			wp_add_dashboard_widget(
-				$this->getFeatureOptions()->doPluginPrefix( 'example_dashboard_widget' ),
-				_wpsf__('Shield Statistics'),
-				array( $this, 'displayStatsSummaryWidget' )
-			);
-		}
-
-		public function displayStatsSummaryWidget() {
+		public function gatherStatsSummaryWidgetContent( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$aAllStats = $this->query_getAllStatData( array( 'stat_key', 'tally' ) );
+			$aAllStats = $this->getAllTallys();
 			$nTotalCommentSpamBlocked = 0;
 			$nTotalLoginBlocked = 0;
+			$nTotalLoginVerified = 0;
 			$nTotalFirewallBlocked = 0;
 			$nTotalConnectionKilled = 0;
 			$nTotalTransgressions = 0;
+			$nTotalUserSessionsStarted = 0;
+			$nTotalFilesReplaced = 0;
 
 			$aSpamCommentKeys = array(
 				'spam.gasp.checkbox',
@@ -55,6 +51,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				'login.recaptcha.fail',
 				'login.gasp.checkbox.fail',
 				'login.gasp.honeypot.fail',
+				'login.googleauthenticator.fail',
+				'login.rename.fail',
+			);
+			$aLoginVerifiedKeys = array(
+				'login.googleauthenticator.verified',
+				'login.recaptcha.verified',
+				'login.twofactor.verified'
 			);
 			foreach( $aAllStats as $aStat ) {
 				$sStatKey = $aStat[ 'stat_key' ];
@@ -62,7 +65,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
 					$nTotalCommentSpamBlocked = $nTotalCommentSpamBlocked + $nTally;
 				}
-				else if ( strpos( $sStatKey, 'firewall.blocked.' ) ) {
+				else if ( strpos( $sStatKey, 'firewall.blocked.' ) !== false ) {
 					$nTotalFirewallBlocked = $nTotalFirewallBlocked + $nTally;
 				}
 				else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
@@ -74,21 +77,39 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				else if ( $sStatKey == 'ip.transgression.incremented' ) {
 					$nTotalTransgressions = $nTally;
 				}
+				else if ( $sStatKey == 'user.session.start' ) {
+					$nTotalUserSessionsStarted = $nTally;
+				}
+				else if ( $sStatKey == 'file.corechecksum.replaced' ) {
+					$nTotalUserSessionsStarted = $nTally;
+				}
+				else if ( in_array( $sStatKey, $aLoginVerifiedKeys ) ) {
+					$nTotalLoginVerified = $nTotalLoginVerified + $nTally;
+				}
 			}
 
 			$aKeyStats = array(
 				'comments' => array( _wpsf__( 'Comment Blocks' ), $nTotalCommentSpamBlocked ),
 				'firewall' => array( _wpsf__( 'Firewall Blocks' ), $nTotalFirewallBlocked ),
-				'login' => array( _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ),
+				'login_fail' => array( _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ),
+				'login_verified' => array( _wpsf__( 'Login Verified' ), $nTotalLoginVerified ),
+				'session_start' => array( _wpsf__( 'User Sessions' ), $nTotalUserSessionsStarted ),
+//				'file_replaced' => array( _wpsf__( 'Files Replaced' ), $nTotalFilesReplaced ),
 				'ip_killed' => array( _wpsf__( 'IP Auto Black-Listed' ), $nTotalConnectionKilled ),
 				'ip_transgressions' => array( _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ),
 			);
 
 			$aDisplayData = array(
+				'sHeading' => _wpsf__('Shield Statistics'),
 				'aAllStats' => $aAllStats,
 				'aKeyStats' => $aKeyStats,
 			);
-			echo $oFO->renderTemplate( 'widgets/widget_dashboard_statistics.php', $aDisplayData );
+
+			if ( !is_array( $aContent ) ) {
+				$aContent = array();
+			}
+			$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_statistics.php', $aDisplayData );
+			return $aContent;
 		}
 
 		/**
@@ -178,9 +199,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				SELECT *
 					FROM `%s`
 				WHERE
-					`stat_key`			= '%s'
+					`stat_key`				= '%s'
 					AND `parent_stat_key`	= '%s'
-					AND `deleted_at`	= '0'
+					AND `deleted_at`		= 0
 			";
 			$sQuery = sprintf( $sQuery,
 				$this->getTableName(),
@@ -192,27 +213,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		/**
-		 * @param array $aColumns Leave empty to select all (*) columns
 		 * @return array
 		 */
-		protected function query_getAllStatData( $aColumns = array() ) {
-
-			// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
-			$sQuery = "
-				SELECT %s
-					FROM `%s`
-				WHERE
-					`deleted_at`	= 0
-			";
-			$aColumns = $this->validateColumnsParameter( $aColumns );
-			$sSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
-
-			$sQuery = sprintf( $sQuery,
-				$sSelection,
-				$this->getTableName()
-			);
-			$mResult = $this->selectCustom( $sQuery );
-			return ( is_array( $mResult ) && isset( $mResult[0] ) ) ? $mResult : array();
+		protected function getAllTallys() {
+			return $this->query_selectAll( array( 'stat_key', 'tally' ) );
 		}
 
 		public function action_doFeatureProcessorShutdown () {
@@ -271,6 +275,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 				}
 			}
 		}
+
+		/**
+		 */
+		public function deleteTable() { } //override and do not delete
 	}
 
 endif;

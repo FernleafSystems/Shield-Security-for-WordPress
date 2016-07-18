@@ -282,6 +282,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		$aNewData[ 'created_at' ]			= $nTimeStamp;
 		$mResult = $this->insertData( $aNewData );
 
+		$this->doStatIncrement( 'user.session.start' );
 		return $mResult;
 	}
 
@@ -329,6 +330,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return bool|int
 	 */
 	protected function doTerminateUserSession( $sUsername, $sSessionId, $bHardDelete = true ) {
+		$this->doStatIncrement( 'user.session.terminate' );
 
 		$aWhere = array(
 			'session_id'	=> $sSessionId,
