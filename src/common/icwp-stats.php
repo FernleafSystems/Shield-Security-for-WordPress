@@ -36,7 +36,9 @@ class ICWP_Stats_WPSF {
 	 */
 	public static function ClearStats() {
 		if ( !empty(self::$aStats) ) {
+			add_filter( 'icwp_wpsf_bypass_permission_to_manage', '__return_true' );
 			delete_option( self::Stats_Key );
+			remove_filter( 'icwp_wpsf_bypass_permission_to_manage', '__return_true' );
 		}
 	}
 }

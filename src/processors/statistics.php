@@ -123,11 +123,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$aExisting = ICWP_Stats_WPSF::GetStatsData();
 			if ( !empty( $aExisting ) && is_array( $aExisting ) ) {
 				foreach ( $aExisting as $sStatKey => $nTally ) {
-					if ( is_array( $nTally ) ) {
-						foreach( $nTally as $sSubKey => $nNewTally ) {
-							$sNewKey = $sSubKey.':'.$sStatKey;
-							$aExisting[ $sNewKey ] = $nNewTally;
-						}
+					if ( !is_numeric( $nTally ) ) {
 						unset( $aExisting[ $sStatKey ] );
 					}
 				}
