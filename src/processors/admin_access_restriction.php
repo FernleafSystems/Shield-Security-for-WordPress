@@ -16,8 +16,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oWp = $this->loadWpFunctionsProcessor();
 
-			add_filter( $oFO->doPluginPrefix( 'has_permission_to_submit' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
+			add_filter( $oFO->doPluginPrefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 			add_filter( $oFO->doPluginPrefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
+
 			if ( ! $oFO->getIsUpgrading() && ! $oWp->getIsLoginRequest() ) {
 				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 			}
@@ -46,7 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		}
 
 		protected function isSecurityAdmin() {
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+			return self::getController()->getHasPermissionToManage();
 		}
 
 		public function restrictAdminUserDelete( $nId ) {
@@ -291,7 +292,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disableThemeManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we don't modify anything
-			$bHasAdminAccess = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+			$bHasAdminAccess = self::getController()->getHasPermissionToManage();
 			if ( $bHasAdminAccess ) {
 				return $aAllCaps;
 			}
@@ -321,7 +322,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function disablePostsManipulation( $aAllCaps, $cap, $aArgs ) {
 			// If we're registered with Admin Access we don't modify anything
-			$bHasAdminAccess = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true );
+			$bHasAdminAccess = self::getController()->getHasPermissionToManage();
 			if ( $bHasAdminAccess ) {
 				return $aAllCaps;
 			}

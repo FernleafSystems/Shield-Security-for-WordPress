@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		/**
 		 */
 		public function deleteTable() {
-			if ( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'has_permission_to_submit' ), true ) && $this->getTableExists() ) {
+			if ( self::getController()->getHasPermissionToManage() && $this->getTableExists() ) {
 				$this->deleteCleanupCron();
 				$this->loadDbProcessor()->doDropTable( $this->getTableName() );
 			}
@@ -208,6 +208,20 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		}
 
 		/**
+		 * @param array $aColumns
+		 * @return array
+		 */
+		protected function validateColumnsParameter( $aColumns ) {
+			if ( !empty( $aColumns ) && is_array( $aColumns ) ) {
+				$aColumns = array_intersect( $this->getTableColumnsByDefinition(), $aColumns );
+			}
+			else {
+				$aColumns = array();
+			}
+			return $aColumns;
+		}
+
+		/**
 		 * @return string
 		 */
 		protected function getDbCleanupHookName() {
@@ -238,6 +252,17 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 
 			$this->bTableExists = $this->loadDbProcessor()->getIfTableExists( $this->getTableName() );
 			return $this->bTableExists;
+		}
+
+		/**
+		 * 1 in 10 page loads will clean the databases. This ensures that even if the crons don't run
+		 * correctly, we'll keep it trim.
+		 */
+		public function action_doFeatureProcessorShutdown() {
+			parent::action_doFeatureProcessorShutdown();
+			if ( rand( 1, 10 ) === 1 ) {
+				$this->cleanupDatabase();
+			}
 		}
 
 		/**
