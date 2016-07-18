@@ -89,6 +89,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private $sConfigOptionsHashWhenLoaded;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bMeetsBasePermissions = false;
+
+	/**
 	 * @param $sRootFile
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
@@ -284,6 +289,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpInit() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueFrontendCss' ), 99 );
+		$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
 	}
 
 	/**
@@ -310,14 +316,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
+	 * so we removed the "current_user_can()" or any such sub-call within this function
 	 * @return bool
 	 */
 	public function getHasPermissionToManage() {
 		if ( apply_filters( $this->doPluginPrefix( 'bypass_permission_to_manage' ), false ) ) {
 			return true;
 		}
-		$bMeetsBasePermissions = is_super_admin() || current_user_can( $this->getBasePermissions() );
-		return $bMeetsBasePermissions && apply_filters( $this->doPluginPrefix( 'has_permission_to_manage' ), true );
+		return ( $this->getMeetsBasePermissions() && apply_filters( $this->doPluginPrefix( 'has_permission_to_manage' ), true ) );
+	}
+
+	/**
+	 * Must be simple and cannot contain anything that would call filter "user_has_cap", e.g. current_user_can()
+	 * @return boolean
+	 */
+	public function getMeetsBasePermissions() {
+		return $this->bMeetsBasePermissions;
 	}
 
 	/**
