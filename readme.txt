@@ -310,7 +310,9 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 = 5.4 Series =
 
-* **(v.0)**  ADDED:			Private plugin statistic gathering - statistics disply to come.
+* **(v.0)**  ADDED:			Per-site plugin statistics gathering - summary display on admin dashboard.
+* **(v.0)**  ADDED:			HTML class to the "I'm a human" checkbox field.
+* **(v.0)**  ADDED:			Ability to change minimum user role for login notification emails with use of `add_filter()`. See FAQs.
 * **(v.0)**  REMOVED:		Option 'Prevent Remote Login' causes more trouble with than it's worth with too many hosting configurations.
 * **(v.0)**  CHANGED:		For websites that don't run WP Crons correctly, added code for automatic database cleaning.
 * **(v.0)**  CLEANED:		Removed Twig render code as it was never being used.
