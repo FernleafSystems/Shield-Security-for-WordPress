@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 		 * @return array|bool
 		 */
 		public function getAllAuditEntries() {
-			return array_reverse( $this->selectAllRows() );
+			return array_reverse( $this->selectAll() );
 		}
 
 		/**

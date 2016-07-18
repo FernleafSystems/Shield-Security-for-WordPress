@@ -154,6 +154,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return bool
 		 */
 		protected function replaceFileContentsWithOfficial( $sMd5FilePath ) {
+			$this->doStatIncrement( 'file.corechecksum.replaced' );
+
 			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sMd5FilePath );
 			if ( !empty( $sOfficialContent ) ) {
 				return $this->loadFileSystemProcessor()->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );

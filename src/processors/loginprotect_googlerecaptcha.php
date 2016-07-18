@@ -63,7 +63,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * This jumps in before user password is tested. If we fail the ReCaptcha check, we'll
 	 * block testing of username and password
 	 *
-	 * @param WP_User $oUser
+	 * @param WP_User|WP_Error $oUser
 	 * @return WP_Error
 	 */
 	public function checkLoginForGoogleRecaptcha_Filter( $oUser ) {
@@ -97,6 +97,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 			if ( is_wp_error( $oUser ) ) {
 				$this->setLoginAsFailed( 'login.recaptcha.fail' );
+			}
+			else {
+				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
 		}
 
