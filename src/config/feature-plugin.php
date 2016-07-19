@@ -75,6 +75,14 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'enable_tracking'
+    section: 'section_general_plugin_options'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'block_send_email_address'
     section: 'section_general_plugin_options'
     transferable: true

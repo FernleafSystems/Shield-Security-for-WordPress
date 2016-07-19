@@ -100,6 +100,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return int
+		 */
+		public function getTrackingEnabled() {
+			return $this->getOptIs( 'enable_tracking', 'Y' );
+		}
+
+		/**
 		 * @param $sEmail
 		 * @return string
 		 */
@@ -164,6 +171,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
 					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getController()->getHumanName() );
+					break;
+
+				case 'enable_tracking' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Tracking' ) );
+					$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
+					$sDescription = _wpsf__( 'Allows us to gather information on global statistics and features in-use across our client installations.' )
+						. ' ' . _wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' );
 					break;
 
 				case 'block_send_email_address' :

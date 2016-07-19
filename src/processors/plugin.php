@@ -10,6 +10,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function run() {
 			parent::run();
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
 
 			$this->toggleForceOff();
 			$this->removePluginConflicts();
@@ -25,7 +27,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$this->maintainPluginLoadPosition();
 			}
 
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
+			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
+
+			if ( $oFO->getTrackingEnabled() ) {
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'plugin_tracking.php' );
+				$oPlugins = new ICWP_WPSF_Processor_Plugin_Tracking( $oFO );
+				$oPlugins->run();
+			}
 		}
 
 		/**
