@@ -434,6 +434,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'comment'
 					),
 					'*' => array(
+						'g-recaptcha-response',
 						'verify_sign',
 						'txn_id',
 						'wp_http_referer',
