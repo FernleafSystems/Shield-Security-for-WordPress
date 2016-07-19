@@ -30,6 +30,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
 		 * - it is not enabled by default.
 		 *
+		 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain identifiable
+		 * data.
+		 *
 		 * @param $aData
 		 * @return array
 		 */
@@ -39,7 +42,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 				$aData = array();
 			}
 			$aData[ $oFO->getFeatureSlug() ] = array(
-				'options' => $oFO->getOptionsVo()->getAllOptionsValues()
+				'options' => $oFO->getOptionsVo()->getOptionsMaskSensitive()
 			);
 			return $aData;
 		}
