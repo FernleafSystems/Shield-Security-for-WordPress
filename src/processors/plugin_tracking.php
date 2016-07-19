@@ -19,12 +19,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oDP = $this->loadDataProcessor();
-
-			if ( ( $oDP->time() - $oFO->getLastTrackingSentAt() ) < WEEK_IN_SECONDS ) {
+			if ( !$oFO->getTrackingEnabled() || ( $oDP->time() - $oFO->getLastTrackingSentAt() ) < WEEK_IN_SECONDS ) {
 				return;
 			}
 			$aData = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array() );
-			var_dump( $aData );
 		}
 
 		/**
@@ -34,7 +32,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$sFullHookName = $oFO->getTrackingCronName();
 			if ( ! wp_next_scheduled( $sFullHookName ) && ! defined( 'WP_INSTALLING' ) ) {
-				$nNextRun = strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand(0,600);
+				$nNextRun = strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand(0,1200);
 				wp_schedule_event( $nNextRun, 'daily', $sFullHookName );
 			}
 		}
