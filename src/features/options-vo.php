@@ -114,7 +114,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$aRawOptions = $this->getRawData_AllOptions();
 		foreach( $aRawOptions as $nKey => $aOptionData ) {
 			if ( isset( $aOptionData['sensitive'] ) && $aOptionData['sensitive'] === true ) {
-				$aOptions[ $aOptionData['key'] ] = $aOptions[ '***' ];
+				$aOptions[ $aOptionData['key'] ] = '***';
 			}
 		}
 		return $aOptions;
