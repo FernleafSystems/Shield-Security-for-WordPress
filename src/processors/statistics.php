@@ -19,6 +19,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
+		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function data_Collect( $aData ) {
+			$aData = parent::data_Collect( $aData );
+			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $this->getAllTallys();
+			return $aData;
+		}
+
 		public function gatherStatsSummaryWidgetContent( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
