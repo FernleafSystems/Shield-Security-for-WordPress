@@ -133,6 +133,9 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
+    key: 'last_tracking_sent_at'
+    section: 'section_non_ui'
+  -
     key: 'secret_key'
     section: 'section_non_ui'
   -
@@ -199,6 +202,10 @@ options:
       -
         slug: 'email'
         storage_key: 'email'
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  tracking_cron_handle: 'plugin_tracking_cron'
 ",
 		_wpsf__( 'Dashboard' ),
 		_wpsf__( 'Overview of the plugin settings' ) //tagline

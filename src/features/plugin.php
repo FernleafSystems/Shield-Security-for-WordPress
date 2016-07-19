@@ -86,6 +86,20 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getTrackingCronName() {
+			return $this->doPluginPrefix( $this->getDefinition( 'tracking_cron_handle' ) );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getLastTrackingSentAt() {
+			return $this->getOpt( 'last_tracking_sent_at' );
+		}
+
+		/**
 		 * @param $sEmail
 		 * @return string
 		 */

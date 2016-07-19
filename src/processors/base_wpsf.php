@@ -23,6 +23,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			$oFO = $this->getFeatureOptions();
 			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array( $this, 'data_Collect' ) );
+		}
+
+		/**
+		 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
+		 * - it is not enabled by default.
+		 *
+		 * @param $aData
+		 * @return array
+		 */
+		public function data_Collect( $aData ) {
+			$oFO = $this->getFeatureOptions();
+			if ( !is_array( $aData ) ) {
+				$aData = array();
+			}
+			$aData[ $oFO->getFeatureSlug() ] = array(
+				'options' => $oFO->getOptionsVo()->getAllOptionsValues()
+			);
+			return $aData;
 		}
 
 		/**
