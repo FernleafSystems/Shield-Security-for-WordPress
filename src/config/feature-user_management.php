@@ -48,6 +48,7 @@ options:
     key: 'enable_admin_login_email_notification'
     section: 'section_admin_login_notification'
     transferable: true
+    sensitive: true
     default: ''
     type: 'email'
     link_info: ''

@@ -105,6 +105,7 @@ options:
     key: 'enable_upgrade_notification_email'
     section: 'section_automatic_update_email_notifications'
     transferable: true
+    sensitive: true
     default: ''
     type: 'checkbox'
     link_info: ''

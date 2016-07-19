@@ -118,6 +118,7 @@ options:
     key: 'xcsp_hosts'
     section: 'section_content_security_policy'
     transferable: true
+    sensitive: true
     default:
       - '*'
     type: 'array'

@@ -86,6 +86,7 @@ options:
     key: 'block_send_email_address'
     section: 'section_general_plugin_options'
     transferable: true
+    identifiable: true
     default: ''
     type: 'email'
     link_info: ''
@@ -125,6 +126,7 @@ options:
     key: 'google_recaptcha_site_key'
     section: 'section_third_party_google'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/shld5'
@@ -133,6 +135,7 @@ options:
     key: 'google_recaptcha_secret_key'
     section: 'section_third_party_google'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/shld5'
