@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.4.0
+Stable tag: 5.4.1
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -298,15 +298,10 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.4.0 Latest Point Release =
-*Released: 18th July, 2016*
+= 5.4.1 Latest Point Release =
+*Released: 19th July, 2016*
 
-* **(v.0)**  ADDED:			Per-site plugin statistics gathering - summary display on admin dashboard.
-* **(v.0)**  ADDED:			HTML class to the "I'm a human" checkbox field.
-* **(v.0)**  ADDED:			Ability to change minimum user role for login notification emails with use of `add_filter()`. See FAQs.
-* **(v.0)**  REMOVED:		Option 'Prevent Remote Login' causes more trouble with than it's worth with too many hosting configurations.
-* **(v.0)**  CHANGED:		For websites that don't run WP Crons correctly, added code for automatic database cleaning.
-* **(v.0)**  CLEANED:		Removed Twig render code as it was never being used.
+* **(v.1)**  FIXED:			Nasty bug that caused an infinite loop bug in some configurations.
 
 = 5.4 Series =
 
