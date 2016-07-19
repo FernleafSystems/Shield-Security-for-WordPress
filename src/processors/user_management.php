@@ -152,7 +152,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'subscriber' => 'read',
 		);
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'login-notification-email-role' ), 'network_admin' ) );
+		$sRoleToCheck = strtolower( apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
 		}
