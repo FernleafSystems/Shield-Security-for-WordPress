@@ -143,6 +143,30 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @see autoAddToAdminNotices()
 		 * @param array $aNoticeAttributes
 		 */
+		protected function addNotice_allow_tracking( $aNoticeAttributes ) {
+
+			if ( $this->getIfShowAdminNotices() ) {
+				$aRenderData = array(
+					'notice_attributes' => $aNoticeAttributes,
+					'strings' => array(
+						'help_us' => sprintf( _wpsf__( "Can you help us to get better?" ), $this->getController()->getHumanName() ),
+						'want_to_track' => sprintf( _wpsf__( "We want to track %s plugin usage for the purposes of learning how our clients use the plugin." ), $this->getController()->getHumanName() ),
+						'learn_more' => _wpsf__( 'Learn More.' ),
+						'site_url' => 'translate.icontrolwp.com',
+						'yes' => _wpsf__( 'Absolutely' )
+					),
+					'hrefs' => array(
+						'learn_more' => 'http://translate.icontrolwp.com'
+					)
+				);
+				$this->insertAdminNotice( $aRenderData );
+			}
+		}
+
+		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aNoticeAttributes
+		 */
 		protected function addNotice_post_plugin_update( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
 

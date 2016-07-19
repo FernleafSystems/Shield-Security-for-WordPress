@@ -48,6 +48,12 @@ admin_notices:
     valid_admin: true
     delay_days: 45
     type: 'promo'
+  'allow-tracking':
+    id: 'allow-tracking'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 1
+    type: 'promo'
 
 # Options Sections
 sections:
