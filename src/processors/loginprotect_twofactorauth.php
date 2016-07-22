@@ -29,6 +29,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		/**
 		 */
 		public function run() {
+			if ( !$this->readyToRun() ) {
+				return;
+			}
 
 			if ( $this->loadDataProcessor()->FetchGet( 'wpsf-action' ) == 'linkauth' ) {
 				add_action( 'init', array( $this, 'validateUserAuthLink' ), 10 );
