@@ -60,6 +60,7 @@ definitions:
   corechecksum_exclusions:
     - 'readme.html'
     - 'license.txt'
+    - 'licens-sv_SE.txt'
     - 'wp-config-sample.php'
     - 'wp-content/'
   corechecksum_exclusions_missing_only:
