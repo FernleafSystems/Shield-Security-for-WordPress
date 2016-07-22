@@ -32,6 +32,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	public function run() {
+		if ( !$this->readyToRun() ) {
+			return;
+		}
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 

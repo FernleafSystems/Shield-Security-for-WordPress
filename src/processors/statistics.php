@@ -13,6 +13,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		public function run() {
+			if ( !$this->readyToRun() ) {
+				return;
+			}
+			
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
 			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
