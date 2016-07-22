@@ -298,13 +298,21 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.4.1 Latest Point Release =
-*Released: 19th July, 2016*
+= 5.4.2 Latest Point Release =
+*Released: 22nd July, 2016*
 
-* **(v.1)**  FIXED:			Nasty bug that caused an infinite loop bug in some configurations.
+* **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
+* **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
+* **(v.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
+* **(v.2)**  CHANGED:		[HTTP Security Headers](http://icwp.io/7b) module is enabled by default on new installs.
 
 = 5.4 Series =
 
+* **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
+* **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
+* **(v.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
+* **(v.2)**  CHANGED:		[HTTP Security Headers](http://icwp.io/7b) module is enabled by default on new installs.
+* **(v.1)**  FIXED:			Nasty bug that caused an infinite loop bug in some configurations.
 * **(v.0)**  ADDED:			Per-site plugin statistics gathering - summary display on admin dashboard.
 * **(v.0)**  ADDED:			HTML class to the "I'm a human" checkbox field.
 * **(v.0)**  ADDED:			Ability to change minimum user role for login notification emails with use of `add_filter()`. See FAQs.
