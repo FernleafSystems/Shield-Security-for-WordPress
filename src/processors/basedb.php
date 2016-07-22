@@ -37,6 +37,13 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		protected function readyToRun() {
+			return ( parent::readyToRun() && $this->getTableExists() );
+		}
+
+		/**
 		 */
 		public function deleteTable() {
 			if ( self::getController()->getHasPermissionToManage() && $this->getTableExists() ) {

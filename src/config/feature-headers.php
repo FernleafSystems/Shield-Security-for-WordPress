@@ -27,7 +27,7 @@ options:
     key: 'enable_headers'
     section: 'section_enable_plugin_feature_headers'
     transferable: true
-    default: 'N'
+    default: 'Y'
     type: 'checkbox'
     link_info: 'http://icwp.io/7c'
     link_blog: 'http://icwp.io/7c'
@@ -70,7 +70,7 @@ options:
     key: 'enable_x_content_security_policy'
     section: 'section_content_security_policy'
     transferable: true
-    default: 'Y'
+    default: 'N'
     type: 'checkbox'
     link_info: 'http://icwp.io/7d'
     link_blog: 'http://icwp.io/7c'

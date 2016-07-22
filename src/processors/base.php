@@ -84,6 +84,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		public function init() {}
 
 		/**
+		 * @return bool
+		 */
+		protected function readyToRun() {
+			return true;
+		}
+
+		/**
 		 * Override to set what this processor does when it's "run"
 		 */
 		abstract public function run();

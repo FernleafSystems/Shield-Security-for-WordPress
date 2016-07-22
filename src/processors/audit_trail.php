@@ -1,10 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
+if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 
 	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'basedb.php' );
 
-	class ICWP_WPSF_Processor_AuditTrail_V1 extends ICWP_WPSF_BaseDbProcessor {
+	class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 		/**
 		 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oFeatureOptions
@@ -36,6 +36,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 		/**
 		 */
 		public function run() {
+			if ( !$this->readyToRun() ) {
+				return;
+			}
 
 			/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFo */
 			$oFo = $this->getFeatureOptions();
@@ -165,10 +168,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail_V1', false ) ):
 		}
 	}
 
-endif;
-
-if ( !class_exists('ICWP_WPSF_Processor_AuditTrail') ):
-	class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_Processor_AuditTrail_V1 { }
 endif;
 
 class ICWP_WPSF_AuditTrail_Entries extends ICWP_WPSF_Foundation {
