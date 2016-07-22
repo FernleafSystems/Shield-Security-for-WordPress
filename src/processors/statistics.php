@@ -15,7 +15,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'audit_CollectOldStats' ) ); //temporary
 			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
@@ -110,27 +109,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			}
 			$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_statistics.php', $aDisplayData );
 			return $aContent;
-		}
-
-		/**
-		 * Filter for importing the old statistics.
-		 *
-		 * @param $aStats
-		 * @return array
-		 */
-		public function audit_CollectOldStats( $aStats ) {
-			$this->loadStatsProcessor();
-			$aExisting = ICWP_Stats_WPSF::GetStatsData();
-			if ( !empty( $aExisting ) && is_array( $aExisting ) ) {
-				foreach ( $aExisting as $sStatKey => $nTally ) {
-					if ( !is_numeric( $nTally ) ) {
-						unset( $aExisting[ $sStatKey ] );
-					}
-				}
-				$aStats[] = $aExisting;
-				ICWP_Stats_WPSF::ClearStats();
-			}
-			return $aStats;
 		}
 
 		/**
