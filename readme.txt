@@ -304,7 +304,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
 * **(v.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
-* **(v.2)**  CHANGED:		[HTTP Security Headers](http://icwp.io/7b) module is enabled by default on new installs.
+* **(v.2)**  CHANGED:		[HTTP Security Headers](http://icwp.io/7b) module is enabled by default on new installs, but Content Security Policy is not.
 
 = 5.4 Series =
 
