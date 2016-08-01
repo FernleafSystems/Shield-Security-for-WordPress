@@ -164,7 +164,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getOption( 'audit_trail_table_columns' );
+			return $this->getFeatureOptions()->getDefinition( 'audit_trail_table_columns' );
 		}
 	}
 
