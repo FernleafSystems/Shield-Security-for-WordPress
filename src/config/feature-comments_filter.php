@@ -169,6 +169,7 @@ options:
     key: 'custom_message_checkbox'
     section: 'section_customize_messages_shown_to_user'
     transferable: true
+    sensitive: true
     default: \"I'm not a spammer\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
@@ -177,6 +178,7 @@ options:
     key: 'custom_message_alert'
     section: 'section_customize_messages_shown_to_user'
     transferable: true
+    sensitive: true
     default: \"Please check the box to confirm you're not a spammer\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
@@ -185,6 +187,7 @@ options:
     key: 'custom_message_comment_wait'
     section: 'section_customize_messages_shown_to_user'
     transferable: true
+    sensitive: true
     default: \"Please wait %%s seconds before posting your comment\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
@@ -193,6 +196,7 @@ options:
     key: 'custom_message_comment_reload'
     section: 'section_customize_messages_shown_to_user'
     transferable: true
+    sensitive: true
     default: \"Please reload this page to post a comment\"
     type: 'text'
     link_info: 'http://icwp.io/3p'
