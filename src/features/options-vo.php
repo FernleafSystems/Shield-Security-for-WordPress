@@ -272,7 +272,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	public function getOpt( $sOptionKey, $mDefault = false ) {
 		$aOptionsValues = $this->getAllOptionsValues();
 		if ( !isset( $aOptionsValues[ $sOptionKey ] ) ) {
-			$this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey, $mDefault ), true );
+			$this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey, $mDefault ) );
 		}
 		return $this->aOptionsValues[ $sOptionKey ];
 	}
@@ -418,7 +418,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function resetOptToDefault( $sOptionKey ) {
-		return $this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey ), true );
+		return $this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey ) );
 	}
 
 	/**
@@ -470,12 +470,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sOptionKey
 	 * @param mixed $mValue
-	 * @param boolean $bForce
 	 * @return mixed
 	 */
-	public function setOpt( $sOptionKey, $mValue, $bForce = false ) {
+	public function setOpt( $sOptionKey, $mValue ) {
 
-		if ( $bForce || $this->getOpt( $sOptionKey ) !== $mValue ) {
+		if ( $this->getOpt( $sOptionKey ) !== $mValue ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
