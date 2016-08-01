@@ -52,14 +52,6 @@ options:
     link_info: 'http://icwp.io/4q'
     link_blog: ''
   -
-    key: 'force_ssl_login'
-    section: 'section_permission_access_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/4s'
-    link_blog: ''
-  -
     key: 'force_ssl_admin'
     section: 'section_permission_access_options'
     transferable: true

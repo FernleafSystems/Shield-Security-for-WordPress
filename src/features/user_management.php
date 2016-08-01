@@ -214,15 +214,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 		public function getUserSessionsTableName() {
 			return $this->doPluginPrefix( $this->getDefinition( 'user_sessions_table_name' ), '_' );
 		}
-
-		/**
-		 */
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( version_compare( $this->getVersion(), '4.1.0', '<' ) ) {
-				$this->setOpt( 'recreate_database_table', true );
-			}
-		}
 	}
 
 endif;

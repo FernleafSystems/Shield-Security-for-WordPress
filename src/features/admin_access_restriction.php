@@ -390,20 +390,5 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$this->setOpt( 'admin_access_restrict_posts', $aThemesRestrictions );
 		}
 	}
-
-	protected function updateHandler() {
-		parent::updateHandler();
-
-		if ( $this->getVersion() == '0.0' ) {
-			return;
-		}
-
-		if ( version_compare( $this->getVersion(), '3.0.0', '<' ) ) {
-			$aAllOptions = apply_filters( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array() );
-			$this->setOpt( 'enable_admin_access_restriction', $aAllOptions['enable_admin_access_restriction'] );
-			$this->setOpt( 'admin_access_key', $aAllOptions['admin_access_key'] );
-			$this->setOpt( 'admin_access_timeout', $aAllOptions['admin_access_timeout'] );
-		}
-	}
 }
 endif;

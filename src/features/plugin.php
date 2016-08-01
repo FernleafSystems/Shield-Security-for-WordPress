@@ -276,30 +276,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			return $this->setOpt( 'unique_installation_id', $sNewId );
 		}
 
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( $this->getVersion() == '0.0' ) {
-				return;
-			}
-
-			// we need to update the meta keys for notices.
-			if ( is_admin() && version_compare( $this->getVersion(), '4.10.4', '<=' ) ) {
-				$aOldMetaMap = array(
-					'plugin_translation_notice' => 'translate-plugin',
-					'php53_version_warning' => 'php53-version-warning',
-					'plugin_mailing_list_signup' => 'plugin-mailing-list-signup'
-				);
-				$oWpAdminNotices = $this->loadAdminNoticesProcessor();
-				$oWpUsers = $this->loadWpUsersProcessor();
-				foreach( $aOldMetaMap as $sOldMeta => $sNewId ) {
-					if ( $oWpUsers->getUserMeta( $this->prefixOptionKey( $sOldMeta ) ) == 'Y' ) {
-						$oWpAdminNotices->setAdminNoticeAsDismissed( array( 'id' => $sNewId ) );
-					}
-					$oWpUsers->deleteUserMeta( $this->prefixOptionKey( $sOldMeta ) );
-				}
-			}
-		}
-
 		/**
 		 * Kept just in-case.
 		 */

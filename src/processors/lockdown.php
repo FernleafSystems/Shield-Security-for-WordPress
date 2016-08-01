@@ -29,13 +29,6 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				add_action( 'init', array( $this, 'resetAuthKeysSalts' ), 1 );
 			}
 
-			if ( $this->getIsOption( 'force_ssl_login', 'Y' ) && function_exists('force_ssl_login') ) {
-				if ( !defined('FORCE_SSL_LOGIN') ) {
-					define( 'FORCE_SSL_LOGIN', true );
-				}
-				force_ssl_login( true );
-			}
-
 			if ( $this->getIsOption( 'force_ssl_admin', 'Y' ) && function_exists('force_ssl_admin') ) {
 				if ( !defined('FORCE_SSL_ADMIN') ) {
 					define( 'FORCE_SSL_ADMIN', true );
