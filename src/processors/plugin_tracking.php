@@ -8,21 +8,78 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$this->createTrackingCollectionCron();
-			add_action( $oFO->getTrackingCronName(), array( $this, 'collectTrackingData' ) );
+			add_action( $oFO->getTrackingCronName(), array( $this, 'sendTrackingData' ) );
 			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+			if ( isset( $_GET['test'] ) ) {
+				add_action( 'init', array( $this, 'sendTrackingData' ) );
+			}
 		}
 
 		/**
 		 * Only done maximum once per week.
 		 */
-		public function collectTrackingData() {
+		public function sendTrackingData() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oDP = $this->loadDataProcessor();
+
 			if ( !$oFO->getTrackingEnabled() || ( $oDP->time() - $oFO->getLastTrackingSentAt() ) < WEEK_IN_SECONDS ) {
 				return;
 			}
-			$aData = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array() );
+
+			$aData = $this->collectTrackingData();
+			if ( empty( $aData ) || !is_array( $aData ) ) {
+				return;
+			}
+
+			$sUrl = $oFO->getDefinition( 'tracking_post_url' );
+			$oFS = $this->loadFileSystemProcessor();
+			$oResult = $oFS->requestUrl(
+				$sUrl,
+				array(
+					'method'      => 'POST',
+					'timeout'     => 20,
+					'redirection' => 5,
+					'httpversion' => '1.1',
+					'blocking'    => true,
+					'body'        => array( 'data' => base64_encode( serialize( $aData ) ) ),
+					'user-agent'  => 'SHIELD/'.$this->getController()->getVersion().';'
+				),
+				true
+			);
+			$oFO->updateLastTrackingSentAt();
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function collectTrackingData() {
+			$aData = apply_filters(
+				$this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ),
+				array( 'env' => $this->getBaseTrackingData() )
+			);
+			return is_array( $aData ) ? $aData : array();
+		}
+
+		/**
+		 * @return array
+		 */
+		protected function getBaseTrackingData() {
+			$oDP = $this->loadDataProcessor();
+			$oWP = $this->loadWpFunctionsProcessor();
+
+			return array(
+				'php' => $oDP->getPhpVersion(),
+				'wordpress' => $oWP->getWordpressVersion(),
+				'is_wpms' => $oWP->isMultisite() ? 1 : 0,
+				'ssl' => ( $_SERVER[ 'HTTPS' ] == 'on' ) ? 1 : 0,
+				'locale' => get_locale(),
+				'plugins' => array(
+					'count_total' => count( $oWP->getPlugins() ),
+					'count_active' => count( $oWP->getActivePlugins() ),
+					'count_updates' => count( $oWP->getWordpressUpdates_Plugins() )
+				)
+			);
 		}
 
 		/**

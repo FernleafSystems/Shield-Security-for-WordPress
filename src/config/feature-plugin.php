@@ -223,6 +223,7 @@ options:
 # Definitions for constant data that doesn't need stored in the options
 definitions:
   tracking_cron_handle: 'plugin_tracking_cron'
+  tracking_post_url: 'https://tracking.icontrolwp.com/track/plugin/shield'
 ",
 		_wpsf__( 'Dashboard' ),
 		_wpsf__( 'Overview of the plugin settings' ) //tagline

@@ -226,7 +226,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return stdClass|null
 		 */
 		public function getPluginUpdateInfo( $sPluginFile ) {
-			$aUpdates = $this->getWordpressUpdates();
+			$aUpdates = $this->getWordpressUpdates_Plugins();
 			return ( !empty( $aUpdates ) && isset( $aUpdates[ $sPluginFile ] ) ) ? $aUpdates[ $sPluginFile ] : null;
 		}
 
@@ -348,6 +348,20 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function getWordpressUpdates( $sType = 'plugins' ) {
 			$oCurrent = $this->getTransient( 'update_'.$sType );
 			return ( is_object( $oCurrent ) && isset( $oCurrent->response ) ) ? $oCurrent->response : array();
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getWordpressUpdates_Plugins() {
+			return $this->getWordpressUpdates( 'plugins' );
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getWordpressUpdates_Themes() {
+			return $this->getWordpressUpdates( 'themes' );
 		}
 
 		/**
@@ -786,10 +800,16 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return int
 		 */
 		public function getActivePluginLoadPosition( $sPluginFile ) {
-			$sOptionKey = $this->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
-			$aActive = $this->getOption( $sOptionKey );
-			$nPosition = array_search( $sPluginFile, $aActive );
+			$nPosition = array_search( $sPluginFile, $this->getActivePlugins() );
 			return ( $nPosition === false ) ? -1 : $nPosition;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getActivePlugins() {
+			$sOptionKey = $this->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
+			return $this->getOption( $sOptionKey );
 		}
 
 		/**
