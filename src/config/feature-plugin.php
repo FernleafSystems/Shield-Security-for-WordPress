@@ -92,7 +92,7 @@ options:
     key: 'block_send_email_address'
     section: 'section_general_plugin_options'
     transferable: true
-    identifiable: true
+    sensitive: true
     default: ''
     type: 'email'
     link_info: ''
