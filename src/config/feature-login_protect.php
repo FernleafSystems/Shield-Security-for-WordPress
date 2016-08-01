@@ -181,18 +181,18 @@ options:
     default: -1
   -
     key: 'gasp_key'
+    sensitive: true
     section: 'section_non_ui'
   -
     key: 'two_factor_secret_key'
+    sensitive: true
     section: 'section_non_ui'
   -
     key: 'last_login_time'
     section: 'section_non_ui'
   -
     key: 'last_login_time_file_path'
-    section: 'section_non_ui'
-  -
-    key: 'log_category'
+    sensitive: true
     section: 'section_non_ui'
   -
     key: 'two_factor_auth_table_created'
