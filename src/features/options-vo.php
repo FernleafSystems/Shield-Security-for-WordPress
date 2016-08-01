@@ -458,7 +458,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function setOpt( $sOptionKey, $mValue ) {
 
-		if ( $this->getOpt( $sOptionKey ) !== $mValue ) {
+		// We can't use getOpt() to find the current value since we'll create an infinite loop
+		$aOptionsValues = $this->getAllOptionsValues();
+		$mCurrent = isset( $aOptionsValues[ $sOptionKey ] ) ? $aOptionsValues[ $sOptionKey ] : null;
+
+		if ( serialize( $mCurrent ) !== serialize( $mValue ) ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
