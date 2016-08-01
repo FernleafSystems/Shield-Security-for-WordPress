@@ -103,13 +103,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 									.'<br />'._wpsf__( 'Equivalent to setting "DISALLOW_FILE_EDIT" to TRUE.' );
 					break;
 
-				case 'force_ssl_login' :
-					$sName = _wpsf__( 'Force SSL Login' );
-					$sSummary = _wpsf__( 'Forces Login Form To Be Submitted Over SSL' );
-					$sDescription = _wpsf__( 'Please only enable this option if you have a valid SSL certificate installed.' )
-									.'<br />'._wpsf__( 'Equivalent to setting FORCE_SSL_LOGIN to TRUE.' );
-					break;
-
 				case 'force_ssl_admin' :
 					$sName = _wpsf__( 'Force SSL Admin' );
 					$sSummary = _wpsf__( 'Forces WordPress Admin Dashboard To Be Delivered Over SSL' );

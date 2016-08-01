@@ -133,9 +133,6 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'secret_key'
-    section: 'section_non_ui'
-  -
     key: 'installation_time'
     section: 'section_non_ui'
 
