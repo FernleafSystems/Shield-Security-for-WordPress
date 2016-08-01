@@ -227,15 +227,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		public function getCommentsFilterTableName() {
 			return $this->doPluginPrefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
 		}
-
-		/**
-		 */
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( version_compare( $this->getVersion(), '4.1.0', '<' ) ) {
-				$this->setOpt( 'recreate_database_table', true );
-			}
-		}
 	}
 
 endif;

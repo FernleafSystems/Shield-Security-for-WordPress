@@ -211,15 +211,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
 		}
-
-		/**
-		 */
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( version_compare( $this->getVersion(), '4.1.0', '<' ) ) {
-				$this->setOpt( 'recreate_database_table', true );
-			}
-		}
 	}
 
 endif;
