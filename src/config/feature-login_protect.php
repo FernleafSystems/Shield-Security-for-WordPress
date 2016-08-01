@@ -78,12 +78,6 @@ options:
     link_info: 'http://icwp.io/3s'
     link_blog: ''
   -
-    key: 'enable_two_factor_auth_by_ip'
-    section: 'section_non_ui'
-  -
-    key: 'enable_two_factor_auth_by_cookie'
-    section: 'section_non_ui'
-  -
     key: 'two_factor_auth_user_roles'
     section: 'section_multifactor_authentication'
     transferable: true

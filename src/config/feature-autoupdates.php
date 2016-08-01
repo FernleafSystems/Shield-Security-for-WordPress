@@ -121,10 +121,10 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-  -
-    key: 'action_hook_priority'
-    section: 'section_non_ui'
-    default: 1000
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  action_hook_priority: 1000
 ",
 		_wpsf__( 'Automatic Updates' ),
 		_wpsf__( 'Take back full control of WordPress automatic updates' ) //tagline

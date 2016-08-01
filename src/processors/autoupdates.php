@@ -416,7 +416,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		 * @return int
 		 */
 		protected function getHookPriority() {
-			return $this->getOption( 'action_hook_priority', 1001 );
+			return $this->getFeatureOptions()->getDefinition( 'action_hook_priority' );
 		}
 	}
 

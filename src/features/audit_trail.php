@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 		 * @return string
 		 */
 		public function getAuditTrailTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'audit_trail_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
 		}
 
 		/**
