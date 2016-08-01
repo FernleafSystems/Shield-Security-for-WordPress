@@ -46,13 +46,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return array
 		 */
 		public function getActivePluginFeatures() {
-			$aActiveFeatures = $this->getOptionsVo()->getRawData_SingleOption( 'active_plugin_features' );
+			$aActiveFeatures = $this->getDefinition( 'active_plugin_features' );
+			
 			$aPluginFeatures = array();
-			if ( empty( $aActiveFeatures['value'] ) || !is_array( $aActiveFeatures['value'] ) ) {
+			if ( empty( $aActiveFeatures ) || !is_array( $aActiveFeatures ) ) {
 				return $aPluginFeatures;
 			}
 
-			foreach( $aActiveFeatures['value'] as $nPosition => $aFeature ) {
+			foreach( $aActiveFeatures as $nPosition => $aFeature ) {
 				if ( isset( $aFeature['hidden'] ) && $aFeature['hidden'] ) {
 					continue;
 				}
