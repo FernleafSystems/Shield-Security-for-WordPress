@@ -114,6 +114,7 @@ options:
     key: 'override_email_address'
     section: 'section_automatic_update_email_notifications'
     transferable: true
+    sensitive: true
     default: ''
     type: 'email'
     link_info: ''
