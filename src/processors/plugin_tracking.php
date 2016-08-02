@@ -71,7 +71,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				'php' => $oDP->getPhpVersion(),
 				'wordpress' => $oWP->getWordpressVersion(),
 				'is_wpms' => $oWP->isMultisite() ? 1 : 0,
-				'ssl' => ( $_SERVER[ 'HTTPS' ] == 'on' ) ? 1 : 0,
+				'ssl' => ( isset( $_SERVER[ 'HTTPS' ] ) && $_SERVER[ 'HTTPS' ] == 'on' ) ? 1 : 0,
 				'locale' => get_locale(),
 				'plugins' => array(
 					'count_total' => count( $oWP->getPlugins() ),
