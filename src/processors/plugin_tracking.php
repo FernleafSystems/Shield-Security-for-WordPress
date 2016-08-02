@@ -24,7 +24,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			$oDP = $this->loadDataProcessor();
 
 			if ( !$oFO->getTrackingEnabled() || ( $oDP->time() - $oFO->getLastTrackingSentAt() ) < WEEK_IN_SECONDS ) {
-				return;
 			}
 
 			$aData = $this->collectTrackingData();
@@ -42,7 +41,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 					'redirection' => 5,
 					'httpversion' => '1.1',
 					'blocking'    => true,
-					'body'        => array( 'data' => base64_encode( serialize( $aData ) ) ),
+					'body'        => array( 'tracking_data' => $aData ),
 					'user-agent'  => 'SHIELD/'.$this->getController()->getVersion().';'
 				),
 				true
