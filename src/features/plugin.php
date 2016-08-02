@@ -252,8 +252,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
 			}
 
-			$sUniqueId = $this->getPluginInstallationId();
-			if ( empty( $sUniqueId ) || !is_string( $sUniqueId ) || strlen( $sUniqueId ) != 32 ) {
+			if ( $this->getIsUpgrading() ) {
 				$this->setPluginInstallationId();
 			}
 		}
@@ -266,14 +265,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @param string $sNewId - leave empty to reset
+		 * @param string $sNewId - leave empty to reset if the current isn't valid
 		 * @return bool
 		 */
-		public function setPluginInstallationId( $sNewId = null ) {
-			if ( empty( $sNewId ) ) {
-				$sNewId = md5( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
+		protected function setPluginInstallationId( $sNewId = null ) {
+			// only reset if it's not of the correct type
+			if ( !$this->isValidInstallId( $sNewId ) && !$this->isValidInstallId( $this->getPluginInstallationId() ) ) {
+				$sNewId = sha1( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
 			}
 			return $this->setOpt( 'unique_installation_id', $sNewId );
+		}
+
+		/**
+		 * @param string $sId
+		 * @return bool
+		 */
+		protected function isValidInstallId( $sId ) {
+			return ( !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40 );
 		}
 
 		/**
