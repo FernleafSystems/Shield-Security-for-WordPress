@@ -23,7 +23,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			$oFO = $this->getFeatureOptions();
 			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array( $this, 'data_Collect' ) );
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
 		}
 
 		/**
@@ -36,7 +36,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * @param $aData
 		 * @return array
 		 */
-		public function data_Collect( $aData ) {
+		public function tracking_DataCollect( $aData ) {
 			$oFO = $this->getFeatureOptions();
 			if ( !is_array( $aData ) ) {
 				$aData = array();

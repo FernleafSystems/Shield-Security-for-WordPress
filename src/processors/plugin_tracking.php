@@ -24,6 +24,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			$oDP = $this->loadDataProcessor();
 
 			if ( !$oFO->getTrackingEnabled() || ( $oDP->time() - $oFO->getLastTrackingSentAt() ) < WEEK_IN_SECONDS ) {
+				return;
 			}
 
 			$aData = $this->collectTrackingData();

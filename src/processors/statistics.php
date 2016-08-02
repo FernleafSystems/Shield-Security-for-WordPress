@@ -27,9 +27,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		 * @param $aData
 		 * @return array
 		 */
-		public function data_Collect( $aData ) {
-			$aData = parent::data_Collect( $aData );
-			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $this->getAllTallys();
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			$aTallys = $this->getAllTallys();
+			$aTallyTracking = array();
+			foreach ( $aTallys as $aTally ) {
+				$aTallyTracking[ $aTally[ 'stat_key' ] ] = $aTally[ 'tally' ];
+			}
+			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
 			return $aData;
 		}
 
