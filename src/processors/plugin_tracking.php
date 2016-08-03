@@ -76,11 +76,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				'is_wpms' => $oWP->isMultisite() ? 1 : 0,
 				'ssl' => ( $oDP->FetchServer( 'HTTPS' ) == 'on' ) ? 1 : 0,
 				'locale' => get_locale(),
-				'plugins' => array(
-					'count_total' => count( $oWP->getPlugins() ),
-					'count_active' => count( $oWP->getActivePlugins() ),
-					'count_updates' => count( $oWP->getWordpressUpdates_Plugins() )
-				)
+				'plugins_total' => count( $oWP->getPlugins() ),
+				'plugins_active' => count( $oWP->getActivePlugins() ),
+				'plugins_updates' => count( $oWP->getWordpressUpdates_Plugins() )
 			);
 		}
 
