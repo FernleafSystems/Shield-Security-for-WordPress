@@ -50,12 +50,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 		public function doPrePluginOptionsSave() {
 
-			if ( $this->getIsEmailAuthenticationOptionOn() ) {
-				$this->setOpt( 'enable_email_authentication', 'Y' );
-				$this->setOpt( 'enable_two_factor_auth_by_ip', 'N' );
-				$this->setOpt( 'enable_two_factor_auth_by_cookie', 'N' );
-			}
-
 			$this->cleanLoginUrlPath();
 
 			if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
@@ -390,31 +384,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @param string $sType		can be either 'ip' or 'cookie'. If empty, both are checked looking for either.
 		 * @return bool
 		 */
-		public function getIsEmailAuthenticationOptionOn( $sType = '' ) {
-
-			$bEmail = $this->getOptIs( 'enable_email_authentication', 'Y' );
-			if ( $bEmail ) {
-				return $bEmail;
-			}
-			else { //TODO: remove this later on once most people have upgraded to having email-only version
-				$fIp = $this->getOptIs( 'enable_two_factor_auth_by_ip', 'Y' );
-				$fCookie = $this->getOptIs( 'enable_two_factor_auth_by_cookie', 'Y' );
-
-				switch( $sType ) {
-					case 'ip':
-						return $fIp;
-						break;
-					case 'cookie':
-						return $fCookie;
-						break;
-					default:
-						return $fIp || $fCookie;
-						break;
-				}
-			}
+		public function getIsEmailAuthenticationOptionOn() {
+			return $this->getOptIs( 'enable_email_authentication', 'Y' );
 		}
 
 		/**

@@ -134,12 +134,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sDescription = sprintf( _wpsf__( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.' ), '<span style"text-decoration:underline;">'._wpsf__('an automatic bot').'</span>' );
 					break;
 
-				case 'enable_comments_gasp_protection_for_logged_in' :
-					$sName = _wpsf__( 'Include Logged-In Users' );
-					$sSummary = _wpsf__( 'You may also enable GASP for logged in users' );
-					$sDescription = _wpsf__( 'Since logged-in users would be expected to be vetted already, this is off by default.' );
-					break;
-
 				case 'comments_cooldown_interval' :
 					$sName = _wpsf__( 'Comments Cooldown' );
 					$sSummary = _wpsf__( 'Limit posting comments to X seconds after the page has loaded' );
@@ -226,15 +220,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 */
 		public function getCommentsFilterTableName() {
 			return $this->doPluginPrefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
-		}
-
-		/**
-		 */
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( version_compare( $this->getVersion(), '4.1.0', '<' ) ) {
-				$this->setOpt( 'recreate_database_table', true );
-			}
 		}
 	}
 

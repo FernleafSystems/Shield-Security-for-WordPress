@@ -133,72 +133,63 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'secret_key'
-    section: 'section_non_ui'
-  -
     key: 'installation_time'
     section: 'section_non_ui'
-  -
-    key: 'capability_can_disk_write'
-    section: 'section_non_ui'
-  -
-    key: 'capability_can_remote_get'
-    section: 'section_non_ui'
-  -
-    key: 'active_plugin_features'
-    section: 'section_non_ui'
-    value:
-      -
-        slug: 'admin_access_restriction'
-        storage_key: 'admin_access_restriction'
-        load_priority: 20
-      -
-        slug: 'firewall'
-        storage_key: 'firewall'
-        load_priority: 13
-      -
-        slug: 'login_protect'
-        storage_key: 'loginprotect'
-      -
-        slug: 'user_management'
-        storage_key: 'user_management'
-      -
-        slug: 'comments_filter'
-        storage_key: 'commentsfilter'
-      -
-        slug: 'autoupdates'
-        storage_key: 'autoupdates'
-      -
-        slug: 'hack_protect'
-        storage_key: 'hack_protect'
-      -
-        slug: 'headers'
-        storage_key: 'headers'
-      -
-        slug: 'lockdown'
-        storage_key: 'lockdown'
-      -
-        slug: 'ips'
-        storage_key: 'ips'
-        load_priority: 12
-      -
-        slug: 'statistics'
-        storage_key: 'statistics'
-        load_priority: 11
-        hidden: false
-      -
-        slug: 'audit_trail'
-        storage_key: 'audit_trail'
-        load_priority: 11
-        hidden: false
-      -
-        slug: 'support'
-        storage_key: 'support'
-        load_priority: 20
-        hidden: false
-      -
-        slug: 'email'
-        storage_key: 'email'
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  active_plugin_features:
+    -
+      slug: 'admin_access_restriction'
+      storage_key: 'admin_access_restriction'
+      load_priority: 20
+    -
+      slug: 'firewall'
+      storage_key: 'firewall'
+      load_priority: 13
+    -
+      slug: 'login_protect'
+      storage_key: 'loginprotect'
+    -
+      slug: 'user_management'
+      storage_key: 'user_management'
+    -
+      slug: 'comments_filter'
+      storage_key: 'commentsfilter'
+    -
+      slug: 'autoupdates'
+      storage_key: 'autoupdates'
+    -
+      slug: 'hack_protect'
+      storage_key: 'hack_protect'
+    -
+      slug: 'headers'
+      storage_key: 'headers'
+    -
+      slug: 'lockdown'
+      storage_key: 'lockdown'
+    -
+      slug: 'ips'
+      storage_key: 'ips'
+      load_priority: 12
+    -
+      slug: 'statistics'
+      storage_key: 'statistics'
+      load_priority: 11
+      hidden: false
+    -
+      slug: 'audit_trail'
+      storage_key: 'audit_trail'
+      load_priority: 11
+      hidden: false
+    -
+      slug: 'support'
+      storage_key: 'support'
+      load_priority: 20
+      hidden: false
+    -
+      slug: 'email'
+      storage_key: 'email'
 ",
 		_wpsf__( 'Dashboard' ),
 		_wpsf__( 'Overview of the plugin settings' ) //tagline

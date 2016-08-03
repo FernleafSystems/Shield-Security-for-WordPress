@@ -46,13 +46,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return array
 		 */
 		public function getActivePluginFeatures() {
-			$aActiveFeatures = $this->getOptionsVo()->getRawData_SingleOption( 'active_plugin_features' );
+			$aActiveFeatures = $this->getDefinition( 'active_plugin_features' );
+			
 			$aPluginFeatures = array();
-			if ( empty( $aActiveFeatures['value'] ) || !is_array( $aActiveFeatures['value'] ) ) {
+			if ( empty( $aActiveFeatures ) || !is_array( $aActiveFeatures ) ) {
 				return $aPluginFeatures;
 			}
 
-			foreach( $aActiveFeatures['value'] as $nPosition => $aFeature ) {
+			foreach( $aActiveFeatures as $nPosition => $aFeature ) {
 				if ( isset( $aFeature['hidden'] ) && $aFeature['hidden'] ) {
 					continue;
 				}
@@ -216,8 +217,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
 			}
 
-			$sUniqueId = $this->getPluginInstallationId();
-			if ( empty( $sUniqueId ) || !is_string( $sUniqueId ) || strlen( $sUniqueId ) != 32 ) {
+			if ( $this->getIsUpgrading() ) {
 				$this->setPluginInstallationId();
 			}
 		}
@@ -230,38 +230,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @param string $sNewId - leave empty to reset
+		 * @param string $sNewId - leave empty to reset if the current isn't valid
 		 * @return bool
 		 */
-		public function setPluginInstallationId( $sNewId = null ) {
-			if ( empty( $sNewId ) ) {
-				$sNewId = md5( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
+		protected function setPluginInstallationId( $sNewId = null ) {
+			// only reset if it's not of the correct type
+			if ( !$this->isValidInstallId( $sNewId ) && !$this->isValidInstallId( $this->getPluginInstallationId() ) ) {
+				$sNewId = sha1( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
 			}
 			return $this->setOpt( 'unique_installation_id', $sNewId );
 		}
 
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( $this->getVersion() == '0.0' ) {
-				return;
-			}
-
-			// we need to update the meta keys for notices.
-			if ( is_admin() && version_compare( $this->getVersion(), '4.10.4', '<=' ) ) {
-				$aOldMetaMap = array(
-					'plugin_translation_notice' => 'translate-plugin',
-					'php53_version_warning' => 'php53-version-warning',
-					'plugin_mailing_list_signup' => 'plugin-mailing-list-signup'
-				);
-				$oWpAdminNotices = $this->loadAdminNoticesProcessor();
-				$oWpUsers = $this->loadWpUsersProcessor();
-				foreach( $aOldMetaMap as $sOldMeta => $sNewId ) {
-					if ( $oWpUsers->getUserMeta( $this->prefixOptionKey( $sOldMeta ) ) == 'Y' ) {
-						$oWpAdminNotices->setAdminNoticeAsDismissed( array( 'id' => $sNewId ) );
-					}
-					$oWpUsers->deleteUserMeta( $this->prefixOptionKey( $sOldMeta ) );
-				}
-			}
+		/**
+		 * @param string $sId
+		 * @return bool
+		 */
+		protected function isValidInstallId( $sId ) {
+			return ( !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40 );
 		}
 
 		/**
@@ -284,6 +269,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'This will restrict all user login sessions to a single browser. Use this if your users have dynamic IP addresses.' );
 			_wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication, when logging in from a new IP address' );
 			_wpsf__( '2-Factor Auth' );
+			_wpsf__( 'Include Logged-In Users' );
+			_wpsf__( 'You may also enable GASP for logged in users' );
+			_wpsf__( 'Since logged-in users would be expected to be vetted already, this is off by default.' );
 		}
 	}
 

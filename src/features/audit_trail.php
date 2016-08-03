@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 		 * @return string
 		 */
 		public function getAuditTrailTableName() {
-			return $this->doPluginPrefix( $this->getOpt( 'audit_trail_table_name' ), '_' );
+			return $this->doPluginPrefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
 		}
 
 		/**
@@ -210,15 +210,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 			$aOptionsParams['summary'] = $sSummary;
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
-		}
-
-		/**
-		 */
-		protected function updateHandler() {
-			parent::updateHandler();
-			if ( version_compare( $this->getVersion(), '4.1.0', '<' ) ) {
-				$this->setOpt( 'recreate_database_table', true );
-			}
 		}
 	}
 

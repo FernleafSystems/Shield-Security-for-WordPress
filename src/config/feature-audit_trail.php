@@ -99,27 +99,24 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'audit_trail_table_name'
-    section: 'section_non_ui'
-    value: 'audit_trail'
-  -
-    key: 'audit_trail_table_columns'
-    section: 'section_non_ui'
-    value:
-      - 'id'
-      - 'wp_username'
-      - 'ip'
-      - 'context'
-      - 'event'
-      - 'category'
-      - 'message'
-      - 'immutable'
-      - 'created_at'
-      - 'deleted_at'
-  -
     key: 'recreate_database_table'
     section: 'section_non_ui'
     default: false
+
+# Definitions for constant data that doesn't need stored in the options
+definitions:
+  audit_trail_table_name: 'audit_trail'
+  audit_trail_table_columns:
+    - 'id'
+    - 'wp_username'
+    - 'ip'
+    - 'context'
+    - 'event'
+    - 'category'
+    - 'message'
+    - 'immutable'
+    - 'created_at'
+    - 'deleted_at'
 
 menu_items:
   -

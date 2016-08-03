@@ -253,7 +253,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		public function getIsUpgrading() {
-			return $this->getVersion() != self::getController()->getVersion();
+//			return $this->getVersion() != self::getController()->getVersion();
+			return self::getController()->getIsRebuildOptionsFromFile();
 		}
 
 		/**
@@ -739,8 +740,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function doPrePluginOptionsSave() { }
 
-		/**
-		 */
 		protected function updateOptionsVersion() {
 			if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
 				$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );

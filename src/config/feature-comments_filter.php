@@ -120,14 +120,6 @@ options:
     link_info: 'http://icwp.io/shld5'
     link_blog: ''
   -
-    key: 'enable_comments_gasp_protection_for_logged_in'
-    section: 'section_bot_comment_spam_protection_filter'
-    hidden: true #since version v4.0.1 this has been removed.
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
     key: 'comments_default_action_spam_bot'
     section: 'section_bot_comment_spam_protection_filter'
     transferable: true

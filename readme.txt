@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.4.2
+Stable tag: 5.4.3
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -298,16 +298,20 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.4.2 Latest Point Release =
-*Released: 22nd July, 2016*
+= 5.4.3 Latest Point Release =
+*Released: 3rd August, 2016*
 
-* **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
-* **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
-* **(v.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
-* **(v.2)**  CHANGED:		[HTTP Security Headers](http://icwp.io/7b) module is enabled by default on new installs, but Content Security Policy is not.
+* **(v.3)**  FIXED:			Various fixes and improvements
+* **(v.3)**  CHANGED:		Lots of cleaning of old code.
+* **(v.3)**  REMOVED:		Various old, unused options, and the force_ssl_login option as it's deprecated by WordPress Core
+* **(v.3)**  TRANSLATIONS:	Dutch (36%), Swedish (35%)
 
 = 5.4 Series =
 
+* **(v.3)**  FIXED:			Various fixes and improvements
+* **(v.3)**  CHANGED:		Lots of cleaning of old code.
+* **(v.3)**  REMOVED:		Various old, unused options, and the force_ssl_login option as it's deprecated by WordPress Core
+* **(v.3)**  TRANSLATIONS:	Dutch (36%), Swedish (35%)
 * **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
 * **(v.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
