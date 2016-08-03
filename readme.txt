@@ -301,18 +301,16 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.4.3 Latest Point Release =
 *Released: 3rd August, 2016*
 
-* **(v.3)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(v.3)**  FIXED:			Various fixes and improvements
 * **(v.3)**  CHANGED:		Lots of cleaning of old code.
-* **(v.3)**  REMOVED:		Various old, unused options, the force_ssl_login option as it's deprecated by WordPress Core
+* **(v.3)**  REMOVED:		Various old, unused options, and the force_ssl_login option as it's deprecated by WordPress Core
 * **(v.3)**  TRANSLATIONS:	Dutch (36%), Swedish (35%)
 
 = 5.4 Series =
 
-* **(v.3)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(v.3)**  FIXED:			Various fixes and improvements
 * **(v.3)**  CHANGED:		Lots of cleaning of old code.
-* **(v.3)**  REMOVED:		Various old, unused options, the force_ssl_login option as it's deprecated by WordPress Core
+* **(v.3)**  REMOVED:		Various old, unused options, and the force_ssl_login option as it's deprecated by WordPress Core
 * **(v.3)**  TRANSLATIONS:	Dutch (36%), Swedish (35%)
 * **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
