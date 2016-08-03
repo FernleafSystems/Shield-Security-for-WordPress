@@ -347,7 +347,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function getWordpressUpdates( $sType = 'plugins' ) {
 			$oCurrent = $this->getTransient( 'update_'.$sType );
-			return ( is_object( $oCurrent ) && isset( $oCurrent->response ) ) ? $oCurrent->response : array();
+			return ( isset( $oCurrent->response ) && is_array( $oCurrent->response ) ) ? $oCurrent->response : array();
 		}
 
 		/**
