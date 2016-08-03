@@ -56,7 +56,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		protected function collectTrackingData() {
 			$aData = apply_filters(
 				$this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ),
-				array( 'env' => $this->getBaseTrackingData() )
+				$this->getBaseTrackingData()
 			);
 			return is_array( $aData ) ? $aData : array();
 		}
@@ -67,18 +67,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		protected function getBaseTrackingData() {
 			$oDP = $this->loadDataProcessor();
 			$oWP = $this->loadWpFunctionsProcessor();
-
 			return array(
-				'php' => $oDP->getPhpVersion(),
-				'wordpress' => $oWP->getWordpressVersion(),
-				'slug' => $this->getController()->getPluginSlug(),
-				'version' => $this->getController()->getVersion(),
-				'is_wpms' => $oWP->isMultisite() ? 1 : 0,
-				'ssl' => ( $oDP->FetchServer( 'HTTPS' ) == 'on' ) ? 1 : 0,
-				'locale' => get_locale(),
-				'plugins_total' => count( $oWP->getPlugins() ),
-				'plugins_active' => count( $oWP->getActivePlugins() ),
-				'plugins_updates' => count( $oWP->getWordpressUpdates_Plugins() )
+				'env' =>array(
+					'options' => array(
+						'php' => $oDP->getPhpVersion(),
+						'wordpress' => $oWP->getWordpressVersion(),
+						'slug' => $this->getController()->getPluginSlug(),
+						'version' => $this->getController()->getVersion(),
+						'is_wpms' => $oWP->isMultisite() ? 1 : 0,
+						'ssl' => ( $oDP->FetchServer( 'HTTPS' ) == 'on' ) ? 1 : 0,
+						'locale' => get_locale(),
+						'plugins_total' => count( $oWP->getPlugins() ),
+						'plugins_active' => count( $oWP->getActivePlugins() ),
+						'plugins_updates' => count( $oWP->getWordpressUpdates_Plugins() )
+					)
+				)
 			);
 		}
 
