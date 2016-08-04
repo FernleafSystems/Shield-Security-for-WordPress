@@ -303,11 +303,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function onWpDashboardSetup() {
-		wp_add_dashboard_widget(
-			$this->doPluginPrefix( 'dashboard_widget' ),
-			apply_filters( $this->doPluginPrefix( 'dashboard_widget_title' ), $this->getHumanName() ),
-			array( $this, 'displayDashboardWidget' )
-		);
+		if ( $this->getIsValidAdminArea() ) {
+			wp_add_dashboard_widget(
+				$this->doPluginPrefix( 'dashboard_widget' ),
+				apply_filters( $this->doPluginPrefix( 'dashboard_widget_title' ), $this->getHumanName() ),
+				array( $this, 'displayDashboardWidget' )
+			);
+		}
 	}
 
 	public function displayDashboardWidget() {
