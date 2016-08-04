@@ -27,7 +27,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	}
 
 	public function loadGoogleRecaptchaJs() {
-		wp_register_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js' );
+		wp_register_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?hl='
+			. $this->getGoogleRecaptchaLocale(get_locale()) );
 		wp_enqueue_script( 'google-recaptcha' );
 	}
 
@@ -42,6 +43,34 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 */
 	public function printGoogleRecaptchaCheck() {
 		echo $this->getGoogleRecaptchaHtml();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGoogleRecaptchaLocale($siteLocale)
+	{
+		// this is crap.. but based on..https://developers.google.com/recaptcha/docs/language
+		// supports https://en.wikipedia.org/wiki/ISO_639 but also https://en.wikipedia.org/wiki/ISO_3166-1
+
+		// site locale to iso locale (wp en_GB -> iso en-GB)
+		$locale = str_replace('_', '-', $siteLocale);
+
+		// these derivative locales should be used... https://developers.google.com/recaptcha/docs/language
+		static $subs = [
+			'zh-HK',
+			'zh-CN',
+			'zh-TW',
+			'en-GB',
+			'fr-CA',
+			'pt-PT',
+			'es-419',
+		];
+		if (in_array($locale, $subs, true)) {
+			return $subs[$locale];
+		}
+		// else make it compatible (en-GB -> en)
+		return strpos($locale, '-') ? explode('-', $locale)[0] : $locale;
 	}
 
 	/**
