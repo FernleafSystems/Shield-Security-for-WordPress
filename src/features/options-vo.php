@@ -313,6 +313,18 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return string|null
+	 */
+	public function getOptionType( $sKey ) {
+		$aDef = $this->getRawData_SingleOption( $sKey );
+		if ( !empty( $aDef ) && isset( $aDef[ 'type' ] ) ) {
+			return $aDef[ 'type' ];
+		}
+		return null;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getOptionsKeys() {
