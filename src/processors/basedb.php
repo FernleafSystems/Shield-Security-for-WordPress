@@ -67,10 +67,10 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		 */
 		protected function initializeTable() {
 			if ( $this->getTableExists() ) {
-
-				if ( $this->getFeatureOptions()->getOpt( 'recreate_database_table', false ) || !$this->tableIsValid() ) {
-					$this->getFeatureOptions()->setOpt( 'recreate_database_table', false );
-					$this->getFeatureOptions()->savePluginOptions();
+				$oFO = $this->getFeatureOptions();
+				if ( $oFO->getOpt( 'recreate_database_table', false ) || !$this->tableIsValid() ) {
+					$oFO->setOpt( 'recreate_database_table', false );
+					$oFO->savePluginOptions();
 					$this->recreateTable();
 				}
 
