@@ -60,7 +60,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				'admin_access_restrict_posts'
 			);
 			foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
-				$aData[ 'options' ][ $sKeyToBoolean ] = !empty( $aData[ 'options' ][ $sKeyToBoolean ] );
+				$aData[ 'options' ][ $sKeyToBoolean ] = empty( $aData[ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
 			}
 			return $aData;
 		}
