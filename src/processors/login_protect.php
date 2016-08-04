@@ -54,6 +54,18 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * Override the original collection to then add plugin statistics to the mix
+	 * @param $aData
+	 * @return array
+	 */
+	public function tracking_DataCollect( $aData ) {
+		$aData = parent::tracking_DataCollect( $aData );
+		$aData[ 'options' ][ 'email_can_send_verified_at' ]
+			= ( $aData[ 'options' ][ 'email_can_send_verified_at' ] > 0 ) ? 1 : 0;
+		return $aData;
+	}
+
+	/**
 	 * @param array $aNoticeAttributes
 	 */
 	public function addNotice_email_verification_sent( $aNoticeAttributes ) {
