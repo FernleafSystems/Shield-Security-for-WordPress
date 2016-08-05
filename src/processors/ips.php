@@ -677,7 +677,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getFeatureOptions()->getDefinition( 'ip_list_table_columns' );
+			$aDef = $this->getFeatureOptions()->getDefinition( 'ip_list_table_columns' );
+			return ( is_array( $aDef ) ? $aDef : array() );
 		}
 
 		/**

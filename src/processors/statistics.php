@@ -224,7 +224,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		 * @return string
 		 */
 		protected function getTableColumnsByDefinition() {
-			return $this->getFeatureOptions()->getDefinition( 'statistics_table_columns' );
+			$aDef = $this->getFeatureOptions()->getDefinition( 'statistics_table_columns' );
+			return ( is_array( $aDef ) ? $aDef : array() );
 		}
 
 		/**

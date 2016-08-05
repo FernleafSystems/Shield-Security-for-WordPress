@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.4.3
+Stable tag: 5.4.4
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -298,16 +298,21 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.4.3 Latest Point Release =
-*Released: 3rd August, 2016*
+= 5.4.4 Latest Point Release =
+*Released: 5th August, 2016*
+
+* **(v.4)**  CHANGED:		User Management module is no-longer enabled by default on clean installations
+* **(v.4)**  CHANGED:		Made the GASP checkbox for Login protection clickable by label. [Thanks Aubrey!](https://github.com/FernleafSystems/Shield/pull/22)
+* **(v.4)**  CHANGED:		Shield Statistics only shows for WordPress admins (instead of all users)
+* **(v.4)**  FIXED:			Added a couple of guards to ensure data is of the correct format to prevent spurious errors
+* **(v.4)**  FIXED:			Bug where automatic file repair links from emails we're not working.
+
+= 5.4 Series =
 
 * **(v.3)**  FIXED:			Various fixes and improvements
 * **(v.3)**  CHANGED:		Lots of cleaning of old code.
 * **(v.3)**  REMOVED:		Various old, unused options, and the force_ssl_login option as it's deprecated by WordPress Core
 * **(v.3)**  TRANSLATIONS:	Dutch (36%), Swedish (35%)
-
-= 5.4 Series =
-
 * **(v.3)**  FIXED:			Various fixes and improvements
 * **(v.3)**  CHANGED:		Lots of cleaning of old code.
 * **(v.3)**  REMOVED:		Various old, unused options, and the force_ssl_login option as it's deprecated by WordPress Core

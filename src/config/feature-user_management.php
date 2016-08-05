@@ -32,7 +32,7 @@ options:
     key: 'enable_user_management'
     section: 'section_enable_plugin_feature_user_accounts_management'
     transferable: true
-    default: 'Y'
+    default: 'N'
     type: 'checkbox'
     link_info: ''
     link_blog: ''
