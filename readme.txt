@@ -305,6 +305,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.4)**  CHANGED:		Made the GASP checkbox for Login protection clickable by label. [Thanks Aubrey!](https://github.com/FernleafSystems/Shield/pull/22)
 * **(v.4)**  CHANGED:		Shield Statistics only shows for WordPress admins (instead of all users)
 * **(v.4)**  FIXED:			Added a couple of guards to ensure data is of the correct format to prevent spurious errors
+* **(v.4)**  FIXED:			Bug where automatic file repair links from emails we're not working.
 
 = 5.4 Series =
 
