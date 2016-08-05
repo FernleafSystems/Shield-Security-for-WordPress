@@ -302,6 +302,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 *Released: 5th August, 2016*
 
 * **(v.4)**  CHANGED:		User Management module is no-longer enabled by default on clean installations
+* **(v.4)**  CHANGED:		Made the GASP checkbox for Login protection clickable by label. [Thanks Aubrey!](https://github.com/FernleafSystems/Shield/pull/22)
 * **(v.4)**  CHANGED:		Shield Statistics only shows for WordPress admins (instead of all users)
 * **(v.4)**  FIXED:			Added a couple of guards to ensure data is of the correct format to prevent spurious errors
 
