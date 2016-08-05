@@ -181,6 +181,9 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 			return $bValid;
 		}
 
+		/**
+		 * @return array
+		 */
 		abstract protected function getTableColumnsByDefinition();
 
 		/**
