@@ -57,8 +57,9 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		 */
 		public function tracking_DataCollect( $aData ) {
 			$aData = parent::tracking_DataCollect( $aData );
-			$aData[ 'options' ][ 'mask_wordpress_version' ]
-				= empty( $aData[ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
+			$sSlug = $this->getFeatureOptions()->getFeatureSlug();
+			$aData[$sSlug][ 'options' ][ 'mask_wordpress_version' ]
+				= empty( $aData[$sSlug][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
 			return $aData;
 		}
 
