@@ -387,10 +387,10 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @return mixed|null
 		 */
 		public static function ArrayFetch( &$aArray, $sKey, $mDefault = null ) {
-			if ( empty( $aArray ) || !isset( $aArray[$sKey] ) ) {
+			if ( !isset( $aArray[ $sKey ] ) ) {
 				return $mDefault;
 			}
-			return $aArray[$sKey];
+			return $aArray[ $sKey ];
 		}
 
 		/**
