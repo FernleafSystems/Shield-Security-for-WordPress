@@ -52,7 +52,7 @@ admin_notices:
     id: 'allow-tracking'
     schedule: 'once'
     valid_admin: true
-    delay_days: 1
+    delay_days: 0
     type: 'promo'
 
 # Options Sections

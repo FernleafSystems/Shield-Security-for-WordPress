@@ -43,11 +43,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( ! parent::getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
 				return false;
 			}
-
 			if ( isset( $aNoticeAttributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeAttributes['delay_days'] ) ) {
 				return false;
 			}
-
 			return true;
 		}
 
@@ -244,7 +242,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( empty( $nTimeInstalled ) ) {
 				return 0;
 			}
-			return round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
+			return (int)round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
 		}
 
 		/**
