@@ -258,22 +258,35 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * Ensure we always a valid installation ID.
 		 * @return string
 		 */
 		public function getPluginInstallationId() {
-			return $this->getOpt( 'unique_installation_id', '' );
+			$sId = $this->getOpt( 'unique_installation_id', '' );
+			if ( !$this->isValidInstallId( $sId ) ) {
+				$sId = $this->setPluginInstallationId();
+			}
+			return $sId;
 		}
 
 		/**
 		 * @param string $sNewId - leave empty to reset if the current isn't valid
-		 * @return bool
+		 * @return string
 		 */
 		protected function setPluginInstallationId( $sNewId = null ) {
 			// only reset if it's not of the correct type
-			if ( !$this->isValidInstallId( $sNewId ) && !$this->isValidInstallId( $this->getPluginInstallationId() ) ) {
-				$sNewId = sha1( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
+			if ( !$this->isValidInstallId( $sNewId ) ) {
+				$sNewId = $this->genInstallId();
 			}
-			return $this->setOpt( 'unique_installation_id', $sNewId );
+			$this->setOpt( 'unique_installation_id', $sNewId );
+			return $sNewId;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function genInstallId() {
+			return sha1( $this->getPluginInstallationTime() . $this->loadWpFunctionsProcessor()->getWpUrl() );
 		}
 
 		/**

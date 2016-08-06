@@ -188,6 +188,23 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param bool $bRemoveSchema
+		 * @return string
+		 */
+		public function getWpUrl( $bRemoveSchema = false ) {
+			$sUrl = network_site_url();
+			if ( empty( $sUrl ) ) {
+				remove_all_filters( 'site_url' );
+				remove_all_filters( 'network_site_url' );
+				$sUrl = network_site_url();
+			}
+			if ( $bRemoveSchema ) {
+				$sUrl = preg_replace( '#^((http|https):)?\/\/#i', '', $sUrl );
+			}
+			return $sUrl;
+		}
+
+		/**
 		 * @param bool $bForChecksums
 		 * @return string
 		 */
