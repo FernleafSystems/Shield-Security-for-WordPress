@@ -166,6 +166,12 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		}
 
 		/**
+		 */
+		static public function loadFactory() {
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-factory.php' );
+		}
+
+		/**
 		 * @param string $sTemplatePath
 		 * @return ICWP_WPSF_Render
 		 */

@@ -118,6 +118,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->checkMinimumRequirements();
 		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
 		$this->loadWpTrack();
+		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
 	}
 
 	/**

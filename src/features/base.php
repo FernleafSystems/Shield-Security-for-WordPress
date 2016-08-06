@@ -240,8 +240,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		public function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
 				$oCon = self::getController();
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'options-vo.php' );
-				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
+				$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
 				$this->oOptions->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
 				$this->oOptions->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
