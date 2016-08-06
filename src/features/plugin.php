@@ -103,6 +103,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return int
 		 */
+		public function getTrackingPermissionSetAt() {
+			return $this->getOpt( 'tracking_permission_set_at', 0 );
+		}
+
+		/**
+		 * @return int
+		 */
 		public function updateLastTrackingSentAt() {
 			return $this->setOpt( 'last_tracking_sent_at', $this->loadDataProcessor()->time() );
 		}
@@ -254,6 +261,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 			if ( $this->getIsUpgrading() ) {
 				$this->setPluginInstallationId();
+			}
+
+			if ( $this->getTrackingEnabled() && ( $this->getTrackingPermissionSetAt() == 0 ) ) {
+				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
 			}
 		}
 

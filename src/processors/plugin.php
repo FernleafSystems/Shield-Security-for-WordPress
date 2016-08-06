@@ -7,6 +7,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 	class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 		/**
+		 * @var ICWP_WPSF_Processor_Plugin_Tracking
+		 */
+		protected $oTrackingProcessor;
+
+		/**
 		 */
 		public function run() {
 			parent::run();
@@ -30,10 +35,61 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
 
 			if ( $oFO->getTrackingEnabled() ) {
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'plugin_tracking.php' );
-				$oPlugins = new ICWP_WPSF_Processor_Plugin_Tracking( $oFO );
-				$oPlugins->run();
+				$this->getTrackingProcessor()->run();
 			}
+
+			if ( $this->loadWpUsersProcessor()->isUserAdmin() ) {
+				$oDp = $this->loadDataProcessor();
+				$sAction = $oDp->FetchGet( 'shield_action' );
+				switch ( $sAction ) {
+					case 'dump_tracking_data':
+						add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
+						break;
+				}
+			}
+		}
+
+		/**
+		 * @return ICWP_WPSF_Processor_Plugin_Tracking
+		 */
+		protected function getTrackingProcessor() {
+			if ( !isset( $this->oTrackingProcessor ) ) {
+				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'plugin_tracking.php' );
+				$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeatureOptions() );
+			}
+			return $this->oTrackingProcessor;
+		}
+
+		/**
+		 */
+		public function dumpTrackingData() {
+			if ( !$this->getController()->getIsValidAdminArea() ) {
+				return;
+			}
+			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()->collectTrackingData(), true ) );
+			die();
+		}
+		/**
+		 */
+		public function printTrackingDataBox() {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( !$this->getController()->getIsValidAdminArea() ) {
+				return;
+			}
+
+			$aRenderData = array(
+				'strings' => array(
+					'tracking_data' => print_r( $this->getTrackingProcessor()->collectTrackingData(), true ),
+				),
+//				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
+				'js_snippets' => array(
+//					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+				)
+			);
+			add_thickbox();
+			echo $oFO->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin_tracking_data_dump.php', $aRenderData );
 		}
 
 		/**

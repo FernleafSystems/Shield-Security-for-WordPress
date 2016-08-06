@@ -7,9 +7,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$this->createTrackingCollectionCron();
-			add_action( $oFO->getTrackingCronName(), array( $this, 'sendTrackingData' ) );
+
+			if ( $oFO->getTrackingEnabled() ) {
+				$this->createTrackingCollectionCron();
+				add_action( $oFO->getTrackingCronName(), array( $this, 'sendTrackingData' ) );
+			}
 			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+
+			// TODO : Remove after testing
 			if ( isset( $_GET['test'] ) ) {
 				add_action( 'init', array( $this, 'sendTrackingData' ) );
 			}
@@ -53,7 +58,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		/**
 		 * @return array
 		 */
-		protected function collectTrackingData() {
+		public function collectTrackingData() {
 			$aData = apply_filters(
 				$this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ),
 				$this->getBaseTrackingData()

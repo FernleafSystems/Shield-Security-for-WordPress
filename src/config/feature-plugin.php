@@ -153,6 +153,9 @@ options:
     key: 'last_tracking_sent_at'
     section: 'section_non_ui'
   -
+    key: 'tracking_permission_set_at'
+    section: 'section_non_ui'
+  -
     key: 'installation_time'
     section: 'section_non_ui'
 
