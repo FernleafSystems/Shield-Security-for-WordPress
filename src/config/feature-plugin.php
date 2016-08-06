@@ -25,11 +25,6 @@ admin_notices:
     schedule: 'version'
     valid_admin: true
     type: 'warning'
-  'post-plugin-update':
-    id: 'post-plugin-update'
-    schedule: 'version'
-    valid_admin: true
-    type: 'warning'
   'plugin-mailing-list-signup':
     id: 'plugin-mailing-list-signup'
     schedule: 'once'

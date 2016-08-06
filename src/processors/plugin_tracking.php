@@ -33,10 +33,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
-						'help_us' => sprintf( _wpsf__( "Will you help us to get even better?" ), $oCon->getHumanName() ),
-						'want_to_track' => sprintf( _wpsf__( "We're looking to understand how people, like you, use this plugin." ), $oCon->getHumanName() ),
+						'help_us' => sprintf( _wpsf__( "Will you help us to make %s even better?" ), $oCon->getHumanName() ),
+						'want_to_track' =>  _wpsf__( "We're working to understand how people, just like you, use this plugin every day." ),
 						'what_we_collect' => _wpsf__( "We'd like to understand better the features used most and how effective we are on a global scale." ),
-						'data_anon' => _wpsf__( "The data sent will be completely anonymous." ),
+						'data_anon' => _wpsf__( 'The data sent will be always completely anonymous and we will never be able to track you or your website.' ),
+						'can_turn_off' => _wpsf__( 'You can easily turn it off at any time within the plugin options if you change your mind.' ),
 						'click_to_see' => _wpsf__( "Click to see the RAW data that would be sent" ),
 						'learn_more' => _wpsf__( 'Learn More.' ),
 						'site_url' => 'translate.icontrolwp.com',
@@ -45,6 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 					'hrefs' => array(
 						'learn_more' => 'http://translate.icontrolwp.com',
 						'link_to_see' => $this->getLinkToTrackingDataDump(),
+						'link_to_moreinfo' => 'http://icwp.io/shieldtrackinginfo',
 
 					)
 				);
@@ -79,7 +81,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				return;
 			}
 			$sUrl = $oFO->getDefinition( 'tracking_post_url' );
-			$sUrl = 'http://staging.worpitapp.com/track/plugin/shield';
 			$oFS = $this->loadFileSystemProcessor();
 			$oResult = $oFS->requestUrl(
 				$sUrl,
