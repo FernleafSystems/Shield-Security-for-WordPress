@@ -19,6 +19,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		public function run() {}
 
 		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sSlug = $oFO->getFeatureSlug();
+			if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
+				$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oFO->getPluginInstallationId();
+			}
+			return $aData;
+		}
+
+		/**
 		 * @param array $aNoticeAttributes
 		 * @return bool
 		 */
