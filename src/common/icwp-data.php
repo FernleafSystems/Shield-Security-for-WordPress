@@ -506,8 +506,15 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @param string $sBaseUrl
 		 */
 		public function doSendApache404( $sRequestedUrl, $sBaseUrl ) {
+			$bForwardedProto = $this->FetchServer( 'HTTP_X_FORWARDED_PROTO' ) == 'https';
 			header( 'HTTP/1.1 404 Not Found' );
-			die( '<html><head><title>404 Not Found</title><style type="text/css"></style></head><body><h1>Not Found</h1><p>The requested URL '.$sRequestedUrl.' was not found on this server.</p><p>Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p><hr><address>Apache Server at '.$sBaseUrl.' Port 80</address></body></html>' );
+			$sDie = sprintf(
+				'<html><head><title>404 Not Found</title><style type="text/css"></style></head><body><h1>Not Found</h1><p>The requested URL %s was not found on this server.</p><p>Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p><hr><address>Apache Server at %s Port %s</address></body></html>',
+				$sRequestedUrl,
+				$sBaseUrl,
+				( $bForwardedProto || is_ssl() ) ? 443 : $this->FetchServer( 'SERVER_PORT' )
+			);
+			die( $sDie );
 		}
 
 		/**
