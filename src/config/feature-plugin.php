@@ -154,6 +154,7 @@ options:
     section: 'section_non_ui'
   -
     key: 'tracking_permission_set_at'
+    default: 0
     section: 'section_non_ui'
   -
     key: 'installation_time'

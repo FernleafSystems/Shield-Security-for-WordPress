@@ -159,57 +159,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @see autoAddToAdminNotices()
 		 * @param array $aNoticeAttributes
 		 */
-		protected function addNotice_allow_tracking( $aNoticeAttributes ) {
-
-			if ( $this->getIfShowAdminNotices() ) {
-				$oCon = $this->getController();
-				$aRenderData = array(
-					'notice_attributes' => $aNoticeAttributes,
-					'strings' => array(
-						'help_us' => sprintf( _wpsf__( "Will you help us to get even better?" ), $oCon->getHumanName() ),
-						'want_to_track' => sprintf( _wpsf__( "We're looking to understand how people like you use this plugin." ), $oCon->getHumanName() ),
-						'what_we_collect' => _wpsf__( "We want to know the features you use and how effective we are on a global scale." ),
-						'data_anon' => _wpsf__( "The data will be completely anonymous." ),
-						'click_to_see' => _wpsf__( "Click to see the exact data that would be sent" ),
-						'learn_more' => _wpsf__( 'Learn More.' ),
-						'site_url' => 'translate.icontrolwp.com',
-						'yes' => _wpsf__( 'Absolutely' )
-					),
-					'hrefs' => array(
-						'learn_more' => 'http://translate.icontrolwp.com',
-						'link_to_see' => $this->getLinkToSeeTrackingDataHtml(),
-
-					)
-				);
-				$this->insertAdminNotice( $aRenderData );
-			}
-		}
-
-		/**
-		 * @param string $sLinkText
-		 * @return string
-		 */
-		protected function getLinkToSeeTrackingDataHtml( $sLinkText = '' ) {
-			if ( empty( $sLinkText ) ) {
-				$sLinkText = _wpsf__( 'See Data' );
-			}
-			return sprintf(
-				'<a href="%1$s" target="_blank" title="%2$s">%3$s</a>',
-				add_query_arg(
-					array(
-						'shield_action' => 'dump_tracking_data'
-					),
-					$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
-				),
-				$sLinkText,
-				$sLinkText
-			);
-		}
-
-		/**
-		 * @see autoAddToAdminNotices()
-		 * @param array $aNoticeAttributes
-		 */
 		protected function addNotice_post_plugin_update( $aNoticeAttributes ) {
 			$oFO = $this->getFeatureOptions();
 

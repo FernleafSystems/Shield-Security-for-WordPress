@@ -34,7 +34,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 
 			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
 
-			if ( $oFO->getTrackingEnabled() ) {
+			if ( $oFO->getTrackingEnabled() || $oFO->getTrackingPermissionSetAt() == 0 ) {
 				$this->getTrackingProcessor()->run();
 			}
 
