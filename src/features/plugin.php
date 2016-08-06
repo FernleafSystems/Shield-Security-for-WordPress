@@ -251,7 +251,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		protected function genInstallId() {
-			return sha1( $this->getPluginInstallationTime() . $this->loadWpFunctionsProcessor()->getWpUrl() );
+			return sha1(
+				$this->getPluginInstallationTime()
+				. $this->loadWpFunctionsProcessor()->getWpUrl()
+				. $this->loadDbProcessor()->getPrefix()
+			);
 		}
 
 		/**
