@@ -558,7 +558,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return boolean
 		 */
 		protected function setOpt( $sOptionKey, $mValue ) {
-			$this->bBypassAdminAccess = true;
+			$this->setBypassAdminProtection( true );
 			return $this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
 		}
 
