@@ -123,12 +123,14 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			<script type="text/javascript">
 				var icwp_wpsf_login_p		= document.getElementById("'.$sUniqElem.'");
 				var icwp_wpsf_login_cb		= document.createElement("input");
+				var icwp_wpsf_login_lb		= document.createElement("label");
 				var icwp_wpsf_login_text	= document.createTextNode(" '.$sLabel.'");
 				icwp_wpsf_login_cb.type		= "checkbox";
 				icwp_wpsf_login_cb.id		= "'.$this->getGaspCheckboxName().'";
 				icwp_wpsf_login_cb.name		= "'.$this->getGaspCheckboxName().'";
-				icwp_wpsf_login_p.appendChild( icwp_wpsf_login_cb );
-				icwp_wpsf_login_p.appendChild( icwp_wpsf_login_text );
+				icwp_wpsf_login_p.appendChild( icwp_wpsf_login_lb );
+				icwp_wpsf_login_lb.appendChild( icwp_wpsf_login_cb );
+				icwp_wpsf_login_lb.appendChild( icwp_wpsf_login_text );
 				var frm = icwp_wpsf_login_cb.form;
 				frm.onsubmit = icwp_wpsf_login_it;
 				function icwp_wpsf_login_it(){

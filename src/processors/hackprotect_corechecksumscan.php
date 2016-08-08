@@ -22,7 +22,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					switch ( $sAction ) {
 
 						case 'repair_file':
-							$sMd5FilePath = urldecode( esc_url( trim( $oDp->FetchGet( 'repair_file_path' ) ) ) );
+							$sPath = '/' . trim( $oDp->FetchGet( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
+							$sMd5FilePath = urldecode( esc_url( $sPath ) );
 							if ( !empty( $sMd5FilePath ) ) {
 								$this->replaceFileContentsWithOfficial( $sMd5FilePath );
 							}
@@ -155,6 +156,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		protected function replaceFileContentsWithOfficial( $sMd5FilePath ) {
 			$this->doStatIncrement( 'file.corechecksum.replaced' );
 
+			$sMd5FilePath = ltrim( $sMd5FilePath, '/' ); // ltrim() ensures we haven't received an absolute path. e.g. replace file
 			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sMd5FilePath );
 			if ( !empty( $sOfficialContent ) ) {
 				return $this->loadFileSystemProcessor()->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );
