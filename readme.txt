@@ -298,14 +298,20 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.4.5 Latest Point Release =
-*Released: 5th August, 2016*
+= 5.5.0 Latest Point Release =
+*Released: 10th August, 2016*
 
-* **(v.5)**  CHANGED:		User Management module is no-longer enabled by default on clean installations
-* **(v.5)**  CHANGED:		Made the GASP checkbox for Login protection clickable by label. [Thanks Aubrey!](https://github.com/FernleafSystems/Shield/pull/22)
-* **(v.5)**  CHANGED:		Shield Statistics only shows for WordPress admins (instead of all users)
-* **(v.5)**  FIXED:			Added a couple of guards to ensure data is of the correct format to prevent spurious errors
-* **(v.5)**  FIXED:			Bug where automatic file repair links from emails we're not working.
+* **(v.0)**  CHANGED:		Numerous fixes and code improvements.
+* **(v.0)**  CHANGED:		Google reCAPTCHA is now based on the locale of the website, not auto-detected.
+* **(v.0)**  FIXED:			Now URL encodes the username in the link for two-factor authentication by email.
+* **(v.0)**  FIXED:			If the xmlrpc.php has been deleted, this is now ignore by the file scanner
+
+= 5.5 Series =
+
+* **(v.0)**  CHANGED:		Numerous fixes and code improvements.
+* **(v.0)**  CHANGED:		Google reCAPTCHA is now based on the locale of the website, not auto-detected.
+* **(v.0)**  FIXED:			Now URL encodes the username in the link for two-factor authentication by email.
+* **(v.0)**  FIXED:			If the xmlrpc.php has been deleted, this is now ignore by the file scanner
 
 = 5.4 Series =
 
