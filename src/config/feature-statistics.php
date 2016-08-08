@@ -28,10 +28,6 @@ options:
     link_info: ''
     link_blog: ''
   -
-    key: 'recreate_database_table'
-    section: 'section_non_ui'
-    default: false
-  -
     key: 'current_plugin_version'
     section: 'section_non_ui'
 

@@ -237,7 +237,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return ICWP_WPSF_OptionsVO
 		 */
-		public function getOptionsVo() {
+		protected function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
 				$oCon = self::getController();
 				$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
@@ -246,6 +246,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$this->oOptions->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 			}
 			return $this->oOptions;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getAdminNotices(){
+			return $this->getOptionsVo()->getAdminNotices();
 		}
 
 		/**
@@ -541,7 +548,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @param mixed $mValue
 		 * @return boolean
 		 */
-		public function setOpt( $sOptionKey, $mValue ) {
+		protected function setOpt( $sOptionKey, $mValue ) {
 			return $this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
 		}
 

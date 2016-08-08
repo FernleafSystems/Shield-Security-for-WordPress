@@ -87,10 +87,6 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-  -
-    key: 'recreate_database_table'
-    section: 'section_non_ui'
-    default: false
 
 # Definitions for constant data that doesn't need stored in the options
 definitions:

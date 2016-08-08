@@ -193,10 +193,6 @@ options:
   -
     key: 'two_factor_auth_table_created'
     section: 'section_non_ui'
-  -
-    key: 'recreate_database_table'
-    section: 'section_non_ui'
-    default: false
 
 # Definitions for constant data that doesn't need stored in the options
 definitions:

@@ -32,7 +32,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		public function autoAddToAdminNotices() {
 			$oCon = $this->getController();
 
-			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
+			foreach( $this->getFeatureOptions()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
 				if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
 					continue;
