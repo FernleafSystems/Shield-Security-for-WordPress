@@ -17,13 +17,8 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 
 		parent::run();
 
-		add_action( 'wp_enqueue_scripts',		array( $this, 'loadGoogleRecaptchaJs' ), 99 );
+		add_action( 'wp_enqueue_scripts',		array( $this, 'registerGoogleRecaptchaJs' ), 99 );
 		add_action( 'comment_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
-	}
-
-	public function loadGoogleRecaptchaJs() {
-		wp_register_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js' );
-		wp_enqueue_script( 'google-recaptcha' );
 	}
 
 	/**
