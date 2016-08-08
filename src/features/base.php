@@ -10,6 +10,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		static protected $oPluginController;
 
 		/**
+		 * @var boolean
+		 */
+		protected $bBypassAdminAccess = false;
+
+		/**
 		 * @var ICWP_WPSF_OptionsVO
 		 */
 		protected $oOptions;
@@ -183,7 +188,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$aOptions = self::getController()->getOptionsImportFromFile();
 				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-					$this->doSaveByPassAdminProtection();
+					$this
+						->setBypassAdminProtection( true )
+						->savePluginOptions();
 				}
 			}
 		}
@@ -544,11 +551,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * Sets the value for the given option key
 		 *
+		 * Note: We also set the ability to bypass admin access since setOpt() is a protected function
+		 *
 		 * @param string $sOptionKey
 		 * @param mixed $mValue
 		 * @return boolean
 		 */
 		protected function setOpt( $sOptionKey, $mValue ) {
+			$this->bBypassAdminAccess = true;
 			return $this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
 		}
 
@@ -600,6 +610,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getBypassAdminRestriction() {
+			return $this->bBypassAdminAccess;
+		}
+
+		/**
 		 * @param string $sKey
 		 * @param string $sDefault
 		 * @return string
@@ -620,13 +637,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * Saves the options to the WordPress Options store.
 		 * It will also update the stored plugin options version.
 		 *
-		 * @return bool
+		 * @return void
 		 */
 		public function savePluginOptions() {
 			$this->initialiseKeyVars();
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
-			return $this->getOptionsVo()->doOptionsSave();
+
+			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
+			$this->getOptionsVo()->doOptionsSave();
+			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
 		/**
@@ -829,10 +849,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from
 		 * the admin access restriction feature.
 		 */
-		protected function doSaveByPassAdminProtection() {
-			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
-			$this->savePluginOptions();
-			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
+		protected function setBypassAdminProtection( $bBypass ) {
+			$this->bBypassAdminAccess = (bool)$bBypass;
+			return $this;
 		}
 
 		/**

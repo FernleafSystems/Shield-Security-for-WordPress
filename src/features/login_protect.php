@@ -16,8 +16,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			// User has clicked a link in their email to verify they can send email.
 			if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
 				if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
-					$this->setIfCanSendEmail( true );
-					$this->doSaveByPassAdminProtection();
+					$this
+						->setIfCanSendEmail( true )
+						->setBypassAdminProtection( true )
+						->savePluginOptions();
 					$this->loadWpFunctionsProcessor()->redirectToLogin();
 				}
 			}
@@ -38,8 +40,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 		 */
 			if ( $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
-				$this->setIfCanSendEmail( false );
-				$this->sendEmailVerifyCanSend();
+				$this
+					->setIfCanSendEmail( false )
+					->sendEmailVerifyCanSend();
 			}
 		}
 
@@ -437,7 +440,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 		/**
 		 * @param bool $bCan
-		 * @return bool
+		 * @return $this
 		 */
 		public function setIfCanSendEmail( $bCan ) {
 			$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
@@ -447,7 +450,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			else {
 				$nDateAt = 0;
 			}
-			return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
+			$this->setOpt( 'email_can_send_verified_at', $nDateAt );
+			return $this;
 		}
 
 		/**
