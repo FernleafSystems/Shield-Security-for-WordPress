@@ -252,8 +252,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		protected function doPreFirewallBlock() {
 
 			if ( $this->getIfDoFirewallBlock() ) {
+				/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+				$oFO = $this->getFeatureOptions();
 
-				switch( $this->getOption( 'block_response' ) ) {
+				switch( $oFO->getBlockResponse() ) {
 					case 'redirect_die':
 						$sMessage = _wpsf__( 'Visitor connection was killed with wp_die()' );
 						break;
@@ -285,7 +287,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				}
 
 				// black mark this IP
-				add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+				add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
 			}
 		}
 
@@ -294,20 +296,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		protected function doFirewallBlock() {
 
 			if ( $this->getIfDoFirewallBlock() ) {
-
+				/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+				$oFO = $this->getFeatureOptions();
 				$oWp = $this->loadWpFunctionsProcessor();
-				$sHomeUrl = $oWp->getHomeUrl();
-				switch( $this->getOption( 'block_response' ) ) {
+
+				switch( $oFO->getBlockResponse() ) {
 					case 'redirect_die':
 						break;
 					case 'redirect_die_message':
 						$oWp->wpDie( $this->getFirewallDieMessageForDisplay() );
 						break;
 					case 'redirect_home':
-						header( "Location: ".$sHomeUrl );
+						header( "Location: ".$oWp->getHomeUrl() );
 						break;
 					case 'redirect_404':
-						header( "Location: ".$sHomeUrl.'/404' );
+						header( "Location: ".$oWp->getHomeUrl().'/404' );
 						break;
 					default:
 						break;
@@ -447,7 +450,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 					)
 				);
 
-				$aCustomWhitelistPageParams = is_array( $this->getOption( 'page_params_whitelist' ) )? $this->getOption( 'page_params_whitelist' ) : array();
+				/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+				$oFO = $this->getFeatureOptions();
+				$aCustomWhitelistPageParams = $oFO->getPageParamWhitelist();
 				$this->aWhitelistPages = array_merge_recursive( $aDefaultWlPages, $aCustomWhitelistPageParams );
 			}
 

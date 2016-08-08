@@ -14,19 +14,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 
 		/**
 		 */
-		public function doPrePluginOptionsSave() {
+		public function doPrePluginOptionsSave() {}
 
-			$aPageWhitelist = $this->getOpt( 'page_params_whitelist' );
-			if ( $aPageWhitelist === false ) {
-				$aPageWhitelist = '';
-				$this->setOpt( 'page_params_whitelist', $aPageWhitelist );
-			}
+		/**
+		 * @return array
+		 */
+		public function getPageParamWhitelist() {
+			$aPageWhitelist = $this->getOpt( 'page_params_whitelist', array() );
+			return is_array( $aPageWhitelist ) ? $aPageWhitelist : array();
+		}
 
-			$sBlockResponse = $this->getOpt( 'block_response' );
-			if ( empty( $sBlockResponse ) ) {
-				$sBlockResponse = 'redirect_die_message';
-				$this->setOpt( 'block_response', $sBlockResponse );
-			}
+		/**
+		 * @return array
+		 */
+		public function getBlockResponse() {
+			$sBlockResponse = $this->getOpt( 'block_response', array() );
+			return !empty( $sBlockResponse ) ? $sBlockResponse : 'redirect_die_message'; // TODO: use default
 		}
 
 		/**

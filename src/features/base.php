@@ -553,11 +553,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
+		 * TODO: Consider admin access restrictions
+		 *
 		 * @param array $aOptions
 		 */
 		public function setOptions( $aOptions ) {
+			$oVO = $this->getOptionsVo();
 			foreach( $aOptions as $sKey => $mValue ) {
-				$this->setOpt( $sKey, $mValue );
+				$oVO->setOpt( $sKey, $mValue );
 			}
 		}
 
