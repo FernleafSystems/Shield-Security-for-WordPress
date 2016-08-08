@@ -22,6 +22,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
+		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			$aTallys = $this->getAllTallys();
+			$aTallyTracking = array();
+			foreach ( $aTallys as $aTally ) {
+				$aTallyTracking[ $aTally[ 'stat_key' ] ] = $aTally[ 'tally' ];
+			}
+			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
+			return $aData;
+		}
+
 		public function gatherStatsSummaryWidgetContent( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeatureOptions();

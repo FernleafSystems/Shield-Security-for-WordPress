@@ -178,13 +178,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		 *
 		 * @return array|bool
 		 */
-		public function requestUrl( $sUrl, $aRequestArgs = array() ) {
+		public function requestUrl( $sUrl, $aRequestArgs = array(), $bAlwaysRawResponse = false ) {
 
 			$mResult = wp_remote_request( $sUrl, $aRequestArgs );
-			if ( is_wp_error( $mResult ) ) {
-				return false;
+			if ( $bAlwaysRawResponse ) {
+				return $mResult;
 			}
-			if ( !isset( $mResult['response']['code'] ) || $mResult['response']['code'] != 200 ) {
+			if ( is_wp_error( $mResult ) || !isset( $mResult['response']['code'] ) || $mResult['response']['code'] != 200 ) {
 				return false;
 			}
 			return $mResult;

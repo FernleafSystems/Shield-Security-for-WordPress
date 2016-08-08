@@ -230,13 +230,6 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 			}
 			return self::$oWpComments;
 		}
-
-		/**
-		 * @return ICWP_Stats_WPSF
-		 */
-		public function loadStatsProcessor() {
-			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-stats.php' );
-		}
 	}
 
 endif;

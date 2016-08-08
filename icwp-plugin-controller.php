@@ -1075,7 +1075,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sPath
-	 *
 	 * @return string
 	 */
 	public function getPluginUrl( $sPath = '' ) {

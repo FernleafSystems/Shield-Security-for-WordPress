@@ -10,6 +10,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		protected $oFeatureOptions;
 
 		/**
+		 * @var int
+		 */
+		protected $nPromoNoticesCount = 0;
+
+		/**
 		 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
 		 */
 		public function __construct( $oFeatureOptions ) {
@@ -69,8 +74,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 				return false;
 			}
 
-			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' && $this->loadWpFunctionsProcessor()->getIsMobile() ) {
-				return false;
+			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
+				if ( $this->nPromoNoticesCount > 0 || $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+					return false;
+				}
+				$this->nPromoNoticesCount++; // we limit the number of promos displayed at any time to 1
 			}
 
 			return true;

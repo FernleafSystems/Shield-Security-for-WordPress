@@ -19,6 +19,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		public function run() {}
 
 		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sSlug = $oFO->getFeatureSlug();
+			if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
+				$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oFO->getPluginInstallationId();
+			}
+			return $aData;
+		}
+
+		/**
 		 * @param array $aNoticeAttributes
 		 * @return bool
 		 */
@@ -27,11 +43,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( ! parent::getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
 				return false;
 			}
-
-			if ( isset( $aNoticeAttributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() <= $aNoticeAttributes['delay_days'] ) ) {
+			if ( isset( $aNoticeAttributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() < $aNoticeAttributes['delay_days'] ) ) {
 				return false;
 			}
-
 			return true;
 		}
 
@@ -140,53 +154,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		}
 
 		/**
-		 * @see autoAddToAdminNotices()
-		 * @param array $aNoticeAttributes
-		 */
-		protected function addNotice_post_plugin_update( $aNoticeAttributes ) {
-			$oFO = $this->getFeatureOptions();
-
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'post-plugin-update' );
-			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'post-plugin-update' ) ) {
-				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display
-				return;
-			}
-
-			if ( !$this->getIfShowAdminNotices() ) {
-				return;
-			}
-
-			$sHumanName = $this->getController()->getHumanName();
-			if ( $this->getInstallationDays() <= 1 ) {
-				$sMessage = sprintf(
-					_wpsf__( "Notice - %s" ),
-					sprintf( _wpsf__( "The %s plugin does not automatically turn on certain features when you install." ), $sHumanName )
-				);
-			}
-			else {
-				$sMessage = sprintf(
-					_wpsf__( "Notice - %s" ),
-					sprintf( _wpsf__( "The %s plugin has been recently upgraded, but please remember that new features may not be automatically enabled." ), $sHumanName )
-				);
-			}
-
-			$aRenderData = array(
-				'notice_attributes' => $aNoticeAttributes,
-				'strings' => array(
-					'main_message' => $sMessage,
-					'read_homepage' => _wpsf__( 'Click to read about any important updates from the plugin home page.' ),
-					'link_title' => $sHumanName,
-					'dismiss' => _wpsf__( 'Dismiss this notice' )
-				),
-				'hrefs' => array(
-					'read_homepage' => 'http://icwp.io/27',
-				),
-			);
-			$this->insertAdminNotice( $aRenderData );
-		}
-
-		/**
 		 * @return bool
 		 */
 		public function getIsDeleteOnDeactivate() {
@@ -228,7 +195,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( empty( $nTimeInstalled ) ) {
 				return 0;
 			}
-			return round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
+			return (int)round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
 		}
 
 		/**

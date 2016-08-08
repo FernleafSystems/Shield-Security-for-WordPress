@@ -46,6 +46,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
 		}
 
+		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			$sSlug = $this->getFeatureOptions()->getFeatureSlug();
+
+			$aKeysToBoolean = array(
+				'admin_access_restrict_plugins',
+				'admin_access_restrict_themes',
+				'admin_access_restrict_posts'
+			);
+			foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
+				$aData[$sSlug][ 'options' ][ $sKeyToBoolean ]
+					= empty( $aData[$sSlug][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
+			}
+			return $aData;
+		}
+
 		protected function isSecurityAdmin() {
 			return self::getController()->getHasPermissionToManage();
 		}

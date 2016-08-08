@@ -12,6 +12,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			add_filter( $this->doPluginPrefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
 			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
+
+			if ( !$this->getTrackingPermissionSet() ) {
+				add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
+			}
+		}
+
+		public function ajaxSetPluginTrackingPermission() {
+
+			if ( self::getController()->getIsValidAdminArea() && $this->checkAjaxNonce() ) {
+				$oDP = $this->loadDataProcessor();
+				$this->setOpt( 'enable_tracking', $oDP->FetchGet( 'agree', 0 ) ? 'Y' : 'N' );
+				$this->setOpt( 'tracking_permission_set_at', $oDP->time() );
+				$this->sendAjaxResponse( true );
+			}
+			else {
+				$this->sendAjaxResponse( false );
+			}
 		}
 
 		/**
@@ -87,6 +104,41 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getTrackingCronName() {
+			return $this->doPluginPrefix( $this->getDefinition( 'tracking_cron_handle' ) );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getLastTrackingSentAt() {
+			return $this->getOpt( 'last_tracking_sent_at' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getTrackingPermissionSet() {
+			return !$this->getOptIs( 'tracking_permission_set_at', 0 );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function updateLastTrackingSentAt() {
+			return $this->setOpt( 'last_tracking_sent_at', $this->loadDataProcessor()->time() );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getTrackingEnabled() {
+			return $this->getOptIs( 'enable_tracking', 'Y' );
+		}
+
+		/**
 		 * @param $sEmail
 		 * @return string
 		 */
@@ -151,6 +203,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
 					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getController()->getHumanName() );
+					break;
+
+				case 'enable_tracking' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Tracking' ) );
+					$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
+					$sDescription = _wpsf__( 'Allows us to gather information on global statistics and features in-use across our client installations.' )
+						. ' ' . _wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' );
 					break;
 
 				case 'block_send_email_address' :
@@ -219,6 +278,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 			if ( $this->getIsUpgrading() ) {
 				$this->setPluginInstallationId();
+			}
+
+			if ( $this->getTrackingEnabled() && ( !$this->getTrackingPermissionSet() ) ) {
+				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
 			}
 		}
 

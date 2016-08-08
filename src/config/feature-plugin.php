@@ -25,11 +25,6 @@ admin_notices:
     schedule: 'version'
     valid_admin: true
     type: 'warning'
-  'post-plugin-update':
-    id: 'post-plugin-update'
-    schedule: 'version'
-    valid_admin: true
-    type: 'warning'
   'plugin-mailing-list-signup':
     id: 'plugin-mailing-list-signup'
     schedule: 'once'
@@ -47,6 +42,12 @@ admin_notices:
     schedule: 'once'
     valid_admin: true
     delay_days: 45
+    type: 'promo'
+  'allow-tracking':
+    id: 'allow-tracking'
+    schedule: 'once'
+    valid_admin: true
+    delay_days: 0
     type: 'promo'
 
 # Options Sections
@@ -75,9 +76,18 @@ options:
     link_info: ''
     link_blog: ''
   -
+    key: 'enable_tracking'
+    section: 'section_general_plugin_options'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
+  -
     key: 'block_send_email_address'
     section: 'section_general_plugin_options'
     transferable: true
+    sensitive: true
     default: ''
     type: 'email'
     link_info: ''
@@ -117,6 +127,7 @@ options:
     key: 'google_recaptcha_site_key'
     section: 'section_third_party_google'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/shld5'
@@ -125,6 +136,7 @@ options:
     key: 'google_recaptcha_secret_key'
     section: 'section_third_party_google'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/shld5'
@@ -133,11 +145,20 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
+    key: 'last_tracking_sent_at'
+    section: 'section_non_ui'
+  -
+    key: 'tracking_permission_set_at'
+    default: 0
+    section: 'section_non_ui'
+  -
     key: 'installation_time'
     section: 'section_non_ui'
 
 # Definitions for constant data that doesn't need stored in the options
 definitions:
+  tracking_cron_handle: 'plugin_tracking_cron'
+  tracking_post_url: 'https://tracking.icontrolwp.com/track/plugin/shield'
   active_plugin_features:
     -
       slug: 'admin_access_restriction'
@@ -190,6 +211,7 @@ definitions:
     -
       slug: 'email'
       storage_key: 'email'
+      
 ",
 		_wpsf__( 'Dashboard' ),
 		_wpsf__( 'Overview of the plugin settings' ) //tagline

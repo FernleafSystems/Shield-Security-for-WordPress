@@ -79,6 +79,7 @@ options:
     section: 'section_non_ui'
   -
     key: 'this_server_ip'
+    sensitive: true
     section: 'section_non_ui'
     value: ''
   -

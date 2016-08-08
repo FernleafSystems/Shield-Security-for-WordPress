@@ -23,6 +23,35 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			$oFO = $this->getFeatureOptions();
 			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
+		}
+
+		/**
+		 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
+		 * - it is not enabled by default.
+		 *
+		 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain identifiable
+		 * data.
+		 *
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$oFO = $this->getFeatureOptions();
+			if ( !is_array( $aData ) ) {
+				$aData = array();
+			}
+			$oVO = $oFO->getOptionsVo();
+			$aOptionsData = $oVO->getOptionsMaskSensitive();
+			foreach ( $aOptionsData as $sOption => $mValue ) {
+				$sType = $oVO->getOptionType( $sOption );
+				if ( $sType == 'checkbox' ) { // we only really want a boolean 1 or 0
+					$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
+				}
+			}
+
+			$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $aOptionsData );
+			return $aData;
 		}
 
 		/**
