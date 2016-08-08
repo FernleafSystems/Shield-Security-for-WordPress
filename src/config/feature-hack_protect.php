@@ -65,6 +65,7 @@ definitions:
     - 'wp-content/'
   corechecksum_exclusions_missing_only:
     - 'wp-admin/install.php'
+    - 'xmlrpc.php'
   corechecksum_autofix_index_files:
     - 'wp-content/index.php'
     - 'wp-content/plugins/index.php'
