@@ -13,11 +13,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				add_action( $oFO->getTrackingCronName(), array( $this, 'sendTrackingData' ) );
 			}
 			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
-
-			// TODO : Remove after testing
-			if ( isset( $_GET['test'] ) ) {
-				add_action( 'init', array( $this, 'sendTrackingData' ) );
-			}
 		}
 
 		/**
