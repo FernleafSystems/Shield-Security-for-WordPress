@@ -301,6 +301,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.5.0 Latest Point Release =
 *Released: 10th August, 2016*
 
+* **(v.0)**  IMPROVED:		Performance for options loading, especially for web hosts that don't permit file writing
 * **(v.0)**  CHANGED:		Numerous fixes and code improvements.
 * **(v.0)**  CHANGED:		Google reCAPTCHA is now based on the locale of the website, not auto-detected.
 * **(v.0)**  FIXED:			Now URL encodes the username in the link for two-factor authentication by email.
@@ -308,6 +309,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 = 5.5 Series =
 
+* **(v.0)**  IMPROVED:		Performance for options loading, especially for web hosts that don't permit file writing
 * **(v.0)**  CHANGED:		Numerous fixes and code improvements.
 * **(v.0)**  CHANGED:		Google reCAPTCHA is now based on the locale of the website, not auto-detected.
 * **(v.0)**  FIXED:			Now URL encodes the username in the link for two-factor authentication by email.
