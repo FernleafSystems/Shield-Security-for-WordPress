@@ -734,11 +734,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function deleteFlags() {
-		if ( $this->getIsRebuildOptionsFromFile() ) {
-			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'rebuild' ) );
+		$oFS = $this->loadFileSystemProcessor();
+		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
+			$oFS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
 		if ( $this->getIsResetPlugin() ) {
-			$this->loadFileSystemProcessor()->deleteFile( $this->getPath_Flags( 'reset' ) );
+			$oFS->deleteFile( $this->getPath_Flags( 'reset' ) );
 		}
 	}
 
@@ -1022,10 +1023,37 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function getIsRebuildOptionsFromFile() {
-		if ( !isset( $this->bRebuildOptions ) ) {
-			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'rebuild' ) );
-			$this->bRebuildOptions = is_null( $bExists ) ? false : $bExists;
+		if ( isset( $this->bRebuildOptions ) ) {
+			return $this->bRebuildOptions;
 		}
+
+		// The first choice is to look for the file hash. If it's "always" empty, it means we could never
+		// hash the file in the first place so it's not ever effectively used and it falls back to the rebuild file
+		$oConOptions = $this->getPluginControllerOptions();
+		$sSpecPath = $this->getPathPluginSpec();
+		$sCurrentHash = @md5_file( $sSpecPath );
+		$sModifiedTime = $this->loadFileSystemProcessor()->getModifiedTime( $sSpecPath );
+
+		if ( empty( $oConOptions->plugin_spec ) ) {
+			$this->bRebuildOptions = true;
+		}
+		else if ( !empty( $oConOptions->hash ) && is_string( $oConOptions->hash ) && strlen( $oConOptions->hash ) == 32 ) {
+
+			if ( $oConOptions->hash == $sCurrentHash ) {
+				$this->bRebuildOptions = false;
+			}
+			else {
+				$this->bRebuildOptions = true;
+			}
+		}
+		else if ( !empty( $oConOptions->mod_time ) ) {
+			$this->bRebuildOptions = $sModifiedTime > $oConOptions->mod_time;
+		}
+		else {
+			$this->bRebuildOptions = (bool) $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'rebuild' ) );
+		}
+		$oConOptions->hash = $sCurrentHash;
+		$oConOptions->mod_time = $sModifiedTime;
 		return $this->bRebuildOptions;
 	}
 
@@ -1035,7 +1063,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getIsResetPlugin() {
 		if ( !isset( $this->bResetPlugin ) ) {
 			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'reset' ) );
-			$this->bResetPlugin = is_null( $bExists ) ? false : $bExists;
+			$this->bResetPlugin = (bool)$bExists;
 		}
 		return $this->bResetPlugin;
 	}
@@ -1292,12 +1320,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$this->sConfigOptionsHashWhenLoaded = md5( serialize( self::$oControllerOptions ) );
 			}
 
-			if ( $this->getIsRebuildOptionsFromFile()
-				|| !isset( self::$oControllerOptions->plugin_spec ) || empty( self::$oControllerOptions->plugin_spec )
-				|| ( isset( self::$oControllerOptions->rebuild_time ) ? ( $this->loadFileSystemProcessor()->getModifiedTime( $this->getPathPluginSpec() ) > self::$oControllerOptions->rebuild_time ) : true )
-			) {
+			if ( $this->getIsRebuildOptionsFromFile() ) {
 				self::$oControllerOptions->plugin_spec = $this->readPluginSpecification();
-				self::$oControllerOptions->rebuild_time = $this->loadDataProcessor()->time();
 			}
 		}
 		return self::$oControllerOptions;
