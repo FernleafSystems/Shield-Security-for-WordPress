@@ -105,6 +105,26 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Returns an array of all the options with the values for "sensitive" options masked out.
+	 * @return array
+	 */
+	public function getOptionsMaskSensitive() {
+
+		$aOptions = $this->getAllOptionsValues();
+		foreach( $this->getOptionsKeys() as $sKey ) {
+			if ( !isset( $aOptions[ $sKey ] ) ) {
+				$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
+			}
+		}
+		foreach( $this->getRawData_AllOptions() as $nKey => $aOptionData ) {
+			if ( isset( $aOptionData['sensitive'] ) && $aOptionData['sensitive'] === true ) {
+				unset( $aOptions[ $aOptionData['key'] ] );
+			}
+		}
+		return $aOptions;
+	}
+
+	/**
 	 * @param $sProperty
 	 * @return null|mixed
 	 */
@@ -293,7 +313,19 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
+	 * @param string $sKey
+	 * @return string|null
+	 */
+	public function getOptionType( $sKey ) {
+		$aDef = $this->getRawData_SingleOption( $sKey );
+		if ( !empty( $aDef ) && isset( $aDef[ 'type' ] ) ) {
+			return $aDef[ 'type' ];
+		}
+		return null;
+	}
+
+	/**
+	 * @return array
 	 */
 	public function getOptionsKeys() {
 		if ( !isset( $this->aOptionsKeys ) ) {
