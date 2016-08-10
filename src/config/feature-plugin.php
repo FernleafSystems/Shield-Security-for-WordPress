@@ -145,7 +145,8 @@ options:
     key: 'current_plugin_version'
     section: 'section_non_ui'
   -
-    key: 'last_tracking_sent_at'
+    key: 'tracking_last_sent_at'
+    default: 0
     section: 'section_non_ui'
   -
     key: 'tracking_permission_set_at'

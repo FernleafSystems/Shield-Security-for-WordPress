@@ -33,7 +33,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 						'what_we_collect' => _wpsf__( "We'd like to understand better the features used most and how effective we are on a global scale." ),
 						'data_anon' => _wpsf__( 'The data sent will be always completely anonymous and we will never be able to track you or your website.' ),
 						'can_turn_off' => _wpsf__( 'You can easily turn it off at any time within the plugin options if you change your mind.' ),
-						'click_to_see' => _wpsf__( "Click to see the RAW data that would be sent" ),
+						'click_to_see' => _wpsf__( 'Click to see the RAW data that would be sent' ),
 						'learn_more' => _wpsf__( 'Learn More.' ),
 						'site_url' => 'translate.icontrolwp.com',
 						'yes' => _wpsf__( 'Absolutely' )
@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				),
 				true
 			);
-			$oFO->updateLastTrackingSentAt();
+			$oFO->setTrackingLastSentAt();
 		}
 
 		/**

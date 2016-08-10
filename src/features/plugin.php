@@ -113,22 +113,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return int
 		 */
-		public function getLastTrackingSentAt() {
-			return $this->getOpt( 'last_tracking_sent_at' );
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getTrackingPermissionSet() {
-			return !$this->getOptIs( 'tracking_permission_set_at', 0 );
-		}
-
-		/**
-		 * @return int
-		 */
-		public function updateLastTrackingSentAt() {
-			return $this->setOpt( 'last_tracking_sent_at', $this->loadDataProcessor()->time() );
+		public function getTrackingLastSentAt() {
+			$nTime = (int)$this->getOpt( 'tracking_last_sent_at', 0 );
+			return ( $nTime < 0 ) ? 0 : $nTime;
 		}
 
 		/**
@@ -141,8 +128,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return bool
 		 */
+		public function getTrackingPermissionSet() {
+			return !$this->getOptIs( 'tracking_permission_set_at', 0 );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function setTrackingLastSentAt() {
+			return $this->setOpt( 'tracking_last_sent_at', $this->loadDataProcessor()->time() );
+		}
+
+		/**
+		 * @return bool
+		 */
 		public function readyToSendTrackingData() {
-			return ( ( $this->loadDataProcessor()->time() - $this->getLastTrackingSentAt() ) > WEEK_IN_SECONDS );
+			return ( ( $this->loadDataProcessor()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
 		}
 
 		/**
