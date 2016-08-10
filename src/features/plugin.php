@@ -288,7 +288,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setPluginInstallationId();
 			}
 
-			if ( $this->getTrackingEnabled() && ( !$this->getTrackingPermissionSet() ) ) {
+			if ( $this->getTrackingEnabled() && !$this->getTrackingPermissionSet() ) {
 				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
 			}
 		}

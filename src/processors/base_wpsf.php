@@ -37,20 +37,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * @return array
 		 */
 		public function tracking_DataCollect( $aData ) {
-			$oFO = $this->getFeatureOptions();
 			if ( !is_array( $aData ) ) {
 				$aData = array();
 			}
-			$oVO = $oFO->getOptionsVo();
-			$aOptionsData = $oVO->getOptionsMaskSensitive();
-			foreach ( $aOptionsData as $sOption => $mValue ) {
-				$sType = $oVO->getOptionType( $sOption );
-				if ( $sType == 'checkbox' ) { // we only really want a boolean 1 or 0
-					$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
-				}
-			}
-
-			$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $aOptionsData );
+			$oFO = $this->getFeatureOptions();
+			$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
 			return $aData;
 		}
 

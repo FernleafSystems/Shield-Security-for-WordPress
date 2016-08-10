@@ -1174,6 +1174,21 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
 			return $aTransferableOptions;
 		}
+
+		/**
+		 * @return array
+		 */
+		public function collectOptionsForTracking() {
+			$oVO = $this->getOptionsVo();
+			$aOptionsData = $this->getOptionsVo()->getOptionsMaskSensitive();
+			foreach ( $aOptionsData as $sOption => $mValue ) {
+				$sType = $oVO->getOptionType( $sOption );
+				if ( $sType == 'checkbox' ) { // we only really want a boolean 1 or 0
+					$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
+				}
+			}
+			return $aOptionsData;
+		}
 	}
 
 endif;

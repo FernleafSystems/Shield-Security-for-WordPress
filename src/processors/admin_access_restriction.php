@@ -71,16 +71,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			return self::getController()->getHasPermissionToManage();
 		}
 
+		/**
+		 * @param int $nId
+		 */
 		public function restrictAdminUserDelete( $nId ) {
-			if ( $this->isSecurityAdmin() ) {
-				return false;
-			}
-
-			$oWpUsers = $this->loadWpUsersProcessor();
-			$oUser = $oWpUsers->getUserById( $nId );
-			if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
-				$this->loadWpFunctionsProcessor()
-					->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
+			if ( !$this->isSecurityAdmin() ) {
+				$oWpUsers = $this->loadWpUsersProcessor();
+				$oUser = $oWpUsers->getUserById( $nId );
+				if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
+					$this->loadWpFunctionsProcessor()
+						->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
+				}
 			}
 		}
 
