@@ -60,13 +60,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		}
 
 		/**
-		 * Only done maximum once per week.
 		 */
 		public function sendTrackingData() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			$oDP = $this->loadDataProcessor();
-
 			if ( !$oFO->getTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
 				return;
 			}

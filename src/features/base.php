@@ -846,8 +846,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function doExtraSubmitProcessing() { }
 
 		/**
-		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from
-		 * the admin access restriction feature.
+		 * @param bool $bBypass
+		 * @return $this
 		 */
 		protected function setBypassAdminProtection( $bBypass ) {
 			$this->bBypassAdminAccess = (bool)$bBypass;
