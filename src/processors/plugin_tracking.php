@@ -67,7 +67,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oDP = $this->loadDataProcessor();
 
-			if ( !$oFO->getTrackingEnabled() || ( $oDP->time() - $oFO->getLastTrackingSentAt() ) < WEEK_IN_SECONDS ) {
+			if ( !$oFO->getTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
 				return;
 			}
 

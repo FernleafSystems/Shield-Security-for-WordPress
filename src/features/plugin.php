@@ -132,10 +132,17 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return int
+		 * @return bool
 		 */
 		public function getTrackingEnabled() {
 			return $this->getOptIs( 'enable_tracking', 'Y' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function readyToSendTrackingData() {
+			return ( ( $this->loadDataProcessor()->time() - $this->getLastTrackingSentAt() ) > WEEK_IN_SECONDS );
 		}
 
 		/**
