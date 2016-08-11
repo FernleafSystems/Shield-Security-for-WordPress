@@ -21,9 +21,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 */
 		public function init() {
 			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
-			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ),		array( $this, 'audit_Collect' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_stats' ),			array( $this, 'stats_Collect' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_tracking_data' ),	array( $this, 'tracking_DataCollect' ) );
 		}
 
 		/**

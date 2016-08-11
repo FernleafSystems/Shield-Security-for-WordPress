@@ -9,6 +9,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		/**
 		 */
 		public function init() {
+			parent::init();
 			$oFO = $this->getFeatureOptions();
 			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
