@@ -49,7 +49,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		/**
 		 * @return bool
 		 */
-		public function getIfDoFirewallBlock() {
+		protected function getIfDoFirewallBlock() {
 			if ( !isset( $this->bDoFirewallBlock ) ) {
 				$this->bDoFirewallBlock = !$this->isVisitorRequestPermitted();
 			}
@@ -75,12 +75,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				$bPerformScan = false;
 			}
 
-			if ( $bPerformScan && $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
-//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
-//				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
-				$bPerformScan = false;
-			}
-
 			$aPageParamsToCheck = $this->getParamsToCheck();
 			if ( $bPerformScan && empty( $aPageParamsToCheck ) ) {
 //				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('After whitelist options were applied, there were no page parameters to check') );
@@ -91,6 +85,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 			if ( $bPerformScan && $this->getOption('ignore_search_engines') == 'Y' && $oDp->IsSearchEngineBot() ) {
 				$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Visitor detected as Search Engine Bot' ) );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+				$bPerformScan = false;
+			}
+
+			// TODO: are we calling is_super_admin() too early?
+			if ( $bPerformScan && $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
+//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
+//				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 				$bPerformScan = false;
 			}
 
