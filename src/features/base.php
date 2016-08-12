@@ -1182,9 +1182,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$oVO = $this->getOptionsVo();
 			$aOptionsData = $this->getOptionsVo()->getOptionsMaskSensitive();
 			foreach ( $aOptionsData as $sOption => $mValue ) {
+				unset( $aOptionsData[ $sOption ] );
+				// some cleaning to ensure we don't have disallowed characters
+				$sOption = preg_replace( '#[^_a-z]#', '', strtolower( $sOption ) );
 				$sType = $oVO->getOptionType( $sOption );
-				if ( $sType == 'checkbox' ) { // we only really want a boolean 1 or 0
+				if ( $sType == 'checkbox' ) { // only want a boolean 1 or 0
 					$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
+				}
+				else {
+					$aOptionsData[ $sOption ] = $mValue;
 				}
 			}
 			return $aOptionsData;
