@@ -210,6 +210,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		/**
+		 * @return array|bool
+		 */
+		protected function query_deleteInvalidStatKeys() {
+			$sQuery = "
+				DELETE FROM `%s`
+				WHERE `stat_key` NOT LIKE '%%.%%'
+			";
+			return $this->selectCustom( sprintf( $sQuery, $this->getTableName() ) );
+		}
+
+		/**
 		 * @return array
 		 */
 		protected function getAllTallys() {
@@ -272,6 +283,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 					}
 				}
 			}
+		}
+
+		/**
+		 * We override this to clean out any strange statistics entries (Human spam words mostly)
+		 * @return bool|int
+		 */
+		public function cleanupDatabase() {
+			parent::cleanupDatabase();
+			$this->query_deleteInvalidStatKeys();
 		}
 
 		/**
