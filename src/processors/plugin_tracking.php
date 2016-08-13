@@ -40,23 +40,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 					),
 					'hrefs' => array(
 						'learn_more' => 'http://translate.icontrolwp.com',
-						'link_to_see' => $this->getLinkToTrackingDataDump(),
+						'link_to_see' => $oFO->getLinkToTrackingDataDump(),
 						'link_to_moreinfo' => 'http://icwp.io/shieldtrackinginfo',
 
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );
 			}
-		}
-
-		/**
-		 * @return string
-		 */
-		protected function getLinkToTrackingDataDump() {
-			return add_query_arg(
-				array( 'shield_action' => 'dump_tracking_data' ),
-				$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
-			);
 		}
 
 		/**

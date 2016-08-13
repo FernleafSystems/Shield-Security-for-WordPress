@@ -119,6 +119,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getLinkToTrackingDataDump() {
+			return add_query_arg(
+				array( 'shield_action' => 'dump_tracking_data' ),
+				$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+			);
+		}
+
+		/**
 		 * @return bool
 		 */
 		public function getTrackingEnabled() {
@@ -217,7 +227,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Tracking' ) );
 					$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
 					$sDescription = _wpsf__( 'Allows us to gather information on global statistics and features in-use across our client installations.' )
-						. ' ' . _wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' );
+						. ' ' . _wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' )
+						. '<br />' . sprintf( '<a href="%s" target="_blank">%s</a>', $this->getLinkToTrackingDataDump(), _wpsf__( 'Click to see the exact data that would be sent.' ) );
 					break;
 
 				case 'block_send_email_address' :
