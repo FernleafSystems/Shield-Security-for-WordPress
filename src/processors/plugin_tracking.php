@@ -62,10 +62,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			if ( empty( $aData ) || !is_array( $aData ) ) {
 				return;
 			}
-			$sUrl = $oFO->getDefinition( 'tracking_post_url' );
-			$oFS = $this->loadFileSystemProcessor();
-			$oResult = $oFS->requestUrl(
-				$sUrl,
+
+			$this->loadFileSystemProcessor()->requestUrl(
+				$oFO->getDefinition( 'tracking_post_url' ),
 				array(
 					'method'      => 'POST',
 					'timeout'     => 20,
@@ -122,7 +121,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$sFullHookName = $oFO->getTrackingCronName();
 			if ( ! wp_next_scheduled( $sFullHookName ) && ! defined( 'WP_INSTALLING' ) ) {
-				$nNextRun = strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand(0,1200);
+				$nNextRun = strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand(0,1800);
 				wp_schedule_event( $nNextRun, 'daily', $sFullHookName );
 			}
 		}

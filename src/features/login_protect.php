@@ -46,11 +46,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 		}
 
-		protected function initialiseKeyVars() {
-			$this->getGaspKey();
-			$this->getTwoAuthSecretKey();
-		}
-
 		public function doPrePluginOptionsSave() {
 
 			$this->cleanLoginUrlPath();

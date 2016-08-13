@@ -640,7 +640,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return void
 		 */
 		public function savePluginOptions() {
-			$this->initialiseKeyVars();
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
 
@@ -758,11 +757,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 			return $aOptionsParams;
 		}
-
-		/**
-		 * Ensures that certain key options are always initialized.
-		 */
-		protected function initialiseKeyVars() {}
 
 		/**
 		 * This is the point where you would want to do any options verification
@@ -914,12 +908,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				}
 				$this->setOpt( $sOptionKey, $sOptionValue );
 			}
-			return $this->savePluginOptions();
+			$this->savePluginOptions();
 		}
 
 		/**
 		 * Should be over-ridden by each new class to handle upgrades.
-		 *
 		 * Called upon construction and after plugin options are initialized.
 		 */
 		protected function updateHandler() { }

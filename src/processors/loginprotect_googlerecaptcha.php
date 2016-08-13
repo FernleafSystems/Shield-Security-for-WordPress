@@ -97,7 +97,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
 		}
-
 		return $oUser;
 	}
 }

@@ -16,10 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			if ( !$this->readyToRun() ) {
 				return;
 			}
-			
-			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
 		/**
@@ -53,7 +50,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$nTotalConnectionKilled = 0;
 			$nTotalTransgressions = 0;
 			$nTotalUserSessionsStarted = 0;
-			$nTotalFilesReplaced = 0;
+//			$nTotalFilesReplaced = 0;
 
 			$aSpamCommentKeys = array(
 				'spam.gasp.checkbox',
