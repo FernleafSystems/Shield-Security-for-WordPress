@@ -33,7 +33,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$aTallyTracking = array();
 			foreach ( $aTallys as $aTally ) {
 				$sKey = preg_replace( '#[^_a-z]#', '', str_replace( '.', '_', $aTally[ 'stat_key' ] ) );
-				$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
+				if ( strpos( $sKey, '_' ) ) {
+					$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
+				}
 			}
 			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
 			return $aData;
