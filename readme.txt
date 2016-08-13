@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.4.5
+Stable tag: 5.5.0
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -299,7 +299,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 == Changelog ==
 
 = 5.5.0 Latest Point Release =
-*Released: 10th August, 2016*
+*Released: 15th August, 2016*
 
 * **(v.0)**  ADDED:			Options and statistics tracking ability. Over time we are looking to share statistics and performance metrics of Shield.
 * **(v.0)**  IMPROVED:		Performance for options loading, especially for web hosts that don't permit file writing
@@ -311,11 +311,13 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 = 5.5 Series =
 
+* **(v.0)**  ADDED:			Options and statistics tracking ability. Over time we are looking to share statistics and performance metrics of Shield.
 * **(v.0)**  IMPROVED:		Performance for options loading, especially for web hosts that don't permit file writing
 * **(v.0)**  CHANGED:		Numerous fixes and code improvements.
 * **(v.0)**  CHANGED:		Google reCAPTCHA is now based on the locale of the website, not auto-detected.
 * **(v.0)**  FIXED:			Now URL encodes the username in the link for two-factor authentication by email.
 * **(v.0)**  FIXED:			If the xmlrpc.php has been deleted, this is now ignore by the file scanner
+* **(v.0)**  TRANSLATIONS:	Dutch (38%), Portuguese (32%)
 
 = 5.4 Series =
 
