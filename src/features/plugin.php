@@ -224,9 +224,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					break;
 
 				case 'enable_tracking' :
-					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Tracking' ) );
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Information Gathering' ) );
 					$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
-					$sDescription = _wpsf__( 'Allows us to gather information on global statistics and features in-use across our client installations.' )
+					$sDescription = _wpsf__( 'Allows us to gather information on statistics and features in-use across our client installations.' )
 						. ' ' . _wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' )
 						. '<br />' . sprintf( '<a href="%s" target="_blank">%s</a>', $this->getLinkToTrackingDataDump(), _wpsf__( 'Click to see the exact data that would be sent.' ) );
 					break;
