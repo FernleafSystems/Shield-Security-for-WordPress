@@ -212,8 +212,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		if ( !$this->getIfDoGaspCheck() ) {
 			return;
 		}
-
-		$this->deleteOldPostCommentTokens();
 		$this->insertUniquePostCommentToken();
 		echo $this->getGaspCommentsHookHtml();
 	}

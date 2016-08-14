@@ -304,6 +304,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.0)**  ADDED:			Options and statistics tracking ability. Over time we are looking to share statistics and performance metrics of Shield.
 * **(v.0)**  IMPROVED:		Performance for options loading, especially for web hosts that don't permit file writing
 * **(v.0)**  CHANGED:		Numerous fixes and code improvements.
+* **(v.0)**  CHANGED:		Removed query that deletes old GASP comment tokens on normal page loads.
 * **(v.0)**  CHANGED:		Google reCAPTCHA is now based on the locale of the website, not auto-detected.
 * **(v.0)**  FIXED:			Now URL encodes the username in the link for two-factor authentication by email.
 * **(v.0)**  FIXED:			If the xmlrpc.php has been deleted, this is now ignore by the file scanner
