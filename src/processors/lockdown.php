@@ -51,6 +51,19 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		}
 
 		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			$sSlug = $this->getFeatureOptions()->getFeatureSlug();
+			$aData[$sSlug][ 'options' ][ 'mask_wordpress_version' ]
+				= empty( $aData[$sSlug][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
+			return $aData;
+		}
+
+		/**
 		 * @param array $aAllCaps
 		 * @param $cap
 		 * @param array $aArgs

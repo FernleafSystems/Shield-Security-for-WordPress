@@ -79,16 +79,13 @@ options:
     section: 'section_non_ui'
   -
     key: 'this_server_ip'
+    sensitive: true
     section: 'section_non_ui'
     value: ''
   -
     key: 'this_server_ip_last_check_at'
     section: 'section_non_ui'
     value: 0
-  -
-    key: 'recreate_database_table'
-    section: 'section_non_ui'
-    default: false
 
 # Definitions for constant data that doesn't need stored in the options
 definitions:

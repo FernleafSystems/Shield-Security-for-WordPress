@@ -51,6 +51,7 @@ options:
     key: 'admin_access_key'
     section: 'section_enable_plugin_feature_admin_access_restriction'
     transferable: true
+    sensitive: true
     default: ''
     type: 'password'
     link_info: 'http://icwp.io/42'

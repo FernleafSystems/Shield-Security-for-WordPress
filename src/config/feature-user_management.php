@@ -48,6 +48,7 @@ options:
     key: 'enable_admin_login_email_notification'
     section: 'section_admin_login_notification'
     transferable: true
+    sensitive: true
     default: ''
     type: 'email'
     link_info: ''
@@ -87,10 +88,6 @@ options:
   -
     key: 'current_plugin_version'
     section: 'section_non_ui'
-  -
-    key: 'recreate_database_table'
-    section: 'section_non_ui'
-    default: false
 
 # Definitions for constant data that doesn't need stored in the options
 definitions:

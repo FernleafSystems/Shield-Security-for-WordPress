@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 			return;
 		}
 
-		add_action( 'login_enqueue_scripts',	array( $this, 'loadGoogleRecaptchaJs' ), 99 );
+		add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
 
 		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
 		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ) );
@@ -24,11 +24,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 			// before username/password check (20)
 			add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
-	}
-
-	public function loadGoogleRecaptchaJs() {
-		wp_register_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js' );
-		wp_enqueue_script( 'google-recaptcha' );
 	}
 
 	/**
@@ -102,7 +97,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
 		}
-
 		return $oUser;
 	}
 }

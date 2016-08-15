@@ -88,8 +88,9 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	protected function updateLastLoginTime() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-		$oFO->setOpt( 'last_login_time', $this->time() );
-		$this->loadFileSystemProcessor()->touch( $oFO->getLastLoginTimeFilePath(), $this->time() );
+		$nTime = $this->time();
+		$oFO->updateLastLoginTime( $nTime );
+		$this->loadFileSystemProcessor()->touch( $oFO->getLastLoginTimeFilePath(), $nTime );
 	}
 
 	/**

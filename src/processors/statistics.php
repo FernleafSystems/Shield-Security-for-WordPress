@@ -16,10 +16,26 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			if ( !$this->readyToRun() ) {
 				return;
 			}
-			
-			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+		}
+
+		/**
+		 * Override the original collection to then add plugin statistics to the mix
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			$aData = parent::tracking_DataCollect( $aData );
+			$aTallys = $this->getAllTallys();
+			$aTallyTracking = array();
+			foreach ( $aTallys as $aTally ) {
+				$sKey = preg_replace( '#[^_a-z]#', '', str_replace( '.', '_', $aTally[ 'stat_key' ] ) );
+				if ( strpos( $sKey, '_' ) ) {
+					$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
+				}
+			}
+			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
+			return $aData;
 		}
 
 		public function gatherStatsSummaryWidgetContent( $aContent ) {
@@ -34,7 +50,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			$nTotalConnectionKilled = 0;
 			$nTotalTransgressions = 0;
 			$nTotalUserSessionsStarted = 0;
-			$nTotalFilesReplaced = 0;
+//			$nTotalFilesReplaced = 0;
 
 			$aSpamCommentKeys = array(
 				'spam.gasp.checkbox',
@@ -191,6 +207,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		}
 
 		/**
+		 * @return array|bool
+		 */
+		protected function query_deleteInvalidStatKeys() {
+			$sQuery = "
+				DELETE FROM `%s`
+				WHERE `stat_key` NOT LIKE '%%.%%'
+			";
+			return $this->selectCustom( sprintf( $sQuery, $this->getTableName() ) );
+		}
+
+		/**
 		 * @return array
 		 */
 		protected function getAllTallys() {
@@ -253,6 +280,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 					}
 				}
 			}
+		}
+
+		/**
+		 * We override this to clean out any strange statistics entries (Human spam words mostly)
+		 * @return bool|int
+		 */
+		public function cleanupDatabase() {
+			parent::cleanupDatabase();
+			$this->query_deleteInvalidStatKeys();
 		}
 
 		/**

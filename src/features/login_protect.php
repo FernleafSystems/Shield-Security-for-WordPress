@@ -16,8 +16,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			// User has clicked a link in their email to verify they can send email.
 			if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
 				if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'wpsfkey' ) ) {
-					$this->setIfCanSendEmail( true );
-					$this->doSaveByPassAdminProtection();
+					$this
+						->setIfCanSendEmail( true )
+						->setBypassAdminProtection( true )
+						->savePluginOptions();
 					$this->loadWpFunctionsProcessor()->redirectToLogin();
 				}
 			}
@@ -38,14 +40,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 		 */
 			if ( $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
-				$this->setIfCanSendEmail( false );
-				$this->sendEmailVerifyCanSend();
+				$this
+					->setIfCanSendEmail( false )
+					->sendEmailVerifyCanSend();
 			}
-		}
-
-		protected function initialiseKeyVars() {
-			$this->getGaspKey();
-			$this->getTwoAuthSecretKey();
 		}
 
 		public function doPrePluginOptionsSave() {
@@ -87,6 +85,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo( 'admin_email' ), $sEmailSubject, $aMessage );
 			return $bResult;
+		}
+
+		/**
+		 * @param int $nTime
+		 * @return $this
+		 */
+		public function updateLastLoginTime( $nTime ) {
+			$this->setOpt( 'last_login_time', $nTime );
+			return $this;
 		}
 
 		/**
@@ -428,7 +435,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 		/**
 		 * @param bool $bCan
-		 * @return bool
+		 * @return $this
 		 */
 		public function setIfCanSendEmail( $bCan ) {
 			$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
@@ -438,7 +445,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			else {
 				$nDateAt = 0;
 			}
-			return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
+			$this->setOpt( 'email_can_send_verified_at', $nDateAt );
+			return $this;
 		}
 
 		/**

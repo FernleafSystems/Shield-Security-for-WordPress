@@ -117,13 +117,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @return WP_Error
 	 */
 	public function checkLoginForGoogleAuthenticator_Filter( $oUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oDp = $this->loadDataProcessor();
 
 		$oError = new WP_Error();
 
 		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		$oDp = $this->loadDataProcessor();
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
 		if ( $bIsUser && $oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
 			if ( empty( $sGaOtp ) ) {

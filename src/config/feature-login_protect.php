@@ -56,6 +56,7 @@ options:
     key: 'rename_wplogin_path'
     section: 'section_rename_wplogin'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/5q'
@@ -148,6 +149,7 @@ options:
     key: 'yubikey_app_id'
     section: 'section_yubikey_authentication'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/4g'
@@ -156,6 +158,7 @@ options:
     key: 'yubikey_api_key'
     section: 'section_yubikey_authentication'
     transferable: true
+    sensitive: true
     default: ''
     type: 'text'
     link_info: 'http://icwp.io/4g'
@@ -164,6 +167,7 @@ options:
     key: 'yubikey_unique_keys'
     section: 'section_yubikey_authentication'
     transferable: true
+    sensitive: true
     default: ''
     type: 'yubikey_unique_keys'
     link_info: 'http://icwp.io/4h'
@@ -177,26 +181,22 @@ options:
     default: -1
   -
     key: 'gasp_key'
+    sensitive: true
     section: 'section_non_ui'
   -
     key: 'two_factor_secret_key'
+    sensitive: true
     section: 'section_non_ui'
   -
     key: 'last_login_time'
     section: 'section_non_ui'
   -
     key: 'last_login_time_file_path'
-    section: 'section_non_ui'
-  -
-    key: 'log_category'
+    sensitive: true
     section: 'section_non_ui'
   -
     key: 'two_factor_auth_table_created'
     section: 'section_non_ui'
-  -
-    key: 'recreate_database_table'
-    section: 'section_non_ui'
-    default: false
 
 # Definitions for constant data that doesn't need stored in the options
 definitions:

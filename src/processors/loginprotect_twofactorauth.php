@@ -277,7 +277,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$aQueryArgs = array(
 				'wpsfkey' 		=> $oFO->getTwoAuthSecretKey(),
 				'wpsf-action'	=> 'linkauth',
-				'username'		=> $sUser,
+				'username'		=> rawurlencode( $sUser ),
 				'sessionid'		=> $sSessionId
 			);
 			$sRedirectTo = esc_url( $this->loadDataProcessor()->FetchPost( 'redirect_to' ) );

@@ -67,13 +67,9 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		 */
 		protected function initializeTable() {
 			if ( $this->getTableExists() ) {
-				$oFO = $this->getFeatureOptions();
-				if ( $oFO->getOpt( 'recreate_database_table', false ) || !$this->tableIsValid() ) {
-					$oFO->setOpt( 'recreate_database_table', false );
-					$oFO->savePluginOptions();
+				if ( !$this->tableIsValid() ) {
 					$this->recreateTable();
 				}
-
 				$sFullHookName = $this->getDbCleanupHookName();
 				add_action( $sFullHookName, array( $this, 'cleanupDatabase' ) );
 			}

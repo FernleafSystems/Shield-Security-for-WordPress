@@ -21,8 +21,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 */
 		public function init() {
 			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
-			add_filter( $oFO->doPluginPrefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_audit_trail' ),		array( $this, 'audit_Collect' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_stats' ),			array( $this, 'stats_Collect' ) );
+			add_filter( $oFO->doPluginPrefix( 'collect_tracking_data' ),	array( $this, 'tracking_DataCollect' ) );
+		}
+
+		/**
+		 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
+		 * - it is not enabled by default.
+		 *
+		 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain identifiable
+		 * data.
+		 *
+		 * @param $aData
+		 * @return array
+		 */
+		public function tracking_DataCollect( $aData ) {
+			if ( !is_array( $aData ) ) {
+				$aData = array();
+			}
+			$oFO = $this->getFeatureOptions();
+			$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
+			return $aData;
 		}
 
 		/**

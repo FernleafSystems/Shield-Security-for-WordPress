@@ -12,6 +12,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			add_filter( $this->doPluginPrefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
 			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
+
+			if ( !$this->getTrackingPermissionSet() ) {
+				add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
+			}
+		}
+
+		public function ajaxSetPluginTrackingPermission() {
+
+			if ( self::getController()->getIsValidAdminArea() && $this->checkAjaxNonce() ) {
+				$oDP = $this->loadDataProcessor();
+				$this->setOpt( 'enable_tracking', $oDP->FetchGet( 'agree', 0 ) ? 'Y' : 'N' );
+				$this->setOpt( 'tracking_permission_set_at', $oDP->time() );
+				$this->sendAjaxResponse( true );
+			}
+			else {
+				$this->sendAjaxResponse( false );
+			}
 		}
 
 		/**
@@ -87,6 +104,59 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getTrackingCronName() {
+			return $this->doPluginPrefix( $this->getDefinition( 'tracking_cron_handle' ) );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getTrackingLastSentAt() {
+			$nTime = (int)$this->getOpt( 'tracking_last_sent_at', 0 );
+			return ( $nTime < 0 ) ? 0 : $nTime;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getLinkToTrackingDataDump() {
+			return add_query_arg(
+				array( 'shield_action' => 'dump_tracking_data' ),
+				$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+			);
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getTrackingEnabled() {
+			return $this->getOptIs( 'enable_tracking', 'Y' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getTrackingPermissionSet() {
+			return !$this->getOptIs( 'tracking_permission_set_at', 0 );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function setTrackingLastSentAt() {
+			return $this->setOpt( 'tracking_last_sent_at', $this->loadDataProcessor()->time() );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function readyToSendTrackingData() {
+			return ( ( $this->loadDataProcessor()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
+		}
+
+		/**
 		 * @param $sEmail
 		 * @return string
 		 */
@@ -151,6 +221,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 					$sName = _wpsf__( 'Enable Features' );
 					$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
 					$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getController()->getHumanName() );
+					break;
+
+				case 'enable_tracking' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Information Gathering' ) );
+					$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
+					$sDescription = _wpsf__( 'Allows us to gather information on statistics and features in-use across our client installations.' )
+						. ' ' . _wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' )
+						. '<br />' . sprintf( '<a href="%s" target="_blank">%s</a>', $this->getLinkToTrackingDataDump(), _wpsf__( 'Click to see the exact data that would be sent.' ) );
 					break;
 
 				case 'block_send_email_address' :
@@ -220,25 +298,46 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			if ( $this->getIsUpgrading() ) {
 				$this->setPluginInstallationId();
 			}
+
+			if ( $this->getTrackingEnabled() && !$this->getTrackingPermissionSet() ) {
+				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
+			}
+		}
+
+		/**
+		 * Ensure we always a valid installation ID.
+		 * @return string
+		 */
+		public function getPluginInstallationId() {
+			$sId = $this->getOpt( 'unique_installation_id', '' );
+			if ( !$this->isValidInstallId( $sId ) ) {
+				$sId = $this->setPluginInstallationId();
+			}
+			return $sId;
+		}
+
+		/**
+		 * @param string $sNewId - leave empty to reset if the current isn't valid
+		 * @return string
+		 */
+		protected function setPluginInstallationId( $sNewId = null ) {
+			// only reset if it's not of the correct type
+			if ( !$this->isValidInstallId( $sNewId ) ) {
+				$sNewId = $this->genInstallId();
+			}
+			$this->setOpt( 'unique_installation_id', $sNewId );
+			return $sNewId;
 		}
 
 		/**
 		 * @return string
 		 */
-		public function getPluginInstallationId() {
-			return $this->getOpt( 'unique_installation_id', '' );
-		}
-
-		/**
-		 * @param string $sNewId - leave empty to reset if the current isn't valid
-		 * @return bool
-		 */
-		protected function setPluginInstallationId( $sNewId = null ) {
-			// only reset if it's not of the correct type
-			if ( !$this->isValidInstallId( $sNewId ) && !$this->isValidInstallId( $this->getPluginInstallationId() ) ) {
-				$sNewId = sha1( $this->getOpt( 'installation_time' ) . $this->loadWpFunctionsProcessor()->getHomeUrl() . rand( 0, 1000 ) );
-			}
-			return $this->setOpt( 'unique_installation_id', $sNewId );
+		protected function genInstallId() {
+			return sha1(
+				$this->getPluginInstallationTime()
+				. $this->loadWpFunctionsProcessor()->getWpUrl()
+				. $this->loadDbProcessor()->getPrefix()
+			);
 		}
 
 		/**

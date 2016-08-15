@@ -10,6 +10,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		static protected $oPluginController;
 
 		/**
+		 * @var boolean
+		 */
+		protected $bBypassAdminAccess = false;
+
+		/**
 		 * @var ICWP_WPSF_OptionsVO
 		 */
 		protected $oOptions;
@@ -183,7 +188,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$aOptions = self::getController()->getOptionsImportFromFile();
 				if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 					$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-					$this->doSaveByPassAdminProtection();
+					$this
+						->setBypassAdminProtection( true )
+						->savePluginOptions();
 				}
 			}
 		}
@@ -237,16 +244,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return ICWP_WPSF_OptionsVO
 		 */
-		public function getOptionsVo() {
+		protected function getOptionsVo() {
 			if ( !isset( $this->oOptions ) ) {
 				$oCon = self::getController();
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'options-vo.php' );
-				$this->oOptions = new ICWP_WPSF_OptionsVO( $this->getFeatureSlug() );
+				$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
 				$this->oOptions->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() );
 				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
 				$this->oOptions->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 			}
 			return $this->oOptions;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getAdminNotices(){
+			return $this->getOptionsVo()->getAdminNotices();
 		}
 
 		/**
@@ -538,20 +551,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * Sets the value for the given option key
 		 *
+		 * Note: We also set the ability to bypass admin access since setOpt() is a protected function
+		 *
 		 * @param string $sOptionKey
 		 * @param mixed $mValue
 		 * @return boolean
 		 */
-		public function setOpt( $sOptionKey, $mValue ) {
+		protected function setOpt( $sOptionKey, $mValue ) {
+			$this->setBypassAdminProtection( true );
 			return $this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
 		}
 
 		/**
+		 * TODO: Consider admin access restrictions
+		 *
 		 * @param array $aOptions
 		 */
 		public function setOptions( $aOptions ) {
+			$oVO = $this->getOptionsVo();
 			foreach( $aOptions as $sKey => $mValue ) {
-				$this->setOpt( $sKey, $mValue );
+				$oVO->setOpt( $sKey, $mValue );
 			}
 		}
 
@@ -591,6 +610,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function getBypassAdminRestriction() {
+			return $this->bBypassAdminAccess;
+		}
+
+		/**
 		 * @param string $sKey
 		 * @param string $sDefault
 		 * @return string
@@ -611,13 +637,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * Saves the options to the WordPress Options store.
 		 * It will also update the stored plugin options version.
 		 *
-		 * @return bool
+		 * @return void
 		 */
 		public function savePluginOptions() {
-			$this->initialiseKeyVars();
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
-			return $this->getOptionsVo()->doOptionsSave();
+
+			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
+			$this->getOptionsVo()->doOptionsSave();
+			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
 		/**
@@ -731,11 +759,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * Ensures that certain key options are always initialized.
-		 */
-		protected function initialiseKeyVars() {}
-
-		/**
 		 * This is the point where you would want to do any options verification
 		 */
 		protected function doPrePluginOptionsSave() { }
@@ -817,13 +840,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function doExtraSubmitProcessing() { }
 
 		/**
-		 * Should be used sparingly - it allows immediate on-demand saving of plugin options that by-passes checking from
-		 * the admin access restriction feature.
+		 * @param bool $bBypass
+		 * @return $this
 		 */
-		protected function doSaveByPassAdminProtection() {
-			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
-			$this->savePluginOptions();
-			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
+		protected function setBypassAdminProtection( $bBypass ) {
+			$this->bBypassAdminAccess = (bool)$bBypass;
+			return $this;
 		}
 
 		/**
@@ -886,12 +908,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				}
 				$this->setOpt( $sOptionKey, $sOptionValue );
 			}
-			return $this->savePluginOptions();
+			$this->savePluginOptions();
 		}
 
 		/**
 		 * Should be over-ridden by each new class to handle upgrades.
-		 *
 		 * Called upon construction and after plugin options are initialized.
 		 */
 		protected function updateHandler() { }
@@ -1145,6 +1166,27 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			}
 			$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
 			return $aTransferableOptions;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function collectOptionsForTracking() {
+			$oVO = $this->getOptionsVo();
+			$aOptionsData = $this->getOptionsVo()->getOptionsMaskSensitive();
+			foreach ( $aOptionsData as $sOption => $mValue ) {
+				unset( $aOptionsData[ $sOption ] );
+				// some cleaning to ensure we don't have disallowed characters
+				$sOption = preg_replace( '#[^_a-z]#', '', strtolower( $sOption ) );
+				$sType = $oVO->getOptionType( $sOption );
+				if ( $sType == 'checkbox' ) { // only want a boolean 1 or 0
+					$aOptionsData[ $sOption ] = (int)( $mValue == 'Y' );
+				}
+				else {
+					$aOptionsData[ $sOption ] = $mValue;
+				}
+			}
+			return $aOptionsData;
 		}
 	}
 

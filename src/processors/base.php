@@ -10,6 +10,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		protected $oFeatureOptions;
 
 		/**
+		 * @var int
+		 */
+		protected $nPromoNoticesCount = 0;
+
+		/**
 		 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
 		 */
 		public function __construct( $oFeatureOptions ) {
@@ -32,7 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		public function autoAddToAdminNotices() {
 			$oCon = $this->getController();
 
-			foreach( $this->getFeatureOptions()->getOptionsVo()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
+			foreach( $this->getFeatureOptions()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
 				if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
 					continue;
@@ -69,8 +74,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 				return false;
 			}
 
-			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' && $this->loadWpFunctionsProcessor()->getIsMobile() ) {
-				return false;
+			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
+				if ( $this->nPromoNoticesCount > 0 || $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+					return false;
+				}
+				$this->nPromoNoticesCount++; // we limit the number of promos displayed at any time to 1
 			}
 
 			return true;
@@ -127,6 +135,24 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
 			$mOptionValue = $this->getOption( $sKey );
 			return $bStrict? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
+		}
+
+		public function registerGoogleRecaptchaJs() {
+			$sJsUri = add_query_arg(
+				array( 'hl', $this->getGoogleRecaptchaLocale() ),
+				'https://www.google.com/recaptcha/api.js'
+			);
+			wp_register_script( 'google-recaptcha', $sJsUri );
+			wp_enqueue_script( 'google-recaptcha' );
+		}
+
+		/**
+		 * We don't handle locale derivatives (yet)
+		 * @return string
+		 */
+		protected function getGoogleRecaptchaLocale() {
+			$aLocaleParts = explode( '_', $this->loadWpFunctionsProcessor()->getLocale(), 2 );
+			return $aLocaleParts[ 0 ];
 		}
 
 		/**
