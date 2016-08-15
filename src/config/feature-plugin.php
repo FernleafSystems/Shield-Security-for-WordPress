@@ -81,7 +81,7 @@ options:
     transferable: true
     default: 'N'
     type: 'checkbox'
-    link_info: ''
+    link_info: 'http://icwp.io/7i'
     link_blog: ''
   -
     key: 'block_send_email_address'
