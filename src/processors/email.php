@@ -118,9 +118,22 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function setMailFrom( $sFrom ) {
+		$oDP = $this->loadDataProcessor();
+		$oWp = $this->loadWpFunctionsProcessor();
 		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
-		if ( !empty( $sProposedFrom ) && is_email( $sProposedFrom ) ) {
+		if ( $oDP->validEmail( $sProposedFrom ) ) {
 			$sFrom = $sProposedFrom;
+		}
+		// We help out by trying to correct any funky "from" addresses
+		// So, at the very least, we don't fail on this for our emails.
+		if ( !$oDP->validEmail( $sFrom ) ) {
+			$aUrlParts = @parse_url( $oWp->getWpUrl() );
+			if ( !empty( $aUrlParts[ 'host' ] ) ) {
+				$sProposedFrom = 'wordpress@' . $aUrlParts[ 'host' ];
+				if ( $oDP->validEmail( $sProposedFrom ) ) {
+					$sFrom = $sProposedFrom;
+				}
+			}
 		}
 		return $sFrom;
 	}

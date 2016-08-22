@@ -207,6 +207,13 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @return boolean
+		 */
+		public function validEmail( $sEmail ) {
+			return ( !empty( $sEmail ) && is_email( $sEmail ) );
+		}
+
+		/**
 		 * @param string $sRawList
 		 * @return array
 		 */
