@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsersProcessor();
 
 		$oUser = $oWpUsers->getUserById( $nUserId );
-		$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$oCurrentUser = $oWpUsers->getCurrentWpUser();
 		$bEditingMyOwnProfile = $oCurrentUser->ID == $oUser->ID;
 
 		if ( !$bEditingMyOwnProfile ) {

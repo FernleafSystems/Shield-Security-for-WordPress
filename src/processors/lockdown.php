@@ -47,6 +47,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 
 			if ( $this->getIsOption( 'disable_xmlrpc', 'Y' ) ) {
 				add_filter( 'xmlrpc_enabled', '__return_false', 1000 );
+				add_filter( 'xmlrpc_methods', '__return_empty_array', 1000 );
 			}
 		}
 
