@@ -22,6 +22,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 			if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
 				$this->runChecksumScan();
 			}
+
+			$this->runW3tcProtect();
+		}
+
+		protected function runW3tcProtect() {
+			if ( defined( 'W3TC_VERSION' ) && version_compare( W3TC_VERSION, '0.9.4.1', '<=') ) {
+				$oWp = $this->loadWpFunctionsProcessor();
+				$sPage = $this->loadDataProcessor()->FetchGet( 'page' );
+				if ( $sPage == 'w3tc_support' ) {
+					$oWp->wpDie( 'Trying to access W3 Total Cache support page. Blocked.' );
+				}
+			}
 		}
 
 		/**
