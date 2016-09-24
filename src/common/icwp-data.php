@@ -596,6 +596,21 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * Cleans out any of the junk that can appear in a PHP version and returns just the 5.4.45
+		 * e.g. 5.4.45-0+deb7u5
+		 * @return string
+		 */
+		public function getPhpVersionCleaned() {
+			$sVersion = $this->getPhpVersion();
+			if ( preg_match( '#^[0-9]{1}\.[0-9]{1}(\.[0-9]{1,3})?#', $sVersion, $aMatches ) ) {
+				return $aMatches[ 0 ];
+			}
+			else {
+				return $sVersion;
+			}
+		}
+
+		/**
 		 * @param string $sAtLeastVersion
 		 * @return bool
 		 */

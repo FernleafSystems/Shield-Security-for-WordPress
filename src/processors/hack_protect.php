@@ -31,7 +31,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 				$oWp = $this->loadWpFunctionsProcessor();
 				$sPage = $this->loadDataProcessor()->FetchRequest( 'page' );
 				if ( $sPage == 'w3tc_support' ) {
-					$oWp->wpDie( 'Blocked: Trying to access W3 Total Cache support page.' );
+					$oWp->wpDie(
+						_wpsf__( 'Blocked: Trying to access W3 Total Cache support page.' ).'<br />'
+						.sprintf( '<a href="%s" target="_blank">%s</a>', 'http://icwp.io/7k', _wpsf__( 'More Info' ) )
+					);
 				}
 			}
 		}
