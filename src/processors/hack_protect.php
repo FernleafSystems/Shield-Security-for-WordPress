@@ -29,9 +29,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		protected function runW3tcProtect() {
 			if ( defined( 'W3TC_VERSION' ) && version_compare( W3TC_VERSION, '0.9.4.1', '<=') ) {
 				$oWp = $this->loadWpFunctionsProcessor();
-				$sPage = $this->loadDataProcessor()->FetchGet( 'page' );
+				$sPage = $this->loadDataProcessor()->FetchRequest( 'page' );
 				if ( $sPage == 'w3tc_support' ) {
-					$oWp->wpDie( 'Trying to access W3 Total Cache support page. Blocked.' );
+					$oWp->wpDie( 'Blocked: Trying to access W3 Total Cache support page.' );
 				}
 			}
 		}
