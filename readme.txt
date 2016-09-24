@@ -309,6 +309,11 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 = 5.5 Series =
 
+* **(v.1)**  ADDED:			Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability [more info](http://icwp.io/7j)
+* **(v.1)**  IMPROVED:		Better XMLRPC Lockdown - prevents ANY XMLRPC command processing.
+* **(v.1)**  IMPROVED:		Make certain strings translatable
+* **(v.1)**  IMPROVED:		Wrap-up certain login form elements into spans/divs to allow styling etc.
+* **(v.1)**  IMPROVED:		PHP Version number cleaning during stats tracking.
 * **(v.0)**  ADDED:			Options and statistics tracking ability. Over time we are looking to share statistics and performance metrics of Shield.
 * **(v.0)**  IMPROVED:		Performance for options loading, especially for web hosts that don't permit file writing
 * **(v.0)**  CHANGED:		Numerous fixes and code improvements.
