@@ -30,11 +30,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		public function run() {
 
 			$nFilterPriority = $this->getHookPriority();
-
-			$oDp = $this->loadDataProcessor();
-			if ( $oDp->FetchGet( 'forcerun' ) == 1 ) {
-				$this->setForceRunAutoupdates( true );
-			}
 			add_filter( 'allow_minor_auto_core_updates',	array( $this, 'autoupdate_core_minor' ), $nFilterPriority );
 			add_filter( 'allow_major_auto_core_updates',	array( $this, 'autoupdate_core_major' ), $nFilterPriority );
 

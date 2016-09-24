@@ -16,7 +16,7 @@ if ( !class_exists('ICWP_WPSF_Processor_AuditTrail_Emails') ):
 
 		/**
 		 * @param array $aEmailParameters
-		 * @return bool
+		 * @return array
 		 */
 		public function auditEmailSend( $aEmailParameters ) {
 

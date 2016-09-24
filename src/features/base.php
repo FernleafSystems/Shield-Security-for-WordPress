@@ -471,24 +471,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @return bool
-		 */
-		public function hasPluginManageRights() {
-			if ( !current_user_can( self::getController()->getBasePermissions() ) ) {
-				return false;
-			}
-
-			$oWpFunc = $this->loadWpFunctionsProcessor();
-			if ( is_admin() && !$oWpFunc->isMultisite() ) {
-				return true;
-			}
-			else if ( is_network_admin() && $oWpFunc->isMultisite() ) {
-				return true;
-			}
-			return false;
-		}
-
-		/**
 		 * @return boolean
 		 */
 		public function getIfShowFeatureMenuItem() {
@@ -958,14 +940,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function displayFeatureConfigPage() {
 			$this->display();
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getIsCurrentPageConfig() {
-			$oWpFunctions = $this->loadWpFunctionsProcessor();
-			return $oWpFunctions->getCurrentWpAdminPage() == $this->doPluginPrefix( $this->getFeatureSlug() );
 		}
 
 		/**

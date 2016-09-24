@@ -147,17 +147,27 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 
 		/**
 		 * @param string $sNoticeId
+		 * @return bool
+		 */
+		protected function getNoticeAlreadyExists( $sNoticeId ) {
+			return !empty( $this->aAdminNotices[ $sNoticeId ] );
+		}
+
+		/**
+		 * @param string $sNoticeId
 		 * @param string $sNotice
 		 * @return $this
 		 */
 		public function addAdminNotice( $sNotice, $sNoticeId = '' ) {
 			if ( !empty( $sNotice ) ) {
-				$aCurrentNotices = $this->getNotices();
 				if ( empty( $sNoticeId ) ) {
 					$sNoticeId = md5( uniqid( '', true ) );
 				}
-				$aCurrentNotices[ $sNoticeId ] = $sNotice;
-				$this->aAdminNotices = $aCurrentNotices;
+				if ( !$this->getNoticeAlreadyExists( $sNoticeId ) ) {
+					$aCurrentNotices = $this->getNotices();
+					$aCurrentNotices[ $sNoticeId ] = $sNotice;
+					$this->aAdminNotices = $aCurrentNotices;
+				}
 			}
 			return $this;
 		}

@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsersProcessor();
 
 		$oUser = $oWpUsers->getUserById( $nUserId );
-		$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$oCurrentUser = $oWpUsers->getCurrentWpUser();
 		$bEditingMyOwnProfile = $oCurrentUser->ID == $oUser->ID;
 
 		if ( !$bEditingMyOwnProfile ) {
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function printGoogleAuthenticatorLoginField() {
 		$sHtml =
 			'<p class="shield-google-authenticator-otp">
-				<label for="_%s">%s [%s]<br /><span>(Use only if setup on your account)</span><br />
+				<label for="_%s">%s<span class="shield-ga-help-link"> [%s]</span><br /><span class="shield-ga-inline-help">(%s)</span><br />
 					<input type="text" name="%s" id="_%s" class="input" value="" autocomplete="off" maxlength="6"
 					onkeyup="this.value=this.value.replace(/[^\d]/g,\'\')" />
 				</label>
@@ -166,6 +166,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$sParam,
 			_wpsf__( 'Google Authenticator Code' ),
 			'<a href="http://icwp.io/wpsf42" target="_blank" style="font-weight: bolder; margin:0 3px">&#63;</a>',
+			_wpsf__( 'Use only if setup on your account' ),
 			$sParam,
 			$sParam
 		);

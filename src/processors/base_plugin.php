@@ -114,7 +114,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$oWp = $this->loadWpFunctionsProcessor();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
-
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'render_slug' => 'plugin-update-available',

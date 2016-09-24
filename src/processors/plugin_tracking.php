@@ -99,7 +99,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			return array(
 				'env' =>array(
 					'options' => array(
-						'php' => $oDP->getPhpVersion(),
+						'php' => $oDP->getPhpVersionCleaned(),
 						'wordpress' => $oWP->getWordpressVersion(),
 						'slug' => $this->getController()->getPluginSlug(),
 						'version' => $this->getController()->getVersion(),

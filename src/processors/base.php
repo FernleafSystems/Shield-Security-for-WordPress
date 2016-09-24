@@ -156,65 +156,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		}
 
 		/**
-		 * @param array $aIpList
-		 * @param integer $nIpAddress
-		 * @param string $outsLabel
-		 * @return boolean
-		 */
-		public function isIpOnlist( $aIpList, $nIpAddress = 0, &$outsLabel = '' ) {
-
-			if ( empty( $nIpAddress ) || empty( $aIpList['ips'] ) || !is_array( $aIpList['ips'] ) ) {
-				return false;
-			}
-
-			$outsLabel = '';
-			foreach( $aIpList['ips'] as $mWhitelistAddress ) {
-
-				$aIps = $this->parseIpAddress( $mWhitelistAddress );
-				if ( count( $aIps ) === 1 ) { //not a range
-					if ( $nIpAddress == $aIps[0] ) {
-						$outsLabel = $aIpList['meta'][ md5( $mWhitelistAddress ) ];
-						return true;
-					}
-				}
-				else if ( count( $aIps ) == 2 ) {
-					if ( $aIps[0] <= $nIpAddress && $nIpAddress <= $aIps[1] ) {
-						$outsLabel = $aIpList['meta'][ md5( $mWhitelistAddress ) ];
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		/**
-		 * @param string $sIpAddress	- an IP or IP address range in LONG format.
-		 * @return array				- with 1 ip address, or 2 addresses if it is a range.
-		 */
-		protected function parseIpAddress( $sIpAddress ) {
-
-			$aIps = array();
-			if ( empty( $sIpAddress ) ) {
-				return $aIps;
-			}
-
-			// offset=1 in the case that it's a range and the first number is negative on 32-bit systems
-			$mPos = strpos( $sIpAddress, '-', 1 );
-
-			if ( $mPos === false ) { // plain IP address
-				$aIps[] = $sIpAddress;
-			}
-			else {
-				//we remove the first character in case this is '-'
-				$aParts = array( substr( $sIpAddress, 0, 1 ), substr( $sIpAddress, 1 ) );
-				list( $sStart, $sEnd ) = explode( '-', $aParts[1], 2 );
-				$aIps[] = $aParts[0].$sStart;
-				$aIps[] = $sEnd;
-			}
-			return $aIps;
-		}
-
-		/**
 		 * @return mixed
 		 */
 		public function getPluginDefaultRecipientAddress() {
