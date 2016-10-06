@@ -303,6 +303,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 * **(v.2)**  TRANSLATIONS:	Dutch (56%)
 * **(v.2)**  ADDED:			Filter to allow modification of the email footer
+* **(v.2)**  ADDED:			Block auto-updates the Shield if PHP < 5.3 and the new plugin version is v6.0+
 * **(v.2)**  FIXED:			Missing Link
 
 = 5.5 Series =
