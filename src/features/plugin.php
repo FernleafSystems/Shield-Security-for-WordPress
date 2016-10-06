@@ -295,10 +295,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
 			}
 
-			if ( $this->getIsUpgrading() ) {
-				$this->setPluginInstallationId();
-			}
-
 			if ( $this->getTrackingEnabled() && !$this->getTrackingPermissionSet() ) {
 				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
 			}
@@ -346,6 +342,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		protected function isValidInstallId( $sId ) {
 			return ( !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40 );
+		}
+
+		/**
+		 * Hooked to the plugin's main plugin_shutdown action
+		 */
+		public function action_doFeatureShutdown() {
+			$this->setPluginInstallationId();
+			parent::action_doFeatureShutdown();
 		}
 
 		/**

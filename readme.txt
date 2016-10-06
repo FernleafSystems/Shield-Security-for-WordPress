@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.5.1
+Stable tag: 5.5.2
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -304,6 +304,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.2)**  ADDED:			Filter to allow modification of the email footer
 * **(v.2)**  ADDED:			Block auto-updates on Shield itself if PHP < 5.3 and new version is v6.0+
 * **(v.2)**  FIXED:			Missing Link
+* **(v.2)**  FIXED:			Plugin Installation ID wasn't always being set
 * **(v.2)**  TRANSLATIONS:	Dutch (56%)
 
 = 5.5 Series =
