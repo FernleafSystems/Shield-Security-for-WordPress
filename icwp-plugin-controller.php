@@ -273,7 +273,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getPluginSpec_Property( 'show_dashboard_widget' ) === true ) {
 			add_action( 'wp_dashboard_setup', array( $this, 'onWpDashboardSetup' ) );
 		}
-		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminCss' ), 99 );
+		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminCss' ), 100 );
 		add_action( 'admin_enqueue_scripts', 	array( $this, 'onWpEnqueueAdminJs' ), 99 );
 	}
 
@@ -684,6 +684,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					break;
 
 				case 'pass' :
+					// Add block to version 6.0 if PHP < 5.3
+					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+					if ( version_compare( $sNewVersion, '6.0.0', '>=' ) && !$this->loadDataProcessor()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
+						$bDoAutoUpdate = false;
+					}
+					break;
+
 				default:
 					break;
 

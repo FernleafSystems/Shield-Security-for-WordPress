@@ -5,7 +5,8 @@
 		<input type="text" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="<?php echo $strings['your_email']; ?>" />
 		<input type="text" value="" name="FNAME" class="" id="mce-FNAME" placeholder="<?php echo $strings['your_name']; ?>" />
 		<input type="hidden" value="<?php echo $install_days; ?>" name="DAYS" class="" id="mce-DAYS" />
-		<input type="submit" value="<?php echo $strings['yes']; ?>" name="subscribe" id="mc-embedded-subscribe" class="button button-primary" /> <?php echo $strings['we_dont_spam']; ?>
+		<input type="submit" value="<?php echo $strings['yes']; ?>" name="subscribe" id="mc-embedded-subscribe" class="button button-primary" />
+		<br /><?php echo $strings['we_dont_spam']; ?>
 		<div id="mce-responses" class="clear">
 			<div class="response" id="mce-error-response" style="display:none"></div>
 			<div class="response" id="mce-success-response" style="display:none"></div>

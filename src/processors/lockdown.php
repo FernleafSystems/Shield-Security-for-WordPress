@@ -151,7 +151,10 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				if ( !empty( $sAuthor ) ) {
 					$this->loadWpFunctionsProcessor()->wpDie( sprintf(
 						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
-						.'<br /><a href="" target="_blank">'._wpsf__( 'Learn More.' ).'</a>',
+						.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
+							'http://icwp.io/7l',
+							_wpsf__( 'Learn More.' )
+						),
 						$this->getController()->getHumanName()
 					));
 				}
