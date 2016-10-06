@@ -62,7 +62,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		return array(
+		$sUrl = array(
 			'', '',
 			sprintf(
 				_wpsf__( 'This email was sent from the %s plugin, provided by %s.' ),
@@ -73,6 +73,8 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 			sprintf( _wpsf__( 'WordPress Site URL- %s.' ), $this->loadWpFunctionsProcessor()->getHomeUrl() )
 			.' / ' .sprintf( _wpsf__( 'Current Plugin Version- %s.' ), $this->getController()->getVersion() ),
 		);
+
+		return apply_filters( 'icwp_shield_email_footer', $sUrl );
 	}
 
 	/**
