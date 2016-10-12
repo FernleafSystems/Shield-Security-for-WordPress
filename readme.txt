@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.6
-Stable tag: 5.5.2
+Stable tag: 5.5.3
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -298,20 +298,17 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.5.2 Latest Point Release =
-*Released: 6th October, 2016*
+= 5.5.3 Latest Point Release =
+*Released: 12th October, 2016*
 
-* **(v.2)**  ADDED:			Filter to allow modification of the email footer
-* **(v.2)**  ADDED:			Block auto-updates on Shield itself if PHP < 5.3 and new version is v6.0+
-* **(v.2)**  FIXED:			Missing Link
-* **(v.2)**  FIXED:			Plugin Installation ID wasn't always being set
-* **(v.2)**  TRANSLATIONS:	Dutch (56%)
+* **(v.3)**  ADDED:			Fix for WordPress Multisite where the correct database prefix wasn't been used.
 
 = 5.5 Series =
 
 * **(v.2)**  ADDED:			Filter to allow modification of the email footer
 * **(v.2)**  ADDED:			Block auto-updates on Shield itself if PHP < 5.3 and new version is v6.0+
 * **(v.2)**  FIXED:			Missing Link
+* **(v.2)**  FIXED:			Plugin Installation ID wasn't always being set
 * **(v.2)**  TRANSLATIONS:	Dutch (56%)
 * **(v.1)**  ADDED:			Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability [more info](http://icwp.io/7j)
 * **(v.1)**  IMPROVED:		Better XMLRPC Lockdown - prevents ANY XMLRPC command processing.
