@@ -124,11 +124,12 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		}
 
 		/**
+		 * @param bool $bSiteBase
 		 * @return string
 		 */
-		public function getPrefix() {
+		public function getPrefix( $bSiteBase = true ) {
 			$oDb = $this->loadWpdb();
-			return $oDb->prefix;
+			return $bSiteBase ? $oDb->base_prefix : $oDb->prefix;
 		}
 
 		/**
