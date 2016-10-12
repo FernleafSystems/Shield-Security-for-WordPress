@@ -269,7 +269,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		}
 
 		/**
-		 * @return boolean
 		 */
 		public function action_blackMarkIp() {
 			$this->blackMarkCurrentVisitor();
@@ -583,7 +582,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				WHERE
 					`ip`					= '%s'
 					AND `list`				= '%s'
-					AND `deleted_at`		= '0'
+					AND `deleted_at`		= 0
 			";
 
 			$sQuery = sprintf( $sQuery,
@@ -613,7 +612,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 					AND `list`				= '%s'
 					AND `transgressions`	>= '%s'
 					AND `last_access_at`	>= %s
-					AND `deleted_at`		= '0'
+					AND `deleted_at`		= 0
 			";
 
 			$sQuery = sprintf( $sQuery,
@@ -642,7 +641,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				FROM `%s`
 				WHERE
 					`list`			IN ( %s )
-					AND `deleted_at`	= '0'
+					AND `deleted_at`	= 0
 			";
 
 			$sQuery = sprintf( $sQuery,
