@@ -272,6 +272,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return string
 		 */
 		protected function generateTwoFactorVerifyLink( $sUser, $sSessionId ) {
+			$sUrl = $this->generateTwoFactorVerifyUrl( $sUser, $sSessionId );
+			return sprintf( '<a href="%s" target="_blank">%s</a>', $sUrl, $sUrl );
+		}
+
+		/**
+		 * @param string $sUser
+		 * @param string $sSessionId
+		 * @return string
+		 */
+		protected function generateTwoFactorVerifyUrl( $sUser, $sSessionId ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$aQueryArgs = array(
