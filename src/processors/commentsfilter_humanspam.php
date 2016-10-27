@@ -144,23 +144,31 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		$sBLFile = $this->getSpamBlacklistFile();
 
 		// first, does the file exist? If not import
-		if ( !$oFs->exists( $sBLFile ) ) {
-			$this->doSpamBlacklistImport();
-		}
-		// second, if it exists and it's older than 48hrs, update
-		else if ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > ( DAY_IN_SECONDS * 2 ) ) {
+		if ( !$oFs->exists( $sBLFile ) || ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > ( DAY_IN_SECONDS * 2 ) ) ) {
 			$this->doSpamBlacklistUpdate();
 		}
+		return $this->readSpamList();
+	}
 
-		$sList = $oFs->getFileContent( $sBLFile );
-		return empty($sList)? '' : $sList;
+	/**
+	 * @return string
+	 */
+	protected function readSpamList() {
+		$oFs = $this->loadFileSystemProcessor();
+		$sBLFile = $this->getSpamBlacklistFile();
+		if ( $oFs->exists( $sBLFile ) ) {
+			$sList = $oFs->getFileContent( $sBLFile );
+			if ( !empty( $sList ) ) {
+				return implode( "\n", array_map( 'base64_decode', explode( "\n", $sList ) ) );
+			}
+		}
+		return '';
 	}
 
 	/**
 	 */
 	protected function doSpamBlacklistUpdate() {
-		$oFs = $this->loadFileSystemProcessor();
-		$oFs->deleteFile( $this->getSpamBlacklistFile() );
+		$this->loadFileSystemProcessor()->deleteFile( $this->getSpamBlacklistFile() );
 		$this->doSpamBlacklistImport();
 	}
 
@@ -180,12 +188,12 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				// filter out empty lines
 				$aWords = explode( "\n", $sRawList );
 				foreach ( $aWords as $nIndex => $sWord ) {
-					$sWord = trim($sWord);
+					$sWord = trim( $sWord );
 					if ( empty( $sWord ) ) {
 						unset( $aWords[ $nIndex ] );
 					}
 					else {
-						$aWords[ $nIndex ] = $sWord;
+						$aWords[ $nIndex ] = base64_encode( $sWord );
 					}
 				}
 				$sList = implode( "\n", $aWords );

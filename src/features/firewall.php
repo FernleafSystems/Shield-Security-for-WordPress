@@ -116,13 +116,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 				case 'block_dir_traversal' :
 					$sName = _wpsf__( 'Directory Traversals' );
 					$sSummary = _wpsf__( 'Block Directory Traversals' );
-					$sDescription = _wpsf__( 'This will block directory traversal paths in in application parameters (e.g. ../, ../../etc/passwd, etc.).' );
+					$sDescription = sprintf( _wpsf__( 'This will block directory traversal paths in in application parameters (e.g. %s, etc).' ), base64_decode( 'Li4vLCAuLi8uLi9ldGMvcGFzc3dk' ) );
 					break;
 
 				case 'block_sql_queries' :
 					$sName = _wpsf__( 'SQL Queries' );
 					$sSummary = _wpsf__( 'Block SQL Queries' );
-					$sDescription = _wpsf__( 'This will block sql in application parameters (e.g. union select, concat(, /**/, etc.).' );
+					$sDescription = sprintf( _wpsf__( 'This will block sql in application parameters (e.g. %s, etc).' ), base64_decode( 'dW5pb24gc2VsZWN0LCBjb25jYXQoLCAvKiovLCAuLik=' ) );
 					break;
 
 				case 'block_wordpress_terms' :
