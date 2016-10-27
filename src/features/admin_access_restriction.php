@@ -373,21 +373,27 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// Restricting Activate Plugins also means restricting the rest.
 		$aPluginsRestrictions = $this->getAdminAccessArea_Plugins();
 		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
-			$aPluginsRestrictions = array_merge( $aPluginsRestrictions, array( 'install_plugins', 'update_plugins', 'delete_plugins' ) );
-			$this->setOpt( 'admin_access_restrict_plugins', $aPluginsRestrictions );
+			$this->setOpt(
+				'admin_access_restrict_plugins',
+				array_unique( array_merge( array_unique( $aPluginsRestrictions ), array( 'install_plugins', 'update_plugins', 'delete_plugins' ) ) )
+			);
 		}
 
 		// Restricting Switch (Activate) Themes also means restricting the rest.
 		$aThemesRestrictions = $this->getAdminAccessArea_Themes();
 		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
-			$aThemesRestrictions = array_merge( $aThemesRestrictions, array( 'install_themes', 'update_themes', 'delete_themes' ) );
-			$this->setOpt( 'admin_access_restrict_themes', $aThemesRestrictions );
+			$this->setOpt(
+				'admin_access_restrict_themes',
+				array_unique( array_merge( array_unique( $aThemesRestrictions ), array( 'install_themes', 'update_themes', 'delete_themes' ) ) )
+			);
 		}
 
 		$aPostRestrictions = $this->getAdminAccessArea_Posts();
 		if ( in_array( 'edit', $aPostRestrictions ) ) {
-			$aThemesRestrictions = array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) );
-			$this->setOpt( 'admin_access_restrict_posts', $aThemesRestrictions );
+			$this->setOpt(
+				'admin_access_restrict_posts',
+				array_unique( array_merge( array_unique( $aPostRestrictions ), array( 'create', 'publish', 'delete' ) ) )
+			);
 		}
 	}
 }
