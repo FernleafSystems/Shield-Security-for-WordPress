@@ -707,6 +707,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						}
 						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
 					}
+					else if ( $sOptionType == 'multiple_select' ) {
+						if ( !is_array( $mCurrentOptionVal ) ) {
+							$mCurrentOptionVal = array();
+						}
+					}
 
 					if ( $sOptionType == 'text' ) {
 						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
