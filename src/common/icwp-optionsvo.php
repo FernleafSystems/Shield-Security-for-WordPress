@@ -59,14 +59,18 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @param bool $bDeleteFirst Used primarily with plugin reset
 		 * @return bool
 		 */
-		public function doOptionsSave() {
+		public function doOptionsSave( $bDeleteFirst = false ) {
 			if ( !$this->getNeedSave() ) {
 				return true;
 			}
 			$this->cleanOptions();
 			$this->setNeedSave( false );
+			if ( $bDeleteFirst ) {
+				$this->loadWpFunctionsProcessor()->deleteOption( $this->getOptionsStorageKey() );
+			}
 			return $this->loadWpFunctionsProcessor()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
 		}
 

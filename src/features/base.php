@@ -626,7 +626,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$this->updateOptionsVersion();
 
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
-			$this->getOptionsVo()->doOptionsSave();
+			$this->getOptionsVo()->doOptionsSave( self::getController()->getIsResetPlugin() );
 			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
