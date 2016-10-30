@@ -375,7 +375,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
 			$this->setOpt(
 				'admin_access_restrict_plugins',
-				array_unique( array_merge( array_unique( $aPluginsRestrictions ), array( 'install_plugins', 'update_plugins', 'delete_plugins' ) ) )
+				array_unique( array_merge( $aPluginsRestrictions, array( 'install_plugins', 'update_plugins', 'delete_plugins' ) ) )
 			);
 		}
 
@@ -384,7 +384,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
 			$this->setOpt(
 				'admin_access_restrict_themes',
-				array_unique( array_merge( array_unique( $aThemesRestrictions ), array( 'install_themes', 'update_themes', 'delete_themes' ) ) )
+				array_unique( array_merge( $aThemesRestrictions, array( 'install_themes', 'update_themes', 'delete_themes' ) ) )
 			);
 		}
 
@@ -392,7 +392,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( in_array( 'edit', $aPostRestrictions ) ) {
 			$this->setOpt(
 				'admin_access_restrict_posts',
-				array_unique( array_merge( array_unique( $aPostRestrictions ), array( 'create', 'publish', 'delete' ) ) )
+				array_unique( array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) ) )
 			);
 		}
 	}
