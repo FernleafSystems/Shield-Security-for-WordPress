@@ -10,7 +10,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 
 			if ( $oFO->getTrackingEnabled() ) {
 				$this->createTrackingCollectionCron();
-				add_action( $oFO->getTrackingCronName(), array( $this, 'sendTrackingData' ) );
 			}
 			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 		}
@@ -120,16 +119,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$sFullHookName = $oFO->getTrackingCronName();
-			if ( ! wp_next_scheduled( $sFullHookName ) && ! defined( 'WP_INSTALLING' ) ) {
-				$nNextRun = strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand(0,1800);
-				wp_schedule_event( $nNextRun, 'daily', $sFullHookName );
+			$oWpCron = $this->loadWpCronProcessor();
+			if ( ! $oWpCron->getIfCronExists( $sFullHookName ) && ! defined( 'WP_INSTALLING' ) ) {
+				$oWpCron
+					->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand( 0, 1800 ) )
+					->setRecurrence( 'daily' )
+					->createCronJob( $sFullHookName, array( $this, 'sendTrackingData' ) )
+					->reset();
 			}
 		}
 
 		public function deleteCron() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			wp_clear_scheduled_hook( $oFO->getTrackingCronName() );
+			$this->loadWpCronProcessor()->deleteCronJob( $oFO->getTrackingCronName() );
 		}
 	}
 

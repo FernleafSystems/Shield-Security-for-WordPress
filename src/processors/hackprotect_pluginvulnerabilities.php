@@ -37,10 +37,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 		protected function setupNotificationsCron() {
 			$oWpCron = $this->loadWpCronProcessor();
-			$oWpCron->createCronJob(
-				$this->getCronName(),
-				array( $this, 'cron_dailyPluginVulnerabilitiesScan' ),
-				'daily'
+			$oWpCron
+				->setRecurrence( 'daily' )
+				->createCronJob(
+					$this->getCronName(),
+					array( $this, 'cron_dailyPluginVulnerabilitiesScan' )
 			);
 			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
 		}

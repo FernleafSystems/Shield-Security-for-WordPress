@@ -386,12 +386,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return mixed
 		 */
 		public function getTransient( $sKey ) {
-
 			// TODO: Handle multisite
-
-			if ( version_compare( $this->getWordpressVersion(), '2.7.9', '<=' ) ) {
-				return get_option( $sKey );
-			}
 
 			if ( function_exists( 'get_site_transient' ) ) {
 				$mResult = get_site_transient( $sKey );
@@ -399,50 +394,52 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 					remove_all_filters( 'pre_site_transient_'.$sKey );
 					$mResult = get_site_transient( $sKey );
 				}
-				return $mResult;
 			}
-
-			if ( version_compare( $this->getWordpressVersion(), '2.9.9', '<=' ) ) {
-				return apply_filters( 'transient_'.$sKey, get_option( '_transient_'.$sKey ) );
+			else if ( version_compare( $this->getWordpressVersion(), '2.7.9', '<=' ) ) {
+				$mResult = get_option( $sKey );
 			}
-
-			return apply_filters( 'site_transient_'.$sKey, get_option( '_site_transient_'.$sKey ) );
+			else if ( version_compare( $this->getWordpressVersion(), '2.9.9', '<=' ) ) {
+				$mResult = apply_filters( 'transient_'.$sKey, get_option( '_transient_'.$sKey ) );
+			}
+			else {
+				$mResult = apply_filters( 'site_transient_'.$sKey, get_option( '_site_transient_'.$sKey ) );
+			}
+			return $mResult;
 		}
 
 		/**
 		 * @param string $sKey
 		 * @param mixed $mValue
 		 * @param int $nExpire
+		 * @return bool
 		 */
 		public function setTransient( $sKey, $mValue, $nExpire = 0 ) {
-			set_site_transient( $sKey, $mValue, $nExpire );
+			return set_site_transient( $sKey, $mValue, $nExpire );
 		}
 
 		/**
 		 * @param $sKey
-		 *
 		 * @return bool
 		 */
 		public function deleteTransient( $sKey ) {
 
 			if ( version_compare( $this->getWordpressVersion(), '2.7.9', '<=' ) ) {
-				return delete_option( $sKey );
+				$bResult = delete_option( $sKey );
 			}
-
-			if ( function_exists( 'delete_site_transient' ) ) {
-				return delete_site_transient( $sKey );
+			else if ( function_exists( 'delete_site_transient' ) ) {
+				$bResult = delete_site_transient( $sKey );
 			}
-
-			if ( version_compare( $this->getWordpressVersion(), '2.9.9', '<=' ) ) {
-				return delete_option( '_transient_'.$sKey );
+			else if ( version_compare( $this->getWordpressVersion(), '2.9.9', '<=' ) ) {
+				$bResult = delete_option( '_transient_'.$sKey );
 			}
-
-			return delete_option( '_site_transient_'.$sKey );
+			else {
+				$bResult = delete_option( '_site_transient_'.$sKey );
+			}
+			return $bResult;
 		}
 
 		/**
 		 * @param string $sPluginBaseFilename
-		 *
 		 * @return null|stdClass
 		 */
 		public function getPluginDataAsObject( $sPluginBaseFilename ){
@@ -485,7 +482,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 
 		/**
 		 * @param string $sPluginBaseFilename
-		 *
 		 * @return boolean
 		 */
 		public function getIsPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
