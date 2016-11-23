@@ -51,9 +51,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oDp = $this->loadDataProcessor();
-			// wpsfkey=%s&wpsf-action=%s&username=%s&sessionid
+			// authkey=%s&wpsf-action=%s&username=%s&sessionid
 
-			if ( $oDp->FetchGet( 'wpsfkey' ) !== $oFO->getTwoAuthSecretKey() ) {
+			if ( $oDp->FetchGet( 'authkey' ) !== $oFO->getTwoAuthSecretKey() ) {
 				return;
 			}
 
@@ -228,7 +228,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			SET `deleted_at`	= '%s',
 				`expired_at`	= '%s'
 			WHERE
-				`deleted_at`	= '0'
+				`deleted_at`	= 0
 				AND `pending`	= '0'
 				%s
 			";
@@ -252,8 +252,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				WHERE
 					`wp_username`		= '%s'
 					AND `pending`		= '1'
-					AND `deleted_at`	= '0'
-					AND `expired_at`	= '0'
+					AND `deleted_at`	= 0
+					AND `expired_at`	= 0
 			";
 
 			$sQuery = sprintf( $sQuery,
@@ -285,7 +285,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$aQueryArgs = array(
-				'wpsfkey' 		=> $oFO->getTwoAuthSecretKey(),
+				'authkey' 		=> $oFO->getTwoAuthSecretKey(),
 				'wpsf-action'	=> 'linkauth',
 				'username'		=> rawurlencode( $sUser ),
 				'sessionid'		=> $sSessionId

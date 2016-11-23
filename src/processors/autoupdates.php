@@ -317,7 +317,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				$bHasPluginUpdates = false;
 				$aTempContent[] = _wpsf__( 'Plugins Updated:' );
 				foreach( $aUpdateResults['plugin'] as $oUpdateItem ) {
-					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result ) {
+					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result && !empty( $oUpdateItem->name ) ) {
 						$aTempContent[] = ' - '.sprintf( 'Plugin "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
 						$bHasPluginUpdates = true;
 					}
@@ -334,7 +334,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				$bHasThemesUpdates = false;
 				$aTempContent = array( _wpsf__( 'Themes Updated:' ) );
 				foreach( $aUpdateResults['theme'] as $oUpdateItem ) {
-					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result ) {
+					if ( isset( $oUpdateItem->result ) && $oUpdateItem->result && !empty( $oUpdateItem->name ) ) {
 						$aTempContent[] = ' - '.sprintf( 'Theme "%s" was automatically updated to version "%s"', $oUpdateItem->name, $oUpdateItem->item->new_version );
 						$bHasThemesUpdates = true;
 					}

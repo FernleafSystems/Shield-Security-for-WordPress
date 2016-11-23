@@ -626,7 +626,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$this->updateOptionsVersion();
 
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
-			$this->getOptionsVo()->doOptionsSave();
+			$this->getOptionsVo()->doOptionsSave( self::getController()->getIsResetPlugin() );
 			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
@@ -706,6 +706,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 							$mCurrentOptionVal = implode( "\n", $aNewValues );
 						}
 						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
+					}
+					else if ( $sOptionType == 'multiple_select' ) {
+						if ( !is_array( $mCurrentOptionVal ) ) {
+							$mCurrentOptionVal = array();
+						}
 					}
 
 					if ( $sOptionType == 'text' ) {

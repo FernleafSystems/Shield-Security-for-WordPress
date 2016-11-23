@@ -34,11 +34,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 
 		protected function setupChecksumCron() {
 			$oWpCron = $this->loadWpCronProcessor();
-			$oWpCron->createCronJob(
-				$this->getCronName(),
-				array( $this, 'cron_dailyChecksumScan' ),
-				'daily'
-			);
+			$oWpCron
+				->setRecurrence( 'daily' )
+				->createCronJob(
+					$this->getCronName(),
+					array( $this, 'cron_dailyChecksumScan' )
+				);
 			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
 		}
 

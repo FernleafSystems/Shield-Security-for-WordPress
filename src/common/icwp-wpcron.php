@@ -7,8 +7,17 @@ if ( !class_exists( 'ICWP_WPSF_WpCron', false ) ):
 		 * @var ICWP_WPSF_WpCron
 		 */
 		protected static $oInstance = NULL;
-
 		private function __construct() {}
+
+		/**
+		 * @var int
+		 */
+		protected $nNextRun;
+
+		/**
+		 * @var string
+		 */
+		protected $sRecurrence;
 
 		/**
 		 * @return ICWP_WPSF_WpCron
@@ -21,17 +30,72 @@ if ( !class_exists( 'ICWP_WPSF_WpCron', false ) ):
 		}
 
 		/**
+		 * @param string $sCronName
+		 * @return bool
+		 */
+		public function getIfCronExists( $sCronName ) {
+			return (bool)wp_next_scheduled( $sCronName );
+		}
+
+		/**
+		 * @return int
+		 */
+		public function getNextRun() {
+			if ( is_null( $this->nNextRun ) ) {
+				return strtotime( 'tomorrow 4am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+			}
+			return $this->nNextRun;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getRecurrence() {
+			if ( empty( $this->sRecurrence ) || !in_array( $this->sRecurrence, $this->getPermittedRecurrences() ) ) {
+				return 'daily';
+			}
+			return $this->sRecurrence;
+		}
+
+		/**
+		 * @param int $nNextRun
+		 * @return $this
+		 */
+		public function setNextRun( $nNextRun ) {
+			$this->nNextRun = $nNextRun;
+			return $this;
+		}
+
+		/**
+		 * @param string $sRecurrence
+		 * @return $this
+		 */
+		public function setRecurrence( $sRecurrence ) {
+			$this->sRecurrence = $sRecurrence;
+			return $this;
+		}
+
+		/**
+		 * @return $this
+		 */
+		public function reset() {
+			return $this
+				->setNextRun( null )
+				->setRecurrence( null );
+		}
+
+		/**
 		 * @param string $sUniqueCronName
 		 * @param callback $sCallback
-		 * @param string $sRecurrence
+		 * @return $this
 		 * @throws Exception
 		 */
-		public function createCronJob( $sUniqueCronName, $sCallback, $sRecurrence = 'daily' ) {
+		public function createCronJob( $sUniqueCronName, $sCallback ) {
 			if ( !is_callable( $sCallback ) ) {
 				throw new Exception( sprintf( 'Tried to schedule a new cron but the Callback function is not callable: %s', print_r( $sCallback, true ) ) );
 			}
 			add_action( $sUniqueCronName, $sCallback );
-			$this->setCronSchedule( $sUniqueCronName, $sRecurrence );
+			return $this->setCronSchedule( $sUniqueCronName );
 		}
 
 		/**
@@ -42,14 +106,21 @@ if ( !class_exists( 'ICWP_WPSF_WpCron', false ) ):
 		}
 
 		/**
-		 * @param $sUniqueCronActionName
-		 * @param $sRecurrence				- one of hourly, twicedaily, daily
+		 * @param string $sUniqueCronActionName
+		 * @return $this
 		 */
-		protected function setCronSchedule( $sUniqueCronActionName, $sRecurrence ) {
+		protected function setCronSchedule( $sUniqueCronActionName ) {
 			if ( ! wp_next_scheduled( $sUniqueCronActionName ) && ! defined( 'WP_INSTALLING' ) ) {
-				$nNextRun = strtotime( 'tomorrow 4am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
-				wp_schedule_event( $nNextRun, $sRecurrence, $sUniqueCronActionName );
+				wp_schedule_event( $this->getNextRun(), $this->getRecurrence(), $sUniqueCronActionName );
 			}
+			return $this;
+		}
+
+		/**
+		 * @return array
+		 */
+		private function getPermittedRecurrences() {
+			return array( 'hourly', 'twicedaily', 'daily' );
 		}
 	}
 

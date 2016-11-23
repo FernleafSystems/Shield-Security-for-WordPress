@@ -159,8 +159,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getPluginDefaultRecipientAddress() {
-			$oWp = $this->loadWpFunctionsProcessor();
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $oWp->getSiteAdminEmail() );
+			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $this->loadWpFunctionsProcessor()->getSiteAdminEmail() );
 		}
 
 		/**

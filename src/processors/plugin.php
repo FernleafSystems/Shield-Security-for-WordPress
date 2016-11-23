@@ -18,7 +18,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$this->toggleForceOff();
 			$this->removePluginConflicts();
 
 			if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
@@ -113,29 +112,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			}
 			$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
 			return $aContent;
-		}
-
-		protected function toggleForceOff() {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
-			$sForceOff = $this->loadDataProcessor()->FetchGet( 'shield_forceoff', '' );
-			if ( !empty( $sForceOff ) ) {
-				if ( $sForceOff == $oFO->getPluginInstallationId() ) {
-					$oFs = $this->loadFileSystemProcessor();
-					$oCon = $this->getController();
-					$sPath = $oCon->getRootDir() . 'forceOff';
-					if ( $oCon->getIfOverrideOff() ) {
-						$oFs->deleteFile( $sPath );
-					}
-					else {
-						$oFs->touch( $sPath );
-					}
-					$this->loadWpFunctionsProcessor()->redirectToAdmin();
-				}
-				else {
-					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
-				}
-			}
 		}
 
 		/**
@@ -236,13 +212,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			if ( class_exists('AIO_WP_Security') && isset( $GLOBALS['aio_wp_security'] ) ) {
 				remove_action( 'init', array( $GLOBALS['aio_wp_security'], 'wp_security_plugin_init'), 0 );
 			}
-		}
-
-		/**
-		 * @return bool
-		 */
-		protected function getIfShowAdminNotices() {
-			return $this->getFeatureOptions()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
 		}
 	}
 

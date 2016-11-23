@@ -37,19 +37,16 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		/**
 		 * @param string $sTable
 		 * @param array $aWhere - delete where (associative array)
-		 *
 		 * @return false|int
 		 */
 		public function deleteRowsFromTableWhere( $sTable, $aWhere ) {
-			$oDb = $this->loadWpdb();
-			return $oDb->delete( $sTable, $aWhere );
+			return $this->loadWpdb()->delete( $sTable, $aWhere );
 		}
 
 		/**
 		 * Will completely remove this table from the database
 		 *
 		 * @param string $sTable
-		 *
 		 * @return bool|int
 		 */
 		public function doDropTable( $sTable ) {
@@ -61,7 +58,6 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * Alias for doTruncateTable()
 		 *
 		 * @param string $sTable
-		 *
 		 * @return bool|int
 		 */
 		public function doEmptyTable( $sTable ) {
@@ -81,7 +77,6 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 
 		/**
 		 * @param string $sTable
-		 *
 		 * @return bool|int
 		 */
 		public function doTruncateTable( $sTable ) {
@@ -97,25 +92,22 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		}
 
 		/**
+		 * @param string $sTable
 		 * @return bool
 		 */
 		public function getIfTableExists( $sTable ) {
-			$oDb = $this->loadWpdb();
-			$sQuery = "SHOW TABLES LIKE '%s'";
-			$sQuery = sprintf( $sQuery, $sTable );
-			$mResult = $oDb->get_var( $sQuery );
+			$sQuery = sprintf( "SHOW TABLES LIKE '%s'", $sTable );
+			$mResult = $this->loadWpdb()->get_var( $sQuery );
 			return !is_null( $mResult );
 		}
 
 		/**
 		 * @param string $sTableName
 		 * @param string $sArrayMapCallBack
-		 *
 		 * @return array
 		 */
 		public function getColumnsForTable( $sTableName, $sArrayMapCallBack = '' ) {
-			$oDb = $this->loadWpdb();
-			$aColumns = $oDb->get_col( "DESCRIBE " . $sTableName, 0 );
+			$aColumns = $this->loadWpdb()->get_col( "DESCRIBE " . $sTableName, 0 );
 
 			if ( !empty( $sArrayMapCallBack ) && function_exists( $sArrayMapCallBack ) ) {
 				return array_map( $sArrayMapCallBack, $aColumns );
@@ -136,16 +128,21 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * @return string
 		 */
 		public function getTable_Comments() {
-			$oDb = $this->loadWpdb();
-			return $oDb->comments;
+			return $this->loadWpdb()->comments;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getTable_Options() {
+			return $this->loadWpdb()->options;
 		}
 
 		/**
 		 * @return string
 		 */
 		public function getTable_Posts() {
-			$oDb = $this->loadWpdb();
-			return $oDb->posts;
+			return $this->loadWpdb()->posts;
 		}
 
 		/**
@@ -164,8 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * @return int|boolean
 		 */
 		public function insertDataIntoTable( $sTable, $aData ) {
-			$oDb = $this->loadWpdb();
-			return $oDb->insert( $sTable, $aData );
+			return $this->loadWpdb()->insert( $sTable, $aData );
 		}
 
 		/**
@@ -175,9 +171,8 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * @return mixed
 		 */
 		public function selectAllFromTable( $sTable, $nFormat = ARRAY_A ) {
-			$oDb = $this->loadWpdb();
-			$sQuery = sprintf( "SELECT * FROM `%s` WHERE `deleted_at` = '0'", $sTable );
-			return $oDb->get_results( $sQuery, $nFormat );
+			$sQuery = sprintf( "SELECT * FROM `%s` WHERE `deleted_at` = 0", $sTable );
+			return $this->loadWpdb()->get_results( $sQuery, $nFormat );
 		}
 
 		/**
@@ -186,8 +181,7 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * @return array|boolean
 		 */
 		public function selectCustom( $sQuery, $nFormat = ARRAY_A ) {
-			$oDb = $this->loadWpdb();
-			return $oDb->get_results( $sQuery, $nFormat );
+			return $this->loadWpdb()->get_results( $sQuery, $nFormat );
 		}
 
 		/**
@@ -197,8 +191,7 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * @return null|object|array
 		 */
 		public function selectRow( $sQuery, $nFormat = ARRAY_A ) {
-			$oDb = $this->loadWpdb();
-			return $oDb->get_row( $sQuery, $nFormat );
+			return $this->loadWpdb()->get_row( $sQuery, $nFormat );
 		}
 
 		/**
@@ -209,14 +202,13 @@ if ( !class_exists( 'ICWP_WPSF_WpDb', false ) ):
 		 * @return integer|boolean (number of rows affected)
 		 */
 		public function updateRowsFromTableWhere( $sTable, $aData, $aWhere ) {
-			$oDb = $this->loadWpdb();
-			return $oDb->update( $sTable, $aData, $aWhere );
+			return $this->loadWpdb()->update( $sTable, $aData, $aWhere );
 		}
 
 		/**
 		 * Loads our WPDB object if required.
 		 *
-		 * @return wpdb
+		 * @return \wpdb
 		 */
 		protected function loadWpdb() {
 			if ( is_null( $this->oWpdb ) ) {
