@@ -301,14 +301,16 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.5.5 Latest Point Release =
 *Released: 23rd November, 2016*
 
-* **(v.5)**  ADDED:			Ability to add custom protocols to the domains (outside of http/s) to the Content Security Policy
+* **(v.5)**  ADDED:			Ability to add custom protocols to the domains (apart from http/s) to the Content Security Policy
 * **(v.5)**  FIXED:			Bug where automatic update emails would contain empty plugins.
+* **(v.5)**  FIXED:			Javascript scope on GASP form elements.
 * **(v.5)**  FIXED:			Various fixes and code improvements.
 
 = 5.5 Series =
 
-* **(v.5)**  ADDED:			Ability to add custom protocols to the domains (outside of http/s) to the Content Security Policy
+* **(v.5)**  ADDED:			Ability to add custom protocols to the domains (apart from http/s) to the Content Security Policy
 * **(v.5)**  FIXED:			Bug where automatic update emails would contain empty plugins.
+* **(v.5)**  FIXED:			Javascript scope on GASP form elements.
 * **(v.5)**  FIXED:			Various fixes and code improvements.
 * **(v.4)**  FIXED:			Bug with data cleaning/storage that caused stored options to balloon resulting in database timeouts. (only certain options affected)
 * **(v.4)**  IMPROVED:		Sometimes "anti-virus" scanners scared normal, everyday hard-working folk by identifying a Shield file as being a virus, because they're not very clever - reduced chances of this.
