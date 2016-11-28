@@ -116,32 +116,32 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 				}
 			</style>
 		';
-	
 		$sHtml =
 			$sStyles.
 			'<p id="'.$sUniqElem.'" class="icwpImHuman_'.$sUniqId.'"></p>
 			<script type="text/javascript">
-				var icwp_wpsf_login_p		= document.getElementById("'.$sUniqElem.'");
-				var icwp_wpsf_login_cb		= document.createElement("input");
-				var icwp_wpsf_login_lb		= document.createElement("label");
-				var icwp_wpsf_login_text	= document.createTextNode(" '.$sLabel.'");
-				icwp_wpsf_login_cb.type		= "checkbox";
-				icwp_wpsf_login_cb.id		= "'.$this->getGaspCheckboxName().'";
-				icwp_wpsf_login_cb.name		= "'.$this->getGaspCheckboxName().'";
-				icwp_wpsf_login_p.appendChild( icwp_wpsf_login_lb );
-				icwp_wpsf_login_lb.appendChild( icwp_wpsf_login_cb );
-				icwp_wpsf_login_lb.appendChild( icwp_wpsf_login_text );
-				var frm = icwp_wpsf_login_cb.form;
-				frm.onsubmit = icwp_wpsf_login_it;
-				function icwp_wpsf_login_it(){
-					if(icwp_wpsf_login_cb.checked != true){
-						alert("'.$sAlert.'");
+				var icwp_wpsf_login_p'.$sUniqId.'		= document.getElementById("'.$sUniqElem.'");
+				var icwp_wpsf_login_cb'.$sUniqId.'		= document.createElement("input");
+				var icwp_wpsf_login_lb'.$sUniqId.'		= document.createElement("label");
+				var icwp_wpsf_login_text'.$sUniqId.'	= document.createTextNode(" '.$sLabel.'");
+				icwp_wpsf_login_cb'.$sUniqId.'.type		= "checkbox";
+				icwp_wpsf_login_cb'.$sUniqId.'.id		= "'.$this->getGaspCheckboxName().'";
+				icwp_wpsf_login_cb'.$sUniqId.'.name		= "'.$this->getGaspCheckboxName().'";
+				icwp_wpsf_login_p'.$sUniqId.'.appendChild( icwp_wpsf_login_lb'.$sUniqId.' );
+				icwp_wpsf_login_lb'.$sUniqId.'.appendChild( icwp_wpsf_login_cb'.$sUniqId.' );
+				icwp_wpsf_login_lb'.$sUniqId.'.appendChild( icwp_wpsf_login_text'.$sUniqId.' );
+				var frm = icwp_wpsf_login_cb'.$sUniqId.'.form;
+
+				frm.onsubmit = icwp_wpsf_login_it'.$sUniqId.';
+				function icwp_wpsf_login_it'.$sUniqId.'() {
+					if( icwp_wpsf_login_cb'.$sUniqId.'.checked != true ){
+						alert( "'.$sAlert.'" );
 						return false;
 					}
 					return true;
 				}
 			</script>
-			<noscript>'._wpsf__('You MUST enable Javascript to be able to login').'</noscript>
+			<noscript>'._wpsf__( 'You MUST enable Javascript to be able to login' ).'</noscript>
 			<input type="hidden" id="icwp_wpsf_login_email" name="icwp_wpsf_login_email" value="" />
 		';
 
