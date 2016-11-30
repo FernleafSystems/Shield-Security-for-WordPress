@@ -298,13 +298,10 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.5.5 Latest Point Release =
+= 5.5.6 Latest Point Release =
 *Released: 23rd November, 2016*
 
-* **(v.5)**  ADDED:			Ability to add custom protocols to the domains (apart from http/s) to the Content Security Policy
-* **(v.5)**  FIXED:			Bug where automatic update emails would contain empty plugins.
-* **(v.5)**  FIXED:			Javascript scope on GASP form elements.
-* **(v.5)**  FIXED:			Various fixes and code improvements.
+* **(v.6)**  IMPROVED:		Fixed possible leak of the Login URL from the 'Hide WP Login URL' feature.
 
 = 5.5 Series =
 
