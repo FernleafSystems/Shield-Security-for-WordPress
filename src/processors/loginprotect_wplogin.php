@@ -29,6 +29,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		add_filter( 'site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 		add_filter( 'network_site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 		add_filter( 'wp_redirect', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
+		add_filter( 'register_url', array( $this, 'blockRegisterUrlRedirect' ), 20, 1 );
 
 		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) ) ;
 	}
@@ -149,6 +150,19 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 				$sLoginUrl = add_query_arg( $aNewQueryArgs, $sLoginUrl );
 			}
 			return $sLoginUrl;
+		}
+		return $sUrl;
+	}
+
+	/**
+	 * @param string $sUrl
+	 * @return string
+	 */
+	public function blockRegisterUrlRedirect( $sUrl ) {
+		$aParts = $this->loadDataProcessor()->getRequestUriParts();
+		if ( is_array( $aParts ) && !empty( $aParts[ 'path' ] ) && strpos( $aParts[ 'path' ], 'wp-register.php' ) ) {
+			$this->doWpLoginFailedRedirect404();
+			die();
 		}
 		return $sUrl;
 	}
