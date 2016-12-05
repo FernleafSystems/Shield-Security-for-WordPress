@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.7
-Stable tag: 5.5.5
+Stable tag: 5.5.6
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -299,19 +299,20 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 == Changelog ==
 
 = 5.5.6 Latest Point Release =
-*Released: 23rd November, 2016*
+*Released: 5th December, 2016*
 
 * **(v.6)**  IMPROVED:		Fixed possible leak of the Login URL from the 'Hide WP Login URL' feature.
 
 = 5.5 Series =
 
+* **(v.6)**  IMPROVED:		Fixed possible leak of the Login URL from the 'Hide WP Login URL' feature.
 * **(v.5)**  ADDED:			Ability to add custom protocols to the domains (apart from http/s) to the Content Security Policy
 * **(v.5)**  FIXED:			Bug where automatic update emails would contain empty plugins.
 * **(v.5)**  FIXED:			Javascript scope on GASP form elements.
 * **(v.5)**  FIXED:			Various fixes and code improvements.
 * **(v.4)**  FIXED:			Bug with data cleaning/storage that caused stored options to balloon resulting in database timeouts. (only certain options affected)
 * **(v.4)**  IMPROVED:		Sometimes "anti-virus" scanners scared normal, everyday hard-working folk by identifying a Shield file as being a virus, because they're not very clever - reduced chances of this.
-* **(v.3)**  ADDED:			Fix for WordPress Multisite where the correct database prefix wasn't been used.
+* **(v.3)**  ADDED:			Fix for WordPress Multisite where the correct database prefix wasn't being used.
 * **(v.2)**  ADDED:			Filter to allow modification of the email footer
 * **(v.2)**  ADDED:			Block auto-updates on Shield itself if PHP < 5.3 and new version is v6.0+
 * **(v.2)**  FIXED:			Missing Link
