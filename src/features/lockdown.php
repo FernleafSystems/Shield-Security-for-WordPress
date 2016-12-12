@@ -6,6 +6,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 
 	class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+		/**
+		 * @return bool
+		 */
+		public function getIfRestApiDisabled() {
+			return $this->getOptIs( 'disable_anonymous_restapi', 'Y' );
+		}
+
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
@@ -94,6 +101,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 					$sName = sprintf( _wpsf__( 'Disable %s' ), 'XML-RPC' );
 					$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), 'XML-RPC' );
 					$sDescription = sprintf( _wpsf__( 'Checking this option will completely turn off the whole %s system.' ), 'XML-RPC' );
+					break;
+
+				case 'disable_anonymous_restapi' :
+					$sName = sprintf( _wpsf__( 'Disable %s' ), _wpsf__( 'Anonymous Rest API' ) );
+					$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), _wpsf__( 'Anonymous Rest API' ) );
+					$sDescription = sprintf( _wpsf__( 'Checking this option will disable anonymous access to the REST API.' ), 'XML-RPC' );
 					break;
 
 				case 'disable_file_editing' :
