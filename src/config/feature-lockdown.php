@@ -35,6 +35,15 @@ options:
     type: 'checkbox'
     link_info: 'http://icwp.io/4r'
     link_blog: ''
+    
+  -
+    key: 'disable_anonymous_restapi'
+    section: 'section_system_lockdown'
+    transferable: true
+    default: 'N'
+    type: 'checkbox'
+    link_info: ''
+    link_blog: ''
   -
     key: 'disable_xmlrpc'
     section: 'section_system_lockdown'

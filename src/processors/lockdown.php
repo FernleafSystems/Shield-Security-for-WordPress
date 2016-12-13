@@ -9,8 +9,10 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		/**
 		 */
 		public function run() {
+			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			$oFO = $this->getFeatureOptions();
 
-			if ( $this->getIsOption( 'disable_file_editing', 'Y' ) ) {
+			if ( $oFO->getOptIs( 'disable_file_editing', 'Y' ) ) {
 				if ( !defined('DISALLOW_FILE_EDIT') ) {
 					define( 'DISALLOW_FILE_EDIT', true );
 				}
@@ -29,26 +31,49 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 				add_action( 'init', array( $this, 'resetAuthKeysSalts' ), 1 );
 			}
 
-			if ( $this->getIsOption( 'force_ssl_admin', 'Y' ) && function_exists('force_ssl_admin') ) {
+			if ( $oFO->getOptIs( 'force_ssl_admin', 'Y' ) && function_exists('force_ssl_admin') ) {
 				if ( !defined('FORCE_SSL_ADMIN') ) {
 					define( 'FORCE_SSL_ADMIN', true );
 				}
 				force_ssl_admin( true );
 			}
 
-			if ( $this->getIsOption( 'hide_wordpress_generator_tag', 'Y' ) ) {
+			if ( $oFO->getOptIs( 'hide_wordpress_generator_tag', 'Y' ) ) {
 				remove_action( 'wp_head', 'wp_generator' );
 			}
 
-			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) ) {
+			if ( $oFO->getOptIs( 'block_author_discovery', 'Y' ) ) {
 				// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
 				add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 			}
 
-			if ( $this->getIsOption( 'disable_xmlrpc', 'Y' ) ) {
+			if ( $oFO->getOptIs( 'disable_xmlrpc', 'Y' ) ) {
 				add_filter( 'xmlrpc_enabled', '__return_false', 1000 );
 				add_filter( 'xmlrpc_methods', '__return_empty_array', 1000 );
 			}
+
+			if ( $oFO->getIfRestApiDisabled() ) {
+				// 99 so that we jump in just before the always-on WordPress cookie auth.
+				add_filter( 'rest_authentication_errors', array( $this, 'disableAnonymousRestApi' ), 99 );
+			}
+		}
+
+		/**
+		 * Understand that if $mCurrentStatus is null, no check has been made. If true, something has
+		 * authenticated the request, and if WP_Error, then an error is already present
+		 *
+		 * @param WP_Error|true|null $mCurrentStatus
+		 * @return WP_Error
+		 */
+		public function disableAnonymousRestApi( $mCurrentStatus ) {
+			$bAlreadyAuthenticated = ( $mCurrentStatus === true );
+			if ( !$bAlreadyAuthenticated && !is_wp_error( $mCurrentStatus ) && !$this->loadWpUsersProcessor()->isUserLoggedIn() ) {
+				$mCurrentStatus = new WP_Error(
+					'shield_block_anon_restapi',
+					sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getController()->getHumanName() ),
+					array( 'status' => rest_authorization_required_code() ) );
+			}
+			return $mCurrentStatus;
 		}
 
 		/**
