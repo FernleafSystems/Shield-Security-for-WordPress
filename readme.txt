@@ -301,12 +301,12 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.6.0 Latest Point Release =
 *Released: 13th December, 2016*
 
-* **(v.0)**  ADDED:			Disabled anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin
+* **(v.0)**  ADDED:			Option to disable anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin
 							or service authenticates the request it will be honoured, whether anonymous or not.
 
 = 5.6 Series =
 
-* **(v.0)**  ADDED:			Disabled anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin
+* **(v.0)**  ADDED:			Option to disable anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin
 							or service authenticates the request it will be honoured, whether anonymous or not.
 
 = 5.5 Series =
