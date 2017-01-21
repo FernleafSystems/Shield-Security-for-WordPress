@@ -7,9 +7,55 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 	class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 
 		/**
+		 * @var bool
+		 */
+		protected $bHeadersPushed;
+
+		/**
+		 * @var array
+		 */
+		protected $aHeaders;
+
+		/**
 		 */
 		public function run() {
-			add_action( 'send_headers', array( $this, 'addSecurityHeaders' ) );
+			if ( $this->getPushHeadersEarly() ) {
+				$this->pushHeaders();
+			}
+			else {
+				add_filter( 'wp_headers', array( $this, 'addToHeaders' ) );
+			}
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getPushHeadersEarly() {
+			return defined( 'WPCACHEHOME' ); //WP Super Cache
+		}
+
+		/**
+		 */
+		protected function pushHeaders() {
+			if ( !$this->isHeadersPushed() ) {
+				$aHeaders = $this->gatherSecurityHeaders();
+				foreach ( $aHeaders as $sHeader => $sValue ) {
+					header( sprintf( '%s: %s', $sHeader, $sValue ) );
+				}
+				$this->setHeadersPushed( true );
+			}
+		}
+
+		/**
+		 * @param array $aCurrentWpHeaders
+		 * @return array
+		 */
+		public function addToHeaders( $aCurrentWpHeaders ) {
+			if ( !$this->isHeadersPushed() ) {
+				$aCurrentWpHeaders = array_merge( $aCurrentWpHeaders, $this->gatherSecurityHeaders() );
+				$this->setHeadersPushed( true );
+			}
+			return $aCurrentWpHeaders;
 		}
 
 		protected function setXFrameHeader() {
@@ -26,30 +72,36 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 					break;
 			}
 			if ( !empty( $sXFrameOption ) ) {
-				header( sprintf( 'x-frame-options: %s', $sXFrameOption ) );
+				return array( 'x-frame-options' => $sXFrameOption );
 			}
+			return null;
 		}
 
 		protected function setXssProtectionHeader() {
 			if ( $this->getIsOption( 'x_xss_protect', 'Y' ) ) {
-				header( 'X-XSS-Protection: 1; mode=block' );
+				return array( 'X-XSS-Protection' => '1; mode=block' );
 			}
+			return null;
 		}
 
 		protected function setContentTypeOptionHeader() {
 			if ( $this->getIsOption( 'x_content_type', 'Y' ) ) {
-				header( 'X-Content-Type-Options: nosniff' );
+				return array( 'X-Content-Type-Options' => 'nosniff' );
 			}
+			return null;
 		}
 
+		/**
+		 * @return array|null
+		 */
 		protected function setContentSecurityPolicyHeader() {
 			/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 			$oFO = $this->getFeatureOptions();
 			if ( !$oFO->getIsContentSecurityPolicyEnabled() ) {
-				return;
+				return null;
 			}
 
-			$sTemplate = 'Content-Security-Policy: default-src %s;';
+			$sTemplate = 'default-src %s;';
 
 			$aDefaultSrcDirectives = array();
 
@@ -73,44 +125,58 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 			if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 				$aDefaultSrcDirectives[] = implode( " ", $aDomains );
 			}
-
-			$sFinal = sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) );
-			header( $sFinal );
+			return array( 'Content-Security-Policy' => sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) );
 		}
 
-		public function addSecurityHeaders() {
+		/**
+		 * @return array
+		 */
+		protected function gatherSecurityHeaders() {
 			/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			$this->setXFrameHeader();
-			$this->setXssProtectionHeader();
-			$this->setContentTypeOptionHeader();
+			$this->addHeader( $this->setXFrameHeader() );
+			$this->addHeader( $this->setXssProtectionHeader() );
+			$this->addHeader( $this->setContentTypeOptionHeader() );
 			if ( $oFO->getIsContentSecurityPolicyEnabled() ) {
-				$this->setContentSecurityPolicyHeader();
+				$this->addHeader( $this->setContentSecurityPolicyHeader() );
 			}
-//
-//			$aDomains = array(
-//				'fonts.googleapis.com',
-//				'load.sumome.com',
-//				'cdn.segment.com',
-//				'www.googletagmanager.com',
-//				'secure.gravatar.com',
-//				'fonts.googleapis.com',
-//				'fonts.gstatic.com',
-//				'www.google-analytics.com',
-//				'cdn.mxpnl.com',
-//				'sumome.com',
-//				'www.googletagmanager.com',
-//				'api.mixpanel.com',
-//				'*.kxcdn.com',
-//				'*.google.com',
-//				'*.reddit.com',
-//				'*.bufferapp.com',
-//				'*.linkedin.com',
-//				'*.pinterest.com',
-//				'*.yummly.com',
-//				'*.facebook.com',
-//			);
+			return $this->getHeaders();
+		}
+
+		/**
+		 * @return array
+		 */
+		private function getHeaders() {
+			if ( !isset( $this->aHeaders ) || !is_array( $this->aHeaders ) ) {
+				$this->aHeaders = array();
+			}
+			return $this->aHeaders;
+		}
+
+		/**
+		 * @param string $aHeader
+		 */
+		private function addHeader( $aHeader ) {
+			if ( !empty( $aHeader ) && is_array( $aHeader ) ) {
+				$this->aHeaders = array_merge( $this->getHeaders(), $aHeader );
+			}
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isHeadersPushed() {
+			return (bool)$this->bHeadersPushed;
+		}
+
+		/**
+		 * @param bool $bHeadersPushed
+		 * @return $this
+		 */
+		protected function setHeadersPushed( $bHeadersPushed ) {
+			$this->bHeadersPushed = $bHeadersPushed;
+			return $this;
 		}
 	}
 
