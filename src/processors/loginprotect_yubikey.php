@@ -94,12 +94,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 
 			// 2. Check status directly within response
 			preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatches );
-			$sStatus = $aMatches[1];
+			$sStatus = $aMatches[ 1 ];
 
-			if ( $sStatus != 'OK' && $sStatus != 'REPLAYED_OTP' ) {
+			if ( $sStatus != 'OK' ) {
 				$oError->add(
 					'yubikey_validate_fail',
-					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__('The Yubikey authentication was not validated successfully.') )
+					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey authentication was not validated successfully.' ) )
 				);
 				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, $sStatus );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
