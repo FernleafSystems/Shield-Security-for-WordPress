@@ -98,7 +98,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		$sLabel = _wpsf__( "I'm a human." );
 		$sAlert = _wpsf__( "Please check the box to show us you're a human." );
 
-		$sUniqId = uniqid();
+		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
 		
 		$sStyles = '
