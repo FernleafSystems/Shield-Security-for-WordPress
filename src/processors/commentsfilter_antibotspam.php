@@ -15,7 +15,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * The unique comment token assigned to this page
 	 * @var string
 	 */
-	protected $sUniqueFormId;
+	protected $sFormId;
 	/**
 	 * @var string
 	 */
@@ -246,11 +246,14 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	protected function getUniqueFormId() {
-		if ( !isset( $this->sUniqueFormId ) ) {
+		if ( !isset( $this->sFormId ) ) {
 			$oDp = $this->loadDataProcessor();
-			$this->sUniqueFormId = $oDp->GenerateRandomLetter().$oDp->GenerateRandomString( rand(7, 23), 7 );
+			$sId = $oDp->GenerateRandomLetter() . $oDp->GenerateRandomString( rand( 7, 23 ), 7 );
+			$this->sFormId = preg_replace(
+				'#[^a-zA-Z0-9]#', '',
+				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
 		}
-		return $this->sUniqueFormId;
+		return $this->sFormId;
 	}
 
 	/**
