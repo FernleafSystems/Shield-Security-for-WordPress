@@ -13,7 +13,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
 			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
 
-			if ( !$this->getTrackingPermissionSet() ) {
+			if ( !$this->isTrackingPermissionSet() ) {
 				add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
 			}
 		}
@@ -131,14 +131,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		/**
 		 * @return bool
 		 */
-		public function getTrackingEnabled() {
+		public function isTrackingEnabled() {
 			return $this->getOptIs( 'enable_tracking', 'Y' );
 		}
 
 		/**
 		 * @return bool
 		 */
-		public function getTrackingPermissionSet() {
+		public function isTrackingPermissionSet() {
 			return !$this->getOptIs( 'tracking_permission_set_at', 0 );
 		}
 
@@ -295,7 +295,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
 			}
 
-			if ( $this->getTrackingEnabled() && !$this->getTrackingPermissionSet() ) {
+			if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
 				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
 			}
 
