@@ -121,8 +121,12 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @return string URI Path in lowercase
 		 */
 		public function getRequestPath() {
-			$aParts = $this->getRequestUriParts();
-			return isset( $aParts[ 'path' ] ) ? strtolower( $aParts[ 'path' ] ) : '';
+			$aRequestParts = $this->getRequestUriParts();
+			$sPath = '';
+			if ( !empty( $aRequestParts[ 'path' ] ) ) {
+				$sPath = preg_replace( '#(\/){2,}#', '/', strtolower( $aRequestParts[ 'path' ] ) );
+			}
+			return $sPath;
 		}
 
 		/**

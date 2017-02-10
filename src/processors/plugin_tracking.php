@@ -8,7 +8,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			if ( $oFO->getTrackingEnabled() ) {
+			if ( $oFO->isTrackingEnabled() ) {
 				$this->createTrackingCollectionCron();
 			}
 			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 
-			if ( $this->getIfShowAdminNotices() && !$oFO->getTrackingPermissionSet() ) {
+			if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
 				$oCon = $this->getController();
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
@@ -53,7 +53,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		public function sendTrackingData() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
-			if ( !$oFO->getTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
+			if ( !$oFO->isTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
 				return;
 			}
 
