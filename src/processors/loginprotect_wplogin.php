@@ -105,11 +105,11 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
-			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-			$sPath = isset( $aRequestParts[ 'path' ] ) ? trim( $aRequestParts[ 'path' ], '/' ) : '';
-			$sPath = preg_replace( '/(\/){2,}/', '/', $sPath );
+			$sPath = trim( $this->loadDataProcessor()->getRequestPath(), '/' );
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
+				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
+				trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
 				// trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
 				trim( rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
 				trim( home_url( 'login', 'relative' ), '/' ),
