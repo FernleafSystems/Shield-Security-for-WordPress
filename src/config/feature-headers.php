@@ -102,7 +102,7 @@ options:
     key: 'xcsp_eval'
     section: 'section_content_security_policy'
     transferable: true
-    default: 'N'
+    default: 'Y'
     type: 'checkbox'
     link_info: ''
     link_blog: ''
