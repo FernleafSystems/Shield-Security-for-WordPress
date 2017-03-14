@@ -42,6 +42,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		/**
 		 * @var string
 		 */
+		protected $sOptionsEncoding;
+
+		/**
+		 * @var string
+		 */
 		protected $sOptionsName;
 
 		/**
@@ -328,6 +333,13 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getOptionsEncoding() {
+			return empty( $this->sOptionsEncoding ) ? 'yaml' : $this->sOptionsEncoding;
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getOptionsKeys() {
@@ -372,7 +384,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 */
 		public function getRawData_FullFeatureConfig() {
 			if ( empty( $this->aRawOptionsConfigData ) ) {
-				$this->aRawOptionsConfigData = $this->readYamlConfiguration();
+				$this->aRawOptionsConfigData = $this->readConfiguration();
 			}
 			return $this->aRawOptionsConfigData;
 		}
@@ -442,9 +454,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 
 		/**
 		 * @param string $sKey
+		 * @return $this
 		 */
 		public function setOptionsStorageKey( $sKey ) {
 			$this->sOptionsStorageKey = $sKey;
+			return $this;
 		}
 
 		/**
@@ -456,9 +470,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 
 		/**
 		 * @param boolean $bLoadFromSaved
+		 * @return $this
 		 */
 		public function setIfLoadOptionsFromStorage( $bLoadFromSaved ) {
 			$this->bLoadFromSaved = $bLoadFromSaved;
+			return $this;
 		}
 
 		/**
@@ -469,10 +485,21 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @param string $sOptionsEncoding
+		 * @return $this
+		 */
+		public function setOptionsEncoding( $sOptionsEncoding ) {
+			$this->sOptionsEncoding = $sOptionsEncoding;
+			return $this;
+		}
+
+		/**
 		 * @param boolean $bRebuild
+		 * @return $this
 		 */
 		public function setRebuildFromFile( $bRebuild ) {
 			$this->bRebuildFromFile = $bRebuild;
+			return $this;
 		}
 
 		/**
@@ -568,7 +595,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 * @throws Exception
 		 */
-		private function readYamlConfiguration() {
+		private function readConfiguration() {
 			$oWp = $this->loadWpFunctionsProcessor();
 
 			$sTransientKey = $this->getSpecTransientStorageKey();
@@ -578,9 +605,18 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 				$sConfigFile = $this->getConfigFilePath();
 				$sContents = include( $sConfigFile );
 				if ( !empty( $sContents ) ) {
-					$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
-					if ( is_null( $aConfig ) ) {
-						throw new Exception( 'YAML parser could not load to process the options configuration.' );
+
+					if ( $this->getOptionsEncoding() === 'json' ) {
+						$aConfig = json_decode( $sContents, true );
+					}
+					else if ( $this->getOptionsEncoding() === 'yaml' ) {
+						$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
+					}
+					else {
+						throw new Exception( 'Options encoding is not currently supported.' );
+					}
+					if ( empty( $aConfig ) ) {
+						throw new Exception( 'Parser could not load/decode the options configuration.' );
 					}
 					$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 				}
