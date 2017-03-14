@@ -363,6 +363,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getOptionsEncoding() {
+		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
+		return in_array( $sEncoding, array( 'yaml', 'json' ) ) ? $sEncoding : 'yaml';
+	}
+
+	/**
 	 * @uses die()
 	 */
 	public function getOptionsImportFromFile() {

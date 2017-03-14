@@ -12,6 +12,7 @@ properties:
   logging_enabled: true
   show_dashboard_widget: true
   autoupdate: 'pass' #yes/block/pass/confidence - confidence is where the version update detected has been available for at least 48hrs.
+  options_encoding: 'json'
 
 requirements:
   php: '5.2.4'
