@@ -127,10 +127,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sContents = include( $this->getPathPluginSpec() );
+		$sContents = $this->loadDataProcessor()->readFileContentsUsingImport( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
-			$aSpec = $this->loadYamlProcessor()->parseYamlString( $sContents );
-			if ( is_null( $aSpec ) ) {
+			$aSpec = json_decode( $sContents, true );
+			if ( empty( $aSpec ) ) {
 				throw new Exception( 'YAML parser could not load to process the plugin spec configuration.' );
 			}
 		}

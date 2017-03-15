@@ -635,11 +635,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 			if ( !$this->getConfigFileExists() ) {
 				throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getConfigFilePath() ) );
 			}
-			ob_start();
-			include( $this->getConfigFilePath() );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-			return $sContents;
+			return $this->loadDataProcessor()->readFileContentsUsingImport( $this->getConfigFilePath() );
 		}
 
 		/**
