@@ -25,6 +25,13 @@
       "valid_admin": true,
       "type": "warning"
     },
+    "allow-tracking": {
+      "id": "allow-tracking",
+      "schedule": "once",
+      "valid_admin": true,
+      "delay_days": 0,
+      "type": "promo"
+    },
     "plugin-mailing-list-signup": {
       "id": "plugin-mailing-list-signup",
       "schedule": "once",
@@ -44,13 +51,6 @@
       "schedule": "once",
       "valid_admin": true,
       "delay_days": 45,
-      "type": "promo"
-    },
-    "allow-tracking": {
-      "id": "allow-tracking",
-      "schedule": "once",
-      "valid_admin": true,
-      "delay_days": 0,
       "type": "promo"
     }
   },
