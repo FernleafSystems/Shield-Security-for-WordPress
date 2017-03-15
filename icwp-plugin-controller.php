@@ -301,7 +301,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
 	 */
 	public function onWpDashboardSetup() {
 		if ( $this->getIsValidAdminArea() ) {
@@ -1350,10 +1349,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
 	 */
 	protected function saveCurrentPluginControllerOptions() {
-
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
@@ -1366,10 +1363,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * This should always be used to modify or delete the options as it works within the Admin Access Permission system.
 	 *
 	 * @param stdClass|bool $oOptions
-	 * @return bool
+	 * @return $this
 	 */
 	protected function setPluginControllerOptions( $oOptions ) {
 		self::$oControllerOptions = $oOptions;
+		return $this;
 	}
 
 	/**
