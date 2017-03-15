@@ -4,7 +4,7 @@
 	<ul class="nav nav-tabs">
 		<?php foreach ( $aAllOptions as $sOptionSection ) : ?>
 			<li class="<?php echo $sOptionSection['section_primary'] ? 'active' : '' ?>">
-				<a href="#<?php echo $sOptionSection['section_slug'] ?>" data-toggle="tab" ><?php echo $sOptionSection['section_title_short']; ?></a>
+				<a href="#<?php echo $sOptionSection['section_slug'] ?>" data-toggle="tab" ><?php echo $sOptionSection['title_short']; ?></a>
 			</li>
 		<?php endforeach; ?>
 	</ul>
@@ -18,12 +18,12 @@
 					 id="row-<?php echo $sOptionSection['section_slug']; ?>">
 					<div class="span9">
 						<fieldset>
-							<legend><?php echo $sOptionSection['section_title']; ?></legend>
+							<legend><?php echo $sOptionSection['title']; ?></legend>
 
-							<?php if ( !empty( $sOptionSection['section_summary'] ) ) : ?>
+							<?php if ( !empty( $sOptionSection['summary'] ) ) : ?>
 								<div class="row row_section_summary">
 									<div class="span9">
-										<?php foreach( $sOptionSection['section_summary'] as $sItem ) : ?>
+										<?php foreach( $sOptionSection['summary'] as $sItem ) : ?>
 											<p class="noselect"><?php echo $sItem; ?></p>
 										<?php endforeach; ?>
 									</div>
