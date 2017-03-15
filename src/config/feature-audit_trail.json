@@ -8,8 +8,15 @@
   },
   "sections": [
     {
+      "primary": true,
       "slug": "section_enable_plugin_feature_audit_trail",
-      "primary": true
+      "title": "Enable Plugin Feature: Audit Trail",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
+        "Recommendation - Keep the Security Admin feature turned on.",
+        "You need to also enter a new Access Key to enable this feature."
+      ]
     },
     {
       "slug": "section_audit_trail_options"
