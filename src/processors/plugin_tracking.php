@@ -54,15 +54,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			if ( !$oFO->isTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
-				return;
+				return false;
 			}
 
 			$aData = $this->collectTrackingData();
 			if ( empty( $aData ) || !is_array( $aData ) ) {
-				return;
+				return false;
 			}
 
-			$this->loadFileSystemProcessor()->requestUrl(
+			$mResult = $this->loadFileSystemProcessor()->requestUrl(
 				$oFO->getDefinition( 'tracking_post_url' ),
 				array(
 					'method'      => 'POST',
@@ -76,6 +76,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				true
 			);
 			$oFO->setTrackingLastSentAt();
+			return $mResult;
 		}
 
 		/**
