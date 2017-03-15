@@ -622,7 +622,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		private function readConfigurationJson() {
 			$aConfig = json_decode( $this->readConfigurationFileContents(), true );
 			if ( empty( $aConfig ) ) {
-				throw new Exception( 'Reading JSON configuration failed.' );
+				throw new Exception( 'Reading JSON configuration from file failed.' );
 			}
 			return $aConfig;
 		}
@@ -632,12 +632,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @throws Exception
 		 */
 		private function readConfigurationFileContents() {
-			$sConfigPath = $this->getConfigFilePath();
-			if ( !$this->loadFileSystemProcessor()->exists( $sConfigPath ) ) {
-				throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $sConfigPath ) );
+			if ( !$this->getConfigFileExists() ) {
+				throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getConfigFilePath() ) );
 			}
 			ob_start();
-			include( $sConfigPath );
+			include( $this->getConfigFilePath() );
 			$sContents = ob_get_contents();
 			ob_end_clean();
 			return $sContents;
