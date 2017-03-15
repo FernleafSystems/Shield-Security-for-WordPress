@@ -24,15 +24,34 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_admin_access_restriction",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: WordPress Security Admin",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
+        "Recommendation - Keep the Security Admin feature turned on.",
+        "You need to also enter a new Access Key to enable this feature."
+      ]
     },
     {
       "slug": "section_admin_access_restriction_settings",
-      "primary": false
+      "primary": false,
+      "title": "Security Admin Restriction Settings",
+      "title_short": "Security Admin Settings",
+      "summary": [
+        "Purpose - Restrict access using a simple Access Key.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
     },
     {
       "slug": "section_admin_access_restriction_areas",
-      "primary": false
+      "primary": false,
+      "title": "Security Admin Restriction Zones",
+      "title_short": "Access Restriction Zones",
+      "summary": [
+        "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
     },
     {
       "slug": "section_non_ui",
