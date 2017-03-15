@@ -8,13 +8,33 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_hack_protection_tools",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: Hack Protection",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.",
+        "Recommendation - Keep the Hack Protection feature turned on."
+      ]
     },
     {
-      "slug": "section_plugin_vulnerabilities_scan"
+      "slug": "section_plugin_vulnerabilities_scan",
+      "primary": false,
+      "title": "Plugin Vulnerabilities Scanner",
+      "title_short": "Plugin Vulnerabilities",
+      "summary": [
+        "Purpose - Regularly scan your plugins against a database of known vulnerabilities.",
+        "Recommendation - Keep the Plugin Vulnerabilities Scanner feature turned on."
+      ]
     },
     {
-      "slug": "section_core_file_integrity_scan"
+      "slug": "section_core_file_integrity_scan",
+      "primary": false,
+      "title": "Core File Integrity Scanner",
+      "title_short": "Core File Scanner",
+      "summary": [
+        "Purpose - Regularly scan your WordPress core files for changes compared to official WordPress files.",
+        "Recommendation - Keep the Core File Integrity Scanner feature turned on."
+      ]
     },
     {
       "slug": "section_non_ui",

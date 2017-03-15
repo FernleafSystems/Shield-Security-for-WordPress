@@ -9,19 +9,54 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_wordpress_lockdown",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: Lockdown",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
+        "Recommendation - Keep the %s feature turned on.",
+        "Lockdown"
+      ]
     },
     {
-      "slug": "section_system_lockdown"
+      "slug": "section_system_lockdown",
+      "primary": false,
+      "title": "WordPress System Lockdown",
+      "title_short": "System",
+      "summary": [
+        "Purpose - Lockdown certain core WordPress system features.",
+        "Recommendation - This depends on your usage and needs for certain WordPress functions and features."
+      ]
     },
     {
-      "slug": "section_security_headers"
+      "slug": "section_security_headers",
+      "primary": false,
+      "title": "Permissions and Access Options",
+      "title_short": "Permissions",
+      "summary": [
+        "Purpose - Provides finer control of certain WordPress permissions.",
+        "Recommendation - Only enable SSL if you have a valid certificate installed."
+      ]
     },
     {
-      "slug": "section_permission_access_options"
+      "slug": "section_permission_access_options",
+      "primary": false,
+      "title": "Permissions and Access Options",
+      "title_short": "Permissions",
+      "summary": [
+        "Purpose - Provides finer control of certain WordPress permissions.",
+        "Recommendation - Only enable SSL if you have a valid certificate installed."
+      ]
     },
     {
-      "slug": "section_wordpress_obscurity_options"
+      "slug": "section_wordpress_obscurity_options",
+      "primary": false,
+      "title": "WordPress Obscurity Options",
+      "title_short": "Obscurity",
+      "summary": [
+        "Purpose - Obscures certain WordPress settings from public view.",
+        "Recommendation - Obscurity is not true security and so these settings are down to your personal tastes."
+      ]
     },
     {
       "slug": "section_non_ui",

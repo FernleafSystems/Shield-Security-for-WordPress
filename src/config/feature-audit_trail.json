@@ -9,13 +9,33 @@
   "sections": [
     {
       "primary": true,
-      "slug": "section_enable_plugin_feature_audit_trail"
+      "slug": "section_enable_plugin_feature_audit_trail",
+      "title": "Enable Plugin Feature: Audit Trail",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
+        "Recommendation - Keep the Security Admin feature turned on.",
+        "You need to also enter a new Access Key to enable this feature."
+      ]
     },
     {
-      "slug": "section_audit_trail_options"
+      "slug": "section_audit_trail_options",
+      "title": "Audit Trail Options",
+      "title_short": "Options",
+      "summary": [
+        "Purpose - Provides finer control over the audit trail itself.",
+        "Recommendation - These settings are dependent on your requirements."
+      ]
     },
     {
-      "slug": "section_enable_audit_contexts"
+      "slug": "section_enable_audit_contexts",
+      "title": "Enable Audit Contexts",
+      "title_short": "Audit Contexts",
+      "summery":
+      [
+        "Purpose - Specify which types of actions on your site are logged.",
+      "Recommendation - These settings are dependent on your requirements."
+      ]
     },
     {
       "slug": "section_non_ui",

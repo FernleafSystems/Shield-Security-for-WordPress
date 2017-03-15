@@ -18,16 +18,48 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_spam_comments_protection_filter",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: SPAM Comments Protection Filter",
+      "title_short": "Enable / Disable",
+      "summery":
+      [
+        "Purpose - The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.",
+        "Recommendation - Keep the Comments Filter feature turned on."
+      ]
     },
     {
-      "slug": "section_bot_comment_spam_protection_filter"
+      "slug": "section_bot_comment_spam_protection_filter",
+      "primary": false,
+      "title": "Automatic Bot  Comment SPAM Protection Filter",
+      "title_short": "Bot SPAM",
+      "summery":
+      [
+        "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+
     },
     {
-      "slug": "section_human_spam_filter"
+      "slug": "section_human_spam_filter",
+      "primary": false,
+      "title": "Human Comment SPAM Protection Filter",
+      "title_short": "Human SPAM",
+      "summery":
+      [
+        "Purpose - Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
     },
     {
-      "slug": "section_customize_messages_shown_to_user"
+      "slug": "section_customize_messages_shown_to_user",
+      "primary": false,
+      "title": "Customize Messages Shown To User",
+      "title_short": "Visitor Messages",
+      "summery":
+      [
+        "Purpose - Customize the messages shown to visitors when they view and use comment forms.",
+        "Recommendation - Be sure to change the messages to suit your audience."
+      ]
     },
     {
       "slug": "section_non_ui",
