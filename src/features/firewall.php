@@ -84,9 +84,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 //					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
-			$aOptionsParams['section_title'] = $sTitle;
-			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-			$aOptionsParams['section_title_short'] = $sTitleShort;
+			$aOptionsParams['title'] = $sTitle;
+			$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+			$aOptionsParams['title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 

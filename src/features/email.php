@@ -47,7 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
-			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['title'] = $sTitle;
 			return $aOptionsParams;
 		}
 
