@@ -66,7 +66,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/40",
-      "link_blog": "http://icwp.io/wpsf02"
+      "link_blog": "http://icwp.io/wpsf02",
+      "name": "Enable Security Admin",
+      "summary": "Enforce Security Admin Access Restriction",
+      "description": "Enable this with great care and consideration. When this Access Key option is enabled, you must specify a key below and use it to gain access to this plugin."
     },
     {
       "key": "admin_access_key",
