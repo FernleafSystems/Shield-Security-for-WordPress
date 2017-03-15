@@ -171,6 +171,7 @@ definitions:
       - 'options-general.php'
       - 'options-discussion.php'
       - 'options-reading.php'
+      - 'options.php'
 ",
 		_wpsf__( 'WordPress Security Admin' ), //name
 		_wpsf__( 'Protect your security plugin not just your WordPress site' ), //tagline
