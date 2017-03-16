@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.7
-Stable tag: 5.6.2
+Stable tag: 5.7.0
 
 The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
 
@@ -298,10 +298,17 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.6.2 Latest Point Release =
-*Released: 10th February, 2017*
+= 5.7.0 Latest Point Release =
+*Released: 16th March, 2017*
 
-* **(v.2)**  CHANGE:		Fix an instance where the hidden Login URL would be leaded.
+* **(v.0)**  IMPROVEMENTS:	Replace YAML with JSON configuration files.
+* **(v.0)**  IMPROVEMENTS:	Preparation for Shield Central release.
+* **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined.
+
+= 5.7 Series =
+
+* **(v.0)**  IMPROVEMENTS:	Replace YAML with JSON configuration files.
+* **(v.0)**  IMPROVEMENTS:	Preparation for Shield Central release.
 
 = 5.6 Series =
 
