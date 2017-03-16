@@ -8,6 +8,7 @@
   "sections": [
     {
       "slug": "section_email_options",
+      "title": "Email Options",
       "primary": true
     },
     {

@@ -9,16 +9,45 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_wordpress_firewall",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature:",
+      "title_short": "Enable / Disable",
+      "summary": [
+         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
+         "Recommendation - Keep the Firewall feature turned on."
+                 ]
     },
     {
-      "slug": "section_firewall_blocking_options"
+      "slug": "section_firewall_blocking_options",
+      "primary": false,
+      "title": "Firewall Blocking Options",
+      "title_short": "Firewall Blocking",
+      "summary": [
+        "Here you choose what kind of malicious data to scan for.",
+        "Recommendation - Turn on as many options here as you can.",
+        "If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail."
+      ]
     },
     {
-      "slug": "section_choose_firewall_block_response"
+      "slug": "section_choose_firewall_block_response",
+      "primary": false,
+      "title": "Choose Firewall Block Response",
+      "title_short": "Firewall Response",
+      "summary": [
+        "Here you choose how the plugin will respond when it detects malicious data.",
+        "Recommendation - 'Choose the option 'Die With Message'.'"
+      ]
     },
     {
-      "slug": "section_whitelist"
+      "slug": "section_whitelist",
+      "primary": false,
+      "title": "Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall",
+      "title_short": "Whitelist",
+      "summary": [
+        "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",
+        "Recommendation - Do not whitelist anything unless you are confident in what you are doing."
+
+      ]
     },
     {
       "slug": "section_non_ui",

@@ -12,16 +12,37 @@
       "primary": true
     },
     {
-      "slug": "section_disable_all_wordpress_automatic_updates"
+      "slug": "section_disable_all_wordpress_automatic_updates",
+      "title": "Disable ALL WordPress Automatic Updates",
+      "title_short": "Turn Off",
+      "summary": [
+        "Purpose - If you never want WordPress to automatically update anything on your site, turn on this option.",
+        "Recommendation - Do not turn on this option unless you really need to block updates."
+      ]
     },
     {
-      "slug": "section_automatic_plugin_self_update"
+      "slug": "section_automatic_plugin_self_update",
+      "title": "Automatic Plugin Self-Update",
+      "title_short": "Self-Update",
+      "summary": [
+        "Purpose - Allows the %s plugin to automatically update itself when an update is available.",
+        "Recommendation - Keep this option turned on."
+      ]
     },
     {
-      "slug": "section_automatic_updates_for_wordpress_components"
+      "slug": "section_automatic_updates_for_wordpress_components",
+      "title": "Automatic Updates For WordPress Components",
+      "title_short": "WordPress Components",
+      "summary": [
+        "Purpose - Control how automatic updates for each WordPress component is handled.",
+        "Recommendation - You should at least allow minor updates for the WordPress core."
+      ]
     },
     {
-      "slug": "section_automatic_update_email_notifications"
+      "slug": "section_automatic_update_email_notifications",
+      "title": "Automatic Update Email Notifications",
+      "title_short": "Notifications",
+      "summary": "Purpose - Control how you are notified of automatic updates that have occurred."
     },
     {
       "slug": "section_non_ui",

@@ -8,22 +8,37 @@ Requires at least: 3.5.0
 Tested up to: 4.7
 Stable tag: 5.7.0
 
-The Most Comprehensive and Highest-Rated Security System for WordPress (formerly the WordPress Simple Firewall).
+Protect your website, your reputation, and your customers for free with Shield, the most powerful security system for WordPress
 
 == Description ==
 
-> <strong>All-Over WordPress Security Protection</strong><br />
-> Shield is the **most powerful [WordPress protection system](http://icwp.io/wpsf09) available**.
-Designed for maximum compatibility with your WordPress sites, it provides a super-simple platform for both beginner
-and advanced users.
+> <strong>Don't Be Vulnerable</strong><br />
+> If your site is vulnerable to attack, you're putting your business and your reputation at risk.
+Being hacked can mean you're locked out of your site, client data stolen, your website defaced or offline,
+ and google will penalise you.
 >
-> NO more nasty site lockouts! Experience the difference that a great security plugin makes,
-alongside common-sense security design.
+> Why take the risk?
 >
-> <strong>Premium Support For Businesses</strong><br />
-> Shield, combined [with iControlWP](http://icwp.io/shld8), offers professionals and businesses a powerful management platform
-> for website security, automated backups, and business continuity and disaster recovery. Can you afford not to protect your
-> business's most important online assets?
+> Download and install Shield now for FREE so that you have the most powerful WordPress security system working
+ for you and protecting your site.
+>
+> <strong>Shield + iControlWP</strong><br />
+> If you have multiple sites, then Shield [combined with iControlWP](http://icwp.io/shld8), takes the pain out of
+  managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
+
+All the wonderful features of how we protect you and your site are set out below in detail, but there are a
+few things about us, that you should know first:
+
+* We're on a mission to liberate people who manage websites from unnecessarily repetitive work, and by 2022 we want to
+be saving our clients over 62.5 million hours per year (and we'd love you to join us in our quest)
+* We have three rules that apply to everything we do, and you'll see these when you use our products or contact us for help:
+
+1.  We make everything as simple and easy-to-use as possible (and no simpler!).
+1.  We're reliable – we make sure our products do what they promise.
+1.  We take ownership for resolving problems - we will solve the problem, or point you towards the solution.
+
+So, read on for the detail, or start protecting yourself, *your clients and your clients' customers* immediately by
+downloading and installing Shield now
 
 = What makes the Shield different? =
 

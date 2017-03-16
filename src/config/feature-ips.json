@@ -31,10 +31,25 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_ips",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: IP Manager",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",
+        "Recommendation - Keep the %s feature turned on.",
+        "IP Manager <br /> You should also carefully review the automatic black list settings."
+      ]
     },
     {
-      "slug": "section_auto_black_list"
+      "slug": "section_auto_black_list",
+      "primary": false,
+      "title": "Automatic IP Black List",
+      "title_short": "Auto Black List",
+      "summary": [
+        "Purpose - The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.",
+        "Recommendation - Keep the %s feature turned on.",
+        "Automatic IP Black List"
+      ]
     },
     {
       "slug": "section_non_ui",

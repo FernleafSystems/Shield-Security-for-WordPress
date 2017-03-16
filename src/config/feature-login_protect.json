@@ -16,22 +16,65 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_login_protection",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: Login Protection",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Protection feature turned on.",
+        "Login Protection"
+      ]
     },
     {
-      "slug": "section_brute_force_login_protection"
+      "slug": "section_brute_force_login_protection",
+      "primary": false,
+      "title": "Brute Force Login Protection",
+      "title_short": "Brute Force",
+      "summary": [
+        "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
     },
     {
-      "slug": "section_multifactor_authentication"
+      "slug": "section_multifactor_authentication",
+      "primary": false,
+      "title": "Multi-Factor Authentication",
+      "title_short": "Two-Factor Authentication",
+      "title_short": "2-Factor Auth",
+      "summary": [
+        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Protection feature turned on."
+      ]
     },
     {
-      "slug": "section_rename_wplogin"
+      "slug": "section_rename_wplogin",
+      "primary": false,
+      "title": "Rename WP Login Page",
+      "title_short": "Rename wp-login.php",
+      "summary": [
+        "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
+        "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
+      ]
     },
     {
-      "slug": "section_yubikey_authentication"
+      "slug": "section_yubikey_authentication",
+      "primary": false,
+      "title": "Yubikey Authentication",
+      "title_short": "Yubikey",
+      "summary": [
+        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
+        "Recommendation - Use of this feature is highly recommend. Note: you must own the appropriate Yubikey hardware device."
+      ]
     },
     {
-      "slug": "section_bypass_login_protection"
+      "slug": "section_bypass_login_protection",
+      "primary": false,
+      "title": "By-Pass Login Protection",
+      "title_short": "By-Pass",
+      "summary": [
+        "Purpose - Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.",
+        "Recommendation - Keep this turned off unless you know you need it."
+      ]
     },
     {
       "slug": "section_non_ui",
