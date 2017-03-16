@@ -352,7 +352,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aExportOptions = apply_filters( $this->doPluginPrefix( 'gather_options_for_export' ), array() );
 			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
 				$oDp->downloadStringAsFile(
-					$this->loadYamlProcessor()->dumpArrayToYaml( $aExportOptions ),
+					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
 					. $this->loadWpFunctionsProcessor()->getHomeUrl( true )
 					.'-'.date('ymdHis').'.txt'
@@ -382,7 +382,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( $oFS->isFile( $sFile ) ) {
 				$sOptionsString = $oFS->getFileContent( $sFile );
 				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
-					$aOptions = $this->loadYamlProcessor()->parseYamlString( $sOptionsString );
+					$aOptions = json_decode( $sOptionsString, true );
 					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
 						$this->aImportedOptions = $aOptions;
 					}
