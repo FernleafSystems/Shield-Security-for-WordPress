@@ -4,7 +4,7 @@
 	<ul class="nav nav-tabs">
 		{% for sOptionSection in aAllOptions %}
 			<li class="{{ sOptionSection.section_primary ? 'active' : '' }}">
-				<a href="#{{ sOptionSection.section_slug }}" data-toggle="tab" >{{ sOptionSection.section_title_short }}</a>
+				<a href="#{{ sOptionSection.section_slug }}" data-toggle="tab" >{{ sOptionSection.title_short }}</a>
 			</li>
 		{% endfor %}
 	</ul>
@@ -18,12 +18,12 @@
 					 id="row-{{ sOptionSection.section_slug }}">
 					<div class="span9">
 						<fieldset>
-							<legend>{{ sOptionSection.section_title }}</legend>
+							<legend>{{ sOptionSection.title }}</legend>
 
-							{% if ( sOptionSection.section_summary is defined ) and sOptionSection.section_summary|length %}
+							{% if ( sOptionSection.summary is defined ) and sOptionSection.summary|length %}
 							<div class="row row_section_summary">
 								<div class="span9">
-									{% for item in sOptionSection.section_summary %}
+									{% for item in sOptionSection.summary %}
 									<p class="noselect">{{ item }}</p>
 									{% endfor %}
 								</div>

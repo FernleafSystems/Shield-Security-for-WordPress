@@ -28,11 +28,7 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
 		 * @return array|null
 		 */
 		public function parseYamlString( $sYamlString ) {
-			$aParsedResult = $this->parseSymfony( $sYamlString );
-			if ( is_null( $aParsedResult ) ) {
-				$aParsedResult = $this->parseSpyc( $sYamlString );
-			}
-			return $aParsedResult;
+			return $this->parseSymfony( $sYamlString );
 		}
 
 		/**
@@ -63,26 +59,6 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
 			return $aData;
 		}
 
-		/**
-		 * @param string $sYamlString
-		 * @return array|null
-		 */
-		protected function parseSpyc( $sYamlString ) {
-			$aData = null;
-			if ( $this->loadSpycYamlParser() ) {
-				$aData = Spyc::YAMLLoadString( $sYamlString );
-			}
-			return $aData;
-		}
-
-		/**
-		 */
-		protected function loadSpycYamlParser() {
-			if ( !class_exists( 'Spyc', false ) ) {
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'yaml/Spyc.php' );
-			}
-			return class_exists( 'Spyc', false );
-		}
 		/**
 		 */
 		protected function loadSymfonyYamlParser() {

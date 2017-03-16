@@ -158,7 +158,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
-			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) ) {
+			$sCurrentGetPage = $this->loadDataProcessor()->FetchGet( 'page' );
+			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 				return;
 			}
 

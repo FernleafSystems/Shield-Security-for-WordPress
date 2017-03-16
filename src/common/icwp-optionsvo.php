@@ -336,14 +336,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return string
 		 */
 		public function getOptionsEncoding() {
-
-			if ( $this->sOptionsEncoding != 'yaml' ) {
-				$oFs = $this->loadFileSystemProcessor();
-				if ( !$oFs->isFile( $this->getConfigFilePath( $this->sOptionsEncoding ) ) ) {
-					$this->setOptionsEncoding( 'yaml' );
-				}
-			}
-			return $this->sOptionsEncoding;
+			return empty( $this->sOptionsEncoding ) ? 'json' : $this->sOptionsEncoding;
 		}
 
 		/**
@@ -609,15 +602,13 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 			$aConfig = $oWp->getTransient( $sTransientKey );
 
 			if ( $this->getRebuildFromFile() || empty( $aConfig ) ) {
-				if ( $this->getOptionsEncoding() === 'json' ) {
+
+				try {
 					$aConfig = $this->readConfigurationJson();
 				}
-				else {
-					$aConfig = $this->readConfigurationYaml();
-				}
-				if ( empty( $aConfig ) ) {
+				catch ( Exception $oE ) {
+					trigger_error( $oE->getMessage() );
 					$aConfig = array();
-//					throw new Exception( 'Parser could not load/decode the options configuration.' );
 				}
 				$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 			}
@@ -626,20 +617,25 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 
 		/**
 		 * @return array
+		 * @throws Exception
 		 */
 		private function readConfigurationJson() {
-			ob_start();
-			include( $this->getConfigFilePath() );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-			return json_decode( $sContents, true );
+			$aConfig = json_decode( $this->readConfigurationFileContents(), true );
+			if ( empty( $aConfig ) ) {
+				throw new Exception( 'Reading JSON configuration from file failed.' );
+			}
+			return $aConfig;
 		}
 
 		/**
-		 * @return array
+		 * @return string
+		 * @throws Exception
 		 */
-		private function readConfigurationYaml() {
-			return $this->loadYamlProcessor()->parseYamlString( include( $this->getConfigFilePath() ) );
+		private function readConfigurationFileContents() {
+			if ( !$this->getConfigFileExists() ) {
+				throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getConfigFilePath() ) );
+			}
+			return $this->loadDataProcessor()->readFileContentsUsingImport( $this->getConfigFilePath() );
 		}
 
 		/**
@@ -657,28 +653,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
-		 * @param string $sEncoding
 		 * @return string
 		 */
-		private function getConfigFilePath( $sEncoding = null ) {
-			if ( empty( $sEncoding ) ) {
-				$sEncoding = $this->getOptionsEncoding();
-			}
-			$sFileExtension = $this->getFileExtensionForEncoding( $sEncoding );
+		private function getConfigFilePath() {
 			return dirname( __FILE__ ).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
-				.sprintf( 'config'.DIRECTORY_SEPARATOR.'feature-%s.%s', $this->getOptionsName(), $sFileExtension );
-		}
-
-		/**
-		 * @param string $sEncoding
-		 * @return string
-		 */
-		private function getFileExtensionForEncoding( $sEncoding ) {
-			$aMap = array(
-				'yaml' => 'php',
-				'json' => 'json',
-			);
-			return $aMap[ $sEncoding ];
+				.sprintf( 'config'.DIRECTORY_SEPARATOR.'feature-%s.%s', $this->getOptionsName(), 'json' );
 		}
 	}
 endif;

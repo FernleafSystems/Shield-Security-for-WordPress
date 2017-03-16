@@ -8,7 +8,7 @@ properties:
   show_feature_menu_item: true
   storage_key: 'user_management' # should correspond exactly to that in the plugin.yaml
   tagline: '%s'
-  storag
+
 # Options Sections
 sections:
   -

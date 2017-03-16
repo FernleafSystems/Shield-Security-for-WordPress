@@ -219,7 +219,8 @@
       "wp_pages": [
         "options-general.php",
         "options-discussion.php",
-        "options-reading.php"
+        "options-reading.php",
+        "options.php"
       ]
     }
   }
