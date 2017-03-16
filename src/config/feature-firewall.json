@@ -34,7 +34,7 @@
       "title_short": "Firewall Response",
       "summary": [
         "Here you choose how the plugin will respond when it detects malicious data.",
-        "Recommendation - 'Choose the option 'Die With Message'.'"
+        "Recommendation - Choose the option 'Die With Message'."
       ]
     },
     {

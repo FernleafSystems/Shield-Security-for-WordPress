@@ -33,7 +33,7 @@
       "title": "Automatic Plugin Self-Update",
       "title_short": "Self-Update",
       "summary": [
-        "Purpose - Allows the $oCon->getHumanName() plugin to automatically update itself when an update is available. ",
+        "Purpose - Allows the shield plugin to automatically update itself when an update is available. ",
         "Recommendation - Keep this option turned on."
       ]
     },

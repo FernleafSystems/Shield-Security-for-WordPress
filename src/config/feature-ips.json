@@ -36,7 +36,7 @@
       "title_short": "Enable / Disable",
       "summary": [
         "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",
-        "Recommendation - Keep the IP Manager feature turned on.<br /> You should also carefully review the automatic black list settings."
+        "Recommendation - Keep the IP Manager feature turned on. You should also carefully review the automatic black list settings."
       ]
     },
     {
