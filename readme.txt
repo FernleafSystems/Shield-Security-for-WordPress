@@ -12,10 +12,10 @@ Protect your website, your reputation, and your customers for free with Shield, 
 
 == Description ==
 
-> <strong>Don't Be Vulnerable</strong><br />
-> If your site is vulnerable to attack, you're putting your business and your reputation at risk.
-Being hacked can mean you're locked out of your site, client data stolen, your website defaced or offline,
- and google will penalise you.
+> <strong>Don't Leave Your Site At Risk</strong><br />
+> If your site is vulnerable to attack, you're putting your business and your reputation at serious risk.
+Getting hacked can mean you're locked out of your site, client data stolen, your website defaced or offline,
+ and Google *will* penalise you.
 >
 > Why take the risk?
 >
