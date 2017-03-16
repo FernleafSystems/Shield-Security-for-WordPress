@@ -79,7 +79,11 @@
       "default": "",
       "type": "password",
       "link_info": "http://icwp.io/42",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Security Admin Access Key",
+      "summary": "Provide/Update Security Admin Access Key",
+      "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
+
     },
     {
       "key": "admin_access_timeout",
@@ -88,7 +92,10 @@
       "default": 30,
       "type": "integer",
       "link_info": "http://icwp.io/41",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Security Admin Timeout",
+      "summary": "Specify An Automatic Timeout Interval For Security Admin Access",
+      "description": "This will automatically expire your Security Admin Session. Does not apply until you enter the access key again. Default: 60 minutes."
     },
     {
       "key": "admin_access_restrict_options",
@@ -97,7 +104,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf32",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Pages",
+      "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
+      "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
     },
     {
       "key": "admin_access_restrict_admin_users",
@@ -106,7 +116,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Admin Users",
+      "summary": "Restrict Access To Create/Delete/Modify Other Admin Users",
+      "description": "Careful: This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators."
     },
     {
       "key": "admin_access_restrict_plugins",

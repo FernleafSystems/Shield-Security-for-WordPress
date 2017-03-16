@@ -52,7 +52,11 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/5p",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
+
     },
     {
       "key": "audit_trail_auto_clean",
@@ -61,7 +65,10 @@
       "default": 14,
       "type": "integer",
       "link_info": "http://icwp.io/5p",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_users",
@@ -70,7 +77,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_plugins",
@@ -79,7 +89,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_themes",
@@ -88,7 +101,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_posts",
@@ -97,7 +113,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_wordpress",
@@ -106,7 +125,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_emails",
@@ -115,7 +137,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "enable_audit_context_wpsf",
@@ -124,7 +149,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "",
+      "summary": "",
+      "description": ""
     },
     {
       "key": "current_plugin_version",
