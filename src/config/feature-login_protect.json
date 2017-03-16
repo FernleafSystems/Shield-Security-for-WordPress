@@ -21,8 +21,7 @@
       "title_short": "Enable / Disable",
       "summary": [
         "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on.",
-        "Login Protection"
+        "Recommendation - Keep the Login Protection feature turned on."
       ]
     },
     {
@@ -42,8 +41,9 @@
       "title_short": "Two-Factor Authentication",
       "title_short": "2-Factor Auth",
       "summary": [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
+        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
       ]
     },
     {

@@ -9,19 +9,53 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_user_accounts_management",
-      "primary": true
+      "primary": false,
+      "title": "Enable Plugin Feature: User Management",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
+        "Recommendation - Keep the User Management feature turned on."
+      ]
     },
     {
-      "slug": "section_user_session_management"
+      "slug": "section_user_session_management",
+      "primary": false,
+      "title": "User Session Management",
+      "title_short": "Session Options",
+      "summary": [
+        "Purpose - Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
     },
     {
-      "slug": "section_multifactor_authentication"
+      "slug": "section_multifactor_authentication",
+      "primary": false,
+      "title": "Multi-Factor User Authentication",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out."
+      ]
     },
     {
-      "slug": "section_bypass_user_accounts_management"
+      "slug": "section_bypass_user_accounts_management",
+      "primary": false,
+      "title": "By-Pass User Accounts Management",
+      "title_short": "By-Pass",
+      "summary": [
+        "Purpose - Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.",
+        "Recommendation - Keep this turned off unless you know you need it."
+      ]
     },
     {
-      "slug": "section_admin_login_notification"
+      "slug": "section_admin_login_notification",
+      "primary": false,
+      "title": "Admin Login Notification",
+      "title_short": "Notifications",
+      "summary": [
+        "Purpose - So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
     },
     {
       "slug": "section_non_ui",

@@ -14,8 +14,7 @@
       "title_short": "Enable / Disable",
       "summary": [
         "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
-        "Recommendation - Keep the %s feature turned on.",
-        "Lockdown"
+        "Recommendation - Keep the Lockdown feature turned on."
       ]
     },
     {
@@ -26,16 +25,6 @@
       "summary": [
         "Purpose - Lockdown certain core WordPress system features.",
         "Recommendation - This depends on your usage and needs for certain WordPress functions and features."
-      ]
-    },
-    {
-      "slug": "section_security_headers",
-      "primary": false,
-      "title": "Permissions and Access Options",
-      "title_short": "Permissions",
-      "summary": [
-        "Purpose - Provides finer control of certain WordPress permissions.",
-        "Recommendation - Only enable SSL if you have a valid certificate installed."
       ]
     },
     {

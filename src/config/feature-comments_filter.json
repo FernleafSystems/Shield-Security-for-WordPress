@@ -30,7 +30,7 @@
     {
       "slug": "section_bot_comment_spam_protection_filter",
       "primary": false,
-      "title": "Automatic Bot  Comment SPAM Protection Filter",
+      "title": "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
       "summery":
       [
@@ -47,7 +47,7 @@
       "summery":
       [
         "Purpose - Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.",
-        "Recommendation - Use of this feature is highly recommend."
+        "Recommendation - Use of this feature is highly recommend.This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis."
       ]
     },
     {

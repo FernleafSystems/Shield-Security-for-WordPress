@@ -57,16 +57,27 @@
   "sections": [
     {
       "slug": "section_global_security_options",
-      "primary": true
+      "primary": true,
+      "title": "Global Plugin Security Options",
+      "title_short": "Global Options"
     },
     {
-      "slug": "section_general_plugin_options"
+      "slug": "section_general_plugin_options",
+      "primary": false,
+      "title": "General Plugin Options",
+      "title_short": "General Options"
     },
     {
-      "slug": "section_third_party_google"
+      "slug": "section_third_party_google",
+      "primary": false,
+      "title": "Google",
+      "title_short": "Google"
     },
     {
-      "slug": "section_third_party_duo"
+      "slug": "section_third_party_duo",
+      "primary": false,
+      "title": "Duo Security",
+      "title_short": "Duo Security"
     },
     {
       "slug": "section_non_ui",

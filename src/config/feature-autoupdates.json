@@ -9,10 +9,17 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_automatic_updates_control",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: Automatic Updates",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.",
+        "Recommendation - Keep the Automatic Updates feature turned on."
+      ]
     },
     {
       "slug": "section_disable_all_wordpress_automatic_updates",
+      "primary": false,
       "title": "Disable ALL WordPress Automatic Updates",
       "title_short": "Turn Off",
       "summary": [
@@ -22,15 +29,17 @@
     },
     {
       "slug": "section_automatic_plugin_self_update",
+      "primary": false,
       "title": "Automatic Plugin Self-Update",
       "title_short": "Self-Update",
       "summary": [
-        "Purpose - Allows the %s plugin to automatically update itself when an update is available.",
+        "Purpose - Allows the $oCon->getHumanName() plugin to automatically update itself when an update is available. ",
         "Recommendation - Keep this option turned on."
       ]
     },
     {
       "slug": "section_automatic_updates_for_wordpress_components",
+      "primary": false,
       "title": "Automatic Updates For WordPress Components",
       "title_short": "WordPress Components",
       "summary": [
@@ -40,6 +49,7 @@
     },
     {
       "slug": "section_automatic_update_email_notifications",
+      "primary": false,
       "title": "Automatic Update Email Notifications",
       "title_short": "Notifications",
       "summary": "Purpose - Control how you are notified of automatic updates that have occurred."
