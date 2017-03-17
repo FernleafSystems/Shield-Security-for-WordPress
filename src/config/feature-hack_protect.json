@@ -18,7 +18,6 @@
     },
     {
       "slug": "section_plugin_vulnerabilities_scan",
-      "primary": false,
       "title": "Plugin Vulnerabilities Scanner",
       "title_short": "Plugin Vulnerabilities",
       "summary": [
@@ -28,7 +27,6 @@
     },
     {
       "slug": "section_core_file_integrity_scan",
-      "primary": false,
       "title": "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
       "summary": [
@@ -49,7 +47,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf38",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Hack Protection",
+      "summary": "Enable (or Disable) The Hack Protection Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Hack Protection feature"
     },
     {
       "key": "enable_core_file_integrity_scan",
@@ -58,7 +59,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf36",
-      "link_blog": "http://icwp.io/wpsf37"
+      "link_blog": "http://icwp.io/wpsf37",
+      "name": "Core File Scanner",
+      "summary": "Daily Cron - Scans WordPress Core Files For Alterations",
+      "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
       "key": "attempt_auto_file_repair",
@@ -67,7 +71,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf36",
-      "link_blog": "http://icwp.io/wpsf37"
+      "link_blog": "http://icwp.io/wpsf37",
+      "name": "Auto Repair",
+      "summary": "Automatically Repair WordPress Core Files That Have Been Altered",
+      "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
     },
     {
       "key": "current_plugin_version",

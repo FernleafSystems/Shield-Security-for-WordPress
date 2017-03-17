@@ -21,13 +21,11 @@
       "title_short": "Enable / Disable",
       "summary": [
         "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on.",
-        "Login Protection"
+        "Recommendation - Keep the Login Protection feature turned on."
       ]
     },
     {
       "slug": "section_brute_force_login_protection",
-      "primary": false,
       "title": "Brute Force Login Protection",
       "title_short": "Brute Force",
       "summary": [
@@ -37,18 +35,16 @@
     },
     {
       "slug": "section_multifactor_authentication",
-      "primary": false,
       "title": "Multi-Factor Authentication",
-      "title_short": "Two-Factor Authentication",
       "title_short": "2-Factor Auth",
       "summary": [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
+        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
       ]
     },
     {
       "slug": "section_rename_wplogin",
-      "primary": false,
       "title": "Rename WP Login Page",
       "title_short": "Rename wp-login.php",
       "summary": [
@@ -58,7 +54,6 @@
     },
     {
       "slug": "section_yubikey_authentication",
-      "primary": false,
       "title": "Yubikey Authentication",
       "title_short": "Yubikey",
       "summary": [
@@ -68,7 +63,6 @@
     },
     {
       "slug": "section_bypass_login_protection",
-      "primary": false,
       "title": "By-Pass Login Protection",
       "title_short": "By-Pass",
       "summary": [
@@ -89,7 +83,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/51",
-      "link_blog": "http://icwp.io/wpsf03"
+      "link_blog": "http://icwp.io/wpsf03",
+      "name": "Enable Login Protection",
+      "summary": "Enable (or Disable) The Login Protection Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Login Protection feature"
     },
     {
       "key": "enable_xmlrpc_compatibility",
@@ -98,7 +95,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "XML-RPC Compatibility",
+      "summary": "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
+      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
     },
     {
       "key": "rename_wplogin_path",
@@ -108,7 +108,10 @@
       "default": "",
       "type": "text",
       "link_info": "http://icwp.io/5q",
-      "link_blog": "http://icwp.io/5r"
+      "link_blog": "http://icwp.io/5r",
+      "name": "Rename WP Login",
+      "summary": "Rename The WordPress Login Page",
+      "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
     {
       "key": "enable_google_authenticator",
@@ -117,7 +120,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld7",
-      "link_blog": "http://icwp.io/shld6"
+      "link_blog": "http://icwp.io/shld6",
+      "name": "Enable Google Authenticator",
+      "summary": "Allow Users To Use Google Authenticator",
+      "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
     },
     {
       "key": "enable_email_authentication",
@@ -126,7 +132,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/3s",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Email Authentication",
+      "summary": "Two-Factor Login Authentication By Email",
+      "description": "All users will be required to verify their login by email-based two-factor authentication."
     },
     {
       "key": "two_factor_auth_user_roles",
@@ -162,7 +171,10 @@
         }
       ],
       "link_info": "http://icwp.io/4v",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enforce - Email Authentication",
+      "summary": "All User Roles Subject To Email Authentication",
+      "description": "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
       "key": "enable_google_recaptcha",
@@ -171,7 +183,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld5",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Google reCAPTCHA",
+      "summary": "Enable Google reCAPTCHA",
+      "description": "Use Google reCAPTCHA on the login screen."
     },
     {
       "key": "enable_login_gasp_check",
@@ -180,7 +195,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/3r",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "G.A.S.P Protection",
+      "summary": "Use G.A.S.P. Protection To Prevent Login Attempts By Bots",
+      "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {
       "key": "login_limit_interval",
@@ -189,7 +207,10 @@
       "default": "10",
       "type": "integer",
       "link_info": "http://icwp.io/3q",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Login Cooldown Interval",
+      "summary": "Limit login attempts to every X seconds",
+      "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
     },
     {
       "key": "enable_user_register_checking",
@@ -198,7 +219,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "User Registration",
+      "summary": "Apply Brute Force Protection To User Registration And Lost Passwords",
+      "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
     },
     {
       "key": "enable_yubikey",
@@ -207,7 +231,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/4f",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Yubikey Authentication",
+      "summary": "Turn On / Off Yubikey Authentication On This Site",
+      "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
     },
     {
       "key": "yubikey_app_id",
@@ -217,7 +244,10 @@
       "default": "",
       "type": "text",
       "link_info": "http://icwp.io/4g",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Yubikey App ID",
+      "summary": "Your Unique Yubikey App ID",
+      "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
     },
     {
       "key": "yubikey_api_key",
@@ -227,7 +257,10 @@
       "default": "",
       "type": "text",
       "link_info": "http://icwp.io/4g",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Yubikey API Key",
+      "summary": "Your Unique Yubikey App API Key",
+      "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
     {
       "key": "yubikey_unique_keys",
@@ -237,7 +270,10 @@
       "default": "",
       "type": "yubikey_unique_keys",
       "link_info": "http://icwp.io/4h",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Yubikey Unique Keys",
+      "summary": "Permitted 'Username - Yubikey' Pairs For This Site",
+      "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
     },
     {
       "key": "current_plugin_version",

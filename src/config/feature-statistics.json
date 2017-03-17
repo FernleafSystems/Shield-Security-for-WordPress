@@ -9,7 +9,22 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_statistics",
-      "primary": true
+      "primary": true,
+      "title": "Enable Plugin Feature: Statistics",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Helps you see at a glance how effective the plugin has been.",
+        "Recommendation - Keep the Statistics feature turned on."
+      ]
+    },
+    {
+      "slug": "section_stats_sharing",
+      "title": "Statistics Sharing",
+      "title_short": "Sharing",
+      "summary": [
+        "Purpose - Help us to provide globally accessible statistics on the effectiveness of the plugin.",
+        "Recommendation - Enabling this option helps us improve our plugin over time.All statistics data collection is 100% anonymous.Neither we nor anyone else will be able to trace the data back to the originating site."
+      ]
     },
     {
       "slug": "section_non_ui",
@@ -24,7 +39,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Statistics",
+      "summary": "Enable (or Disable) The Statistics Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Statistics feature"
     },
     {
       "key": "current_plugin_version",

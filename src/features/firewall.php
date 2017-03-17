@@ -150,6 +150,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sDescription = _wpsf__( 'This will block executable file uploads (.php, .exe, etc.).' );
 					break;
 
+				case 'block_leading_schema' :
+					$sName = _wpsf__( 'Leading Schemas' );
+					$sSummary = _wpsf__( 'Block Leading Schemas (HTTPS / HTTP)' );
+					$sDescription = _wpsf__( 'This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins).' );
+					break;
+
 				case 'block_aggressive' :
 					$sName = _wpsf__( 'Aggressive Scan' );
 					$sSummary = _wpsf__( 'Aggressively Block Data' );
@@ -157,11 +163,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 						.'<br />'. sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'May cause an increase in false-positive firewall blocks.' ) );
 					break;
 
-				case 'block_leading_schema' :
-					$sName = _wpsf__( 'Leading Schemas' );
-					$sSummary = _wpsf__( 'Block Leading Schemas (HTTPS / HTTP)' );
-					$sDescription = _wpsf__( 'This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins).' );
-					break;
 
 				case 'block_response' :
 					$sName = _wpsf__( 'Block Response' );
@@ -191,12 +192,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sName = sprintf( _wpsf__( 'Ignore %s' ), _wpsf__( 'Search Engines' ) );
 					$sSummary = _wpsf__( 'Ignore Search Engine Bot Traffic' );
 					$sDescription = _wpsf__( 'The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them.' );
-					break;
-
-				case 'enable_firewall_log' :
-					$sName = _wpsf__( 'Firewall Logging' );
-					$sSummary = _wpsf__( 'Turn on Firewall Log' );
-					$sDescription = _wpsf__( 'Will log every visit to the site and how the firewall processes it. Not recommended to leave on unless you want to debug something and check the firewall is working as you expect' );
 					break;
 
 				default:
