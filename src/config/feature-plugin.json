@@ -63,19 +63,16 @@
     },
     {
       "slug": "section_general_plugin_options",
-      "primary": false,
       "title": "General Plugin Options",
       "title_short": "General Options"
     },
     {
       "slug": "section_third_party_google",
-      "primary": false,
       "title": "Google",
       "title_short": "Google"
     },
     {
       "slug": "section_third_party_duo",
-      "primary": false,
       "title": "Duo Security",
       "title_short": "Duo Security"
     },
@@ -92,7 +89,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Plugin Features",
+      "summary": "Global Plugin On/Off Switch",
+      "description": "Uncheck this option to disable all Shield features"
     },
     {
       "key": "enable_tracking",
@@ -101,7 +101,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/7i",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Information Gathering",
+      "summary": "Permit Anonymous Usage Information Gathering",
+      "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
     },
     {
       "key": "block_send_email_address",
@@ -111,7 +114,10 @@
       "default": "",
       "type": "email",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Report Email",
+      "summary": "Where to send email reports",
+      "description": "If this is empty, it will default to the blog admin email address."
     },
     {
       "key": "enable_upgrade_admin_notice",
@@ -120,7 +126,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "In-Plugin Notices",
+      "summary": "Display Plugin Specific Notices",
+      "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
     },
     {
       "key": "display_plugin_badge",
@@ -129,7 +138,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/5v",
-      "link_blog": "http://icwp.io/wpsf20"
+      "link_blog": "http://icwp.io/wpsf20",
+      "name": "Show Plugin Badge",
+      "summary": "Display Plugin Badge On Your Site",
+      "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
       "key": "delete_on_deactivate",
@@ -138,7 +150,10 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Delete Plugin Settings",
+      "summary": "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
       "key": "unique_installation_id",
@@ -146,7 +161,10 @@
       "default": "",
       "type": "noneditable_text",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Installation ID",
+      "summary": "Unique Plugin Installation ID",
+      "description": "Keep this ID private."
     },
     {
       "key": "google_recaptcha_site_key",
@@ -156,7 +174,10 @@
       "default": "",
       "type": "text",
       "link_info": "http://icwp.io/shld5",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "reCAPTCHA Secret",
+      "summary": "Google reCAPTCHA Secret Key",
+      "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
     },
     {
       "key": "google_recaptcha_secret_key",
@@ -166,7 +187,10 @@
       "default": "",
       "type": "text",
       "link_info": "http://icwp.io/shld5",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "reCAPTCHA Site Key",
+      "summary": "Google reCAPTCHA Site Key",
+      "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
     },
     {
       "key": "current_plugin_version",

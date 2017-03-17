@@ -165,7 +165,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				case 'x_xss_protect' :
 					$sName = _wpsf__( 'XSS Protection' );
 					$sSummary = _wpsf__( 'Employ Built-In Browser XSS Protection' );
-					$sDescription = _wpsf__( 'Directs compatible browser to block what they detect as Reflective XSS attacks.' );
+					$sDescription = _wpsf__( 'Directs compatible browsers to block what they detect as Reflective XSS attacks.' );
 					break;
 
 				case 'x_content_type' :
@@ -190,7 +190,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ):
 				case 'xcsp_inline' :
 					$sName = _wpsf__( 'Inline Entities' );
 					$sSummary = _wpsf__( 'Allow Inline Scripts and CSS' );
-					$sDescription = _wpsf__( 'Prevents loading of any assets from any domains you do not specify.' );
+					$sDescription = _wpsf__( 'Allows parsing of Javascript and CSS declared in-line in your html document.' );
 					break;
 
 				case 'xcsp_data' :

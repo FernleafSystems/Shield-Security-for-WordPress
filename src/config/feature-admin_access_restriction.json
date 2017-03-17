@@ -35,7 +35,6 @@
     },
     {
       "slug": "section_admin_access_restriction_settings",
-      "primary": false,
       "title": "Security Admin Restriction Settings",
       "title_short": "Security Admin Settings",
       "summary": [
@@ -45,7 +44,6 @@
     },
     {
       "slug": "section_admin_access_restriction_areas",
-      "primary": false,
       "title": "Security Admin Restriction Zones",
       "title_short": "Access Restriction Zones",
       "summary": [

@@ -19,7 +19,6 @@
     },
     {
       "slug": "section_stats_sharing",
-      "primary": false,
       "title": "Statistics Sharing",
       "title_short": "Sharing",
       "summary": [
@@ -40,7 +39,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Statistics",
+      "summary": "Enable (or Disable) The Statistics Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Statistics feature"
     },
     {
       "key": "current_plugin_version",

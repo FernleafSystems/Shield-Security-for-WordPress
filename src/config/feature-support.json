@@ -16,7 +16,7 @@
       "title_short": "Enable / Disable",
       "summary": [
         "Purpose - Contact Plugin Premium Support Centre.",
-        "Recommendation - Keep the Premium Support feature turned on.",
+        "Recommendation - Keep the Premium Support feature turned on."
       ]
     },
     {
@@ -31,7 +31,10 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
-      "link_blog": ""
+      "link_blog": "",
+      "name": "Enable Automatic Updates",
+      "summary": "Enable (or Disable) The Premium Support Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Premium Support feature"
     },
     {
       "key": "current_plugin_version",

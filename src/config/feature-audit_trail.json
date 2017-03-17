@@ -20,7 +20,6 @@
     },
     {
       "slug": "section_audit_trail_options",
-      "primary": false,
       "title": "Audit Trail Options",
       "title_short": "Options",
       "summary": [
@@ -30,10 +29,9 @@
     },
     {
       "slug": "section_enable_audit_contexts",
-      "primary": false,
       "title": "Enable Audit Contexts",
       "title_short": "Audit Contexts",
-      "summery":
+      "summary":
       [
         "Purpose - Specify which types of actions on your site are logged.",
         "Recommendation - These settings are dependent on your requirements."
