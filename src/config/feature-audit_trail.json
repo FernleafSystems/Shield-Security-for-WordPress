@@ -53,9 +53,9 @@
       "type": "checkbox",
       "link_info": "http://icwp.io/5p",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Enable Audit Trail",
+      "summary": "Enable (or Disable) The Audit Trail Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Audit Trail feature"
 
     },
     {
@@ -66,9 +66,9 @@
       "type": "integer",
       "link_info": "http://icwp.io/5p",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Auto Clean",
+      "summary": "Enable Audit Auto Cleaning",
+      "description": "Events older than the number of days specified will be automatically cleaned from the database"
     },
     {
       "key": "enable_audit_context_users",
@@ -78,9 +78,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Users And Logins",
+      "summary": "Enable Audit Context - Users And Logins",
+      "description": "When this context is enabled, the audit trail will track activity relating to: Users And Logins"
     },
     {
       "key": "enable_audit_context_plugins",
@@ -90,9 +90,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Plugins",
+      "summary": "Enable Audit Context - Plugins",
+      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Plugins"
     },
     {
       "key": "enable_audit_context_themes",
@@ -102,9 +102,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Themes",
+      "summary": "Enable Audit Context - Themes",
+      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Themes"
     },
     {
       "key": "enable_audit_context_posts",
@@ -114,9 +114,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Posts And Pages",
+      "summary": "Enable Audit Context - Posts And Pages",
+      "description": "When this context is enabled, the audit trail will track activity relating to: Editing and publishing of posts and pages"
     },
     {
       "key": "enable_audit_context_wordpress",
@@ -126,9 +126,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "WordPress And Settings",
+      "summary": "Enable Audit Context - WordPress And Settings",
+      "description": "When this context is enabled, the audit trail will track activity relating to: WordPress upgrades and changes to particular WordPress settings"
     },
     {
       "key": "enable_audit_context_emails",
@@ -138,9 +138,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Emails",
+      "summary": "Enable Audit Context - Emails",
+      "description": "When this context is enabled, the audit trail will track activity relating to: Email Sending"
     },
     {
       "key": "enable_audit_context_wpsf",
@@ -150,9 +150,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "",
-      "summary": "",
-      "description": ""
+      "name": "Shield",
+      "summary": "Enable Audit Context - Shield",
+      "description": "When this context is enabled, the audit trail will track activity relating to: Shield"
     },
     {
       "key": "current_plugin_version",
