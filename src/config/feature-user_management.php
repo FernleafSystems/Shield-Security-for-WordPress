@@ -9,6 +9,7 @@
   "sections": [
     {
       "slug": "section_enable_plugin_feature_user_accounts_management",
+      "primary": true,
       "title": "Enable Plugin Feature: User Management",
       "title_short": "Enable / Disable",
       "summary": [
