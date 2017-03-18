@@ -133,7 +133,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 			register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
 		}
 
+		/**
+		 * @uses echo
+		 */
 		public function printPluginBadge() {
+			echo $this->renderPluginBadge();
+		}
+
+		/**
+		 * @return string
+		 */
+		public function renderPluginBadge() {
 			$oCon = $this->getController();
 			$oRender = $this->loadRenderer( $oCon->getPath_Templates().'html' );
 			$sContents = $oRender
@@ -149,7 +159,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				)
 			);
 			$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
-			echo sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
+			return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 		}
 
 		public function printVisitorIpFooter() {
