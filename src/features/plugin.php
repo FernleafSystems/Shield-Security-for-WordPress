@@ -64,7 +64,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		public function getActivePluginFeatures() {
 			$aActiveFeatures = $this->getDefinition( 'active_plugin_features' );
-			
+
 			$aPluginFeatures = array();
 			if ( empty( $aActiveFeatures ) || !is_array( $aActiveFeatures ) ) {
 				return $aPluginFeatures;
@@ -369,6 +369,37 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'Include Logged-In Users' );
 			_wpsf__( 'You may also enable GASP for logged in users' );
 			_wpsf__( 'Since logged-in users would be expected to be vetted already, this is off by default.' );
+			_wpsf__( 'WordPress Security Admin' );
+			_wpsf__( 'Protect your security plugin not just your WordPress site' );
+			_wpsf__( 'Security Admin' );
+			_wpsf__( 'Audit Trail' );
+			_wpsf__( 'Get a view on what happens on your site, when it happens' );
+			_wpsf__( 'Audit Trail Viewer' );
+			_wpsf__( 'Automatic Updates' );
+			_wpsf__( 'Take back full control of WordPress automatic updates' );
+			_wpsf__( 'Comments SPAM' );
+			_wpsf__( 'Block comment SPAM and retain your privacy' );
+			_wpsf__( 'Email' );
+			_wpsf__( 'Firewall' );
+			_wpsf__( 'Automatically block malicious URLs and data sent to your site' );
+			_wpsf__( 'Hack Protection' );
+			_wpsf__( 'HTTP Headers' );
+			_wpsf__( 'Control HTTP Security Headers' );
+			_wpsf__( 'IP Manager' );
+			_wpsf__( 'Manage Visitor IP Address' );
+			_wpsf__( 'Lockdown' );
+			_wpsf__( 'Harden the more loosely controlled settings of your site' );
+			_wpsf__( 'Login Protection' );
+			_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' );
+			_wpsf__( 'Dashboard' );
+			_wpsf__( 'Overview of the plugin settings' );
+			_wpsf__( 'Statistics' );
+			_wpsf__( 'Summary of the main security actions taken by this plugin' );
+			_wpsf__( 'Stats Viewer' );
+			_wpsf__( 'Premium Support' );
+			_wpsf__( 'Premium Plugin Support Centre' );
+			_wpsf__( 'User Management' );
+			_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' );
 		}
 	}
 
