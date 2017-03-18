@@ -316,19 +316,21 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.7.0 Latest Point Release =
 *Released: 19th March, 2017*
 
-* **(v.0)**  ADDED:			Shortcode for displayed plugin badge in pages/posts
+* **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
 * **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
 * **(v.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.
 * **(v.0)**  IMPROVEMENTS:	Preparation for Shield Central release.
 * **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined and optimized.
+* **(v.0)**  IMPROVEMENTS:	Removed unnecessary files/code.
 
 = 5.7 Series =
 
-* **(v.0)**  ADDED:			Shortcode for displayed plugin badge in pages/posts
+* **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
 * **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
 * **(v.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.
 * **(v.0)**  IMPROVEMENTS:	Preparation for Shield Central release.
 * **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined and optimized.
+* **(v.0)**  IMPROVEMENTS:	Removed unnecessary files/code.
 
 = 5.6 Series =
 
