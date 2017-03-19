@@ -127,10 +127,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sContents = include( $this->getPathPluginSpec() );
+		$sContents = $this->loadDataProcessor()->readFileContentsUsingImport( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
-			$aSpec = $this->loadYamlProcessor()->parseYamlString( $sContents );
-			if ( is_null( $aSpec ) ) {
+			$aSpec = json_decode( $sContents, true );
+			if ( empty( $aSpec ) ) {
 				throw new Exception( 'YAML parser could not load to process the plugin spec configuration.' );
 			}
 		}
@@ -301,7 +301,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
 	 */
 	public function onWpDashboardSetup() {
 		if ( $this->getIsValidAdminArea() ) {
@@ -353,13 +352,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aExportOptions = apply_filters( $this->doPluginPrefix( 'gather_options_for_export' ), array() );
 			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
 				$oDp->downloadStringAsFile(
-					$this->loadYamlProcessor()->dumpArrayToYaml( $aExportOptions ),
+					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
 					. $this->loadWpFunctionsProcessor()->getHomeUrl( true )
 					.'-'.date('ymdHis').'.txt'
 				);
 			}
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getOptionsEncoding() {
+		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
+		return in_array( $sEncoding, array( 'yaml', 'json' ) ) ? $sEncoding : 'yaml';
 	}
 
 	/**
@@ -375,7 +382,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( $oFS->isFile( $sFile ) ) {
 				$sOptionsString = $oFS->getFileContent( $sFile );
 				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
-					$aOptions = $this->loadYamlProcessor()->parseYamlString( $sOptionsString );
+					$aOptions = json_decode( $sOptionsString, true );
 					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
 						$this->aImportedOptions = $aOptions;
 					}
@@ -1342,10 +1349,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
 	 */
 	protected function saveCurrentPluginControllerOptions() {
-
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
@@ -1358,10 +1363,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * This should always be used to modify or delete the options as it works within the Admin Access Permission system.
 	 *
 	 * @param stdClass|bool $oOptions
-	 * @return bool
+	 * @return $this
 	 */
 	protected function setPluginControllerOptions( $oOptions ) {
 		self::$oControllerOptions = $oOptions;
+		return $this;
 	}
 
 	/**

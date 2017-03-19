@@ -12,7 +12,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		/**
 		 * @var int
 		 */
-		protected $nPromoNoticesCount = 0;
+		static protected $nPromoNoticesCount = 0;
 
 		/**
 		 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
@@ -25,6 +25,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 			}
 			$this->init();
+		}
+
+		/**
+		 * @return int
+		 */
+		protected function getPromoNoticesCount() {
+			return self::$nPromoNoticesCount++;
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function incrementPromoNoticesCount() {
+			self::$nPromoNoticesCount++;
+			return $this;
 		}
 
 		/**
@@ -75,10 +90,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 			}
 
 			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
-				if ( $this->nPromoNoticesCount > 0 || $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+				if ( $this->loadWpFunctionsProcessor()->getIsMobile() ) {
 					return false;
 				}
-				$this->nPromoNoticesCount++; // we limit the number of promos displayed at any time to 1
 			}
 
 			return true;
@@ -107,12 +121,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @param array $aNoticeData
 		 */
 		protected function insertAdminNotice( $aNoticeData ) {
+			$bIsPromo = isset( $aNoticeData[ 'notice_attributes' ][ 'type' ] ) && $aNoticeData[ 'notice_attributes' ][ 'type' ] == 'promo';
+			if ( $bIsPromo && $this->getPromoNoticesCount() > 0 ) {
+				return;
+			}
+
 			$sRenderedNotice = $this->getFeatureOptions()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {
 				$this->loadAdminNoticesProcessor()->addAdminNotice(
 					$sRenderedNotice,
 					$aNoticeData['notice_attributes']['notice_id']
 				);
+				if ( $bIsPromo ) {
+					$this->incrementPromoNoticesCount();
+				}
 			}
 		}
 

@@ -248,9 +248,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			if ( !isset( $this->oOptions ) ) {
 				$oCon = self::getController();
 				$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
-				$this->oOptions->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() );
-				$this->oOptions->setOptionsStorageKey( $this->getOptionsStorageKey() );
-				$this->oOptions->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
+				$this->oOptions
+					->setOptionsEncoding( $oCon->getOptionsEncoding() )
+					->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
+					->setOptionsStorageKey( $this->getOptionsStorageKey() )
+					->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 			}
 			return $this->oOptions;
 		}

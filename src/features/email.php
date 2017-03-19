@@ -47,7 +47,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
-			$aOptionsParams['section_title'] = $sTitle;
+			$aOptionsParams['title'] = $sTitle;
 			return $aOptionsParams;
 		}
 
@@ -60,13 +60,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 
 			$sKey = $aOptionsParams['key'];
 			switch( $sKey ) {
-
-				case 'block_send_email_address' :
-					$sName = _wpsf__( 'Report Email' );
-					$sSummary = _wpsf__( 'Where to send email reports' );
-					$sDescription = _wpsf__( 'If this is empty, it will default to the blog admin email address.' );
-					break;
-
 				case 'send_email_throttle_limit' :
 					$sName = _wpsf__( 'Email Throttle Limit' );
 					$sSummary = _wpsf__( 'Limit Emails Per Second' );

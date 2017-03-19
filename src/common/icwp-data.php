@@ -497,22 +497,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @param $sData
-		 *
-		 * @return array|mixed
-		 */
-		public function doJsonDecode( $sData ) {
-			if ( function_exists( 'json_decode' ) ) {
-				return json_decode( $sData );
-			}
-			if ( !class_exists( 'JSON' )  ) {
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'json/JSON.php' );
-			}
-			$oJson = new JSON();
-			return @$oJson->unserialize( $sData );
-		}
-
-		/**
 		 * @param string $sRequestedUrl
 		 * @param string $sBaseUrl
 		 */
@@ -540,6 +524,24 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			header( "Content-Length: ".filesize( $sStringContent ) );
 			echo $sStringContent;
 			die();
+		}
+
+		/**
+		 * Use this to reliably read the contents of a PHP file that doesn't have executable
+		 * PHP Code.
+		 *
+		 * Why use this? In the name of naive security, silly web hosts can prevent reading the contents of
+		 * non-PHP files so we simply put the content we want to have read into a php file and then "include" it.
+		 *
+		 * @param string $sFile
+		 * @return string
+		 */
+		public function readFileContentsUsingImport( $sFile ) {
+			ob_start();
+			include( $sFile );
+			$sContents = ob_get_contents();
+			ob_end_clean();
+			return $sContents;
 		}
 
 		/**

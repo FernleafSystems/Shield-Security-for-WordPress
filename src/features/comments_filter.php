@@ -76,9 +76,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
-			$aOptionsParams['section_title'] = $sTitle;
-			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-			$aOptionsParams['section_title_short'] = $sTitleShort;
+			$aOptionsParams['title'] = $sTitle;
+			$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+			$aOptionsParams['title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 
@@ -100,7 +100,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 
 				case 'enable_comments_human_spam_filter' :
 					$sName = _wpsf__( 'Human SPAM Filter' );
-					$sSummary = _wpsf__( 'Enable (or Disable) The Human SPAM Filter Feature.' );
+					$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), _wpsf__( 'Human SPAM Filter' ) );
 					$sDescription = _wpsf__( 'Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below.' );
 					break;
 
@@ -116,16 +116,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sDescription = sprintf( _wpsf__( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.' ), '<span style"text-decoration:underline;">'._wpsf__('a human commenter').'</span>' );
 					break;
 
-				case 'enable_google_recaptcha' :
-					$sName = 'Google reCAPTCHA';
-					$sSummary = _wpsf__( 'Enable Google reCAPTCHA For Comments' );
-					$sDescription = _wpsf__( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.' );
-					break;
-
 				case 'enable_comments_gasp_protection' :
 					$sName = _wpsf__( 'GASP Protection' );
 					$sSummary = _wpsf__( 'Add Growmap Anti Spambot Protection to your comments' );
 					$sDescription = _wpsf__( 'Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection.' );
+					break;
+
+				case 'enable_google_recaptcha' :
+					$sName = 'Google reCAPTCHA';
+					$sSummary = _wpsf__( 'Enable Google reCAPTCHA For Comments' );
+					$sDescription = _wpsf__( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.' );
 					break;
 
 				case 'comments_default_action_spam_bot' :

@@ -1,41 +1,47 @@
-<?php
-return
-	sprintf(
-	"---
-properties:
-  slug: 'support'
-  name: '%s'
-  show_feature_menu_item: true
-  storage_key: 'support' # should correspond exactly to that in the plugin.yaml
-  tagline: '%s'
-  auto_enabled: true
-  highlight_menu_item: true
-# Options Sections
-sections:
-  -
-    slug: 'section_enable_plugin_feature_support'
-    primary: true
-  -
-    slug: 'section_non_ui'
-    hidden: true
-
-# Define Options
-options:
-  -
-    key: 'enable_support'
-    section: 'section_enable_plugin_feature_support'
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'current_plugin_version'
-    section: 'section_non_ui'
-
-# Definitions for constant data that doesn't need store in the options
-definitions:
-  default_helpdesk_url: 'http://icwp.io/shieldhelpdesk'
-",
-		_wpsf__( 'Premium Support' ),
-		_wpsf__( 'Premium Plugin Support Centre' ) //tagline
-	);
+{
+  "properties": {
+    "slug": "support",
+    "name": "Premium Support",
+    "show_feature_menu_item": true,
+    "storage_key": "support",
+    "tagline": "Premium Plugin Support Centre",
+    "auto_enabled": true,
+    "highlight_menu_item": true
+  },
+  "sections": [
+    {
+      "slug": "section_enable_plugin_feature_support",
+      "primary": true,
+      "title": "Enable Plugin Feature: Premium",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - Contact Plugin Premium Support Centre.",
+        "Recommendation - Keep the Premium Support feature turned on."
+      ]
+    },
+    {
+      "slug": "section_non_ui",
+      "hidden": true
+    }
+  ],
+  "options": [
+    {
+      "key": "enable_support",
+      "section": "section_enable_plugin_feature_support",
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable Automatic Updates",
+      "summary": "Enable (or Disable) The Premium Support Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Premium Support feature"
+    },
+    {
+      "key": "current_plugin_version",
+      "section": "section_non_ui"
+    }
+  ],
+  "definitions": {
+    "default_helpdesk_url": "http://icwp.io/shieldhelpdesk"
+  }
+}

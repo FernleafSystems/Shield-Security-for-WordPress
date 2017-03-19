@@ -9,6 +9,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ):
 		protected static $oFeatureOptions;
 
 		/**
+		 * ICWP_WPSF_Processor_Plugin_BadgeWidget constructor.
 		 */
 		public function __construct() {
 			parent::__construct(
@@ -18,6 +19,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ):
 					'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), self::$oFeatureOptions->getController()->getHumanName() ),
 				)
 			);
+
+			add_shortcode( 'SHIELD_BADGE', array( $this, 'renderBadge' ) );
 		}
 
 		/**
@@ -39,13 +42,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ):
 //			);
 //			return $aInstance;
 		}
+
 		/**
 		 * @param array $aWidgetArguments
 		 * @param array $aWidgetInstance
 		 */
 		public function widget( $aWidgetArguments, $aWidgetInstance ) {
+			echo $this->standardRender( $aWidgetArguments, _wpsf__( 'Site Secured' ), $this->renderBadge() );
+		}
+
+		/**
+		 * @return string
+		 */
+		public function renderBadge() {
 			$oCon = self::$oFeatureOptions->getController();
-			$oRender = self::$oFeatureOptions->loadRenderer( $oCon->getPath_Templates().'php' );
 			$aData = array(
 				'strings' => array(
 					'plugin_name' => $oCon->getHumanName(),
@@ -55,13 +65,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ):
 				)
 			);
 
-			$sContents = $oRender
+			return self::$oFeatureOptions
+				->loadRenderer( $oCon->getPath_Templates().'php' )
 				->setRenderVars( $aData )
 				->setTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin_badge_widget' )
 				->setTemplateEnginePhp()
 				->render();
-
-			$this->standardRender( $aWidgetArguments, _wpsf__( 'Site Secured' ), $sContents );
 		}
 	}
 

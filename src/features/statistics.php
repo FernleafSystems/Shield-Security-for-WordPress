@@ -7,6 +7,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 	class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		/**
+		 * @return string
+		 */
+		public function getStatisticsTableName() {
+			return $this->doPluginPrefix( $this->getDefinition( 'statistics_table_name' ), '_' );
+		}
+
+		/**
 		 * @param array $aOptionsParams
 		 * @return array
 		 * @throws Exception
@@ -39,9 +46,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 				default:
 					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 			}
-			$aOptionsParams['section_title'] = $sTitle;
-			$aOptionsParams['section_summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-			$aOptionsParams['section_title_short'] = $sTitleShort;
+			$aOptionsParams['title'] = $sTitle;
+			$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+			$aOptionsParams['title_short'] = $sTitleShort;
 			return $aOptionsParams;
 		}
 
@@ -61,12 +68,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 					$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
 					break;
 
-				case 'enable_stats_sharing' :
-					$sName = _wpsf__( 'Enable Statistic Sharing' );
-					$sSummary = _wpsf__( 'The plugin will share its statistics to allow for global data gathering and analysis' );
-					$sDescription = _wpsf__( 'Sharing the statistics garnered from the plugin will help show how effective we are and areas we can improve.' );
-					break;
-
 				default:
 					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 			}
@@ -75,13 +76,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 			$aOptionsParams['summary'] = $sSummary;
 			$aOptionsParams['description'] = $sDescription;
 			return $aOptionsParams;
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getStatisticsTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'statistics_table_name' ), '_' );
 		}
 	}
 

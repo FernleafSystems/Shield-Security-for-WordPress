@@ -50,6 +50,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_akismet_running( $aNoticeAttributes ) {
+
 		// We only warn when the human spam filter is running
 		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->getController()->getIsValidAdminArea() ) {
 			$oWp = $this->loadWpFunctionsProcessor();

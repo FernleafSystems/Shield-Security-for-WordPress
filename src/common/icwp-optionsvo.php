@@ -42,6 +42,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		/**
 		 * @var string
 		 */
+		protected $sOptionsEncoding;
+
+		/**
+		 * @var string
+		 */
 		protected $sOptionsName;
 
 		/**
@@ -328,6 +333,13 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getOptionsEncoding() {
+			return empty( $this->sOptionsEncoding ) ? 'json' : $this->sOptionsEncoding;
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getOptionsKeys() {
@@ -372,7 +384,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 */
 		public function getRawData_FullFeatureConfig() {
 			if ( empty( $this->aRawOptionsConfigData ) ) {
-				$this->aRawOptionsConfigData = $this->readYamlConfiguration();
+				$this->aRawOptionsConfigData = $this->readConfiguration();
 			}
 			return $this->aRawOptionsConfigData;
 		}
@@ -442,9 +454,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 
 		/**
 		 * @param string $sKey
+		 * @return $this
 		 */
 		public function setOptionsStorageKey( $sKey ) {
 			$this->sOptionsStorageKey = $sKey;
+			return $this;
 		}
 
 		/**
@@ -456,9 +470,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 
 		/**
 		 * @param boolean $bLoadFromSaved
+		 * @return $this
 		 */
 		public function setIfLoadOptionsFromStorage( $bLoadFromSaved ) {
 			$this->bLoadFromSaved = $bLoadFromSaved;
+			return $this;
 		}
 
 		/**
@@ -469,10 +485,21 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @param string $sOptionsEncoding
+		 * @return $this
+		 */
+		public function setOptionsEncoding( $sOptionsEncoding ) {
+			$this->sOptionsEncoding = $sOptionsEncoding;
+			return $this;
+		}
+
+		/**
 		 * @param boolean $bRebuild
+		 * @return $this
 		 */
 		public function setRebuildFromFile( $bRebuild ) {
 			$this->bRebuildFromFile = $bRebuild;
+			return $this;
 		}
 
 		/**
@@ -568,24 +595,47 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 * @throws Exception
 		 */
-		private function readYamlConfiguration() {
+		private function readConfiguration() {
 			$oWp = $this->loadWpFunctionsProcessor();
 
 			$sTransientKey = $this->getSpecTransientStorageKey();
 			$aConfig = $oWp->getTransient( $sTransientKey );
 
 			if ( $this->getRebuildFromFile() || empty( $aConfig ) ) {
-				$sConfigFile = $this->getConfigFilePath();
-				$sContents = include( $sConfigFile );
-				if ( !empty( $sContents ) ) {
-					$aConfig = $this->loadYamlProcessor()->parseYamlString( $sContents );
-					if ( is_null( $aConfig ) ) {
-						throw new Exception( 'YAML parser could not load to process the options configuration.' );
-					}
-					$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
+
+				try {
+					$aConfig = $this->readConfigurationJson();
 				}
+				catch ( Exception $oE ) {
+					trigger_error( $oE->getMessage() );
+					$aConfig = array();
+				}
+				$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 			}
 			return $aConfig;
+		}
+
+		/**
+		 * @return array
+		 * @throws Exception
+		 */
+		private function readConfigurationJson() {
+			$aConfig = json_decode( $this->readConfigurationFileContents(), true );
+			if ( empty( $aConfig ) ) {
+				throw new Exception( 'Reading JSON configuration from file failed.' );
+			}
+			return $aConfig;
+		}
+
+		/**
+		 * @return string
+		 * @throws Exception
+		 */
+		private function readConfigurationFileContents() {
+			if ( !$this->getConfigFileExists() ) {
+				throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getConfigFilePath() ) );
+			}
+			return $this->loadDataProcessor()->readFileContentsUsingImport( $this->getConfigFilePath() );
 		}
 
 		/**
@@ -596,10 +646,18 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @return bool
+		 */
+		private function getConfigFileExists() {
+			return $this->loadFileSystemProcessor()->isFile( $this->getConfigFilePath() );
+		}
+
+		/**
 		 * @return string
 		 */
 		private function getConfigFilePath() {
-			return dirname( __FILE__ ) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . sprintf( 'config' . DIRECTORY_SEPARATOR . 'feature-%s.php', $this->getOptionsName() );
+			return dirname( __FILE__ ).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
+				.sprintf( 'config'.DIRECTORY_SEPARATOR.'feature-%s.%s', $this->getOptionsName(), 'php' );
 		}
 	}
 endif;

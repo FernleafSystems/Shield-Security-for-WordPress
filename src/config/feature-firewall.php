@@ -1,228 +1,337 @@
-<?php
-return
-	sprintf(
-	"---
-slug: 'firewall'
-properties:
-  name: '%s'
-  show_feature_menu_item: true
-  storage_key: 'firewall' # should correspond exactly to that in the plugin.yaml
-  tagline: '%s'
-# Options Sections
-sections:
-  -
-    slug: 'section_enable_plugin_feature_wordpress_firewall'
-    primary: true
-  -
-    slug: 'section_firewall_blocking_options'
-  -
-    slug: 'section_choose_firewall_block_response'
-  -
-    slug: 'section_whitelist'
-  -
-    slug: 'section_non_ui'
-    hidden: true
+{
+  "slug": "firewall",
+  "properties": {
+    "name": "Firewall",
+    "show_feature_menu_item": true,
+    "storage_key": "firewall",
+    "tagline": "Automatically block malicious URLs and data sent to your site"
+  },
+  "sections": [
+    {
+      "slug": "section_enable_plugin_feature_wordpress_firewall",
+      "primary": true,
+      "title": "Enable Plugin Feature: Firewall",
+      "title_short": "Enable / Disable",
+      "summary": [
+         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
+         "Recommendation - Keep the Firewall feature turned on."
+                 ]
+    },
+    {
+      "slug": "section_firewall_blocking_options",
+      "title": "Firewall Blocking Options",
+      "title_short": "Firewall Blocking",
+      "summary": [
+        "Here you choose what kind of malicious data to scan for.",
+        "Recommendation - Turn on as many options here as you can. If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail."
+      ]
+    },
+    {
+      "slug": "section_choose_firewall_block_response",
+      "title": "Choose Firewall Block Response",
+      "title_short": "Firewall Response",
+      "summary": [
+        "Here you choose how the plugin will respond when it detects malicious data.",
+        "Recommendation - Choose the option 'Die With Message'."
+      ]
+    },
+    {
+      "slug": "section_whitelist",
+      "title": "Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall",
+      "title_short": "Whitelist",
+      "summary": [
+        "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",
+        "Recommendation - Do not whitelist anything unless you are confident in what you are doing."
+      ]
+    },
+    {
+      "slug": "section_non_ui",
+      "hidden": true
+    }
+  ],
+  "options": [
+    {
+      "key": "enable_firewall",
+      "section": "section_enable_plugin_feature_wordpress_firewall",
+      "transferable": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "http://icwp.io/43",
+      "link_blog": "http://icwp.io/wpsf01",
+      "name": "Enable Firewall",
+      "summary": "Enable (or Disable) The Firewall Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Firewall feature"
+    },
+    {
+      "key": "include_cookie_checks",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Include Cookies",
+      "summary": "Also Test Cookie Values In Firewall Tests",
+      "description": "The firewall tests GET and POST, but with this option checked it will also check COOKIE values."
+    },
+    {
+      "key": "block_dir_traversal",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Directory Traversals",
+      "summary": "Block Directory Traversals",
+      "description": "This will block directory traversal paths in in application parameters."
+    },
+    {
+      "key": "block_sql_queries",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "SQL Queries",
+      "summary": "Block SQL Queries",
+      "description": "This will block SQL in application parameters."
+    },
+    {
+      "key": "block_wordpress_terms",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "WordPress Terms",
+      "summary": "Block WordPress Specific Terms",
+      "description": "This will block WordPress specific terms in application parameters (wp_, user_login, etc.)."
+    },
+    {
+      "key": "block_field_truncation",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Field Truncation",
+      "summary": "Block Field Truncation Attacks",
+      "description": "This will block field truncation attacks in application parameters"
+    },
+    {
+      "key": "block_php_code",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "PHP Code",
+      "summary": "Block PHP Code Includes",
+      "description": "This will block any data that appears to try and include PHP files. Will probably block saving within the Plugin/Theme file editors."
+    },
+    {
+      "key": "block_exe_file_uploads",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Exe File Uploads",
+      "summary": "Block Executable File Uploads",
+      "description": "This will block executable file uploads (.php, .exe, etc.)."
+    },
+    {
+      "key": "block_leading_schema",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Leading Schemas",
+      "summary": "Block Leading Schemas (HTTPS / HTTP)",
+      "description": "This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins)."
+    },
+    {
+      "key": "block_aggressive",
+      "section": "section_firewall_blocking_options",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Aggressive Scan",
+      "summary": "Aggressively Block Data",
+      "description": "Employs a set of aggressive rules to detect and block malicious data submitted to your site. Warning - May cause an increase in false-positive firewall blocks."
+    },
+    {
+      "key": "block_response",
+      "section": "section_choose_firewall_block_response",
+      "transferable": true,
+      "default": "redirect_die_message",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "redirect_die_message",
+          "text": "Die With Message"
+        },
+        {
+          "value_key": "redirect_die",
+          "text": "Die"
+        },
+        {
+          "value_key": "redirect_home",
+          "text": "Redirect To Home Page"
+        },
+        {
+          "value_key": "redirect_404",
+          "text": "Return 404"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Block Response",
+      "summary": "How the firewall responds when it blocks a request",
+      "description": "We recommend dying with a message so you know what might have occurred when the firewall blocks you."
+    },
+    {
+      "key": "block_send_email",
+      "section": "section_choose_firewall_block_response",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Send Email Report",
+      "summary": "When a visitor is blocked the firewall will send an email to the configured email address",
+      "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
+    },
+    {
+      "key": "page_params_whitelist",
+      "section": "section_whitelist",
+      "transferable": true,
+      "default": "",
+      "type": "comma_separated_lists",
+      "link_info": "http://icwp.io/2a",
+      "link_blog": "",
+      "name": "Whitelist Parameters",
+      "summary": "Detail pages and parameters that are whitelisted (ignored by the firewall)",
+      "description": "This should be used with caution and you should only provide parameter names that you must have excluded"
+    },
+    {
+      "key": "whitelist_admins",
+      "section": "section_whitelist",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Ignore Administrators",
+      "summary": "Ignore Administrators",
+      "description": "Authenticated administrator users will not be processed by the firewall rules."
+    },
+    {
+      "key": "ignore_search_engines",
+      "section": "section_whitelist",
+      "transferable": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Ignore Search Engines",
+      "summary": "Ignore Search Engine Bot Traffic",
+      "description": "The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them."
+    },
+    {
+      "key": "current_plugin_version",
+      "section": "section_non_ui"
+    }
+  ],
 
-# Define Options
-options:
-  -
-    key: 'enable_firewall'
-    section: 'section_enable_plugin_feature_wordpress_firewall'
-    transferable: true
-    default: 'Y'
-    type: 'checkbox'
-    link_info: 'http://icwp.io/43'
-    link_blog: 'http://icwp.io/wpsf01'
-  -
-    key: 'include_cookie_checks'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_dir_traversal'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_sql_queries'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_wordpress_terms'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_field_truncation'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'Y'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_php_code'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_exe_file_uploads'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_leading_schema'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_aggressive'
-    section: 'section_firewall_blocking_options'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_response'
-    section: 'section_choose_firewall_block_response'
-    transferable: true
-    default: 'redirect_die_message'
-    type: 'select'
-    value_options:
-      -
-        value_key: 'redirect_die_message'
-        text: 'Die With Message'
-      -
-        value_key: 'redirect_die'
-        text: 'Die'
-      -
-        value_key: 'redirect_home'
-        text: 'Redirect To Home Page'
-      -
-        value_key: 'redirect_404'
-        text: 'Return 404'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'block_send_email'
-    section: 'section_choose_firewall_block_response'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'page_params_whitelist'
-    section: 'section_whitelist'
-    transferable: true
-    default: ''
-    type: 'comma_separated_lists'
-    link_info: 'http://icwp.io/2a'
-    link_blog: ''
-  -
-    key: 'whitelist_admins'
-    section: 'section_whitelist'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'ignore_search_engines'
-    section: 'section_whitelist'
-    transferable: true
-    default: 'N'
-    type: 'checkbox'
-    link_info: ''
-    link_blog: ''
-  -
-    key: 'current_plugin_version'
-    section: 'section_non_ui'
-
-# Definitions for constant data that doesn't need stored in the options
-definitions:
-  firewall_patterns:
-    dirtraversal:
-      simple:
-        - 'etc/passwd'
-        - 'proc/self/environ'
-        - 'etc/passwd'
-        - 'makefile'
-        - 'wwwroot'
-        - 'pingserver'
-        - '../'
-        - 'loopback'
-    wpterms:
-      simple:
-        - '/**/'
-        - 'wp-config.php'
-      regex:
-        - '^wp_'
-        - '^user_login'
-        - '^user_pass'
-        - '[^0-9]0x[0-9a-f][0-9a-f]'
-    fieldtruncation:
-      regex:
-        - '\\s{49,}'
-        - '\\x00'
-    sqlqueries:
-      regex:
-        - 'concat\\s*\\('
-        - 'group_concat'
-        - 'union.*select'
-    exefile:
-      regex:
-        - '\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$'
-    schema:
-      simple:
-        - '.shtml'
-      regex:
-        - '^(http|https|ftp|file):'
-    phpcode:
-      simple:
-      regex:
-        - '(include|include_once|require|require_once)\\s*\\(.*\\)'
-    aggressive:
-      simple:
-        - 'eval('
-        - '(null)'
-        - 'base64_'
-        - 'localhost'
-        - '(function('
-        - '{x.html('
-        - ').html('
-        - '...'
-        - '/httpdocs/'
-        - '/tmp/'
-        - 'boot.ini'
-      regex:
-        - 'GLOBALS(=|\\[|%%)'
-        - 'REQUEST(=|\\[|%%)'
-        - '(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)'
-",
-		_wpsf__( 'Firewall' ),
-		_wpsf__( 'Automatically block malicious URLs and data sent to your site' )
-	);
+  "definitions": {
+    "firewall_patterns": {
+      "dirtraversal": {
+        "simple": [
+          "etc/passwd",
+          "proc/self/environ",
+          "etc/passwd",
+          "makefile",
+          "wwwroot",
+          "pingserver",
+          "../",
+          "loopback"
+        ]
+      },
+      "wpterms": {
+        "simple": [
+          "/**/",
+          "wp-config.php"
+        ],
+        "regex": [
+          "^wp_",
+          "^user_login",
+          "^user_pass",
+          "[^0-9]0x[0-9a-f][0-9a-f]"
+        ]
+      },
+      "fieldtruncation": {
+        "regex": [
+          "\\s{49,}",
+          "\\x00"
+        ]
+      },
+      "sqlqueries": {
+        "regex": [
+          "concat\\s*\\(",
+          "group_concat",
+          "union.*select"
+        ]
+      },
+      "exefile": {
+        "regex": [
+          "\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$"
+        ]
+      },
+      "schema": {
+        "simple": [
+          ".shtml"
+        ],
+        "regex": [
+          "^(http|https|ftp|file):"
+        ]
+      },
+      "phpcode": {
+        "simple": null,
+        "regex": [
+          "(include|include_once|require|require_once)\\s*\\(.*\\)"
+        ]
+      },
+      "aggressive": {
+        "simple": [
+          "eval(",
+          "(null)",
+          "base64_",
+          "localhost",
+          "(function(",
+          "{x.html(",
+          ").html(",
+          "...",
+          "/httpdocs/",
+          "/tmp/",
+          "boot.ini"
+        ],
+        "regex": [
+          "GLOBALS(=|\\[|%%)",
+          "REQUEST(=|\\[|%%)",
+          "(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)"
+        ]
+      }
+    }
+  }
+}
