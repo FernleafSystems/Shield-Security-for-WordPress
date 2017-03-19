@@ -314,16 +314,23 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 == Changelog ==
 
 = 5.7.0 Latest Point Release =
-*Released: 16th March, 2017*
+*Released: 19th March, 2017*
 
-* **(v.0)**  IMPROVEMENTS:	Replace YAML with JSON configuration files.
+* **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
+* **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
+* **(v.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.
 * **(v.0)**  IMPROVEMENTS:	Preparation for Shield Central release.
-* **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined.
+* **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined and optimized.
+* **(v.0)**  IMPROVEMENTS:	Removed unnecessary files/code.
 
 = 5.7 Series =
 
-* **(v.0)**  IMPROVEMENTS:	Replace YAML with JSON configuration files.
+* **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
+* **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
+* **(v.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.
 * **(v.0)**  IMPROVEMENTS:	Preparation for Shield Central release.
+* **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined and optimized.
+* **(v.0)**  IMPROVEMENTS:	Removed unnecessary files/code.
 
 = 5.6 Series =
 
