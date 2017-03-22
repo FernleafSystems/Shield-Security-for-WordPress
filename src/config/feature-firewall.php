@@ -235,6 +235,7 @@
     },
     {
       "key": "current_plugin_version",
+      "transferable": false,
       "section": "section_non_ui"
     }
   ],

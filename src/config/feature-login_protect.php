@@ -262,37 +262,44 @@
       "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
     },
     {
-      "key": "current_plugin_version",
-      "section": "section_non_ui"
-    },
-    {
       "key": "email_can_send_verified_at",
+      "transferable": false,
       "section": "section_non_ui",
       "default": -1
     },
     {
       "key": "gasp_key",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui"
     },
     {
       "key": "two_factor_secret_key",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui"
     },
     {
       "key": "last_login_time",
+      "transferable": false,
       "section": "section_non_ui"
     },
     {
       "key": "last_login_time_file_path",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui"
     },
     {
       "key": "two_factor_auth_table_created",
+      "transferable": false,
       "section": "section_non_ui"
-    }
+    },
+    {
+      "key": "current_plugin_version",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
   ],
   "definitions": {
     "two_factor_auth_table_name": "login_auth",

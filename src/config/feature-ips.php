@@ -106,19 +106,22 @@
       "description": "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
     },
     {
-      "key": "current_plugin_version",
-      "section": "section_non_ui"
-    },
-    {
       "key": "this_server_ip",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui",
       "value": ""
     },
     {
       "key": "this_server_ip_last_check_at",
+      "transferable": false,
       "section": "section_non_ui",
       "value": 0
+    },
+    {
+      "key": "current_plugin_version",
+      "transferable": false,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {

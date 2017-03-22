@@ -152,6 +152,7 @@
     {
       "key": "unique_installation_id",
       "section": "section_general_plugin_options",
+      "transferable": false,
       "default": "",
       "type": "noneditable_text",
       "link_info": "",
@@ -185,11 +186,8 @@
       "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
     },
     {
-      "key": "current_plugin_version",
-      "section": "section_non_ui"
-    },
-    {
       "key": "tracking_last_sent_at",
+      "transferable": false,
       "default": 0,
       "section": "section_non_ui"
     },
@@ -200,6 +198,12 @@
     },
     {
       "key": "installation_time",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "current_plugin_version",
+      "transferable": false,
       "section": "section_non_ui"
     }
   ],

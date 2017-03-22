@@ -60,7 +60,6 @@
     {
       "key": "enable_admin_access_restriction",
       "section": "section_enable_plugin_feature_admin_access_restriction",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/40",
@@ -195,6 +194,7 @@
     },
     {
       "key": "current_plugin_version",
+      "transferable": false,
       "section": "section_non_ui"
     }
   ],
