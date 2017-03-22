@@ -67,7 +67,6 @@
     {
       "key": "enable_comments_filter",
       "section": "section_enable_plugin_feature_spam_comments_protection_filter",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/3z",
@@ -79,7 +78,6 @@
     {
       "key": "enable_comments_human_spam_filter",
       "section": "section_human_spam_filter",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/57",
@@ -91,7 +89,6 @@
     {
       "key": "enable_comments_human_spam_filter_items",
       "section": "section_human_spam_filter",
-      "transferable": true,
       "type": "multiple_select",
       "default": [
         "author_name",
@@ -136,7 +133,6 @@
     {
       "key": "comments_default_action_human_spam",
       "section": "section_human_spam_filter",
-      "transferable": true,
       "default": 0,
       "type": "select",
       "value_options": [
@@ -164,7 +160,6 @@
     {
       "key": "enable_comments_gasp_protection",
       "section": "section_bot_comment_spam_protection_filter",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/3n",
@@ -176,7 +171,6 @@
     {
       "key": "enable_google_recaptcha",
       "section": "section_bot_comment_spam_protection_filter",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld5",
@@ -188,7 +182,6 @@
     {
       "key": "comments_default_action_spam_bot",
       "section": "section_bot_comment_spam_protection_filter",
-      "transferable": true,
       "default": "trash",
       "type": "select",
       "value_options": [
@@ -218,7 +211,6 @@
     {
       "key": "comments_cooldown_interval",
       "section": "section_bot_comment_spam_protection_filter",
-      "transferable": true,
       "default": 30,
       "type": "integer",
       "link_info": "http://icwp.io/3o",
@@ -230,7 +222,6 @@
     {
       "key": "comments_token_expire_interval",
       "section": "section_bot_comment_spam_protection_filter",
-      "transferable": true,
       "default": 600,
       "type": "integer",
       "link_info": "http://icwp.io/3o",
@@ -242,7 +233,6 @@
     {
       "key": "custom_message_checkbox",
       "section": "section_customize_messages_shown_to_user",
-      "transferable": true,
       "sensitive": true,
       "default": "I'm not a spammer",
       "type": "text",
@@ -255,7 +245,6 @@
     {
       "key": "custom_message_alert",
       "section": "section_customize_messages_shown_to_user",
-      "transferable": true,
       "sensitive": true,
       "default": "Please check the box to confirm you're not a spammer",
       "type": "text",
@@ -268,7 +257,6 @@
     {
       "key": "custom_message_comment_wait",
       "section": "section_customize_messages_shown_to_user",
-      "transferable": true,
       "sensitive": true,
       "default": "Please wait %%s seconds before posting your comment",
       "type": "text",
@@ -281,7 +269,6 @@
     {
       "key": "custom_message_comment_reload",
       "section": "section_customize_messages_shown_to_user",
-      "transferable": true,
       "sensitive": true,
       "default": "Please reload this page to post a comment",
       "type": "text",

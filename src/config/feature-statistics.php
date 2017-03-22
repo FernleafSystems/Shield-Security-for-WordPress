@@ -35,7 +35,6 @@
     {
       "key": "enable_statistics",
       "section": "section_enable_plugin_feature_statistics",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",

@@ -53,7 +53,6 @@
     {
       "key": "enable_lockdown",
       "section": "section_enable_plugin_feature_wordpress_lockdown",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/4r",
@@ -65,7 +64,6 @@
     {
       "key": "disable_xmlrpc",
       "section": "section_system_lockdown",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -77,7 +75,6 @@
     {
       "key": "disable_anonymous_restapi",
       "section": "section_system_lockdown",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -89,7 +86,6 @@
     {
       "key": "disable_file_editing",
       "section": "section_permission_access_options",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/4q",
@@ -101,7 +97,6 @@
     {
       "key": "force_ssl_admin",
       "section": "section_permission_access_options",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/4t",
@@ -113,7 +108,6 @@
     {
       "key": "mask_wordpress_version",
       "section": "section_wordpress_obscurity_options",
-      "transferable": true,
       "default": "",
       "type": "text",
       "link_info": "http://icwp.io/43",
@@ -125,7 +119,6 @@
     {
       "key": "hide_wordpress_generator_tag",
       "section": "section_wordpress_obscurity_options",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -137,7 +130,6 @@
     {
       "key": "block_author_discovery",
       "section": "section_wordpress_obscurity_options",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf23",

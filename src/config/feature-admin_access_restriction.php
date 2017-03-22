@@ -72,7 +72,6 @@
     {
       "key": "admin_access_key",
       "section": "section_enable_plugin_feature_admin_access_restriction",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "password",
@@ -86,7 +85,6 @@
     {
       "key": "admin_access_timeout",
       "section": "section_admin_access_restriction_settings",
-      "transferable": true,
       "default": 30,
       "type": "integer",
       "link_info": "http://icwp.io/41",
@@ -98,7 +96,6 @@
     {
       "key": "admin_access_restrict_options",
       "section": "section_admin_access_restriction_areas",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf32",
@@ -110,7 +107,6 @@
     {
       "key": "admin_access_restrict_admin_users",
       "section": "section_admin_access_restriction_areas",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -122,7 +118,6 @@
     {
       "key": "admin_access_restrict_plugins",
       "section": "section_admin_access_restriction_areas",
-      "transferable": true,
       "type": "multiple_select",
       "default": null,
       "value_options": [
@@ -149,7 +144,6 @@
     {
       "key": "admin_access_restrict_themes",
       "section": "section_admin_access_restriction_areas",
-      "transferable": true,
       "type": "multiple_select",
       "default": null,
       "value_options": [
@@ -180,7 +174,6 @@
     {
       "key": "admin_access_restrict_posts",
       "section": "section_admin_access_restriction_areas",
-      "transferable": true,
       "type": "multiple_select",
       "default": null,
       "value_options": [

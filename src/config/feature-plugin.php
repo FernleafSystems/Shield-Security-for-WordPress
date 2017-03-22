@@ -85,7 +85,6 @@
     {
       "key": "global_enable_plugin_features",
       "section": "section_global_security_options",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -97,7 +96,6 @@
     {
       "key": "enable_tracking",
       "section": "section_general_plugin_options",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/7i",
@@ -109,7 +107,6 @@
     {
       "key": "block_send_email_address",
       "section": "section_general_plugin_options",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "email",
@@ -122,7 +119,6 @@
     {
       "key": "enable_upgrade_admin_notice",
       "section": "section_general_plugin_options",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -134,7 +130,6 @@
     {
       "key": "display_plugin_badge",
       "section": "section_general_plugin_options",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/5v",
@@ -146,7 +141,6 @@
     {
       "key": "delete_on_deactivate",
       "section": "section_general_plugin_options",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -169,7 +163,6 @@
     {
       "key": "google_recaptcha_site_key",
       "section": "section_third_party_google",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "text",
@@ -182,7 +175,6 @@
     {
       "key": "google_recaptcha_secret_key",
       "section": "section_third_party_google",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "text",

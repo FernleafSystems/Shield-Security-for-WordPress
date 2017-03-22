@@ -57,7 +57,6 @@
     {
       "key": "enable_ips",
       "section": "section_enable_plugin_feature_ips",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf26",
@@ -69,7 +68,6 @@
     {
       "key": "transgression_limit",
       "section": "section_auto_black_list",
-      "transferable": true,
       "default": 10,
       "type": "integer",
       "link_info": "http://icwp.io/wpsf24",
@@ -81,7 +79,6 @@
     {
       "key": "auto_expire",
       "section": "section_auto_black_list",
-      "transferable": true,
       "default": "minute",
       "type": "select",
       "value_options": [

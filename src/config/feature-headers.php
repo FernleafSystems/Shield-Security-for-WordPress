@@ -44,7 +44,6 @@
     {
       "key": "enable_headers",
       "section": "section_enable_plugin_feature_headers",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/7c",
@@ -56,7 +55,6 @@
     {
       "key": "x_frame",
       "section": "section_security_headers",
-      "transferable": true,
       "default": "on_sameorigin",
       "type": "select",
       "value_options": [
@@ -82,7 +80,6 @@
     {
       "key": "x_xss_protect",
       "section": "section_security_headers",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/79",
@@ -94,7 +91,6 @@
     {
       "key": "x_content_type",
       "section": "section_security_headers",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/7a",
@@ -106,7 +102,6 @@
     {
       "key": "enable_x_content_security_policy",
       "section": "section_content_security_policy",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/7d",
@@ -118,7 +113,6 @@
     {
       "key": "xcsp_self",
       "section": "section_content_security_policy",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -130,7 +124,6 @@
     {
       "key": "xcsp_inline",
       "section": "section_content_security_policy",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -142,7 +135,6 @@
     {
       "key": "xcsp_data",
       "section": "section_content_security_policy",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -154,7 +146,6 @@
     {
       "key": "xcsp_eval",
       "section": "section_content_security_policy",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -166,7 +157,6 @@
     {
       "key": "xcsp_https",
       "section": "section_content_security_policy",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -178,7 +168,6 @@
     {
       "key": "xcsp_hosts",
       "section": "section_content_security_policy",
-      "transferable": true,
       "sensitive": true,
       "default": [
         "*"
