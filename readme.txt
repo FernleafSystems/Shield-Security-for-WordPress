@@ -1,4 +1,4 @@
-=== Shield WordPress Security ===
+=== Shield Security ===
 Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
