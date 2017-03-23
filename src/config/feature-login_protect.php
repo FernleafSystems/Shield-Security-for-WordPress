@@ -299,7 +299,7 @@
       "key": "current_plugin_version",
       "transferable": false,
       "section": "section_non_ui"
-    },
+    }
   ],
   "definitions": {
     "two_factor_auth_table_name": "login_auth",

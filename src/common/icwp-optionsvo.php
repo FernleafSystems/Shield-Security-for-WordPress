@@ -635,7 +635,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 			if ( !$this->getConfigFileExists() ) {
 				throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getConfigFilePath() ) );
 			}
-			return $this->loadDataProcessor()->readFileContentsUsingImport( $this->getConfigFilePath() );
+			return $this->loadDataProcessor()->readFileContentsUsingInclude( $this->getConfigFilePath() );
 		}
 
 		/**
@@ -649,15 +649,17 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return bool
 		 */
 		private function getConfigFileExists() {
-			return $this->loadFileSystemProcessor()->isFile( $this->getConfigFilePath() );
+			$sPath = $this->getConfigFilePath();
+			return !empty( $sPath ) && $this->loadFileSystemProcessor()->isFile( $sPath );
 		}
 
 		/**
 		 * @return string
 		 */
 		private function getConfigFilePath() {
-			return dirname( __FILE__ ).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
-				.sprintf( 'config'.DIRECTORY_SEPARATOR.'feature-%s.%s', $this->getOptionsName(), 'php' );
+			return realpath( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
+				.sprintf( 'config'.DIRECTORY_SEPARATOR.'feature-%s.%s', $this->getOptionsName(), 'php' )
+			);
 		}
 	}
 endif;

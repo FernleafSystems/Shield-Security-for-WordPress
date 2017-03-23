@@ -536,12 +536,10 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @param string $sFile
 		 * @return string
 		 */
-		public function readFileContentsUsingImport( $sFile ) {
+		public function readFileContentsUsingInclude( $sFile ) {
 			ob_start();
 			include( $sFile );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-			return $sContents;
+			return ob_get_clean();
 		}
 
 		/**
