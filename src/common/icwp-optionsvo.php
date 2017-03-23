@@ -105,7 +105,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 			$aRawOptions = $this->getRawData_AllOptions();
 			$aTransferable = array();
 			foreach( $aRawOptions as $nKey => $aOptionData ) {
-				if ( isset( $aOptionData['transferable'] ) && $aOptionData['transferable'] === true ) {
+				if ( !isset( $aOptionData['transferable'] ) || $aOptionData['transferable'] === true ) {
 					$aTransferable[ $aOptionData['key'] ] = $aOptions[ $aOptionData['key'] ];
 				}
 			}
