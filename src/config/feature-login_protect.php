@@ -79,7 +79,6 @@
     {
       "key": "enable_login_protect",
       "section": "section_enable_plugin_feature_login_protection",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/51",
@@ -91,7 +90,6 @@
     {
       "key": "enable_xmlrpc_compatibility",
       "section": "section_bypass_login_protection",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -103,7 +101,6 @@
     {
       "key": "rename_wplogin_path",
       "section": "section_rename_wplogin",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "text",
@@ -116,7 +113,6 @@
     {
       "key": "enable_google_authenticator",
       "section": "section_multifactor_authentication",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld7",
@@ -128,7 +124,6 @@
     {
       "key": "enable_email_authentication",
       "section": "section_multifactor_authentication",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/3s",
@@ -140,7 +135,6 @@
     {
       "key": "two_factor_auth_user_roles",
       "section": "section_multifactor_authentication",
-      "transferable": true,
       "type": "multiple_select",
       "default": [
         1,
@@ -179,7 +173,6 @@
     {
       "key": "enable_google_recaptcha",
       "section": "section_brute_force_login_protection",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld5",
@@ -191,7 +184,6 @@
     {
       "key": "enable_login_gasp_check",
       "section": "section_brute_force_login_protection",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/3r",
@@ -203,7 +195,6 @@
     {
       "key": "login_limit_interval",
       "section": "section_brute_force_login_protection",
-      "transferable": true,
       "default": "10",
       "type": "integer",
       "link_info": "http://icwp.io/3q",
@@ -215,7 +206,6 @@
     {
       "key": "enable_user_register_checking",
       "section": "section_brute_force_login_protection",
-      "transferable": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -227,7 +217,6 @@
     {
       "key": "enable_yubikey",
       "section": "section_yubikey_authentication",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/4f",
@@ -239,7 +228,6 @@
     {
       "key": "yubikey_app_id",
       "section": "section_yubikey_authentication",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "text",
@@ -252,7 +240,6 @@
     {
       "key": "yubikey_api_key",
       "section": "section_yubikey_authentication",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "text",
@@ -265,7 +252,6 @@
     {
       "key": "yubikey_unique_keys",
       "section": "section_yubikey_authentication",
-      "transferable": true,
       "sensitive": true,
       "default": "",
       "type": "yubikey_unique_keys",
@@ -276,37 +262,44 @@
       "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
     },
     {
-      "key": "current_plugin_version",
-      "section": "section_non_ui"
-    },
-    {
       "key": "email_can_send_verified_at",
+      "transferable": false,
       "section": "section_non_ui",
       "default": -1
     },
     {
       "key": "gasp_key",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui"
     },
     {
       "key": "two_factor_secret_key",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui"
     },
     {
       "key": "last_login_time",
+      "transferable": false,
       "section": "section_non_ui"
     },
     {
       "key": "last_login_time_file_path",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui"
     },
     {
       "key": "two_factor_auth_table_created",
+      "transferable": false,
       "section": "section_non_ui"
-    }
+    },
+    {
+      "key": "current_plugin_version",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
   ],
   "definitions": {
     "two_factor_auth_table_name": "login_auth",

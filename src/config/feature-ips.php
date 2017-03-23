@@ -57,7 +57,6 @@
     {
       "key": "enable_ips",
       "section": "section_enable_plugin_feature_ips",
-      "transferable": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf26",
@@ -69,7 +68,6 @@
     {
       "key": "transgression_limit",
       "section": "section_auto_black_list",
-      "transferable": true,
       "default": 10,
       "type": "integer",
       "link_info": "http://icwp.io/wpsf24",
@@ -81,7 +79,6 @@
     {
       "key": "auto_expire",
       "section": "section_auto_black_list",
-      "transferable": true,
       "default": "minute",
       "type": "select",
       "value_options": [
@@ -109,19 +106,22 @@
       "description": "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
     },
     {
-      "key": "current_plugin_version",
-      "section": "section_non_ui"
-    },
-    {
       "key": "this_server_ip",
+      "transferable": false,
       "sensitive": true,
       "section": "section_non_ui",
       "value": ""
     },
     {
       "key": "this_server_ip_last_check_at",
+      "transferable": false,
       "section": "section_non_ui",
       "value": 0
+    },
+    {
+      "key": "current_plugin_version",
+      "transferable": false,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
