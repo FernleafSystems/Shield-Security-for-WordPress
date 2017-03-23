@@ -204,15 +204,26 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		}
 
 		/**
-		 * @param $sMessage
+		 * @param string $sMessage
 		 */
-		public function addFlashMessage( $sMessage ) {
-			$this->loadDataProcessor()->setCookie( $this->getActionPrefix().'flash', esc_attr( $sMessage ) );
+		public function addFlashErrorMessage( $sMessage ) {
+			$this->addFlashMessage( $sMessage, 'error' );
+		}
+
+		/**
+		 * @param string $sMessage
+		 * @param string $sType
+		 */
+		public function addFlashMessage( $sMessage, $sType = 'updated' ) {
+			$this->loadDataProcessor()->setCookie(
+				$this->getActionPrefix().'flash', $sType.'::'.esc_attr( $sMessage )
+			);
 		}
 
 		protected function flashNotice() {
 			if ( !empty( $this->sFlashMessage ) ) {
-				echo $this->wrapAdminNoticeHtml( $this->sFlashMessage );
+				$aParts = explode( '::', $this->sFlashMessage, 2 );
+				echo $this->wrapAdminNoticeHtml( $aParts[ 1 ], $aParts[ 0 ] );
 			}
 		}
 

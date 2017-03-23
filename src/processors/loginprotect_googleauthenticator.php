@@ -76,6 +76,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
 		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpNotices = $this->loadAdminNoticesProcessor();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 		$oCurrentUser = $oWpUsers->getCurrentWpUser();
@@ -84,7 +85,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		if ( !$bEditingMyOwnProfile ) {
 			// No OTP checking here as you're not on your own profile, but...
 			if ( $oWpUsers->isUserAdmin( $oSavingUser ) ) {
-				// TODO: Show error to say you cannot turn on/off another Administrator GA setting
+				$oWpNotices->addFlashErrorMessage( _wpsf__( 'Not permitted to toggle Authenticator settings for other administrators.' ) );
 				return;
 			}
 		}
@@ -94,11 +95,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				return; // not doing anything related to GA
 			}
 			else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oSavingUser ), $sGaOtpCode ) ) {
-				// TODO: ERROR MESSAGE because OTP wasn't valid.
+				$oWpNotices->addFlashErrorMessage( _wpsf__( 'One Time Password (OTP) was not valid.' ) );
 				return;
 			}
-			// At this stage we have a validated GA Code for this user's Secret if applicable.
 		}
+
+		// At this stage we have a validated GA Code for this user's Secret if applicable.
+
 		// Trying to validate a new QR for my own profile
 		if ( $bEditingMyOwnProfile && !$oFO->getUserHasGoogleAuthenticator( $oSavingUser ) ) {
 			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nSavingUserId );
