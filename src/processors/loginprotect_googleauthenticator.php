@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		if ( !$bEditingMyOwnProfile ) {
 			// No OTP checking here as you're not on your own profile, but...
 			if ( $oWpUsers->isUserAdmin( $oSavingUser ) ) {
-				$oWpNotices->addFlashErrorMessage( _wpsf__( 'Not permitted to toggle Authenticator settings for other administrators.' ) );
+				$oWpNotices->addFlashErrorMessage( _wpsf__( 'Note: Not permitted to toggle Google Authenticator settings for other administrators.' ) );
 				return;
 			}
 		}
