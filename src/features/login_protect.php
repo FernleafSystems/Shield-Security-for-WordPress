@@ -314,7 +314,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @param WP_User $oUser
 		 * @return string
 		 */
-		protected function resetGaSecret( WP_User $oUser ) {
+		public function resetGaSecret( WP_User $oUser ) {
 			$sNewSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
 			$this->loadWpUsersProcessor()
 				 ->updateUserMeta(
