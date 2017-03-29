@@ -32,9 +32,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function addGoogleAuthenticatorOptionsToUserProfile( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
+		$oDP = $this->loadDataProcessor();
 		$aData = array(
-			'user_has_google_authenticator_validated' => $oFO->getUserHasGoogleAuthenticator( $oUser ),
-			'user_google_authenticator_secret' => $oFO->getUserGoogleAuthenticatorSecret( $oUser, true ),
+			'user_has_google_authenticator_validated' => $oFO->getHasGaValidated( $oUser ),
+			'user_google_authenticator_secret' => $oFO->getGaSecret( $oUser, !$oDP->GetIsRequestPost() ),
 			'is_my_user_profile' => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
 			'i_am_valid_admin' => $this->getController()->getIsValidAdminArea( true ),
 			'user_to_edit_is_admin' => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
@@ -79,8 +80,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
-		$oCurrentUser = $oWpUsers->getCurrentWpUser();
-		$bEditingMyOwnProfile = $oCurrentUser->ID == $oSavingUser->ID;
+		$bEditingMyOwnProfile = ( $oWpUsers->getCurrentWpUser()->ID == $oSavingUser->ID );
 
 		if ( !$bEditingMyOwnProfile ) {
 			// No OTP checking here as you're not on your own profile, but...
@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			if ( empty( $sGaOtpCode ) ) {
 				return; // not doing anything related to GA
 			}
-			else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oSavingUser ), $sGaOtpCode ) ) {
+			else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getGaSecret( $oSavingUser ), $sGaOtpCode ) ) {
 				$oWpNotices->addFlashErrorMessage( _wpsf__( 'One Time Password (OTP) was not valid.' ) );
 				return;
 			}
@@ -103,7 +103,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		// At this stage we have a validated GA Code for this user's Secret if applicable.
 
 		// Trying to validate a new QR for my own profile
-		if ( $bEditingMyOwnProfile && !$oFO->getUserHasGoogleAuthenticator( $oSavingUser ) ) {
+		if ( $bEditingMyOwnProfile && !$oFO->getHasGaValidated( $oSavingUser ) ) {
 			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nSavingUserId );
 		}
 		else {
@@ -128,7 +128,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oError = new WP_Error();
 
 		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		if ( $bIsUser && $oFO->getUserHasGoogleAuthenticator( $oUser ) ) {
+		if ( $bIsUser && $oFO->getHasGaValidated( $oUser ) ) {
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
 			if ( empty( $sGaOtp ) ) {
 				$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Whoops.' )
@@ -137,7 +137,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			}
 			else {
 				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
-				if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getUserGoogleAuthenticatorSecret( $oUser, false ), $sGaOtp ) ) {
+				if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getGaSecret( $oUser, false ), $sGaOtp ) ) {
 					$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Oh dear.' )
 						.' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
 					$oUser = $oError;

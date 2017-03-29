@@ -292,23 +292,37 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @param WP_User $oUser
 		 * @return bool
 		 */
-		public function getUserHasGoogleAuthenticator( WP_User $oUser ) {
+		public function getHasGaValidated( WP_User $oUser ) {
 			return ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) == 'Y' );
 		}
 
 		/**
 		 * @param WP_User $oUser
 		 * @param bool    $bResetIfNotValidated
-		 * @return false|string
+		 * @return string
 		 */
-		public function getUserGoogleAuthenticatorSecret( WP_User $oUser, $bResetIfNotValidated = false ) {
+		public function getGaSecret( WP_User $oUser, $bResetIfNotValidated = false ) {
 			$oWpUser = $this->loadWpUsersProcessor();
 			$sSecret = $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_secret' ), $oUser->ID );
-			if ( empty( $sSecret ) || ( $bResetIfNotValidated && $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) != 'Y' ) )  {
-				$sSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
-				$oWpUser->updateUserMeta( $this->prefixOptionKey( 'ga_secret' ), $sSecret, $oUser->ID );
+			if ( empty( $sSecret ) || ( $bResetIfNotValidated && !$this->getHasGaValidated( $oUser ) ) )  {
+				$sSecret = $this->resetGaSecret( $oUser );
 			}
 			return $sSecret;
+		}
+
+		/**
+		 * @param WP_User $oUser
+		 * @return string
+		 */
+		protected function resetGaSecret( WP_User $oUser ) {
+			$sNewSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
+			$this->loadWpUsersProcessor()
+				 ->updateUserMeta(
+					 $this->prefixOptionKey( 'ga_secret' ),
+					 $sNewSecret,
+					 $oUser->ID
+				 );
+			return $sNewSecret;
 		}
 
 		/**
