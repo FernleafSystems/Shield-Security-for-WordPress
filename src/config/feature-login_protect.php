@@ -111,6 +111,17 @@
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
     {
+      "key": "enable_chained_authentication",
+      "section": "section_multifactor_authentication",
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "http://icwp.io/shld7",
+      "link_blog": "http://icwp.io/shld6",
+      "name": "Multi-Factor Authentication",
+      "summary": "Require All Active Authentication Factors",
+      "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
+    },
+    {
       "key": "enable_google_authenticator",
       "section": "section_multifactor_authentication",
       "default": "N",
