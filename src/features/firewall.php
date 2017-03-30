@@ -25,10 +25,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		}
 
 		/**
-		 * @return array
+		 * @return string
 		 */
 		public function getBlockResponse() {
-			$sBlockResponse = $this->getOpt( 'block_response', array() );
+			$sBlockResponse = $this->getOpt( 'block_response', '' );
 			return !empty( $sBlockResponse ) ? $sBlockResponse : 'redirect_die_message'; // TODO: use default
 		}
 

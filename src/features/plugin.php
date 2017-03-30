@@ -369,7 +369,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			_wpsf__( 'Include Logged-In Users' );
 			_wpsf__( 'You may also enable GASP for logged in users' );
 			_wpsf__( 'Since logged-in users would be expected to be vetted already, this is off by default.' );
-			_wpsf__( 'WordPress Security Admin' );
+			_wpsf__( 'Security Admin' );
 			_wpsf__( 'Protect your security plugin not just your WordPress site' );
 			_wpsf__( 'Security Admin' );
 			_wpsf__( 'Audit Trail' );

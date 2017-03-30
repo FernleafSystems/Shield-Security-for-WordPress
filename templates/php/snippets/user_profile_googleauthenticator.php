@@ -64,7 +64,10 @@
 					<th><label for="shield_ga_otp_code"><?php echo $strings['label_enter_code']; ?></label></th>
 					<td>
 						<input class="regular-text" type="text" id="shield_ga_otp_code" name="shield_ga_otp_code" value="" autocomplete="off" />
-						<p class="description"><?php echo $strings['description_otp_code']; ?></p>
+						<p class="description">
+							<?php echo $strings['description_otp_code']; ?>
+							<br/><?php echo $strings['description_otp_code_ext']; ?>
+                        </p>
 					</td>
 				</tr>
 			<?php else : ?>
