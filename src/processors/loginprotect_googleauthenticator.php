@@ -22,6 +22,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		// Add field to login Form
 		add_action( 'login_form', array( $this, 'printGoogleAuthenticatorLoginField' ) );
+
+		if ( $this->loadDataProcessor()->FetchGet( 'wpsf-action' ) == 'garemovalconfirm' ) {
+			add_action( 'init', array( $this, 'validateUserGaRemovalLink' ), 10 );
+		}
 	}
 
 	/**
@@ -161,16 +165,17 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsersProcessor();
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
-		// If it's your own account, you CANT do anything without your OTP.
-		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
-
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
+
+		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
+		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
 		$bCorrectGaOtp = $this->processUserGaOtp( $oSavingUser, $sGaOtpCode );
 
 		$sMessageOtpInvalid = _wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' );
 
 		$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
 		if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
+
 			if ( $bCorrectGaOtp ) {
 				$this->processGaAccountRemoval( $oSavingUser );
 				$this->loadAdminNoticesProcessor()
@@ -180,6 +185,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			}
 			else if ( empty( $sGaOtpCode ) ) {
 				// send email to confirm
+				$bEmailSuccess = $this->sendEmailConfirmationGaRemoval( $oSavingUser );
+				if ( $bEmailSuccess ) {
+					$oWpNotices->addFlashMessage( _wpsf__( 'An email has been sent to you in order to confirm Google Authenticator removal' ) );
+				}
+				else {
+					$oWpNotices->addFlashErrorMessage( _wpsf__( 'We tried to send an email for you to confirm Google Authenticator removal but it failed.' ) );
+				}
 			}
 			else {
 				$oWpNotices->addFlashErrorMessage( $sMessageOtpInvalid );
@@ -204,6 +216,23 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				$oWpNotices->addFlashErrorMessage( $sMessageOtpInvalid );
 			}
 		}
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function sendEmailConfirmationGaRemoval( $oUser ) {
+
+		$aEmailContent = array();
+		$aEmailContent[] = _wpsf__( 'You have requested the removal of Google Authenticator from your WordPress account.' )
+			. _wpsf__( 'Please click the link below to confirm.' );
+		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
+
+		$sRecipient = $oUser->get( 'email' );
+		$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
+		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
+		return $bSendSuccess;
 	}
 
 	/**
@@ -271,6 +300,38 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function getLoginFormParameter() {
 		return $this->getFeatureOptions()->prefixOptionKey( 'ga_otp' );
+	}
+
+	/**
+	 */
+	public function validateUserGaRemovalLink() {
+		// Must be already logged in for this link to work.
+		$oWpCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		if ( empty( $oWpCurrentUser )  ) {
+			return;
+		}
+
+		// Session IDs must be the same
+		$sSessionId = $this->loadDataProcessor()->FetchGet( 'sessionid' );
+		if ( empty( $sSessionId ) || ( $sSessionId !== $this->getController()->getSessionId() ) ) {
+			return;
+		}
+
+		$this->processGaAccountRemoval( $oWpCurrentUser );
+		$this->loadAdminNoticesProcessor()
+			 ->addFlashMessage( _wpsf__( 'Google Authenticator was successfully removed from this account.' ) );
+		$this->loadWpFunctionsProcessor()->redirectToAdmin();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function generateGaRemovalConfirmationLink() {
+		$aQueryArgs = array(
+			'wpsf-action'	=> 'garemovalconfirm',
+			'sessionid'		=> $this->getController()->getSessionId()
+		);
+		return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getUrl_WpAdmin() );
 	}
 }
 endif;

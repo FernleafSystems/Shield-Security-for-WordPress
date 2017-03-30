@@ -16,10 +16,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			// User has clicked a link in their email to verify they can send email.
 			if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
 				if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'authkey' ) ) {
-					$this
-						->setIfCanSendEmail( true )
-						->setBypassAdminProtection( true )
-						->savePluginOptions();
+					$this->setIfCanSendEmail( true )
+						 ->setBypassAdminProtection( true )
+						 ->savePluginOptions();
 					$this->loadWpFunctionsProcessor()->redirectToLogin();
 				}
 			}
