@@ -192,9 +192,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			if ( !$oFO->getHasGaValidated( $oSavingUser ) ) {
 				$oFO->resetGaSecret( $oSavingUser );
 			}
-			else {
-				$oWpNotices->addFlashErrorMessage( _wpsf__( 'One Time Password (OTP) was not valid.' ) );
-			}
+			$oWpNotices->addFlashErrorMessage( _wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' ) );
 		}
 	}
 
