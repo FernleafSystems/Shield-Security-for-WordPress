@@ -82,24 +82,64 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
+	 * @param WP_User $oUser
+	 * @param string  $sGaOtpCode
+	 * @return bool
+	 */
+	protected function processUserGaOtpFromForm( $oUser, $sGaOtpCode ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$bValidOtp = false;
+		if ( !empty( $sGaOtpCode ) && preg_match( '#^[0-9]{6}$#', $sGaOtpCode ) ) {
+			$bValidOtp = $this->loadGoogleAuthenticatorProcessor()
+							  ->verifyOtp( $oFO->getGaSecret( $oUser ), $sGaOtpCode );
+
+		}
+		return $bValidOtp;
+	}
+
+	/**
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
 	 *
 	 * @param $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oDP = $this->loadDataProcessor();
 
 		// Can only edit other users if you're admin/security-admin
 		if ( $this->getController()->getIsValidAdminArea( true ) ) {
+			$oWpUsers = $this->loadWpUsersProcessor();
 			$oSavingUser = $this->loadWpUsersProcessor()->getUserById( $nSavingUserId );
 
-			$sShieldTurnOff = $this->loadDataProcessor()->FetchPost( 'shield_turn_off_google_authenticator' );
+			$sShieldTurnOff = $oDP->FetchPost( 'shield_turn_off_google_authenticator' );
 			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
-				$this->processGaAccountRemoval( $oSavingUser );
-				$this->loadAdminNoticesProcessor()
-					 ->addFlashMessage(
-					 	_wpsf__( 'Google Authenticator was successfully removed from the account.' )
-					 );
+
+				$bPermissionToRemoveGa = true;
+				// if the current user has Google Authenticator on THEIR account, process this.
+				$oCurrentUser = $oWpUsers->getCurrentWpUser();
+				if ( $oFO->getHasGaValidated( $oCurrentUser ) ) {
+					$bPermissionToRemoveGa = $this->processUserGaOtpFromForm(
+						$oCurrentUser,
+						$oDP->FetchPost( 'shield_ga_otp_code' )
+					);
+				}
+
+				if ( $bPermissionToRemoveGa ) {
+					$this->processGaAccountRemoval( $oSavingUser );
+					$this->loadAdminNoticesProcessor()
+						 ->addFlashMessage(
+							 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
+						 );
+				}
+				else {
+					$this->loadAdminNoticesProcessor()
+						 ->addFlashErrorMessage(
+							 _wpsf__( 'Google Authenticator could not be removed from the account - ensure your code is correct.' )
+						 );
+				}
 			}
 		}
 		else {
