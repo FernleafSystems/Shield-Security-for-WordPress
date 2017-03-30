@@ -975,7 +975,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
 				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
 
-				'sPageTitle'		=> $this->getMainFeatureName(),
+				'sPageTitle'		=> sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 				'strings'			=> array(
 					'go_to_settings' => __( 'Settings' ),
 					'on' => __( 'On' ),

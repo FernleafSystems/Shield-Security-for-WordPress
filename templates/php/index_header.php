@@ -7,7 +7,8 @@ include_once( $sBaseDirName.'widgets'.DIRECTORY_SEPARATOR.'icwp_widgets.php' ); 
 		<div class="page-header">
 			<h2>
 				<span class="feature-headline">
-					<a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a><?php echo $sPageTitle; ?>
+					<a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
+                    <?php echo $sPageTitle; ?>
 				<?php if ( !empty( $sTagline ) ) : ?>
 					<small class="feature-tagline">- <?php echo $sTagline; ?></small>
 				<?php endif; ?>
