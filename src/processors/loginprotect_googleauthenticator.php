@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param string  $sGaOtpCode
 	 * @return bool
 	 */
-	protected function processUserGaOtpFromForm( $oUser, $sGaOtpCode ) {
+	protected function processUserGaOtp( $oUser, $sGaOtpCode ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$bValidOtp = false;
@@ -102,28 +102,28 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
 	 *
-	 * @param $nSavingUserId
+	 * @param int $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-		$oDP = $this->loadDataProcessor();
+		$oDp = $this->loadDataProcessor();
 
 		// Can only edit other users if you're admin/security-admin
-		if ( $this->getController()->getIsValidAdminArea( true ) ) {
+		if ( $this->getController()->getHasPermissionToManage() ) {
 			$oWpUsers = $this->loadWpUsersProcessor();
-			$oSavingUser = $this->loadWpUsersProcessor()->getUserById( $nSavingUserId );
+			$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
-			$sShieldTurnOff = $oDP->FetchPost( 'shield_turn_off_google_authenticator' );
+			$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
 			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
 
 				$bPermissionToRemoveGa = true;
-				// if the current user has Google Authenticator on THEIR account, process this.
+				// if the current user has Google Authenticator on THEIR account, process their OTP.
 				$oCurrentUser = $oWpUsers->getCurrentWpUser();
 				if ( $oFO->getHasGaValidated( $oCurrentUser ) ) {
-					$bPermissionToRemoveGa = $this->processUserGaOtpFromForm(
+					$bPermissionToRemoveGa = $this->processUserGaOtp(
 						$oCurrentUser,
-						$oDP->FetchPost( 'shield_ga_otp_code' )
+						$oDp->FetchPost( 'shield_ga_otp_code' )
 					);
 				}
 
@@ -160,34 +160,40 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsersProcessor();
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
-		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
-
+		// If it's your own account, you CANT do anything without your OTP.
 		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
 		if ( empty( $sGaOtpCode ) ) {
-			return; // not doing anything related to GA
-		}// TODO: FIX THIS SHIT
-		else if ( !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getGaSecret( $oSavingUser ), $sGaOtpCode ) ) {
-			$oFO->resetGaSecret( $oSavingUser );
-			$oWpNotices->addFlashErrorMessage( _wpsf__( 'One Time Password (OTP) was not valid.' ) );
 			return;
 		}
 
-		// At this stage we have a validated GA Code for this user's Secret if applicable.
+		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
-		// Trying to validate a new QR for my own profile
-		if ( !$oFO->getHasGaValidated( $oSavingUser ) ) {
-			$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nSavingUserId );
-			$oWpNotices->addFlashMessage( _wpsf__( 'Google Authenticator was successfully added to your account.' ) );
+		$bCorrectGaOtp = $this->processUserGaOtp( $oSavingUser, $sGaOtpCode );
+
+		if ( $bCorrectGaOtp ) {
+
+			// Trying to validate a new QR for my own profile
+			if ( !$oFO->getHasGaValidated( $oSavingUser ) ) {
+				$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'Y', $nSavingUserId );
+				$oWpNotices->addFlashMessage( _wpsf__( 'Google Authenticator was successfully added to your account.' ) );
+			}
+			else {
+				$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
+				if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
+					$this->processGaAccountRemoval( $oSavingUser );
+					$this->loadAdminNoticesProcessor()
+						 ->addFlashMessage(
+							 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
+						 );
+				}
+			}
 		}
-		else {
-			// Trying to turn it off.
-			$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
-			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
-				$this->processGaAccountRemoval( $oSavingUser );
-				$this->loadAdminNoticesProcessor()
-					 ->addFlashMessage(
-						 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
-					 );
+		else { // Incorrect OTP:
+			if ( !$oFO->getHasGaValidated( $oSavingUser ) ) {
+				$oFO->resetGaSecret( $oSavingUser );
+			}
+			else {
+				$oWpNotices->addFlashErrorMessage( _wpsf__( 'One Time Password (OTP) was not valid.' ) );
 			}
 		}
 	}
