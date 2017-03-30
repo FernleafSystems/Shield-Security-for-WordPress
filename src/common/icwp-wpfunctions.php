@@ -165,10 +165,11 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param string $sPath
 		 * @return string
 		 */
-		public function getUrl_WpAdmin() {
-			return get_admin_url();
+		public function getUrl_WpAdmin( $sPath = '' ) {
+			return get_admin_url( null, $sPath );
 		}
 
 		/**

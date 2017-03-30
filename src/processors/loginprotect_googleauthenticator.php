@@ -171,7 +171,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$sGaOtpCode = $oDp->FetchPost( 'shield_ga_otp_code' );
 		$bCorrectGaOtp = $this->processUserGaOtp( $oSavingUser, $sGaOtpCode );
 
-		$sMessageOtpInvalid = _wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' );
+		$sMessageOtpInvalid = _wpsf__( 'Google Authenticator One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' );
 
 		$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
 		if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
@@ -223,15 +223,18 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @return bool
 	 */
 	protected function sendEmailConfirmationGaRemoval( $oUser ) {
+		$bSendSuccess = false;
 
 		$aEmailContent = array();
 		$aEmailContent[] = _wpsf__( 'You have requested the removal of Google Authenticator from your WordPress account.' )
 			. _wpsf__( 'Please click the link below to confirm.' );
 		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
 
-		$sRecipient = $oUser->get( 'email' );
-		$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
-		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
+		$sRecipient = $oUser->get( 'user_email' );
+		if ( is_email( $sRecipient ) ) {
+			$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
+			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
+		}
 		return $bSendSuccess;
 	}
 
