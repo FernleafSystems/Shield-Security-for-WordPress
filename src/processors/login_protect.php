@@ -36,22 +36,27 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorCooldown()->run();
 		}
 
-		// check for Yubikey auth after user is authenticated with WordPress.
+		if ( $oFO->getIsGoogleRecaptchaEnabled() ) {
+			$this->getProcessorGoogleRecaptcha()->run();
+		}
+
+		// The following pertains only to Multi-Factor Authentication.
+		$oLoginTracker = $this->getLoginTrack();
+
 		if ( $this->getIsOption( 'enable_google_authenticator', 'Y' ) ) {
+			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 			$this->getProcessorGoogleAuthenticator()->run();
 		}
 
 		// check for Yubikey auth after user is authenticated with WordPress.
 		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
+			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 			$this->getProcessorYubikey()->run();
 		}
 
 		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
+			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 			$this->getProcessorTwoFactor()->run();
-		}
-
-		if ( $oFO->getIsGoogleRecaptchaEnabled() ) {
-			$this->getProcessorGoogleRecaptcha()->run();
 		}
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );

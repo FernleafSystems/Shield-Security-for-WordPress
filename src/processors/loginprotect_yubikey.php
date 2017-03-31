@@ -21,7 +21,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		public function run() {
 			if ( $this->getIsYubikeyConfigReady() ) {
 				// after User has authenticated email/username/password
-				add_filter( 'authenticate', array( $this, 'checkYubikeyOtpAuth_Filter' ), 24, 2 );
+				add_filter( 'authenticate', array( $this, 'checkYubikeyOtpAuth_Filter' ), 24, 1 );
 				add_action( 'login_form',	array( $this, 'printYubikeyOtp_Action' ) );
 			}
 		}
@@ -33,24 +33,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		public function checkYubikeyOtpAuth_Filter( $oUser ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oDp = $this->loadDataProcessor();
+			$oLoginTrack = $this->getLoginTrack();
 
-			// Mulifactor or not
-			$bNeedToCheckThisFactor = $oFO->isChainedAuth() || ( $this->getLoginTrack()->hasSuccessfulAuth() );
-			if ( !$bNeedToCheckThisFactor ) {
+			$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactorAuth();
+			$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
+			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+
+			if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
 				return $oUser;
 			}
-
 
 			$oError = new WP_Error();
 			$sUsername = $oUser->get( 'user_login' );
 
-			// Before anything else we check that a Yubikey pair has been provided for this username (and that there are pairs in the first place!)
-			$aYubikeyUsernamePairs = $this->getOption('yubikey_unique_keys');
-			if ( !$this->getIsYubikeyConfigReady() ) { // configuration is clearly not completed yet.
-				return $oUser;
-			}
-
-			$sOneTimePassword =  empty( $_POST['yubiotp'] )? '' : trim( $_POST['yubiotp'] );
+			$sOneTimePassword = trim( $oDp->FetchPost( 'yubiotp', '' ) );
 			$sAppId = $this->getOption('yubikey_app_id');
 			$sApiKey = $this->getOption('yubikey_api_key');
 
@@ -58,7 +55,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$sYubikey12 = substr( $sOneTimePassword, 0 , 12 );
 			$fUsernameFound = false; // if username is never found, it means there's no yubikey specified which means we can bypass this authentication method.
 			$fFoundMatch = false;
-			foreach( $aYubikeyUsernamePairs as $aUsernameYubikeyPair ) {
+			foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
 				if ( isset( $aUsernameYubikeyPair[ $sUsername ] ) ) {
 					$fUsernameFound = true;
 					if ( $aUsernameYubikeyPair[ $sUsername ] == $sYubikey12 ) {
@@ -77,57 +74,60 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 
 			// Username was found in the list of key pairs, but the yubikey provided didn't match that username.
 			if ( !$fFoundMatch ) {
-				$oError->add(
-					'yubikey_not_allowed',
-					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__('The Yubikey provided is not on the list of permitted keys for this user.') )
-				);
 				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey ID "%s" used was not in list of authorised keys.'), $sUsername, $sYubikey12 );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_permitted_id' );
-				return $oError;
-			}
 
-			$oFs = $this->loadFileSystemProcessor();
+				if ( $bErrorOnFailure ) {
+					$oError->add(
+						'yubikey_not_allowed',
+						sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__('The Yubikey provided is not on the list of permitted keys for this user.') )
+					);
+					return $oError;
+				}
+			}
+			else {
+
+			}
 
 			$sNonce = md5( uniqid( rand() ) );
 			$sUrl = sprintf( self::YubikeyVerifyApiUrl, $sAppId, $sOneTimePassword, $sNonce );
-			$sRawYubiRequest = $oFs->getUrlContent( $sUrl );
+			$sRawYubiRequest = $this->loadFileSystemProcessor()->getUrlContent( $sUrl );
 
-			// Validate response.
-			// 1. Check OTP and Nonce
-			if ( !preg_match( '/otp='.$sOneTimePassword.'/', $sRawYubiRequest, $aMatches )
-				|| !preg_match( '/nonce='.$sNonce.'/', $sRawYubiRequest, $aMatches )
-			) {
+			$bMatchOtpAndNonce = preg_match( '/otp=' . $sOneTimePassword . '/', $sRawYubiRequest, $aMatches )
+				&& preg_match( '/nonce=' . $sNonce . '/', $sRawYubiRequest, $aMatches );
+
+			$bMatchOkStatus = $bMatchOtpAndNonce
+				&& preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatchesStatus )
+				&& ( $aMatchesStatus[ 1 ] == 'OK' ); // TODO: in preg_match
+
+			if ( !$bMatchOtpAndNonce ) {
+
+				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API.'), $sUsername );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api' );
+
 				$oError->add(
 					'yubikey_validate_fail',
 					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__('The Yubikey authentication was not validated successfully.') )
 				);
-				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API.'), $sUsername );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api' );
-				$this->getLoginTrack()->addUnSuccessfulFactor( 'yubi' );
-				return $oError;
 			}
-
 			// Optionally we can check the hash, but since we're using HTTPS, this isn't necessary and adds more PHP requirements
+			else if ( !$bMatchOkStatus ) { // 2. Check status directly within response
 
-			// 2. Check status directly within response
-			preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatches );
-			$sStatus = $aMatches[ 1 ];
+				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, $sStatus );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
 
-			if ( $sStatus != 'OK' ) {
 				$oError->add(
 					'yubikey_validate_fail',
 					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey authentication was not validated successfully.' ) )
 				);
-				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, $sStatus );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
-				$this->getLoginTrack()->addUnSuccessfulFactor( 'yubi' );
-				return $oError;
+			}
+			else {
+				$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
+				$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 			}
 
-			$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
-			$this->getLoginTrack()->addSuccessfulFactor( 'yubi' );
-			return $oUser;
+			return $bErrorOnFailure ? $oError : $oUser;
 		}
 
 		/**

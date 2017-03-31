@@ -117,19 +117,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		public function setupPendingTwoFactorAuth( $oUser, $sUsername ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oLoginTrack = $this->getLoginTrack();
 
 			// Mulifactor or not
-			$bNeedToCheckThisFactor = $oFO->isChainedAuth() || ( $this->getLoginTrack()->hasSuccessfulAuth() );
-			if ( !$bNeedToCheckThisFactor ) {
-				return $oUser;
-			}
+			$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactorAuth();
+			$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
+			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 
-			if ( empty( $sUsername ) || is_wp_error( $oUser ) ) {
+			if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
 				return $oUser;
 			}
 
 			$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
-
 			if ( $bUserLoginSuccess ) {
 
 				/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */

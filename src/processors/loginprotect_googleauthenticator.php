@@ -204,43 +204,53 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 	/**
 	 * @param WP_User $oUser
-	 * @return WP_Error
+	 * @return WP_Error|WP_User
 	 */
 	public function checkLoginForGA_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
-
-		$oError = new WP_Error();
-
-		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
+		$oLoginTrack = $this->getLoginTrack();
 
 		// Mulifactor or not
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || ( $this->getLoginTrack()->hasSuccessfulAuth() );
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactorAuth();
+		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
+		$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 
-		if ( $bNeedToCheckThisFactor && $bIsUser && $oFO->getHasGaValidated( $oUser ) ) {
+		if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
+			return $oUser;
+		}
+
+		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
+		if ( $bIsUser && $oFO->getHasGaValidated( $oUser ) ) {
+
+			$oError = new WP_Error();
+
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
+			$bIsError = false;
 			if ( empty( $sGaOtp ) ) {
+				$bIsError = true;
 				$oError->add( 'shield_google_authenticator_empty',
 					_wpsf__( 'Whoops.' ).' '. _wpsf__( 'Did we forget to use the Google Authenticator?' ) );
-				$oUser = $oError;
 			}
 			else {
 				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
 				if ( !$this->processUserGaOtp( $oUser, $sGaOtp ) ) {
+					$bIsError = true;
 					$oError->add( 'shield_google_authenticator_failed',
 						_wpsf__( 'Oh dear.' ).' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
-					$oUser = $oError;
 				}
 			}
 
-			if ( is_wp_error( $oUser ) ) {
-				$this->getLoginTrack()->addSuccessfulFactor( 'ga' );
+			if ( $bIsError ) {
+				if ( $bErrorOnFailure ) {
+					$oUser = $oError;
+				}
 				$this->doStatIncrement( 'login.googleauthenticator.fail' );
 			}
 			else {
-				$this->getLoginTrack()->addUnSuccessfulFactor( 'ga' );
 				$this->doStatIncrement( 'login.googleauthenticator.verified' );
+				$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 			}
 		}
 		return $oUser;
