@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		// Add field to login Form
-		add_action( 'login_form', array( $this, 'printGoogleAuthenticatorLoginField' ) );
+		add_action( 'login_form', array( $this, 'printGaLoginField' ) );
 
 		if ( $this->loadDataProcessor()->FetchGet( 'wpsf-action' ) == 'garemovalconfirm' ) {
 			add_action( 'init', array( $this, 'validateUserGaRemovalLink' ), 10 );
@@ -69,21 +69,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_googleauthenticator.php', $aData );
-	}
-
-	protected function processGaProfileSubmit( $oSavingUser ) {
-
-	}
-
-	/**
-	 * @param WP_User $oSavingUser
-	 */
-	protected function processGaAccountRemoval( $oSavingUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-		$oWpUsers = $this->loadWpUsersProcessor();
-		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $oSavingUser->ID );
-		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $oSavingUser->ID );
 	}
 
 	/**
@@ -150,6 +135,17 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		else {
 			// DO NOTHING EVER
 		}
+	}
+
+	/**
+	 * @param WP_User $oSavingUser
+	 */
+	protected function processGaAccountRemoval( $oSavingUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $oSavingUser->ID );
+		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $oSavingUser->ID );
 	}
 
 	/**
@@ -220,26 +216,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 	/**
 	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	protected function sendEmailConfirmationGaRemoval( $oUser ) {
-		$bSendSuccess = false;
-
-		$aEmailContent = array();
-		$aEmailContent[] = _wpsf__( 'You have requested the removal of Google Authenticator from your WordPress account.' )
-			. _wpsf__( 'Please click the link below to confirm.' );
-		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
-
-		$sRecipient = $oUser->get( 'user_email' );
-		if ( is_email( $sRecipient ) ) {
-			$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
-			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
-		}
-		return $bSendSuccess;
-	}
-
-	/**
-	 * @param WP_User $oUser
 	 * @return WP_Error
 	 */
 	public function checkLoginForGoogleAuthenticator_Filter( $oUser ) {
@@ -278,7 +254,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 	/**
 	 */
-	public function printGoogleAuthenticatorLoginField() {
+	public function printGaLoginField() {
 		$sHtml =
 			'<p class="shield-google-authenticator-otp">
 				<label for="_%s">%s<span class="shield-ga-help-link"> [%s]</span><br /><span class="shield-ga-inline-help">(%s)</span><br />
@@ -299,10 +275,23 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
-	 * @return string
+	 * @param WP_User $oUser
+	 * @return bool
 	 */
-	protected function getLoginFormParameter() {
-		return $this->getFeatureOptions()->prefixOptionKey( 'ga_otp' );
+	protected function sendEmailConfirmationGaRemoval( $oUser ) {
+		$bSendSuccess = false;
+
+		$aEmailContent = array();
+		$aEmailContent[] = _wpsf__( 'You have requested the removal of Google Authenticator from your WordPress account.' )
+			. _wpsf__( 'Please click the link below to confirm.' );
+		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
+
+		$sRecipient = $oUser->get( 'user_email' );
+		if ( is_email( $sRecipient ) ) {
+			$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
+			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
+		}
+		return $bSendSuccess;
 	}
 
 	/**
@@ -335,6 +324,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			'sessionid'		=> $this->getController()->getSessionId()
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getUrl_WpAdmin() );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getLoginFormParameter() {
+		return $this->getFeatureOptions()->prefixOptionKey( 'ga_otp' );
 	}
 }
 endif;
