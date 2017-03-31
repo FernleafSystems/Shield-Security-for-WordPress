@@ -235,11 +235,11 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			}
 
 			if ( is_wp_error( $oUser ) ) {
-				$this->getLoginTrack()->incrementAuthFactorsSuccessful();
+				$this->getLoginTrack()->addSuccessfulFactor( 'ga' );
 				$this->doStatIncrement( 'login.googleauthenticator.fail' );
 			}
 			else {
-				$this->getLoginTrack()->incrementAuthFactorsUnSuccessful();
+				$this->getLoginTrack()->addUnSuccessfulFactor( 'ga' );
 				$this->doStatIncrement( 'login.googleauthenticator.verified' );
 			}
 		}

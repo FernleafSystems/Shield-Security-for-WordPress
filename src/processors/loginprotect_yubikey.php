@@ -103,6 +103,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 				);
 				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API.'), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api' );
+				$this->getLoginTrack()->addUnSuccessfulFactor( 'yubi' );
 				return $oError;
 			}
 
@@ -119,13 +120,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 				);
 				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, $sStatus );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
-				$this->getLoginTrack()->incrementAuthFactorsUnSuccessful();
+				$this->getLoginTrack()->addUnSuccessfulFactor( 'yubi' );
 				return $oError;
 			}
 
 			$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
-			$this->getLoginTrack()->incrementAuthFactorsSuccessful();
+			$this->getLoginTrack()->addSuccessfulFactor( 'yubi' );
 			return $oUser;
 		}
 

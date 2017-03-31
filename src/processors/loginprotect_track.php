@@ -5,32 +5,63 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ):
 	class ICWP_WPSF_Processor_LoginProtect_Track {
 
 		/**
-		 * @var int
+		 * @var array
 		 */
-		private $nAuthFactorsSuccessful;
+		private $aFactors;
 
 		/**
-		 * @var int
+		 * @param string $sKey
+		 * @return $this
 		 */
-		private $nAuthFactorsUnsuccessful;
+		public function addSuccessfulFactor( $sKey ) {
+			$aFactors = $this->getAuthFactors();
+			$aFactors[ $sKey ] = true;
+			$this->aFactors = $aFactors;
+			return $this;
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return $this
+		 */
+		public function addUnSuccessfulFactor( $sKey ) {
+			$aFactors = $this->getAuthFactors();
+			$aFactors[ $sKey ] = false;
+			$this->aFactors = $aFactors;
+			return $this;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function getAuthFactors() {
+			if ( !isset( $this->aFactors ) ) {
+				$this->aFactors = array();
+			}
+			return $this->aFactors;
+		}
 
 		/**
 		 * @return int
 		 */
+		public function getAuthFactorsTotal() {
+			return count( $this->getAuthFactors() );
+		}
+
+		/**
+		 * Works by using array_filter() with no callback, so only those values in the
+		 * array that don't evaluate as false are returned. #SuperOmgElegant :)
+		 *
+		 * @return int
+		 */
 		public function getAuthFactorsSuccessful() {
-			if ( !isset( $this->nAuthFactorsSuccessful ) ) {
-				$this->nAuthFactorsSuccessful = 0;
-			}
-			return $this->nAuthFactorsSuccessful;
+			return count( array_filter( $this->getAuthFactors() ) );
 		}
 
 		/**
 		 * @return bool
 		 */
 		public function hasSuccessfulAuth() {
-			if ( !isset( $this->nAuthFactorsSuccessful ) ) {
-				$this->nAuthFactorsSuccessful = 0;
-			}
 			return ( $this->getAuthFactorsSuccessful() > 0 );
 		}
 
@@ -38,42 +69,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ):
 		 * @return int
 		 */
 		public function getAuthFactorsUnsuccessful() {
-			if ( !isset( $this->nAuthFactorsUnsuccessful ) ) {
-				$this->nAuthFactorsUnsuccessful = 0;
-			}
-			return $this->nAuthFactorsUnsuccessful;
-		}
-
-		/**
-		 * @return $this
-		 */
-		public function incrementAuthFactorsSuccessful() {
-			return $this->setAuthFactorsSuccessful( $this->getAuthFactorsSuccessful() + 1 );
-		}
-
-		/**
-		 * @return $this
-		 */
-		public function incrementAuthFactorsUnSuccessful() {
-			return $this->setAuthFactorsUnsuccessful( $this->getAuthFactorsUnsuccessful() + 1 );
-		}
-
-		/**
-		 * @param int $nAuthFactorsSuccessful
-		 * @return $this
-		 */
-		public function setAuthFactorsSuccessful( $nAuthFactorsSuccessful ) {
-			$this->nAuthFactorsSuccessful = $nAuthFactorsSuccessful;
-			return $this;
-		}
-
-		/**
-		 * @param int $nAuthFactorsUnsuccessful
-		 * @return $this
-		 */
-		public function setAuthFactorsUnsuccessful( $nAuthFactorsUnsuccessful ) {
-			$this->nAuthFactorsUnsuccessful = $nAuthFactorsUnsuccessful;
-			return $this;
+			return ( $this->getAuthFactorsTotal() - $this->getAuthFactorsSuccessful() );
 		}
 	}
 endif;
