@@ -233,6 +233,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function isChainedAuth() {
+			return $this->getOptIs( 'enable_chained_authentication', 'Y' );
+		}
+
+		/**
 		 * @param bool $bCan
 		 * @return $this
 		 */

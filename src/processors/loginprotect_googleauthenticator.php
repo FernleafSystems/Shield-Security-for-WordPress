@@ -214,7 +214,11 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oError = new WP_Error();
 
 		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		if ( $bIsUser && $oFO->getHasGaValidated( $oUser ) ) {
+
+		// Mulifactor or not
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || ( $this->getLoginTrack()->hasSuccessfulAuth() );
+
+		if ( $bNeedToCheckThisFactor && $bIsUser && $oFO->getHasGaValidated( $oUser ) ) {
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
 			if ( empty( $sGaOtp ) ) {
 				$oError->add( 'shield_google_authenticator_empty',

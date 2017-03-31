@@ -31,6 +31,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		 * @return WP_User|WP_Error
 		 */
 		public function checkYubikeyOtpAuth_Filter( $oUser ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			// Mulifactor or not
+			$bNeedToCheckThisFactor = $oFO->isChainedAuth() || ( $this->getLoginTrack()->hasSuccessfulAuth() );
+			if ( !$bNeedToCheckThisFactor ) {
+				return $oUser;
+			}
+
+
 			$oError = new WP_Error();
 			$sUsername = $oUser->get( 'user_login' );
 

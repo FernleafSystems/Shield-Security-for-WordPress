@@ -128,7 +128,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
-		return $oProc;
+		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorGoogleRecaptcha() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeatureOptions() );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
+		return $oProc;
 	}
 
 	/**

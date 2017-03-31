@@ -25,6 +25,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function hasSuccessfulAuth() {
+			if ( !isset( $this->nAuthFactorsSuccessful ) ) {
+				$this->nAuthFactorsSuccessful = 0;
+			}
+			return ( $this->getAuthFactorsSuccessful() > 0 );
+		}
+
+		/**
 		 * @return int
 		 */
 		public function getAuthFactorsUnsuccessful() {

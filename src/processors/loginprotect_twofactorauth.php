@@ -12,6 +12,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		protected $nDaysToKeepLog = 1;
 
 		/**
+		 * @var ICWP_WPSF_Processor_LoginProtect_Track
+		 */
+		private $oLoginTrack;
+
+		/**
 		 * @param ICWP_WPSF_FeatureHandler_LoginProtect $oFeatureOptions
 		 */
 		public function __construct( ICWP_WPSF_FeatureHandler_LoginProtect $oFeatureOptions ) {
@@ -110,6 +115,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return WP_Error|WP_User|null	- WP_User when the login success AND the IP is authenticated. null when login not successful but IP is valid. WP_Error otherwise.
 		 */
 		public function setupPendingTwoFactorAuth( $oUser, $sUsername ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			// Mulifactor or not
+			$bNeedToCheckThisFactor = $oFO->isChainedAuth() || ( $this->getLoginTrack()->hasSuccessfulAuth() );
+			if ( !$bNeedToCheckThisFactor ) {
+				return $oUser;
+			}
 
 			if ( empty( $sUsername ) || is_wp_error( $oUser ) ) {
 				return $oUser;
@@ -402,6 +415,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				esc_sql( $nTimeStamp )
 			);
 			return $this->loadDbProcessor()->doSql( $sQuery );
+		}
+
+		/**
+		 * @return ICWP_WPSF_Processor_LoginProtect_Track
+		 */
+		public function getLoginTrack() {
+			return $this->oLoginTrack;
+		}
+
+		/**
+		 * @param ICWP_WPSF_Processor_LoginProtect_Track $oLoginTrack
+		 * @return $this
+		 */
+		public function setLoginTrack( $oLoginTrack ) {
+			$this->oLoginTrack = $oLoginTrack;
+			return $this;
 		}
 	}
 endif;
