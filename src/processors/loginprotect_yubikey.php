@@ -15,8 +15,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		 */
 		public function run() {
 			if ( $this->getIsYubikeyConfigReady() ) {
-				add_filter( 'wp_authenticate_user', array( $this, 'checkYubikeyOtpAuth_Filter' ) );
-				add_action( 'login_form',			array( $this, 'printYubikeyOtp_Action' ) );
+				// after User has authenticated email/username/password
+				add_filter( 'authenticate', array( $this, 'checkYubikeyOtpAuth_Filter' ), 24, 2 );
+				add_action( 'login_form',	array( $this, 'printYubikeyOtp_Action' ) );
 			}
 		}
 

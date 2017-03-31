@@ -431,6 +431,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					;
 					break;
 
+				case 'enable_chained_authentication' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Multi-Factor Authentication' ) );
+					$sSummary = _wpsf__( 'Require All Active Authentication Factors' );
+					$sDescription = _wpsf__( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.' );
+					break;
+
 				case 'enable_google_authenticator' :
 					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
 					$sSummary = _wpsf__( 'Allow Users To Use Google Authenticator' );

@@ -9,15 +9,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	/**
 	 */
 	public function run() {
-		// after GASP but before email-based two-factor auth
-		add_filter( 'wp_authenticate_user', array( $this, 'checkLoginForGoogleAuthenticator_Filter' ), 23, 2 );
+		// after User has authenticated email/username/password
+		add_filter( 'authenticate', array( $this, 'checkLoginForGA_Filter' ), 23, 2 );
 
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
-		add_action( 'show_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
+		add_action( 'show_user_profile', array( $this, 'addGaOptionsToUserProfile' ) );
 
 		if ( $this->getController()->getIsValidAdminArea( true ) ) {
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
-			add_action( 'edit_user_profile', array( $this, 'addGoogleAuthenticatorOptionsToUserProfile' ) );
+			add_action( 'edit_user_profile', array( $this, 'addGaOptionsToUserProfile' ) );
 		}
 
 		// Add field to login Form
@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @param WP_User $oUser
 	 */
-	public function addGoogleAuthenticatorOptionsToUserProfile( $oUser ) {
+	public function addGaOptionsToUserProfile( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$aData = array(
@@ -69,23 +69,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_googleauthenticator.php', $aData );
-	}
-
-	/**
-	 * @param WP_User $oUser
-	 * @param string  $sGaOtpCode
-	 * @return bool
-	 */
-	protected function processUserGaOtp( $oUser, $sGaOtpCode ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-		$bValidOtp = false;
-		if ( !empty( $sGaOtpCode ) && preg_match( '#^[0-9]{6}$#', $sGaOtpCode ) ) {
-			$bValidOtp = $this->loadGoogleAuthenticatorProcessor()
-							  ->verifyOtp( $oFO->getGaSecret( $oUser ), $sGaOtpCode );
-
-		}
-		return $bValidOtp;
 	}
 
 	/**
@@ -218,7 +201,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param WP_User $oUser
 	 * @return WP_Error
 	 */
-	public function checkLoginForGoogleAuthenticator_Filter( $oUser ) {
+	public function checkLoginForGA_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
@@ -313,6 +296,23 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$this->loadAdminNoticesProcessor()
 			 ->addFlashMessage( _wpsf__( 'Google Authenticator was successfully removed from this account.' ) );
 		$this->loadWpFunctionsProcessor()->redirectToAdmin();
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param string  $sGaOtpCode
+	 * @return bool
+	 */
+	protected function processUserGaOtp( $oUser, $sGaOtpCode ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$bValidOtp = false;
+		if ( !empty( $sGaOtpCode ) && preg_match( '#^[0-9]{6}$#', $sGaOtpCode ) ) {
+			$bValidOtp = $this->loadGoogleAuthenticatorProcessor()
+							  ->verifyOtp( $oFO->getGaSecret( $oUser ), $sGaOtpCode );
+
+		}
+		return $bValidOtp;
 	}
 
 	/**
