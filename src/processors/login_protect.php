@@ -2,9 +2,14 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect', false ) ):
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
+
+	/**
+	 * @var ICWP_WPSF_Processor_LoginProtect_Track
+	 */
+	private $oLoginTrack;
 
 	/**
 	 */
@@ -150,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorGoogleRecaptcha() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeatureOptions() );
-		return $oProc;
+		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
@@ -159,7 +164,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorYubikey() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
-		return $oProc;
+		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
@@ -168,7 +173,27 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorGoogleAuthenticator() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeatureOptions() );
-		return $oProc;
+		return $oProc->setLoginTrack( $this->getLoginTrack() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_Track
+	 */
+	public function getLoginTrack() {
+		if ( !isset( $this->oLoginTrack ) ) {
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_track.php' );
+			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
+		}
+		return $this->oLoginTrack;
+	}
+
+	/**
+	 * @param ICWP_WPSF_Processor_LoginProtect_Track $oLoginTrack
+	 * @return $this
+	 */
+	public function setLoginTrack( $oLoginTrack ) {
+		$this->oLoginTrack = $oLoginTrack;
+		return $this;
 	}
 }
 endif;

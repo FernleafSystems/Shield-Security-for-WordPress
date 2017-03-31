@@ -7,6 +7,11 @@ require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
+	 * @var ICWP_WPSF_Processor_LoginProtect_Track
+	 */
+	private $oLoginTrack;
+
+	/**
 	 */
 	public function run() {
 		// after User has authenticated email/username/password
@@ -212,23 +217,25 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		if ( $bIsUser && $oFO->getHasGaValidated( $oUser ) ) {
 			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
 			if ( empty( $sGaOtp ) ) {
-				$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Whoops.' )
-					.' '. _wpsf__( 'Did we forget to use the Google Authenticator?' ) );
+				$oError->add( 'shield_google_authenticator_empty',
+					_wpsf__( 'Whoops.' ).' '. _wpsf__( 'Did we forget to use the Google Authenticator?' ) );
 				$oUser = $oError;
 			}
 			else {
 				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
-				if ( empty( $sGaOtp ) || !$this->loadGoogleAuthenticatorProcessor()->verifyOtp( $oFO->getGaSecret( $oUser, false ), $sGaOtp ) ) {
-					$oError->add( 'shield_google_authenticator_empty', _wpsf__( 'Oh dear.' )
-						.' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
+				if ( !$this->processUserGaOtp( $oUser, $sGaOtp ) ) {
+					$oError->add( 'shield_google_authenticator_failed',
+						_wpsf__( 'Oh dear.' ).' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
 					$oUser = $oError;
 				}
 			}
 
 			if ( is_wp_error( $oUser ) ) {
+				$this->getLoginTrack()->incrementAuthFactorsSuccessful();
 				$this->doStatIncrement( 'login.googleauthenticator.fail' );
 			}
 			else {
+				$this->getLoginTrack()->incrementAuthFactorsUnSuccessful();
 				$this->doStatIncrement( 'login.googleauthenticator.verified' );
 			}
 		}
@@ -331,6 +338,22 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function getLoginFormParameter() {
 		return $this->getFeatureOptions()->prefixOptionKey( 'ga_otp' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_Track
+	 */
+	public function getLoginTrack() {
+		return $this->oLoginTrack;
+	}
+
+	/**
+	 * @param ICWP_WPSF_Processor_LoginProtect_Track $oLoginTrack
+	 * @return $this
+	 */
+	public function setLoginTrack( $oLoginTrack ) {
+		$this->oLoginTrack = $oLoginTrack;
+		return $this;
 	}
 }
 endif;

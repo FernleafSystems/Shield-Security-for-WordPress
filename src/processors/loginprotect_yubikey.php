@@ -12,6 +12,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		const YubikeyVerifyApiUrl = 'https://api.yubico.com/wsapi/2.0/verify?id=%s&otp=%s&nonce=%s';
 
 		/**
+		 * @var ICWP_WPSF_Processor_LoginProtect_Track
+		 */
+		private $oLoginTrack;
+
+		/**
 		 */
 		public function run() {
 			if ( $this->getIsYubikeyConfigReady() ) {
@@ -104,11 +109,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 				);
 				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, $sStatus );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
+				$this->getLoginTrack()->incrementAuthFactorsUnSuccessful();
 				return $oError;
 			}
 
 			$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
+			$this->getLoginTrack()->incrementAuthFactorsSuccessful();
 			return $oUser;
 		}
 
@@ -133,6 +140,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$sApiKey = $this->getOption('yubikey_api_key');
 			$aYubikeyKeys = $this->getOption('yubikey_unique_keys');
 			return !empty($sAppId) && !empty($sApiKey) && !empty($aYubikeyKeys);
+		}
+
+		/**
+		 * @return ICWP_WPSF_Processor_LoginProtect_Track
+		 */
+		public function getLoginTrack() {
+			return $this->oLoginTrack;
+		}
+
+		/**
+		 * @param ICWP_WPSF_Processor_LoginProtect_Track $oLoginTrack
+		 * @return $this
+		 */
+		public function setLoginTrack( $oLoginTrack ) {
+			$this->oLoginTrack = $oLoginTrack;
+			return $this;
 		}
 	}
 endif;
