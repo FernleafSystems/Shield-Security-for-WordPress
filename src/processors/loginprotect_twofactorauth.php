@@ -51,11 +51,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
 				add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 			}
-			else {
-				// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
-				// is valid, the filter will have a valid WP_User object passed to it.
-				add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30, 2 );
-			}
+
+			// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
+			// is valid, the filter will have a valid WP_User object passed to it.
+			add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30 );
 		}
 
 		/**
@@ -80,7 +79,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		public function addLoginIntentField( $aFields ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
-			if ( !$oFO->getUserHasEmailAuthenticationActive( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+			if ( $oFO->getUserHasEmailAuthenticationActive( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
 				$aFields[] = $this->getEmailKeyField();
 			}
 			return $aFields;
@@ -163,7 +162,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return string
 		 */
 		protected function getSessionHashCode() {
-			return substr( $this->genSessionHash(), 0, 6 );
+			return strtoupper( substr( $this->genSessionHash(), 0, 6 ) );
 		}
 
 		/**
@@ -182,10 +181,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * 		c) note at this stage, if the username was empty, we give back nothing (this happens when wp-login.php is loaded as normal.
 		 *
 		 * @param WP_User|WP_Error|null $oUser
-		 * @param string $sUsername
 		 * @return WP_Error|WP_User|null	- WP_User when the login success AND the IP is authenticated. null when login not successful but IP is valid. WP_Error otherwise.
 		 */
-		public function setupPendingTwoFactorAuth( $oUser, $sUsername ) {
+		public function setupPendingTwoFactorAuth( $oUser ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$oLoginTrack = $this->getLoginTrack();
@@ -221,9 +219,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				}
 			}
 
-			$sErrorString = _wpsf__( "Login is protected by 2-factor authentication." )
-				.' '._wpsf__( "If your login details were correct, you will have received an email to complete the login process." ) ;
-			return new WP_Error( 'wpsf_loginauth', $sErrorString );
+			return $oUser;
+//			$sErrorString = _wpsf__( "Login is protected by 2-factor authentication." )
+//				.' '._wpsf__( "If your login details were correct, you will have received an email to complete the login process." ) ;
+//			return new WP_Error( 'wpsf_loginauth', $sErrorString );
 		}
 
 		/**

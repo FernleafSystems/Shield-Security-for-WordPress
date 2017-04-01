@@ -61,16 +61,16 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $bIsLoginIntentSubmission ) {
 
 				$oLoginTracker = $this->getLoginTrack();
-				do_action( 'login-intent-validation' );
+				do_action( $oFO->doPluginPrefix( 'login-intent-validation' ) );
 				if ( $oFO->isChainedAuth() ) {
 					$bLoginIntentValidated = !$oLoginTracker->hasUnSuccessfulFactorAuth();
 				}
 				else {
 					$bLoginIntentValidated = $oLoginTracker->hasSuccessfulFactorAuth();
 				}
-
 				if ( $bLoginIntentValidated ) {
 					$this->removeLoginIntent();
+					return;
 				}
 			}
 			$this->printLoginIntentForm();
@@ -114,12 +114,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
+	 * If it's a valid login attempt (by password) then $oUser is a WP_User
 	 * @param WP_User|WP_Error $oUser
 	 * @return WP_User
 	 */
 	public function setUserLoginIntent( $oUser ) {
-		$bNeedToSetIntent = $this->getLoginTrack()->hasFactorsRemainingToTrack();
-		if ( $bNeedToSetIntent && !empty( $oUser ) && ( $oUser instanceof WP_User ) ) {
+		if ( !empty( $oUser ) && ( $oUser instanceof WP_User ) ) {
 			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS, $oUser );
 		}
 		return $oUser;
