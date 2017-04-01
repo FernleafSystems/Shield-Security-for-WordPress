@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oFO = $this->getFeatureOptions();
 
 		if ( $oFO->getIfUseLoginIntentPage() ) {
-			add_filter( $oFO->doPluginPrefix( 'login-intent-fields' ), array( $this, 'addLoginIntentField' ) );
+			add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
 		}
 		else {
 			// after User has authenticated email/username/password
@@ -267,7 +267,11 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @return array
 	 */
 	public function addLoginIntentField( $aFields ) {
-		$aFields[] = $this->getGaLoginField();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		if ( $oFO->getHasGaValidated( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+			$aFields[] = $this->getGaLoginField();
+		}
 		return $aFields;
 	}
 

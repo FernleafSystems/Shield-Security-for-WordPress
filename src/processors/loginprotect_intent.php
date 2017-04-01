@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
 			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
-//			$this->getProcessorTwoFactor()->run();
+			$this->getProcessorTwoFactor()->run();
 		}
 
 		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
@@ -49,14 +49,46 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
+	 * hooked to 'init'
 	 */
-	public function onWpLogout() {
-		$this->clearUserLoginIntent();
+	public function processUserLoginIntent() {
+		if ( $this->userHasPendingLoginIntent() ) {
+			$bIsLoginIntentSubmission = $this->loadDataProcessor()->FetchPost( 'login-intent-form' ) == 1;
+			if ( $bIsLoginIntentSubmission ) {
+				$bValidIntentConfirm = apply_filters( 'login-intent-validation', false );
+				if ( $bValidIntentConfirm ) {
+					$this->removeLoginIntent();
+				}
+			}
+			$this->printLoginIntentForm();
+		}
+		else {
+			$nIntent = $this->getUserLoginIntent();
+			if ( $nIntent === false ) {
+				// the login has already been fully validated and the login intent was deleted.
+			}
+			else if ( $nIntent > 0 ) { // there was an old login intent
+				$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
+				$this->loadWpFunctionsProcessor()->redirectHere();
+			}
+		}
 	}
 
 	/**
 	 */
-	public function clearUserLoginIntent() {
+	public function onWpLogout() {
+		$this->resetUserLoginIntent();
+	}
+
+	/**
+	 */
+	protected function removeLoginIntent() {
+		$this->loadWpUsersProcessor()->deleteUserMeta( 'login_intent' );
+	}
+
+	/**
+	 */
+	public function resetUserLoginIntent() {
 		$this->setLoginIntentExpiration( 0 );
 	}
 
@@ -81,22 +113,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * hooked to 'init'
-	 */
-	public function processUserLoginIntent() {
-		if ( $this->userHasPendingLoginIntent() ) {
-			$this->printLoginIntentForm();
-		}
-		else {
-			$nIntent = $this->getUserLoginIntent();
-			if ( $nIntent > 0 ) { // there was an old login intent
-				$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
-				$this->loadWpFunctionsProcessor()->redirectHere();
-			}
-		}
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function userHasPendingLoginIntent() {
@@ -104,37 +120,36 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @return int
+	 * @return int|false
 	 */
 	protected function getUserLoginIntent() {
-		$nIntent = $this->loadWpUsersProcessor()->getUserMeta( 'login_intent' );
-		return ( empty( $nIntent ) || !is_numeric( $nIntent ) ) ? 0 : (int)$nIntent;
+		return $this->loadWpUsersProcessor()->getUserMeta( 'login_intent' );
 	}
 
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-fields' ), array() );
+		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
+		$nTimeRemaining = $this->getUserLoginIntent() - $this->time();
 
 		?>
 		<html>
 		<head>
 		</head>
-		<body style="height: 20%;
+		<body style="
 		width: auto;
-		margin: 35% auto 0;
+		margin: 15% auto 0;
 		text-align: center;">
 		<form action="#" method="post">
-			<label>
-				<input type="text" name="login_intent_value" />
-				<br />Please enter one of the codes from your 2-Factor Device
-			</label>
+			<input type="hidden" name="login-intent-form" value="1" />
 			<?php
 			foreach ( $aLoginIntentFields as $sField ) {
 				echo $sField;
 			}
 			?>
+			<button type="submit" name="submit">Verify My Login</button>
 		</form>
+		<p>Time Remaining: <?php echo $nTimeRemaining; ?></p>
 		</body>
 		</html>
 		<?php

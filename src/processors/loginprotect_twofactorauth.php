@@ -44,9 +44,44 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 			add_action( 'show_user_profile', array( $this, 'addEmailAuthenticationOptionsToUserProfile' ) );
 
-			// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
-			// is valid, the filter will have a valid WP_User object passed to it.
-			add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30, 2 );
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+
+			if ( $oFO->getIfUseLoginIntentPage() ) {
+				add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
+			}
+			else {
+				// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
+				// is valid, the filter will have a valid WP_User object passed to it.
+				add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30, 2 );
+			}
+		}
+
+		/**
+		 * @param array $aFields
+		 * @return array
+		 */
+		public function addLoginIntentField( $aFields ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			if ( !$oFO->getUserHasEmailAuthenticationActive( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+				$aFields[] = $this->getEmailKeyField();
+			}
+			return $aFields;
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getEmailKeyField() {
+			$sHtml =
+				'<p class="email-otp">
+				<label>%s<br />
+					<input type="text" name="email-otp" class="input" value="" size="20" />
+				</label>
+			</p>
+		';
+			return sprintf( $sHtml, '<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Email OTP').'</a>' );
 		}
 
 		/**
@@ -93,6 +128,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				}
 			}
 			$oWp->redirectToHome();
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function genSessionHash() {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sUniqueSessionHash = hash_hmac(
+				'sha256',
+				$this->getController()->getSessionId(),
+				$oFO->getTwoAuthSecretKey()
+			);
+			return substr( $sUniqueSessionHash, 0, 6 );
 		}
 
 		/**

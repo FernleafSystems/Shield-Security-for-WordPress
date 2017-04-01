@@ -29,6 +29,10 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 			if ( empty( $nUserId ) ) {
 				$nUserId = $this->getCurrentWpUserId();
 			}
+			else if ( $nUserId instanceof WP_User ){
+				$nUserId = $nUserId->ID;
+			}
+
 			$bSuccess = false;
 			if ( $nUserId > 0 ) {
 				$bSuccess = delete_user_meta( $nUserId, $sKey );

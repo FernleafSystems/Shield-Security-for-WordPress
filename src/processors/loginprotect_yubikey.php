@@ -20,7 +20,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		 */
 		public function run() {
 
-			if ( true || $this->getIsYubikeyConfigReady() ) {
+			if ( $this->getIsYubikeyConfigReady() ) {
 
 				/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 				$oFO = $this->getFeatureOptions();
@@ -141,11 +141,29 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		}
 
 		/**
+		 * @param WP_User $oUser
+		 * @return bool
+		 */
+		protected function userHasYubikeyEnabled( $oUser ) {
+			$sUsername = $oUser->get( 'user_login' );
+			$bUsernameFound = false;
+			foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
+				if ( isset( $aUsernameYubikeyPair[ $sUsername ] ) ) {
+					$bUsernameFound = true;
+					break;
+				}
+			}
+			return $bUsernameFound;
+		}
+
+		/**
 		 * @param array $aFields
 		 * @return array
 		 */
 		public function addLoginIntentField( $aFields ) {
-			$aFields[] = $this->getYubikeyOtpField();
+			if ( $this->userHasYubikeyEnabled( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+				$aFields[] = $this->getYubikeyOtpField();
+			}
 			return $aFields;
 		}
 
