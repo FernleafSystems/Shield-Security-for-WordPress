@@ -503,6 +503,10 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 			return $oUpdater->should_update( 'plugin', $mPluginItem, WP_PLUGIN_DIR );
 		}
 
+		public function redirectHere() {
+			$this->doRedirect( $this->loadDataProcessor()->getRequestUri() );
+		}
+
 		/**
 		 * @param array $aQueryParams
 		 */
