@@ -27,6 +27,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 
 				if ( $oFO->getIfUseLoginIntentPage() ) {
 					add_filter( $oFO->doPluginPrefix( 'login-intent-fields' ), array( $this, 'addLoginIntentField' ) );
+					add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 				}
 				else {
 					// after User has authenticated email/username/password
@@ -57,8 +58,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$oError = new WP_Error();
 			$sUsername = $oUser->get( 'user_login' );
 
-			$sOneTimePassword = trim( $oDp->FetchPost( 'yubiotp', '' ) );
-			$sAppId = $this->getOption('yubikey_app_id');
+			$sOneTimePassword = trim( $oDp->FetchPost( 'yubi-otp', '' ) );
 //			$sApiKey = $this->getOption('yubikey_api_key');
 
 			// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
@@ -95,35 +95,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 					return $oError;
 				}
 			}
+
+			if ( $this->processYubikeyOtp( $sOneTimePassword ) ) {
+				$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
+				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
+				$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+			}
 			else {
 
-			}
-
-			$sNonce = md5( uniqid( rand() ) );
-			$sUrl = sprintf( self::YubikeyVerifyApiUrl, $sAppId, $sOneTimePassword, $sNonce );
-			$sRawYubiRequest = $this->loadFileSystemProcessor()->getUrlContent( $sUrl );
-
-			$bMatchOtpAndNonce = preg_match( '/otp=' . $sOneTimePassword . '/', $sRawYubiRequest, $aMatches )
-				&& preg_match( '/nonce=' . $sNonce . '/', $sRawYubiRequest, $aMatches );
-
-			$bMatchOkStatus = $bMatchOtpAndNonce
-				&& preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatchesStatus )
-				&& ( $aMatchesStatus[ 1 ] == 'OK' ); // TODO: in preg_match
-
-			if ( !$bMatchOtpAndNonce ) {
-
-				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API.'), $sUsername );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api' );
-
-				$oError->add(
-					'yubikey_validate_fail',
-					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__('The Yubikey authentication was not validated successfully.') )
-				);
-			}
-			// Optionally we can check the hash, but since we're using HTTPS, this isn't necessary and adds more PHP requirements
-			else if ( !$bMatchOkStatus ) { // 2. Check status directly within response
-
-				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, 'unavailable' );
+				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response.".'), $sUsername );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
 
 				$oError->add(
@@ -131,13 +111,43 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey authentication was not validated successfully.' ) )
 				);
 			}
-			else {
-				$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
-				$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
-			}
 
 			return $bErrorOnFailure ? $oError : $oUser;
+		}
+
+		/**
+		 * @param string $sOneTimePassword
+		 * @return bool
+		 */
+		protected function processYubikeyOtp( $sOneTimePassword ) {
+
+			$sNonce = md5( uniqid( rand() ) );
+			$sUrl = sprintf( self::YubikeyVerifyApiUrl,
+				$this->getOption( 'yubikey_app_id' ),
+				$sOneTimePassword,
+				$sNonce
+			);
+			$sRawYubiRequest = $this->loadFileSystemProcessor()->getUrlContent( $sUrl );
+
+			$bMatchOtpAndNonce = preg_match( '/otp=' . $sOneTimePassword . '/', $sRawYubiRequest, $aMatches )
+				&& preg_match( '/nonce=' . $sNonce . '/', $sRawYubiRequest, $aMatches );
+
+			return $bMatchOtpAndNonce
+				&& preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatchesStatus )
+				&& ( $aMatchesStatus[ 1 ] == 'OK' ); // TODO: in preg_match
+		}
+
+		/**
+		 */
+		public function validateLoginIntent() {
+			$oLoginTrack = $this->getLoginTrack();
+			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+
+			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'yubi-otp', '' ) );
+			if ( $this->userHasYubikeyEnabled( $oUser ) && !$this->processYubikeyOtp( $sValidationCode ) ) {
+				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+			}
 		}
 
 		/**
@@ -180,7 +190,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$sHtml =
 				'<p class="yubikey-otp">
 				<label>%s<br />
-					<input type="text" name="yubiotp" class="input" value="" size="20" />
+					<input type="text" name="yubi-otp" class="input" value="" size="20" />
 				</label>
 			</p>
 		';

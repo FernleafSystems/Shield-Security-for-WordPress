@@ -49,11 +49,27 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 
 			if ( $oFO->getIfUseLoginIntentPage() ) {
 				add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
+				add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 			}
 			else {
 				// At this stage (30,3) WordPress has already (20) authenticated the user. So if the login
 				// is valid, the filter will have a valid WP_User object passed to it.
 				add_filter( 'authenticate', array( $this, 'setupPendingTwoFactorAuth' ), 30, 2 );
+			}
+		}
+
+		/**
+		 */
+		public function validateLoginIntent() {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			$oLoginTrack = $this->getLoginTrack();
+			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
+
+			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'email-otp', '' ) );
+			if ( $oFO->getUserHasEmailAuthenticationActive( $oUser ) && $sValidationCode != $this->getSessionHashCode() ) {
+				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 			}
 		}
 
@@ -136,12 +152,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		protected function genSessionHash() {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
-			$sUniqueSessionHash = hash_hmac(
-				'sha256',
+			return hash_hmac(
+				'sha1',
 				$this->getController()->getSessionId(),
 				$oFO->getTwoAuthSecretKey()
 			);
-			return substr( $sUniqueSessionHash, 0, 6 );
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getSessionHashCode() {
+			return substr( $this->genSessionHash(), 0, 6 );
 		}
 
 		/**
@@ -372,9 +394,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$aMessage = array(
 				_wpsf__( 'You, or someone pretending to be you, just attempted to login into your WordPress site.' ),
 				_wpsf__( 'The IP Address / Cookie from which they tried to login is not currently verified.' ),
-				_wpsf__('Click the following link to validate and complete the login process.').' '._wpsf__('You will be logged in automatically upon successful authentication.'),
 				sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 				sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
+				_wpsf__('Use the following code in the Login Verification page.'),
+				sprintf( _wpsf__( 'Authentication Code: %s' ), $this->getSessionHashCode() ),
+				_wpsf__('Or:'),
+				_wpsf__('Click the following link to validate and complete the login process.').' '._wpsf__('You will be logged in automatically upon successful authentication.'),
 				sprintf( _wpsf__( 'Authentication Link: %s' ), $sAuthLink )
 			);
 			$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );

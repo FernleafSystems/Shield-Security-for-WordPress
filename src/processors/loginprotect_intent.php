@@ -52,11 +52,24 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * hooked to 'init'
 	 */
 	public function processUserLoginIntent() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+
 		if ( $this->userHasPendingLoginIntent() ) {
+
 			$bIsLoginIntentSubmission = $this->loadDataProcessor()->FetchPost( 'login-intent-form' ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
-				$bValidIntentConfirm = apply_filters( 'login-intent-validation', false );
-				if ( $bValidIntentConfirm ) {
+
+				$oLoginTracker = $this->getLoginTrack();
+				do_action( 'login-intent-validation' );
+				if ( $oFO->isChainedAuth() ) {
+					$bLoginIntentValidated = !$oLoginTracker->hasUnSuccessfulFactorAuth();
+				}
+				else {
+					$bLoginIntentValidated = $oLoginTracker->hasSuccessfulFactorAuth();
+				}
+
+				if ( $bLoginIntentValidated ) {
 					$this->removeLoginIntent();
 				}
 			}

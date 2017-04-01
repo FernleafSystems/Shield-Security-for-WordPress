@@ -99,6 +99,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ):
 		/**
 		 * @return bool
 		 */
+		public function hasFactorsRemainingToTrack() {
+			return ( $this->getCountFactorsRemainingToTrack() > 0 );
+		}
+
+		/**
+		 * @return bool
+		 */
 		public function hasSuccessfulFactorAuth() {
 			return ( $this->getCountFactorsSuccessful() > 0 );
 		}
@@ -106,8 +113,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ):
 		/**
 		 * @return bool
 		 */
-		public function hasFactorsRemainingToTrack() {
-			return ( $this->getCountFactorsRemainingToTrack() > 0 );
+		public function hasUnSuccessfulFactorAuth() {
+			return ( $this->getCountFactorsUnsuccessful() > 0 );
 		}
 
 		/**

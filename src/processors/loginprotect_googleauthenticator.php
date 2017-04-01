@@ -19,6 +19,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		if ( $oFO->getIfUseLoginIntentPage() ) {
 			add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
+			add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 		}
 		else {
 			// after User has authenticated email/username/password
@@ -260,6 +261,21 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			}
 		}
 		return $oUser;
+	}
+
+	/**
+	 */
+	public function validateLoginIntent() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oLoginTrack = $this->getLoginTrack();
+		$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
+
+		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( $this->getLoginFormParameter(), '' ) );
+		if ( $oFO->getHasGaValidated( $oUser ) && !$this->processUserGaOtp( $oUser, $sValidationCode ) ) {
+			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
+		}
 	}
 
 	/**
