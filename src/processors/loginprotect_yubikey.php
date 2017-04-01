@@ -19,10 +19,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		/**
 		 */
 		public function run() {
-			if ( $this->getIsYubikeyConfigReady() ) {
-				// after User has authenticated email/username/password
-				add_filter( 'authenticate', array( $this, 'checkYubikeyOtpAuth_Filter' ), 24, 1 );
-				add_action( 'login_form',	array( $this, 'printYubikeyOtp_Action' ) );
+
+			if ( true || $this->getIsYubikeyConfigReady() ) {
+
+				/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+				$oFO = $this->getFeatureOptions();
+
+				if ( $oFO->getIfUseLoginIntentPage() ) {
+					add_filter( $oFO->doPluginPrefix( 'login-intent-fields' ), array( $this, 'addLoginIntentField' ) );
+				}
+				else {
+					// after User has authenticated email/username/password
+					add_filter( 'authenticate', array( $this, 'checkYubikeyOtpAuth_Filter' ), 24, 1 );
+					add_action( 'login_form',	array( $this, 'printYubikeyOtp_Action' ) );
+				}
 			}
 		}
 
@@ -49,7 +59,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 
 			$sOneTimePassword = trim( $oDp->FetchPost( 'yubiotp', '' ) );
 			$sAppId = $this->getOption('yubikey_app_id');
-			$sApiKey = $this->getOption('yubikey_api_key');
+//			$sApiKey = $this->getOption('yubikey_api_key');
 
 			// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
 			$sYubikey12 = substr( $sOneTimePassword, 0 , 12 );
@@ -113,7 +123,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			// Optionally we can check the hash, but since we're using HTTPS, this isn't necessary and adds more PHP requirements
 			else if ( !$bMatchOkStatus ) { // 2. Check status directly within response
 
-				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, $sStatus );
+				$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response status: "%s".'), $sUsername, 'unavailable' );
 				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
 
 				$oError->add(
@@ -131,8 +141,24 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		}
 
 		/**
+		 * @param array $aFields
+		 * @return array
+		 */
+		public function addLoginIntentField( $aFields ) {
+			$aFields[] = $this->getYubikeyOtpField();
+			return $aFields;
+		}
+
+		/**
 		 */
 		public function printYubikeyOtp_Action() {
+			echo $this->getYubikeyOtpField();
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getYubikeyOtpField() {
 			$sHtml =
 				'<p class="yubikey-otp">
 				<label>%s<br />
@@ -140,7 +166,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 				</label>
 			</p>
 		';
-			echo sprintf( $sHtml, '<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Yubikey OTP').'</a>' );
+			return sprintf( $sHtml, '<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Yubikey OTP').'</a>' );
 		}
 
 		/**

@@ -23,13 +23,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		if ( $this->getIsOption( 'enable_google_authenticator', 'Y' ) ) {
 			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
-//			$this->getProcessorGoogleAuthenticator()->run();
+			$this->getProcessorGoogleAuthenticator()->run();
 		}
 
 		// check for Yubikey auth after user is authenticated with WordPress.
 		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
 			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
-//			$this->getProcessorYubikey()->run();
+			$this->getProcessorYubikey()->run();
 		}
 
 		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
@@ -112,6 +112,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function printLoginIntentForm() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-fields' ), array() );
+
 		?>
 		<html>
 		<head>
@@ -125,6 +129,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				<input type="text" name="login_intent_value" />
 				<br />Please enter one of the codes from your 2-Factor Device
 			</label>
+			<?php
+			foreach ( $aLoginIntentFields as $sField ) {
+				echo $sField;
+			}
+			?>
 		</form>
 		</body>
 		</html>
