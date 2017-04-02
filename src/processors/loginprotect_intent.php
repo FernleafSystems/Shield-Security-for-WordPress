@@ -41,7 +41,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
-			add_action( 'init', array( $this, 'processUserLoginIntent' ), 100, 1 );
+			add_action( 'init', array( $this, 'processUserLoginIntent' ), 0 );
 		}
 
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
