@@ -45,6 +45,7 @@
 
             <form action="<?php echo $hrefs['form_action']; ?>" method="post">
                 <input type="hidden" name="<?php echo $data['login_intent_flag']; ?>" value="1" />
+                <input type="hidden" name="redirect_to" value="<?php echo $hrefs['redirect_to']; ?>" />
 
 				<?php foreach ( $data['login_fields'] as $aField ) : ?>
                     <div class="form-group">

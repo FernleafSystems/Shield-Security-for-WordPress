@@ -77,12 +77,20 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 				if ( $bLoginIntentValidated ) {
 					$this->removeLoginIntent();
+					$sRedirect = $oDp->FetchRequest( 'redirect_to' );
+					$this->loadAdminNoticesProcessor()->addFlashMessage(
+						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
+					if ( empty( $sRedirect ) ) {
+						$this->loadWpFunctionsProcessor()->redirectHere();
+					}
+					else {
+						$this->loadWpFunctionsProcessor()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
+					}
 					return;
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
-					$this->loadWpFunctionsProcessor()->redirectHere();
 				}
 			}
 			$this->printLoginIntentForm();
@@ -157,6 +165,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
+		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
 
@@ -174,6 +183,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 		else {
 			$sMessageType = 'warning';
+		}
+
+		$sRedirectTo = $oDp->FetchGet( 'redirect_to' );
+		if ( empty( $sRedirectTo ) ) {
+			$sRedirectTo = rawurlencode( esc_url( $this->loadDataProcessor()->getRequestUri() ) );
 		}
 
 		$aDisplayData = array(
@@ -195,7 +209,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
-				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' )
+				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' ),
+				'redirect_to'   => $sRedirectTo
 			)
 		);
 
