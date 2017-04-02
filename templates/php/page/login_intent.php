@@ -14,6 +14,9 @@
             font-weight: bold;
             display: block;
         }
+        #countdown {
+            font-weight: bolder;
+        }
         #TimeRemaining {
             margin-top: 30px;
             padding: 10px;
@@ -30,7 +33,7 @@
                 timeRemaining -= 1;
                 var timeRemainingText = '';
                 if ( timeRemaining < 0 ) {
-                    timeRemainingText = '<strong><?php echo $strings['login_expired']; ?></strong>';
+                    timeRemainingText = '<?php echo $strings['login_expired']; ?>';
                     clearInterval(x);
                     loginExpired();
                 }
