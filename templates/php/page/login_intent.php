@@ -60,11 +60,11 @@
 
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-md-6">
-                            <button class="btn btn-link" name="cancel" value="1">&larr; <?php echo $strings['cancel']; ?></button>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 pull-right">
                             <button type="submit" class="pull-right btn btn-default"><?php echo $strings['verify_my_login']; ?></button>
+                        </div>
+                        <div class="col-md-6 pull-left">
+                            <button class="btn btn-link" name="cancel" value="1">&larr; <?php echo $strings['cancel']; ?></button>
                         </div>
                     </div>
                 </div>
