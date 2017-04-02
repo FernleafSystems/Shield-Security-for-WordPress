@@ -120,7 +120,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function setUserLoginIntent( $oUser ) {
 		if ( !empty( $oUser ) && ( $oUser instanceof WP_User ) ) {
-			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS, $oUser );
+			$this->setLoginIntentExpiration($this->time() + HOUR_IN_SECONDS, $oUser );
 		}
 		return $oUser;
 	}
@@ -142,30 +142,31 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
+		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
 		$nTimeRemaining = $this->getUserLoginIntent() - $this->time();
 
-		?>
-		<html>
-		<head>
-		</head>
-		<body style="
-		width: auto;
-		margin: 15% auto 0;
-		text-align: center;">
-		<form action="#" method="post">
-			<input type="hidden" name="login-intent-form" value="1" />
-			<?php
-			foreach ( $aLoginIntentFields as $sField ) {
-				echo $sField;
-			}
-			?>
-			<button type="submit" name="submit">Verify My Login</button>
-		</form>
-		<p>Time Remaining: <?php echo $nTimeRemaining; ?></p>
-		</body>
-		</html>
-		<?php
+		$aDisplayData = array(
+			'strings' => array(
+				'cancel'          => strtolower( _wpsf__( 'Cancel' ) ),
+				'time_remaining'  => _wpsf__( 'Time Remaining' ),
+				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
+				'login_expired'   => _wpsf__( 'Login Expired' ),
+				'verify_my_login' => _wpsf__( 'Verify My Login' ),
+			),
+			'data'    => array(
+				'login_fields'   => $aLoginIntentFields,
+				'time_remaining' => $this->getUserLoginIntent() - $this->time(),
+			),
+			'hrefs'   => array(
+                'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap.css')
+            )
+		);
+
+		$this->loadRenderer( $this->getController()->getPath_Templates() )
+			 ->setTemplate( 'page/login_intent' )
+			 ->setRenderVars( $aDisplayData )
+			 ->display();
 		die();
 	}
 
