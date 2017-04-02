@@ -15,18 +15,18 @@
         var timeRemaining = <?php echo $data['time_remaining']; ?>;
         // Update the count down every 1 second
         var x = setInterval(function() {
-                timeRemaining -= 0.1;
+                timeRemaining -= 1;
 
                 if ( timeRemaining < 0 ) {
                     timeRemainingText = '<?php echo $strings['login_expired']; ?>';
                     clearInterval(x);
                 }
                 else {
-                    timeRemainingText = timeRemaining.toFixed(1)+" <?php echo $strings['seconds']; ?>";
+                    timeRemainingText = timeRemaining.toFixed(0)+" <?php echo $strings['seconds']; ?>";
                 }
                 document.getElementById("countdown").innerHTML = timeRemainingText;
             },
-            100
+            1000
         );
     </script>
 </head>

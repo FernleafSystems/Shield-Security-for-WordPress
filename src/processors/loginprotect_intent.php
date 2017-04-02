@@ -162,10 +162,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 						 ->getRawFlashMessageText();
 		if ( empty( $sMessage ) ) {
 			if ( $oFO->isChainedAuth() ) {
-				$sMessage = _wpsf__( 'Please supply all of the login authentication codes below' );
+				$sMessage = _wpsf__( 'Please supply all of the login authentication codes' );
 			}
 			else {
-				$sMessage = _wpsf__( 'Please supply at least 1 of the authentication codes below' );
+				$sMessage = _wpsf__( 'Please supply at least 1 of the authentication codes' );
 			}
 			$sMessageType = 'info';
 		}
