@@ -56,9 +56,16 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getFeatureOptions();
 
 		if ( $this->userHasPendingLoginIntent() ) {
+			$oDp = $this->loadDataProcessor();
 
-			$bIsLoginIntentSubmission = $this->loadDataProcessor()->FetchPost( 'login-intent-form' ) == 1;
+			$bIsLoginIntentSubmission = $oDp->FetchPost( 'login-intent-form' ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
+
+				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
+					$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
+					$this->loadWpFunctionsProcessor()->redirectHere();
+					return;
+				}
 
 				$oLoginTracker = $this->getLoginTrack();
 				do_action( $oFO->doPluginPrefix( 'login-intent-validation' ) );
@@ -71,6 +78,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				if ( $bLoginIntentValidated ) {
 					$this->removeLoginIntent();
 					return;
+				}
+				else {
+					$this->loadAdminNoticesProcessor()->addFlashMessage(
+						_wpsf__( 'One or more of your authentication codes failed' ) );
+					$this->loadWpFunctionsProcessor()->redirectHere();
 				}
 			}
 			$this->printLoginIntentForm();
@@ -144,25 +156,43 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getFeatureOptions();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
-		$nTimeRemaining = $this->getUserLoginIntent() - $this->time();
+
+		$sMessage = $this->loadAdminNoticesProcessor()
+						 ->flushFlashMessage()
+						 ->getRawFlashMessageText();
+		if ( empty( $sMessage ) ) {
+			if ( $oFO->isChainedAuth() ) {
+				$sMessage = _wpsf__( 'Please supply all of the login authentication codes below' );
+			}
+			else {
+				$sMessage = _wpsf__( 'Please supply at least 1 of the authentication codes below' );
+			}
+			$sMessageType = 'info';
+		}
+		else {
+			$sMessageType = 'warning';
+		}
 
 		$aDisplayData = array(
 			'strings' => array(
-				'cancel'          => strtolower( _wpsf__( 'Cancel' ) ),
+				'cancel'          => _wpsf__( 'Cancel Login' ),
 				'time_remaining'  => _wpsf__( 'Time Remaining' ),
 				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
 				'login_expired'   => _wpsf__( 'Login Expired' ),
 				'verify_my_login' => _wpsf__( 'Verify My Login' ),
+				'message'         => $sMessage,
 			),
 			'data'    => array(
 				'login_fields'   => $aLoginIntentFields,
 				'time_remaining' => $this->getUserLoginIntent() - $this->time(),
+				'message_type'   => $sMessageType,
 			),
 			'hrefs'   => array(
+				'form_action' => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
-                'js_bootstrap' => $oCon->getPluginUrl_Js( 'bootstrap3.min.js'),
-				'shield_logo' => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' )
-            )
+				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
+				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' )
+			)
 		);
 
 		$this->loadRenderer( $this->getController()->getPath_Templates() )

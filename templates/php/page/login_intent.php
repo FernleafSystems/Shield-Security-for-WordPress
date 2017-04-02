@@ -3,7 +3,8 @@
     <link rel="stylesheet" href="<?php echo $hrefs['css_bootstrap']; ?>" />
 
     <style>
-        #ShieldLogo {
+        .message {
+            padding: 15px;
         }
     </style>
 
@@ -40,7 +41,9 @@
     <div class="row">
         <div class="col-md-4 col-md-offset-4">
 
-            <form class="" method="post">
+            <p class="message bg-<?php echo $data['message_type']; ?>"> <?php echo $strings['message']; ?></p>
+
+            <form action="<?php echo $hrefs['form_action']; ?>" method="post">
                 <input type="hidden" name="login-intent-form" value="1" />
 
 				<?php foreach ( $data['login_fields'] as $aField ) : ?>
@@ -56,8 +59,13 @@
 				<?php endforeach; ?>
 
                 <div class="form-group">
-                    <div class="">
-                        <button type="submit" class="btn btn-default"><?php echo $strings['verify_my_login']; ?></button>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-link" name="cancel" value="1">&larr; <?php echo $strings['cancel']; ?></button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="pull-right btn btn-default"><?php echo $strings['verify_my_login']; ?></button>
+                        </div>
                     </div>
                 </div>
             </form>
