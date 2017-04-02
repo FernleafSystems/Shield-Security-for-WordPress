@@ -289,6 +289,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$aFields[] = array(
 				'name' => $this->getLoginFormParameter(),
 				'type' => 'text',
+				'value' => '',
 				'text' => _wpsf__( 'Google Authenticator Code' ),
 				'help_link' => 'http://icwp.io/wpsf42'
 			);

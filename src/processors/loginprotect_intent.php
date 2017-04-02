@@ -106,12 +106,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
+	 * Use this ONLY when the login intent has been successfully verified.
 	 */
 	protected function removeLoginIntent() {
 		$this->loadWpUsersProcessor()->deleteUserMeta( 'login_intent' );
 	}
 
 	/**
+	 * Reset will put the counter to zero - this should be used when the user HAS NOT
+	 * verified the login intent.  To indicate that they have successfully verified, use removeLoginIntent()
 	 */
 	public function resetUserLoginIntent() {
 		$this->setLoginIntentExpiration( 0 );

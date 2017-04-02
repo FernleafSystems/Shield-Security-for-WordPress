@@ -83,6 +83,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$aFields[] = array(
 					'name' => 'email_otp',
 					'type' => 'text',
+					'value' => '',
 					'text' => _wpsf__( 'Email OTP' ),
 					'help_link' => 'http://icwp.io/4i'
 				);

@@ -48,9 +48,11 @@
 
 				<?php foreach ( $data['login_fields'] as $aField ) : ?>
                     <div class="form-group">
-                        <label for="<?php echo $aField['name']; ?>" class="control-label"><?php echo $aField['text']; ?></label>
+                        <label for="<?php echo $aField['name']; ?>" class="control-label">
+                            <?php echo $aField['text']; ?></label>
                             <input type="<?php echo $aField['type']; ?>"
                                    name="<?php echo $aField['name']; ?>"
+                                   value="<?php echo $aField['value']; ?>"
                                    class="form-control"
                                    id="<?php echo $aField['name']; ?>"
                                    placeholder="<?php echo $aField['text']; ?>"

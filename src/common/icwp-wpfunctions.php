@@ -542,7 +542,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 					return;
 				}
 				else {
-					$oDp->setCookie( 'icwp-isredirect', 'yes', 7 );
+					$oDp->setCookie( 'icwp-isredirect', 'yes', 3 );
 				}
 			}
 

@@ -175,6 +175,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 				$aFields[] = array(
 					'name' => 'yubi_otp',
 					'type' => 'text',
+					'value' => '',
 					'text' => _wpsf__( 'Yubikey OTP' ),
 					'help_link' => 'http://icwp.io/4i'
 				);
