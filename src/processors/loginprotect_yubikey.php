@@ -58,7 +58,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$oError = new WP_Error();
 			$sUsername = $oUser->get( 'user_login' );
 
-			$sOneTimePassword = trim( $oDp->FetchPost( 'yubi-otp', '' ) );
+			$sOneTimePassword = trim( $oDp->FetchPost( 'yubi_otp', '' ) );
 //			$sApiKey = $this->getOption('yubikey_api_key');
 
 			// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
@@ -144,7 +144,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 
 			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'yubi-otp', '' ) );
+			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'yubi_otp', '' ) );
 			if ( $this->userHasYubikeyEnabled( $oUser ) && !$this->processYubikeyOtp( $sValidationCode ) ) {
 				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 			}
@@ -172,7 +172,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 		 */
 		public function addLoginIntentField( $aFields ) {
 			if ( $this->userHasYubikeyEnabled( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
-				$aFields[] = $this->getYubikeyOtpField();
+				$aFields[] = array(
+					'name' => 'yubi_otp',
+					'type' => 'text',
+					'text' => _wpsf__( 'Yubikey OTP' ),
+					'help_link' => 'http://icwp.io/4i'
+				);
 			}
 			return $aFields;
 		}
@@ -190,7 +195,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
 			$sHtml =
 				'<p class="yubikey-otp">
 				<label>%s<br />
-					<input type="text" name="yubi-otp" class="input" value="" size="20" />
+					<input type="text" name="yubi_otp" class="input" value="" size="20" />
 				</label>
 			</p>
 		';

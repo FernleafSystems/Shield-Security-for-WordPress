@@ -159,7 +159,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'time_remaining' => $this->getUserLoginIntent() - $this->time(),
 			),
 			'hrefs'   => array(
-                'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap.css')
+				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
+                'js_bootstrap' => $oCon->getPluginUrl_Js( 'bootstrap3.min.js'),
+				'shield_logo' => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' )
             )
 		);
 

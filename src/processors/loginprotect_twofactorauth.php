@@ -66,7 +66,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 
 			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'email-otp', '' ) );
+			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'email_otp', '' ) );
 			if ( $oFO->getUserHasEmailAuthenticationActive( $oUser ) && $sValidationCode != $this->getSessionHashCode() ) {
 				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 			}
@@ -80,7 +80,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			if ( $oFO->getUserHasEmailAuthenticationActive( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
-				$aFields[] = $this->getEmailKeyField();
+				$aFields[] = array(
+					'name' => 'email_otp',
+					'type' => 'text',
+					'text' => _wpsf__( 'Email OTP' ),
+					'help_link' => 'http://icwp.io/4i'
+				);
 			}
 			return $aFields;
 		}
@@ -92,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$sHtml =
 				'<p class="email-otp">
 				<label>%s<br />
-					<input type="text" name="email-otp" class="input" value="" size="20" />
+					<input type="text" name="email_otp" class="input" value="" size="20" />
 				</label>
 			</p>
 		';

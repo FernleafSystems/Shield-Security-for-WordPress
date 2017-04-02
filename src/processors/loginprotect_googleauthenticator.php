@@ -286,7 +286,12 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		if ( $oFO->getHasGaValidated( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
-			$aFields[] = $this->getGaLoginField();
+			$aFields[] = array(
+				'name' => $this->getLoginFormParameter(),
+				'type' => 'text',
+				'text' => _wpsf__( 'Google Authenticator Code' ),
+				'help_link' => 'http://icwp.io/wpsf42'
+			);
 		}
 		return $aFields;
 	}
