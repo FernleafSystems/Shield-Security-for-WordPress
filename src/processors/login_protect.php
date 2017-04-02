@@ -7,11 +7,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect', false ) ):
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_Track
-	 */
-	private $oLoginTrack;
-
-	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -23,13 +18,13 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 
+		if ( $oFO->getIsCustomLoginPathEnabled() ) {
+			$this->getProcessorWpLogin()->run();
+		}
+
 		// Add GASP checking to the login form.
 		if ( $this->getIsOption( 'enable_login_gasp_check', 'Y' ) ) {
 			$this->getProcessorGasp()->run();
-		}
-
-		if ( $oFO->getIsCustomLoginPathEnabled() ) {
-			$this->getProcessorWpLogin()->run();
 		}
 
 		if ( $this->getOption( 'login_limit_interval' ) > 0 && ( $oWp->getIsLoginRequest() || $oWp->getIsRegisterRequest() ) ) {
@@ -40,24 +35,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorGoogleRecaptcha()->run();
 		}
 
-		// The following pertains only to Multi-Factor Authentication.
-		$oLoginTracker = $this->getLoginTrack();
-
-		if ( $this->getIsOption( 'enable_google_authenticator', 'Y' ) ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
-			$this->getProcessorGoogleAuthenticator()->run();
-		}
-
-		// check for Yubikey auth after user is authenticated with WordPress.
-		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
-			$this->getProcessorYubikey()->run();
-		}
-
-		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
-			$this->getProcessorTwoFactor()->run();
-		}
+		$this->getProcessorLoginIntent()->run();
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
@@ -117,23 +95,21 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
+	 */
+	protected function getProcessorLoginIntent() {
+		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_intent.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getFeatureOptions() );
+		return $oProc;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_cooldown.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeatureOptions() );
 		return $oProc;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
-	 */
-	protected function getProcessorTwoFactor() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
@@ -161,44 +137,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeatureOptions() );
 		return $oProc;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
-	 */
-	protected function getProcessorYubikey() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
-	 */
-	protected function getProcessorGoogleAuthenticator() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeatureOptions() );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Track
-	 */
-	public function getLoginTrack() {
-		if ( !isset( $this->oLoginTrack ) ) {
-			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_track.php' );
-			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
-		}
-		return $this->oLoginTrack;
-	}
-
-	/**
-	 * @param ICWP_WPSF_Processor_LoginProtect_Track $oLoginTrack
-	 * @return $this
-	 */
-	public function setLoginTrack( $oLoginTrack ) {
-		$this->oLoginTrack = $oLoginTrack;
-		return $this;
 	}
 }
 endif;

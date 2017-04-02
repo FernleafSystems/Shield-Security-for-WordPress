@@ -307,6 +307,12 @@
       "section": "section_non_ui"
     },
     {
+      "key": "use_login_intent_page",
+      "transferable": false,
+      "value": true,
+      "section": "section_non_ui"
+    },
+    {
       "key": "current_plugin_version",
       "transferable": false,
       "section": "section_non_ui"

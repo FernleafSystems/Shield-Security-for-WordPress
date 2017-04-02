@@ -260,6 +260,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
+		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
@@ -743,6 +744,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		do_action( $this->doPluginPrefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
+	}
+
+	/**
+	 */
+	public function onWpLogout() {
+		if ( $this->hasSessionId() ) {
+			$this->clearSession();
+		}
 	}
 
 	/**

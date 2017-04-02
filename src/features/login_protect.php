@@ -24,6 +24,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 		}
 
+		/**
+		 * @return bool
+		 */
+		public function getIfUseLoginIntentPage() {
+			return $this->getOptIs( 'use_login_intent_page', true );
+		}
+
 		protected function doExecuteProcessor() {
 			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
@@ -314,6 +321,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				$sSecret = $this->resetGaSecret( $oUser );
 			}
 			return $sSecret;
+		}
+
+		/**
+		 * @return string
+		 */
+		public function getLoginIntentRequestFlag() {
+			return $this->doPluginPrefix( 'login-intent-request' );
 		}
 
 		/**

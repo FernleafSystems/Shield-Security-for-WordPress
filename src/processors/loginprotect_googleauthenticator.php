@@ -14,8 +14,18 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	/**
 	 */
 	public function run() {
-		// after User has authenticated email/username/password
-		add_filter( 'authenticate', array( $this, 'checkLoginForGA_Filter' ), 23, 2 );
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+
+		if ( $oFO->getIfUseLoginIntentPage() ) {
+			add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
+			add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
+		}
+		else {
+			// after User has authenticated email/username/password
+			add_filter( 'authenticate', array( $this, 'checkLoginForGA_Filter' ), 23, 2 );
+			add_action( 'login_form', array( $this, 'printGaLoginField' ) );
+		}
 
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 		add_action( 'show_user_profile', array( $this, 'addGaOptionsToUserProfile' ) );
@@ -24,9 +34,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 			add_action( 'edit_user_profile', array( $this, 'addGaOptionsToUserProfile' ) );
 		}
-
-		// Add field to login Form
-		add_action( 'login_form', array( $this, 'printGaLoginField' ) );
 
 		if ( $this->loadDataProcessor()->FetchGet( 'wpsf-action' ) == 'garemovalconfirm' ) {
 			add_action( 'init', array( $this, 'validateUserGaRemovalLink' ), 10 );
@@ -258,7 +265,48 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 	/**
 	 */
+	public function validateLoginIntent() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oLoginTrack = $this->getLoginTrack();
+		$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
+
+		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( $this->getLoginFormParameter(), '' ) );
+		if ( $oFO->getHasGaValidated( $oUser ) && !$this->processUserGaOtp( $oUser, $sValidationCode ) ) {
+			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
+		}
+	}
+
+	/**
+	 * @param array $aFields
+	 * @return array
+	 */
+	public function addLoginIntentField( $aFields ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		if ( $oFO->getHasGaValidated( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+			$aFields[] = array(
+				'name' => $this->getLoginFormParameter(),
+				'type' => 'text',
+				'value' => '',
+				'text' => _wpsf__( 'Google Authenticator Code' ),
+				'help_link' => 'http://icwp.io/wpsf42'
+			);
+		}
+		return $aFields;
+	}
+
+	/**
+	 */
 	public function printGaLoginField() {
+		echo $this->getGaLoginField();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGaLoginField() {
 		$sHtml =
 			'<p class="shield-google-authenticator-otp">
 				<label for="_%s">%s<span class="shield-ga-help-link"> [%s]</span><br /><span class="shield-ga-inline-help">(%s)</span><br />
@@ -268,7 +316,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			</p>
 		';
 		$sParam = $this->getLoginFormParameter();
-		echo sprintf( $sHtml,
+		return sprintf( $sHtml,
 			$sParam,
 			_wpsf__( 'Google Authenticator Code' ),
 			'<a href="http://icwp.io/wpsf42" target="_blank" style="font-weight: bolder; margin:0 3px">&#63;</a>',
