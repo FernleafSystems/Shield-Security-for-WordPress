@@ -80,18 +80,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$sRedirect = $oDp->FetchRequest( 'redirect_to' );
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
-					if ( empty( $sRedirect ) ) {
-						$this->loadWpFunctionsProcessor()->redirectHere();
-					}
-					else {
+					if ( !empty( $sRedirect ) ) {
 						$this->loadWpFunctionsProcessor()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
 					}
-					return;
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
 				}
+				$this->loadWpFunctionsProcessor()->redirectHere();
 			}
 			$this->printLoginIntentForm();
 		}
@@ -99,6 +96,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$nIntent = $this->getUserLoginIntent();
 			if ( $nIntent === false ) {
 				// the login has already been fully validated and the login intent was deleted.
+				// false also means new installation don't get booted out
 			}
 			else if ( $nIntent > 0 ) { // there was an old login intent
 				$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
@@ -143,7 +141,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function setUserLoginIntent( $oUser ) {
 		if ( !empty( $oUser ) && ( $oUser instanceof WP_User ) ) {
-			$this->setLoginIntentExpiration($this->time() + HOUR_IN_SECONDS, $oUser );
+			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS*2, $oUser );
 		}
 		return $oUser;
 	}
@@ -172,12 +170,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$sMessage = $this->loadAdminNoticesProcessor()
 						 ->flushFlashMessage()
 						 ->getRawFlashMessageText();
+
 		if ( empty( $sMessage ) ) {
 			if ( $oFO->isChainedAuth() ) {
-				$sMessage = _wpsf__( 'Please supply all of the login authentication codes' );
+				$sMessage = _wpsf__( 'Please supply all authentication codes' );
 			}
 			else {
-				$sMessage = _wpsf__( 'Please supply at least 1 of the authentication codes' );
+				$sMessage = _wpsf__( 'Please supply at least 1 authentication code' );
 			}
 			$sMessageType = 'info';
 		}
@@ -194,9 +193,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			'strings' => array(
 				'cancel'          => _wpsf__( 'Cancel Login' ),
 				'time_remaining'  => _wpsf__( 'Time Remaining' ),
+				'calculating'     => _wpsf__( 'Calculating' ) . ' ...',
 				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
 				'login_expired'   => _wpsf__( 'Login Expired' ),
 				'verify_my_login' => _wpsf__( 'Verify My Login' ),
+				'more_info' => _wpsf__( 'More Info' ),
+				'what_is_this' => _wpsf__( 'What is this?' ),
 				'message'         => $sMessage,
 			),
 			'data'    => array(
@@ -210,7 +212,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' ),
-				'redirect_to'   => $sRedirectTo
+				'redirect_to' => $sRedirectTo,
+				'what_is_this' => '',
 			)
 		);
 

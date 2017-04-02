@@ -5,6 +5,18 @@
     <style>
         .message {
             padding: 15px;
+            margin-bottom: 30px;
+        }
+        .submit.form-group {
+            margin-top: 25px;
+        }
+        .input-group-addon a {
+            font-weight: bold;
+            display: block;
+        }
+        #TimeRemaining {
+            margin-top: 30px;
+            padding: 10px;
         }
     </style>
 
@@ -16,18 +28,31 @@
         // Update the count down every 1 second
         var x = setInterval(function() {
                 timeRemaining -= 1;
-
+                var timeRemainingText = '';
                 if ( timeRemaining < 0 ) {
-                    timeRemainingText = '<?php echo $strings['login_expired']; ?>';
+                    timeRemainingText = '<strong><?php echo $strings['login_expired']; ?></strong>';
                     clearInterval(x);
+                    loginExpired();
                 }
                 else {
-                    timeRemainingText = timeRemaining.toFixed(0)+" <?php echo $strings['seconds']; ?>";
+                    var minutes = Math.floor( timeRemaining / 60 );
+                    var seconds = Math.floor( timeRemaining % 60 );
+                    if ( minutes > 0 ) {
+                        timeRemainingText = minutes+" minutes and " + seconds +" <?php echo $strings['seconds']; ?>";
+                    }
+                    else {
+                        timeRemainingText = timeRemaining.toFixed(0)+" <?php echo $strings['seconds']; ?>";
+                    }
                 }
                 document.getElementById("countdown").innerHTML = timeRemainingText;
             },
             1000
         );
+
+        function loginExpired() {
+            document.getElementById("mainSubmit").setAttribute( 'disabled', 'disabled' );
+            document.getElementById("TimeRemaining").className = "text-center bg-danger";
+        }
     </script>
 </head>
 <body>
@@ -50,7 +75,9 @@
 				<?php foreach ( $data['login_fields'] as $aField ) : ?>
                     <div class="form-group">
                         <label for="<?php echo $aField['name']; ?>" class="control-label">
-                            <?php echo $aField['text']; ?></label>
+                            <?php echo $aField['text']; ?>
+                        </label>
+                        <div class="input-group">
                             <input type="<?php echo $aField['type']; ?>"
                                    name="<?php echo $aField['name']; ?>"
                                    value="<?php echo $aField['value']; ?>"
@@ -58,13 +85,17 @@
                                    id="<?php echo $aField['name']; ?>"
                                    placeholder="<?php echo $aField['text']; ?>"
                             />
+                            <div class="input-group-addon">
+                                <a href="<?php echo $aField['help_link']; ?>" target="_blank" class="input-help">&quest;</a>
+                            </div>
+                        </div>
                     </div>
 				<?php endforeach; ?>
 
-                <div class="form-group">
+                <div class="form-group submit">
                     <div class="row">
                         <div class="col-md-6 pull-right">
-                            <button type="submit" class="pull-right btn btn-default"><?php echo $strings['verify_my_login']; ?></button>
+                            <button type="submit" id="mainSubmit" class="pull-right btn btn-default"><?php echo $strings['verify_my_login']; ?></button>
                         </div>
                         <div class="col-md-6 pull-left">
                             <button class="btn btn-link" name="cancel" value="1">&larr; <?php echo $strings['cancel']; ?></button>
@@ -72,9 +103,9 @@
                     </div>
                 </div>
             </form>
-            <p>
+            <p id="TimeRemaining" class="text-center bg-warning">
 				<?php echo $strings['time_remaining']; ?>:
-                <span id="countdown"><?php echo $data['time_remaining']; ?> <?php echo $strings['seconds']; ?></span>
+                <span id="countdown"><?php echo $strings['calculating']; ?></span>
             </p>
 
         </div>
