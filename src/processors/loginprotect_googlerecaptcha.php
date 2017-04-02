@@ -22,8 +22,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ) );
 		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ) );
 
-			// before username/password check (20)
-			add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
+		// before username/password check (20)
+		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
 	}
 
 	/**
