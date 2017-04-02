@@ -58,7 +58,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		if ( $this->userHasPendingLoginIntent() ) {
 			$oDp = $this->loadDataProcessor();
 
-			$bIsLoginIntentSubmission = $oDp->FetchPost( 'login-intent-form' ) == 1;
+			$bIsLoginIntentSubmission = $oDp->FetchRequest( $oFO->getLoginIntentRequestFlag() ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
 
 				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
-						_wpsf__( 'One or more of your authentication codes failed' ) );
+						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
 					$this->loadWpFunctionsProcessor()->redirectHere();
 				}
 			}
@@ -186,12 +186,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'message'         => $sMessage,
 			),
 			'data'    => array(
-				'login_fields'   => $aLoginIntentFields,
-				'time_remaining' => $this->getUserLoginIntent() - $this->time(),
-				'message_type'   => $sMessageType,
+				'login_fields'      => $aLoginIntentFields,
+				'time_remaining'    => $this->getUserLoginIntent() - $this->time(),
+				'message_type'      => $sMessageType,
+				'login_intent_flag' => $oFO->getLoginIntentRequestFlag()
 			),
 			'hrefs'   => array(
-				'form_action' => $this->loadDataProcessor()->getRequestUri(),
+				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' )
@@ -203,15 +204,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			 ->setRenderVars( $aDisplayData )
 			 ->display();
 		die();
-	}
-
-	/**
-	 * do we even need the flag?
-	 */
-	public function printLoginIntentFlag_Action() {
-		echo sprintf( '<input type="hidden" name="shield-login-intent-flag" value="%s"/>',
-			$this->getController()->getSessionId()
-		);
 	}
 
 	/**

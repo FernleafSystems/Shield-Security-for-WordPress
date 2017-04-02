@@ -324,6 +324,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getLoginIntentRequestFlag() {
+			return $this->doPluginPrefix( 'login-intent-request' );
+		}
+
+		/**
 		 * @param WP_User $oUser
 		 * @return string
 		 */

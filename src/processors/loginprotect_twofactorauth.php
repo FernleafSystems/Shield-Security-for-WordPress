@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			}
 
 			if ( $this->loadDataProcessor()->FetchGet( 'wpsf-action' ) == 'linkauth' ) {
-				add_action( 'init', array( $this, 'validateUserAuthLink' ), 10 );
+//				add_action( 'init', array( $this, 'validateUserAuthLink' ), 10 );
 			}
 
 			add_action( 'show_user_profile', array( $this, 'addEmailAuthenticationOptionsToUserProfile' ) );
@@ -66,7 +66,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 
 			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( 'email_otp', '' ) );
+			$sValidationCode = trim(  $this->loadDataProcessor()->FetchRequest( 'email_otp', false, '' ) );
 			if ( $oFO->getUserHasEmailAuthenticationActive( $oUser ) && $sValidationCode != $this->getSessionHashCode() ) {
 				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 			}
@@ -83,7 +83,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				$aFields[] = array(
 					'name' => 'email_otp',
 					'type' => 'text',
-					'value' => '',
+					'value' => $this->loadDataProcessor()->FetchGet( 'email_otp' ),
 					'text' => _wpsf__( 'Email OTP' ),
 					'help_link' => 'http://icwp.io/4i'
 				);
@@ -111,15 +111,19 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		public function validateUserAuthLink() {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
+			$oCon = $this->getController();
 			$oDp = $this->loadDataProcessor();
-			// authkey=%s&wpsf-action=%s&username=%s&sessionid
 
-			if ( $oDp->FetchGet( 'authkey' ) !== $oFO->getTwoAuthSecretKey() ) {
+			// Check the AuthKey (session hash code)
+			if ( $oDp->FetchGet( 'email_otp' ) !== $this->getSessionHashCode() ) {
 				return;
 			}
 
 			$sUsername = $oDp->FetchGet( 'username' );
-			$sSessionId = $oDp->FetchGet( 'sessionid' );
+			$sSessionId = $oCon->getSessionId();
+			if ( empty( $sSessionId ) ) {
+				$sSessionId = $oDp->FetchGet( 'sessionid' );
+			}
 
 			if ( empty( $sUsername ) || empty( $sSessionId ) ) {
 				return;
@@ -373,16 +377,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$aQueryArgs = array(
-				'authkey' 		=> $oFO->getTwoAuthSecretKey(),
-				'wpsf-action'	=> 'linkauth',
-				'username'		=> rawurlencode( $sUser ),
-				'sessionid'		=> $sSessionId
+				'email_otp'                       => $this->getSessionHashCode(),
+				$oFO->getLoginIntentRequestFlag() => 1,
+				'wpsf-action'                     => 'linkauth',
+				'username'                        => rawurlencode( $sUser ),
+				'sessionid'                       => $sSessionId
 			);
 			$sRedirectTo = esc_url( $this->loadDataProcessor()->FetchPost( 'redirect_to' ) );
 			if ( !empty( $sRedirectTo ) ) {
 				$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
 			}
-			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
+			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getUrl_WpAdmin() );
 		}
 
 		/**

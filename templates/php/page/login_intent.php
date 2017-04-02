@@ -44,7 +44,7 @@
             <p class="message bg-<?php echo $data['message_type']; ?>"> <?php echo $strings['message']; ?></p>
 
             <form action="<?php echo $hrefs['form_action']; ?>" method="post">
-                <input type="hidden" name="login-intent-form" value="1" />
+                <input type="hidden" name="<?php echo $data['login_intent_flag']; ?>" value="1" />
 
 				<?php foreach ( $data['login_fields'] as $aField ) : ?>
                     <div class="form-group">
