@@ -27,14 +27,82 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 			add_action( 'login_form', array( $this, 'printLoginField' ) );
 		}
 
-		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
+		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 
 		if ( $this->getController()->getIsValidAdminArea( true ) ) {
-			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserProfile' ) );
+			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 		}
 	}
+
+	/**
+	 */
+	public function validateLoginIntent() {
+		$oLoginTrack = $this->getLoginTrack();
+		$oLoginTrack->addSuccessfulFactor( $this->getStub() );
+
+		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		if ( $this->hasValidatedProfile( $oUser ) && !$this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
+			$oLoginTrack->addUnSuccessfulFactor( $this->getStub() );
+		}
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function hasValidatedProfile( $oUser ) {
+		return ( $this->loadWpUsersProcessor()->getUserMeta( $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_validated' ), $oUser->ID ) == 'Y' );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return string
+	 */
+	protected function getSecret( WP_User $oUser ) {
+		$oWpUser = $this->loadWpUsersProcessor();
+		$sSecret = $oWpUser->getUserMeta( $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_secret' ), $oUser->ID );
+		if ( empty( $sSecret ) ) {
+			$this->resetSecret( $oUser );
+		}
+		return $sSecret;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return string
+	 */
+	protected function resetSecret( WP_User $oUser ) {
+		$sNewSecret = $this->genNewSecret();
+		$this->loadWpUsersProcessor()
+			 ->updateUserMeta(
+				 $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_secret' ),
+				 $sNewSecret,
+				 $oUser->ID
+			 );
+		return $sNewSecret;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function genNewSecret() {
+		return '';
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param string  $sOtpCode
+	 * @return bool
+	 */
+	abstract protected function processOtp( $oUser, $sOtpCode );
+
+	/**
+	 * Look to LoginTracker
+	 * @return string
+	 */
+	abstract protected function getStub();
 
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
@@ -71,10 +139,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	abstract public function checkLoginForCode_Filter( $oUser );
 
 	/**
-	 */
-	public function validateLoginIntent() { }
-
-	/**
 	 * @param array $aFields
 	 * @return array
 	 */
@@ -94,7 +158,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	/**
 	 * @return string
 	 */
-	abstract protected function getLoginFormParameter();
+	protected function getLoginFormParameter() {
+		return $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_otp' );
+	}
 
 	/**
 	 * @return string

@@ -60,14 +60,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		/**
 		 */
 		public function validateLoginIntent() {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
 			$oLoginTrack = $this->getLoginTrack();
 			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 
 			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			$sValidationCode = trim(  $this->loadDataProcessor()->FetchRequest( 'email_otp', false, '' ) );
-			if ( $oFO->getUserHasEmailAuthenticationActive( $oUser ) && $sValidationCode != $this->getSessionHashCode() ) {
+			if ( $this->getUserHasEmailAuthenticationActive( $oUser ) && $this->fetchCodeFromRequest() != $this->getSessionHashCode() ) {
 				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
 			}
 		}
@@ -77,13 +74,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * @return array
 		 */
 		public function addLoginIntentField( $aFields ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-			if ( $oFO->getUserHasEmailAuthenticationActive( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+			if ( $this->getUserHasEmailAuthenticationActive( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
 				$aFields[] = array(
-					'name' => 'email_otp',
+					'name' => $this->getLoginFormParameter(),
 					'type' => 'text',
-					'value' => $this->loadDataProcessor()->FetchGet( 'email_otp' ),
+					'value' => $this->fetchCodeFromRequest(),
 					'text' => _wpsf__( 'Email OTP' ),
 					'help_link' => 'http://icwp.io/4i'
 				);
@@ -98,11 +93,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$sHtml =
 				'<p class="email-otp">
 				<label>%s<br />
-					<input type="text" name="email_otp" class="input" value="" size="20" />
+					<input type="text" name="%s" class="input" value="" size="20" />
 				</label>
 			</p>
 		';
-			return sprintf( $sHtml, '<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Email OTP').'</a>' );
+			return sprintf( $sHtml,
+				'<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Email OTP').'</a>',
+				$this->getLoginFormParameter()
+			);
 		}
 
 		/**
@@ -115,7 +113,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$oDp = $this->loadDataProcessor();
 
 			// Check the AuthKey (session hash code)
-			if ( $oDp->FetchGet( 'email_otp' ) !== $this->getSessionHashCode() ) {
+			if ( $this->fetchCodeFromRequest() !== $this->getSessionHashCode() ) {
 				return;
 			}
 
@@ -169,6 +167,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		}
 
 		/**
+		 * @param WP_User $oUser
+		 * @return bool
+		 */
+		public function getUserHasEmailAuthenticationActive( WP_User $oUser ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
+			return ( $oFO->getIsEmailAuthenticationEnabled() && $oFO->getIsUserSubjectToEmailAuthentication( $oUser ) );
+		}
+
+		/**
 		 * @return string
 		 */
 		protected function getSessionHashCode() {
@@ -210,9 +219,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
 			if ( $bUserLoginSuccess ) {
 
-				/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-				$oFO = $this->getFeatureOptions();
-				if ( !$oFO->getUserHasEmailAuthenticationActive( $oUser ) ) {
+				if ( !$this->getUserHasEmailAuthenticationActive( $oUser ) ) {
 					return $oUser;
 				}
 
@@ -377,7 +384,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$aQueryArgs = array(
-				'email_otp'                       => $this->getSessionHashCode(),
+				$this->getLoginFormParameter()    => $this->getSessionHashCode(),
 				$oFO->getLoginIntentRequestFlag() => 1,
 				'wpsf-action'                     => 'linkauth',
 				'username'                        => rawurlencode( $sUser ),
@@ -435,7 +442,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
 			$aData = array(
-				'user_has_email_authentication_active' => $oFO->getUserHasEmailAuthenticationActive( $oUser ),
+				'user_has_email_authentication_active' => $this->getUserHasEmailAuthenticationActive( $oUser ),
 				'user_has_email_authentication_enforced' => $oFO->getIsUserSubjectToEmailAuthentication( $oUser ),
 				'is_my_user_profile' => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
 				'i_am_valid_admin' => $this->getController()->getIsValidAdminArea( true ),
@@ -498,6 +505,26 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 				esc_sql( $nTimeStamp )
 			);
 			return $this->loadDbProcessor()->doSql( $sQuery );
+		}
+		/**
+		 * @return string
+		 */
+		protected function getLoginFormParameter() {
+			return $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_otp' );
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function fetchCodeFromRequest() {
+			return esc_attr( trim( $this->loadDataProcessor()->FetchRequest( $this->getLoginFormParameter(), false, '' ) ) );
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getStub() {
+			return ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email;
 		}
 
 		/**

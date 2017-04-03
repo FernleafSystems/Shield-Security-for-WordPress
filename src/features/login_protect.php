@@ -263,15 +263,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @param WP_User $oUser
-		 * @return bool
-		 */
-		public function getUserHasEmailAuthenticationActive( WP_User $oUser ) {
-			// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
-			return ( $this->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
-		}
-
-		/**
 		 * TODO: http://stackoverflow.com/questions/3499104/how-to-know-the-role-of-current-user-in-wordpress
 		 * @param WP_User $oUser
 		 * @return bool
@@ -302,47 +293,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @param WP_User $oUser
-		 * @return bool
-		 */
-		public function getHasGaValidated( WP_User $oUser ) {
-			return ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) == 'Y' );
-		}
-
-		/**
-		 * @param WP_User $oUser
-		 * @param bool    $bResetIfNotValidated
-		 * @return string
-		 */
-		public function getGaSecret( WP_User $oUser, $bResetIfNotValidated = false ) {
-			$oWpUser = $this->loadWpUsersProcessor();
-			$sSecret = $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_secret' ), $oUser->ID );
-			if ( empty( $sSecret ) || ( $bResetIfNotValidated && !$this->getHasGaValidated( $oUser ) ) )  {
-				$sSecret = $this->resetGaSecret( $oUser );
-			}
-			return $sSecret;
-		}
-
-		/**
 		 * @return string
 		 */
 		public function getLoginIntentRequestFlag() {
 			return $this->doPluginPrefix( 'login-intent-request' );
-		}
-
-		/**
-		 * @param WP_User $oUser
-		 * @return string
-		 */
-		public function resetGaSecret( WP_User $oUser ) {
-			$sNewSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
-			$this->loadWpUsersProcessor()
-				 ->updateUserMeta(
-					 $this->prefixOptionKey( 'ga_secret' ),
-					 $sNewSecret,
-					 $oUser->ID
-				 );
-			return $sNewSecret;
 		}
 
 		/**

@@ -14,29 +14,39 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	const YubikeyVerifyApiUrl = 'https://api.yubico.com/wsapi/2.0/verify?id=%s&otp=%s&nonce=%s';
 
 	/**
-	 * @var ICWP_WPSF_Processor_LoginProtect_Track
-	 */
-	private $oLoginTrack;
-
-	/**
 	 */
 	public function run() {
-
 		if ( $this->getIsYubikeyConfigReady() ) {
-
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
-
-			if ( $oFO->getIfUseLoginIntentPage() ) {
-				add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
-				add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
-			}
-			else {
-				// after User has authenticated email/username/password
-				add_filter( 'authenticate', array( $this, 'checkLoginForCode_Filter' ), 24, 1 );
-				add_action( 'login_form',	array( $this, 'printLoginField' ) );
-			}
+			parent::run();
 		}
+	}
+	/**
+	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
+	 * functions.  Otherwise we need to be careful of mixing up users.
+	 * @param WP_User $oUser
+	 */
+	public function addOptionsToUserProfile( $oUser ) {
+		$aData = array(
+			'has_validated_profile'       => $this->hasValidatedProfile( $oUser ),
+			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
+			'is_my_user_profile'               => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
+			'i_am_valid_admin'                 => $this->getController()->getHasPermissionToManage(),
+			'user_to_edit_is_admin'            => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
+			'strings'                          => array(
+				'description_otp_code' => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
+				'label_enter_code'     => _wpsf__( 'Yubikey Code' ),
+				'title'                => _wpsf__( 'Yubikey' ),
+				'cant_add_other_user'  => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
+				'cant_remove_admins'   => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
+				'provided_by'          => sprintf( _wpsf__( 'Provided by %s' ), $this->getController()->getHumanName() ),
+				'remove_more_info'     => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
+			),
+			'data'                             => array(
+				'otp_field_name' => $this->getLoginFormParameter()
+			)
+		);
+
+		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
 	}
 
 	/**
@@ -46,7 +56,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	public function checkLoginForCode_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-		$oDp = $this->loadDataProcessor();
 		$oLoginTrack = $this->getLoginTrack();
 
 		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactorAuth();
@@ -98,7 +107,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			}
 		}
 
-		if ( $this->processYubikeyOtp( $sOneTimePassword ) ) {
+		if ( $this->processOtp( null, $sOneTimePassword ) ) {
 			$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
 			$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
@@ -118,10 +127,11 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
+	 * @param WP_User $oUser
 	 * @param string $sOneTimePassword
 	 * @return bool
 	 */
-	protected function processYubikeyOtp( $sOneTimePassword ) {
+	protected function processOtp( $oUser, $sOneTimePassword ) {
 
 		$sNonce = md5( uniqid( rand() ) );
 		$sUrl = sprintf( self::YubikeyVerifyApiUrl,
@@ -140,39 +150,11 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 */
-	public function validateLoginIntent() {
-		$oLoginTrack = $this->getLoginTrack();
-		$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
-
-		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-		if ( $this->userHasYubikeyEnabled( $oUser ) && !$this->processYubikeyOtp( $this->fetchCodeFromRequest() ) ) {
-			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
-		}
-	}
-
-	/**
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	protected function userHasYubikeyEnabled( $oUser ) {
-		$sUsername = $oUser->get( 'user_login' );
-		$bUsernameFound = false;
-		foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
-			if ( isset( $aUsernameYubikeyPair[ $sUsername ] ) ) {
-				$bUsernameFound = true;
-				break;
-			}
-		}
-		return $bUsernameFound;
-	}
-
-	/**
 	 * @param array $aFields
 	 * @return array
 	 */
 	public function addLoginIntentField( $aFields ) {
-		if ( $this->userHasYubikeyEnabled( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+		if ( $this->hasValidatedProfile( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
 			$aFields[] = array(
 				'name' => $this->getLoginFormParameter(),
 				'type' => 'text',
@@ -185,9 +167,18 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
+	 * @param WP_User $oUser
+	 * @return bool
 	 */
-	public function printLoginField() {
-		echo $this->getLoginFormField();
+	protected function hasValidatedProfile( $oUser ) {
+		$bUsernameFound = false;
+		foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
+			if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
+				$bUsernameFound = true;
+				break;
+			}
+		}
+		return $bUsernameFound;
 	}
 
 	/**
@@ -211,32 +202,16 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @return bool
 	 */
 	protected function getIsYubikeyConfigReady() {
-		$sAppId = $this->getOption('yubikey_app_id');
-		$sApiKey = $this->getOption('yubikey_api_key');
-		$aYubikeyKeys = $this->getOption('yubikey_unique_keys');
-		return !empty($sAppId) && !empty($sApiKey) && !empty($aYubikeyKeys);
+		$sAppId = $this->getOption( 'yubikey_app_id' );
+		$sApiKey = $this->getOption( 'yubikey_api_key' );
+		$aYubikeyKeys = $this->getOption( 'yubikey_unique_keys' );
+		return !empty( $sAppId ) && !empty( $sApiKey ) && !empty( $aYubikeyKeys );
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getLoginFormParameter() {
-		return $this->getFeatureOptions()->prefixOptionKey( 'yubi_otp' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Track
-	 */
-	public function getLoginTrack() {
-		return $this->oLoginTrack;
-	}
-
-	/**
-	 * @param ICWP_WPSF_Processor_LoginProtect_Track $oLoginTrack
-	 * @return $this
-	 */
-	public function setLoginTrack( $oLoginTrack ) {
-		$this->oLoginTrack = $oLoginTrack;
-		return $this;
+	protected function getStub() {
+		return ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey;
 	}
 }
