@@ -193,7 +193,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function checkLoginForCode_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
-		$oDp = $this->loadDataProcessor();
 		$oLoginTrack = $this->getLoginTrack();
 
 		// Mulifactor or not
@@ -210,7 +209,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 			$oError = new WP_Error();
 
-			$sGaOtp = $oDp->FetchPost( $this->getLoginFormParameter(), '' );
+			$sGaOtp = $this->fetchCodeFromRequest();
 			$bIsError = false;
 			if ( empty( $sGaOtp ) ) {
 				$bIsError = true;
@@ -249,8 +248,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 
 		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-		$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( $this->getLoginFormParameter(), '' ) );
-		if ( $oFO->getHasGaValidated( $oUser ) && !$this->processOtp( $oUser, $sValidationCode ) ) {
+		if ( $oFO->getHasGaValidated( $oUser ) && !$this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
 			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 		}
 	}

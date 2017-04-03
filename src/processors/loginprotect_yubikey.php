@@ -60,7 +60,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$oError = new WP_Error();
 		$sUsername = $oUser->get( 'user_login' );
 
-		$sOneTimePassword = trim( $oDp->FetchPost( $this->getLoginFormParameter(), '' ) );
+		$sOneTimePassword = $this->fetchCodeFromRequest();
 //			$sApiKey = $this->getOption('yubikey_api_key');
 
 		// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
@@ -146,8 +146,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 
 		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-		$sValidationCode = trim(  $this->loadDataProcessor()->FetchPost( $this->getLoginFormParameter(), '' ) );
-		if ( $this->userHasYubikeyEnabled( $oUser ) && !$this->processYubikeyOtp( $sValidationCode ) ) {
+		if ( $this->userHasYubikeyEnabled( $oUser ) && !$this->processYubikeyOtp( $this->fetchCodeFromRequest() ) ) {
 			$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 		}
 	}
@@ -177,7 +176,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			$aFields[] = array(
 				'name' => $this->getLoginFormParameter(),
 				'type' => 'text',
-				'value' => '',
+				'value' => $this->fetchCodeFromRequest(),
 				'text' => _wpsf__( 'Yubikey OTP' ),
 				'help_link' => 'http://icwp.io/4i'
 			);
