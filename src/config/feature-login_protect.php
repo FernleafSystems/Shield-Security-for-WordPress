@@ -113,7 +113,7 @@
     {
       "key": "enable_chained_authentication",
       "section": "section_multifactor_authentication",
-      "default": "Y",
+      "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld7",
       "link_blog": "http://icwp.io/shld6",
