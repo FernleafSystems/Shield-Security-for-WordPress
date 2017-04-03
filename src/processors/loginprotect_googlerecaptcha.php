@@ -1,6 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha', false ) ):
+	return;
+endif;
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_base.php' );
 
@@ -100,4 +102,3 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		return $oUser;
 	}
 }
-endif;

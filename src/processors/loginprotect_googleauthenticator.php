@@ -24,8 +24,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 		$oCon = $this->getController();
+
+		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
-			'has_validated_profile'       => $this->hasValidatedProfile( $oUser ),
+			'has_validated_profile'            => $bValidatedProfile,
 			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
 			'is_my_user_profile'               => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
 			'i_am_valid_admin'                 => $oCon->getHasPermissionToManage(),
@@ -51,7 +53,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			)
 		);
 
-		if ( !$aData['has_validated_profile'] ) {
+		if ( !$bValidatedProfile ) {
 			$sChartUrl = $this->loadGoogleAuthenticatorProcessor()->getGoogleQrChartUrl(
 				$aData['user_google_authenticator_secret'],
 				$oUser->get('user_login').'@'.$this->loadWpFunctionsProcessor()->getHomeUrl( true )
