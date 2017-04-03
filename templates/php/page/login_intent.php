@@ -1,6 +1,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="<?php echo $hrefs['css_bootstrap']; ?>" />
+    <title><?php echo $strings['page_title']; ?></title>
 
     <style>
         .message {

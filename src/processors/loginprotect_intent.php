@@ -197,9 +197,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
 				'login_expired'   => _wpsf__( 'Login Expired' ),
 				'verify_my_login' => _wpsf__( 'Verify My Login' ),
-				'more_info' => _wpsf__( 'More Info' ),
-				'what_is_this' => _wpsf__( 'What is this?' ),
+				'more_info'       => _wpsf__( 'More Info' ),
+				'what_is_this'    => _wpsf__( 'What is this?' ),
 				'message'         => $sMessage,
+				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() )
 			),
 			'data'    => array(
 				'login_fields'      => $aLoginIntentFields,
@@ -212,8 +213,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' ),
-				'redirect_to' => $sRedirectTo,
-				'what_is_this' => '',
+				'redirect_to'   => $sRedirectTo,
+				'what_is_this'  => '',
 			)
 		);
 
