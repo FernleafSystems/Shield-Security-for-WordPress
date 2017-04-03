@@ -26,15 +26,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$this->getProcessorGoogleAuthenticator()->run();
 		}
 
+		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
+			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
+			$this->getProcessorTwoFactor()->run();
+		}
+
 		// check for Yubikey auth after user is authenticated with WordPress.
 		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
 			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 			$this->getProcessorYubikey()->run();
-		}
-
-		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
-			$this->getProcessorTwoFactor()->run();
 		}
 
 		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
@@ -63,7 +63,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
 					$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
-					$this->loadWpFunctionsProcessor()->redirectHere();
+					$this->loadWpFunctionsProcessor()->redirectToLogin();
 					return;
 				}
 
@@ -215,6 +215,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'shield_logo'   => $oCon->getPluginUrl_Image( 'shield/shield-security-1544x500.png' ),
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => '',
+				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			)
 		);
 
