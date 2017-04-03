@@ -107,8 +107,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 * Checks the link details to ensure all is valid before authorizing the user.
 		 */
 		public function validateUserAuthLink() {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
 			$oCon = $this->getController();
 			$oDp = $this->loadDataProcessor();
 

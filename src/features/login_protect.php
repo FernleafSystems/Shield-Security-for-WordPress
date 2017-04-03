@@ -494,7 +494,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 				case 'yubikey_unique_keys' :
 					$sName = _wpsf__( 'Yubikey Unique Keys' );
-					$sSummary = _wpsf__( 'Permitted "Username - Yubikey" Pairs For This Site' );
+					$sSummary = _wpsf__( 'This method for Yubikeys is no longer supported. Please see your user profile' );
 					$sDescription = '<strong>' . sprintf( _wpsf__( 'Format: %s' ), 'Username,Yubikey' ) . '</strong>'
 						. '<br />- ' . _wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
 						. '<br />- ' . _wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )

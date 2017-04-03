@@ -129,8 +129,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
 		$oWpUsers = $this->loadWpUsersProcessor();
 		$oWpNotices = $this->loadAdminNoticesProcessor();

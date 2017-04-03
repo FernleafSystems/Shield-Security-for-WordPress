@@ -269,7 +269,7 @@
       "link_info": "http://icwp.io/4h",
       "link_blog": "",
       "name": "Yubikey Unique Keys",
-      "summary": "Permitted 'Username - Yubikey' Pairs For This Site",
+      "summary": "This method for Yubikeys is no longer supported. Please see your user profile.",
       "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
     },
     {
