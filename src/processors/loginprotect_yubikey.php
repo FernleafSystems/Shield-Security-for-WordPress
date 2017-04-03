@@ -37,7 +37,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			'strings'               => array(
 				'description_otp_code' => _wpsf__( 'This is your unique Yubikey Device ID.' ),
 				'description_otp'      => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
-				'description_otp_ext'      => ( $bValidatedProfile ? _wpsf__( 'This will remove Yubikey Authentication from your account.' ) : _wpsf__( 'This will add Yubikey Authentication to your account.' ) ),
+				'description_otp_ext'  => $bValidatedProfile ? _wpsf__( 'This will remove Yubikey Authentication from your account.' ) : _wpsf__( 'This will add Yubikey Authentication to your account.' ),
 				'label_enter_code'     => _wpsf__( 'Yubikey ID' ),
 				'label_enter_otp'      => _wpsf__( 'Yubikey OTP' ),
 				'title'                => _wpsf__( 'Yubikey Authentication' ),
@@ -62,8 +62,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
 		$oWpUsers = $this->loadWpUsersProcessor();
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
@@ -224,20 +222,28 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		return $aFields;
 	}
 
-//	/**
-//	 * @param WP_User $oUser
-//	 * @return bool
-//	 */
-//	protected function hasValidatedProfile( $oUser ) {
-//		$bUsernameFound = false;
-//		foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
-//			if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
-//				$bUsernameFound = true;
-//				break;
-//			}
-//		}
-//		return $bUsernameFound;
-//	}
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function hasValidatedProfile( $oUser ) {
+		$bValid = parent::hasValidatedProfile( $oUser );
+		$aKeys = $this->getOption( 'yubikey_unique_keys' );
+		if ( !$bValid && !empty( $aKeys ) && is_array( $aKeys ) ) {
+			foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
+				if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
+					$bValid = true;
+					/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+					$oFO = $this->getFeatureOptions();
+					$oFO->removeUserFromOldYubikeyList( $oUser );
+					$this->setSecret( $oUser, $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] )
+						 ->setProfileValidated( $oUser, true );
+					break;
+				}
+			}
+		}
+		return $bValid;
+	}
 
 	/**
 	 * @return string
@@ -262,8 +268,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	protected function getIsYubikeyConfigReady() {
 		$sAppId = $this->getOption( 'yubikey_app_id' );
 		$sApiKey = $this->getOption( 'yubikey_api_key' );
-		$aYubikeyKeys = $this->getOption( 'yubikey_unique_keys' );
-		return !empty( $sAppId ) && !empty( $sApiKey ) && !empty( $aYubikeyKeys );
+		return !empty( $sAppId ) && !empty( $sApiKey );
 	}
 
 	/**

@@ -74,7 +74,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * Hooked to action wp_login
 	 *
 	 * @param $sUsername
-	 * @return bool
 	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
