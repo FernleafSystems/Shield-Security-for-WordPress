@@ -89,6 +89,7 @@
                                    class="form-control"
                                    id="<?php echo $aField['name']; ?>"
                                    placeholder="<?php echo $aField['text']; ?>"
+                                   autocomplete="off"
                             />
                             <div class="input-group-addon">
                                 <a href="<?php echo $aField['help_link']; ?>" target="_blank" class="input-help">&quest;</a>
