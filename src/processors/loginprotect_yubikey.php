@@ -26,27 +26,85 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
+		$oCon = $this->getController();
+
+		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
-			'has_validated_profile'       => $this->hasValidatedProfile( $oUser ),
-			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
-			'is_my_user_profile'               => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
-			'i_am_valid_admin'                 => $this->getController()->getHasPermissionToManage(),
-			'user_to_edit_is_admin'            => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
-			'strings'                          => array(
-				'description_otp_code' => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
+			'has_validated_profile' => $bValidatedProfile,
+			'is_my_user_profile'    => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
+			'i_am_valid_admin'      => $oCon->getHasPermissionToManage(),
+			'user_to_edit_is_admin' => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
+			'strings'               => array(
+				'description_otp_code' => _wpsf__( 'This is your unique Yubikey Code.' ),
+				'description_otp'      => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
+				'description_otp_ext'      => ( $bValidatedProfile ? _wpsf__( 'This will remove Yubikey Authentication from your account.' ) : _wpsf__( 'This will add Yubikey Authentication to your account.' ) ),
 				'label_enter_code'     => _wpsf__( 'Yubikey Code' ),
+				'label_enter_otp'      => _wpsf__( 'Yubikey OTP' ),
 				'title'                => _wpsf__( 'Yubikey' ),
 				'cant_add_other_user'  => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
 				'cant_remove_admins'   => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
-				'provided_by'          => sprintf( _wpsf__( 'Provided by %s' ), $this->getController()->getHumanName() ),
+				'provided_by'          => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
 				'remove_more_info'     => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
 			),
-			'data'                             => array(
-				'otp_field_name' => $this->getLoginFormParameter()
+			'data'                  => array(
+				'otp_field_name' => $this->getLoginFormParameter(),
+				'secret'         => $this->getSecret( $oUser ),
 			)
 		);
 
 		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
+	}
+
+	/**
+	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
+	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
+	 *
+	 * @param int $nSavingUserId
+	 */
+	public function handleUserProfileSubmit( $nSavingUserId ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeatureOptions();
+		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpNotices = $this->loadAdminNoticesProcessor();
+
+		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
+
+		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
+		$sOtp = $this->fetchCodeFromRequest();
+		$bValidOtp = $this->processOtp( $oSavingUser, $sOtp );
+
+		$sMessageOtpInvalid = _wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' );
+
+		// At this stage, if the OTP was empty, then we have no further processing to do.
+		if ( empty( $sOtp ) ) {
+			return;
+		}
+
+		if ( !$bValidOtp ) {
+			$oWpNotices->addFlashErrorMessage( $sMessageOtpInvalid );
+			return;
+		}
+
+		// We're trying to validate our OTP to activate
+		if ( !$this->hasValidatedProfile( $oSavingUser ) ) {
+
+			$this->setSecret( $oSavingUser, substr( $sOtp, 0, 12 ) )
+				 ->setProfileValidated( $oSavingUser );
+			$oWpNotices->addFlashMessage(
+				sprintf( _wpsf__( '%s was successfully added to your account.' ),
+					_wpsf__( 'Yubikey' )
+				)
+			);
+		}
+		else {
+			$this->setProfileValidated( $oSavingUser, false )
+				 ->resetSecret( $oSavingUser );
+			$oWpNotices->addFlashMessage(
+				sprintf( _wpsf__( '%s was successfully removed from your account.' ),
+					_wpsf__( 'Yubikey' )
+				)
+			);
+		}
 	}
 
 	/**
@@ -166,20 +224,20 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		return $aFields;
 	}
 
-	/**
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	protected function hasValidatedProfile( $oUser ) {
-		$bUsernameFound = false;
-		foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
-			if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
-				$bUsernameFound = true;
-				break;
-			}
-		}
-		return $bUsernameFound;
-	}
+//	/**
+//	 * @param WP_User $oUser
+//	 * @return bool
+//	 */
+//	protected function hasValidatedProfile( $oUser ) {
+//		$bUsernameFound = false;
+//		foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
+//			if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
+//				$bUsernameFound = true;
+//				break;
+//			}
+//		}
+//		return $bUsernameFound;
+//	}
 
 	/**
 	 * @return string

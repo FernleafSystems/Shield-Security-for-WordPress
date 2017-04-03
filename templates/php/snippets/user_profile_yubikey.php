@@ -16,18 +16,29 @@
 	<table class="form-table">
 		<tbody>
 
-		<?php if ( $user_has_validated_profile ) : ?>
+		<?php if ( $has_validated_profile ) : ?>
 
 			<?php if ( $is_my_user_profile || $i_am_valid_admin ) : ?>
                 <tr>
-                    <th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_code']; ?></label></th>
+                    <th><label for="yubi_code"><?php echo $strings['label_enter_code']; ?></label></th>
+                    <td>
+                        <input class="regular-text" name="yubi_code" id="yubi_code"
+                               type="text"
+                               value="<?php echo $data['secret']; ?>" readonly />
+                        <p class="description"><?php echo $strings['description_otp_code']; ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_otp']; ?></label></th>
                     <td>
                         <input class="regular-text"
                                type="text"
                                id="<?php echo $data['otp_field_name']; ?>"
                                name="<?php echo $data['otp_field_name']; ?>"
                                value="" autocomplete="off" />
-                        <p class="description"><?php echo $strings['description_otp_code']; ?></p>
+                        <p class="description"><?php echo $strings['description_otp']; ?>
+                            <br/><?php echo $strings['description_otp_ext']; ?>
+                        </p>
                     </td>
                 </tr>
 			<?php else : ?>
@@ -40,7 +51,7 @@
 
 			<?php if ( $is_my_user_profile ) : ?>
 				<tr>
-					<th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_code']; ?></label></th>
+					<th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_otp']; ?></label></th>
 					<td>
 						<input class="regular-text"
                                type="text"
@@ -48,8 +59,8 @@
                                name="<?php echo $data['otp_field_name']; ?>"
                                value="" autocomplete="off" />
 						<p class="description">
-							<?php echo $strings['description_otp_code']; ?>
-							<br/><?php echo $strings['description_otp_code_ext']; ?>
+							<?php echo $strings['description_otp']; ?>
+							<br/><?php echo $strings['description_otp_ext']; ?>
                         </p>
 					</td>
 				</tr>

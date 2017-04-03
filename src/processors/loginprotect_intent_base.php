@@ -75,13 +75,38 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 */
 	protected function resetSecret( WP_User $oUser ) {
 		$sNewSecret = $this->genNewSecret();
+		$this->setSecret( $oUser, $sNewSecret );
+		return $sNewSecret;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param bool  $bValidated set true for validated, false for invalidated
+	 * @return $this
+	 */
+	protected function setProfileValidated( $oUser, $bValidated = true ) {
+		$this->loadWpUsersProcessor()
+			 ->updateUserMeta(
+				 $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_validated' ),
+				 $bValidated ? 'Y' : 'N',
+				 $oUser->ID
+			 );
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param $sNewSecret
+	 * @return $this
+	 */
+	protected function setSecret( $oUser, $sNewSecret ) {
 		$this->loadWpUsersProcessor()
 			 ->updateUserMeta(
 				 $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_secret' ),
 				 $sNewSecret,
 				 $oUser->ID
 			 );
-		return $sNewSecret;
+		return $this;
 	}
 
 	/**
