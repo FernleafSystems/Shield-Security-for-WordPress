@@ -100,7 +100,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_BaseDbPro
 				'value' => $this->fetchCodeFromRequest(),
 				'placeholder' => _wpsf__( 'This code was just sent to your registered Email address.' ),
 				'text' => _wpsf__( 'Email OTP' ),
-				'help_link' => 'http://icwp.io/4i'
+				'help_link' => 'http://icwp.io/3t'
 			);
 		}
 		return $aFields;
@@ -118,7 +118,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_BaseDbPro
 			</p>
 		';
 		return sprintf( $sHtml,
-			'<a href="http://icwp.io/4i" target="_blank">'._wpsf__('Email OTP').'</a>',
+			'<a href="http://icwp.io/3t" target="_blank">'._wpsf__('Email OTP').'</a>',
 			$this->getLoginFormParameter()
 		);
 	}
