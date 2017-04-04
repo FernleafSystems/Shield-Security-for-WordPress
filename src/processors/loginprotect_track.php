@@ -127,6 +127,17 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	}
 
 	/**
+	 * @param string $sFactor
+	 * @return $this
+	 */
+	public function removeFactorToTrack( $sFactor ) {
+		$aFactorsToTrack = $this->getAuthFactorsToTrack();
+		unset( $aFactorsToTrack[ $sFactor ] );
+		$this->aFactorsToTrack = $aFactorsToTrack;
+		return $this;
+	}
+
+	/**
 	 * Also remove remaining factors to track
 	 * @param string $sFactor
 	 * @param bool $bState

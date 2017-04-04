@@ -75,6 +75,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				else {
 					$bLoginIntentValidated = $oLoginTracker->hasSuccessfulFactorAuth();
 				}
+
 				if ( $bLoginIntentValidated ) {
 					$this->removeLoginIntent();
 					$sRedirect = $oDp->FetchRequest( 'redirect_to' );

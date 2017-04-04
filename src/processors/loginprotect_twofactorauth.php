@@ -61,12 +61,29 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 		 */
 		public function validateLoginIntent() {
 			$oLoginTrack = $this->getLoginTrack();
-			$oLoginTrack->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
-
 			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-			if ( $this->getUserHasEmailAuthenticationActive( $oUser ) && $this->fetchCodeFromRequest() != $this->getSessionHashCode() ) {
-				$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
+
+			$sFactor = $this->getStub();
+			if ( !$this->getUserHasEmailAuthenticationActive( $oUser ) ) {
+				$oLoginTrack->removeFactorToTrack( $sFactor );
 			}
+			else {
+				if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
+					$oLoginTrack->addSuccessfulFactor( $sFactor );
+				}
+				else {
+					$oLoginTrack->addUnSuccessfulFactor( $sFactor );
+				}
+			}
+		}
+
+		/**
+		 * @param WP_User $oUser
+		 * @param string  $sOtpCode
+		 * @return bool
+		 */
+		protected function processOtp( $oUser, $sOtpCode ) {
+			return $sOtpCode == $this->getSessionHashCode();
 		}
 
 		/**
@@ -79,6 +96,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 					'name' => $this->getLoginFormParameter(),
 					'type' => 'text',
 					'value' => $this->fetchCodeFromRequest(),
+					'placeholder' => _wpsf__( 'This code was just sent to your registered Email address.' ),
 					'text' => _wpsf__( 'Email OTP' ),
 					'help_link' => 'http://icwp.io/4i'
 				);
@@ -392,7 +410,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ):
 			if ( !empty( $sRedirectTo ) ) {
 				$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
 			}
-			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getUrl_WpAdmin() );
+			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
 		}
 
 		/**

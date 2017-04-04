@@ -64,7 +64,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-6 col-md-offset-3">
+        <div class="col-sm-4 col-md-offset-4">
             <img id="ShieldLogo" class="img-responsive" src="<?php echo $hrefs['shield_logo']; ?>" />
         </div>
     </div>
@@ -88,7 +88,7 @@
                                    value="<?php echo $aField['value']; ?>"
                                    class="form-control"
                                    id="<?php echo $aField['name']; ?>"
-                                   placeholder="<?php echo $aField['text']; ?>"
+                                   placeholder="<?php echo $aField['placeholder']; ?>"
                                    autocomplete="off"
                             />
                             <div class="input-group-addon">
@@ -101,7 +101,7 @@
                 <div class="form-group submit">
                     <div class="row">
                         <div class="col-md-6 pull-right">
-                            <button type="submit" id="mainSubmit" class="pull-right btn btn-default"><?php echo $strings['verify_my_login']; ?></button>
+                            <button type="submit" id="mainSubmit" class="pull-right btn btn-success"><?php echo $strings['verify_my_login']; ?></button>
                         </div>
                         <div class="col-md-6 pull-left">
                             <button class="btn btn-link" name="cancel" value="1">&larr; <?php echo $strings['cancel']; ?></button>

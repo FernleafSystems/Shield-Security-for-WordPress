@@ -42,11 +42,19 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 */
 	public function validateLoginIntent() {
 		$oLoginTrack = $this->getLoginTrack();
-		$oLoginTrack->addSuccessfulFactor( $this->getStub() );
-
 		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-		if ( $this->hasValidatedProfile( $oUser ) && !$this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
-			$oLoginTrack->addUnSuccessfulFactor( $this->getStub() );
+
+		$sFactor = $this->getStub();
+		if ( !$this->hasValidatedProfile( $oUser ) ) {
+			$oLoginTrack->removeFactorToTrack( $sFactor );
+		}
+		else {
+			if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
+				$oLoginTrack->addSuccessfulFactor( $sFactor );
+			}
+			else {
+				$oLoginTrack->addUnSuccessfulFactor( $sFactor );
+			}
 		}
 	}
 
