@@ -1132,7 +1132,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( empty( $this->sPluginUrl ) ) {
 			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
 		}
-		return $this->sPluginUrl.$sPath;
+		$aArgs = array( 'ver' => $this->getVersion() );
+		return add_query_arg( $aArgs, $this->sPluginUrl . $sPath );
 	}
 
 	/**
