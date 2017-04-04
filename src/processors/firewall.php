@@ -447,7 +447,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 						'pwd',
 						'url',
 						'referredby',
-						'redirect_to'
+						'redirect_to',
+						'jetpack_sso_original_request'
 					)
 				);
 
