@@ -8,6 +8,22 @@ require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_intent_base.ph
 
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentBase {
 
+	public function run() {
+		parent::run();
+
+		// TODO: temporary, remove ASAP
+		if ( is_admin() && self::getController()->getHasPermissionToManage() ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeatureOptions();
+			$sTableName = $oFO->getTwoFactorAuthTableName();
+			if ( $this->loadDbProcessor()->getIfTableExists( $sTableName ) ) {
+				$this->loadDbProcessor()->doDropTable( $sTableName );
+				$sCronName = $oFO->doPluginPrefix( $oFO->getFeatureSlug().'_db_cleanup' );
+				wp_clear_scheduled_hook( $sCronName );
+			}
+		}
+	}
+
 	/**
 	 * @param WP_User|WP_Error|null $oUser
 	 * @return WP_Error|WP_User|null	- WP_User when the login success AND the IP is authenticated. null when login not successful but IP is valid. WP_Error otherwise.
