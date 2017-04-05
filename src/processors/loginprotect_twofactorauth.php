@@ -10,14 +10,20 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 
 	public function run() {
 		parent::run();
+		add_action( 'init', array( $this, 'onWpInit' ) );  // TODO: temporary, remove ASAP
+	}
 
-		// TODO: temporary, remove ASAP
-		if ( is_admin() && self::getController()->getHasPermissionToManage() ) {
+	/**
+	 * TODO: Temporary
+	 */
+	public function onWpInit() {
+		if ( $this->getController()->getIsValidAdminArea() ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeatureOptions();
-			$sTableName = $oFO->getTwoFactorAuthTableName();
-			if ( $this->loadDbProcessor()->getIfTableExists( $sTableName ) ) {
-				$this->loadDbProcessor()->doDropTable( $sTableName );
+			$oDb = $this->loadDbProcessor();
+			$sTableName = $oDb->getPrefix().$oFO->getTwoFactorAuthTableName();
+			if ( $oDb->getIfTableExists( $sTableName ) ) {
+				$oDb->doDropTable( $sTableName );
 				$sCronName = $oFO->doPluginPrefix( $oFO->getFeatureSlug().'_db_cleanup' );
 				wp_clear_scheduled_hook( $sCronName );
 			}
