@@ -206,6 +206,26 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
+	 * @param bool $bIsSuccess
+	 */
+	protected function auditLogin( $bIsSuccess ) {
+		if ( $bIsSuccess ) {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_yubikey_login_success'
+			);
+			$this->doStatIncrement( 'login.yubikey.verified' );
+		}
+		else {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_yubikey_failed'
+			);
+			$this->doStatIncrement( 'login.yubikey.failed' );
+		}
+	}
+
+	/**
 	 * @param array $aFields
 	 * @return array
 	 */

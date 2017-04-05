@@ -50,9 +50,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		else {
 			if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
 				$oLoginTrack->addSuccessfulFactor( $sFactor );
+				$this->auditLogin( true );
 			}
 			else {
 				$oLoginTrack->addUnSuccessfulFactor( $sFactor );
+				$this->auditLogin( false );
 			}
 		}
 	}
@@ -179,6 +181,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return array
 	 */
 	abstract public function addLoginIntentField( $aFields );
+
+	/**
+	 * @param bool $bIsSuccess
+	 */
+	abstract protected function auditLogin( $bIsSuccess );
 
 	/**
 	 * @return string

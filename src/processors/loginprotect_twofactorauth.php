@@ -45,26 +45,22 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * @param bool $bIsSuccess
 	 */
-	public function validateLoginIntent() {
-		$oLoginTrack = $this->getLoginTrack();
-		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
-
-		$sFactor = $this->getStub();
-		if ( !$this->hasValidatedProfile( $oUser ) ) {
-			$oLoginTrack->removeFactorToTrack( $sFactor );
+	protected function auditLogin( $bIsSuccess ) {
+		if ( $bIsSuccess ) {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_two_factor_verified'
+			);
+			$this->doStatIncrement( 'login.twofactor.verified' );
 		}
 		else {
-			if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
-				$oLoginTrack->addSuccessfulFactor( $sFactor );
-
-				$sAuditMessage = sprintf( _wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ), $oUser->get( 'user_login' ) );
-				$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_verified' );
-				$this->doStatIncrement( 'login.twofactor.verified' );
-			}
-			else {
-				$oLoginTrack->addUnSuccessfulFactor( $sFactor );
-			}
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Email Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_two_factor_failed'
+			);
+			$this->doStatIncrement( 'login.twofactor.failed' );
 		}
 	}
 
@@ -149,7 +145,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$aQueryArgs = array(
 			$this->getLoginFormParameter()    => $this->getSessionHashCode(),
 			$oFO->getLoginIntentRequestFlag() => 1,
-			'wpsf-action'                     => 'linkauth',
 			'username'                        => rawurlencode( $sUser ),
 			'sessionid'                       => $sSessionId
 		);

@@ -321,6 +321,26 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
+	 * @param bool $bIsSuccess
+	 */
+	protected function auditLogin( $bIsSuccess ) {
+		if ( $bIsSuccess ) {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_ga_verified'
+			);
+			$this->doStatIncrement( 'login.googleauthenticator.verified' );
+		}
+		else {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_ga_failed'
+			);
+			$this->doStatIncrement( 'login.googleauthenticator.fail' );
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function generateGaRemovalConfirmationLink() {
