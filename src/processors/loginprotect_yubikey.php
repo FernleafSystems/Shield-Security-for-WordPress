@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 * @return WP_User|WP_Error
 	 */
-	public function checkLoginForCode_Filter( $oUser ) {
+	public function processLoginAttempt_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oLoginTrack = $this->getLoginTrack();
@@ -244,23 +244,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			}
 		}
 		return $bValid;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getLoginFormField() {
-		$sHtml =
-			'<p class="yubi_otp">
-				<label>%s<br />
-					<input type="text" name="%s" class="input" value="" size="20" />
-				</label>
-			</p>
-		';
-		return sprintf( $sHtml,
-			'<a href="http://icwp.io/4i" target="_blank">' . _wpsf__( 'Yubikey OTP' ) . '</a>',
-			$this->getLoginFormParameter()
-		);
 	}
 
 	/**

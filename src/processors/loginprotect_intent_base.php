@@ -23,10 +23,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 			add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
 			add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 		}
-		else {
-			// after User has authenticated email/username/password
-			add_filter( 'authenticate', array( $this, 'checkLoginForCode_Filter' ), 23, 2 );
-			add_action( 'login_form', array( $this, 'printLoginField' ) );
+
+		if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
@@ -168,27 +167,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	public function handleUserProfileSubmit( $nSavingUserId ) {}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param WP_Error|WP_User $oUser
 	 * @return WP_Error|WP_User
 	 */
-	abstract public function checkLoginForCode_Filter( $oUser );
+	public function processLoginAttempt_Filter( $oUser ) {
+		return $oUser;
+	}
 
 	/**
 	 * @param array $aFields
 	 * @return array
 	 */
 	abstract public function addLoginIntentField( $aFields );
-
-	/**
-	 */
-	public function printLoginField() {
-		echo $this->getLoginFormField();
-	}
-
-	/**
-	 * @return string
-	 */
-	abstract protected function getLoginFormField();
 
 	/**
 	 * @return string
