@@ -47,6 +47,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		}
 
 		/**
+		 * @param bool $bAutoRepair
+		 * @return array
+		 */
+		public function runManualChecksumScan( $bAutoRepair ) {
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
+			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeatureOptions() );
+			return $oPv->doChecksumScan( $bAutoRepair );
+		}
+
+		/**
 		 */
 		protected function runChecksumScan() {
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
