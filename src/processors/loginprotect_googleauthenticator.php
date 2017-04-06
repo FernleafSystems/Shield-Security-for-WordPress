@@ -194,7 +194,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param WP_User $oUser
 	 * @return WP_Error|WP_User
 	 */
-	public function checkLoginForCode_Filter( $oUser ) {
+	public function processLoginAttempt_FilterOld( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oLoginTrack = $this->getLoginTrack();
@@ -255,39 +255,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				'value'     => '',
 				'placeholder' => _wpsf__( 'Please use your Google Authenticator App to retrieve your code.' ),
 				'text'      => _wpsf__( 'Google Authenticator Code' ),
-				'help_link' => 'http://icwp.io/wpsf42'
+				'help_link' => 'http://icwp.io/wpsf42',
+				'extras' => array(
+					'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
+				)
 			);
 		}
 		return $aFields;
-	}
-
-	/**
-	 */
-	public function printLoginField() {
-		echo $this->getLoginFormField();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getLoginFormField() {
-		$sHtml =
-			'<p class="shield-google-authenticator-otp">
-				<label for="_%s">%s<span class="shield-ga-help-link"> [%s]</span><br /><span class="shield-ga-inline-help">(%s)</span><br />
-					<input type="text" name="%s" id="_%s" class="input" value="" autocomplete="off" maxlength="6"
-					onkeyup="this.value=this.value.replace(/[^\d]/g,\'\')" />
-				</label>
-			</p>
-		';
-		$sParam = $this->getLoginFormParameter();
-		return sprintf( $sHtml,
-			$sParam,
-			_wpsf__( 'Google Authenticator Code' ),
-			'<a href="http://icwp.io/wpsf42" target="_blank" style="font-weight: bolder; margin:0 3px">&#63;</a>',
-			_wpsf__( 'Use only if setup on your account' ),
-			$sParam,
-			$sParam
-		);
 	}
 
 	/**
@@ -344,6 +318,26 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		}
 		return $bValidOtp;
+	}
+
+	/**
+	 * @param bool $bIsSuccess
+	 */
+	protected function auditLogin( $bIsSuccess ) {
+		if ( $bIsSuccess ) {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_ga_verified'
+			);
+			$this->doStatIncrement( 'login.googleauthenticator.verified' );
+		}
+		else {
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				2, 'login_protect_ga_failed'
+			);
+			$this->doStatIncrement( 'login.googleauthenticator.fail' );
+		}
 	}
 
 	/**
