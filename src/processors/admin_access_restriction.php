@@ -67,6 +67,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			return $aData;
 		}
 
+		/**
+		 * @return bool
+		 */
 		protected function isSecurityAdmin() {
 			return self::getController()->getHasPermissionToManage();
 		}

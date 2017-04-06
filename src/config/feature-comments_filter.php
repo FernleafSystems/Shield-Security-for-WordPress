@@ -258,7 +258,7 @@
       "key": "custom_message_comment_wait",
       "section": "section_customize_messages_shown_to_user",
       "sensitive": true,
-      "default": "Please wait %%s seconds before posting your comment",
+      "default": "Please wait %s seconds before posting your comment",
       "type": "text",
       "link_info": "http://icwp.io/3p",
       "link_blog": "",

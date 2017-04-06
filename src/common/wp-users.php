@@ -29,6 +29,10 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 			if ( empty( $nUserId ) ) {
 				$nUserId = $this->getCurrentWpUserId();
 			}
+			else if ( $nUserId instanceof WP_User ){
+				$nUserId = $nUserId->ID;
+			}
+
 			$bSuccess = false;
 			if ( $nUserId > 0 ) {
 				$bSuccess = delete_user_meta( $nUserId, $sKey );
@@ -134,6 +138,9 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 			if ( empty( $nUserId ) ) {
 				$nUserId = $this->getCurrentWpUserId();
 			}
+			else if ( $nUserId instanceof WP_User ){
+				$nUserId = $nUserId->ID;
+			}
 
 			$mResult = false;
 			if ( $nUserId > 0 ) {
@@ -179,12 +186,15 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		 *
 		 * @param string $sKey
 		 * @param mixed $mValue
-		 * @param integer $nUserId		-user ID
+		 * @param WP_User|int $nUserId		-user ID
 		 * @return boolean
 		 */
 		public function updateUserMeta( $sKey, $mValue, $nUserId = null ) {
 			if ( empty( $nUserId ) ) {
 				$nUserId = $this->getCurrentWpUserId();
+			}
+			else if ( $nUserId instanceof WP_User ){
+				$nUserId = $nUserId->ID;
 			}
 
 			$bSuccess = false;

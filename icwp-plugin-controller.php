@@ -260,6 +260,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
+		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
@@ -747,6 +748,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 */
+	public function onWpLogout() {
+		if ( $this->hasSessionId() ) {
+			$this->clearSession();
+		}
+	}
+
+	/**
+	 */
 	protected function deleteFlags() {
 		$oFS = $this->loadFileSystemProcessor();
 		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
@@ -1123,7 +1132,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( empty( $this->sPluginUrl ) ) {
 			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
 		}
-		return $this->sPluginUrl.$sPath;
+		return add_query_arg( array( 'ver' => $this->getVersion() ), $this->sPluginUrl.$sPath );
 	}
 
 	/**

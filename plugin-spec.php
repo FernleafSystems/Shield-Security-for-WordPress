@@ -1,6 +1,6 @@
 {
   "properties": {
-    "version": "5.7.3",
+    "version": "5.7.5",
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "human_name": "Shield",
@@ -47,7 +47,7 @@
   },
   "menu": {
     "show": true,
-    "title": "Shield",
+    "title": "Shield Security",
     "top_level": true,
     "do_submenu_fix": true,
     "callback": "onDisplayTopMenu",

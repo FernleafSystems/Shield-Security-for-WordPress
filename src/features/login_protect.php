@@ -16,13 +16,19 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			// User has clicked a link in their email to verify they can send email.
 			if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
 				if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'authkey' ) ) {
-					$this
-						->setIfCanSendEmail( true )
-						->setBypassAdminProtection( true )
-						->savePluginOptions();
+					$this->setIfCanSendEmail( true )
+						 ->setBypassAdminProtection( true )
+						 ->savePluginOptions();
 					$this->loadWpFunctionsProcessor()->redirectToLogin();
 				}
 			}
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function getIfUseLoginIntentPage() {
+			return $this->getOptIs( 'use_login_intent_page', true );
 		}
 
 		protected function doExecuteProcessor() {
@@ -234,6 +240,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function isChainedAuth() {
+			return $this->getOptIs( 'enable_chained_authentication', 'Y' );
+		}
+
+		/**
 		 * @param bool $bCan
 		 * @return $this
 		 */
@@ -247,15 +260,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 			}
 			$this->setOpt( 'email_can_send_verified_at', $nDateAt );
 			return $this;
-		}
-
-		/**
-		 * @param WP_User $oUser
-		 * @return bool
-		 */
-		public function getUserHasEmailAuthenticationActive( WP_User $oUser ) {
-			// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
-			return ( $this->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
 		}
 
 		/**
@@ -289,40 +293,24 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @param WP_User $oUser
-		 * @return bool
+		 * @return string
 		 */
-		public function getHasGaValidated( WP_User $oUser ) {
-			return ( $this->loadWpUsersProcessor()->getUserMeta( $this->prefixOptionKey( 'ga_validated' ), $oUser->ID ) == 'Y' );
+		public function getLoginIntentRequestFlag() {
+			return $this->doPluginPrefix( 'login-intent-request' );
 		}
 
 		/**
 		 * @param WP_User $oUser
-		 * @param bool    $bResetIfNotValidated
-		 * @return string
 		 */
-		public function getGaSecret( WP_User $oUser, $bResetIfNotValidated = false ) {
-			$oWpUser = $this->loadWpUsersProcessor();
-			$sSecret = $oWpUser->getUserMeta( $this->prefixOptionKey( 'ga_secret' ), $oUser->ID );
-			if ( empty( $sSecret ) || ( $bResetIfNotValidated && !$this->getHasGaValidated( $oUser ) ) )  {
-				$sSecret = $this->resetGaSecret( $oUser );
+		public function removeUserFromOldYubikeyList( $oUser ) {
+			$aKeys = $this->getOpt( 'yubikey_unique_keys' );
+			foreach( $aKeys as $nIndex => $aUsernameYubikeyPair ) {
+				if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
+					unset( $aKeys[ $nIndex ] );
+					$this->setOpt( 'yubikey_unique_keys', $aKeys );
+					break;
+				}
 			}
-			return $sSecret;
-		}
-
-		/**
-		 * @param WP_User $oUser
-		 * @return string
-		 */
-		public function resetGaSecret( WP_User $oUser ) {
-			$sNewSecret = $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
-			$this->loadWpUsersProcessor()
-				 ->updateUserMeta(
-					 $this->prefixOptionKey( 'ga_secret' ),
-					 $sNewSecret,
-					 $oUser->ID
-				 );
-			return $sNewSecret;
 		}
 
 		/**
@@ -432,6 +420,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					;
 					break;
 
+				case 'enable_chained_authentication' :
+					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Multi-Factor Authentication' ) );
+					$sSummary = _wpsf__( 'Require All Active Authentication Factors' );
+					$sDescription = _wpsf__( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.' );
+					break;
+
 				case 'enable_google_authenticator' :
 					$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
 					$sSummary = _wpsf__( 'Allow Users To Use Google Authenticator' );
@@ -500,7 +494,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 
 				case 'yubikey_unique_keys' :
 					$sName = _wpsf__( 'Yubikey Unique Keys' );
-					$sSummary = _wpsf__( 'Permitted "Username - Yubikey" Pairs For This Site' );
+					$sSummary = _wpsf__( 'This method for Yubikeys is no longer supported. Please see your user profile' );
 					$sDescription = '<strong>' . sprintf( _wpsf__( 'Format: %s' ), 'Username,Yubikey' ) . '</strong>'
 						. '<br />- ' . _wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
 						. '<br />- ' . _wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
