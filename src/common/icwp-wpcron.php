@@ -85,16 +85,16 @@ if ( !class_exists( 'ICWP_WPSF_WpCron', false ) ):
 		}
 
 		/**
-		 * @param string $sUniqueCronName
-		 * @param callback $sCallback
+		 * @param string   $sUniqueCronName
+		 * @param callback $cCallback
 		 * @return $this
 		 * @throws Exception
 		 */
-		public function createCronJob( $sUniqueCronName, $sCallback ) {
-			if ( !is_callable( $sCallback ) ) {
-				throw new Exception( sprintf( 'Tried to schedule a new cron but the Callback function is not callable: %s', print_r( $sCallback, true ) ) );
+		public function createCronJob( $sUniqueCronName, $cCallback ) {
+			if ( !is_callable( $cCallback ) ) {
+				throw new Exception( sprintf( 'Tried to schedule a new cron but the Callback function is not callable: %s', print_r( $cCallback, true ) ) );
 			}
-			add_action( $sUniqueCronName, $sCallback );
+			add_action( $sUniqueCronName, $cCallback );
 			return $this->setCronSchedule( $sUniqueCronName );
 		}
 
