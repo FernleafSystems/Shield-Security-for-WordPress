@@ -49,66 +49,78 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
 		}
 
+		/**
+		 * @param bool $bAutoRepair
+		 * @return array
+		 */
+		public function doChecksumScan( $bAutoRepair ) {
+			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
+
+			if ( empty( $aChecksumData ) || !is_array( $aChecksumData ) ) {
+				return [];
+			}
+
+			$aDiscoveredFiles = array(
+				'checksum_mismatch' => array(),
+				'missing' => array(),
+			);
+
+			$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+			if ( empty( $aAutoFixIndexFiles ) ) {
+				$aAutoFixIndexFiles = array();
+			}
+
+			$sFullExclusionsPattern = '#('.implode('|', $this->getFullExclusions() ).')#i';
+			$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
+
+			$oFS = $this->loadFileSystemProcessor();
+			foreach ( $aChecksumData as $sMd5FilePath => $sChecksum ) {
+				if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
+					continue;
+				}
+
+				$bRepairThis = false;
+				$sFullPath = $this->convertMd5FilePathToActual( $sMd5FilePath );
+
+				if ( $oFS->isFile( $sFullPath ) ) {
+					if ( $sChecksum != md5_file( $sFullPath ) ) {
+
+						if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
+							$bRepairThis = true;
+						}
+						else {
+							$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sMd5FilePath;
+							$bRepairThis = $bAutoRepair;
+						}
+					}
+				}
+				else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
+					// If the file is missing and it's not in the missing-only exclusions
+					$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
+					$bRepairThis = $bAutoRepair;
+				}
+
+				if ( $bRepairThis ) {
+					$this->replaceFileContentsWithOfficial( $sMd5FilePath );
+				}
+			}
+
+			return $aDiscoveredFiles;
+		}
+
 		public function cron_dailyChecksumScan() {
 
 			if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
 				return;
 			}
 
-			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
+			$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
+				|| ( $this->loadDataProcessor()->FetchGet( 'checksum_repair' ) == 1 );
 
-			if ( !empty( $aChecksumData ) && is_array( $aChecksumData ) ) {
+			$aDiscoveredFiles = $this->doChecksumScan( $bOptionRepair );
 
-				$aDiscoveredFiles = array(
-					'checksum_mismatch' => array(),
-					'missing' => array(),
-				);
-
-				$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
-				if ( empty( $aAutoFixIndexFiles ) ) {
-					$aAutoFixIndexFiles = array();
-				}
-
-				$sFullExclusionsPattern = '#('.implode('|', $this->getFullExclusions() ).')#i';
-				$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
-				$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
-					|| ( $this->loadDataProcessor()->FetchGet( 'checksum_repair' ) == 1 );
-
-				$oFS = $this->loadFileSystemProcessor();
-				foreach ( $aChecksumData as $sMd5FilePath => $sChecksum ) {
-					if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
-						continue;
-					}
-
-					$bRepairThis = false;
-					$sFullPath = $this->convertMd5FilePathToActual( $sMd5FilePath );
-
-					if ( $oFS->isFile( $sFullPath ) ) {
-						if ( $sChecksum != md5_file( $sFullPath ) ) {
-
-							if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
-								$bRepairThis = true;
-							}
-							else {
-								$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sMd5FilePath;
-								$bRepairThis = $bOptionRepair;
-							}
-						}
-					}
-					else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
-						// If the file is missing and it's not in the missing-only exclusions
-						$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
-						$bRepairThis = $bOptionRepair;
-					}
-
-					if ( $bRepairThis ) {
-						$this->replaceFileContentsWithOfficial( $sMd5FilePath );
-					}
-				}
-
-				if ( !empty( $aDiscoveredFiles[ 'checksum_mismatch' ] ) || !empty( $aDiscoveredFiles[ 'missing' ] ) ) {
-					$this->sendChecksumErrorNotification( $aDiscoveredFiles );
-				}
+			if ( !empty( $aDiscoveredFiles[ 'checksum_mismatch' ] ) || !empty( $aDiscoveredFiles[ 'missing' ] ) ) {
+				$this->sendChecksumErrorNotification( $aDiscoveredFiles );
 			}
 		}
 
