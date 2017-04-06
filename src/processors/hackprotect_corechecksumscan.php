@@ -57,7 +57,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
 
 			if ( empty( $aChecksumData ) || !is_array( $aChecksumData ) ) {
-				return [];
+				return array();
 			}
 
 			$aDiscoveredFiles = array(
