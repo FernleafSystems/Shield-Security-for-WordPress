@@ -28,7 +28,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 								if ( $this->replaceFileContentsWithOfficial( $sMd5FilePath ) ) {
 									$this->loadAdminNoticesProcessor()
 										 ->addFlashMessage(
-											 _wpsf__( 'File was successfully replaced' )
+											 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
 										 );
 								}
 								else {
