@@ -120,14 +120,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 			$oFO = $this->getFeatureOptions();
 			$sFullHookName = $oFO->getTrackingCronName();
-			$oWpCron = $this->loadWpCronProcessor();
-			if ( ! $oWpCron->getIfCronExists( $sFullHookName ) && ! defined( 'WP_INSTALLING' ) ) {
-				$oWpCron
-					->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand( 0, 1800 ) )
-					->setRecurrence( 'daily' )
-					->createCronJob( $sFullHookName, array( $this, 'sendTrackingData' ) )
-					->reset();
-			}
+			$this->loadWpCronProcessor()
+				 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand( 0, 1800 ) )
+				 ->setRecurrence( 'daily' )
+				 ->createCronJob( $sFullHookName, array( $this, 'sendTrackingData' ) )
+				 ->reset();
 		}
 
 		public function deleteCron() {
