@@ -44,7 +44,16 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		public function supplyGoogleRecaptchaSiteKey( $sKey ) {
-			return $this->getOpt( 'google_recaptcha_site_key', $sKey );
+			$sThisKey = (string)$this->getOpt( 'google_recaptcha_site_key', '' );
+			$nSpacePos = strpos( $sThisKey, ' ' );
+			if ( $nSpacePos !== false ) {
+				$sThisKey = substr( $sThisKey, 0, $nSpacePos + 1 );
+				$this->setOpt( 'google_recaptcha_site_key', $sThisKey );
+			}
+			if ( !empty( $sThisKey ) ) {
+				$sKey = $sThisKey;
+			}
+			return $sKey;
 		}
 
 		/**
@@ -182,7 +191,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 				$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
 			}
 
+			$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
+			$this->cleanRecaptchaKey( 'google_recaptcha_secret_key' );
+
 			$this->setPluginInstallationId();
+		}
+
+		/**
+		 * @param string $sOptionKey
+		 */
+		protected function cleanRecaptchaKey( $sOptionKey ) {
+			$sCaptchaKey = trim( (string)$this->getOpt( $sOptionKey, '' ) );
+			$nSpacePos = strpos( $sCaptchaKey, ' ' );
+			if ( $nSpacePos !== false ) {
+				$sCaptchaKey = substr( $sCaptchaKey, 0, $nSpacePos + 1 ); // cut off the string if there's spaces
+			}
+			$sCaptchaKey = preg_replace( '#[^0-9a-zA-Z_-]#', '', $sCaptchaKey ); // restrict character set
+//			if ( strlen( $sCaptchaKey ) != 40 ) {
+//				$sCaptchaKey = ''; // need to verify length is 40.
+//			}
+			$this->setOpt( $sOptionKey, $sCaptchaKey );
 		}
 
 		/**
