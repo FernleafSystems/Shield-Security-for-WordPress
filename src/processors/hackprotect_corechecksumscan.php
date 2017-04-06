@@ -85,7 +85,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
 
 			$oFS = $this->loadFileSystemProcessor();
-			foreach ( $aChecksumData as $sMd5FilePath => $sChecksum ) {
+			foreach ( $aChecksumData as $sMd5FilePath => $sWpOrgChecksum ) {
 				if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
 					continue;
 				}
@@ -94,8 +94,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				$sFullPath = $this->convertMd5FilePathToActual( $sMd5FilePath );
 
 				if ( $oFS->isFile( $sFullPath ) ) {
-					if ( $sChecksum != md5_file( $sFullPath ) ) {
-
+					if ( $this->compareFileChecksums( $sWpOrgChecksum, $sFullPath ) ) {
 						if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
 							$bRepairThis = true;
 						}
@@ -117,6 +116,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			}
 
 			return $aDiscoveredFiles;
+		}
+
+		/**
+		 * @param string $sWpOrgChecksum
+		 * @param string $sFullPath
+		 * @return bool true if a difference is found, false otherwise
+		 */
+		protected function compareFileChecksums( $sWpOrgChecksum, $sFullPath ) {
+
+			$bDifferenceFound = $sWpOrgChecksum != md5_file( $sFullPath );
+			if ( $bDifferenceFound && strpos( $sFullPath, '.php' ) > 0 ) {
+				$sUnixConversion = str_replace( array( "\r\n", "\r" ), "\n", file_get_contents( $sFullPath ) );
+				$bDifferenceFound = $sWpOrgChecksum != md5( $sUnixConversion );
+			}
+			return $bDifferenceFound;
 		}
 
 		public function cron_dailyChecksumScan() {
