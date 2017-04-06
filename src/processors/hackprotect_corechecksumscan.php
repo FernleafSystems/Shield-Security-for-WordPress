@@ -25,7 +25,18 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 							$sPath = '/' . trim( $oDp->FetchGet( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
 							$sMd5FilePath = urldecode( esc_url( $sPath ) );
 							if ( !empty( $sMd5FilePath ) ) {
-								$this->replaceFileContentsWithOfficial( $sMd5FilePath );
+								if ( $this->replaceFileContentsWithOfficial( $sMd5FilePath ) ) {
+									$this->loadAdminNoticesProcessor()
+										 ->addFlashMessage(
+											 _wpsf__( 'File was successfully replaced' )
+										 );
+								}
+								else {
+									$this->loadAdminNoticesProcessor()
+										 ->addFlashMessage(
+											 _wpsf__( 'File was not replaced' )
+										 );
+								}
 							}
 					}
 				}
