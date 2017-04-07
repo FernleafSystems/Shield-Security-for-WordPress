@@ -32,7 +32,7 @@
         }
     </style>
 
-<!--    <script type="text/javascript" src="--><?php //echo $hrefs['js_bootstrap']; ?><!--"></script>-->
+    <!--    <script type="text/javascript" src="--><?php //echo $hrefs['js_bootstrap']; ?><!--"></script>-->
 
     <script>
         // Set the date we're counting down to
@@ -87,7 +87,7 @@
 				<?php foreach ( $data['login_fields'] as $aField ) : ?>
                     <div class="form-group">
                         <label for="<?php echo $aField['name']; ?>" class="control-label">
-                            <?php echo $aField['text']; ?>
+							<?php echo $aField['text']; ?>
                         </label>
                         <div class="input-group">
                             <input type="<?php echo $aField['type']; ?>"

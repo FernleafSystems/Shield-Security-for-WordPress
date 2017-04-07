@@ -97,7 +97,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 				$this->loadWpFunctionsProcessor()->redirectHere();
 			}
-			$this->printLoginIntentForm();
+			if ( $this->printLoginIntentForm() ) {
+				die();
+			}
 		}
 		else {
 			$nIntent = $this->getUserLoginIntent();
@@ -181,12 +183,19 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		return $this->loadWpUsersProcessor()->getUserMeta( $this->getOptionKey() );
 	}
 
+	/**
+	 * @return bool true if valid form printed, false otherwise. Should die() if true
+	 */
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
+
+		if ( empty( $aLoginIntentFields ) ) {
+			return false; // a final guard against displaying an empty form.
+		}
 
 		$sMessage = $this->loadAdminNoticesProcessor()
 						 ->flushFlashMessage()
@@ -244,7 +253,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			 ->setTemplate( 'page/login_intent' )
 			 ->setRenderVars( $aDisplayData )
 			 ->display();
-		die();
+
+		return true;
 	}
 
 	/**
