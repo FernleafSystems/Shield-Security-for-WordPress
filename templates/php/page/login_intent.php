@@ -5,6 +5,9 @@
     <link rel="icon" type="image/png" href="<?php echo $hrefs['favicon']; ?>" />
 
     <style>
+        body {
+            padding-top: 4%;
+        }
         .message {
             padding: 15px;
             margin-bottom: 30px;
@@ -22,6 +25,10 @@
         #TimeRemaining {
             margin-top: 30px;
             padding: 10px;
+        }
+        #WhatIsThis {
+            margin: 30px 0;
+            text-decoration: underline;
         }
     </style>
 
@@ -64,7 +71,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-4 col-md-offset-4">
+        <div class="col-md-4 col-md-offset-4">
             <img id="ShieldLogo" class="img-responsive" src="<?php echo $hrefs['shield_logo']; ?>" />
         </div>
     </div>
@@ -113,7 +120,9 @@
 				<?php echo $strings['time_remaining']; ?>:
                 <span id="countdown"><?php echo $strings['calculating']; ?></span>
             </p>
-
+            <p id="WhatIsThis" class="text-center">
+                <a href="<?php echo $hrefs['what_is_this']; ?>" target="_blank"><?php echo $strings['what_is_this']; ?></a>
+            </p>
         </div>
     </div>
 </div>
