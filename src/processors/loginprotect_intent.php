@@ -41,11 +41,17 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
-			add_action( 'init', array( $this, 'processUserLoginIntent' ), 0 );
+			add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		}
 
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 		return true;
+	}
+
+	public function onWpInit() {
+		if ( $this->isCurrentUserSubjectToLoginIntent() ) {
+			$this->processUserLoginIntent();
+		}
 	}
 
 	/**
@@ -116,7 +122,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * Use this ONLY when the login intent has been successfully verified.
 	 */
 	protected function removeLoginIntent() {
-		$this->loadWpUsersProcessor()->deleteUserMeta( 'login_intent' );
+		$this->loadWpUsersProcessor()->deleteUserMeta( $this->getOptionKey() );
 	}
 
 	/**
@@ -132,7 +138,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param null $oUser
 	 */
 	protected function setLoginIntentExpiration( $nExpirationTime, $oUser = null ) {
-		$this->loadWpUsersProcessor()->updateUserMeta( 'login_intent', max( 0, (int)$nExpirationTime ), $oUser );
+		$this->loadWpUsersProcessor()->updateUserMeta( $this->getOptionKey(), max( 0, (int)$nExpirationTime ), $oUser );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getOptionKey() {
+		return $this->getFeatureOptions()->prefixOptionKey( 'login_intent' );
 	}
 
 	/**
@@ -151,14 +164,21 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function userHasPendingLoginIntent() {
-		return $this->getUserLoginIntent() > $this->time();
+		return ( $this->getUserLoginIntent() > $this->time() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isCurrentUserSubjectToLoginIntent() {
+		return apply_filters( $this->getFeatureOptions()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
 	}
 
 	/**
 	 * @return int|false
 	 */
 	protected function getUserLoginIntent() {
-		return $this->loadWpUsersProcessor()->getUserMeta( 'login_intent' );
+		return $this->loadWpUsersProcessor()->getUserMeta( $this->getOptionKey() );
 	}
 
 	public function printLoginIntentForm() {
