@@ -1,7 +1,7 @@
 {
   "5.8.0": {
     "version": {
-      "series": "5.8",
+      "series": 5.8,
       "major": 5,
       "minor": 8,
       "patch": 0
@@ -9,13 +9,15 @@
     "attributes": {
       "date": "1491523200",
       "name": "",
-      "summary": "",
+      "summary": "Introduction of Login Authentication Portal",
+      "link": "http://icwp.io/86",
       "is_patch": false,
       "options_added": true,
       "options_removed": true
     },
     "requirements": {
-      "php": 5.2
+      "php": 5.2,
+      "wordpress": 3.5
     }
   },
   "changelog": [
