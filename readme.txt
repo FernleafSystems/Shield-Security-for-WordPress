@@ -320,7 +320,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.0)**  CHANGE:		Email-based login authentication no longer uses a separate database table.
 * **(v.0)**  FIXED:			Core file scanning now adequately handles Windows/Unix new lines during scan.
 * **(v.0)**  FIXED:			Certain crons weren't setup correctly.
-* **(v.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
+* **(v.0)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
 
 = 5.7 Series =
 
