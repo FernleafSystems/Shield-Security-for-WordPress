@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 	public function onWpInit() {
 		if ( $this->loadWpUsersProcessor()->isUserLoggedIn() ) {
-			
+
 			if ( $this->isCurrentUserSubjectToLoginIntent() ) {
 				$this->processUserLoginIntent();
 			}

@@ -1,7 +1,19 @@
 {
+  "5.8.1": {
+    "version": {
+      "series": "5.8.0",
+      "major": 5,
+      "minor": 8,
+      "patch": 1
+    },
+    "attributes": {
+      "date": "1491523200",
+      "is_patch": true
+    }
+  },
   "5.8.0": {
     "version": {
-      "series": 5.8,
+      "series": "5.8.0",
       "major": 5,
       "minor": 8,
       "patch": 0
@@ -21,6 +33,11 @@
     }
   },
   "changelog": [
+    {
+      "type": "fixed",
+      "summary": "Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.",
+      "version": "5.8.1"
+    },
     {
       "type": "changed",
       "summary": "Major overhaul of Two-Factor / Multi-Factor Login Authentication",
