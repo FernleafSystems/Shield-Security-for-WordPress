@@ -49,13 +49,21 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function onWpInit() {
-		if ( $this->isCurrentUserSubjectToLoginIntent() ) {
-			$this->processUserLoginIntent();
+		if ( $this->loadWpUsersProcessor()->isUserLoggedIn() ) {
+
+			if ( $this->isCurrentUserSubjectToLoginIntent() ) {
+				$this->processUserLoginIntent();
+			}
+			else if ( $this->getUserLoginIntent() !== false ) {
+				// This handles the case where an admin changes a setting while a user is logged-in
+				// So to prevent this, we remove any intent for a user that isn't subject to it right now
+				$this->removeLoginIntent();
+			}
 		}
 	}
 
 	/**
-	 * hooked to 'init'
+	 * hooked to 'init' and only run if a user is logged in
 	 */
 	public function processUserLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
