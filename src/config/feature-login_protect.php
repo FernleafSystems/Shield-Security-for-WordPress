@@ -262,7 +262,7 @@
     },
     {
       "key": "yubikey_unique_keys",
-      "section": "section_yubikey_authentication",
+      "section": "section_non_ui",
       "sensitive": true,
       "default": "",
       "type": "yubikey_unique_keys",
