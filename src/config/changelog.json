@@ -11,63 +11,66 @@
       "name": "",
       "summary": "",
       "is_patch": false,
-      "new_features": true,
-      "req_min_php": 5.2
+      "options_added": true,
+      "options_removed": true
     },
     "requirements": {
       "php": 5.2
+    }
+  },
+  "changelog": [
+    {
+      "type": "changed",
+      "summary": "Major overhaul of Two-Factor / Multi-Factor Login Authentication",
+      "link": "http://icwp.io/87",
+      "version": "5.8.0"
     },
-    "changelog": [
-      {
-        "type": "changed",
-        "summary": "Major overhaul of Two-Factor / Multi-Factor Login Authentication",
-        "link": "http://icwp.io/87"
-      },
-      {
-        "type": "changed",
-        "summary": "Introduction of Login Authentication Portal for improved Multi-Factor Authentication",
-        "link": "http://icwp.io/86"
-      },
-      {
-        "type": "added",
-        "summary": "Option to choose between two-factor or multi-factor login authentication",
-        "link": ""
-      },
-      {
-        "type": "added",
-        "summary": "Administrators can remove Google Authenticator from another user’s profile",
-        "link": ""
-      },
-      {
-        "type": "added",
-        "summary": "When Security Admin is active, only Security Admins may remove Google Authenticator from other admins",
-        "link": ""
-      },
-      {
-        "type": "changed",
-        "summary": "Yubikey login authentication is now managed directly from the User Profile screen, as with Google Authenticator",
-        "link": ""
-      },
-      {
-        "type": "changed",
-        "summary": "Email-based login authentication no longer uses a separate database table",
-        "link": ""
-      },
-      {
-        "type": "fixed",
-        "summary": "Core file scanning now adequately handles Windows/Unix new lines during scan",
-        "link": ""
-      },
-      {
-        "type": "fixed",
-        "summary": "Certain crons weren’t setup correctly",
-        "link": ""
-      },
-      {
-        "type": "improvements",
-        "summary": "Further preparation for Shield Central release",
-        "link": "http://icwp.io/83"
-      }
-    ]
-  }
+    {
+      "type": "changed",
+      "summary": "Introduction of Login Authentication Portal for improved Multi-Factor Authentication",
+      "link": "http://icwp.io/86",
+      "version": "5.8.0"
+    },
+    {
+      "type": "added",
+      "summary": "Option to choose between two-factor or multi-factor login authentication",
+      "version": "5.8.0"
+    },
+    {
+      "type": "added",
+      "summary": "Administrators can remove Google Authenticator from another user’s profile",
+      "version": "5.8.0"
+    },
+    {
+      "type": "added",
+      "summary": "When Security Admin is active, only Security Admins may remove Google Authenticator from other admins",
+      "version": "5.8.0"
+    },
+    {
+      "type": "changed",
+      "summary": "Yubikey login authentication is now managed directly from the User Profile screen, as with Google Authenticator",
+      "version": "5.8.0"
+    },
+    {
+      "type": "changed",
+      "summary": "Email-based login authentication no longer uses a separate database table",
+      "version": "5.8.0"
+    },
+    {
+      "type": "fixed",
+      "summary": "Core file scanning now adequately handles Windows/Unix new lines during scan",
+      "version": "5.8.0"
+    },
+    {
+      "type": "fixed",
+      "summary": "Certain crons weren’t setup correctly",
+      "version": "5.8.0"
+    },
+    {
+      "type": "improvements",
+      "summary": "Further preparation for Shield Central release",
+      "link": "http://icwp.io/83",
+      "version": "5.8.0"
+    }
+  ]
 }
