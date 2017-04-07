@@ -1,0 +1,95 @@
+{
+  "5.8.1": {
+    "version": {
+      "series": "5.8.0",
+      "major": 5,
+      "minor": 8,
+      "patch": 1
+    },
+    "attributes": {
+      "date": "1491523200",
+      "is_patch": true
+    }
+  },
+  "5.8.0": {
+    "version": {
+      "series": "5.8.0",
+      "major": 5,
+      "minor": 8,
+      "patch": 0
+    },
+    "attributes": {
+      "date": "1491523200",
+      "name": "",
+      "summary": "Introduction of Login Authentication Portal",
+      "link": "http://icwp.io/86",
+      "is_patch": false,
+      "options_added": true,
+      "options_removed": true
+    },
+    "requirements": {
+      "php": 5.2,
+      "wordpress": 3.5
+    }
+  },
+  "changelog": [
+    {
+      "type": "fixed",
+      "summary": "Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.",
+      "version": "5.8.1"
+    },
+    {
+      "type": "changed",
+      "summary": "Major overhaul of Two-Factor / Multi-Factor Login Authentication",
+      "link": "http://icwp.io/87",
+      "version": "5.8.0"
+    },
+    {
+      "type": "changed",
+      "summary": "Introduction of Login Authentication Portal for improved Multi-Factor Authentication",
+      "link": "http://icwp.io/86",
+      "version": "5.8.0"
+    },
+    {
+      "type": "added",
+      "summary": "Option to choose between two-factor or multi-factor login authentication",
+      "version": "5.8.0"
+    },
+    {
+      "type": "added",
+      "summary": "Administrators can remove Google Authenticator from another user’s profile",
+      "version": "5.8.0"
+    },
+    {
+      "type": "added",
+      "summary": "When Security Admin is active, only Security Admins may remove Google Authenticator from other admins",
+      "version": "5.8.0"
+    },
+    {
+      "type": "changed",
+      "summary": "Yubikey login authentication is now managed directly from the User Profile screen, as with Google Authenticator",
+      "version": "5.8.0"
+    },
+    {
+      "type": "changed",
+      "summary": "Email-based login authentication no longer uses a separate database table",
+      "version": "5.8.0"
+    },
+    {
+      "type": "fixed",
+      "summary": "Core file scanning now adequately handles Windows/Unix new lines during scan",
+      "version": "5.8.0"
+    },
+    {
+      "type": "fixed",
+      "summary": "Certain crons weren’t setup correctly",
+      "version": "5.8.0"
+    },
+    {
+      "type": "improvements",
+      "summary": "Further preparation for Shield Central release",
+      "link": "http://icwp.io/83",
+      "version": "5.8.0"
+    }
+  ]
+}

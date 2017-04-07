@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.7
-Stable tag: 5.8.0
+Stable tag: 5.8.1
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
@@ -308,9 +308,10 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.8.0 Latest Point Release =
+= 5.8.1 Latest Point Release =
 *Released: 7th April, 2017*
 
+* **(v.1)**  FIXED:			Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.
 * **(v.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](http://icwp.io/87).
 * **(v.0)**  CHANGE:		[Introduction of Login Authentication Portal](http://icwp.io/86) for improved Multi-Factor Authentication.
 * **(v.0)**  ADDED:			Option to choose between two-factor or multi-factor login authentication.

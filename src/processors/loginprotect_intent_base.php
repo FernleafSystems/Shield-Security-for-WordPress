@@ -28,6 +28,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
+		// Necessary so we don't show user intent to people without it
+		add_filter( $oFO->prefixOptionKey( 'user_subject_to_login_intent' ), array( $this, 'userSubjectToLoginIntent_Filter' ) );
+
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 
@@ -57,6 +60,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 				$this->auditLogin( false );
 			}
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getCurrentUserHasValidatedProfile() {
+		return $this->hasValidatedProfile( $this->loadWpUsersProcessor()->getCurrentWpUser() );
 	}
 
 	/**
@@ -199,6 +209,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 */
 	protected function fetchCodeFromRequest() {
 		return esc_attr( trim( $this->loadDataProcessor()->FetchRequest( $this->getLoginFormParameter(), false, '' ) ) );
+	}
+
+	/**
+	 * @param bool $bIsSubjectTo
+	 * @return bool
+	 */
+	public function userSubjectToLoginIntent_Filter( $bIsSubjectTo ) {
+		return ( $bIsSubjectTo || $this->getCurrentUserHasValidatedProfile() );
 	}
 
 	/**

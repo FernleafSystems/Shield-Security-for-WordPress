@@ -41,15 +41,29 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
-			add_action( 'init', array( $this, 'processUserLoginIntent' ), 0 );
+			add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		}
 
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 		return true;
 	}
 
+	public function onWpInit() {
+		if ( $this->loadWpUsersProcessor()->isUserLoggedIn() ) {
+
+			if ( $this->isCurrentUserSubjectToLoginIntent() ) {
+				$this->processUserLoginIntent();
+			}
+			else if ( $this->getUserLoginIntent() !== false ) {
+				// This handles the case where an admin changes a setting while a user is logged-in
+				// So to prevent this, we remove any intent for a user that isn't subject to it right now
+				$this->removeLoginIntent();
+			}
+		}
+	}
+
 	/**
-	 * hooked to 'init'
+	 * hooked to 'init' and only run if a user is logged in
 	 */
 	public function processUserLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -91,7 +105,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 				$this->loadWpFunctionsProcessor()->redirectHere();
 			}
-			$this->printLoginIntentForm();
+			if ( $this->printLoginIntentForm() ) {
+				die();
+			}
 		}
 		else {
 			$nIntent = $this->getUserLoginIntent();
@@ -116,7 +132,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * Use this ONLY when the login intent has been successfully verified.
 	 */
 	protected function removeLoginIntent() {
-		$this->loadWpUsersProcessor()->deleteUserMeta( 'login_intent' );
+		$this->loadWpUsersProcessor()->deleteUserMeta( $this->getOptionKey() );
 	}
 
 	/**
@@ -132,7 +148,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param null $oUser
 	 */
 	protected function setLoginIntentExpiration( $nExpirationTime, $oUser = null ) {
-		$this->loadWpUsersProcessor()->updateUserMeta( 'login_intent', max( 0, (int)$nExpirationTime ), $oUser );
+		$this->loadWpUsersProcessor()->updateUserMeta( $this->getOptionKey(), max( 0, (int)$nExpirationTime ), $oUser );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getOptionKey() {
+		return $this->getFeatureOptions()->prefixOptionKey( 'login_intent' );
 	}
 
 	/**
@@ -151,22 +174,36 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function userHasPendingLoginIntent() {
-		return $this->getUserLoginIntent() > $this->time();
+		return ( $this->getUserLoginIntent() > $this->time() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isCurrentUserSubjectToLoginIntent() {
+		return apply_filters( $this->getFeatureOptions()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
 	}
 
 	/**
 	 * @return int|false
 	 */
 	protected function getUserLoginIntent() {
-		return $this->loadWpUsersProcessor()->getUserMeta( 'login_intent' );
+		return $this->loadWpUsersProcessor()->getUserMeta( $this->getOptionKey() );
 	}
 
+	/**
+	 * @return bool true if valid form printed, false otherwise. Should die() if true
+	 */
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
+
+		if ( empty( $aLoginIntentFields ) ) {
+			return false; // a final guard against displaying an empty form.
+		}
 
 		$sMessage = $this->loadAdminNoticesProcessor()
 						 ->flushFlashMessage()
@@ -224,7 +261,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			 ->setTemplate( 'page/login_intent' )
 			 ->setRenderVars( $aDisplayData )
 			 ->display();
-		die();
+
+		return true;
 	}
 
 	/**

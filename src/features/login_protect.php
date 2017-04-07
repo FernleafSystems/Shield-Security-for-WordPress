@@ -263,36 +263,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * TODO: http://stackoverflow.com/questions/3499104/how-to-know-the-role-of-current-user-in-wordpress
-		 * @param WP_User $oUser
-		 * @return bool
-		 */
-		public function getIsUserSubjectToEmailAuthentication( $oUser ) {
-			$nUserLevel = $oUser->get( 'user_level' );
-
-			$aSubjectedUserLevels = $this->getOpt( 'two_factor_auth_user_roles' );
-			if ( empty($aSubjectedUserLevels) || !is_array($aSubjectedUserLevels) ) {
-				$aSubjectedUserLevels = array( 1, 2, 3, 8 ); // by default all roles except subscribers!
-			}
-
-			// see: https://codex.wordpress.org/Roles_and_Capabilities#User_Level_to_Role_Conversion
-
-			// authors, contributors and subscribers
-			if ( $nUserLevel < 3 && in_array( $nUserLevel, $aSubjectedUserLevels ) ) {
-				return true;
-			}
-			// editors
-			if ( $nUserLevel >= 3 && $nUserLevel < 8 && in_array( 3, $aSubjectedUserLevels ) ) {
-				return true;
-			}
-			// administrators
-			if ( $nUserLevel >= 8 && $nUserLevel <= 10 && in_array( 8, $aSubjectedUserLevels ) ) {
-				return true;
-			}
-			return false;
-		}
-
-		/**
 		 * @return string
 		 */
 		public function getLoginIntentRequestFlag() {

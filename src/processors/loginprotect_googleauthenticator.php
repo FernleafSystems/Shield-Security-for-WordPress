@@ -248,7 +248,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @return array
 	 */
 	public function addLoginIntentField( $aFields ) {
-		if ( $this->hasValidatedProfile( $this->loadWpUsersProcessor()->getCurrentWpUser() ) ) {
+		if ( $this->getCurrentUserHasValidatedProfile() ) {
 			$aFields[] = array(
 				'name'      => $this->getLoginFormParameter(),
 				'type'      => 'text',
