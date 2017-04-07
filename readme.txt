@@ -311,19 +311,22 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.8.0 Latest Point Release =
 *Released: 7th April, 2017*
 
-* **(v.0)**  CHANGE:		Major overhaul of Two-Factor / Multi-Factor Login Authentication.
+* **(v.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](http://icwp.io/87).
+* **(v.0)**  CHANGE:		[Introduction of Login Authentication Portal](http://icwp.io/86) for improved Multi-Factor Authentication.
 * **(v.0)**  ADDED:			Option to choose between two-factor or multi-factor login authentication.
 * **(v.0)**  ADDED:			Administrators can remove Google Authenticator from another user's profile.
 * **(v.0)**  ADDED:			When Security Admin is active, only Security Admins may remove Google Authenticator from other admins.
-* **(v.0)**  CHANGE:		Yubikey login authentication is now managed directly from the User Profile screen.
+* **(v.0)**  CHANGE:		Yubikey login authentication is now managed directly from the User Profile screen, as with Google Authenticator.
 * **(v.0)**  CHANGE:		Email-based login authentication no longer uses a separate database table.
 * **(v.0)**  FIXED:			Core file scanning now adequately handles Windows/Unix new lines during scan.
+* **(v.0)**  FIXED:			Certain crons weren't setup correctly.
+* **(v.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
 
 = 5.7 Series =
 
 * **(v.3)**  FIXED:			Attempt to improve the Google Authenticator flow for more reliable activation.
 * **(v.2)**  IMPROVEMENTS:	More admin notices when saving Google Authenticator settings.
-* **(v.2)**  IMPROVEMENTS:	Further reparation for [Shield Central](http://icwp.io/83) release.
+* **(v.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
 * **(v.1)**  Skipped
 * **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
 * **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
