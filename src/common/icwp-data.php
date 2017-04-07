@@ -556,6 +556,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			if ( function_exists( 'headers_sent' ) && headers_sent() ) {
 				return false;
 			}
+			$_COOKIE[ $sKey ] = $mValue;
 			return setcookie(
 				$sKey,
 				$mValue,

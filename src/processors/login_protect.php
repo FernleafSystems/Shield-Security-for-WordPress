@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect', false ) ):
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -18,36 +18,24 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 
+		if ( $oFO->getIsCustomLoginPathEnabled() ) {
+			$this->getProcessorWpLogin()->run();
+		}
+
 		// Add GASP checking to the login form.
 		if ( $this->getIsOption( 'enable_login_gasp_check', 'Y' ) ) {
 			$this->getProcessorGasp()->run();
-		}
-
-		if ( $oFO->getIsCustomLoginPathEnabled() ) {
-			$this->getProcessorWpLogin()->run();
 		}
 
 		if ( $this->getOption( 'login_limit_interval' ) > 0 && ( $oWp->getIsLoginRequest() || $oWp->getIsRegisterRequest() ) ) {
 			$this->getProcessorCooldown()->run();
 		}
 
-		// check for Yubikey auth after user is authenticated with WordPress.
-		if ( $this->getIsOption( 'enable_google_authenticator', 'Y' ) ) {
-			$this->getProcessorGoogleAuthenticator()->run();
-		}
-
-		// check for Yubikey auth after user is authenticated with WordPress.
-		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
-			$this->getProcessorYubikey()->run();
-		}
-
-		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
-			$this->getProcessorTwoFactor()->run();
-		}
-
 		if ( $oFO->getIsGoogleRecaptchaEnabled() ) {
 			$this->getProcessorGoogleRecaptcha()->run();
 		}
+
+		$this->getProcessorLoginIntent()->run();
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		return true;
@@ -107,22 +95,20 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
+	 */
+	protected function getProcessorLoginIntent() {
+		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_intent.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getFeatureOptions() );
+		return $oProc;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_cooldown.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeatureOptions() );
-		return $oProc;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
-	 */
-	protected function getProcessorTwoFactor() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
 		return $oProc;
 	}
 
@@ -150,24 +136,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorGoogleRecaptcha() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeatureOptions() );
-		return $oProc;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
-	 */
-	protected function getProcessorYubikey() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
-		return $oProc;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
-	 */
-	protected function getProcessorGoogleAuthenticator() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeatureOptions() );
 		return $oProc;
 	}
 }

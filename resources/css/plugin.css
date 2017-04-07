@@ -8,10 +8,10 @@
 	margin-left: 0;
 }
 #pluginlogo_32 {
-	background: url("../images/pluginlogo_32x32.png") no-repeat 0 3px transparent;
+	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
 .pluginlogo_16 {
-	background: url("../images/pluginlogo_16x16.png") no-repeat 0 3px transparent;
+	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
 .page-header .header-icon32 {
 	display: inline-block;

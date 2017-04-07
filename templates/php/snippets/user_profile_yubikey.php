@@ -19,24 +19,26 @@
 		<?php if ( $has_validated_profile ) : ?>
 
 			<?php if ( $is_my_user_profile || $i_am_valid_admin ) : ?>
-				<tr>
-					<th><label for="shield_turn_off_google_authenticator"><?php echo $strings['label_check_to_remove']; ?></label></th>
-					<td>
-						<input type="checkbox" name="shield_turn_off_google_authenticator" id="shield_turn_off_google_authenticator" value="Y" />
-						<p class="description">
-							<?php echo $strings['desc_remove']; ?>
-						</p>
-					</td>
-				</tr>
                 <tr>
-                    <th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_code']; ?></label></th>
+                    <th><label for="yubi_code"><?php echo $strings['label_enter_code']; ?></label></th>
+                    <td>
+                        <input class="regular-text" name="yubi_code" id="yubi_code"
+                               type="text"
+                               value="<?php echo $data['secret']; ?>" readonly />
+                        <p class="description"><?php echo $strings['description_otp_code']; ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_otp']; ?></label></th>
                     <td>
                         <input class="regular-text"
                                type="text"
                                id="<?php echo $data['otp_field_name']; ?>"
                                name="<?php echo $data['otp_field_name']; ?>"
                                value="" autocomplete="off" />
-                        <p class="description"><?php echo $strings['description_otp_code']; ?></p>
+                        <p class="description"><?php echo $strings['description_otp']; ?>
+                            <br/><?php echo $strings['description_otp_ext']; ?>
+                        </p>
                     </td>
                 </tr>
 			<?php else : ?>
@@ -49,21 +51,7 @@
 
 			<?php if ( $is_my_user_profile ) : ?>
 				<tr>
-					<th><?php echo $strings['label_scan_qr_code']; ?></th>
-					<td>
-						<img src="<?php echo $chart_url; ?>" />
-						<p class="description"><?php echo $strings['description_chart_url']; ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="shield_ga_secret"><?php echo $strings['label_ga_secret']; ?></label></th>
-					<td>
-						<span id="shield_ga_secret"><?php echo $user_google_authenticator_secret; ?></span>
-						<p class="description"><?php echo $strings['description_ga_secret']; ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_code']; ?></label></th>
+					<th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_otp']; ?></label></th>
 					<td>
 						<input class="regular-text"
                                type="text"
@@ -71,8 +59,8 @@
                                name="<?php echo $data['otp_field_name']; ?>"
                                value="" autocomplete="off" />
 						<p class="description">
-							<?php echo $strings['description_otp_code']; ?>
-							<br/><?php echo $strings['description_otp_code_ext']; ?>
+							<?php echo $strings['description_otp']; ?>
+							<br/><?php echo $strings['description_otp_ext']; ?>
                         </p>
 					</td>
 				</tr>

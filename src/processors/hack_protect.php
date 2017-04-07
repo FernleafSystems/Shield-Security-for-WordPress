@@ -22,20 +22,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 			if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
 				$this->runChecksumScan();
 			}
-
-			$this->runW3tcProtect();
-		}
-
-		protected function runW3tcProtect() {
-			if ( defined( 'W3TC_VERSION' ) && version_compare( W3TC_VERSION, '0.9.4.1', '<=') ) {
-				$sPage = $this->loadDataProcessor()->FetchRequest( 'page' );
-				if ( $sPage == 'w3tc_support' ) {
-					$this->loadWpFunctionsProcessor()->wpDie(
-						_wpsf__( 'Blocked: Trying to access W3 Total Cache support page.' ).'<br />'
-						.sprintf( '<a href="%s" target="_blank">%s</a>', 'http://icwp.io/7k', _wpsf__( 'More Info' ) )
-					);
-				}
-			}
 		}
 
 		/**
@@ -44,6 +30,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_pluginvulnerabilities.php' );
 			$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeatureOptions() );
 			$oPv->run();
+		}
+
+		/**
+		 * @param bool $bAutoRepair
+		 * @return array
+		 */
+		public function runManualChecksumScan( $bAutoRepair ) {
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
+			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeatureOptions() );
+			return $oPv->doChecksumScan( $bAutoRepair );
 		}
 
 		/**

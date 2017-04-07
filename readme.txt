@@ -6,28 +6,23 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.7
-Stable tag: 5.7.3
+Stable tag: 5.8.0
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
 == Description ==
 
 > <strong>Don't Leave Your Site At Risk</strong><br />
-> If your site is vulnerable to attack, you're putting your business and your reputation at serious risk.
-Getting hacked can mean you're locked out of your site, client data stolen, your website defaced or offline,
- and Google *will* penalise you.
+> If your site is vulnerable to attack, you're putting your business and your reputation at serious risk. Getting hacked can mean you're locked out of your site, client data stolen, your website defaced or offline, and Google *will* penalise you.
 >
 > Why take the risk?
 >
-> Download and install Shield now for FREE so that you have the most powerful WordPress security system working
- for you and protecting your site.
+> Download and install Shield now for FREE so that you have the most powerful WordPress security system working for you and protecting your site.
 >
 > <strong>Shield + iControlWP</strong><br />
-> If you have multiple sites, then Shield [combined with iControlWP](http://icwp.io/shld8), takes the pain out of
-  managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
+> If you have multiple sites, then Shield [combined with iControlWP](http://icwp.io/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
 
-All the wonderful features of how we protect you and your site are set out below in detail, but there are a
-few things about us, that you should know first:
+All the wonderful features of how we protect you and your site are set out below in detail, but there are a few things about us, that you should know first:
 
 * We're on a mission to liberate people who manage websites from unnecessarily repetitive work, and by 2022 we want to
 be saving our clients over 62.5 million hours per year (and we'd love you to join us in our quest)
@@ -313,17 +308,26 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.7.3 Latest Point Release =
-*Released: 30th March, 2017*
+= 5.8.0 Latest Point Release =
+*Released: 7th April, 2017*
 
-* **(v.3)**  FIXED:			Attempt to improve the Google Authenticator flow for more reliable activation.
+* **(v.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](http://icwp.io/87).
+* **(v.0)**  CHANGE:		[Introduction of Login Authentication Portal](http://icwp.io/86) for improved Multi-Factor Authentication.
+* **(v.0)**  ADDED:			Option to choose between two-factor or multi-factor login authentication.
+* **(v.0)**  ADDED:			Administrators can remove Google Authenticator from another user's profile.
+* **(v.0)**  ADDED:			When Security Admin is active, only Security Admins may remove Google Authenticator from other admins.
+* **(v.0)**  CHANGE:		Yubikey login authentication is now managed directly from the User Profile screen, as with Google Authenticator.
+* **(v.0)**  CHANGE:		Email-based login authentication no longer uses a separate database table.
+* **(v.0)**  FIXED:			Core file scanning now adequately handles Windows/Unix new lines during scan.
+* **(v.0)**  FIXED:			Certain crons weren't setup correctly.
+* **(v.0)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
 
 = 5.7 Series =
 
 * **(v.3)**  FIXED:			Attempt to improve the Google Authenticator flow for more reliable activation.
 * **(v.2)**  IMPROVEMENTS:	More admin notices when saving Google Authenticator settings.
-* **(v.2)**  IMPROVEMENTS:	Further reparation for [Shield Central](http://icwp.io/83) release.
-* **(v.1)**  Skipped with error.
+* **(v.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
+* **(v.1)**  Skipped
 * **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
 * **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
 * **(v.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.

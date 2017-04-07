@@ -227,6 +227,17 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 			}
 		}
 
+		/**
+		 * @return string
+		 */
+		public function getRawFlashMessageText() {
+			$aParts = explode( '::', $this->sFlashMessage, 2 );
+			return $aParts[ 1 ];
+		}
+
+		/**
+		 * @return $this
+		 */
 		public function flushFlashMessage() {
 
 			$oDp = $this->loadDataProcessor();
@@ -236,6 +247,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 				$this->sFlashMessage = sanitize_text_field( $this->sFlashMessage );
 			}
 			$oDp->setDeleteCookie( $sCookieName );
+			return $this;
 		}
 	}
 endif;

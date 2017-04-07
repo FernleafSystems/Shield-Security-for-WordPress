@@ -111,6 +111,17 @@
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
     {
+      "key": "enable_chained_authentication",
+      "section": "section_multifactor_authentication",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "http://icwp.io/84",
+      "link_blog": "",
+      "name": "Multi-Factor Authentication",
+      "summary": "Require All Active Authentication Factors",
+      "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
+    },
+    {
       "key": "enable_google_authenticator",
       "section": "section_multifactor_authentication",
       "default": "N",
@@ -126,7 +137,7 @@
       "section": "section_multifactor_authentication",
       "default": "N",
       "type": "checkbox",
-      "link_info": "http://icwp.io/3s",
+      "link_info": "http://icwp.io/3t",
       "link_blog": "",
       "name": "Enable Email Authentication",
       "summary": "Two-Factor Login Authentication By Email",
@@ -251,14 +262,14 @@
     },
     {
       "key": "yubikey_unique_keys",
-      "section": "section_yubikey_authentication",
+      "section": "section_non_ui",
       "sensitive": true,
       "default": "",
       "type": "yubikey_unique_keys",
       "link_info": "http://icwp.io/4h",
       "link_blog": "",
       "name": "Yubikey Unique Keys",
-      "summary": "Permitted 'Username - Yubikey' Pairs For This Site",
+      "summary": "This method for Yubikeys is no longer supported. Please see your user profile.",
       "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
     },
     {
@@ -293,6 +304,12 @@
     {
       "key": "two_factor_auth_table_created",
       "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "use_login_intent_page",
+      "transferable": false,
+      "value": true,
       "section": "section_non_ui"
     },
     {
