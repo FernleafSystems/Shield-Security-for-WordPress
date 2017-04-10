@@ -175,7 +175,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$sHomeUrl = $this->loadWpFunctions()->getHomeUrl();
 
 		$aMessage = array(
-			sprintf( _wpsf__( 'As requested, %s is notifying you of %s login to a WordPress site that you manage.' ),
+			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),
 				$this->getController()->getHumanName(),
 				$sHumanName
 			),
@@ -184,7 +184,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			'- '.sprintf( _wpsf__( 'User Email: %s' ), $oUser->get( 'user_email' ) ),
 			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $oDp->getVisitorIpAddress( true ) ),
-			_wpsf__( 'Thanks.' )
+			'', sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			'', _wpsf__( 'Thanks.' )
 		);
 
 		$bResult = $oEmailer->sendEmailTo(
