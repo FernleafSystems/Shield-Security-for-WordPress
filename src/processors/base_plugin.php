@@ -99,7 +99,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 			$oFO = $this->getFeature();
-			$oWpUsers = $this->loadWpUsersProcessor();
+			$oWpUsers = $this->loadWpUsers();
 
 			$sAdminNoticeMetaKey = $oFO->prefix( 'plugin-update-available' );
 			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				return;
 			}
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 				$aRenderData = array(
@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				$bShow = false;
 			}
 
-			$oWpFunctions = $this->loadWpFunctionsProcessor();
+			$oWpFunctions = $this->loadWpFunctions();
 			if ( class_exists( 'Worpit_Plugin' ) ) {
 				if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
 					$bShow = !Worpit_Plugin::IsLinked();

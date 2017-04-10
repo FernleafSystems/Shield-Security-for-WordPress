@@ -95,7 +95,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		protected function getBaseTrackingData() {
 			$oDP = $this->loadDataProcessor();
-			$oWP = $this->loadWpFunctionsProcessor();
+			$oWP = $this->loadWpFunctions();
 			return array(
 				'env' =>array(
 					'options' => array(

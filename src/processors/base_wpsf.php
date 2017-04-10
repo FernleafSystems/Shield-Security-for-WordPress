@@ -118,7 +118,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			if ( !isset( $this->aAuditEntry ) ) {
 
 				if ( empty( $sWpUsername ) ) {
-					$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+					$oCurrentUser = $this->loadWpUsers()->getCurrentWpUser();
 					$sWpUsername = empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' );
 				}
 

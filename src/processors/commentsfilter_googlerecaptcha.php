@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
 
 			if ( self::$sCommentStatus == 'reject' ) {
-				$oWp = $this->loadWpFunctionsProcessor();
+				$oWp = $this->loadWpFunctions();
 				$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
 			}
 		}

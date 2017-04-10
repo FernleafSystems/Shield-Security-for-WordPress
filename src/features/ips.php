@@ -95,7 +95,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 * @return array
 		 */
 		protected function formatIpListData( $aListData ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			foreach( $aListData as &$aListItem ) {
 				$aListItem[ 'ip_link' ] =
@@ -215,7 +215,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		protected function renderListTable( $sListToRender ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$aRenderData = array(
 				'list_id' => $sListToRender,
 				'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,

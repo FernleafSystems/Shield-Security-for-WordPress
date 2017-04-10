@@ -67,7 +67,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		 */
 		public function disableAnonymousRestApi( $mCurrentStatus ) {
 			$bAlreadyAuthenticated = ( $mCurrentStatus === true );
-			if ( !$bAlreadyAuthenticated && !is_wp_error( $mCurrentStatus ) && !$this->loadWpUsersProcessor()->isUserLoggedIn() ) {
+			if ( !$bAlreadyAuthenticated && !is_wp_error( $mCurrentStatus ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
 				$mCurrentStatus = new WP_Error(
 					'shield_block_anon_restapi',
 					sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getController()->getHumanName() ),
@@ -174,7 +174,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !is_user_logged_in() ) {
 				$sAuthor = $oDp->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
-					$this->loadWpFunctionsProcessor()->wpDie( sprintf(
+					$this->loadWpFunctions()->wpDie( sprintf(
 						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
 						.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
 							'http://icwp.io/7l',

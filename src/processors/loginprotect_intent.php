@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
-			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+			if ( $this->loadWpFunctions()->getIsLoginRequest() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
 			add_action( 'init', array( $this, 'onWpInit' ), 0 );
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function onWpInit() {
-		if ( $this->loadWpUsersProcessor()->isUserLoggedIn() ) {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
 
 			if ( $this->isCurrentUserSubjectToLoginIntent() ) {
 				$this->processUserLoginIntent();
@@ -76,8 +76,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $bIsLoginIntentSubmission ) {
 
 				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
-					$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
-					$this->loadWpFunctionsProcessor()->redirectToLogin();
+					$this->loadWpUsers()->logoutUser(); // clears the login and login intent
+					$this->loadWpFunctions()->redirectToLogin();
 					return;
 				}
 
@@ -96,14 +96,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 					if ( !empty( $sRedirect ) ) {
-						$this->loadWpFunctionsProcessor()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
+						$this->loadWpFunctions()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
 					}
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
 				}
-				$this->loadWpFunctionsProcessor()->redirectHere();
+				$this->loadWpFunctions()->redirectHere();
 			}
 			if ( $this->printLoginIntentForm() ) {
 				die();
@@ -116,8 +116,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				// false also means new installation don't get booted out
 			}
 			else if ( $nIntent > 0 ) { // there was an old login intent
-				$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
-				$this->loadWpFunctionsProcessor()->redirectHere();
+				$this->loadWpUsers()->logoutUser(); // clears the login and login intent
+				$this->loadWpFunctions()->redirectHere();
 			}
 		}
 	}
@@ -132,7 +132,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * Use this ONLY when the login intent has been successfully verified.
 	 */
 	protected function removeLoginIntent() {
-		$this->loadWpUsersProcessor()->deleteUserMeta( $this->getOptionKey() );
+		$this->loadWpUsers()->deleteUserMeta( $this->getOptionKey() );
 	}
 
 	/**
@@ -148,7 +148,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param null $oUser
 	 */
 	protected function setLoginIntentExpiration( $nExpirationTime, $oUser = null ) {
-		$this->loadWpUsersProcessor()->updateUserMeta( $this->getOptionKey(), max( 0, (int)$nExpirationTime ), $oUser );
+		$this->loadWpUsers()->updateUserMeta( $this->getOptionKey(), max( 0, (int)$nExpirationTime ), $oUser );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return int|false
 	 */
 	protected function getUserLoginIntent() {
-		return $this->loadWpUsersProcessor()->getUserMeta( $this->getOptionKey() );
+		return $this->loadWpUsers()->getUserMeta( $this->getOptionKey() );
 	}
 
 	/**

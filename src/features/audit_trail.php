@@ -50,7 +50,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 					foreach( $aAuditData as &$aAuditEntry ) {
 						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
 						$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
-						$aAuditEntry[ 'created_at' ] = $this->loadWpFunctionsProcessor()->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
+						$aAuditEntry[ 'created_at' ] = $this->loadWpFunctions()->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
 					}
 				}
 				$aAuditContext['trail'] = $aAuditData;

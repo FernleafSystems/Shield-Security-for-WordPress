@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		$sCustomLoginPath = $this->getLoginPath();
 
-		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp = $this->loadWpFunctions();
 		if ( $oWp->isMultisite() ) {
 			$sMessage = _wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.' );
 			$bConflicted = true;
@@ -171,14 +171,14 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return string|void
 	 */
 	public function aLoadWpLogin() {
-		if ( $this->loadWpFunctionsProcessor()->getIsLoginUrl() ) {
+		if ( $this->loadWpFunctions()->getIsLoginUrl() ) {
 			@require_once( ABSPATH . 'wp-login.php' );
 			die();
 		}
 	}
 
 	public function aLoginFormAction() {
-		if ( !$this->loadWpFunctionsProcessor()->getIsLoginUrl() ) {
+		if ( !$this->loadWpFunctions()->getIsLoginUrl() ) {
 			// We now black mark this IP
 //			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 			$this->doWpLoginFailedRedirect404();
@@ -208,7 +208,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		if ( !empty( $sRedirectUrl ) ) {
 			$sRedirectUrl = esc_url( $sRedirectUrl );
 			if ( @parse_url( $sRedirectUrl ) !== false ) {
-				$this->loadWpFunctionsProcessor()->doRedirect( $sRedirectUrl, array(), false );
+				$this->loadWpFunctions()->doRedirect( $sRedirectUrl, array(), false );
 			}
 		}
 
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		$sRequestUrl = $oDp->FetchServer( 'REQUEST_URI' );
 		$oDp->doSendApache404(
 			$sRequestUrl,
-			$this->loadWpFunctionsProcessor()->getHomeUrl()
+			$this->loadWpFunctions()->getHomeUrl()
 		);
 	}
 

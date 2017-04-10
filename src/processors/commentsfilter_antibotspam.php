@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// 1st are comments enabled on this post?
 		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
-		$oPost = $nPostId ? $this->loadWpFunctionsProcessor()->getPostById( $nPostId ) : null;
+		$oPost = $nPostId ? $this->loadWpFunctions()->getPostById( $nPostId ) : null;
 		if ( $oPost ) {
 			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
 		}
@@ -141,7 +141,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 		if ( $this->sCommentStatus == 'reject' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
 		}
 
@@ -465,7 +465,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function deleteOldPostCommentTokens( $sPostId = null ) {
 		$aWhere = array(
 			'ip'        => $this->loadDataProcessor()->getVisitorIpAddress( true ),
-			'post_id'   => empty( $sPostId ) ? $this->loadWpFunctionsProcessor()->getCurrentPostId() : $sPostId
+			'post_id'   => empty( $sPostId ) ? $this->loadWpFunctions()->getCurrentPostId() : $sPostId
 		);
 		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 	}
@@ -475,7 +475,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function insertUniquePostCommentToken() {
 		$aData = array(
-			'post_id'       => $this->loadWpFunctionsProcessor()->getCurrentPostId(),
+			'post_id'       => $this->loadWpFunctions()->getCurrentPostId(),
 			'unique_token'  => $this->getUniqueCommentToken(),
 			'ip'            => $this->loadDataProcessor()->getVisitorIpAddress( true ),
 			'created_at'    => $this->time()

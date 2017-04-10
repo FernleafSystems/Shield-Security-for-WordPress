@@ -31,9 +31,9 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
 			'has_validated_profile' => $bValidatedProfile,
-			'is_my_user_profile'    => ( $oUser->ID == $this->loadWpUsersProcessor()->getCurrentWpUserId() ),
+			'is_my_user_profile'    => ( $oUser->ID == $this->loadWpUsers()->getCurrentWpUserId() ),
 			'i_am_valid_admin'      => $oCon->getHasPermissionToManage(),
-			'user_to_edit_is_admin' => $this->loadWpUsersProcessor()->isUserAdmin( $oUser ),
+			'user_to_edit_is_admin' => $this->loadWpUsers()->isUserAdmin( $oUser ),
 			'strings'               => array(
 				'description_otp_code' => _wpsf__( 'This is your unique Yubikey Device ID.' ),
 				'description_otp'      => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
@@ -211,14 +211,14 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	protected function auditLogin( $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
 				2, 'login_protect_yubikey_login_success'
 			);
 			$this->doStatIncrement( 'login.yubikey.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
 				2, 'login_protect_yubikey_failed'
 			);
 			$this->doStatIncrement( 'login.yubikey.failed' );

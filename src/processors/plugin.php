@@ -37,7 +37,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$this->getTrackingProcessor()->run();
 			}
 
-			if ( $this->loadWpUsersProcessor()->isUserAdmin() ) {
+			if ( $this->loadWpUsers()->isUserAdmin() ) {
 				$oDp = $this->loadDataProcessor();
 				$sAction = $oDp->FetchGet( 'shield_action' );
 				switch ( $sAction ) {
@@ -118,7 +118,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 * Sets this plugin to be the first loaded of all the plugins.
 		 */
 		protected function maintainPluginLoadPosition() {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			$nLoadPosition = $oWp->getActivePluginLoadPosition( $sBaseFile );
 			if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {

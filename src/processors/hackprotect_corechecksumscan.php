@@ -11,7 +11,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		public function run() {
 			$this->setupChecksumCron();
 
-			if ( $this->loadWpUsersProcessor()->isUserAdmin() ) {
+			if ( $this->loadWpUsers()->isUserAdmin() ) {
 				$oDp = $this->loadDataProcessor();
 
 				if ( $oDp->FetchGet( 'force_checksumscan' ) == 1 ) {
@@ -65,7 +65,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return array
 		 */
 		public function doChecksumScan( $bAutoRepair ) {
-			$aChecksumData = $this->loadWpFunctionsProcessor()->getCoreChecksums();
+			$aChecksumData = $this->loadWpFunctions()->getCoreChecksums();
 
 			if ( empty( $aChecksumData ) || !is_array( $aChecksumData ) ) {
 				return array();
@@ -182,7 +182,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return false|string
 		 */
 		protected function downloadSingleWordPressCoreFile( $sPath ) {
-			$sBaseSvnUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
+			$sBaseSvnUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctions()->getWordpressVersion().'/';
 			$sFileUrl = path_join( $sBaseSvnUrl, $sPath );
 			return $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
 		}
@@ -211,7 +211,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				return true;
 			}
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sHomeUrl = $oWp->getHomeUrl();
 			$aContent = array(
 				sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()->getHumanName() ),
@@ -272,10 +272,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 						'shield_action' => 'repair_file',
 						'repair_file_path' => urlencode( $sFile )
 					),
-					$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+					$this->loadWpFunctions()->getUrl_WpAdmin()
 				),
 				_wpsf__( 'Repair file now' ),
-				$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/'.$sFile,
+				$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctions()->getWordpressVersion().'/'.$sFile,
 				_wpsf__( 'WordPress.org source file' )
 			);
 		}

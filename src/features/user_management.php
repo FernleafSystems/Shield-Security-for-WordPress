@@ -45,7 +45,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ):
 			$oProcessor = $this->getProcessor();
 			$aActiveSessions = $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sTimeFormat = $oWp->getTimeFormat();
 			$sDateFormat = $oWp->getDateFormat();
 			foreach( $aActiveSessions as &$aSession ) {

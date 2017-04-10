@@ -159,7 +159,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$sMinimumWp = $this->getPluginSpec_Requirement( 'wordpress' );
 		if ( !empty( $sMinimumWp ) ) {
-			$sWpVersion = $this->loadWpFunctionsProcessor()->getWordpressVersion();
+			$sWpVersion = $this->loadWpFunctions()->getWordpressVersion();
 			if ( version_compare( $sWpVersion, $sMinimumWp, '<' ) ) {
 				$aRequirementsMessages[] = sprintf( 'WordPress does not meet minimum version. Your version: %s.  Required Version: %s.', $sWpVersion, $sMinimumWp );
 				$bMeetsRequirements = false;
@@ -355,7 +355,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$oDp->downloadStringAsFile(
 					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
-					. $this->loadWpFunctionsProcessor()->getHomeUrl( true )
+					. $this->loadWpFunctions()->getHomeUrl( true )
 					.'-'.date('ymdHis').'.txt'
 				);
 			}
@@ -617,7 +617,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
 			&& isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
-			$sNewVersion = $this->loadWpFunctionsProcessor()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+			$sNewVersion = $this->loadWpFunctions()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 			if ( !empty( $sNewVersion ) ) {
 				$oConOptions = $this->getPluginControllerOptions();
 				if ( !isset( $oConOptions->update_first_detected ) || ( count( $oConOptions->update_first_detected ) > 3 ) ) {
@@ -664,7 +664,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $sItemFile === $this->getPluginBaseFile() ) {
 			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$oConOptions = $this->getPluginControllerOptions();
 
 			if ( !$oWp->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
@@ -800,7 +800,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function filter_hidePluginUpdatesFromUI( $oPlugins ) {
 
-		if ( $this->loadWpFunctionsProcessor()->getIsCron() ) {
+		if ( $this->loadWpFunctions()->getIsCron() ) {
 			return $oPlugins;
 		}
 		if ( ! apply_filters( $this->doPluginPrefix( 'hide_plugin_updates' ), false ) ) {
@@ -834,7 +834,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		do_action( $this->doPluginPrefix( 'form_submit' ) );
 
 		if ( $this->getIsPage_PluginAdmin() ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$oWp->doRedirect( $oWp->getUrl_CurrentAdminPage() );
 		}
 		return true;
@@ -963,7 +963,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return false;
 		}
 
-		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp = $this->loadWpFunctions();
 		if ( !$oWp->isMultisite() && is_admin() ) {
 			return true;
 		}
@@ -1010,14 +1010,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function getIsPage_PluginAdmin() {
-		return ( strpos( $this->loadWpFunctionsProcessor()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
+		return ( strpos( $this->loadWpFunctions()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0 );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function getIsPage_PluginMainDashboard() {
-		return ( $this->loadWpFunctionsProcessor()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
+		return ( $this->loadWpFunctions()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
 	}
 
 	/**
@@ -1333,7 +1333,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
 
-			self::$oControllerOptions = $this->loadWpFunctionsProcessor()->getOption( $this->getPluginControllerOptionsKey() );
+			self::$oControllerOptions = $this->loadWpFunctions()->getOption( $this->getPluginControllerOptionsKey() );
 			if ( !is_object( self::$oControllerOptions ) ) {
 				self::$oControllerOptions = new stdClass();
 			}
@@ -1363,7 +1363,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
 			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
-			$this->loadWpFunctionsProcessor()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+			$this->loadWpFunctions()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
 			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), '__return_true' );
 		}
 	}
@@ -1456,7 +1456,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function setSessionCookie() {
-		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp = $this->loadWpFunctions();
 		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
@@ -1499,7 +1499,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$bSuccess = true;
 			}
 			catch( Exception $oE ) {
-				$this->loadWpFunctionsProcessor()->wpDie( $oE->getMessage() );
+				$this->loadWpFunctions()->wpDie( $oE->getMessage() );
 			}
 		}
 		return $bSuccess;

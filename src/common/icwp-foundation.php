@@ -84,7 +84,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		/**
 		 * @return ICWP_WPSF_WpFunctions
 		 */
-		static public function loadWpFunctionsProcessor() {
+		static public function loadWpFunctions() {
 			if ( !isset( self::$oWp ) ) {
 				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-wpfunctions.php' );
 				self::$oWp = ICWP_WPSF_WpFunctions::GetInstance();
@@ -212,7 +212,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		/**
 		 * @return ICWP_WPSF_WpUsers
 		 */
-		static public function loadWpUsersProcessor() {
+		static public function loadWpUsers() {
 			if ( !isset( self::$oWpUsers ) ) {
 				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'wp-users.php' );
 				self::$oWpUsers = ICWP_WPSF_WpUsers::GetInstance();

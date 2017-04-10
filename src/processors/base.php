@@ -80,7 +80,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 			}
 
 			if ( $aNoticeAttributes[ 'schedule' ] == 'once'
-				&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes['id'] ) )
+				&& ( !$this->loadWpUsers()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes[ 'id'] ) )
 			) {
 				return false;
 			}
@@ -90,7 +90,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 			}
 
 			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
-				if ( $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+				if ( $this->loadWpFunctions()->getIsMobile() ) {
 					return false;
 				}
 			}
@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return string
 		 */
 		protected function getGoogleRecaptchaLocale() {
-			$aLocaleParts = explode( '_', $this->loadWpFunctionsProcessor()->getLocale(), 2 );
+			$aLocaleParts = explode( '_', $this->loadWpFunctions()->getLocale(), 2 );
 			return $aLocaleParts[ 0 ];
 		}
 
@@ -181,7 +181,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getPluginDefaultRecipientAddress() {
-			return apply_filters( $this->getFeature()->prefix( 'report_email_address' ), $this->loadWpFunctionsProcessor()->getSiteAdminEmail() );
+			return apply_filters( $this->getFeature()->prefix( 'report_email_address' ), $this->loadWpFunctions()->getSiteAdminEmail() );
 		}
 
 		/**

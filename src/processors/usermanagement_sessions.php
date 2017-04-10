@@ -90,8 +90,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			}
 
 			// At this point session is validated
-			$oWp = $this->loadWpFunctionsProcessor();
-			if ( $oWp->getIsLoginUrl() && $this->loadWpUsersProcessor()->isUserAdmin() ) {
+			$oWp = $this->loadWpFunctions();
+			if ( $oWp->getIsLoginUrl() && $this->loadWpUsers()->isUserAdmin() ) {
 				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
 //					$oWp->redirectToAdmin();
@@ -99,7 +99,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			}
 
 			// always track activity
-			$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+			$oUser = $this->loadWpUsers()->getCurrentWpUser();
 			$this->updateSessionLastActivity( $oUser );
 		}
 	}
@@ -145,7 +145,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return bool
 	 */
 	protected function doVerifyCurrentSession( $bForceRelogin = false ) {
-		$oWpUsers = $this->loadWpUsersProcessor();
+		$oWpUsers = $this->loadWpUsers();
 		$oUser = $oWpUsers->getCurrentWpUser();
 
 		$nForceLogOutCode = 0; // when it's == 0 it's a valid session
@@ -317,7 +317,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return boolean
 	 */
 	protected function doTerminateCurrentUserSession() {
-		$oUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
 			return false;
 		}

@@ -14,7 +14,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getFeature();
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 			add_filter( $oFO->prefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
@@ -79,10 +79,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function restrictAdminUserDelete( $nId ) {
 			if ( !$this->isSecurityAdmin() ) {
-				$oWpUsers = $this->loadWpUsersProcessor();
+				$oWpUsers = $this->loadWpUsers();
 				$oUser = $oWpUsers->getUserById( $nId );
 				if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
-					$this->loadWpFunctionsProcessor()
+					$this->loadWpFunctions()
 						->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
 				}
 			}
@@ -100,7 +100,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				return $aAllCaps;
 			}
 
-			$oWpUsers = $this->loadWpUsersProcessor();
+			$oWpUsers = $this->loadWpUsers();
 			$oDp = $this->loadDataProcessor();
 
 			/** @var string $sRequestedCapability */
@@ -160,7 +160,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				return;
 			}
 
-			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
+			$sCurrentPage = $this->loadWpFunctions()->getCurrentPage();
 			$sCurrentGetPage = $this->loadDataProcessor()->FetchGet( 'page' );
 			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 				return;
@@ -195,7 +195,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				return;
 			}
 
-			$sCurrentPage = $this->loadWpFunctionsProcessor()->getCurrentPage();
+			$sCurrentPage = $this->loadWpFunctions()->getCurrentPage();
 			if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
 				return;
 			}

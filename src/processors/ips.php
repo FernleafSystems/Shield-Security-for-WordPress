@@ -69,7 +69,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 * @return WP_User|WP_Error
 		 */
 		public function addLoginFailedWarningMessage( $oUserOrError ) {
-			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() && is_wp_error( $oUserOrError ) ) {
+			if ( $this->loadWpFunctions()->getIsLoginRequest() && is_wp_error( $oUserOrError ) ) {
 				$oUserOrError->add(
 					$this->getFeature()->prefix( 'transgression-warning' ),
 					sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' ) )
@@ -155,7 +155,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			}
 
 			$bBlackMark = false;
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			if ( $oWp->getIsLoginRequest() ) {
 
 				// If there's an attempt to login with a non-existent username
@@ -246,7 +246,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 				$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 
-				$this->loadWpFunctionsProcessor()
+				$this->loadWpFunctions()
 					->wpDie(
 						'<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
 							'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()->getHumanName().'</a>'

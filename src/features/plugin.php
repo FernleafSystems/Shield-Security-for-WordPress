@@ -104,7 +104,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			$oCon = self::getController();
 			if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
 				if ( !$oCon->getHasPermissionToManage() ) {
-					$this->loadWpFunctionsProcessor()->wpDie(
+					$this->loadWpFunctions()->wpDie(
 						_wpsf__( 'Sorry, you do not have permission to disable this plugin.')
 						. _wpsf__( 'You need to authenticate first.' )
 					);
@@ -133,7 +133,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		public function getLinkToTrackingDataDump() {
 			return add_query_arg(
 				array( 'shield_action' => 'dump_tracking_data' ),
-				$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+				$this->loadWpFunctions()->getUrl_WpAdmin()
 			);
 		}
 
@@ -244,7 +244,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		protected function genInstallId() {
 			return sha1(
 				$this->getPluginInstallationTime()
-				. $this->loadWpFunctionsProcessor()->getWpUrl()
+				. $this->loadWpFunctions()->getWpUrl()
 				. $this->loadDbProcessor()->getPrefix()
 			);
 		}

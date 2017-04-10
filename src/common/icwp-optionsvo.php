@@ -60,7 +60,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return bool
 		 */
 		public function cleanTransientStorage() {
-			return $this->loadWpFunctionsProcessor()->deleteTransient( $this->getSpecTransientStorageKey() );
+			return $this->loadWpFunctions()->deleteTransient( $this->getSpecTransientStorageKey() );
 		}
 
 		/**
@@ -74,16 +74,16 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 			$this->cleanOptions();
 			$this->setNeedSave( false );
 			if ( $bDeleteFirst ) {
-				$this->loadWpFunctionsProcessor()->deleteOption( $this->getOptionsStorageKey() );
+				$this->loadWpFunctions()->deleteOption( $this->getOptionsStorageKey() );
 			}
-			return $this->loadWpFunctionsProcessor()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
+			return $this->loadWpFunctions()->updateOption( $this->getOptionsStorageKey(), $this->getAllOptionsValues() );
 		}
 
 		/**
 		 * @return bool
 		 */
 		public function doOptionsDelete() {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
 			return $oWp->deleteOption( $this->getOptionsStorageKey() );
 		}
@@ -581,7 +581,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 					if ( empty( $sStorageKey ) ) {
 						throw new Exception( 'Options Storage Key Is Empty' );
 					}
-					$this->aOptionsValues = $this->loadWpFunctionsProcessor()->getOption( $sStorageKey, array() );
+					$this->aOptionsValues = $this->loadWpFunctions()->getOption( $sStorageKey, array() );
 				}
 			}
 			if ( !is_array( $this->aOptionsValues ) ) {
@@ -596,7 +596,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @throws Exception
 		 */
 		private function readConfiguration() {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			$sTransientKey = $this->getSpecTransientStorageKey();
 			$aConfig = $oWp->getTransient( $sTransientKey );

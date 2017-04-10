@@ -559,7 +559,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		protected function setupAjaxHandlers() {
-			if ( $this->loadWpFunctionsProcessor()->getIsAjax() ) {
+			if ( $this->loadWpFunctions()->getIsAjax() ) {
 				if ( is_admin() || is_network_admin() ) {
 					$this->adminAjaxHandlers();
 				}

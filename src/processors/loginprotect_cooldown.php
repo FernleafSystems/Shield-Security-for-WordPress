@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 * @return WP_User|WP_Error
 	 */
 	public function checkLoginInterval( $oUserOrError ) {
-		if ( !$this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+		if ( !$this->loadWpFunctions()->getIsLoginRequest() ) {
 			return $oUserOrError;
 		}
 
@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 			.sprintf(
 				_wpsf__( "You must wait %s seconds before attempting to %s again." ),
 				$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
-				$this->loadWpFunctionsProcessor()->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
+				$this->loadWpFunctions()->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
 			);
 
 		if ( !is_wp_error( $oUserOrError ) ) {
