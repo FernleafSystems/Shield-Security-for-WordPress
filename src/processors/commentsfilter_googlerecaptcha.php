@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			$this->setCommentStatusExplanation( $sExplanation );
 
 			// We now black mark this IP
-			add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
 
 			if ( self::$sCommentStatus == 'reject' ) {
 				$oWp = $this->loadWpFunctionsProcessor();

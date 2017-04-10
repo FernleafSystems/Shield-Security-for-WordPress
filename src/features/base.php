@@ -101,15 +101,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				// Handle any upgrades as necessary (only go near this if it's the admin area)
 				add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
 				add_action( 'init', array( $this, 'onWpInit' ), 1 );
-				add_action( $this->doPluginPrefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
-				add_filter( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
-				add_filter( $this->doPluginPrefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
-				add_action( $this->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
-				add_action( $this->doPluginPrefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
-				add_filter( $this->doPluginPrefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
+				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
+				add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
+				add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
+				add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
+				add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' )  );
+				add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 
-				add_filter($this->doPluginPrefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
-				add_filter($this->doPluginPrefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
+				add_filter($this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+				add_filter($this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
 				$this->doPostConstruction();
 			}
@@ -311,7 +311,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function getFeatureAdminPageUrl() {
-			$sUrl = sprintf( 'admin.php?page=%s', $this->doPluginPrefix( $this->getFeatureSlug() ) );
+			$sUrl = sprintf( 'admin.php?page=%s', $this->prefix( $this->getFeatureSlug() ) );
 			if ( self::getController()->getIsWpmsNetworkAdminOnly() ) {
 				$sUrl = network_admin_url( $sUrl );
 			}
@@ -351,7 +351,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getIsMainFeatureEnabled() {
-			if ( apply_filters( $this->doPluginPrefix( 'globally_disabled' ), false ) ) {
+			if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 				return false;
 			}
 
@@ -418,7 +418,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
 				$aItems[ $sMenuPageTitle ] = array(
 					$sMenuTitleName,
-					$this->doPluginPrefix( $this->getFeatureSlug() ),
+					$this->prefix( $this->getFeatureSlug() ),
 					array( $this, 'displayFeatureConfigPage' )
 				);
 
@@ -434,7 +434,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						$sMenuPageTitle = $sHumanName.' - '.$aMenuItem['title'];
 						$aItems[ $sMenuPageTitle ] = array(
 							$aMenuItem['title'],
-							$this->doPluginPrefix( $aMenuItem['slug'] ),
+							$this->prefix( $aMenuItem[ 'slug'] ),
 							array( $this, $aMenuItem['callback'] )
 						);
 					}
@@ -466,7 +466,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'slug' => $this->getFeatureSlug(),
 				'name' => $this->getMainFeatureName(),
 				'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
-				'href' => network_admin_url( 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ) )
+				'href' => network_admin_url( 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ) )
 			);
 
 			return $aSummaryData;
@@ -627,9 +627,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$this->doPrePluginOptionsSave();
 			$this->updateOptionsVersion();
 
-			add_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
+			add_filter( $this->prefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 			$this->getOptionsVo()->doOptionsSave( self::getController()->getIsResetPlugin() );
-			remove_filter( $this->doPluginPrefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
+			remove_filter( $this->prefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
 		/**
@@ -921,7 +921,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return string
 		 */
 		public function prefixOptionKey( $sKey ) {
-			return $this->doPluginPrefix( $sKey, '_' );
+			return $this->prefix( $sKey, '_' );
 		}
 
 		/**
@@ -931,7 +931,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @param string $sGlue
 		 * @return string
 		 */
-		public function doPluginPrefix( $sSuffix = '', $sGlue = '-' ) {
+		public function prefix( $sSuffix = '', $sGlue = '-' ) {
 			return self::getController()->doPluginPrefix( $sSuffix, $sGlue );
 		}
 
@@ -963,13 +963,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
 				'fShowAds'			=> $this->getIsShowMarketing(),
 				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
-				'sFeatureSlug'		=> $this->doPluginPrefix( $this->getFeatureSlug() ),
-				'form_action'		=> 'admin.php?page='.$this->doPluginPrefix( $this->getFeatureSlug() ),
+				'sFeatureSlug'		=> $this->prefix( $this->getFeatureSlug() ),
+				'form_action'		=> 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'	=> 1,
 				'aPluginLabels'		=> $oCon->getPluginLabels(),
 
 				'bShowStateSummary'	=> false,
-				'aSummaryData'		=> apply_filters( $this->doPluginPrefix( 'get_feature_summary_data' ), array() ),
+				'aSummaryData'		=> apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
 				'aAllOptions'		=> $this->buildOptions(),
 				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
@@ -992,7 +992,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return boolean
 		 */
 		protected function getIsShowMarketing() {
-			return apply_filters( $this->doPluginPrefix( 'show_marketing' ), true );
+			return apply_filters( $this->prefix( 'show_marketing' ), true );
 		}
 
 		/**
@@ -1004,7 +1004,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$oRndr = $this->loadRenderer( self::getController()->getPath_Templates());
 
 			// Get Base Data
-			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+			$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
 			$bPermissionToView = self::getController()->getHasPermissionToView();
 
 			if ( !$bPermissionToView ) {
@@ -1037,7 +1037,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 			$oCon = self::getController();
 			// Get Base Data
-			$aData = apply_filters( $this->doPluginPrefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+			$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
 			$bPermissionToView = $oCon->getHasPermissionToView();
 
 			if ( !$bPermissionToView ) {

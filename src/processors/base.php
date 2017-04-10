@@ -19,10 +19,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 */
 		public function __construct( $oFeatureOptions ) {
 			$this->oFeatureOptions = $oFeatureOptions;
-			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
-			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+			add_action( $oFeatureOptions->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
+			add_action( $oFeatureOptions->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 			if ( method_exists( $this, 'addToAdminNotices' ) ) {
-				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+				add_action( $oFeatureOptions->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 			}
 			$this->init();
 		}
@@ -181,7 +181,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getPluginDefaultRecipientAddress() {
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $this->loadWpFunctionsProcessor()->getSiteAdminEmail() );
+			return apply_filters( $this->getFeatureOptions()->prefix( 'report_email_address' ), $this->loadWpFunctionsProcessor()->getSiteAdminEmail() );
 		}
 
 		/**

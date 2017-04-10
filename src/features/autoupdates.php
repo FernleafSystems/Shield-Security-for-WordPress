@@ -9,7 +9,7 @@ if ( !class_exists('ICWP_WPSF_FeatureHandler_Autoupdates_V3') ):
 		protected function doPostConstruction() {
 			// Force run automatic updates
 			if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
-				add_filter( $this->doPluginPrefix( 'force_autoupdate' ), '__return_true' );
+				add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
 			}
 		}
 

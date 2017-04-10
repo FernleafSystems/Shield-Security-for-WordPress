@@ -288,7 +288,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				}
 
 				// black mark this IP
-				add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+				add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
 			}
 		}
 
@@ -339,7 +339,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return array
 		 */
 		protected function getFirewallDieMessageForDisplay() {
-			$aMessages = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
+			$aMessages = apply_filters( $this->getFeatureOptions()->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
 			if ( !is_array( $aMessages ) ) {
 				$aMessages = array();
 			}

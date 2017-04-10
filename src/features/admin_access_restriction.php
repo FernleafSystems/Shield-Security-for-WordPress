@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private $bHasPermissionToSubmit;
 
 	protected function doExecuteProcessor() {
-		if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+		if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 			parent::doExecuteProcessor();
 		}
 	}
@@ -213,13 +213,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function checkAdminAccessKeySubmission() {
 		$oDp = $this->loadDataProcessor();
 
-		$sAccessKeyRequest = $oDp->FetchPost( $this->doPluginPrefix( 'admin_access_key_request', '_' ) );
+		$sAccessKeyRequest = $oDp->FetchPost( $this->prefix( 'admin_access_key_request', '_' ) );
 		if ( empty( $sAccessKeyRequest ) ) {
 			return false;
 		}
 		$bSuccess = ( $this->getOpt( 'admin_access_key' ) === md5( $sAccessKeyRequest ) );
 		if ( !$bSuccess ) {
-			add_filter( $this->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 		return $bSuccess;
 	}

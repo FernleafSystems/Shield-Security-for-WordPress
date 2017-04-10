@@ -11,8 +11,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		public function init() {
 			parent::init();
 			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
-			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
+			add_filter( $oFO->prefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
+			add_filter( $oFO->prefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 		}
 
 		/**
@@ -101,7 +101,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$oFO = $this->getFeatureOptions();
 			$oWpUsers = $this->loadWpUsersProcessor();
 
-			$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'plugin-update-available' );
+			$sAdminNoticeMetaKey = $oFO->prefix( 'plugin-update-available' );
 			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;

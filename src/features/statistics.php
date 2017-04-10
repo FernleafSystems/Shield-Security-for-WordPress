@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ):
 		 * @return string
 		 */
 		public function getStatisticsTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'statistics_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'statistics_table_name' ), '_' );
 		}
 
 		/**

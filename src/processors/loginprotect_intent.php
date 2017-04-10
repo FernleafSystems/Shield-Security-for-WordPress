@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 
 				$oLoginTracker = $this->getLoginTrack();
-				do_action( $oFO->doPluginPrefix( 'login-intent-validation' ) );
+				do_action( $oFO->prefix( 'login-intent-validation' ) );
 				if ( $oFO->isChainedAuth() ) {
 					$bLoginIntentValidated = !$oLoginTracker->hasUnSuccessfulFactorAuth();
 				}
@@ -199,7 +199,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getFeatureOptions();
 		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
-		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
+		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
 		if ( empty( $aLoginIntentFields ) ) {
 			return false; // a final guard against displaying an empty form.

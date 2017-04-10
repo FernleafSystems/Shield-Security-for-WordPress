@@ -11,7 +11,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 			if ( $oFO->isTrackingEnabled() ) {
 				$this->createTrackingCollectionCron();
 			}
-			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+			add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 		}
 
 		/**
@@ -84,7 +84,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		public function collectTrackingData() {
 			$aData = apply_filters(
-				$this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ),
+				$this->getFeatureOptions()->prefix( 'collect_tracking_data' ),
 				$this->getBaseTrackingData()
 			);
 			return is_array( $aData ) ? $aData : array();

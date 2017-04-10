@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			if ( !$this->readyToRun() ) {
 				return;
 			}
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+			add_filter( $this->getFeatureOptions()->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
 		/**
@@ -259,7 +259,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		/**
 		 */
 		protected function commit() {
-			$aEntries = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'collect_stats' ), array() );
+			$aEntries = apply_filters( $this->getFeatureOptions()->prefix( 'collect_stats' ), array() );
 			if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 				return;
 			}

@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		 * @return boolean
 		 */
 		public function getIfForceRunAutoupdates() {
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
+			return apply_filters( $this->getFeatureOptions()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
 		}
 
 		/**

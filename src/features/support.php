@@ -41,7 +41,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		 * @return bool
 		 */
 		public function getHasPremiumSupport() {
-			return apply_filters( $this->doPluginPrefix( 'has_premium_support' ), $this->getIcwpLinked() );
+			return apply_filters( $this->prefix( 'has_premium_support' ), $this->getIcwpLinked() );
 		}
 
 		/**

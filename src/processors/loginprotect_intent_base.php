@@ -20,8 +20,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		$oFO = $this->getFeatureOptions();
 
 		if ( $oFO->getIfUseLoginIntentPage() ) {
-			add_filter( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
-			add_action( $oFO->doPluginPrefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
+			add_filter( $oFO->prefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
+			add_action( $oFO->prefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 		}
 
 		if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {

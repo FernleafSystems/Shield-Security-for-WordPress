@@ -32,7 +32,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		protected function doExecuteProcessor() {
-			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
 			}
 		}
@@ -181,7 +181,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return string
 		 */
 		public function getTwoFactorAuthTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
 		}
 
 		/**
@@ -266,7 +266,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return string
 		 */
 		public function getLoginIntentRequestFlag() {
-			return $this->doPluginPrefix( 'login-intent-request' );
+			return $this->prefix( 'login-intent-request' );
 		}
 
 		/**

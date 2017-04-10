@@ -6,7 +6,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 	class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		protected function doExecuteProcessor() {
-			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
 			}
 		}
@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 		 * @return string
 		 */
 		public function getAuditTrailTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
 		}
 
 		/**

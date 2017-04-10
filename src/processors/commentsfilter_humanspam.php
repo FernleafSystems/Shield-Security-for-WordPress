@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 */
 	public function run() {
 		parent::run();
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getFeatureOptions()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 	}
 
 	/**
@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
 
 					// We now black mark this IP
-					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+					add_filter( $this->getFeatureOptions()->prefix( 'ip_black_mark' ), '__return_true' );
 					break 2;
 				}
 			}

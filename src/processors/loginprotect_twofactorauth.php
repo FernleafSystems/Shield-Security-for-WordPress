@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$sTableName = $oDb->getPrefix().$oFO->getTwoFactorAuthTableName();
 			if ( $oDb->getIfTableExists( $sTableName ) ) {
 				$oDb->doDropTable( $sTableName );
-				$sCronName = $oFO->doPluginPrefix( $oFO->getFeatureSlug().'_db_cleanup' );
+				$sCronName = $oFO->prefix( $oFO->getFeatureSlug().'_db_cleanup' );
 				wp_clear_scheduled_hook( $sCronName );
 			}
 		}

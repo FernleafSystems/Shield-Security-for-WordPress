@@ -79,15 +79,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getFeatureOptions()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.
 		add_action(	'comment_form',					array( $this, 'printGaspFormHook_Action' ), 1 );
 		add_action(	'comment_form',					array( $this, 'printGaspFormParts_Action' ), 2 );
 		add_filter( 'preprocess_comment',			array( $this, 'doCommentChecking' ), 1, 1 );
 
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getFeatureOptions()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getFeatureOptions()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -201,7 +201,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->setCommentStatusExplanation( $sExplanation );
 
 			// We now black mark this IP
-			add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 	}
 

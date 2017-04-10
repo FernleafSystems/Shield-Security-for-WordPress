@@ -121,7 +121,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		if ( $bDoBlock ) {
 			// We now black mark this IP
-//			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+//			add_filter( $this->getFeatureOptions()->prefix( 'ip_black_mark' ), '__return_true' );
 			$this->doWpLoginFailedRedirect404();
 		}
 	}
@@ -180,7 +180,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	public function aLoginFormAction() {
 		if ( !$this->loadWpFunctionsProcessor()->getIsLoginUrl() ) {
 			// We now black mark this IP
-//			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+//			add_filter( $this->getFeatureOptions()->prefix( 'ip_black_mark' ), '__return_true' );
 			$this->doWpLoginFailedRedirect404();
 			die();
 		}

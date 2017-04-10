@@ -43,7 +43,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					$this->getCronName(),
 					array( $this, 'cron_dailyPluginVulnerabilitiesScan' )
 			);
-			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
+			add_action( $this->getFeatureOptions()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
 		}
 
 		/**
