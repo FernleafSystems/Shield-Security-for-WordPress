@@ -1,4 +1,16 @@
 {
+  "5.8.2": {
+    "version": {
+      "series": "5.8.0",
+      "major": 5,
+      "minor": 8,
+      "patch": 2
+    },
+    "attributes": {
+      "date": "1491523200",
+      "is_patch": true
+    }
+  },
   "5.8.1": {
     "version": {
       "series": "5.8.0",
@@ -33,6 +45,11 @@
     }
   },
   "changelog": [
+    {
+      "type": "changed",
+      "summary": "Added further clarification to the Login Notification email indicating that two-factor authentication was pending.",
+      "version": "5.8.2"
+    },
     {
       "type": "fixed",
       "summary": "Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.",

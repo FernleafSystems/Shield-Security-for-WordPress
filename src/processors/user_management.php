@@ -170,8 +170,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 
-		$oDp = $this->loadDataProcessor();
-		$oEmailer = $this->getFeature()->getEmailProcessor();
 		$sHomeUrl = $this->loadWpFunctions()->getHomeUrl();
 
 		$aMessage = array(
@@ -179,21 +177,23 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->getController()->getHumanName(),
 				$sHumanName
 			),
-			_wpsf__( 'Details for this user are below:' ),
+			'', sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			'', _wpsf__( 'Details for this user are below:' ),
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $sHomeUrl ),
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			'- '.sprintf( _wpsf__( 'User Email: %s' ), $oUser->get( 'user_email' ) ),
-			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $oDp->getVisitorIpAddress( true ) ),
-			'', sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->loadDataProcessor()->getVisitorIpAddress( true ) ),
 			'', _wpsf__( 'Thanks.' )
 		);
 
-		$bResult = $oEmailer->sendEmailTo(
-			$this->getOption( 'enable_admin_login_email_notification' ),
-			sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
-			$aMessage
-		);
-		return $bResult;
+		return $this
+			->getFeature()
+			->getEmailProcessor()
+			->sendEmailTo(
+				$this->getOption( 'enable_admin_login_email_notification' ),
+				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
+				$aMessage
+			);
 	}
 
 	/**

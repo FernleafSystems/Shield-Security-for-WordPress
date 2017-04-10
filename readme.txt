@@ -308,7 +308,12 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.8.1 Latest Point Release =
+= 5.8.2 Latest Point Release =
+*Released: 14th April, 2017*
+
+* **(v.2)**  CHANGE:		Added further clarification to the Login Notification email indicating that two-factor authentication was pending.
+
+= 5.8.0 Series =
 *Released: 7th April, 2017*
 
 * **(v.1)**  FIXED:			Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.
@@ -345,7 +350,6 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.1)**  CHANGE:		Improved compatibility of HTTP Headers with WP Super Cache.
 * **(v.0)**  ADDED:			Option to disable anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin
 							or service authenticates the request it will be honoured, whether anonymous or not.
-
 = 5.5 Series =
 
 * **(v.6)**  IMPROVED:		Fixed possible leak of the Login URL from the 'Hide WP Login URL' feature.
