@@ -51,7 +51,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					$this->getCronName(),
 					array( $this, 'cron_dailyChecksumScan' )
 				);
-			add_action( $this->getFeatureOptions()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
+			add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
 		}
 
 		/**
@@ -76,7 +76,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				'missing' => array(),
 			);
 
-			$aAutoFixIndexFiles = $this->getFeatureOptions()->getDefinition( 'corechecksum_autofix_index_files' );
+			$aAutoFixIndexFiles = $this->getFeature()->getDefinition( 'corechecksum_autofix_index_files' );
 			if ( empty( $aAutoFixIndexFiles ) ) {
 				$aAutoFixIndexFiles = array();
 			}
@@ -153,7 +153,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return array
 		 */
 		protected function getFullExclusions() {
-			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions' );
+			$aExclusions = $this->getFeature()->getDefinition( 'corechecksum_exclusions' );
 			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 				$aExclusions = array();
 			}
@@ -167,7 +167,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return array
 		 */
 		protected function getMissingOnlyExclusions() {
-			$aExclusions = $this->getFeatureOptions()->getDefinition( 'corechecksum_exclusions_missing_only' );
+			$aExclusions = $this->getFeature()->getDefinition( 'corechecksum_exclusions_missing_only' );
 			if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 				$aExclusions = array();
 			}
@@ -182,7 +182,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return false|string
 		 */
 		protected function downloadSingleWordPressCoreFile( $sPath ) {
-			$sBaseSvnUrl = $this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
+			$sBaseSvnUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/';
 			$sFileUrl = path_join( $sBaseSvnUrl, $sPath );
 			return $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
 		}
@@ -275,7 +275,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 					$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
 				),
 				_wpsf__( 'Repair file now' ),
-				$this->getFeatureOptions()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/'.$sFile,
+				$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctionsProcessor()->getWordpressVersion().'/'.$sFile,
 				_wpsf__( 'WordPress.org source file' )
 			);
 		}
@@ -284,7 +284,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return string
 		 */
 		protected function getCronName() {
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			return $oFO->prefixOptionKey( $oFO->getDefinition( 'corechecksum_cron_name' ) );
 		}
 

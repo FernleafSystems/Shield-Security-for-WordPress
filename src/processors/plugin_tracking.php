@@ -6,7 +6,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( $oFO->isTrackingEnabled() ) {
 				$this->createTrackingCollectionCron();
@@ -20,7 +20,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		protected function addNotice_allow_tracking( $aNoticeAttributes ) {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
 				$oCon = $this->getController();
@@ -52,7 +52,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		public function sendTrackingData() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( !$oFO->isTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
 				return false;
 			}
@@ -84,7 +84,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		public function collectTrackingData() {
 			$aData = apply_filters(
-				$this->getFeatureOptions()->prefix( 'collect_tracking_data' ),
+				$this->getFeature()->prefix( 'collect_tracking_data' ),
 				$this->getBaseTrackingData()
 			);
 			return is_array( $aData ) ? $aData : array();
@@ -118,7 +118,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		protected function createTrackingCollectionCron() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$sFullHookName = $oFO->getTrackingCronName();
 			$this->loadWpCronProcessor()
 				 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand( 0, 1800 ) )
@@ -129,7 +129,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 
 		public function deleteCron() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$this->loadWpCronProcessor()->deleteCronJob( $oFO->getTrackingCronName() );
 		}
 	}

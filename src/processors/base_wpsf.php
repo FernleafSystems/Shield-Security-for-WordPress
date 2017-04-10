@@ -20,7 +20,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * Resets the object values to be re-used anew
 		 */
 		public function init() {
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			add_filter( $oFO->prefix( 'collect_audit_trail' ),		array( $this, 'audit_Collect' ) );
 			add_filter( $oFO->prefix( 'collect_stats' ),			array( $this, 'stats_Collect' ) );
 			add_filter( $oFO->prefix( 'collect_tracking_data' ),	array( $this, 'tracking_DataCollect' ) );
@@ -40,7 +40,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			if ( !is_array( $aData ) ) {
 				$aData = array();
 			}
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
 			return $aData;
 		}
@@ -91,7 +91,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * @param string $sParentStatKey
 		 */
 		protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? $this->getFeatureOptions()->getFeatureSlug() : $sParentStatKey ) );
+			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? $this->getFeature()->getFeatureSlug() : $sParentStatKey ) );
 		}
 
 		/**

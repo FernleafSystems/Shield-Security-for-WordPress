@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		$oLoginTracker = $this->getLoginTrack();
 
@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function processUserLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		if ( $this->userHasPendingLoginIntent() ) {
 			$oDp = $this->loadDataProcessor();
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return string
 	 */
 	protected function getOptionKey() {
-		return $this->getFeatureOptions()->prefixOptionKey( 'login_intent' );
+		return $this->getFeature()->prefixOptionKey( 'login_intent' );
 	}
 
 	/**
@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function isCurrentUserSubjectToLoginIntent() {
-		return apply_filters( $this->getFeatureOptions()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
+		return apply_filters( $this->getFeature()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
 	}
 
 	/**
@@ -196,7 +196,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
@@ -271,7 +271,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	protected function getProcessorTwoFactor() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -281,7 +281,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getProcessorYubikey() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
@@ -290,7 +290,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getProcessorGoogleAuthenticator() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeatureOptions() );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 

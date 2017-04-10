@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
 		add_filter( 'authenticate', array( $this, 'checkLoginInterval' ), 10, 1 );
@@ -75,7 +75,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function getLastLoginTime() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		$sFilePath = $oFO->getLastLoginTimeFilePath();
 		$oWpFs = $this->loadFileSystemProcessor();
@@ -87,7 +87,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function updateLastLoginTime() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$nTime = $this->time();
 		$oFO->updateLastLoginTime( $nTime );
 		$this->loadFileSystemProcessor()->touch( $oFO->getLastLoginTimeFilePath(), $nTime );

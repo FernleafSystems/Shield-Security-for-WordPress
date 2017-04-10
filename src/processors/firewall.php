@@ -232,7 +232,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 */
 		protected function getFirewallPatterns( $sKey = null ) {
 			if ( !isset( $this->aPatterns ) ) {
-				$this->aPatterns = $this->getFeatureOptions()->getDefinition( 'firewall_patterns' );
+				$this->aPatterns = $this->getFeature()->getDefinition( 'firewall_patterns' );
 			}
 			if ( !empty( $sKey ) ) {
 				return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
@@ -254,7 +254,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 
 			if ( $this->getIfDoFirewallBlock() ) {
 				/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-				$oFO = $this->getFeatureOptions();
+				$oFO = $this->getFeature();
 
 				switch( $oFO->getBlockResponse() ) {
 					case 'redirect_die':
@@ -298,7 +298,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 
 			if ( $this->getIfDoFirewallBlock() ) {
 				/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-				$oFO = $this->getFeatureOptions();
+				$oFO = $this->getFeature();
 				$oWp = $this->loadWpFunctionsProcessor();
 
 				switch( $oFO->getBlockResponse() ) {
@@ -339,7 +339,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		 * @return array
 		 */
 		protected function getFirewallDieMessageForDisplay() {
-			$aMessages = apply_filters( $this->getFeatureOptions()->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
+			$aMessages = apply_filters( $this->getFeature()->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
 			if ( !is_array( $aMessages ) ) {
 				$aMessages = array();
 			}
@@ -453,7 +453,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 				);
 
 				/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-				$oFO = $this->getFeatureOptions();
+				$oFO = $this->getFeature();
 				$aCustomWhitelistPageParams = $oFO->getPageParamWhitelist();
 				$this->aWhitelistPages = array_merge_recursive( $aDefaultWlPages, $aCustomWhitelistPageParams );
 			}

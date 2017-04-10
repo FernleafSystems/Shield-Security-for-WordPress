@@ -10,7 +10,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		 */
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( $oFO->getOptIs( 'disable_file_editing', 'Y' ) ) {
 				if ( !defined('DISALLOW_FILE_EDIT') ) {
@@ -83,7 +83,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		 */
 		public function tracking_DataCollect( $aData ) {
 			$aData = parent::tracking_DataCollect( $aData );
-			$sSlug = $this->getFeatureOptions()->getFeatureSlug();
+			$sSlug = $this->getFeature()->getFeatureSlug();
 			$aData[$sSlug][ 'options' ][ 'mask_wordpress_version' ]
 				= empty( $aData[$sSlug][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
 			return $aData;

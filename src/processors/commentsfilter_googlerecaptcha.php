@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		if ( !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
@@ -39,7 +39,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 */
 	protected function getGoogleRecaptchaHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
 		return sprintf(
 			'<div class="g-recaptcha" data-sitekey="%s" style="margin: 10px 0;"></div>',
@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 		parent::doCommentChecking( $aCommentData );
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}

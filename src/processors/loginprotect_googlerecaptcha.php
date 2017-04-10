@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		if ( !$this->loadWpFunctionsProcessor()->getIsLoginUrl() || !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 */
 	protected function getGoogleRecaptchaHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
 		return sprintf(
 			'%s<div class="g-recaptcha" data-sitekey="%s"></div>',
@@ -69,7 +69,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		// we haven't already failed before now
 		if ( !is_wp_error( $oUser ) ) {

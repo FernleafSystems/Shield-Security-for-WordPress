@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			)
 		);
 
-		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
+		echo $this->getFeature()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
 	}
 
 	/**
@@ -111,7 +111,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function processLoginAttempt_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oLoginTrack = $this->getLoginTrack();
 
 		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactorAuth();
@@ -255,7 +255,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
 					$bValid = true;
 					/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-					$oFO = $this->getFeatureOptions();
+					$oFO = $this->getFeature();
 					$oFO->removeUserFromOldYubikeyList( $oUser );
 					$this->setSecret( $oUser, $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] )
 						 ->setProfileValidated( $oUser, true );

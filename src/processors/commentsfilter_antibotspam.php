@@ -79,15 +79,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		add_filter( $this->getFeatureOptions()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.
 		add_action(	'comment_form',					array( $this, 'printGaspFormHook_Action' ), 1 );
 		add_action(	'comment_form',					array( $this, 'printGaspFormParts_Action' ), 2 );
 		add_filter( 'preprocess_comment',			array( $this, 'doCommentChecking' ), 1, 1 );
 
-		add_filter( $this->getFeatureOptions()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeatureOptions()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$this->aRawCommentData = $aCommentData;
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -165,7 +165,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		$bIsSpam = true;
 		$sStatKey = '';
@@ -440,7 +440,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeatureOptions()->getDefinition( 'spambot_comments_filter_table_columns' );
+		$aDef = $this->getFeature()->getDefinition( 'spambot_comments_filter_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

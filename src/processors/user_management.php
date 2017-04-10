@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
 			$this->getProcessorSessions()->run();
@@ -58,7 +58,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWpUsers = $this->loadWpUsersProcessor();
 		if ( $oWpUsers->isUserLoggedIn() ) {
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()->getCurrentUserHasValidSession() ) {
 				$sMessage = sprintf(
 					'<p class="message">%s<br />%s</p>',
@@ -151,7 +151,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'subscriber' => 'read',
 		);
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getFeatureOptions()->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
 		}
@@ -171,7 +171,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		$oDp = $this->loadDataProcessor();
-		$oEmailer = $this->getFeatureOptions()->getEmailProcessor();
+		$oEmailer = $this->getFeature()->getEmailProcessor();
 		$sHomeUrl = $this->loadWpFunctionsProcessor()->getHomeUrl();
 
 		$aMessage = array(
@@ -202,7 +202,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !isset( $this->oProcessorSessions ) ) {
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
 		}
 		return $this->oProcessorSessions;

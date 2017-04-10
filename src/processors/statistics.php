@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 			if ( !$this->readyToRun() ) {
 				return;
 			}
-			add_filter( $this->getFeatureOptions()->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+			add_filter( $this->getFeature()->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
 		/**
@@ -34,13 +34,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 					$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
 				}
 			}
-			$aData[ $this->getFeatureOptions()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
+			$aData[ $this->getFeature()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
 			return $aData;
 		}
 
 		public function gatherStatsSummaryWidgetContent( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			$aAllStats = $this->getAllTallys();
 			$nTotalCommentSpamBlocked = 0;
@@ -226,7 +226,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 
 		public function action_doFeatureProcessorShutdown () {
 			parent::action_doFeatureProcessorShutdown();
-			if ( ! $this->getFeatureOptions()->getIsPluginDeleting() ) {
+			if ( ! $this->getFeature()->isPluginDeleting() ) {
 				$this->commit();
 			}
 		}
@@ -235,7 +235,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		 * @return string
 		 */
 		protected function getTableColumnsByDefinition() {
-			$aDef = $this->getFeatureOptions()->getDefinition( 'statistics_table_columns' );
+			$aDef = $this->getFeature()->getDefinition( 'statistics_table_columns' );
 			return ( is_array( $aDef ) ? $aDef : array() );
 		}
 
@@ -259,7 +259,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ):
 		/**
 		 */
 		protected function commit() {
-			$aEntries = apply_filters( $this->getFeatureOptions()->prefix( 'collect_stats' ), array() );
+			$aEntries = apply_filters( $this->getFeature()->prefix( 'collect_stats' ), array() );
 			if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 				return;
 			}

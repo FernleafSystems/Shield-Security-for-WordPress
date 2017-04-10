@@ -13,7 +13,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$oWp = $this->loadWpFunctionsProcessor();
 
 			add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
@@ -53,7 +53,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function tracking_DataCollect( $aData ) {
 			$aData = parent::tracking_DataCollect( $aData );
-			$sSlug = $this->getFeatureOptions()->getFeatureSlug();
+			$sSlug = $this->getFeature()->getFeatureSlug();
 
 			$aKeysToBoolean = array(
 				'admin_access_restrict_plugins',
@@ -155,7 +155,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( $oFO->doCheckHasPermissionToSubmit() ) {
 				return;
 			}
@@ -190,7 +190,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( $oFO->doCheckHasPermissionToSubmit() ) {
 				return;
 			}
@@ -272,7 +272,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		protected function getIsSavingOptionRestricted( $sOptionKey ) {
 			$bRestricted = false;
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( $oFO->getAdminAccessArea_Options() ) {
 				$bRestricted = in_array(
 					$sOptionKey,
@@ -295,7 +295,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			/** @var string $sRequestedCapability */
 			$sRequestedCapability = $aArgs[0];
@@ -325,7 +325,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			/** @var string $sRequestedCapability */
 			$sRequestedCapability = $aArgs[0];
@@ -355,7 +355,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			/** @var string $sRequestedCapability */
 			$sRequestedCapability = $aArgs[0];
@@ -380,14 +380,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		protected function getOptionRegexPattern() {
 			if ( !isset( $this->sOptionRegexPattern ) ) {
-				$this->sOptionRegexPattern = '/^'. $this->getFeatureOptions()->getOptionStoragePrefix() . '.*_options$/';
+				$this->sOptionRegexPattern = '/^'. $this->getFeature()->getOptionStoragePrefix() . '.*_options$/';
 			}
 			return $this->sOptionRegexPattern;
 		}
 
 		public function printAdminAccessAjaxForm() {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( $oFO->doCheckHasPermissionToSubmit() ) {
 				return;

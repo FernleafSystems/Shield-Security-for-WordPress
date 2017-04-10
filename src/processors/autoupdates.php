@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		 * @return boolean
 		 */
 		public function getIfForceRunAutoupdates() {
-			return apply_filters( $this->getFeatureOptions()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
+			return apply_filters( $this->getFeature()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
 		}
 
 		/**
@@ -161,7 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 			}
 
 			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			// If it's this plugin and autoupdate this plugin is set...
 			if ( $sItemFile === $oFO->getController()->getPluginBaseFile() ) {
 				if ( $this->getIsOption('autoupdate_plugin_self', 'Y') ) {
@@ -411,7 +411,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		 * @return int
 		 */
 		protected function getHookPriority() {
-			return $this->getFeatureOptions()->getDefinition( 'action_hook_priority' );
+			return $this->getFeature()->getDefinition( 'action_hook_priority' );
 		}
 	}
 

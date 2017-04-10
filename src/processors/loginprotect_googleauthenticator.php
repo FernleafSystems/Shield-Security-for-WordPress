@@ -61,7 +61,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$aData[ 'chart_url' ] = $sChartUrl;
 		}
 
-		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_googleauthenticator.php', $aData );
+		echo $this->getFeature()->renderTemplate( 'snippets/user_profile_googleauthenticator.php', $aData );
 	}
 
 	/**
@@ -116,7 +116,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function processRemovalFromAccount( $oSavingUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oWpUsers = $this->loadWpUsersProcessor();
 		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $oSavingUser->ID );
 		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $oSavingUser->ID );
@@ -196,7 +196,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function processLoginAttempt_FilterOld( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oLoginTrack = $this->getLoginTrack();
 
 		// Mulifactor or not

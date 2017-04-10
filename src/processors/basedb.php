@@ -33,7 +33,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 			$this->setTableName( $sTableName );
 			$this->createCleanupCron();
 			$this->initializeTable();
-			add_action( $this->getFeatureOptions()->prefix( 'delete_plugin' ), array( $this, 'deleteTable' )  );
+			add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteTable' )  );
 		}
 
 		/**
@@ -247,7 +247,7 @@ if ( !class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ):
 		 * @return string
 		 */
 		protected function getDbCleanupHookName() {
-			return $this->getController()->doPluginPrefix( $this->getFeatureOptions()->getFeatureSlug().'_db_cleanup' );
+			return $this->getController()->doPluginPrefix( $this->getFeature()->getFeatureSlug().'_db_cleanup' );
 		}
 
 		/**

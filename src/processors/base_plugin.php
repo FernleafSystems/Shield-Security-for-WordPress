@@ -10,7 +10,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		public function init() {
 			parent::init();
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			add_filter( $oFO->prefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 			add_filter( $oFO->prefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 		}
@@ -27,7 +27,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		public function tracking_DataCollect( $aData ) {
 			$aData = parent::tracking_DataCollect( $aData );
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$sSlug = $oFO->getFeatureSlug();
 			if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
 				$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oFO->getPluginInstallationId();
@@ -98,7 +98,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @param array $aNoticeAttributes
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$oWpUsers = $this->loadWpUsersProcessor();
 
 			$sAdminNoticeMetaKey = $oFO->prefix( 'plugin-update-available' );
@@ -157,7 +157,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return bool
 		 */
 		public function getIsDeleteOnDeactivate() {
-			return $this->getFeatureOptions()->getOptIs( 'delete_on_deactivate', 'Y' );
+			return $this->getFeature()->getOptIs( 'delete_on_deactivate', 'Y' );
 		}
 
 		/**
@@ -191,7 +191,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return int
 		 */
 		protected function getInstallationDays() {
-			$nTimeInstalled = $this->getFeatureOptions()->getPluginInstallationTime();
+			$nTimeInstalled = $this->getFeature()->getPluginInstallationTime();
 			if ( empty( $nTimeInstalled ) ) {
 				return 0;
 			}
@@ -202,7 +202,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return bool
 		 */
 		protected function getIfShowAdminNotices() {
-			return $this->getFeatureOptions()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
+			return $this->getFeature()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
 		}
 	}
 

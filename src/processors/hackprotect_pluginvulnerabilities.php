@@ -43,7 +43,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					$this->getCronName(),
 					array( $this, 'cron_dailyPluginVulnerabilitiesScan' )
 			);
-			add_action( $this->getFeatureOptions()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
+			add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
 		}
 
 		/**
@@ -160,7 +160,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					),
 					'nColspan' => $this->nColumnsCount
 				);
-				echo $this->getFeatureOptions()->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin-vulnerability.php', $aRenderData );
+				echo $this->getFeature()->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin-vulnerability.php', $aRenderData );
 			}
 		}
 
@@ -198,7 +198,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			if ( !isset( $this->aPluginVulnerabilities ) ) {
 
 				$oWp = $this->loadWpFunctionsProcessor();
-				$oFO = $this->getFeatureOptions();
+				$oFO = $this->getFeature();
 				$this->aPluginVulnerabilities = $oWp->getTransient( $oFO->prefixOptionKey( self::PvSourceKey ) );
 				if ( empty( $this->aPluginVulnerabilities ) ) {
 					$this->aPluginVulnerabilities = $this->downloadPluginVulnerabilitiesFromSource();
@@ -212,7 +212,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 */
 		protected function downloadPluginVulnerabilitiesFromSource() {
 			$oWp = $this->loadWpFunctionsProcessor();
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			$sSource = $oFO->getDefinition( 'plugin_vulnerabilities_data_source' );
 			$sRawSource = $this->loadFileSystemProcessor()->getUrlContent( $sSource );
@@ -232,7 +232,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 * @return string
 		 */
 		protected function getCronName() {
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			return $oFO->prefixOptionKey( $oFO->getDefinition( 'notifications_cron_name' ) );
 		}
 	}

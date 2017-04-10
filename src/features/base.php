@@ -276,7 +276,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * Hooked to the plugin's main plugin_shutdown action
 		 */
 		public function action_doFeatureShutdown() {
-			if ( ! $this->getIsPluginDeleting() ) {
+			if ( ! $this->isPluginDeleting() ) {
 				$this->savePluginOptions();
 			}
 		}
@@ -284,7 +284,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return bool
 		 */
-		public function getIsPluginDeleting() {
+		public function isPluginDeleting() {
 			return $this->bPluginDeleting;
 		}
 

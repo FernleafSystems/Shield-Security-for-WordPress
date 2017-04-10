@@ -17,7 +17,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		if ( $oFO->getIfUseLoginIntentPage() ) {
 			add_filter( $oFO->prefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
@@ -74,7 +74,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return bool
 	 */
 	protected function hasValidatedProfile( $oUser ) {
-		return ( $this->loadWpUsersProcessor()->getUserMeta( $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_validated' ), $oUser->ID ) == 'Y' );
+		return ( $this->loadWpUsersProcessor()->getUserMeta( $this->getFeature()->prefixOptionKey( $this->getStub().'_validated' ), $oUser->ID ) == 'Y' );
 	}
 
 	/**
@@ -83,7 +83,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 */
 	protected function getSecret( WP_User $oUser ) {
 		$oWpUser = $this->loadWpUsersProcessor();
-		$sSecret = $oWpUser->getUserMeta( $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_secret' ), $oUser->ID );
+		$sSecret = $oWpUser->getUserMeta( $this->getFeature()->prefixOptionKey( $this->getStub().'_secret' ), $oUser->ID );
 		if ( empty( $sSecret ) ) {
 			$this->resetSecret( $oUser );
 		}
@@ -108,7 +108,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	protected function setProfileValidated( $oUser, $bValidated = true ) {
 		$this->loadWpUsersProcessor()
 			 ->updateUserMeta(
-				 $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_validated' ),
+				 $this->getFeature()->prefixOptionKey( $this->getStub().'_validated' ),
 				 $bValidated ? 'Y' : 'N',
 				 $oUser->ID
 			 );
@@ -123,7 +123,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	protected function setSecret( $oUser, $sNewSecret ) {
 		$this->loadWpUsersProcessor()
 			 ->updateUserMeta(
-				 $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_secret' ),
+				 $this->getFeature()->prefixOptionKey( $this->getStub().'_secret' ),
 				 $sNewSecret,
 				 $oUser->ID
 			 );
@@ -201,7 +201,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return string
 	 */
 	protected function getLoginFormParameter() {
-		return $this->getFeatureOptions()->prefixOptionKey( $this->getStub().'_otp' );
+		return $this->getFeature()->prefixOptionKey( $this->getStub().'_otp' );
 	}
 
 	/**

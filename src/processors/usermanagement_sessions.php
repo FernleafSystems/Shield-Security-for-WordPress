@@ -448,7 +448,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeatureOptions()->getDefinition( 'user_sessions_table_columns' );
+		$aDef = $this->getFeature()->getDefinition( 'user_sessions_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

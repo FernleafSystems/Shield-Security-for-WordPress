@@ -32,8 +32,8 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function run() {
 		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
-		add_filter( $this->getFeatureOptions()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeatureOptions()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**

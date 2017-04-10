@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 */
 	public function run() {
 		parent::run();
-		add_filter( $this->getFeatureOptions()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 	}
 
 	/**
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		parent::doCommentChecking( $aCommentData );
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
 
 					// We now black mark this IP
-					add_filter( $this->getFeatureOptions()->prefix( 'ip_black_mark' ), '__return_true' );
+					add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 					break 2;
 				}
 			}
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function getSpamBlacklistFile() {
-		return $this->getFeatureOptions()->getResourcesDir() . 'spamblacklist.txt';
+		return $this->getFeature()->getResourcesDir() . 'spamblacklist.txt';
 	}
 }
 endif;
