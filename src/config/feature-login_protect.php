@@ -319,6 +319,7 @@
     }
   ],
   "definitions": {
+    "login_intent_timeout": 5,
     "two_factor_auth_table_name": "login_auth",
     "two_factor_auth_table_columns": [
       "id",

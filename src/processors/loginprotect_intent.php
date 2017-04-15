@@ -165,7 +165,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function setUserLoginIntent( $oUser ) {
 		if ( !empty( $oUser ) && ( $oUser instanceof WP_User ) ) {
-			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS*2, $oUser );
+			$oF = $this->getFeature();
+			$nTimeout = (int)apply_filters(
+				$oF->prefix( 'login_intent_timeout' ),
+				$oF->getDefinition( 'login_intent_timeout' )
+			);
+			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS*$nTimeout, $oUser );
 		}
 		return $oUser;
 	}
