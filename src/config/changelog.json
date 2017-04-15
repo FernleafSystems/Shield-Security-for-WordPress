@@ -46,6 +46,16 @@
   },
   "changelog": [
     {
+      "type": "added",
+      "summary": "Filter to allow for changing the login two factor timeout period, from 5 (minutes). Filter: icwp-wpsf-login_intent_timeout",
+      "version": "5.8.2"
+    },
+    {
+      "type": "changed",
+      "summary": "Changed timeout for two-factor authentication email to 5 minutes to account for slower email sending providers.",
+      "version": "5.8.2"
+    },
+    {
       "type": "changed",
       "summary": "Added further clarification to the Login Notification email indicating that two-factor authentication was pending.",
       "version": "5.8.2"
