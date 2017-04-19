@@ -340,7 +340,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 		/**
 		 * @param bool $bEnable
-		 * @return bool
+		 * @return $this
 		 */
 		public function setIsMainFeatureEnabled( $bEnable ) {
 			return $this->setOpt( 'enable_'.$this->getFeatureSlug(), $bEnable ? 'Y' : 'N' );
@@ -538,16 +538,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 *
 		 * @param string $sOptionKey
 		 * @param mixed $mValue
-		 * @return boolean
+		 * @return $this
 		 */
 		protected function setOpt( $sOptionKey, $mValue ) {
 			$this->setBypassAdminProtection( true );
-			return $this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
+			$this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
+			return $this;
 		}
 
 		/**
-		 * TODO: Consider admin access restrictions
-		 *
 		 * @param array $aOptions
 		 */
 		public function setOptions( $aOptions ) {
@@ -952,34 +951,35 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$oCon = self::getController();
 			self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 			return array(
-				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
-				'sPluginName'		=> $oCon->getHumanName(),
-				'sFeatureName'		=> $this->getMainFeatureName(),
-				'bFeatureEnabled'	=> $this->getIsMainFeatureEnabled(),
-				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
-				'fShowAds'			=> $this->getIsShowMarketing(),
-				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
-				'sFeatureSlug'		=> $this->prefix( $this->getFeatureSlug() ),
-				'form_action'		=> 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
-				'nOptionsPerRow'	=> 1,
-				'aPluginLabels'		=> $oCon->getPluginLabels(),
+				'var_prefix'      => $oCon->getOptionStoragePrefix(),
+				'sPluginName'     => $oCon->getHumanName(),
+				'sFeatureName'    => $this->getMainFeatureName(),
+				'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
+				'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
+				'fShowAds'        => $this->getIsShowMarketing(),
+				'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix() ),
+				'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
+				'form_action'     => 'admin.php?page=' . $this->prefix( $this->getFeatureSlug() ),
+				'nOptionsPerRow'  => 1,
+				'aPluginLabels'   => $oCon->getPluginLabels(),
+				'help_video'      => $this->getHelpVideoOptions(),
 
-				'bShowStateSummary'	=> false,
-				'aSummaryData'		=> apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+				'bShowStateSummary' => false,
+				'aSummaryData'      => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
-				'aAllOptions'		=> $this->buildOptions(),
-				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
-				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
+				'aAllOptions'       => $this->buildOptions(),
+				'aHiddenOptions'    => $this->getOptionsVo()->getHiddenOptions(),
+				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 
-				'sPageTitle'		=> sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-				'strings'			=> array(
-					'go_to_settings' => __( 'Settings' ),
-					'on' => __( 'On' ),
-					'off' => __( 'Off' ),
-					'more_info' => __( 'More Info' ),
-					'blog' => __( 'Blog' ),
+				'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+				'strings'    => array(
+					'go_to_settings'                    => __( 'Settings' ),
+					'on'                                => __( 'On' ),
+					'off'                               => __( 'Off' ),
+					'more_info'                         => __( 'More Info' ),
+					'blog'                              => __( 'Blog' ),
 					'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
-					'save_all_settings' => __( 'Save All Settings' ),
+					'save_all_settings'                 => __( 'Save All Settings' ),
 				)
 			);
 		}
@@ -1164,6 +1164,92 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				}
 			}
 			return $aOptionsData;
+		}
+
+		/** Help Video options */
+
+		/**
+		 * @return array
+		 */
+		protected function getHelpVideoOptions() {
+			$aOptions = $this->getOpt( 'help_video_options', array() );
+			if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
+				$aOptions = array(
+					'closed' => false,
+					'displayed' => false,
+					'played' => false,
+				);
+				$this->setOpt( 'help_video_options', $aOptions );
+			}
+			return $aOptions;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getVideoHasBeenClosed() {
+			return (bool)$this->getHelpVideoOption( 'closed' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getVideoHasBeenDisplayed() {
+			return (bool)$this->getHelpVideoOption( 'displayed' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getVideoHasBeenPlayed() {
+			return (bool)$this->getHelpVideoOption( 'played' );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return mixed|null
+		 */
+		protected function getHelpVideoOption( $sKey ) {
+			$aOpts = $this->getHelpVideoOptions();
+			return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
+		}
+		/**
+		 * @return $this
+		 */
+		protected function resetHelpVideoOptions() {
+			return $this->setOpt( 'help_video_options', array() );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function setHelpVideoClosed() {
+			return $this->setHelpVideoOption( 'closed', true );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function setHelpVideoDisplayed() {
+			return $this->setHelpVideoOption( 'displayed', true );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function setHelpVideoPlayed() {
+			return $this->setHelpVideoOption( 'played', true );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param string|bool|int $mValue
+		 * @return $this
+		 */
+		protected function setHelpVideoOption( $sKey, $mValue ) {
+			$aOpts = $this->getHelpVideoOptions();
+			$aOpts[ $sKey ] = $mValue;
+			return $this->setOpt( 'help_video_options', $aOpts );
 		}
 	}
 

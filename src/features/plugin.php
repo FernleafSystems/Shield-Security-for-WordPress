@@ -152,7 +152,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return int
+		 * @return $this
 		 */
 		public function setTrackingLastSentAt() {
 			return $this->setOpt( 'tracking_last_sent_at', $this->loadDataProcessor()->time() );

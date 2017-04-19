@@ -557,7 +557,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 */
 		protected function getCommonStandardOptions() {
-			return array( 'current_plugin_version' );
+			return array( 'current_plugin_version', 'help_video_options' );
 		}
 
 		/**
