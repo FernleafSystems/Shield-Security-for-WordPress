@@ -12,6 +12,11 @@ include_once( $sBaseDirName.'widgets'.DIRECTORY_SEPARATOR.'icwp_widgets.php' ); 
 				<?php if ( !empty( $sTagline ) ) : ?>
 					<small class="feature-tagline">- <?php echo $sTagline; ?></small>
 				<?php endif; ?>
+				<?php if ( $help_video[ 'show' ] ) : ?>
+                    <?php add_thickbox(); ?>
+                    <a href="<?php echo $help_video['href']; ?>"
+                       title="Help Video" class="thickbox btn btn-success">Help Video</a>
+				<?php endif; ?>
 			</h2>
 		</div>
 		<?php if ( isset( $bShowStateSummary ) && $bShowStateSummary ) : ?>

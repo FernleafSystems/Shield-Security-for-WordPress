@@ -564,6 +564,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$this->frontEndAjaxHandlers();
 			}
 		}
+
 		protected function adminAjaxHandlers() { }
 
 		protected function frontEndAjaxHandlers() { }
@@ -962,7 +963,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'form_action'     => 'admin.php?page=' . $this->prefix( $this->getFeatureSlug() ),
 				'nOptionsPerRow'  => 1,
 				'aPluginLabels'   => $oCon->getPluginLabels(),
-				'help_video'      => $this->getHelpVideoOptions(),
+				'help_video'      => array(
+					'display_id'  => 'ShieldHelpVideo'.$this->getFeatureSlug(),
+					'href'        => '#TB_inline?width=1000&height=600&inlineId=ShieldHelpVideo'.$this->getFeatureSlug(),
+					'options'     => $this->getHelpVideoOptions(),
+					'displayable' => $this->isHelpVideoDisplayable(),
+					'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed()
+				),
+				'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
 
 				'bShowStateSummary' => false,
 				'aSummaryData'      => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
@@ -1187,14 +1195,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return bool
 		 */
-		protected function getVideoHasBeenClosed() {
+		protected function getHelpVideoHasBeenClosed() {
 			return (bool)$this->getHelpVideoOption( 'closed' );
 		}
 
 		/**
 		 * @return bool
 		 */
-		protected function getVideoHasBeenDisplayed() {
+		protected function getHelpVideoHasBeenDisplayed() {
 			return (bool)$this->getHelpVideoOption( 'displayed' );
 		}
 
@@ -1213,6 +1221,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$aOpts = $this->getHelpVideoOptions();
 			return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
 		}
+
+		/**
+		 * @return string
+		 */
+		protected function getHelpVideoUrl() {
+			return $this->getDefinition( 'help_video_url' );
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function isHelpVideoDisplayable() {
+			$sUrl = $this->getHelpVideoUrl();
+			return !empty( $sUrl );
+		}
+
 		/**
 		 * @return $this
 		 */
