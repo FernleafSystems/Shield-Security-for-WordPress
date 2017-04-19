@@ -200,11 +200,6 @@
       "key": "installation_time",
       "transferable": false,
       "section": "section_non_ui"
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

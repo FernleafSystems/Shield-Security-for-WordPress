@@ -92,7 +92,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 */
 		public function getAllOptionsValues() {
-			return $this->loadOptionsValuesFromStorage();
+			return $this->getStoredOptions();
 		}
 
 		/**
@@ -348,6 +348,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 				foreach( $this->getRawData_AllOptions() as $aOption ) {
 					$this->aOptionsKeys[] = $aOption['key'];
 				}
+				$this->aOptionsKeys = array_merge( $this->aOptionsKeys, $this->getCommonStandardOptions() );
 			}
 			return $this->aOptionsKeys;
 		}
@@ -553,16 +554,20 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		/** PRIVATE STUFF */
 
 		/**
+		 * @return array
+		 */
+		protected function getCommonStandardOptions() {
+			return array( 'current_plugin_version' );
+		}
+
+		/**
 		 */
 		private function cleanOptions() {
-			if ( empty( $this->aOptionsValues ) || !is_array( $this->aOptionsValues ) ) {
-				return;
-			}
-			foreach( $this->aOptionsValues as $sKey => $mValue ) {
-				if ( !$this->getIsValidOptionKey( $sKey ) ) {
-					$this->setNeedSave( true );
-					unset( $this->aOptionsValues[$sKey] );
-				}
+			if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
+				$this->aOptionsValues = array_intersect_key(
+					$this->getAllOptionsValues(),
+					array_flip( $this->getOptionsKeys() )
+				);
 			}
 		}
 

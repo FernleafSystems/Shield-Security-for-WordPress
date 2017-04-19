@@ -340,7 +340,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 		/**
 		 * @param bool $bEnable
-		 *
 		 * @return bool
 		 */
 		public function setIsMainFeatureEnabled( $bEnable ) {
@@ -632,6 +631,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			remove_filter( $this->prefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
+		protected function updateOptionsVersion() {
+			if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
+				$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );
+				$this->getOptionsVo()->cleanTransientStorage();
+			}
+		}
+
 		/**
 		 * @param array $aAggregatedOptions
 		 * @return array
@@ -752,13 +758,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		protected function doPrePluginOptionsSave() { }
 
-		protected function updateOptionsVersion() {
-			if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
-				$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );
-				$this->getOptionsVo()->cleanTransientStorage();
-			}
-		}
-
 		/**
 		 * Deletes all the options including direct save.
 		 */
@@ -792,12 +791,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 */
 		public function handleFormSubmit() {
-			$bVerified = $this->verifyFormSubmit();
 
-			if ( !$bVerified ) {
+			if ( !$this->verifyFormSubmit() ) {
 				return false;
 			}
-
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
 			return true;
@@ -814,16 +811,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @return bool
+		 * @return void
 		 */
 		protected function doSaveStandardOptions() {
-			$oDp = $this->loadDataProcessor();
-			$sAllOptions = $oDp->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
+			$sAllOptions = $this->loadDataProcessor()
+								->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
 
-			if ( empty( $sAllOptions ) ) {
-				return true;
+			if ( !empty( $sAllOptions ) ) {
+				$this->updatePluginOptionsFromSubmit( $sAllOptions );
 			}
-			return $this->updatePluginOptionsFromSubmit( $sAllOptions ); //it also saves
 		}
 
 		protected function doExtraSubmitProcessing() { }
@@ -839,11 +835,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 		/**
 		 * @param string $sAllOptionsInput - comma separated list of all the input keys to be processed from the $_POST
-		 * @return void|boolean
+		 * @return void
 		 */
 		public function updatePluginOptionsFromSubmit( $sAllOptionsInput ) {
 			if ( empty( $sAllOptionsInput ) ) {
-				return true;
+				return;
 			}
 			$oDp = $this->loadDataProcessor();
 

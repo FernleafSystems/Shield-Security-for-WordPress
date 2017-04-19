@@ -72,11 +72,6 @@
       "name": "Auto Repair",
       "summary": "Automatically Repair WordPress Core Files That Have Been Altered",
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

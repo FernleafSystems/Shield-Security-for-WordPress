@@ -191,11 +191,6 @@
       ],
       "link_info": "http://icwp.io/wpsf21",
       "link_blog": ""
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

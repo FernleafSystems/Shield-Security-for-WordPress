@@ -117,11 +117,6 @@
       "transferable": false,
       "section": "section_non_ui",
       "value": 0
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

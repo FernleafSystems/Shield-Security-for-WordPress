@@ -277,11 +277,6 @@
       "name": "Custom Reload Message",
       "summary": "If you want a custom message when the comment token has expired, please provide this here.",
       "description": "This message is displayed on the submit-button when the comment token is expired."
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

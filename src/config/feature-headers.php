@@ -178,11 +178,6 @@
       "name": "Permitted Hosts",
       "summary": "Permitted Hosts and Domains",
       "description": "You can explicitly state which hosts/domain from which content may be loaded. Take great care and test your site as you may block legitimate resources. If in-doubt, leave blank or use '*' only. Note: You can force only HTTPS for a given domain by prefixing it with 'https://'."
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ]
 }
