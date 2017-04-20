@@ -1,14 +1,15 @@
-<div id="<?php echo $help_video['display_id']; ?>" class="shield-help-video" style="display: none">
-        <iframe width="560"
-                height="315"
-                src="https://www.youtube.com/embed/B6UC8-Kzoq0"
+<div class="featherlight embed-container shield-help-video" id="<?php echo $help_video[ 'display_id' ]; ?>">
+        <iframe width="<?php echo $help_video[ 'width' ] ?>"
+                height="<?php echo $help_video[ 'height' ] ?>"
+                src="<?php echo $help_video[ 'iframe_url' ] ?>"
                 frameborder="0"
-                allowfullscreen></iframe>
+                webkitAllowFullScreen
+                mozallowfullscreen
+                allowfullscreen
+        ></iframe>
 </div>
-
-<style>
+<style type="text/css">
     .shield-help-video {
-        height: 300px;
-        width: 300px;
+        margin-top: 100px;
     }
 </style>

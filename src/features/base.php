@@ -951,6 +951,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function getBaseDisplayData() {
 			$oCon = self::getController();
 			self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
+
 			return array(
 				'var_prefix'      => $oCon->getOptionStoragePrefix(),
 				'sPluginName'     => $oCon->getHumanName(),
@@ -964,11 +965,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'nOptionsPerRow'  => 1,
 				'aPluginLabels'   => $oCon->getPluginLabels(),
 				'help_video'      => array(
-					'display_id'  => 'ShieldHelpVideo'.$this->getFeatureSlug(),
-					'href'        => '#TB_inline?width=1000&height=600&inlineId=ShieldHelpVideo'.$this->getFeatureSlug(),
+					'iframe_url'  => $this->getHelpVideoUrl(),
+					'display_id'  => 'ShieldHelpVideo' . $this->getFeatureSlug(),
+					'href'        => '#TB_inline?width=%s&height=%s&inlineId=ShieldHelpVideo' . $this->getFeatureSlug(),
 					'options'     => $this->getHelpVideoOptions(),
 					'displayable' => $this->isHelpVideoDisplayable(),
-					'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed()
+					'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
+					'width'       => 772,
+					'height'      => 454,
 				),
 				'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
 
@@ -1225,16 +1229,22 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @return string
 		 */
-		protected function getHelpVideoUrl() {
-			return $this->getDefinition( 'help_video_url' );
+		protected function getHelpVideoId() {
+			return $this->getDefinition( 'help_video_id' );
 		}
-
 		/**
 		 * @return string
 		 */
+		protected function getHelpVideoUrl() {
+			return sprintf( 'https://player.vimeo.com/video/%s', $this->getHelpVideoId() );
+		}
+
+		/**
+		 * @return bool
+		 */
 		protected function isHelpVideoDisplayable() {
-			$sUrl = $this->getHelpVideoUrl();
-			return !empty( $sUrl );
+			$sId = $this->getHelpVideoId();
+			return !empty( $sId );
 		}
 
 		/**

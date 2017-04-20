@@ -534,6 +534,22 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	public function onWpEnqueueAdminJs() {
 
+		if ( $this->getIsValidAdminArea() ) {
+			$aAdminJs = $this->getPluginSpec_Include( 'admin' );
+			if ( isset( $aAdminJs['js'] ) && !empty( $aAdminJs['js'] ) && is_array( $aAdminJs['js'] ) ) {
+				$sDependent = false;
+				foreach( $aAdminJs['css'] as $sAsset ) {
+					$sUrl = $this->getPluginUrl_Js( $sAsset . '.js' );
+					if ( !empty( $sUrl ) ) {
+						$sUnique = $this->doPluginPrefix( $sAsset );
+						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
+						wp_enqueue_script( $sUnique );
+						$sDependent = $sUnique;
+					}
+				}
+			}
+		}
+
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
 			if ( isset( $aAdminJs['js'] ) && !empty( $aAdminJs['js'] ) && is_array( $aAdminJs['js'] ) ) {
