@@ -656,7 +656,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function buildOptions() {
 
-			$aOptions = $this->getOptionsVo()->getLegacyOptionsConfigData();
+			$aOptions = $this->getOptionsVo()->getOptionsForPluginUse();
 			foreach ( $aOptions as $nSectionKey => $aOptionsSection ) {
 
 				if ( empty( $aOptionsSection ) || !isset( $aOptionsSection['options'] ) ) {

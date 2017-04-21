@@ -212,7 +212,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		/**
 		 * @return array
 		 */
-		public function getLegacyOptionsConfigData() {
+		public function getOptionsForPluginUse() {
 
 			$aRawData = $this->getRawData_FullFeatureConfig();
 			$aLegacyData = array();
