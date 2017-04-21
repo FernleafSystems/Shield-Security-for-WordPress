@@ -114,13 +114,6 @@
 																		  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
 																		  class="span5">{{ aOption.value|raw }}</textarea>
 
-															{% elseif aOption.type is sameas('yubikey_unique_keys') %}
-
-																<p>{{ aOption.summary }}</p>
-																<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																		  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
-																		  class="span5">{{ aOption.value }}</textarea>
-
 															{% elseif aOption.type is sameas('comma_separated_lists') %}
 
 																<p>{{ aOption.summary }}</p>

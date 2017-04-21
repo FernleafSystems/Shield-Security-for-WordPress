@@ -293,28 +293,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @param $sRawKeys
-		 * @return array
-		 */
-		public static function CleanYubikeyUniqueKeys( $sRawKeys ) {
-			$aKeys = explode( "\n", $sRawKeys );
-			foreach( $aKeys as $nIndex => $sUsernameKey ) {
-				if ( empty( $sUsernameKey ) ) {
-					unset( $aKeys[$nIndex] );
-					continue;
-				}
-				$aParts = array_map( 'trim', explode( ',', $sUsernameKey ) );
-				if ( empty( $aParts[0] ) || empty( $aParts[1] ) || strlen( $aParts[1] ) < 12 ) {
-					unset( $aKeys[$nIndex] );
-					continue;
-				}
-				$aParts[1] = substr( $aParts[1], 0, 12 );
-				$aKeys[$nIndex] = array( $aParts[0] => $aParts[1] );
-			}
-			return $aKeys;
-		}
-
-		/**
 		 * Strength can be 1, 3, 7, 15
 		 *
 		 * @param integer $nLength

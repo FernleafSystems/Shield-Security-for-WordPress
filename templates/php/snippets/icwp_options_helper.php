@@ -144,13 +144,6 @@ function getPluginOptionSpan( $aOption, $nSpanSize, $var_prefix = '' ) {
 										  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
 										  class="span5" ><?php echo $aOption['value']; ?></textarea>
 
-							<?php elseif ( $sOptionType == 'yubikey_unique_keys' ) : ?>
-
-								<p><?php echo $aOption['summary']; ?></p>
-								<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-										  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
-										  class="span5" ><?php echo $aOption['value']; ?></textarea>
-
 							<?php elseif ( $sOptionType == 'comma_separated_lists' ) : ?>
 
 								<p><?php echo $aOption['summary']; ?></p>

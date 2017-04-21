@@ -872,9 +872,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 						$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 					}
-					else if ( $sOptionType == 'yubikey_unique_keys' ) { //ip addresses are textareas, where each is separated by newline and are 12 chars long
-						$sOptionValue = $oDp->CleanYubikeyUniqueKeys( $sOptionValue );
-					}
 					else if ( $sOptionType == 'email' && function_exists( 'is_email' ) && !is_email( $sOptionValue ) ) {
 						$sOptionValue = '';
 					}

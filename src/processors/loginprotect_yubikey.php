@@ -110,6 +110,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @return WP_User|WP_Error
 	 */
 	public function processLoginAttempt_Filter( $oUser ) {
+		return $oUser;
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oLoginTrack = $this->getLoginTrack();
@@ -241,29 +242,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			);
 		}
 		return $aFields;
-	}
-
-	/**
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	protected function hasValidatedProfile( $oUser ) {
-		$bValid = parent::hasValidatedProfile( $oUser );
-		$aKeys = $this->getOption( 'yubikey_unique_keys' );
-		if ( !$bValid && !empty( $aKeys ) && is_array( $aKeys ) ) {
-			foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
-				if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
-					$bValid = true;
-					/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-					$oFO = $this->getFeature();
-					$oFO->removeUserFromOldYubikeyList( $oUser );
-					$this->setSecret( $oUser, $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] )
-						 ->setProfileValidated( $oUser, true );
-					break;
-				}
-			}
-		}
-		return $bValid;
 	}
 
 	/**
