@@ -18,7 +18,21 @@
 					 id="row-<?php echo $sOptionSection['slug']; ?>">
 					<div class="span9">
 						<fieldset>
-							<legend><?php echo $sOptionSection['title']; ?></legend>
+							<legend>
+                                <?php echo $sOptionSection['title']; ?>
+                                <?php if ( !empty( $sOptionSection['help_video_url'] ) ) : ?>
+                                    <div style="float:right;">
+
+                                        <a href="<?php echo $sOptionSection['help_video_url']; ?>"
+                                           class="btn"
+                                           data-featherlight-iframe-height="454"
+                                           data-featherlight-iframe-width="772"
+                                           data-featherlight="iframe">
+                                            <span class="dashicons dashicons-controls-play"></span> Help Video
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </legend>
 
 							<?php if ( !empty( $sOptionSection['summary'] ) ) : ?>
 								<div class="row row_section_summary">

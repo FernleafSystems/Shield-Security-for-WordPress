@@ -40,7 +40,8 @@ function printAllPluginOptionsFormTabs( $aAllOptions, $var_prefix = '', $iOption
 				 id="row-<?php echo $sOptionSection['slug']; ?>">
 				<div class="span9">
 					<fieldset>
-						<legend><?php echo $sOptionSection['title']; ?></legend>
+						<legend><?php echo $sOptionSection['title']; ?>
+                        </legend>
 
 						<?php if ( !empty( $sOptionSection['summary'] ) ) : ?>
 							<div class="row row_section_summary">

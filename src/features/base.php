@@ -665,6 +665,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOptionParams );
 					}
 
+					if ( !empty( $aSection[ 'help_video_id' ] ) ) {
+						$aSection[ 'help_video_url' ] = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
+					}
 					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
 				}
 			}
@@ -956,7 +959,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				'aPluginLabels'   => $oCon->getPluginLabels(),
 				'help_video'      => array(
 					'auto_show'   => $this->getIfAutoShowHelpVideo(),
-					'iframe_url'  => $this->getHelpVideoUrl(),
+					'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),
 					'display_id'  => 'ShieldHelpVideo' . $this->getFeatureSlug(),
 					'options'     => $this->getHelpVideoOptions(),
 					'displayable' => $this->isHelpVideoDisplayable(),
@@ -1230,11 +1233,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function getHelpVideoId() {
 			return $this->getDefinition( 'help_video_id' );
 		}
+
 		/**
+		 * @param string $sId
 		 * @return string
 		 */
-		protected function getHelpVideoUrl() {
-			return sprintf( 'https://player.vimeo.com/video/%s', $this->getHelpVideoId() );
+		protected function getHelpVideoUrl( $sId ) {
+			return sprintf( 'https://player.vimeo.com/video/%s', $sId );
 		}
 
 		/**
