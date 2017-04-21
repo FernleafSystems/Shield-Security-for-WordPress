@@ -338,7 +338,7 @@ label input[type=checkbox] {
 	}
 }
 .feature-summary-blocks .state-on a {
-	color: rgba( 82, 196, 45, 0.85 );
+	color: #8dc63f;
 }
 .feature-summary-blocks .state-off a {
 	color: rgba( 239, 141, 49, 0.85 );

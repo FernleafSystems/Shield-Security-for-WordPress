@@ -17,8 +17,9 @@
 <?php if ( $help_video[ 'auto_show' ] ) : ?>
     <style type="text/css">
         #icwpVideoHelpBadge {
-            background-color: rgba( 255,255,255,1 );
+            background-color: #8dc63f;
             bottom: 36px;
+            border-radius: 3px;
             box-sizing: content-box;
             box-shadow: 1px 1px 1px rgba( 0,0,0,0.1 );
             color: #000000;
@@ -29,11 +30,12 @@
             padding: 10px;
             border: 1px solid rgba(0, 0, 0, 0.1);
             right: 9px;
-            opacity: 0.75;
+            opacity: 0.5;
             position: fixed;
             z-index: 10000;
-            -webkit-transition: width 0.5s; /* Safari */
+            -webkit-transition: width 0.5s;
             transition: width 0.5s;
+            text-shadow: 1px -1px 0 rgba(255,255,255,0.3);
         }
         #icwpVideoHelpBadge:hover {
             opacity: 1.0;
@@ -76,8 +78,7 @@
         }
         @media (max-width: 600px) {
             #icwpVideoHelpBadge {
-                height: 24px;
-                width: 24px;
+                display: none
             }
             #icwpVideoHelpBadge .dashicons {
                 font-size: 36px;
@@ -98,7 +99,7 @@
     <div id="icwpVideoHelpBadge">
         <a id="icwpWpsfCloseButton" onclick="getElementById('icwpVideoHelpBadge').remove();">x</a>
         <a href="#" target="_blank" data-featherlight="#<?php echo $help_video[ 'display_id' ]; ?>">
-			<?php echo $sFeatureName; ?><br /><?php echo $strings['see_help_video']; ?>:
+			<?php echo $sPluginName; ?> <?php echo $sFeatureName; ?><br /><?php echo $strings['see_help_video']; ?>
         </a>
         <span class="dashicons dashicons-controls-play"></span>
     </div>

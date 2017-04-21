@@ -992,7 +992,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					'blog'                              => __( 'Blog' ),
 					'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
 					'save_all_settings'                 => __( 'Save All Settings' ),
-					'see_help_video'                    => __( 'See the help video' )
+					'see_help_video'                    => __( 'Watch Help Video' )
 				)
 			);
 		}
