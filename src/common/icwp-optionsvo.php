@@ -214,10 +214,9 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 */
 		public function getOptionsForPluginUse() {
 
-			$aRawData = $this->getRawData_FullFeatureConfig();
-			$aLegacyData = array();
+			$aOptionsData = array();
 
-			foreach( $aRawData['sections'] as $nPosition => $aRawSection ) {
+			foreach( $this->getRawData_OptionsSections() as $aRawSection ) {
 
 				if ( isset( $aRawSection['hidden'] ) && $aRawSection['hidden'] ) {
 					continue;
@@ -233,10 +232,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 				);
 
 				if ( !empty( $aLegacySection[ 'options' ] ) ) {
-					$aLegacyData[] = $aLegacySection;
+					$aOptionsData[] = $aLegacySection;
 				}
 			}
-			return $aLegacyData;
+
+			return $aOptionsData;
 		}
 
 		/**
@@ -265,7 +265,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 					),
 					$aOptionDef
 				);
-				$aOptionDef['value'] = ''; // we populate this later
+				$aOptionDef[ 'value' ] = $this->getOpt( $aOptionDef[ 'key' ] );
 
 				if ( in_array( $aOptionDef[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
 					foreach( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
@@ -414,6 +414,16 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		protected function getRawData_AllOptions() {
 			$aAllRawOptions = $this->getRawData_FullFeatureConfig();
 			return isset( $aAllRawOptions['options'] ) ? $aAllRawOptions['options'] : array();
+		}
+
+		/**
+		 * Return the section of the Raw config that is the "options" key only.
+		 *
+		 * @return array
+		 */
+		protected function getRawData_OptionsSections() {
+			$aAllRawOptions = $this->getRawData_FullFeatureConfig();
+			return isset( $aAllRawOptions['sections'] ) ? $aAllRawOptions['sections'] : array();
 		}
 
 		/**

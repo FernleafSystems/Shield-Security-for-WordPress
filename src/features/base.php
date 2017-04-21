@@ -657,97 +657,90 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		public function buildOptions() {
 
 			$aOptions = $this->getOptionsVo()->getOptionsForPluginUse();
-			foreach ( $aOptions as $nSectionKey => $aOptionsSection ) {
+			foreach ( $aOptions as $nSectionKey => $aSection ) {
 
-				if ( empty( $aOptionsSection ) || !isset( $aOptionsSection['options'] ) ) {
-					continue;
+				if ( !empty( $aSection[ 'options' ] ) ) {
+
+					foreach ( $aSection[ 'options' ] as $nKey => $aOptionParams ) {
+						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOptionParams );
+					}
+
+					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
 				}
-
-				foreach ( $aOptionsSection['options'] as $nKey => $aOptionParams ) {
-
-					$sOptionKey = $aOptionParams['key'];
-					$sOptionDefault = $aOptionParams['default'];
-					$sOptionType = $aOptionParams['type'];
-
-					if ( $this->getOpt( $sOptionKey ) === false ) {
-						$this->setOpt( $sOptionKey, $sOptionDefault );
-					}
-					$mCurrentOptionVal = $this->getOpt( $sOptionKey );
-
-					if ( $sOptionType == 'password' && !empty( $mCurrentOptionVal ) ) {
-						$mCurrentOptionVal = '';
-					}
-					else if ( $sOptionType == 'array' ) {
-
-						if ( empty( $mCurrentOptionVal ) || !is_array( $mCurrentOptionVal )  ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 2;
-					}
-					else if ( $sOptionType == 'yubikey_unique_keys' ) {
-
-						if ( empty( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$aDisplay = array();
-							foreach( $mCurrentOptionVal as $aParts ) {
-								$aDisplay[] = key($aParts) .', '. reset($aParts);
-							}
-							$mCurrentOptionVal = implode( "\n", $aDisplay );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
-					}
-					else if ( $sOptionType == 'comma_separated_lists' ) {
-
-						if ( empty( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$aNewValues = array();
-							foreach( $mCurrentOptionVal as $sPage => $aParams ) {
-								$aNewValues[] = $sPage.', '. implode( ", ", $aParams );
-							}
-							$mCurrentOptionVal = implode( "\n", $aNewValues );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
-					}
-					else if ( $sOptionType == 'multiple_select' ) {
-						if ( !is_array( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = array();
-						}
-					}
-
-					if ( $sOptionType == 'text' ) {
-						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
-					}
-					$mCurrentOptionVal = is_scalar( $mCurrentOptionVal ) ? esc_attr( $mCurrentOptionVal ) : $mCurrentOptionVal;
-
-					$aOptionParams['value'] = $mCurrentOptionVal;
-
-					// Build strings
-					$aParamsWithStrings = $this->loadStrings_Options( $aOptionParams );
-					$aOptionsSection['options'][$nKey] = $aParamsWithStrings;
-				}
-
-				$aOptions[$nSectionKey] = $this->loadStrings_SectionTitles( $aOptionsSection );
 			}
 
 			return $aOptions;
 		}
 
 		/**
-		 * @param $aOptionsParams
+		 * @param array $aOptionParams
+		 * @return array
+		 */
+		protected function buildOptionForUi( $aOptionParams ) {
+
+			$mCurrentVal = $aOptionParams[ 'value' ];
+
+			switch ( $aOptionParams[ 'type' ] ) {
+
+				case 'password':
+					if ( !empty( $mCurrentVal ) ) {
+						$mCurrentVal = '';
+					}
+					break;
+
+				case 'array':
+
+					if ( empty( $mCurrentVal ) || !is_array( $mCurrentVal )  ) {
+						$mCurrentVal = array();
+					}
+
+					$aOptionParams[ 'rows' ] = count( $mCurrentVal ) + 1;
+					$mCurrentVal = implode( "\n", $mCurrentVal );
+
+					break;
+
+				case 'comma_separated_lists':
+
+					$aNewValues = array();
+					if ( !empty( $mCurrentVal ) && is_array( $mCurrentVal ) ) {
+
+						foreach( $mCurrentVal as $sPage => $aParams ) {
+							$aNewValues[] = $sPage.', '. implode( ", ", $aParams );
+						}
+					}
+					$aOptionParams[ 'rows' ] = count( $aNewValues ) + 1;
+					$mCurrentVal = implode( "\n", $aNewValues );
+
+					break;
+
+				case 'multiple_select':
+					if ( !is_array( $mCurrentVal ) ) {
+						$mCurrentVal = array();
+					}
+					break;
+
+				case 'text':
+					$mCurrentVal = stripslashes( $mCurrentVal );
+					break;
+			}
+
+			$aOptionParams['value'] = is_scalar( $mCurrentVal ) ? esc_attr( $mCurrentVal ) : $mCurrentVal;
+
+			// add strings
+			return $this->loadStrings_Options( $aOptionParams );
+		}
+
+		/**
+		 * @param array $aOptionsParams
+		 * @return array
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
 			return $aOptionsParams;
 		}
 
 		/**
-		 * @param $aOptionsParams
+		 * @param array $aOptionsParams
+		 * @return array
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 			return $aOptionsParams;
