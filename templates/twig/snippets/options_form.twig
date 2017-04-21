@@ -3,19 +3,19 @@
 
 	<ul class="nav nav-tabs">
 		{% for sOptionSection in aAllOptions %}
-			<li class="{{ sOptionSection.section_primary ? 'active' : '' }}">
-				<a href="#{{ sOptionSection.section_slug }}" data-toggle="tab" >{{ sOptionSection.title_short }}</a>
+			<li class="{{ sOptionSection.primary ? 'active' : '' }}">
+				<a href="#{{ sOptionSection.slug }}" data-toggle="tab" >{{ sOptionSection.title_short }}</a>
 			</li>
 		{% endfor %}
 	</ul>
 
 	<div class="tab-content">
 		{% for sOptionSection in aAllOptions %}
-			<div class="tab-pane fade {{ sOptionSection.section_primary ? 'active in primary_section' : 'non_primary_section' }}"
-				 id="{{ sOptionSection.section_slug }}">
+			<div class="tab-pane fade {{ sOptionSection.primary ? 'active in primary_section' : 'non_primary_section' }}"
+				 id="{{ sOptionSection.slug }}">
 
-				<div class="row option_section_row {{ sOptionSection.section_primary ? 'primary_section' : 'non_primary_section' }}"
-					 id="row-{{ sOptionSection.section_slug }}">
+				<div class="row option_section_row {{ sOptionSection.primary ? 'primary_section' : 'non_primary_section' }}"
+					 id="row-{{ sOptionSection.slug }}">
 					<div class="span9">
 						<fieldset>
 							<legend>{{ sOptionSection.title }}</legend>
@@ -30,7 +30,7 @@
 							</div>
 							{% endif %}
 
-							{% for key, aOption in sOptionSection.section_options %}
+							{% for key, aOption in sOptionSection.options %}
 								<div class="row row_number_{{ key }}">
 
 									{% if aOption.key is sameas('spacer') %}

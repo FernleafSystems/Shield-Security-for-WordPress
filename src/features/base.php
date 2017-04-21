@@ -659,11 +659,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			$aOptions = $this->getOptionsVo()->getLegacyOptionsConfigData();
 			foreach ( $aOptions as $nSectionKey => $aOptionsSection ) {
 
-				if ( empty( $aOptionsSection ) || !isset( $aOptionsSection['section_options'] ) ) {
+				if ( empty( $aOptionsSection ) || !isset( $aOptionsSection['options'] ) ) {
 					continue;
 				}
 
-				foreach ( $aOptionsSection['section_options'] as $nKey => $aOptionParams ) {
+				foreach ( $aOptionsSection['options'] as $nKey => $aOptionParams ) {
 
 					$sOptionKey = $aOptionParams['key'];
 					$sOptionDefault = $aOptionParams['default'];
@@ -730,7 +730,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 					// Build strings
 					$aParamsWithStrings = $this->loadStrings_Options( $aOptionParams );
-					$aOptionsSection['section_options'][$nKey] = $aParamsWithStrings;
+					$aOptionsSection['options'][$nKey] = $aParamsWithStrings;
 				}
 
 				$aOptions[$nSectionKey] = $this->loadStrings_SectionTitles( $aOptionsSection );
@@ -781,7 +781,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				if ( empty( $aOptionsSection ) ) {
 					continue;
 				}
-				foreach ( $aOptionsSection['section_options'] as $aOption ) {
+				foreach ( $aOptionsSection['options'] as $aOption ) {
 					$aToJoin[] = $aOption['type'].':'.$aOption['key'];
 				}
 			}

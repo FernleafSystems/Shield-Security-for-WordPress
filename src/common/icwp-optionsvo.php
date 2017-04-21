@@ -223,13 +223,17 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 					continue;
 				}
 
-				$aLegacySection = array();
-				$aLegacySection['section_primary'] = isset( $aRawSection['primary'] ) && $aRawSection['primary'];
-				$aLegacySection['section_slug'] = $aRawSection['slug'];
-				$aLegacySection['section_options'] = array();
+				$aLegacySection = array_merge(
+					array(
+						'primary' => false,
+						'options' => array()
+					),
+					$aRawSection
+				);
+
 				foreach( $this->getRawData_AllOptions() as $aRawOption ) {
 
-					if ( $aRawOption['section'] != $aRawSection['slug'] ) {
+					if ( $aRawOption['section'] != $aLegacySection['slug'] ) {
 						continue;
 					}
 
@@ -237,25 +241,26 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 						continue;
 					}
 
-					$aLegacyRawOption = array();
-					$aLegacyRawOption['key'] = $aRawOption['key'];
-					$aLegacyRawOption['value'] = ''; //value
-					$aLegacyRawOption['default'] = $aRawOption['default'];
-					$aLegacyRawOption['type'] = $aRawOption['type'];
-
-					$aLegacyRawOption['value_options'] = array();
-					if ( in_array( $aLegacyRawOption['type'], array( 'select', 'multiple_select' ) ) ) {
-						foreach( $aRawOption['value_options'] as $aValueOptions ) {
-							$aLegacyRawOption['value_options'][ $aValueOptions['value_key'] ] = $aValueOptions['text'];
+					$aLegacyRawOption = array_merge(
+						array(
+							'link_info' => '',
+							'link_blog' => '',
+							'help_video_id' => '',
+							'value_options' => array()
+						),
+						$aRawOption
+					);
+					$aLegacyRawOption['value'] = ''; // we populate this later
+					if ( in_array( $aLegacyRawOption[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
+						foreach( $aRawOption[ 'value_options' ] as $aValueOptions ) {
+							$aLegacyRawOption[ 'value_options' ][ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
 						}
 					}
 
-					$aLegacyRawOption['info_link'] = isset( $aRawOption['link_info'] ) ? $aRawOption['link_info'] : '';
-					$aLegacyRawOption['blog_link'] = isset( $aRawOption['link_blog'] ) ? $aRawOption['link_blog'] : '';
-					$aLegacySection['section_options'][] = $aLegacyRawOption;
+					$aLegacySection[ 'options' ][] = $aLegacyRawOption;
 				}
 
-				if ( count( $aLegacySection['section_options'] ) > 0 ) {
+				if ( count( $aLegacySection['options'] ) > 0 ) {
 					$aLegacyData[ $nPosition ] = $aLegacySection;
 				}
 			}

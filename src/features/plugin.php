@@ -264,8 +264,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_global_security_options' :
 					$sTitle = _wpsf__( 'Global Plugin Security Options' );

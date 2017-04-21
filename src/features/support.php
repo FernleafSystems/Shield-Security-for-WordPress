@@ -74,8 +74,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_enable_plugin_feature_support' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
