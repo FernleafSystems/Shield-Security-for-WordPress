@@ -222,7 +222,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 					continue;
 				}
 
-				$aLegacySection = array_merge(
+				$aRawSection = array_merge(
 					array(
 						'primary' => false,
 						'options' => $this->getOptionsForSection( $aRawSection[ 'slug' ] ),
@@ -231,8 +231,8 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 					$aRawSection
 				);
 
-				if ( !empty( $aLegacySection[ 'options' ] ) ) {
-					$aOptionsData[] = $aLegacySection;
+				if ( !empty( $aRawSection[ 'options' ] ) ) {
+					$aOptionsData[] = $aRawSection;
 				}
 			}
 
