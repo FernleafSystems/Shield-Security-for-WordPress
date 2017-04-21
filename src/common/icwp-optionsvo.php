@@ -226,45 +226,56 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 				$aLegacySection = array_merge(
 					array(
 						'primary' => false,
-						'options' => array()
+						'options' => $this->getOptionsForSection( $aRawSection[ 'slug' ] ),
+						'help_video_id' => ''
 					),
 					$aRawSection
 				);
 
-				foreach( $this->getRawData_AllOptions() as $aRawOption ) {
-
-					if ( $aRawOption['section'] != $aLegacySection['slug'] ) {
-						continue;
-					}
-
-					if ( isset( $aRawOption['hidden'] ) && $aRawOption['hidden'] ) {
-						continue;
-					}
-
-					$aLegacyRawOption = array_merge(
-						array(
-							'link_info' => '',
-							'link_blog' => '',
-							'help_video_id' => '',
-							'value_options' => array()
-						),
-						$aRawOption
-					);
-					$aLegacyRawOption['value'] = ''; // we populate this later
-					if ( in_array( $aLegacyRawOption[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
-						foreach( $aRawOption[ 'value_options' ] as $aValueOptions ) {
-							$aLegacyRawOption[ 'value_options' ][ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
-						}
-					}
-
-					$aLegacySection[ 'options' ][] = $aLegacyRawOption;
-				}
-
-				if ( count( $aLegacySection['options'] ) > 0 ) {
-					$aLegacyData[ $nPosition ] = $aLegacySection;
+				if ( !empty( $aLegacySection[ 'options' ] ) ) {
+					$aLegacyData[] = $aLegacySection;
 				}
 			}
 			return $aLegacyData;
+		}
+
+		/**
+		 * @param string $sSectionSlug
+		 * @return array[]
+		 */
+		protected function getOptionsForSection( $sSectionSlug ) {
+
+			$aAllOptions = array();
+			foreach( $this->getRawData_AllOptions() as $aOptionDef ) {
+
+				if ( ( $aOptionDef['section'] != $sSectionSlug ) || ( isset( $aOptionDef['hidden'] ) && $aOptionDef['hidden'] ) ) {
+					continue;
+				}
+
+				if ( isset( $aOptionDef['hidden'] ) && $aOptionDef['hidden'] ) {
+					continue;
+				}
+
+				$aOptionDef = array_merge(
+					array(
+						'link_info' => '',
+						'link_blog' => '',
+						'help_video_id' => '',
+						'value_options' => array()
+					),
+					$aOptionDef
+				);
+				$aOptionDef['value'] = ''; // we populate this later
+
+				if ( in_array( $aOptionDef[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
+					foreach( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
+						$aOptionDef[ 'value_options' ][ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
+					}
+				}
+
+				$aAllOptions[] = $aOptionDef;
+			}
+			return $aAllOptions;
 		}
 
 		/**
