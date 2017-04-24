@@ -19,7 +19,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$this->setIfCanSendEmail( true )
 						 ->setBypassAdminProtection( true )
 						 ->savePluginOptions();
-					$this->loadWpFunctionsProcessor()->redirectToLogin();
+					$this->loadWpFunctions()->redirectToLogin();
 				}
 			}
 		}
@@ -32,7 +32,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		protected function doExecuteProcessor() {
-			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
 			}
 		}
@@ -74,7 +74,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				'authkey' 		=> $this->getTwoAuthSecretKey(),
 				'wpsf-action'	=> 'emailsendverify'
 			);
-			return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
+			return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getHomeUrl() );
 		}
 
 		/**
@@ -87,19 +87,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
 				sprintf( _wpsf__('Verify Link: %s'), $this->generateCanSendEmailVerifyLink() ),
 			);
-			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
+			$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWpFunctions()->getHomeUrl() );
 
 			$bResult = $this->getEmailProcessor()->sendEmailTo( get_bloginfo( 'admin_email' ), $sEmailSubject, $aMessage );
 			return $bResult;
-		}
-
-		/**
-		 * @param int $nTime
-		 * @return $this
-		 */
-		public function updateLastLoginTime( $nTime ) {
-			$this->setOpt( 'last_login_time', $nTime );
-			return $this;
 		}
 
 		/**
@@ -144,15 +135,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		/**
 		 * @return string
 		 */
-		public function getLastLoginTimeFilePath() {
-			// we always update it (but it wont need saved because we compare)
-			$this->setOpt( 'last_login_time_file_path', self::getController()->getRootDir().'mode.login_throttled' );
-			return $this->getOpt( 'last_login_time_file_path' );
-		}
-
-		/**
-		 * @return string
-		 */
 		public function getCustomLoginPath() {
 			return $this->getOpt( 'rename_wplogin_path', '' );
 		}
@@ -181,7 +163,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return string
 		 */
 		public function getTwoFactorAuthTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
 		}
 
 		/**
@@ -266,21 +248,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 * @return string
 		 */
 		public function getLoginIntentRequestFlag() {
-			return $this->doPluginPrefix( 'login-intent-request' );
-		}
-
-		/**
-		 * @param WP_User $oUser
-		 */
-		public function removeUserFromOldYubikeyList( $oUser ) {
-			$aKeys = $this->getOpt( 'yubikey_unique_keys' );
-			foreach( $aKeys as $nIndex => $aUsernameYubikeyPair ) {
-				if ( isset( $aUsernameYubikeyPair[ $oUser->get( 'user_login' ) ] ) ) {
-					unset( $aKeys[ $nIndex ] );
-					$this->setOpt( 'yubikey_unique_keys', $aKeys );
-					break;
-				}
-			}
+			return $this->prefix( 'login-intent-request' );
 		}
 
 		/**
@@ -290,8 +258,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_enable_plugin_feature_login_protection' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );

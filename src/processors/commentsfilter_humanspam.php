@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 */
 	public function run() {
 		parent::run();
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 	}
 
 	/**
@@ -28,7 +28,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 
 		// 1st are comments enabled on this post?
 		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
-		$oPost = $nPostId ? $this->loadWpFunctionsProcessor()->getPostById( $nPostId ) : null;
+		$oPost = $nPostId ? $this->loadWpFunctions()->getPostById( $nPostId ) : null;
 		if ( $oPost ) {
 			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
 		}
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		parent::doCommentChecking( $aCommentData );
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -58,7 +58,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 		if ( self::$sCommentStatus == 'reject' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
 		}
 
@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
 
 					// We now black mark this IP
-					add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+					add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 					break 2;
 				}
 			}
@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return null|string
 	 */
 	protected function getSpamBlacklist() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sBLFile = $this->getSpamBlacklistFile();
 
 		// first, does the file exist? If not import
@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function readSpamList() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sBLFile = $this->getSpamBlacklistFile();
 		if ( $oFs->exists( $sBLFile ) ) {
 			$sList = $oFs->getFileContent( $sBLFile );
@@ -168,14 +168,14 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	/**
 	 */
 	protected function doSpamBlacklistUpdate() {
-		$this->loadFileSystemProcessor()->deleteFile( $this->getSpamBlacklistFile() );
+		$this->loadFS()->deleteFile( $this->getSpamBlacklistFile() );
 		$this->doSpamBlacklistImport();
 	}
 
 	/**
 	 */
 	protected function doSpamBlacklistImport() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sBLFile = $this->getSpamBlacklistFile();
 		if ( !$oFs->exists( $sBLFile ) ) {
 
@@ -208,7 +208,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function doSpamBlacklistDownload() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		return $oFs->getUrlContent( self::Spam_Blacklist_Source );
 	}
 
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function getSpamBlacklistFile() {
-		return $this->getFeatureOptions()->getResourcesDir() . 'spamblacklist.txt';
+		return $this->getFeature()->getResourcesDir() . 'spamblacklist.txt';
 	}
 }
 endif;

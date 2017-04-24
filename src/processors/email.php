@@ -70,7 +70,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP - WordPress Management and Backup Protection For Professionals' )
 			),
 			'',
-			sprintf( _wpsf__( 'WordPress Site URL- %s.' ), $this->loadWpFunctionsProcessor()->getHomeUrl() )
+			sprintf( _wpsf__( 'WordPress Site URL- %s.' ), $this->loadWpFunctions()->getHomeUrl() )
 			.' / ' .sprintf( _wpsf__( 'Current Plugin Version- %s.' ), $this->getController()->getVersion() ),
 		);
 
@@ -121,7 +121,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function setMailFrom( $sFrom ) {
 		$oDP = $this->loadDataProcessor();
-		$oWp = $this->loadWpFunctionsProcessor();
+		$oWp = $this->loadWpFunctions();
 		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
 		if ( $oDP->validEmail( $sProposedFrom ) ) {
 			$sFrom = $sProposedFrom;
@@ -242,7 +242,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function getSiteName() {
-		return $this->loadWpFunctionsProcessor()->getSiteName();
+		return $this->loadWpFunctions()->getSiteName();
 	}
 	
 	public function getThrottleLimit() {

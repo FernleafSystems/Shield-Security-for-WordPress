@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private $bHasPermissionToSubmit;
 
 	protected function doExecuteProcessor() {
-		if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+		if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 			parent::doExecuteProcessor();
 		}
 	}
@@ -141,7 +141,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getOptionsToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( $this->loadWpFunctionsProcessor()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$sType = empty( $sType ) ? ( $this->loadWpFunctions()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
 		return ( isset( $aOptions[$sType.'_options'] ) && is_array( $aOptions[$sType.'_options'] ) ) ? $aOptions[$sType.'_options'] : array();
 	}
@@ -151,7 +151,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getOptionsPagesToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( $this->loadWpFunctionsProcessor()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$sType = empty( $sType ) ? ( $this->loadWpFunctions()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
 		return ( isset( $aOptions[$sType.'_pages'] ) && is_array( $aOptions[$sType.'_pages'] ) ) ? $aOptions[$sType.'_pages'] : array();
 	}
@@ -213,13 +213,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function checkAdminAccessKeySubmission() {
 		$oDp = $this->loadDataProcessor();
 
-		$sAccessKeyRequest = $oDp->FetchPost( $this->doPluginPrefix( 'admin_access_key_request', '_' ) );
+		$sAccessKeyRequest = $oDp->FetchPost( $this->prefix( 'admin_access_key_request', '_' ) );
 		if ( empty( $sAccessKeyRequest ) ) {
 			return false;
 		}
 		$bSuccess = ( $this->getOpt( 'admin_access_key' ) === md5( $sAccessKeyRequest ) );
 		if ( !$bSuccess ) {
-			add_filter( $this->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 		return $bSuccess;
 	}
@@ -231,8 +231,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sSectionSlug = $aOptionsParams['section_slug'];
-		switch( $aOptionsParams['section_slug'] ) {
+		$sSectionSlug = $aOptionsParams[ 'slug' ];
+		switch( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );

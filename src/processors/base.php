@@ -19,10 +19,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 */
 		public function __construct( $oFeatureOptions ) {
 			$this->oFeatureOptions = $oFeatureOptions;
-			add_action( $oFeatureOptions->doPluginPrefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
-			add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+			add_action( $oFeatureOptions->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureProcessorShutdown' ) );
+			add_action( $oFeatureOptions->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 			if ( method_exists( $this, 'addToAdminNotices' ) ) {
-				add_action( $oFeatureOptions->doPluginPrefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+				add_action( $oFeatureOptions->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 			}
 			$this->init();
 		}
@@ -46,13 +46,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
 		public function getController() {
-			return $this->getFeatureOptions()->getController();
+			return $this->getFeature()->getController();
 		}
 
 		public function autoAddToAdminNotices() {
 			$oCon = $this->getController();
 
-			foreach( $this->getFeatureOptions()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
+			foreach( $this->getFeature()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
 
 				if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
 					continue;
@@ -80,17 +80,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 			}
 
 			if ( $aNoticeAttributes[ 'schedule' ] == 'once'
-				&& ( !$this->loadWpUsersProcessor()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes['id'] ) )
+				&& ( !$this->loadWpUsers()->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes[ 'id'] ) )
 			) {
 				return false;
 			}
 
-			if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeatureOptions()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes['id'] ) ) ) {
+			if ( $aNoticeAttributes['schedule'] == 'version' && ( $this->getFeature()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes[ 'id'] ) ) ) {
 				return false;
 			}
 
 			if ( isset( $aNoticeAttributes['type'] ) && $aNoticeAttributes['type'] == 'promo' ) {
-				if ( $this->loadWpFunctionsProcessor()->getIsMobile() ) {
+				if ( $this->loadWpFunctions()->getIsMobile() ) {
 					return false;
 				}
 			}
@@ -126,7 +126,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 				return;
 			}
 
-			$sRenderedNotice = $this->getFeatureOptions()->renderAdminNotice( $aNoticeData );
+			$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {
 				$this->loadAdminNoticesProcessor()->addAdminNotice(
 					$sRenderedNotice,
@@ -144,7 +144,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getOption( $sOptionKey, $mDefault = false ) {
-			return $this->getFeatureOptions()->getOpt( $sOptionKey, $mDefault );
+			return $this->getFeature()->getOpt( $sOptionKey, $mDefault );
 		}
 
 		/**
@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return string
 		 */
 		protected function getGoogleRecaptchaLocale() {
-			$aLocaleParts = explode( '_', $this->loadWpFunctionsProcessor()->getLocale(), 2 );
+			$aLocaleParts = explode( '_', $this->loadWpFunctions()->getLocale(), 2 );
 			return $aLocaleParts[ 0 ];
 		}
 
@@ -181,20 +181,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return mixed
 		 */
 		public function getPluginDefaultRecipientAddress() {
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'report_email_address' ), $this->loadWpFunctionsProcessor()->getSiteAdminEmail() );
+			return apply_filters( $this->getFeature()->prefix( 'report_email_address' ), $this->loadWpFunctions()->getSiteAdminEmail() );
 		}
 
 		/**
 		 * @return ICWP_WPSF_Processor_Email
 		 */
 		public function getEmailProcessor() {
-			return $this->getFeatureOptions()->getEmailProcessor();
+			return $this->getFeature()->getEmailProcessor();
 		}
 
 		/**
 		 * @return ICWP_WPSF_FeatureHandler_Base
 		 */
-		protected function getFeatureOptions() {
+		protected function getFeature() {
 			return $this->oFeatureOptions;
 		}
 

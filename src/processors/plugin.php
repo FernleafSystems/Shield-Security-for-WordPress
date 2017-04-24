@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function run() {
 			parent::run();
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			$this->removePluginConflicts();
 
@@ -31,13 +31,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 				$this->maintainPluginLoadPosition();
 			}
 
-			add_filter( $oFO->doPluginPrefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
+			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
 
 			if ( $oFO->isTrackingEnabled() || !$oFO->isTrackingPermissionSet() ) {
 				$this->getTrackingProcessor()->run();
 			}
 
-			if ( $this->loadWpUsersProcessor()->isUserAdmin() ) {
+			if ( $this->loadWpUsers()->isUserAdmin() ) {
 				$oDp = $this->loadDataProcessor();
 				$sAction = $oDp->FetchGet( 'shield_action' );
 				switch ( $sAction ) {
@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		protected function getTrackingProcessor() {
 			if ( !isset( $this->oTrackingProcessor ) ) {
 				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'plugin_tracking.php' );
-				$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeatureOptions() );
+				$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeature() );
 			}
 			return $this->oTrackingProcessor;
 		}
@@ -72,7 +72,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function printTrackingDataBox() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( !$this->getController()->getIsValidAdminArea() ) {
 				return;
@@ -97,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		public function gatherPluginWidgetContent( $aContent ) {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$oCon = $this->getController();
 
 			$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(), sprintf( '<a href="%s">iControlWP</a>', 'http://icwp.io/7f' )  );
@@ -118,7 +118,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 * Sets this plugin to be the first loaded of all the plugins.
 		 */
 		protected function maintainPluginLoadPosition() {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			$nLoadPosition = $oWp->getActivePluginLoadPosition( $sBaseFile );
 			if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
@@ -129,7 +129,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		public function addPluginBadgeWidget() {
 			$this->loadWpWidgets();
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'plugin_badgewidget.php' );
-			ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getFeatureOptions() );
+			ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getFeature() );
 			register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
 		}
 

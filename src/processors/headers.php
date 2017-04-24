@@ -96,7 +96,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 		 */
 		protected function setContentSecurityPolicyHeader() {
 			/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( !$oFO->getIsContentSecurityPolicyEnabled() ) {
 				return null;
 			}
@@ -133,7 +133,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Headers' ) ):
 		 */
 		protected function gatherSecurityHeaders() {
 			/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			$this->addHeader( $this->setXFrameHeader() );
 			$this->addHeader( $this->setXssProtectionHeader() );

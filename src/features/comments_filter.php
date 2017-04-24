@@ -7,7 +7,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 	class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		protected function doExecuteProcessor() {
-			if ( !apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			if ( !apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
 			}
 		}
@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 * @return boolean
 		 */
 		public function getIfDoCommentsCheck() {
-			return apply_filters( $this->doPluginPrefix( 'if-do-comments-check' ), true );
+			return apply_filters( $this->prefix( 'if-do-comments-check' ), true );
 		}
 
 		/**
@@ -33,8 +33,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__('SPAM Comments Protection Filter') );
@@ -219,7 +219,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		 * @return string
 		 */
 		public function getCommentsFilterTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
 		}
 	}
 

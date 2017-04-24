@@ -8,10 +8,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 
 		protected function doPostConstruction() {
 			add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
-			add_filter( $this->doPluginPrefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
-			add_filter( $this->doPluginPrefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
-			add_filter( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
-			add_filter( $this->doPluginPrefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
+			add_filter( $this->prefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
+			add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
+			add_filter( $this->prefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
+			add_filter( $this->prefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
 
 			if ( !$this->isTrackingPermissionSet() ) {
 				add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
@@ -104,7 +104,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 			$oCon = self::getController();
 			if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
 				if ( !$oCon->getHasPermissionToManage() ) {
-					$this->loadWpFunctionsProcessor()->wpDie(
+					$this->loadWpFunctions()->wpDie(
 						_wpsf__( 'Sorry, you do not have permission to disable this plugin.')
 						. _wpsf__( 'You need to authenticate first.' )
 					);
@@ -116,7 +116,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 * @return string
 		 */
 		public function getTrackingCronName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'tracking_cron_handle' ) );
+			return $this->prefix( $this->getDefinition( 'tracking_cron_handle' ) );
 		}
 
 		/**
@@ -133,7 +133,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		public function getLinkToTrackingDataDump() {
 			return add_query_arg(
 				array( 'shield_action' => 'dump_tracking_data' ),
-				$this->loadWpFunctionsProcessor()->getUrl_WpAdmin()
+				$this->loadWpFunctions()->getUrl_WpAdmin()
 			);
 		}
 
@@ -152,7 +152,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		}
 
 		/**
-		 * @return int
+		 * @return $this
 		 */
 		public function setTrackingLastSentAt() {
 			return $this->setOpt( 'tracking_last_sent_at', $this->loadDataProcessor()->time() );
@@ -244,7 +244,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		protected function genInstallId() {
 			return sha1(
 				$this->getPluginInstallationTime()
-				. $this->loadWpFunctionsProcessor()->getWpUrl()
+				. $this->loadWpFunctions()->getWpUrl()
 				. $this->loadDbProcessor()->getPrefix()
 			);
 		}
@@ -264,8 +264,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_global_security_options' :
 					$sTitle = _wpsf__( 'Global Plugin Security Options' );

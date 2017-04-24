@@ -38,7 +38,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 			add_action( 'network_admin_notices',	array( $this, 'onWpAdminNotices' ) );
 			add_action( 'wp_loaded',				array( $this, 'flushFlashMessage' ) );
 
-			if ( $this->loadWpFunctionsProcessor()->getIsAjax() ) {
+			if ( $this->loadWpFunctions()->getIsAjax() ) {
 				add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
 			}
 		}
@@ -79,14 +79,14 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		 * @return false|string
 		 */
 		public function getAdminNoticeMeta( $sNoticeId ) {
-			return $this->loadWpUsersProcessor()->getUserMeta( $this->getActionPrefix().$sNoticeId );
+			return $this->loadWpUsers()->getUserMeta( $this->getActionPrefix().$sNoticeId );
 		}
 
 		/**
 		 * @param array $aNotice
 		 */
 		public function setAdminNoticeAsDismissed( $aNotice ) {
-			$this->loadWpUsersProcessor()->updateUserMeta( $this->getActionPrefix().$aNotice['id'], 'Y' );
+			$this->loadWpUsers()->updateUserMeta( $this->getActionPrefix(). $aNotice[ 'id'], 'Y' );
 		}
 
 		/**

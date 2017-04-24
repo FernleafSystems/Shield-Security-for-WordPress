@@ -1,4 +1,16 @@
 {
+  "5.8.2": {
+    "version": {
+      "series": "5.8.0",
+      "major": 5,
+      "minor": 8,
+      "patch": 2
+    },
+    "attributes": {
+      "date": "1491523200",
+      "is_patch": true
+    }
+  },
   "5.8.1": {
     "version": {
       "series": "5.8.0",
@@ -33,6 +45,31 @@
     }
   },
   "changelog": [
+    {
+      "type": "improved",
+      "summary": "The core file scanner now works more reliably for international WordPress installations.",
+      "version": "5.8.2"
+    },
+    {
+      "type": "changed",
+      "summary": "Login Cooldown now uses only the flag file as an indicator of login times.",
+      "version": "5.8.2"
+    },
+    {
+      "type": "added",
+      "summary": "Filter to allow for changing the login two factor timeout period, from 5 (minutes). Filter: icwp-wpsf-login_intent_timeout",
+      "version": "5.8.2"
+    },
+    {
+      "type": "changed",
+      "summary": "Changed timeout for two-factor authentication email to 5 minutes to account for slower email sending providers.",
+      "version": "5.8.2"
+    },
+    {
+      "type": "changed",
+      "summary": "Added further clarification to the Login Notification email indicating that two-factor authentication was pending.",
+      "version": "5.8.2"
+    },
     {
       "type": "fixed",
       "summary": "Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.",

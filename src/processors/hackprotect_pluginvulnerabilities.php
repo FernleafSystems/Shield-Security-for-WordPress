@@ -43,7 +43,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					$this->getCronName(),
 					array( $this, 'cron_dailyPluginVulnerabilitiesScan' )
 			);
-			add_action( $this->getFeatureOptions()->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
+			add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' )  );
 		}
 
 		/**
@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
 
-			$aPlugins = $this->loadWpFunctionsProcessor()->getPlugins();
+			$aPlugins = $this->loadWpFunctions()->getPlugins();
 
 			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
@@ -120,7 +120,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		}
 
 		public function addPluginVulnerabilityRows() {
-			$aPlugins = $this->loadWpFunctionsProcessor()->getPlugins();
+			$aPlugins = $this->loadWpFunctions()->getPlugins();
 			foreach( array_keys( $aPlugins ) as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
@@ -160,7 +160,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					),
 					'nColspan' => $this->nColumnsCount
 				);
-				echo $this->getFeatureOptions()->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin-vulnerability.php', $aRenderData );
+				echo $this->getFeature()->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin-vulnerability.php', $aRenderData );
 			}
 		}
 
@@ -197,8 +197,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 			if ( !isset( $this->aPluginVulnerabilities ) ) {
 
-				$oWp = $this->loadWpFunctionsProcessor();
-				$oFO = $this->getFeatureOptions();
+				$oWp = $this->loadWpFunctions();
+				$oFO = $this->getFeature();
 				$this->aPluginVulnerabilities = $oWp->getTransient( $oFO->prefixOptionKey( self::PvSourceKey ) );
 				if ( empty( $this->aPluginVulnerabilities ) ) {
 					$this->aPluginVulnerabilities = $this->downloadPluginVulnerabilitiesFromSource();
@@ -211,11 +211,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 * @return array|false
 		 */
 		protected function downloadPluginVulnerabilitiesFromSource() {
-			$oWp = $this->loadWpFunctionsProcessor();
-			$oFO = $this->getFeatureOptions();
+			$oWp = $this->loadWpFunctions();
+			$oFO = $this->getFeature();
 
 			$sSource = $oFO->getDefinition( 'plugin_vulnerabilities_data_source' );
-			$sRawSource = $this->loadFileSystemProcessor()->getUrlContent( $sSource );
+			$sRawSource = $this->loadFS()->getUrlContent( $sSource );
 			if ( $sRawSource === false ) {
 				return false;
 			}
@@ -232,7 +232,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 * @return string
 		 */
 		protected function getCronName() {
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			return $oFO->prefixOptionKey( $oFO->getDefinition( 'notifications_cron_name' ) );
 		}
 	}

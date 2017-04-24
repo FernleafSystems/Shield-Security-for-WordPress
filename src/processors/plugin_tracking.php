@@ -6,12 +6,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( $oFO->isTrackingEnabled() ) {
 				$this->createTrackingCollectionCron();
 			}
-			add_action( $oFO->doPluginPrefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+			add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 		}
 
 		/**
@@ -20,7 +20,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		protected function addNotice_allow_tracking( $aNoticeAttributes ) {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 
 			if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
 				$oCon = $this->getController();
@@ -52,7 +52,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		public function sendTrackingData() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			if ( !$oFO->isTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
 				return false;
 			}
@@ -62,7 +62,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				return false;
 			}
 
-			$mResult = $this->loadFileSystemProcessor()->requestUrl(
+			$mResult = $this->loadFS()->requestUrl(
 				$oFO->getDefinition( 'tracking_post_url' ),
 				array(
 					'method'      => 'POST',
@@ -84,7 +84,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		public function collectTrackingData() {
 			$aData = apply_filters(
-				$this->getFeatureOptions()->doPluginPrefix( 'collect_tracking_data' ),
+				$this->getFeature()->prefix( 'collect_tracking_data' ),
 				$this->getBaseTrackingData()
 			);
 			return is_array( $aData ) ? $aData : array();
@@ -95,7 +95,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		protected function getBaseTrackingData() {
 			$oDP = $this->loadDataProcessor();
-			$oWP = $this->loadWpFunctionsProcessor();
+			$oWP = $this->loadWpFunctions();
 			return array(
 				'env' =>array(
 					'options' => array(
@@ -118,7 +118,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 		 */
 		protected function createTrackingCollectionCron() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$sFullHookName = $oFO->getTrackingCronName();
 			$this->loadWpCronProcessor()
 				 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS + rand( 0, 1800 ) )
@@ -129,7 +129,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 
 		public function deleteCron() {
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$this->loadWpCronProcessor()->deleteCronJob( $oFO->getTrackingCronName() );
 		}
 	}

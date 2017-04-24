@@ -6,7 +6,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 	class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		protected function doExecuteProcessor() {
-			if ( ! apply_filters( $this->doPluginPrefix( 'visitor_is_whitelisted' ), false ) ) {
+			if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
 				parent::doExecuteProcessor();
 			}
 		}
@@ -50,7 +50,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 					foreach( $aAuditData as &$aAuditEntry ) {
 						$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
 						$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
-						$aAuditEntry[ 'created_at' ] = $this->loadWpFunctionsProcessor()->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
+						$aAuditEntry[ 'created_at' ] = $this->loadWpFunctions()->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
 					}
 				}
 				$aAuditContext['trail'] = $aAuditData;
@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 		 * @return string
 		 */
 		public function getAuditTrailTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
 		}
 
 		/**
@@ -97,7 +97,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
+			$sSectionSlug = $aOptionsParams['slug'];
 			switch( $sSectionSlug ) {
 
 				case 'section_enable_plugin_feature_audit_trail' :

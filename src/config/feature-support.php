@@ -35,11 +35,6 @@
       "name": "Enable Automatic Updates",
       "summary": "Enable (or Disable) The Premium Support Feature",
       "description": "Checking/Un-Checking this option will completely turn on/off the whole Premium Support feature"
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

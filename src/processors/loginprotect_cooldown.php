@@ -1,6 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ) {
+	return;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_base.php' );
 
@@ -10,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
 		add_filter( 'authenticate', array( $this, 'checkLoginInterval' ), 10, 1 );
@@ -29,7 +31,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 * @return WP_User|WP_Error
 	 */
 	public function checkLoginInterval( $oUserOrError ) {
-		if ( !$this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+		if ( !$this->loadWpFunctions()->getIsLoginRequest() ) {
 			return $oUserOrError;
 		}
 
@@ -49,8 +51,8 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 		$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
 			.sprintf(
 				_wpsf__( "You must wait %s seconds before attempting to %s again." ),
-				$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
-				$this->loadWpFunctionsProcessor()->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
+				$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin(),
+				$this->loadWpFunctions()->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
 			);
 
 		if ( !is_wp_error( $oUserOrError ) ) {
@@ -67,30 +69,28 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 * @return int
 	 */
 	protected function getLoginCooldownInterval() {
-		return $this->getOption( 'login_limit_interval' );
+		return (int)$this->getOption( 'login_limit_interval' );
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function getLastLoginTime() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$sFile = $this->getLastLoginTimeFilePath();
+		return $this->loadFS()->exists( $sFile ) ? filemtime( $sFile ) : 0;
+	}
 
-		$sFilePath = $oFO->getLastLoginTimeFilePath();
-		$oWpFs = $this->loadFileSystemProcessor();
-		$nModifiedFileTime = ( $oWpFs->exists( $sFilePath ) ) ? filemtime( $sFilePath ) : 0;
-		return max( $nModifiedFileTime, $this->getOption( 'last_login_time' ) );
+	/**
+	 * @return string
+	 */
+	protected function getLastLoginTimeFilePath() {
+		return self::getController()->getRootDir().'mode.login_throttled';
 	}
 
 	/**
 	 */
 	protected function updateLastLoginTime() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-		$nTime = $this->time();
-		$oFO->updateLastLoginTime( $nTime );
-		$this->loadFileSystemProcessor()->touch( $oFO->getLastLoginTimeFilePath(), $nTime );
+		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
 	}
 
 	/**
@@ -98,20 +98,18 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function getIsWithinCooldownPeriod() {
 		// Is there an interval set?
-		$nRequiredLoginInterval = $this->getLoginCooldownInterval();
-		if ( empty( $nRequiredLoginInterval ) || $nRequiredLoginInterval <= 0 ) {
+		$nCooldown = $this->getLoginCooldownInterval();
+		if ( empty( $nCooldown ) || $nCooldown <= 0 ) {
 			return false;
 		}
 
-		$sCurrentInterval = $this->getSecondsSinceLastLoginTime();
-		return ( $sCurrentInterval < $nRequiredLoginInterval );
+		return ( $this->getSecondsSinceLastLogin() < $nCooldown );
 	}
 
 	/**
 	 * @return int
 	 */
-	protected function getSecondsSinceLastLoginTime() {
+	protected function getSecondsSinceLastLogin() {
 		return ( $this->time() - $this->getLastLoginTime() );
 	}
 }
-endif;

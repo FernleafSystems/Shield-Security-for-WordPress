@@ -19,12 +19,12 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	public function onWpInit() {
 		if ( $this->getController()->getIsValidAdminArea() ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$oDb = $this->loadDbProcessor();
 			$sTableName = $oDb->getPrefix().$oFO->getTwoFactorAuthTableName();
 			if ( $oDb->getIfTableExists( $sTableName ) ) {
 				$oDb->doDropTable( $sTableName );
-				$sCronName = $oFO->doPluginPrefix( $oFO->getFeatureSlug().'_db_cleanup' );
+				$sCronName = $oFO->prefix( $oFO->getFeatureSlug().'_db_cleanup' );
 				wp_clear_scheduled_hook( $sCronName );
 			}
 		}
@@ -56,14 +56,14 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function auditLogin( $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
 				2, 'login_protect_two_factor_verified'
 			);
 			$this->doStatIncrement( 'login.twofactor.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Email Two-Factor Authentication.' ), $this->loadWpUsersProcessor()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Email Two-Factor Authentication.' ), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
 				2, 'login_protect_two_factor_failed'
 			);
 			$this->doStatIncrement( 'login.twofactor.failed' );
@@ -103,7 +103,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	public function hasValidatedProfile( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
 		return ( $oFO->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
 	}
@@ -116,7 +116,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	public function getIsUserSubjectToEmailAuthentication( $oUser ) {
 		$nUserLevel = $oUser->get( 'user_level' );
 
-		$aSubjectedUserLevels = $this->getFeatureOptions()->getOpt( 'two_factor_auth_user_roles' );
+		$aSubjectedUserLevels = $this->getFeature()->getOpt( 'two_factor_auth_user_roles' );
 		if ( empty($aSubjectedUserLevels) || !is_array($aSubjectedUserLevels) ) {
 			$aSubjectedUserLevels = array( 1, 2, 3, 8 ); // by default all roles except subscribers!
 		}
@@ -143,7 +143,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	protected function genSessionHash() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		return hash_hmac(
 			'sha1',
 			$this->getController()->getSessionId(),
@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	protected function buildTwoFactorVerifyUrl( $sUser, $sSessionId ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$aQueryArgs = array(
 			$this->getLoginFormParameter()    => $this->getSessionHashCode(),
 			$oFO->getLoginIntentRequestFlag() => 1,
@@ -188,7 +188,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		if ( !empty( $sRedirectTo ) ) {
 			$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
 		}
-		return add_query_arg( $aQueryArgs, $this->loadWpFunctionsProcessor()->getHomeUrl() );
+		return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getHomeUrl() );
 	}
 
 	/**
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( _wpsf__( 'Authentication Link: %s' ), $sAuthLink ),
 			''
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctionsProcessor()->getHomeUrl() );
+		$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctions()->getHomeUrl() );
 
 		$bResult = $this->getEmailProcessor()->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 		if ( $bResult ) {
@@ -236,7 +236,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oWp = $this->loadWpUsersProcessor();
+		$oWp = $this->loadWpUsers();
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
 			'user_has_email_authentication_active' => $bValidatedProfile,
@@ -257,7 +257,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ] //TODO: Make email authentication a per-user setting
 		);
 
-		echo $this->getFeatureOptions()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
+		echo $this->getFeature()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
 	}
 
 	/**

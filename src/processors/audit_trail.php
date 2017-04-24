@@ -28,7 +28,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 
 		public function action_doFeatureProcessorShutdown () {
 			parent::action_doFeatureProcessorShutdown();
-			if ( ! $this->getFeatureOptions()->getIsPluginDeleting() ) {
+			if ( ! $this->getFeature()->isPluginDeleting() ) {
 				$this->commitAuditTrial();
 			}
 		}
@@ -41,7 +41,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 			}
 
 			/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFo */
-			$oFo = $this->getFeatureOptions();
+			$oFo = $this->getFeature();
 
 			if ( $this->getIsOption( 'enable_audit_context_users', 'Y' ) ) {
 				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'audit_trail_users.php' );
@@ -116,7 +116,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 		 */
 		protected function commitAuditTrial() {
 			$aEntries = $this->getAuditTrailEntries()->getAuditTrailEntries( true );
-			$aEntries = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'collect_audit_trail' ), $aEntries );
+			$aEntries = apply_filters( $this->getFeature()->prefix( 'collect_audit_trail' ), $aEntries );
 			if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 				return;
 			}
@@ -164,7 +164,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 		 * @return array
 		 */
 		protected function getTableColumnsByDefinition() {
-			$aDef = $this->getFeatureOptions()->getDefinition( 'audit_trail_table_columns' );
+			$aDef = $this->getFeature()->getDefinition( 'audit_trail_table_columns' );
 			return ( is_array( $aDef ) ? $aDef : array() );
 		}
 	}
@@ -197,7 +197,7 @@ class ICWP_WPSF_AuditTrail_Entries extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDataProcessor();
 
 		if ( empty( $sWpUsername ) ) {
-			$oCurrentUser = $this->loadWpUsersProcessor()->getCurrentWpUser();
+			$oCurrentUser = $this->loadWpUsers()->getCurrentWpUser();
 			$sWpUsername = empty( $oCurrentUser ) ? 'unknown' : $oCurrentUser->get( 'user_login' );
 		}
 

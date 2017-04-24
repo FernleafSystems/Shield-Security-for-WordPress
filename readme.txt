@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.7
-Stable tag: 5.8.1
+Stable tag: 5.8.2
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
@@ -308,9 +308,23 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.8.1 Latest Point Release =
+= 5.8.2 Latest Point Release =
+*Released: 24th April, 2017*
+
+* **(v.2)**  IMPROVEMENTS:	The core file scanner now works more reliably for international WordPress installations.
+* **(v.2)**  CHANGE:		Login Cooldown now uses only the flag file as an indicator of login times.
+* **(v.2)**  CHANGE:		Filter to allow for changing the two factor timeout period, from 5 (minutes). Filter: `icwp-wpsf-login_intent_timeout`
+* **(v.2)**  CHANGE:		Changed timeout for two-factor authentication email to 5 minutes to account for slower email-sending providers.
+* **(v.2)**  CHANGE:		Added further clarification to the Login Notification email indicating that two-factor authentication was pending.
+
+= 5.8.0 Series =
 *Released: 7th April, 2017*
 
+* **(v.2)**  IMPROVEMENTS:	The core file scanner now works more reliably for international WordPress installations.
+* **(v.2)**  CHANGE:		Login Cooldown now uses only the flag file as an indicator of login times.
+* **(v.2)**  CHANGE:		Filter to allow for changing the two factor timeout period, from 5 (minutes). Filter: `icwp-wpsf-login_intent_timeout`
+* **(v.2)**  CHANGE:		Changed timeout for two-factor authentication email to 5 minutes to account for slower email-sending providers.
+* **(v.2)**  CHANGE:		Added further clarification to the Login Notification email indicating that two-factor authentication was pending.
 * **(v.1)**  FIXED:			Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.
 * **(v.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](http://icwp.io/87).
 * **(v.0)**  CHANGE:		[Introduction of Login Authentication Portal](http://icwp.io/86) for improved Multi-Factor Authentication.
@@ -345,7 +359,6 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 * **(v.1)**  CHANGE:		Improved compatibility of HTTP Headers with WP Super Cache.
 * **(v.0)**  ADDED:			Option to disable anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin
 							or service authenticates the request it will be honoured, whether anonymous or not.
-
 = 5.5 Series =
 
 * **(v.6)**  IMPROVED:		Fixed possible leak of the Login URL from the 'Hide WP Login URL' feature.

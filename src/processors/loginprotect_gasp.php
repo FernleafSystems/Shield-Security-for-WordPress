@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		// Add GASP checking to the login form.
 		add_action( 'login_form',				array( $this, 'printGaspLoginCheck_Action' ), 100 );
@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return WP_Error
 	 */
 	public function checkLoginForGasp_Filter( $oUser, $sUsername, $sPassword ) {
-		if ( !$this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+		if ( !$this->loadWpFunctions()->getIsLoginRequest() ) {
 			return $oUser;
 		}
 
@@ -153,8 +153,8 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function getGaspCheckboxName() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
-		return $oFO->doPluginPrefix( $oFO->getGaspKey() );
+		$oFO = $this->getFeature();
+		return $oFO->prefix( $oFO->getGaspKey() );
 	}
 
 	/**
@@ -173,9 +173,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			$this->doStatIncrement( $sActionAttempted.'.gasp.checkbox.fail' );
 
 			// We now black mark this IP
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 
-			$this->loadWpFunctionsProcessor()->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
+			$this->loadWpFunctions()->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
 			return false;
 		}
 		else if ( !empty( $sHoney ) ) {
@@ -184,9 +184,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			$this->doStatIncrement( $sActionAttempted.'.gasp.honeypot.fail' );
 
 			// We now black mark this IP
-			add_filter( $this->getFeatureOptions()->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 
-			$this->loadWpFunctionsProcessor()->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
+			$this->loadWpFunctions()->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
 			return false;
 		}
 		return true;

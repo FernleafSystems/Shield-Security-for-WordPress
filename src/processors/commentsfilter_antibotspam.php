@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// 1st are comments enabled on this post?
 		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
-		$oPost = $nPostId ? $this->loadWpFunctionsProcessor()->getPostById( $nPostId ) : null;
+		$oPost = $nPostId ? $this->loadWpFunctions()->getPostById( $nPostId ) : null;
 		if ( $oPost ) {
 			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
 		}
@@ -79,15 +79,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.
 		add_action(	'comment_form',					array( $this, 'printGaspFormHook_Action' ), 1 );
 		add_action(	'comment_form',					array( $this, 'printGaspFormParts_Action' ), 2 );
 		add_filter( 'preprocess_comment',			array( $this, 'doCommentChecking' ), 1, 1 );
 
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$this->aRawCommentData = $aCommentData;
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -141,7 +141,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 		if ( $this->sCommentStatus == 'reject' ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
 		}
 
@@ -165,7 +165,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		$bIsSpam = true;
 		$sStatKey = '';
@@ -201,7 +201,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->setCommentStatusExplanation( $sExplanation );
 
 			// We now black mark this IP
-			add_filter( $oFO->doPluginPrefix( 'ip_black_mark' ), '__return_true' );
+			add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 	}
 
@@ -440,7 +440,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeatureOptions()->getDefinition( 'spambot_comments_filter_table_columns' );
+		$aDef = $this->getFeature()->getDefinition( 'spambot_comments_filter_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -465,7 +465,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function deleteOldPostCommentTokens( $sPostId = null ) {
 		$aWhere = array(
 			'ip'        => $this->loadDataProcessor()->getVisitorIpAddress( true ),
-			'post_id'   => empty( $sPostId ) ? $this->loadWpFunctionsProcessor()->getCurrentPostId() : $sPostId
+			'post_id'   => empty( $sPostId ) ? $this->loadWpFunctions()->getCurrentPostId() : $sPostId
 		);
 		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 	}
@@ -475,7 +475,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function insertUniquePostCommentToken() {
 		$aData = array(
-			'post_id'       => $this->loadWpFunctionsProcessor()->getCurrentPostId(),
+			'post_id'       => $this->loadWpFunctions()->getCurrentPostId(),
 			'unique_token'  => $this->getUniqueCommentToken(),
 			'ip'            => $this->loadDataProcessor()->getVisitorIpAddress( true ),
 			'created_at'    => $this->time()

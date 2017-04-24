@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		$oLoginTracker = $this->getLoginTrack();
 
@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
-			if ( $this->loadWpFunctionsProcessor()->getIsLoginRequest() ) {
+			if ( $this->loadWpFunctions()->getIsLoginRequest() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
 			add_action( 'init', array( $this, 'onWpInit' ), 0 );
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function onWpInit() {
-		if ( $this->loadWpUsersProcessor()->isUserLoggedIn() ) {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
 
 			if ( $this->isCurrentUserSubjectToLoginIntent() ) {
 				$this->processUserLoginIntent();
@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function processUserLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 
 		if ( $this->userHasPendingLoginIntent() ) {
 			$oDp = $this->loadDataProcessor();
@@ -76,13 +76,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $bIsLoginIntentSubmission ) {
 
 				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
-					$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
-					$this->loadWpFunctionsProcessor()->redirectToLogin();
+					$this->loadWpUsers()->logoutUser(); // clears the login and login intent
+					$this->loadWpFunctions()->redirectToLogin();
 					return;
 				}
 
 				$oLoginTracker = $this->getLoginTrack();
-				do_action( $oFO->doPluginPrefix( 'login-intent-validation' ) );
+				do_action( $oFO->prefix( 'login-intent-validation' ) );
 				if ( $oFO->isChainedAuth() ) {
 					$bLoginIntentValidated = !$oLoginTracker->hasUnSuccessfulFactorAuth();
 				}
@@ -96,14 +96,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 					if ( !empty( $sRedirect ) ) {
-						$this->loadWpFunctionsProcessor()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
+						$this->loadWpFunctions()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
 					}
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
 				}
-				$this->loadWpFunctionsProcessor()->redirectHere();
+				$this->loadWpFunctions()->redirectHere();
 			}
 			if ( $this->printLoginIntentForm() ) {
 				die();
@@ -116,8 +116,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				// false also means new installation don't get booted out
 			}
 			else if ( $nIntent > 0 ) { // there was an old login intent
-				$this->loadWpUsersProcessor()->logoutUser(); // clears the login and login intent
-				$this->loadWpFunctionsProcessor()->redirectHere();
+				$this->loadWpUsers()->logoutUser(); // clears the login and login intent
+				$this->loadWpFunctions()->redirectHere();
 			}
 		}
 	}
@@ -132,7 +132,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * Use this ONLY when the login intent has been successfully verified.
 	 */
 	protected function removeLoginIntent() {
-		$this->loadWpUsersProcessor()->deleteUserMeta( $this->getOptionKey() );
+		$this->loadWpUsers()->deleteUserMeta( $this->getOptionKey() );
 	}
 
 	/**
@@ -148,14 +148,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param null $oUser
 	 */
 	protected function setLoginIntentExpiration( $nExpirationTime, $oUser = null ) {
-		$this->loadWpUsersProcessor()->updateUserMeta( $this->getOptionKey(), max( 0, (int)$nExpirationTime ), $oUser );
+		$this->loadWpUsers()->updateUserMeta( $this->getOptionKey(), max( 0, (int)$nExpirationTime ), $oUser );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getOptionKey() {
-		return $this->getFeatureOptions()->prefixOptionKey( 'login_intent' );
+		return $this->getFeature()->prefixOptionKey( 'login_intent' );
 	}
 
 	/**
@@ -165,7 +165,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function setUserLoginIntent( $oUser ) {
 		if ( !empty( $oUser ) && ( $oUser instanceof WP_User ) ) {
-			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS*2, $oUser );
+			$oF = $this->getFeature();
+			$nTimeout = (int)apply_filters(
+				$oF->prefix( 'login_intent_timeout' ),
+				$oF->getDefinition( 'login_intent_timeout' )
+			);
+			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS*$nTimeout, $oUser );
 		}
 		return $oUser;
 	}
@@ -181,14 +186,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function isCurrentUserSubjectToLoginIntent() {
-		return apply_filters( $this->getFeatureOptions()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
+		return apply_filters( $this->getFeature()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
 	}
 
 	/**
 	 * @return int|false
 	 */
 	protected function getUserLoginIntent() {
-		return $this->loadWpUsersProcessor()->getUserMeta( $this->getOptionKey() );
+		return $this->loadWpUsers()->getUserMeta( $this->getOptionKey() );
 	}
 
 	/**
@@ -196,10 +201,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
-		$aLoginIntentFields = apply_filters( $oFO->doPluginPrefix( 'login-intent-form-fields' ), array() );
+		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
 		if ( empty( $aLoginIntentFields ) ) {
 			return false; // a final guard against displaying an empty form.
@@ -271,7 +276,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	protected function getProcessorTwoFactor() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeatureOptions();
+		$oFO = $this->getFeature();
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -281,7 +286,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getProcessorYubikey() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeatureOptions() );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
@@ -290,7 +295,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getProcessorGoogleAuthenticator() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeatureOptions() );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 

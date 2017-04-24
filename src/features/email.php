@@ -37,8 +37,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_email_options' :
 					$sTitle = _wpsf__( 'Email Options' );

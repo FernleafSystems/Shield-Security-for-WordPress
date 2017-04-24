@@ -22,7 +22,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		 * @return boolean
 		 */
 		public function getIfForceRunAutoupdates() {
-			return apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
+			return apply_filters( $this->getFeature()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
 		}
 
 		/**
@@ -61,7 +61,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 			}
 
 			if ( isset( $_GET['auto'] ) ) {
-				$this->loadWpFunctionsProcessor()->doForceRunAutomaticUpdates();
+				$this->loadWpFunctions()->doForceRunAutomaticUpdates();
 			}
 		}
 
@@ -76,7 +76,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 				return true;
 			}
 			$this->doStatIncrement( 'autoupdates.forcerun' );
-			return $this->loadWpFunctionsProcessor()->doForceRunAutomaticUpdates();
+			return $this->loadWpFunctions()->doForceRunAutomaticUpdates();
 		}
 
 		/**
@@ -161,7 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 			}
 
 			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			// If it's this plugin and autoupdate this plugin is set...
 			if ( $sItemFile === $oFO->getController()->getPluginBaseFile() ) {
 				if ( $this->getIsOption('autoupdate_plugin_self', 'Y') ) {
@@ -262,7 +262,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 					return $aPluginMeta;
 				}
 			}
-			$bUpdate = $this->loadWpFunctionsProcessor()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+			$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 			$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
 			array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
 			return $aPluginMeta;
@@ -290,7 +290,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 			if ( $sColumnName != 'icwp_autoupdate' ) {
 				return;
 			}
-			$bUpdate = $this->loadWpFunctionsProcessor()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+			$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 			echo $this->getPluginAutoupdateIconHtml( $bUpdate );
 		}
 
@@ -372,7 +372,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 
 			$sTitle = sprintf(
 				_wpsf__( "Notice - %s" ),
-				sprintf( "Automatic Updates Completed For %s", $this->loadWpFunctionsProcessor()->getSiteName() )
+				sprintf( "Automatic Updates Completed For %s", $this->loadWpFunctions()->getSiteName() )
 			);
 			$this->getEmailProcessor()->sendEmailTo( $this->getOption( 'override_email_address', '' ), $sTitle, $aEmailContent );
 		}
@@ -411,7 +411,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ):
 		 * @return int
 		 */
 		protected function getHookPriority() {
-			return $this->getFeatureOptions()->getDefinition( 'action_hook_priority' );
+			return $this->getFeature()->getDefinition( 'action_hook_priority' );
 		}
 	}
 

@@ -10,9 +10,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		public function init() {
 			parent::init();
-			$oFO = $this->getFeatureOptions();
-			add_filter( $oFO->doPluginPrefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
-			add_filter( $oFO->doPluginPrefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
+			$oFO = $this->getFeature();
+			add_filter( $oFO->prefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
+			add_filter( $oFO->prefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
 		}
 
 		/**
@@ -27,7 +27,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		public function tracking_DataCollect( $aData ) {
 			$aData = parent::tracking_DataCollect( $aData );
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-			$oFO = $this->getFeatureOptions();
+			$oFO = $this->getFeature();
 			$sSlug = $oFO->getFeatureSlug();
 			if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
 				$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oFO->getPluginInstallationId();
@@ -98,10 +98,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @param array $aNoticeAttributes
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
-			$oFO = $this->getFeatureOptions();
-			$oWpUsers = $this->loadWpUsersProcessor();
+			$oFO = $this->getFeature();
+			$oWpUsers = $this->loadWpUsers();
 
-			$sAdminNoticeMetaKey = $oFO->doPluginPrefix( 'plugin-update-available' );
+			$sAdminNoticeMetaKey = $oFO->prefix( 'plugin-update-available' );
 			if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
 				$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
 				return;
@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				return;
 			}
 
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
 			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 				$aRenderData = array(
@@ -157,7 +157,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return bool
 		 */
 		public function getIsDeleteOnDeactivate() {
-			return $this->getFeatureOptions()->getOptIs( 'delete_on_deactivate', 'Y' );
+			return $this->getFeature()->getOptIs( 'delete_on_deactivate', 'Y' );
 		}
 
 		/**
@@ -173,7 +173,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 				$bShow = false;
 			}
 
-			$oWpFunctions = $this->loadWpFunctionsProcessor();
+			$oWpFunctions = $this->loadWpFunctions();
 			if ( class_exists( 'Worpit_Plugin' ) ) {
 				if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
 					$bShow = !Worpit_Plugin::IsLinked();
@@ -191,7 +191,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return int
 		 */
 		protected function getInstallationDays() {
-			$nTimeInstalled = $this->getFeatureOptions()->getPluginInstallationTime();
+			$nTimeInstalled = $this->getFeature()->getPluginInstallationTime();
 			if ( empty( $nTimeInstalled ) ) {
 				return 0;
 			}
@@ -202,7 +202,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @return bool
 		 */
 		protected function getIfShowAdminNotices() {
-			return $this->getFeatureOptions()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
+			return $this->getFeature()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
 		}
 	}
 

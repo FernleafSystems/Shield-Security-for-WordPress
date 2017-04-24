@@ -153,7 +153,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 					'locale'	=> $this->getLocale( true )
 				);
 				$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
-				$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sQueryUrl );
+				$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
 				if ( !empty( $sResponse ) ) {
 					$aDecodedResponse = json_decode( trim( $sResponse ), true );
 					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse['checksums'] ) && is_array( $aDecodedResponse['checksums'] ) ) {
@@ -975,7 +975,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @param array $aLoginUrlParams
 		 */
 		public function forceUserRelogin( $aLoginUrlParams = array() ) {
-			$this->loadWpUsersProcessor()->forceUserRelogin( $aLoginUrlParams );
+			$this->loadWpUsers()->forceUserRelogin( $aLoginUrlParams );
 		}
 
 		/**
@@ -983,7 +983,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return null|WP_User
 		 */
 		public function getCurrentWpUser() {
-			return $this->loadWpUsersProcessor()->getCurrentWpUser();
+			return $this->loadWpUsers()->getCurrentWpUser();
 		}
 
 		/**
@@ -991,7 +991,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return integer
 		 */
 		public function getCurrentUserLevel() {
-			return $this->loadWpUsersProcessor()->getCurrentUserLevel();
+			return $this->loadWpUsers()->getCurrentUserLevel();
 		}
 
 		/**
@@ -1000,7 +1000,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return WP_User|null
 		 */
 		public function getUserById( $nId ) {
-			return $this->loadWpUsersProcessor()->getUserById( $nId );
+			return $this->loadWpUsers()->getUserById( $nId );
 		}
 
 		/**
@@ -1009,7 +1009,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return bool|WP_User
 		 */
 		public function getUserByUsername( $sUsername ) {
-			return $this->loadWpUsersProcessor()->getUserByUsername( $sUsername );
+			return $this->loadWpUsers()->getUserByUsername( $sUsername );
 		}
 
 		/**
@@ -1019,7 +1019,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return bool|string
 		 */
 		public function getUserMeta( $sKey, $nId = null ) {
-			return $this->loadWpUsersProcessor()->getUserMeta( $sKey, $nId );
+			return $this->loadWpUsers()->getUserMeta( $sKey, $nId );
 		}
 
 		/**
@@ -1027,7 +1027,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @param string $sRedirectUrl
 		 */
 		public function logoutUser( $sRedirectUrl = '' ) {
-			$this->loadWpUsersProcessor()->logoutUser( $sRedirectUrl );
+			$this->loadWpUsers()->logoutUser( $sRedirectUrl );
 		}
 
 		/**
@@ -1040,7 +1040,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return boolean
 		 */
 		public function updateUserMeta( $sKey, $mValue, $nId = null ) {
-			return $this->loadWpUsersProcessor()->updateUserMeta( $sKey, $mValue, $nId );
+			return $this->loadWpUsers()->updateUserMeta( $sKey, $mValue, $nId );
 		}
 
 		/**
@@ -1049,7 +1049,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return bool
 		 */
 		public function setUserLoggedIn( $sUsername ) {
-			return $this->loadWpUsersProcessor()->setUserLoggedIn( $sUsername );
+			return $this->loadWpUsers()->setUserLoggedIn( $sUsername );
 		}
 
 		/**

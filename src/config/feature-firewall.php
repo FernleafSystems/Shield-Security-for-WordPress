@@ -232,11 +232,6 @@
       "name": "Ignore Search Engines",
       "summary": "Ignore Search Engine Bot Traffic",
       "description": "The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them."
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
 

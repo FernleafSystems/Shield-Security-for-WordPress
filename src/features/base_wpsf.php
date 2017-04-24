@@ -11,7 +11,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ):
 		 * @return string
 		 */
 		public function getGoogleRecaptchaSecretKey() {
-			return apply_filters( $this->doPluginPrefix( 'google_recaptcha_secret_key' ), '' );
+			return apply_filters( $this->prefix( 'google_recaptcha_secret_key' ), '' );
 		}
 
 		/**
@@ -19,7 +19,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ):
 		 * @return string
 		 */
 		public function getGoogleRecaptchaSiteKey() {
-			return apply_filters( $this->doPluginPrefix( 'google_recaptcha_site_key' ), '' );
+			return apply_filters( $this->prefix( 'google_recaptcha_site_key' ), '' );
 		}
 
 		/**

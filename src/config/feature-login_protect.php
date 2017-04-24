@@ -261,18 +261,6 @@
       "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
     {
-      "key": "yubikey_unique_keys",
-      "section": "section_non_ui",
-      "sensitive": true,
-      "default": "",
-      "type": "yubikey_unique_keys",
-      "link_info": "http://icwp.io/4h",
-      "link_blog": "",
-      "name": "Yubikey Unique Keys",
-      "summary": "This method for Yubikeys is no longer supported. Please see your user profile.",
-      "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
-    },
-    {
       "key": "email_can_send_verified_at",
       "transferable": false,
       "section": "section_non_ui",
@@ -291,17 +279,6 @@
       "section": "section_non_ui"
     },
     {
-      "key": "last_login_time",
-      "transferable": false,
-      "section": "section_non_ui"
-    },
-    {
-      "key": "last_login_time_file_path",
-      "transferable": false,
-      "sensitive": true,
-      "section": "section_non_ui"
-    },
-    {
       "key": "two_factor_auth_table_created",
       "transferable": false,
       "section": "section_non_ui"
@@ -311,14 +288,10 @@
       "transferable": false,
       "value": true,
       "section": "section_non_ui"
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {
+    "login_intent_timeout": 5,
     "two_factor_auth_table_name": "login_auth",
     "two_factor_auth_table_columns": [
       "id",

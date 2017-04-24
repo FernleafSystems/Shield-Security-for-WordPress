@@ -27,11 +27,6 @@
       "name": "Email Throttle Limit",
       "summary": "Limit Emails Per Second",
       "description": "You throttle emails sent by this plugin by limiting the number of emails sent every second. This is useful in case you get hit by a bot attack. Zero (0) turns this off. Suggested: 10."
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ]
 }

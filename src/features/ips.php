@@ -34,7 +34,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
 			if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
-				$this->loadFileSystemProcessor(); // to ensure the necessary Class exist - we can clean this up later
+				$this->loadFS(); // to ensure the necessary Class exist - we can clean this up later
 				$sThisServerIp = $this->loadIpProcessor()->WhatIsMyIp();
 				if ( is_string( $sThisServerIp ) ) {
 					$this->setOpt( 'this_server_ip', $sThisServerIp );
@@ -95,7 +95,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 * @return array
 		 */
 		protected function formatIpListData( $aListData ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			foreach( $aListData as &$aListItem ) {
 				$aListItem[ 'ip_link' ] =
@@ -117,7 +117,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 * @return string
 		 */
 		public function getIpListsTableName() {
-			return $this->doPluginPrefix( $this->getDefinition( 'ip_lists_table_name' ), '_' );
+			return $this->prefix( $this->getDefinition( 'ip_lists_table_name' ), '_' );
 		}
 
 		public function doPrePluginOptionsSave() {
@@ -215,7 +215,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		}
 
 		protected function renderListTable( $sListToRender ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 			$aRenderData = array(
 				'list_id' => $sListToRender,
 				'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,
@@ -250,8 +250,8 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['section_slug'];
-			switch( $aOptionsParams['section_slug'] ) {
+			$sSectionSlug = $aOptionsParams['slug'];
+			switch( $sSectionSlug ) {
 
 				case 'section_enable_plugin_feature_ips' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
@@ -326,7 +326,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 		 * Hooked to the plugin's main plugin_shutdown action
 		 */
 		public function action_doFeatureShutdown() {
-			if ( ! $this->getIsPluginDeleting() ) {
+			if ( ! $this->isPluginDeleting() ) {
 				$this->addFilterIpsToWhiteList();
 				$this->ensureFeatureEnabled();
 			}

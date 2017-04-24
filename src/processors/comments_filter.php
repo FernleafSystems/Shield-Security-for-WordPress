@@ -10,8 +10,8 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeatureOptions();
-		add_filter( $oFO->doPluginPrefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		$oFO = $this->getFeature();
+		add_filter( $oFO->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		if ( $this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'commentsfilter_antibotspam.php' );
@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function getIfDoCommentsCheck( $bDoCheck ) {
-		return $bDoCheck && !$this->loadWpUsersProcessor()->isUserLoggedIn();
+		return $bDoCheck && !$this->loadWpUsers()->isUserLoggedIn();
 	}
 
 	/**
@@ -53,7 +53,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// We only warn when the human spam filter is running
 		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->getController()->getIsValidAdminArea() ) {
-			$oWp = $this->loadWpFunctionsProcessor();
+			$oWp = $this->loadWpFunctions();
 
 			$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
 			if ( $sActivePluginFile ) {
@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function doSetCommentStatus( $sApprovalStatus ) {
-		$sStatus = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status' ), '' );
+		$sStatus = apply_filters( $this->getFeature()->prefix( 'comments_filter_status' ), '' );
 		return empty( $sStatus ) ? $sApprovalStatus : $sStatus;
 	}
 
@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function doInsertCommentStatusExplanation( $sCommentContent ) {
 
-		$sExplanation = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status_explanation' ), '' );
+		$sExplanation = apply_filters( $this->getFeature()->prefix( 'comments_filter_status_explanation' ), '' );
 
 		// If either spam filtering process left an explanation, we add it here
 		if ( !empty( $sExplanation ) ) {
@@ -108,7 +108,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function doClearCommentNotificationEmail_Filter( $aEmails ) {
-		$sStatus = apply_filters( $this->getFeatureOptions()->doPluginPrefix( 'comments_filter_status' ), '' );
+		$sStatus = apply_filters( $this->getFeature()->prefix( 'comments_filter_status' ), '' );
 		if ( in_array( $sStatus, array( 'reject', 'trash' ) ) ) {
 			$aEmails = array();
 		}
