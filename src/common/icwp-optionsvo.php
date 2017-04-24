@@ -92,7 +92,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 */
 		public function getAllOptionsValues() {
-			return $this->loadOptionsValuesFromStorage();
+			return $this->getStoredOptions();
 		}
 
 		/**
@@ -212,54 +212,70 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		/**
 		 * @return array
 		 */
-		public function getLegacyOptionsConfigData() {
+		public function getOptionsForPluginUse() {
 
-			$aRawData = $this->getRawData_FullFeatureConfig();
-			$aLegacyData = array();
+			$aOptionsData = array();
 
-			foreach( $aRawData['sections'] as $nPosition => $aRawSection ) {
+			foreach( $this->getRawData_OptionsSections() as $aRawSection ) {
 
 				if ( isset( $aRawSection['hidden'] ) && $aRawSection['hidden'] ) {
 					continue;
 				}
 
-				$aLegacySection = array();
-				$aLegacySection['section_primary'] = isset( $aRawSection['primary'] ) && $aRawSection['primary'];
-				$aLegacySection['section_slug'] = $aRawSection['slug'];
-				$aLegacySection['section_options'] = array();
-				foreach( $this->getRawData_AllOptions() as $aRawOption ) {
+				$aRawSection = array_merge(
+					array(
+						'primary' => false,
+						'options' => $this->getOptionsForSection( $aRawSection[ 'slug' ] ),
+						'help_video_id' => ''
+					),
+					$aRawSection
+				);
 
-					if ( $aRawOption['section'] != $aRawSection['slug'] ) {
-						continue;
-					}
-
-					if ( isset( $aRawOption['hidden'] ) && $aRawOption['hidden'] ) {
-						continue;
-					}
-
-					$aLegacyRawOption = array();
-					$aLegacyRawOption['key'] = $aRawOption['key'];
-					$aLegacyRawOption['value'] = ''; //value
-					$aLegacyRawOption['default'] = $aRawOption['default'];
-					$aLegacyRawOption['type'] = $aRawOption['type'];
-
-					$aLegacyRawOption['value_options'] = array();
-					if ( in_array( $aLegacyRawOption['type'], array( 'select', 'multiple_select' ) ) ) {
-						foreach( $aRawOption['value_options'] as $aValueOptions ) {
-							$aLegacyRawOption['value_options'][ $aValueOptions['value_key'] ] = $aValueOptions['text'];
-						}
-					}
-
-					$aLegacyRawOption['info_link'] = isset( $aRawOption['link_info'] ) ? $aRawOption['link_info'] : '';
-					$aLegacyRawOption['blog_link'] = isset( $aRawOption['link_blog'] ) ? $aRawOption['link_blog'] : '';
-					$aLegacySection['section_options'][] = $aLegacyRawOption;
-				}
-
-				if ( count( $aLegacySection['section_options'] ) > 0 ) {
-					$aLegacyData[ $nPosition ] = $aLegacySection;
+				if ( !empty( $aRawSection[ 'options' ] ) ) {
+					$aOptionsData[] = $aRawSection;
 				}
 			}
-			return $aLegacyData;
+
+			return $aOptionsData;
+		}
+
+		/**
+		 * @param string $sSectionSlug
+		 * @return array[]
+		 */
+		protected function getOptionsForSection( $sSectionSlug ) {
+
+			$aAllOptions = array();
+			foreach( $this->getRawData_AllOptions() as $aOptionDef ) {
+
+				if ( ( $aOptionDef['section'] != $sSectionSlug ) || ( isset( $aOptionDef['hidden'] ) && $aOptionDef['hidden'] ) ) {
+					continue;
+				}
+
+				if ( isset( $aOptionDef['hidden'] ) && $aOptionDef['hidden'] ) {
+					continue;
+				}
+
+				$aOptionDef = array_merge(
+					array(
+						'link_info' => '',
+						'link_blog' => '',
+						'help_video_id' => '',
+						'value_options' => array()
+					),
+					$aOptionDef
+				);
+				$aOptionDef[ 'value' ] = $this->getOpt( $aOptionDef[ 'key' ] );
+
+				if ( in_array( $aOptionDef[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
+					foreach( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
+						$aOptionDef[ 'value_options' ][ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
+					}
+				}
+
+				$aAllOptions[] = $aOptionDef;
+			}
+			return $aAllOptions;
 		}
 
 		/**
@@ -348,6 +364,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 				foreach( $this->getRawData_AllOptions() as $aOption ) {
 					$this->aOptionsKeys[] = $aOption['key'];
 				}
+				$this->aOptionsKeys = array_merge( $this->aOptionsKeys, $this->getCommonStandardOptions() );
 			}
 			return $this->aOptionsKeys;
 		}
@@ -397,6 +414,16 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		protected function getRawData_AllOptions() {
 			$aAllRawOptions = $this->getRawData_FullFeatureConfig();
 			return isset( $aAllRawOptions['options'] ) ? $aAllRawOptions['options'] : array();
+		}
+
+		/**
+		 * Return the section of the Raw config that is the "options" key only.
+		 *
+		 * @return array
+		 */
+		protected function getRawData_OptionsSections() {
+			$aAllRawOptions = $this->getRawData_FullFeatureConfig();
+			return isset( $aAllRawOptions['sections'] ) ? $aAllRawOptions['sections'] : array();
 		}
 
 		/**
@@ -553,16 +580,20 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		/** PRIVATE STUFF */
 
 		/**
+		 * @return array
+		 */
+		protected function getCommonStandardOptions() {
+			return array( 'current_plugin_version', 'help_video_options' );
+		}
+
+		/**
 		 */
 		private function cleanOptions() {
-			if ( empty( $this->aOptionsValues ) || !is_array( $this->aOptionsValues ) ) {
-				return;
-			}
-			foreach( $this->aOptionsValues as $sKey => $mValue ) {
-				if ( !$this->getIsValidOptionKey( $sKey ) ) {
-					$this->setNeedSave( true );
-					unset( $this->aOptionsValues[$sKey] );
-				}
+			if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
+				$this->aOptionsValues = array_intersect_key(
+					$this->getAllOptionsValues(),
+					array_flip( $this->getOptionsKeys() )
+				);
 			}
 		}
 

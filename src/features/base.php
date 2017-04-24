@@ -340,8 +340,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 		/**
 		 * @param bool $bEnable
-		 *
-		 * @return bool
+		 * @return $this
 		 */
 		public function setIsMainFeatureEnabled( $bEnable ) {
 			return $this->setOpt( 'enable_'.$this->getFeatureSlug(), $bEnable ? 'Y' : 'N' );
@@ -539,16 +538,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 *
 		 * @param string $sOptionKey
 		 * @param mixed $mValue
-		 * @return boolean
+		 * @return $this
 		 */
 		protected function setOpt( $sOptionKey, $mValue ) {
 			$this->setBypassAdminProtection( true );
-			return $this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
+			$this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
+			return $this;
 		}
 
 		/**
-		 * TODO: Consider admin access restrictions
-		 *
 		 * @param array $aOptions
 		 */
 		public function setOptions( $aOptions ) {
@@ -566,6 +564,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$this->frontEndAjaxHandlers();
 			}
 		}
+
 		protected function adminAjaxHandlers() { }
 
 		protected function frontEndAjaxHandlers() { }
@@ -632,6 +631,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			remove_filter( $this->prefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
 		}
 
+		protected function updateOptionsVersion() {
+			if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
+				$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );
+				$this->getOptionsVo()->cleanTransientStorage();
+			}
+		}
+
 		/**
 		 * @param array $aAggregatedOptions
 		 * @return array
@@ -650,98 +656,94 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 */
 		public function buildOptions() {
 
-			$aOptions = $this->getOptionsVo()->getLegacyOptionsConfigData();
-			foreach ( $aOptions as $nSectionKey => $aOptionsSection ) {
+			$aOptions = $this->getOptionsVo()->getOptionsForPluginUse();
+			foreach ( $aOptions as $nSectionKey => $aSection ) {
 
-				if ( empty( $aOptionsSection ) || !isset( $aOptionsSection['section_options'] ) ) {
-					continue;
+				if ( !empty( $aSection[ 'options' ] ) ) {
+
+					foreach ( $aSection[ 'options' ] as $nKey => $aOptionParams ) {
+						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOptionParams );
+					}
+
+					if ( !empty( $aSection[ 'help_video_id' ] ) ) {
+						$aSection[ 'help_video_url' ] = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
+					}
+					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
 				}
-
-				foreach ( $aOptionsSection['section_options'] as $nKey => $aOptionParams ) {
-
-					$sOptionKey = $aOptionParams['key'];
-					$sOptionDefault = $aOptionParams['default'];
-					$sOptionType = $aOptionParams['type'];
-
-					if ( $this->getOpt( $sOptionKey ) === false ) {
-						$this->setOpt( $sOptionKey, $sOptionDefault );
-					}
-					$mCurrentOptionVal = $this->getOpt( $sOptionKey );
-
-					if ( $sOptionType == 'password' && !empty( $mCurrentOptionVal ) ) {
-						$mCurrentOptionVal = '';
-					}
-					else if ( $sOptionType == 'array' ) {
-
-						if ( empty( $mCurrentOptionVal ) || !is_array( $mCurrentOptionVal )  ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$mCurrentOptionVal = implode( "\n", $mCurrentOptionVal );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 2;
-					}
-					else if ( $sOptionType == 'yubikey_unique_keys' ) {
-
-						if ( empty( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$aDisplay = array();
-							foreach( $mCurrentOptionVal as $aParts ) {
-								$aDisplay[] = key($aParts) .', '. reset($aParts);
-							}
-							$mCurrentOptionVal = implode( "\n", $aDisplay );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
-					}
-					else if ( $sOptionType == 'comma_separated_lists' ) {
-
-						if ( empty( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = '';
-						}
-						else {
-							$aNewValues = array();
-							foreach( $mCurrentOptionVal as $sPage => $aParams ) {
-								$aNewValues[] = $sPage.', '. implode( ", ", $aParams );
-							}
-							$mCurrentOptionVal = implode( "\n", $aNewValues );
-						}
-						$aOptionParams[ 'rows' ] = substr_count( $mCurrentOptionVal, "\n" ) + 1;
-					}
-					else if ( $sOptionType == 'multiple_select' ) {
-						if ( !is_array( $mCurrentOptionVal ) ) {
-							$mCurrentOptionVal = array();
-						}
-					}
-
-					if ( $sOptionType == 'text' ) {
-						$mCurrentOptionVal = stripslashes( $mCurrentOptionVal );
-					}
-					$mCurrentOptionVal = is_scalar( $mCurrentOptionVal ) ? esc_attr( $mCurrentOptionVal ) : $mCurrentOptionVal;
-
-					$aOptionParams['value'] = $mCurrentOptionVal;
-
-					// Build strings
-					$aParamsWithStrings = $this->loadStrings_Options( $aOptionParams );
-					$aOptionsSection['section_options'][$nKey] = $aParamsWithStrings;
-				}
-
-				$aOptions[$nSectionKey] = $this->loadStrings_SectionTitles( $aOptionsSection );
 			}
 
 			return $aOptions;
 		}
 
 		/**
-		 * @param $aOptionsParams
+		 * @param array $aOptionParams
+		 * @return array
+		 */
+		protected function buildOptionForUi( $aOptionParams ) {
+
+			$mCurrentVal = $aOptionParams[ 'value' ];
+
+			switch ( $aOptionParams[ 'type' ] ) {
+
+				case 'password':
+					if ( !empty( $mCurrentVal ) ) {
+						$mCurrentVal = '';
+					}
+					break;
+
+				case 'array':
+
+					if ( empty( $mCurrentVal ) || !is_array( $mCurrentVal )  ) {
+						$mCurrentVal = array();
+					}
+
+					$aOptionParams[ 'rows' ] = count( $mCurrentVal ) + 1;
+					$mCurrentVal = implode( "\n", $mCurrentVal );
+
+					break;
+
+				case 'comma_separated_lists':
+
+					$aNewValues = array();
+					if ( !empty( $mCurrentVal ) && is_array( $mCurrentVal ) ) {
+
+						foreach( $mCurrentVal as $sPage => $aParams ) {
+							$aNewValues[] = $sPage.', '. implode( ", ", $aParams );
+						}
+					}
+					$aOptionParams[ 'rows' ] = count( $aNewValues ) + 1;
+					$mCurrentVal = implode( "\n", $aNewValues );
+
+					break;
+
+				case 'multiple_select':
+					if ( !is_array( $mCurrentVal ) ) {
+						$mCurrentVal = array();
+					}
+					break;
+
+				case 'text':
+					$mCurrentVal = stripslashes( $mCurrentVal );
+					break;
+			}
+
+			$aOptionParams['value'] = is_scalar( $mCurrentVal ) ? esc_attr( $mCurrentVal ) : $mCurrentVal;
+
+			// add strings
+			return $this->loadStrings_Options( $aOptionParams );
+		}
+
+		/**
+		 * @param array $aOptionsParams
+		 * @return array
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
 			return $aOptionsParams;
 		}
 
 		/**
-		 * @param $aOptionsParams
+		 * @param array $aOptionsParams
+		 * @return array
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 			return $aOptionsParams;
@@ -751,13 +753,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * This is the point where you would want to do any options verification
 		 */
 		protected function doPrePluginOptionsSave() { }
-
-		protected function updateOptionsVersion() {
-			if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
-				$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );
-				$this->getOptionsVo()->cleanTransientStorage();
-			}
-		}
 
 		/**
 		 * Deletes all the options including direct save.
@@ -782,7 +777,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				if ( empty( $aOptionsSection ) ) {
 					continue;
 				}
-				foreach ( $aOptionsSection['section_options'] as $aOption ) {
+				foreach ( $aOptionsSection['options'] as $aOption ) {
 					$aToJoin[] = $aOption['type'].':'.$aOption['key'];
 				}
 			}
@@ -792,12 +787,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 */
 		public function handleFormSubmit() {
-			$bVerified = $this->verifyFormSubmit();
 
-			if ( !$bVerified ) {
+			if ( !$this->verifyFormSubmit() ) {
 				return false;
 			}
-
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
 			return true;
@@ -814,16 +807,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @return bool
+		 * @return void
 		 */
 		protected function doSaveStandardOptions() {
-			$oDp = $this->loadDataProcessor();
-			$sAllOptions = $oDp->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
+			$sAllOptions = $this->loadDataProcessor()
+								->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
 
-			if ( empty( $sAllOptions ) ) {
-				return true;
+			if ( !empty( $sAllOptions ) ) {
+				$this->updatePluginOptionsFromSubmit( $sAllOptions );
 			}
-			return $this->updatePluginOptionsFromSubmit( $sAllOptions ); //it also saves
 		}
 
 		protected function doExtraSubmitProcessing() { }
@@ -839,11 +831,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 		/**
 		 * @param string $sAllOptionsInput - comma separated list of all the input keys to be processed from the $_POST
-		 * @return void|boolean
+		 * @return void
 		 */
 		public function updatePluginOptionsFromSubmit( $sAllOptionsInput ) {
 			if ( empty( $sAllOptionsInput ) ) {
-				return true;
+				return;
 			}
 			$oDp = $this->loadDataProcessor();
 
@@ -882,9 +874,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					}
 					else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 						$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
-					}
-					else if ( $sOptionType == 'yubikey_unique_keys' ) { //ip addresses are textareas, where each is separated by newline and are 12 chars long
-						$sOptionValue = $oDp->CleanYubikeyUniqueKeys( $sOptionValue );
 					}
 					else if ( $sOptionType == 'email' && function_exists( 'is_email' ) && !is_email( $sOptionValue ) ) {
 						$sOptionValue = '';
@@ -955,35 +944,48 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		protected function getBaseDisplayData() {
 			$oCon = self::getController();
 			self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
+
 			return array(
-				'var_prefix'		=> $oCon->getOptionStoragePrefix(),
-				'sPluginName'		=> $oCon->getHumanName(),
-				'sFeatureName'		=> $this->getMainFeatureName(),
-				'bFeatureEnabled'	=> $this->getIsMainFeatureEnabled(),
-				'sTagline'			=> $this->getOptionsVo()->getFeatureTagline(),
-				'fShowAds'			=> $this->getIsShowMarketing(),
-				'nonce_field'		=> wp_nonce_field( $oCon->getPluginPrefix() ),
-				'sFeatureSlug'		=> $this->prefix( $this->getFeatureSlug() ),
-				'form_action'		=> 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
-				'nOptionsPerRow'	=> 1,
-				'aPluginLabels'		=> $oCon->getPluginLabels(),
+				'var_prefix'      => $oCon->getOptionStoragePrefix(),
+				'sPluginName'     => $oCon->getHumanName(),
+				'sFeatureName'    => $this->getMainFeatureName(),
+				'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
+				'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
+				'fShowAds'        => $this->getIsShowMarketing(),
+				'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix() ),
+				'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
+				'form_action'     => 'admin.php?page=' . $this->prefix( $this->getFeatureSlug() ),
+				'nOptionsPerRow'  => 1,
+				'aPluginLabels'   => $oCon->getPluginLabels(),
+				'help_video'      => array(
+					'auto_show'   => $this->getIfAutoShowHelpVideo(),
+					'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),
+					'display_id'  => 'ShieldHelpVideo' . $this->getFeatureSlug(),
+					'options'     => $this->getHelpVideoOptions(),
+					'displayable' => $this->isHelpVideoDisplayable(),
+					'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
+					'width'       => 772,
+					'height'      => 454,
+				),
+				'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
 
-				'bShowStateSummary'	=> false,
-				'aSummaryData'		=> apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+				'bShowStateSummary' => false,
+				'aSummaryData'      => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
-				'aAllOptions'		=> $this->buildOptions(),
-				'aHiddenOptions'	=> $this->getOptionsVo()->getHiddenOptions(),
-				'all_options_input'	=> $this->collateAllFormInputsForAllOptions(),
+				'aAllOptions'       => $this->buildOptions(),
+				'aHiddenOptions'    => $this->getOptionsVo()->getHiddenOptions(),
+				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 
-				'sPageTitle'		=> sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-				'strings'			=> array(
-					'go_to_settings' => __( 'Settings' ),
-					'on' => __( 'On' ),
-					'off' => __( 'Off' ),
-					'more_info' => __( 'More Info' ),
-					'blog' => __( 'Blog' ),
+				'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+				'strings'    => array(
+					'go_to_settings'                    => __( 'Settings' ),
+					'on'                                => __( 'On' ),
+					'off'                               => __( 'Off' ),
+					'more_info'                         => __( 'More Info' ),
+					'blog'                              => __( 'Blog' ),
 					'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
-					'save_all_settings' => __( 'Save All Settings' ),
+					'save_all_settings'                 => __( 'Save All Settings' ),
+					'see_help_video'                    => __( 'Watch Help Video' )
 				)
 			);
 		}
@@ -1168,6 +1170,123 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				}
 			}
 			return $aOptionsData;
+		}
+
+		/** Help Video options */
+
+		/**
+		 * @return array
+		 */
+		protected function getHelpVideoOptions() {
+			$aOptions = $this->getOpt( 'help_video_options', array() );
+			if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
+				$aOptions = array(
+					'closed' => false,
+					'displayed' => false,
+					'played' => false,
+				);
+				$this->setOpt( 'help_video_options', $aOptions );
+			}
+			return $aOptions;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getHelpVideoHasBeenClosed() {
+			return (bool)$this->getHelpVideoOption( 'closed' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getHelpVideoHasBeenDisplayed() {
+			return (bool)$this->getHelpVideoOption( 'displayed' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getVideoHasBeenPlayed() {
+			return (bool)$this->getHelpVideoOption( 'played' );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return mixed|null
+		 */
+		protected function getHelpVideoOption( $sKey ) {
+			$aOpts = $this->getHelpVideoOptions();
+			return isset( $aOpts[ $sKey ] ) ? $aOpts[ $sKey ] : null;
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getIfAutoShowHelpVideo() {
+			return !$this->getHelpVideoHasBeenClosed();
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getHelpVideoId() {
+			return $this->getDefinition( 'help_video_id' );
+		}
+
+		/**
+		 * @param string $sId
+		 * @return string
+		 */
+		protected function getHelpVideoUrl( $sId ) {
+			return sprintf( 'https://player.vimeo.com/video/%s', $sId );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isHelpVideoDisplayable() {
+			$sId = $this->getHelpVideoId();
+			return !empty( $sId );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function resetHelpVideoOptions() {
+			return $this->setOpt( 'help_video_options', array() );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function setHelpVideoClosed() {
+			return $this->setHelpVideoOption( 'closed', true );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function setHelpVideoDisplayed() {
+			return $this->setHelpVideoOption( 'displayed', true );
+		}
+
+		/**
+		 * @return $this
+		 */
+		protected function setHelpVideoPlayed() {
+			return $this->setHelpVideoOption( 'played', true );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param string|bool|int $mValue
+		 * @return $this
+		 */
+		protected function setHelpVideoOption( $sKey, $mValue ) {
+			$aOpts = $this->getHelpVideoOptions();
+			$aOpts[ $sKey ] = $mValue;
+			return $this->setOpt( 'help_video_options', $aOpts );
 		}
 	}
 

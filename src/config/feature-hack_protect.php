@@ -72,11 +72,6 @@
       "name": "Auto Repair",
       "summary": "Automatically Repair WordPress Core Files That Have Been Altered",
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {
@@ -85,6 +80,7 @@
     "corechecksum_cron_name": "core-checksum-notification",
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn": "https://core.svn.wordpress.org/",
+    "url_wordress_core_svn_il8n": "https://svn.automattic.com/wordpress-i18n/",
     "corechecksum_exclusions": [
       "readme.html",
       "license.txt",
@@ -96,7 +92,7 @@
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "corechecksum_autofix_index_files": [
+    "corechecksum_autofix": [
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"

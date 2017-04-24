@@ -181,11 +181,6 @@
       "name": "Report Email Address",
       "summary": "Where to send upgrade notification reports",
       "description": "If this is empty, it will default to the Site Admin email address"
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

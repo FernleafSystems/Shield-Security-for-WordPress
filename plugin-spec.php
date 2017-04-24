@@ -27,7 +27,11 @@
   "includes": {
     "admin": {
       "css": [
-        "global-plugin"
+        "global-plugin",
+        "featherlight"
+      ],
+      "js": [
+        "featherlight"
       ]
     },
     "plugin_admin": {

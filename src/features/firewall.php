@@ -39,7 +39,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			switch( $aOptionsParams['section_slug'] ) {
+			switch( $aOptionsParams['slug'] ) {
 
 				case 'section_enable_plugin_feature_wordpress_firewall' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );

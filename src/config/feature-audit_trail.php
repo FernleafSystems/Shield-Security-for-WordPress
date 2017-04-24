@@ -142,11 +142,6 @@
       "name": "Shield",
       "summary": "Enable Audit Context - Shield",
       "description": "When this context is enabled, the audit trail will track activity relating to: Shield"
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {

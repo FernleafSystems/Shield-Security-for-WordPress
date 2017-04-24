@@ -191,14 +191,10 @@
       ],
       "link_info": "http://icwp.io/wpsf21",
       "link_blog": ""
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
-      "section": "section_non_ui"
     }
   ],
   "definitions": {
+    "help_video_id": "",
     "admin_access_key_cookie_name": "icwp_wpsf_aakcook",
     "admin_access_options_to_restrict": {
       "wpms_options": [

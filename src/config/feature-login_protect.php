@@ -261,18 +261,6 @@
       "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
     {
-      "key": "yubikey_unique_keys",
-      "section": "section_non_ui",
-      "sensitive": true,
-      "default": "",
-      "type": "yubikey_unique_keys",
-      "link_info": "http://icwp.io/4h",
-      "link_blog": "",
-      "name": "Yubikey Unique Keys",
-      "summary": "This method for Yubikeys is no longer supported. Please see your user profile.",
-      "description": "Format: Username,Yubikey. Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey."
-    },
-    {
       "key": "email_can_send_verified_at",
       "transferable": false,
       "section": "section_non_ui",
@@ -299,11 +287,6 @@
       "key": "use_login_intent_page",
       "transferable": false,
       "value": true,
-      "section": "section_non_ui"
-    },
-    {
-      "key": "current_plugin_version",
-      "transferable": false,
       "section": "section_non_ui"
     }
   ],

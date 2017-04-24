@@ -231,8 +231,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sSectionSlug = $aOptionsParams['section_slug'];
-		switch( $aOptionsParams['section_slug'] ) {
+		$sSectionSlug = $aOptionsParams[ 'slug' ];
+		switch( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
