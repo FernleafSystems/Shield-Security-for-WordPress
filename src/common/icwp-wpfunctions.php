@@ -350,6 +350,21 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param stdClass|string $mItem
+		 * @param string          $sContext from plugin|theme
+		 * @return string
+		 */
+		public function getFileFromAutomaticUpdateItem( $mItem, $sContext = 'plugin' ) {
+			if ( is_object( $mItem ) && isset( $mItem->{$sContext} ) )  { // WP 3.8.2+
+				$mItem = $mItem->{$sContext};
+			}
+			else if ( !is_string( $mItem ) ) { // WP pre-3.8.2
+				$mItem = '';
+			}
+			return $mItem;
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getThemes() {

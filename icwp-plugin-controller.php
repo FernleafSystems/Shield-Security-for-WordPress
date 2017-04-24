@@ -256,7 +256,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_filter( 'site_transient_update_plugins',	array( $this, 'filter_hidePluginUpdatesFromUI' ) );
 		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
-		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 10001, 2 );
+		add_filter( 'auto_update_plugin',						array( $this, 'onWpAutoUpdate' ), 500, 2 );
 		add_filter( 'set_site_transient_update_plugins',		array( $this, 'setUpdateFirstDetectedAt' ) );
 
 		add_action( 'shutdown',							array( $this, 'onWpShutdown' ) );
@@ -659,32 +659,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.
 	 *
-	 * @param boolean $bDoAutoUpdate
-	 * @param string|object $mItemToUpdate
+	 * @param boolean       $bDoAutoUpdate
+	 * @param string|object $mItem
 	 * @return boolean
 	 */
-	public function onWpAutoUpdate( $bDoAutoUpdate, $mItemToUpdate ) {
+	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
+		$oWp = $this->loadWpFunctions();
 
-		if ( is_object( $mItemToUpdate ) && !empty( $mItemToUpdate->plugin ) ) { // 3.8.2+
-			$sItemFile = $mItemToUpdate->plugin;
-		}
-		else if ( is_string( $mItemToUpdate ) && !empty( $mItemToUpdate ) ) { //pre-3.8.2
-			$sItemFile = $mItemToUpdate;
-		}
-		else {
-			// at this point we don't have a slug/file to use so we just return the current update setting
-			return $bDoAutoUpdate;
-		}
+		$sItemFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
 
 		// The item in question is this plugin...
 		if ( $sItemFile === $this->getPluginBaseFile() ) {
 			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
 
-			$oWp = $this->loadWpFunctions();
 			$oConOptions = $this->getPluginControllerOptions();
 
 			if ( !$oWp->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
-				$sAutoupdateSpec = 'yes';
+				$sAutoupdateSpec = 'yes'; // so that we appear to be automatically updating
 			}
 
 			switch( $sAutoupdateSpec ) {
@@ -703,7 +694,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
 						$nTimeUpdateAvailable =  $this->loadDataProcessor()->time() - $nFirstDetected;
-						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * 2 ) );
+						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > WEEK_IN_SECONDS ) );
 					}
 					break;
 
@@ -725,7 +716,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param array $aPlugins
-	 *
 	 * @return array
 	 */
 	public function doPluginLabels( $aPlugins ) {

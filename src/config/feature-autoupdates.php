@@ -79,17 +79,6 @@
       "description": "When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!"
     },
     {
-      "key": "autoupdate_plugin_self",
-      "section": "section_automatic_plugin_self_update",
-      "default": "Y",
-      "type": "checkbox",
-      "link_info": "http://icwp.io/3u",
-      "link_blog": "",
-      "name": "Auto Update Plugin",
-      "summary": "Always Automatically Update This Plugin",
-      "description": "Regardless of any component settings below, automatically update the Shield plugin."
-    },
-    {
       "key": "autoupdate_core",
       "section": "section_automatic_updates_for_wordpress_components",
       "default": "core_minor",

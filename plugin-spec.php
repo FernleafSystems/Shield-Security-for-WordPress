@@ -10,7 +10,7 @@
     "wpms_network_admin_only": true,
     "logging_enabled": true,
     "show_dashboard_widget": true,
-    "autoupdate": "pass",
+    "autoupdate": "confidence",
     "options_encoding": "json"
   },
   "requirements": {
