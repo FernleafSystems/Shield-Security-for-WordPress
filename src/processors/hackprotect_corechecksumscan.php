@@ -25,7 +25,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 							$sPath = '/' . trim( $oDp->FetchGet( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
 							$sMd5FilePath = urldecode( esc_url( $sPath ) );
 							if ( !empty( $sMd5FilePath ) ) {
-								if ( $this->replaceFileContentsWithOfficial( $sMd5FilePath ) ) {
+								if ( $this->repairCoreFile( $sMd5FilePath ) ) {
 									$this->loadAdminNoticesProcessor()
 										 ->addFlashMessage(
 											 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
@@ -111,7 +111,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				}
 
 				if ( $bRepairThis ) {
-					$this->replaceFileContentsWithOfficial( $sMd5FilePath );
+					$this->repairCoreFile( $sMd5FilePath );
 				}
 			}
 
@@ -143,7 +143,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				|| ( $this->loadDataProcessor()->FetchGet( 'checksum_repair' ) == 1 );
 
 			$aDiscoveredFiles = $this->doChecksumScan( $bOptionRepair );
-
 			if ( !empty( $aDiscoveredFiles[ 'checksum_mismatch' ] ) || !empty( $aDiscoveredFiles[ 'missing' ] ) ) {
 				$this->sendChecksumErrorNotification( $aDiscoveredFiles );
 			}
@@ -178,13 +177,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		}
 
 		/**
-		 * @param $sPath
-		 * @return false|string
+		 * @param string $sPath
+		 * @param bool $bUseLocale
+		 * @return string
 		 */
-		protected function downloadSingleWordPressCoreFile( $sPath ) {
+		protected function retrieveCoreFileContent( $sPath, $bUseLocale = true ) {
 			$sLocale = $this->loadWpFunctions()->getLocale( true );
-			$bInternational = $sLocale != 'en_US';
-			if ( $bInternational ) {
+			$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
+			if ( $bUseInternational ) {
 				$sRootUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn_il8n' ).$sLocale;
 			}
 			else {
@@ -194,20 +194,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				'%s/tags/%s/%s',
 				$sRootUrl,
 				$this->loadWpFunctions()->getWordpressVersion(),
-				( $bInternational ? 'dist/' : '' ) . $sPath
+				( $bUseInternational ? 'dist/' : '' ) . $sPath
 			);
-			return $this->loadFS()->getUrlContent( $sFileUrl );
+
+			$sContent = (string)$this->loadFS()->getUrlContent( $sFileUrl );
+			if ( $bUseInternational && empty( $sContent ) ) {
+				$sContent = $this->retrieveCoreFileContent( $sPath, false );
+			} // we'll try international retrieval and if it fails, we resort to en_US.
+			return $sContent;
 		}
 
 		/**
 		 * @param string $sMd5FilePath
 		 * @return bool
 		 */
-		protected function replaceFileContentsWithOfficial( $sMd5FilePath ) {
+		protected function repairCoreFile( $sMd5FilePath ) {
 			$this->doStatIncrement( 'file.corechecksum.replaced' );
 
 			$sMd5FilePath = ltrim( $sMd5FilePath, '/' ); // ltrim() ensures we haven't received an absolute path. e.g. replace file
-			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sMd5FilePath );
+			$sOfficialContent = $this->retrieveCoreFileContent( $sMd5FilePath );
 			if ( !empty( $sOfficialContent ) ) {
 				return $this->loadFS()->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );
 			}
