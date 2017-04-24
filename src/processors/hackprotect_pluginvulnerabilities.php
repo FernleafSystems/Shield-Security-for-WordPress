@@ -215,7 +215,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			$oFO = $this->getFeature();
 
 			$sSource = $oFO->getDefinition( 'plugin_vulnerabilities_data_source' );
-			$sRawSource = $this->loadFileSystemProcessor()->getUrlContent( $sSource );
+			$sRawSource = $this->loadFS()->getUrlContent( $sSource );
 			if ( $sRawSource === false ) {
 				return false;
 			}

@@ -122,7 +122,7 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		/**
 		 */
 		public function resetAuthKeysSalts() {
-			$oWpFs = $this->loadFileSystemProcessor();
+			$oWpFs = $this->loadFS();
 
 			// Get the new Salts
 			$sSaltsUrl = 'https://api.wordpress.org/secret-key/1.1/salt/';

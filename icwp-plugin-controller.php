@@ -379,7 +379,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$this->aImportedOptions = array();
 
 			$sFile = path_join( $this->getRootDir(), 'shield_options_export.txt' );
-			$oFS = $this->loadFileSystemProcessor();
+			$oFS = $this->loadFS();
 			if ( $oFS->isFile( $sFile ) ) {
 				$sOptionsString = $oFS->getFileContent( $sFile );
 				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
@@ -773,7 +773,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function deleteFlags() {
-		$oFS = $this->loadFileSystemProcessor();
+		$oFS = $this->loadFS();
 		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
 			$oFS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
@@ -1071,7 +1071,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oConOptions = $this->getPluginControllerOptions();
 		$sSpecPath = $this->getPathPluginSpec();
 		$sCurrentHash = @md5_file( $sSpecPath );
-		$sModifiedTime = $this->loadFileSystemProcessor()->getModifiedTime( $sSpecPath );
+		$sModifiedTime = $this->loadFS()->getModifiedTime( $sSpecPath );
 
 		if ( empty( $oConOptions->plugin_spec ) ) {
 			$this->bRebuildOptions = true;
@@ -1089,7 +1089,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$this->bRebuildOptions = $sModifiedTime > $oConOptions->mod_time;
 		}
 		else {
-			$this->bRebuildOptions = (bool) $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'rebuild' ) );
+			$this->bRebuildOptions = (bool) $this->loadFS()->isFile( $this->getPath_Flags( 'rebuild' ) );
 		}
 		$oConOptions->hash = $sCurrentHash;
 		$oConOptions->mod_time = $sModifiedTime;
@@ -1101,7 +1101,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsResetPlugin() {
 		if ( !isset( $this->bResetPlugin ) ) {
-			$bExists = $this->loadFileSystemProcessor()->isFile( $this->getPath_Flags( 'reset' ) );
+			$bExists = $this->loadFS()->isFile( $this->getPath_Flags( 'reset' ) );
 			$this->bResetPlugin = (bool)$bExists;
 		}
 		return $this->bResetPlugin;
@@ -1157,7 +1157,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Asset( $sAsset ) {
-		if ( $this->loadFileSystemProcessor()->exists( $this->getPath_Assets( $sAsset ) ) ) {
+		if ( $this->loadFS()->exists( $this->getPath_Assets( $sAsset ) ) ) {
 			return $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
 		}
 		return '';
@@ -1218,7 +1218,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sTempPath = $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . DIRECTORY_SEPARATOR;
 		if ( $oFs->mkdir( $sTempPath ) ) {
 			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR.$sTmpFile;
@@ -1430,7 +1430,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getIfOverrideOff() {
 		if ( !isset( $this->bForceOffState ) ) {
-			$this->bForceOffState = $this->loadFileSystemProcessor()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
+			$this->bForceOffState = $this->loadFS()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
 		}
 		return $this->bForceOffState;
 	}

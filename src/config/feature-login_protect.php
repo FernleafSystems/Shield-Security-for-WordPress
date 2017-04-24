@@ -279,17 +279,6 @@
       "section": "section_non_ui"
     },
     {
-      "key": "last_login_time",
-      "transferable": false,
-      "section": "section_non_ui"
-    },
-    {
-      "key": "last_login_time_file_path",
-      "transferable": false,
-      "sensitive": true,
-      "section": "section_non_ui"
-    },
-    {
       "key": "two_factor_auth_table_created",
       "transferable": false,
       "section": "section_non_ui"

@@ -94,15 +94,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @param int $nTime
-		 * @return $this
-		 */
-		public function updateLastLoginTime( $nTime ) {
-			$this->setOpt( 'last_login_time', $nTime );
-			return $this;
-		}
-
-		/**
 		 * @return string
 		 */
 		private function cleanLoginUrlPath() {
@@ -139,15 +130,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				return array_keys( $aTwoAuthRoles );
 			}
 			return $aTwoAuthRoles;
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getLastLoginTimeFilePath() {
-			// we always update it (but it wont need saved because we compare)
-			$this->setOpt( 'last_login_time_file_path', self::getController()->getRootDir().'mode.login_throttled' );
-			return $this->getOpt( 'last_login_time_file_path' );
 		}
 
 		/**

@@ -73,7 +73,7 @@ if ( !class_exists( 'ICWP_WPSF_Foundation', false ) ) :
 		/**
 		 * @return ICWP_WPSF_WpFilesystem
 		 */
-		static public function loadFileSystemProcessor() {
+		static public function loadFS() {
 			if ( !isset( self::$oFs ) ) {
 				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-wpfilesystem.php' );
 				self::$oFs = ICWP_WPSF_WpFilesystem::GetInstance();

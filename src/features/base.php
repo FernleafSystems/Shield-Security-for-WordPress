@@ -1047,7 +1047,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 			}
 
 			if ( empty( $sSubView ) ) {
-				$oWpFs = $this->loadFileSystemProcessor();
+				$oWpFs = $this->loadFS();
 				$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
 				if ( $oWpFs->exists( $oCon->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
 					$sSubView = $sFeatureInclude;
