@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function getLastLoginTime() {
 		$sFile = $this->getLastLoginTimeFilePath();
-		return $this->loadFS()->exists( $sFile ) ? filemtime( $sFile ) : $this->getOption( 'last_login_time' );
+		return $this->loadFS()->exists( $sFile ) ? filemtime( $sFile ) : 0;
 	}
 
 	/**
@@ -90,11 +90,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	/**
 	 */
 	protected function updateLastLoginTime() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$nTime = $this->time();
-		$oFO->updateLastLoginTime( $nTime );
-		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $nTime );
+		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
 	}
 
 	/**

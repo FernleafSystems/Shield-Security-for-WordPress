@@ -94,15 +94,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
-		 * @param int $nTime
-		 * @return $this
-		 */
-		public function updateLastLoginTime( $nTime ) {
-			$this->setOpt( 'last_login_time', $nTime );
-			return $this;
-		}
-
-		/**
 		 * @return string
 		 */
 		private function cleanLoginUrlPath() {
