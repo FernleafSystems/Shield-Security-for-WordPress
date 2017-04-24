@@ -268,9 +268,11 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 				$aOptionDef[ 'value' ] = $this->getOpt( $aOptionDef[ 'key' ] );
 
 				if ( in_array( $aOptionDef[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
+					$aNewValueOptions = array();
 					foreach( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
-						$aOptionDef[ 'value_options' ][ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
+						$aNewValueOptions[ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
 					}
+					$aOptionDef[ 'value_options' ] = $aNewValueOptions;
 				}
 
 				$aAllOptions[] = $aOptionDef;
