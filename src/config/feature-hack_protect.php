@@ -80,10 +80,10 @@
     "corechecksum_cron_name": "core-checksum-notification",
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn": "https://core.svn.wordpress.org/",
+    "url_wordress_core_svn_il8n": "https://svn.automattic.com/wordpress-i18n/",
     "corechecksum_exclusions": [
       "readme.html",
       "license.txt",
-      "licenza.html",
       "licens-sv_SE.txt",
       "wp-config-sample.php",
       "wp-content/"

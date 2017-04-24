@@ -182,8 +182,20 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		 * @return false|string
 		 */
 		protected function downloadSingleWordPressCoreFile( $sPath ) {
-			$sBaseSvnUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctions()->getWordpressVersion().'/';
-			$sFileUrl = path_join( $sBaseSvnUrl, $sPath );
+			$sLocale = $this->loadWpFunctions()->getLocale( true );
+			$bInternational = $sLocale != 'en_US';
+			if ( $bInternational ) {
+				$sRootUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn_il8n' ).$sLocale;
+			}
+			else {
+				$sRootUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' );
+			}
+			$sFileUrl = sprintf(
+				'%s/tags/%s/%s',
+				$sRootUrl,
+				$this->loadWpFunctions()->getWordpressVersion(),
+				( $bInternational ? 'dist/' : '' ) . $sPath
+			);
 			return $this->loadFS()->getUrlContent( $sFileUrl );
 		}
 
