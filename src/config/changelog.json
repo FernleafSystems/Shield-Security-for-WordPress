@@ -46,6 +46,16 @@
   },
   "changelog": [
     {
+      "type": "improved",
+      "summary": "The core file scanner now works more reliably for international WordPress installations.",
+      "version": "5.8.2"
+    },
+    {
+      "type": "changed",
+      "summary": "Login Cooldown now uses only the flag file as an indicator of login times.",
+      "version": "5.8.2"
+    },
+    {
       "type": "added",
       "summary": "Filter to allow for changing the login two factor timeout period, from 5 (minutes). Filter: icwp-wpsf-login_intent_timeout",
       "version": "5.8.2"
