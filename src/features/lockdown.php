@@ -154,7 +154,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 		}
 
 		protected function getCanDoAuthSalts() {
-			$oWpFs = $this->loadFileSystemProcessor();
+			$oWpFs = $this->loadFS();
 
 			if ( !$oWpFs->getCanWpRemoteGet() ) {
 				return false;

@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return null|string
 	 */
 	protected function getSpamBlacklist() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sBLFile = $this->getSpamBlacklistFile();
 
 		// first, does the file exist? If not import
@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function readSpamList() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sBLFile = $this->getSpamBlacklistFile();
 		if ( $oFs->exists( $sBLFile ) ) {
 			$sList = $oFs->getFileContent( $sBLFile );
@@ -168,14 +168,14 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	/**
 	 */
 	protected function doSpamBlacklistUpdate() {
-		$this->loadFileSystemProcessor()->deleteFile( $this->getSpamBlacklistFile() );
+		$this->loadFS()->deleteFile( $this->getSpamBlacklistFile() );
 		$this->doSpamBlacklistImport();
 	}
 
 	/**
 	 */
 	protected function doSpamBlacklistImport() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		$sBLFile = $this->getSpamBlacklistFile();
 		if ( !$oFs->exists( $sBLFile ) ) {
 
@@ -208,7 +208,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function doSpamBlacklistDownload() {
-		$oFs = $this->loadFileSystemProcessor();
+		$oFs = $this->loadFS();
 		return $oFs->getUrlContent( self::Spam_Blacklist_Source );
 	}
 

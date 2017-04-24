@@ -144,15 +144,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		/**
 		 * @return string
 		 */
-		public function getLastLoginTimeFilePath() {
-			// we always update it (but it wont need saved because we compare)
-			$this->setOpt( 'last_login_time_file_path', self::getController()->getRootDir().'mode.login_throttled' );
-			return $this->getOpt( 'last_login_time_file_path' );
-		}
-
-		/**
-		 * @return string
-		 */
 		public function getCustomLoginPath() {
 			return $this->getOpt( 'rename_wplogin_path', '' );
 		}

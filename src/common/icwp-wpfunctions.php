@@ -153,7 +153,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 					'locale'	=> $this->getLocale( true )
 				);
 				$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
-				$sResponse = $this->loadFileSystemProcessor()->getUrlContent( $sQueryUrl );
+				$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
 				if ( !empty( $sResponse ) ) {
 					$aDecodedResponse = json_decode( trim( $sResponse ), true );
 					if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse['checksums'] ) && is_array( $aDecodedResponse['checksums'] ) ) {

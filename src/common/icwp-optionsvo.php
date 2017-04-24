@@ -650,7 +650,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 */
 		private function getConfigFileExists() {
 			$sPath = $this->getConfigFilePath();
-			return !empty( $sPath ) && $this->loadFileSystemProcessor()->isFile( $sPath );
+			return !empty( $sPath ) && $this->loadFS()->isFile( $sPath );
 		}
 
 		/**

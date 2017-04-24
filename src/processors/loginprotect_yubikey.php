@@ -195,7 +195,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			$sOneTimePassword,
 			$sNonce
 		);
-		$sRawYubiRequest = $this->loadFileSystemProcessor()->getUrlContent( $sUrl );
+		$sRawYubiRequest = $this->loadFS()->getUrlContent( $sUrl );
 
 		$bMatchOtpAndNonce = preg_match( '/otp=' . $sOneTimePassword . '/', $sRawYubiRequest, $aMatches )
 			&& preg_match( '/nonce=' . $sNonce . '/', $sRawYubiRequest, $aMatches );

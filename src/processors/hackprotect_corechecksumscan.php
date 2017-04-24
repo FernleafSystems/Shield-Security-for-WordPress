@@ -84,7 +84,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			$sFullExclusionsPattern = '#('.implode('|', $this->getFullExclusions() ).')#i';
 			$sMissingOnlyExclusionsPattern = '#('.implode('|', $this->getMissingOnlyExclusions() ).')#i';
 
-			$oFS = $this->loadFileSystemProcessor();
+			$oFS = $this->loadFS();
 			foreach ( $aChecksumData as $sMd5FilePath => $sWpOrgChecksum ) {
 				if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
 					continue;
@@ -184,7 +184,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 		protected function downloadSingleWordPressCoreFile( $sPath ) {
 			$sBaseSvnUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWpFunctions()->getWordpressVersion().'/';
 			$sFileUrl = path_join( $sBaseSvnUrl, $sPath );
-			return $this->loadFileSystemProcessor()->getUrlContent( $sFileUrl );
+			return $this->loadFS()->getUrlContent( $sFileUrl );
 		}
 
 		/**
@@ -197,7 +197,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 			$sMd5FilePath = ltrim( $sMd5FilePath, '/' ); // ltrim() ensures we haven't received an absolute path. e.g. replace file
 			$sOfficialContent = $this->downloadSingleWordPressCoreFile( $sMd5FilePath );
 			if ( !empty( $sOfficialContent ) ) {
-				return $this->loadFileSystemProcessor()->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );
+				return $this->loadFS()->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );
 			}
 			return false;
 		}

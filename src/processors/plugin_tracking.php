@@ -62,7 +62,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ):
 				return false;
 			}
 
-			$mResult = $this->loadFileSystemProcessor()->requestUrl(
+			$mResult = $this->loadFS()->requestUrl(
 				$oFO->getDefinition( 'tracking_post_url' ),
 				array(
 					'method'      => 'POST',

@@ -34,7 +34,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ):
 
 			$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
 			if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
-				$this->loadFileSystemProcessor(); // to ensure the necessary Class exist - we can clean this up later
+				$this->loadFS(); // to ensure the necessary Class exist - we can clean this up later
 				$sThisServerIp = $this->loadIpProcessor()->WhatIsMyIp();
 				if ( is_string( $sThisServerIp ) ) {
 					$this->setOpt( 'this_server_ip', $sThisServerIp );

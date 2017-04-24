@@ -1,6 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Cooldown', false ) ) {
+	return;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_base.php' );
 
@@ -49,7 +51,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 		$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
 			.sprintf(
 				_wpsf__( "You must wait %s seconds before attempting to %s again." ),
-				$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLoginTime(),
+				$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin(),
 				$this->loadWpFunctions()->getIsLoginRequest() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
 			);
 
@@ -67,20 +69,22 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 * @return int
 	 */
 	protected function getLoginCooldownInterval() {
-		return $this->getOption( 'login_limit_interval' );
+		return (int)$this->getOption( 'login_limit_interval' );
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function getLastLoginTime() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$sFile = $this->getLastLoginTimeFilePath();
+		return $this->loadFS()->exists( $sFile ) ? filemtime( $sFile ) : $this->getOption( 'last_login_time' );
+	}
 
-		$sFilePath = $oFO->getLastLoginTimeFilePath();
-		$oWpFs = $this->loadFileSystemProcessor();
-		$nModifiedFileTime = ( $oWpFs->exists( $sFilePath ) ) ? filemtime( $sFilePath ) : 0;
-		return max( $nModifiedFileTime, $this->getOption( 'last_login_time' ) );
+	/**
+	 * @return string
+	 */
+	protected function getLastLoginTimeFilePath() {
+		return self::getController()->getRootDir().'mode.login_throttled';
 	}
 
 	/**
@@ -90,7 +94,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 		$oFO = $this->getFeature();
 		$nTime = $this->time();
 		$oFO->updateLastLoginTime( $nTime );
-		$this->loadFileSystemProcessor()->touch( $oFO->getLastLoginTimeFilePath(), $nTime );
+		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $nTime );
 	}
 
 	/**
@@ -98,20 +102,18 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function getIsWithinCooldownPeriod() {
 		// Is there an interval set?
-		$nRequiredLoginInterval = $this->getLoginCooldownInterval();
-		if ( empty( $nRequiredLoginInterval ) || $nRequiredLoginInterval <= 0 ) {
+		$nCooldown = $this->getLoginCooldownInterval();
+		if ( empty( $nCooldown ) || $nCooldown <= 0 ) {
 			return false;
 		}
 
-		$sCurrentInterval = $this->getSecondsSinceLastLoginTime();
-		return ( $sCurrentInterval < $nRequiredLoginInterval );
+		return ( $this->getSecondsSinceLastLogin() < $nCooldown );
 	}
 
 	/**
 	 * @return int
 	 */
-	protected function getSecondsSinceLastLoginTime() {
+	protected function getSecondsSinceLastLogin() {
 		return ( $this->time() - $this->getLastLoginTime() );
 	}
 }
-endif;
