@@ -1,4 +1,17 @@
 {
+  "5.9.0": {
+    "version": {
+      "series": "5.9.0",
+      "major": 5,
+      "minor": 9,
+      "patch": 0
+    },
+    "attributes": {
+      "date": "1491523200",
+      "is_patch": false,
+      "options_removed": true
+    }
+  },
   "5.8.2": {
     "version": {
       "series": "5.8.0",
@@ -7,7 +20,7 @@
       "patch": 2
     },
     "attributes": {
-      "date": "1491523200",
+      "date": "1493047356",
       "is_patch": true
     }
   },
@@ -45,6 +58,11 @@
     }
   },
   "changelog": [
+    {
+      "type": "improved",
+      "summary": "Automatic Self-Update no longer configurable. If automatic updates module is disabled, will update within 1 week.",
+      "version": "5.9.0"
+    },
     {
       "type": "improved",
       "summary": "The core file scanner now works more reliably for international WordPress installations.",
