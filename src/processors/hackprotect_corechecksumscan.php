@@ -76,7 +76,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) 
 				'missing' => array(),
 			);
 
-			$aAutoFixIndexFiles = $this->getFeature()->getDefinition( 'corechecksum_autofix_index_files' );
+			$aAutoFixIndexFiles = $this->getFeature()->getDefinition( 'corechecksum_autofix' );
 			if ( empty( $aAutoFixIndexFiles ) ) {
 				$aAutoFixIndexFiles = array();
 			}

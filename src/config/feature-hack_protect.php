@@ -83,6 +83,7 @@
     "corechecksum_exclusions": [
       "readme.html",
       "license.txt",
+      "licenza.html",
       "licens-sv_SE.txt",
       "wp-config-sample.php",
       "wp-content/"
@@ -91,7 +92,7 @@
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "corechecksum_autofix_index_files": [
+    "corechecksum_autofix": [
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
