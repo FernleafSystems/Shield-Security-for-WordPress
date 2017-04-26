@@ -194,7 +194,7 @@
     }
   ],
   "definitions": {
-    "help_video_id": "",
+    "help_video_id": "214855538",
     "admin_access_key_cookie_name": "icwp_wpsf_aakcook",
     "admin_access_options_to_restrict": {
       "wpms_options": [
