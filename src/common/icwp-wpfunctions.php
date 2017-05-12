@@ -969,11 +969,11 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 				define( 'DONOTCACHEPAGE', true );
 			}
 			// WP Fastest Cache
-			if ( isset( $GLOBALS[ "wp_fastest_cache" ] ) and is_object( $GLOBALS[ "wp_fastest_cache" ] )
-				&& method_exists( $GLOBALS[ "wp_fastest_cache" ], 'delete_current_page_cache' )
-				&& is_callable( array( $GLOBALS[ "wp_fastest_cache" ], 'delete_current_page_cache' ) )
+			if ( isset( $GLOBALS[ 'wp_fastest_cache' ] ) and is_object( $GLOBALS[ 'wp_fastest_cache' ] )
+				&& method_exists( $GLOBALS[ 'wp_fastest_cache' ], 'deleteCache' )
+				&& is_callable( array( $GLOBALS[ 'wp_fastest_cache' ], 'deleteCache' ) )
 			) {
-				$GLOBALS[ "wp_fastest_cache" ]->delete_current_page_cache();
+				$GLOBALS[ 'wp_fastest_cache' ]->deleteCache(); //WpFastestCache
 			}
 			return DONOTCACHEPAGE;
 		}
