@@ -74,6 +74,11 @@
       "version": "5.9.0"
     },
     {
+      "type": "changed",
+      "summary": "No longer remove an existing user session when accessed from another IP address. Just redirect.",
+      "version": "5.9.0"
+    },
+    {
       "type": "fixed",
       "summary": "Danish string translation.",
       "version": "5.9.0"

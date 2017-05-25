@@ -309,11 +309,13 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 == Changelog ==
 
 = 5.9.0 Latest Point Release =
-*Released: 24th May, 2017*
+*Released: 25th May, 2017*
 
 * **(v.0)**  ADDED:			Help Videos for 1 or 2 modules. More to come and just testing format and uptake.
 * **(v.0)**  ADDED:			Special handling for WP Fastest Cache.
 * **(v.0)**  CHANGE:		Configuration for automatic self-update for the Shield plugin has been removed.
+* **(v.0)**  CHANGE:		No longer remove an existing user session when accessed from another IP address. Just redirect.
+							Protects existing, legitimate sessions from being forcefully expired.
 * **(v.0)**  FIXED:			Danish string translation.
 
 = 5.9.0 Series =
