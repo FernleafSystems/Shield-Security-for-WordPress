@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ):
+	return;
+endif;
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'basedb.php' );
+require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'basedb.php' );
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
@@ -17,7 +19,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	protected $sSessionId;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_UserManagement  $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_UserManagement $oFeatureOptions
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_UserManagement $oFeatureOptions ) {
 		parent::__construct( $oFeatureOptions, $oFeatureOptions->getUserSessionsTableName() );
@@ -50,9 +52,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
-	 * @param string $sUsername
+	 * @param string  $sUsername
 	 * @param WP_User $oUser
-	 *
 	 * @return boolean
 	 */
 	public function activateUserSession( $sUsername, $oUser ) {
@@ -72,10 +73,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
-	 * @return array|false
+	 * @return bool
 	 */
 	public function getCurrentUserHasValidSession() {
-		return $this->doVerifyCurrentSession();
+		return ( $this->doVerifyCurrentSession() == 0 );
 	}
 
 	/**
@@ -84,13 +85,34 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	public function checkCurrentUser_Action() {
 
 		if ( is_user_logged_in() ) {
+			$oWp = $this->loadWpFunctions();
 
 			if ( is_admin() ) {
-				$this->doVerifyCurrentSession( true );
+				$nCode = $this->doVerifyCurrentSession();
+				if ( $nCode > 0 ) {
+
+					if ( $nCode == 3 ) { // a session was used from the wrong IP. We just block it.
+						$this->loadWpUsers()->logoutUser( true ); // so as not to destroy the original, legitimate session
+						$this->addToAuditEntry(
+							sprintf( 'Access to an established user session from a new IP address "%s". Redirecting request.', $this->human_ip() ),
+							2,
+							'um_session_ip_lock_redirect'
+						);
+						$oWp->redirectToHome();
+					}
+					else {
+						$this->addToAuditEntry(
+							'Unable to verify the current User Session. Forcefully logging out session and redirecting to login.',
+							2,
+							'um_session_not_found_redirect'
+						);
+						$this->loadWpUsers()
+							 ->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
+					}
+				}
 			}
 
 			// At this point session is validated
-			$oWp = $this->loadWpFunctions();
 			if ( $oWp->getIsLoginUrl() && $this->loadWpUsers()->isUserAdmin() ) {
 				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
@@ -106,17 +128,16 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * @param WP_User $oUser
-	 *
 	 * @return boolean
 	 */
 	protected function updateSessionLastActivity( $oUser ) {
-		if ( !is_object( $oUser ) || ! ( $oUser instanceof WP_User ) ) {
+		if ( !is_object( $oUser ) || !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
 
 		$aNewData = array(
-			'last_activity_at'	=> $this->time(),
-			'last_activity_uri'	=> $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' )
+			'last_activity_at'  => $this->time(),
+			'last_activity_uri' => $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' )
 		);
 		return $this->updateSession( $this->getSessionId(), $oUser->get( 'user_login' ), $aNewData );
 	}
@@ -124,65 +145,60 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	/**
 	 * @param string $sSessionId
 	 * @param string $sUsername
-	 * @param array $aUpdateData
-	 *
+	 * @param array  $aUpdateData
 	 * @return boolean
 	 */
 	protected function updateSession( $sSessionId, $sUsername, $aUpdateData ) {
 		$aWhere = array(
-			'session_id'	=> $sSessionId,
-			'wp_username'	=> $sUsername,
-			'deleted_at'	=> 0
+			'session_id'  => $sSessionId,
+			'wp_username' => $sUsername,
+			'deleted_at'  => 0
 		);
 		$mResult = $this->updateRowsWhere( $aUpdateData, $aWhere );
 		return $mResult;
 	}
 
 	/**
-	 * If it cannot verify current user, it may forcefully log them out and redirect to login
-	 *
-	 * @param bool $bForceRelogin
-	 * @return bool
+	 * @return int
 	 */
-	protected function doVerifyCurrentSession( $bForceRelogin = false ) {
-		$oWpUsers = $this->loadWpUsers();
-		$oUser = $oWpUsers->getCurrentWpUser();
+	protected function doVerifyCurrentSession() {
+		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 
-		$nForceLogOutCode = 0; // when it's == 0 it's a valid session
-
-		if ( !is_object( $oUser ) || ! ( $oUser instanceof WP_User ) ) {
+		if ( !is_object( $oUser ) || !( $oUser instanceof WP_User ) ) {
 			$nForceLogOutCode = 6;
 		}
+		else {
 
-		$aLoginSessionData = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
-		if ( ( $nForceLogOutCode == 0 ) && !$aLoginSessionData ) {
-			$nForceLogOutCode = 4;
+			$aLoginSessionData = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
+			$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
+			$nSessionIdleTimeoutInterval = $this->getOption( 'session_idle_timeout_interval', 0 ) * HOUR_IN_SECONDS;
+			$bLockToIp = $this->getIsOption( 'session_lock_location', 'Y' );
+			$sVisitorIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
+
+			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
+
+			if ( !is_object( $oUser ) || !( $oUser instanceof WP_User ) ) {
+				$nForceLogOutCode = 6;
+
+			} // session?
+			else if ( !$aLoginSessionData ) {
+				$nForceLogOutCode = 4;
+
+			} // timeout interval
+			else if ( $nSessionTimeoutInterval > 0 && ( $this->time() - $aLoginSessionData[ 'logged_in_at' ] > $nSessionTimeoutInterval ) ) {
+				$nForceLogOutCode = 1;
+
+			} // idle timeout interval
+			else if ( $nSessionIdleTimeoutInterval > 0 && ( ( $this->time() - $aLoginSessionData[ 'last_activity_at' ] ) > $nSessionIdleTimeoutInterval ) ) {
+				$nForceLogOutCode = 2;
+
+			} // login ip address lock
+			else if ( $bLockToIp && $sVisitorIp != $aLoginSessionData[ 'ip' ] ) {
+				$nForceLogOutCode = 3;
+			}
 		}
 
-		// check timeout interval
-		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		if ( ( $nForceLogOutCode == 0 ) && $nSessionTimeoutInterval > 0 && ( $this->time() - $aLoginSessionData['logged_in_at'] > $nSessionTimeoutInterval ) ) {
-			$nForceLogOutCode = 1;
-		}
-
-		// check idle timeout interval
-		$nSessionIdleTimeoutInterval = $this->getOption( 'session_idle_timeout_interval', 0 ) * HOUR_IN_SECONDS;
-		if ( ( $nForceLogOutCode == 0 ) && intval($nSessionIdleTimeoutInterval) > 0 && ( ($this->time() - $aLoginSessionData['last_activity_at']) > $nSessionIdleTimeoutInterval ) ) {
-			$nForceLogOutCode = 2;
-		}
-
-		// check login ip address
-		$fLockToIp = $this->getIsOption( 'session_lock_location', 'Y' );
-		$sVisitorIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
-		if ( ( $nForceLogOutCode == 0 ) && $fLockToIp && $sVisitorIp != $aLoginSessionData['ip'] ) {
-			$nForceLogOutCode = 3;
-		}
-
-		if ( $bForceRelogin && $nForceLogOutCode > 0 ) {
-			$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nForceLogOutCode ) );
-		}
-
-		return ( $nForceLogOutCode == 0 );
+		return $nForceLogOutCode;
 	}
 
 	/**
@@ -207,13 +223,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	/**
 	 * @return integer
 	 */
-	protected function getSessionTimeoutInterval( ) {
+	protected function getSessionTimeoutInterval() {
 		return $this->getOption( 'session_timeout_interval' ) * DAY_IN_SECONDS;
 	}
 
 	/**
 	 * Checks for and gets a user session.
-	 *
 	 * @param string $sWpUsername
 	 * @return array|boolean
 	 */
@@ -223,10 +238,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 	/**
 	 * Checks for and gets a user session.
-	 *
 	 * @param string $sUsername
 	 * @param string $sSessionId
-	 *
 	 * @return array|false
 	 */
 	protected function getUserSessionRecord( $sUsername, $sSessionId ) {
@@ -248,7 +261,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 		$mResult = $this->selectCustom( $sQuery );
 		if ( is_array( $mResult ) && count( $mResult ) == 1 ) {
-			return $mResult[0];
+			return $mResult[ 0 ];
 		}
 		return false;
 	}
@@ -274,15 +287,15 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		// set attempts = 1 and then when we know it's a valid login, we zero it.
 		// First set any other entries for the given user to be deleted.
 		$aNewData = array();
-		$aNewData[ 'session_id' ]			= $this->getSessionId();
-		$aNewData[ 'ip' ]			    	= $this->human_ip();
-		$aNewData[ 'wp_username' ]			= $sUsername;
-		$aNewData[ 'login_attempts' ]		= 0;
-		$aNewData[ 'pending' ]				= 0;
-		$aNewData[ 'logged_in_at' ]			= $nTimeStamp;
-		$aNewData[ 'last_activity_at' ]		= $nTimeStamp;
-		$aNewData[ 'last_activity_uri' ]	= $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' );
-		$aNewData[ 'created_at' ]			= $nTimeStamp;
+		$aNewData[ 'session_id' ] = $this->getSessionId();
+		$aNewData[ 'ip' ] = $this->human_ip();
+		$aNewData[ 'wp_username' ] = $sUsername;
+		$aNewData[ 'login_attempts' ] = 0;
+		$aNewData[ 'pending' ] = 0;
+		$aNewData[ 'logged_in_at' ] = $nTimeStamp;
+		$aNewData[ 'last_activity_at' ] = $nTimeStamp;
+		$aNewData[ 'last_activity_uri' ] = $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' );
+		$aNewData[ 'created_at' ] = $nTimeStamp;
 		$mResult = $this->insertData( $aNewData );
 
 		$this->doStatIncrement( 'user.session.start' );
@@ -307,8 +320,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 
 		$mResult = true;
-		for( $nCount = 0; $nCount < $nSessionsToKill; $nCount++ ) {
-			$mResult = $this->doTerminateUserSession( $aSessions[$nCount]['wp_username'], $aSessions[$nCount]['session_id'] );
+		for ( $nCount = 0; $nCount < $nSessionsToKill; $nCount++ ) {
+			$mResult = $this->doTerminateUserSession( $aSessions[ $nCount ][ 'wp_username' ], $aSessions[ $nCount ][ 'session_id' ] );
 		}
 		return $mResult;
 	}
@@ -329,23 +342,23 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	/**
 	 * @param string $sUsername
 	 * @param string $sSessionId
-	 * @param bool $bHardDelete
+	 * @param bool   $bHardDelete
 	 * @return bool|int
 	 */
 	protected function doTerminateUserSession( $sUsername, $sSessionId, $bHardDelete = true ) {
 		$this->doStatIncrement( 'user.session.terminate' );
 
 		$aWhere = array(
-			'session_id'	=> $sSessionId,
-			'wp_username'	=> $sUsername,
-			'deleted_at'	=> 0
+			'session_id'  => $sSessionId,
+			'wp_username' => $sUsername,
+			'deleted_at'  => 0
 		);
 
 		if ( $bHardDelete ) {
 			return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 		}
 
-		$aNewData = array( 'deleted_at'	=> $this->time() );
+		$aNewData = array( 'deleted_at' => $this->time() );
 		return $this->updateRowsWhere( $aNewData, $aWhere );
 	}
 
@@ -367,7 +380,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		$sQuery = sprintf(
 			$sQuery,
 			$this->getTableName(),
-			empty( $sWpUsername ) ? '' : "AND `wp_username` = '".esc_sql( $sWpUsername )."'"
+			empty( $sWpUsername ) ? '' : "AND `wp_username` = '" . esc_sql( $sWpUsername ) . "'"
 		);
 		return $this->selectCustom( $sQuery );
 	}
@@ -378,14 +391,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function addLoginMessage( $oError ) {
 
-		if ( ! $oError instanceof WP_Error ) {
+		if ( !$oError instanceof WP_Error ) {
 			$oError = new WP_Error();
 		}
 
 		$sForceLogout = $this->loadDataProcessor()->FetchGet( 'wpsf-forcelogout' );
 		if ( $sForceLogout ) {
 
-			switch( $sForceLogout ) {
+			switch ( $sForceLogout ) {
 				case 1:
 					$sMessage = _wpsf__( 'Your session has expired.' );
 					break;
@@ -399,7 +412,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 					break;
 
 				case 4:
-					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getController()->getHumanName() );
+					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getController()
+																										 ->getHumanName() );
 					break;
 
 				case 5:
@@ -413,10 +427,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 				default:
 					$sMessage = _wpsf__( 'Your session was terminated.' );
 					break;
-
 			}
 
-			$sMessage .= '<br />'._wpsf__( 'Please login again.' );
+			$sMessage .= '<br />' . _wpsf__( 'Please login again.' );
 			$oError->add( 'wpsf-forcelogout', $sMessage );
 		}
 		return $oError;
@@ -458,7 +471,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getPendingOrFailedUserSessionRecordsSince( $nTime = 0 ) {
 
-		$nTime = ( $nTime <= 0 ) ? 2*DAY_IN_SECONDS : $nTime;
+		$nTime = ( $nTime <= 0 ) ? 2 * DAY_IN_SECONDS : $nTime;
 
 		$sQuery = "
 			SELECT *
@@ -477,4 +490,3 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		return $this->selectCustom( $sQuery );
 	}
 }
-endif;

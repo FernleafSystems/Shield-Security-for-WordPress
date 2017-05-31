@@ -1045,14 +1045,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @deprecated
-		 * @param string $sRedirectUrl
-		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			$this->loadWpUsers()->logoutUser( $sRedirectUrl );
-		}
-
-		/**
 		 * Updates the user meta data for the current (or supplied user ID)
 		 *
 		 * @deprecated
