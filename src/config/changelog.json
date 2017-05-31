@@ -1,4 +1,17 @@
 {
+  "5.9.0": {
+    "version": {
+      "series": "5.9.0",
+      "major": 5,
+      "minor": 9,
+      "patch": 0
+    },
+    "attributes": {
+      "timestamp": "1496218394",
+      "is_patch": false,
+      "options_removed": true
+    }
+  },
   "5.8.2": {
     "version": {
       "series": "5.8.0",
@@ -7,7 +20,7 @@
       "patch": 2
     },
     "attributes": {
-      "date": "1491523200",
+      "timestamp": "1493047356",
       "is_patch": true
     }
   },
@@ -19,7 +32,7 @@
       "patch": 1
     },
     "attributes": {
-      "date": "1491523200",
+      "timestamp": "1491523200",
       "is_patch": true
     }
   },
@@ -31,7 +44,7 @@
       "patch": 0
     },
     "attributes": {
-      "date": "1491523200",
+      "timestamp": "1491523200",
       "name": "",
       "summary": "Introduction of Login Authentication Portal",
       "link": "http://icwp.io/86",
@@ -45,6 +58,31 @@
     }
   },
   "changelog": [
+    {
+      "type": "added",
+      "summary": "Help Videos for 1 or 2 modules. More to come and just testing format and uptake.",
+      "version": "5.9.0"
+    },
+    {
+      "type": "added",
+      "summary": "Special handling for WP Fastest Cache.",
+      "version": "5.9.0"
+    },
+    {
+      "type": "changed",
+      "summary": "Automatic Self-Update no longer configurable. If automatic updates module is disabled, will update within 1 week.",
+      "version": "5.9.0"
+    },
+    {
+      "type": "changed",
+      "summary": "No longer remove an existing user session when accessed from another IP address. Just redirect.",
+      "version": "5.9.0"
+    },
+    {
+      "type": "fixed",
+      "summary": "Danish string translation.",
+      "version": "5.9.0"
+    },
     {
       "type": "improved",
       "summary": "The core file scanner now works more reliably for international WordPress installations.",

@@ -232,7 +232,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 		 */
 		public function getRawFlashMessageText() {
 			$aParts = explode( '::', $this->sFlashMessage, 2 );
-			return $aParts[ 1 ];
+			return isset( $aParts[ 1 ] ) ? $aParts[ 1 ] : '';
 		}
 
 		/**

@@ -175,10 +175,20 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		}
 
 		/**
-		 * @param string $sRedirectUrl
+		 * Fires the WordPress logout functions.  If $bQuiet is true, it'll manually
+		 * call the WordPress logout code, so as not to fire any other logout actions
+		 *
+		 * We might want to be "quiet" so as not to fire out own action hooks.
+		 * @param bool $bQuiet
 		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			empty( $sRedirectUrl ) ? wp_logout() : wp_logout_url( $sRedirectUrl );
+		public function logoutUser( $bQuiet = false ) {
+			if ( $bQuiet ) {
+				wp_destroy_current_session();
+				wp_clear_auth_cookie();
+			}
+			else {
+				wp_logout();
+			}
 		}
 
 		/**

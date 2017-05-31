@@ -202,7 +202,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
-		$oDp = $this->loadDataProcessor();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
@@ -227,7 +226,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$sMessageType = 'warning';
 		}
 
-		$sRedirectTo = $oDp->FetchGet( 'redirect_to' );
+		$sRedirectTo = $this->loadDataProcessor()->FetchGet( 'redirect_to' );
 		if ( empty( $sRedirectTo ) ) {
 			$sRedirectTo = rawurlencode( esc_url( $this->loadDataProcessor()->getRequestUri() ) );
 		}

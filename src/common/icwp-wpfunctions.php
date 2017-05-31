@@ -350,6 +350,21 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @param stdClass|string $mItem
+		 * @param string          $sContext from plugin|theme
+		 * @return string
+		 */
+		public function getFileFromAutomaticUpdateItem( $mItem, $sContext = 'plugin' ) {
+			if ( is_object( $mItem ) && isset( $mItem->{$sContext} ) )  { // WP 3.8.2+
+				$mItem = $mItem->{$sContext};
+			}
+			else if ( !is_string( $mItem ) ) { // WP pre-3.8.2
+				$mItem = '';
+			}
+			return $mItem;
+		}
+
+		/**
 		 * @return array
 		 */
 		public function getThemes() {
@@ -953,6 +968,13 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 			if ( !defined( 'DONOTCACHEPAGE' ) ) {
 				define( 'DONOTCACHEPAGE', true );
 			}
+			// WP Fastest Cache
+			if ( isset( $GLOBALS[ 'wp_fastest_cache' ] ) and is_object( $GLOBALS[ 'wp_fastest_cache' ] )
+				&& method_exists( $GLOBALS[ 'wp_fastest_cache' ], 'deleteCache' )
+				&& is_callable( array( $GLOBALS[ 'wp_fastest_cache' ], 'deleteCache' ) )
+			) {
+				$GLOBALS[ 'wp_fastest_cache' ]->deleteCache(); //WpFastestCache
+			}
 			return DONOTCACHEPAGE;
 		}
 
@@ -1020,14 +1042,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 */
 		public function getUserMeta( $sKey, $nId = null ) {
 			return $this->loadWpUsers()->getUserMeta( $sKey, $nId );
-		}
-
-		/**
-		 * @deprecated
-		 * @param string $sRedirectUrl
-		 */
-		public function logoutUser( $sRedirectUrl = '' ) {
-			$this->loadWpUsers()->logoutUser( $sRedirectUrl );
 		}
 
 		/**
