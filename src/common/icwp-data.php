@@ -123,11 +123,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 */
 		public function getRequestPath() {
 			$aRequestParts = $this->getRequestUriParts();
-			$sPath = '';
-			if ( !empty( $aRequestParts[ 'path' ] ) ) {
-				$sPath = preg_replace( '#(\/){2,}#', '/', strtolower( $aRequestParts[ 'path' ] ) );
-			}
-			return $sPath;
+			return $aRequestParts[ 'path' ];
 		}
 
 		/**
