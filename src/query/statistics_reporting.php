@@ -31,10 +31,11 @@ class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Foundation {
 	 */
 	protected $bSelectDeleted;
 
+	/**
+	 * @return int
+	 */
 	public function countQuery() {
-		$sQuery = $this->buildQuery();
-		var_dump( $sQuery );
-		return $this->loadDbProcessor()->doSql( $sQuery );
+		return $this->loadDbProcessor()->doSql( $this->buildQuery() );
 	}
 
 	/**
