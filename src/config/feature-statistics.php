@@ -18,6 +18,16 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_reporting",
+      "primary": true,
+      "title": "Enable Plugin Feature: Reporting",
+      "title_short": "Enable / Disable",
+      "summary": [
+        "Purpose - To track stats and issue reports.",
+        "Recommendation - Keep the Reporting feature turned on."
+      ]
+    },
+    {
       "slug": "section_stats_sharing",
       "title": "Statistics Sharing",
       "title_short": "Sharing",
@@ -42,6 +52,17 @@
       "name": "Enable Statistics",
       "summary": "Enable (or Disable) The Statistics Feature",
       "description": "Checking/Un-Checking this option will completely turn on/off the whole Statistics feature"
+    },
+    {
+      "key": "enable_reporting",
+      "section": "section_enable_plugin_feature_reporting",
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable Reporting",
+      "summary": "Enable (or Disable) The Reporting Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Reporting feature"
     }
   ],
   "definitions": {
@@ -53,6 +74,13 @@
       "tally",
       "created_at",
       "modified_at",
+      "deleted_at"
+    ],
+    "reporting_table_name": "reporting",
+    "reporting_table_columns": [
+      "id",
+      "stat_key",
+      "created_at",
       "deleted_at"
     ]
   }
