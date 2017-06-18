@@ -15,7 +15,14 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		parent::__construct( $oFeatureOptions, $oFeatureOptions->getReportingTableName() );
 	}
 
-	public function run() { }
+	public function run() {
+//		include( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'query' . DIRECTORY_SEPARATOR . 'statistics_reporting.php' );
+//		$oQuery = new ICWP_WPSF_Query_Statistics_Reporting();
+//		$aResults = $oQuery->setFeature( $this->getFeature() )
+//			   ->setDateFrom( 0 )
+//			   ->countQuery();
+//		var_dump( $aResults );
+	}
 
 	/**
 	 * @param string $sStatKey
