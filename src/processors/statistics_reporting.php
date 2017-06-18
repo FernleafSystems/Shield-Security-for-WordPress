@@ -26,6 +26,11 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 			return false;
 		}
 
+		$nColon = strpos( $sStatKey, ':' );
+		if( $nColon !== false ) {
+			$sStatKey = substr( $sStatKey, 0, $nColon );
+		}
+
 		// Now add new entry
 		$mResult = $this->insertData(
 			array(

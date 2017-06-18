@@ -167,6 +167,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ):
 			$aDef = $this->getFeature()->getDefinition( 'audit_trail_table_columns' );
 			return ( is_array( $aDef ) ? $aDef : array() );
 		}
+
+		/**
+		 * override and do not delete
+		 */
+		public function deleteTable() { }
 	}
 
 endif;

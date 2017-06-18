@@ -301,15 +301,16 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * override and do not delete
 	 */
-	public function deleteTable() {
-	} //override and do not delete
+	public function deleteTable() {}
 
 	/**
 	 * @return ICWP_WPSF_Processor_Statistics_Reporting
 	 */
 	protected function getReportingProcessor() {
 		if ( !isset( $this->oReportingProcessor ) ) {
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'statistics_reporting.php' );
 			$this->oReportingProcessor = new ICWP_WPSF_Processor_Statistics_Reporting( $this->getFeature() );
 		}
 		return $this->oReportingProcessor;
