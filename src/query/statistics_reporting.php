@@ -49,7 +49,7 @@ class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Foundation {
 		if ( is_array( $mResult ) ) {
 			include_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'StatisticsReportingVO.php' );
 			$mResult = array_map(
-				function( $oData ) {
+				function ( $oData ) {
 					return new StatisticsReportingVO( $oData );
 				},
 				$mResult
@@ -78,11 +78,11 @@ class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Foundation {
 		$sStatPart = $this->buildStatKeyQuery();
 		return sprintf( $sQuery,
 			$bIsCount ? 'COUNT(*) AS total' : '*',
-			$this->loadDbProcessor()->getPrefix().$this->getFeature()->getReportingTableName(),
+			$this->loadDbProcessor()->getPrefix() . $this->getFeature()->getReportingTableName(),
 			$this->getDateFrom(),
 			$this->getDateTo(),
 			$this->isSelectDeleted() ? '>' : '=',
-			empty( $sStatPart ) ? $sStatPart : 'AND '.$sStatPart
+			empty( $sStatPart ) ? $sStatPart : 'AND ' . $sStatPart
 		);
 	}
 
@@ -116,7 +116,7 @@ class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Foundation {
 	 * @return int
 	 */
 	public function getDateTo() {
-		return isset( $this->nDateTo ) ? (int)$this->nDateTo : time();
+		return isset( $this->nDateTo ) ? (int)$this->nDateTo : $this->loadDataProcessor()->time();
 	}
 
 	/**
@@ -183,11 +183,13 @@ class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Foundation {
 	 */
 	public function addStatKey( $sStatKey ) {
 		$aKeys = $this->getStatKeys();
+		$sStatKey = esc_sql( trim( $sStatKey ) );
 		if ( !in_array( $sStatKey, $aKeys ) ) {
 			$aKeys[] = $sStatKey;
 		}
 		return $this->setStatKeys( $aKeys );
 	}
+
 	/**
 	 * @param bool $bSelectDeleted
 	 * @return $this
