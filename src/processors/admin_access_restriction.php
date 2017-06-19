@@ -224,7 +224,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		protected function getUserPagesToRestrict() {
 			return array(
-				'user-new.php',
+//				'user-new.php',
 				'user-edit.php',
 				'users.php',
 			);

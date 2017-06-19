@@ -3,10 +3,10 @@ Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, shield, firewall, rename wp login, two-factor authentication, audit trail, dos, brute force, whitelist, blacklist, GASP, spam, automatic updates, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
+Tags: security, shield, firewall, two-factor authentication, 2FA, audit trail, brute force, whitelist, blacklist, spam, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.8
-Stable tag: 5.9.0
+Stable tag: 5.10.0
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
@@ -308,7 +308,19 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.9.0 Latest Point Release =
+= 5.10.0 Latest Point Release =
+*Released: 19th June, 2017*
+
+* **(v.0)**  ADDED:			More in-depth reporting and statistics gathering - options for reports will be made available
+ 							in a later release.
+
+= 5.10 Series =
+*Released: 19th June, 2017*
+
+* **(v.0)**  ADDED:			More in-depth reporting and statistics gathering - options for reports will be made available
+ 							in a later release.
+
+= 5.9 Series =
 *Released: 31st May, 2017*
 
 * **(v.0)**  ADDED:			Help Videos for 1 or 2 modules. More to come and just testing format and uptake.
@@ -318,17 +330,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 							Protects existing, legitimate sessions from being forcefully expired.
 * **(v.0)**  FIXED:			Danish string translation.
 
-= 5.9.0 Series =
-*Released: 31st May, 2017*
-
-* **(v.0)**  ADDED:			Help Videos for 1 or 2 modules. More to come and just testing format and uptake.
-* **(v.0)**  ADDED:			Special handling for WP Fastest Cache.
-* **(v.0)**  CHANGE:		Configuration for automatic self-update for the Shield plugin has been removed.
-* **(v.0)**  CHANGE:		No longer remove an existing user session when accessed from another IP address. Just redirect.
-							Protects existing, legitimate sessions from being forcefully expired.
-* **(v.0)**  FIXED:			Danish string translation.
-
-= 5.8.0 Series =
+= 5.8 Series =
 *Released: 7th April, 2017*
 
 * **(v.2)**  IMPROVEMENTS:	The core file scanner now works more reliably for international WordPress installations.
