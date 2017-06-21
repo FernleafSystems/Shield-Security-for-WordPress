@@ -3,6 +3,7 @@
     <link rel="stylesheet" href="<?php echo $hrefs['css_bootstrap']; ?>" />
     <title><?php echo $strings['page_title']; ?></title>
     <link rel="icon" type="image/png" href="<?php echo $hrefs['favicon']; ?>" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
         body {
