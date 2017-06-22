@@ -3,7 +3,8 @@
   "properties": {
     "name": "Hack Protection",
     "show_feature_menu_item": true,
-    "storage_key": "hack_protect"
+    "storage_key": "hack_protect",
+    "show_central": true
   },
   "sections": [
     {

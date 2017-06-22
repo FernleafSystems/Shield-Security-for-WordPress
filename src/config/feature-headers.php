@@ -4,7 +4,8 @@
     "name": "HTTP Headers",
     "show_feature_menu_item": true,
     "storage_key": "headers",
-    "tagline": "Control HTTP Security Headers"
+    "tagline": "Control HTTP Security Headers",
+    "show_central": true
   },
   "sections": [
     {

@@ -4,7 +4,8 @@
     "name": "IP Manager",
     "show_feature_menu_item": true,
     "storage_key": "ips",
-    "tagline": "Manage Visitor IP Address"
+    "tagline": "Manage Visitor IP Address",
+    "show_central": true
   },
   "admin_notices": {
     "visitor-whitelisted": {

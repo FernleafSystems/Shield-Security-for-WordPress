@@ -5,7 +5,8 @@
     "show_feature_menu_item": true,
     "storage_key": "commentsfilter",
     "tagline": "Block comment SPAM and retain your privacy",
-    "use_sessions": true
+    "use_sessions": true,
+    "show_central": true
   },
   "admin_notices": {
     "akismet-running": {

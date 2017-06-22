@@ -4,7 +4,8 @@
     "name": "Firewall",
     "show_feature_menu_item": true,
     "storage_key": "firewall",
-    "tagline": "Automatically block malicious URLs and data sent to your site"
+    "tagline": "Automatically block malicious URLs and data sent to your site",
+    "show_central": true
   },
   "sections": [
     {

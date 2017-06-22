@@ -4,7 +4,8 @@
     "name": "Automatic Updates",
     "show_feature_menu_item": true,
     "storage_key": "autoupdates",
-    "tagline": "Take back full control of WordPress automatic updates"
+    "tagline": "Take back full control of WordPress automatic updates",
+    "show_central": true
   },
   "sections": [
     {

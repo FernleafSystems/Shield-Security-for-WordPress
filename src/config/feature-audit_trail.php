@@ -4,7 +4,8 @@
     "name": "Audit Trail",
     "show_feature_menu_item": true,
     "storage_key": "audit_trail",
-    "tagline": "Get a view on what happens on your site, when it happens"
+    "tagline": "Get a view on what happens on your site, when it happens",
+    "show_central": true
   },
   "sections": [
     {

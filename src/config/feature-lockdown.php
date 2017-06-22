@@ -4,7 +4,8 @@
     "name": "Lockdown",
     "show_feature_menu_item": true,
     "storage_key": "lockdown",
-    "tagline": "Harden the more loosely controlled settings of your site"
+    "tagline": "Harden the more loosely controlled settings of your site",
+    "show_central": true
   },
   "sections": [
     {

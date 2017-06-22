@@ -6,7 +6,8 @@
     "storage_key": "support",
     "tagline": "Premium Plugin Support Centre",
     "auto_enabled": true,
-    "highlight_menu_item": true
+    "highlight_menu_item": true,
+    "show_central": false
   },
   "sections": [
     {

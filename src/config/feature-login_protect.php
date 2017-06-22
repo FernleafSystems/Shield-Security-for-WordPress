@@ -4,7 +4,8 @@
     "name": "Login Protection",
     "show_feature_menu_item": true,
     "storage_key": "loginprotect",
-    "tagline": "Block brute force attacks and secure user identities with Two-Factor Authentication"
+    "tagline": "Block brute force attacks and secure user identities with Two-Factor Authentication",
+    "show_central": true
   },
   "admin_notices": {
     "email-verification-sent": {
