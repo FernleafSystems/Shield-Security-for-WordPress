@@ -1,16 +1,44 @@
 {
+  "5.10.1": {
+	"version": {
+	  "series": "5.10.0",
+	  "major": 5,
+	  "minor": 10,
+	  "patch": 1
+	},
+	"attributes": {
+	  "timestamp": "1497916800",
+	  "is_patch": false,
+	  "options_added": true,
+	  "options_removed": false
+	}
+  },
+  "5.10.0": {
+	"version": {
+	  "series": "5.10.0",
+	  "major": 5,
+	  "minor": 10,
+	  "patch": 0
+	},
+	"attributes": {
+	  "timestamp": "1497916800",
+	  "is_patch": false,
+	  "options_added": true,
+	  "options_removed": false
+	}
+  },
   "5.9.0": {
-    "version": {
-      "series": "5.9.0",
-      "major": 5,
-      "minor": 9,
-      "patch": 0
-    },
-    "attributes": {
-      "timestamp": "1496218394",
-      "is_patch": false,
-      "options_removed": true
-    }
+	"version": {
+	  "series": "5.9.0",
+	  "major": 5,
+	  "minor": 9,
+	  "patch": 0
+	},
+	"attributes": {
+	  "timestamp": "1496218394",
+	  "is_patch": false,
+	  "options_removed": true
+	}
   },
   "5.8.2": {
     "version": {
@@ -58,11 +86,21 @@
     }
   },
   "changelog": [
-    {
-      "type": "added",
-      "summary": "Help Videos for 1 or 2 modules. More to come and just testing format and uptake.",
-      "version": "5.9.0"
-    },
+	{
+	  "type": "added",
+	  "summary": "Further preparation for the Shield Central release.",
+	  "version": "5.10.1"
+	},
+	{
+	  "type": "added",
+	  "summary": "More in-depth reporting and statistics gathering - options for reports will be made available in a later release.",
+	  "version": "5.10.0"
+	},
+	{
+	  "type": "added",
+	  "summary": "Help Videos for 1 or 2 modules. More to come and just testing format and uptake.",
+	  "version": "5.9.0"
+	},
     {
       "type": "added",
       "summary": "Special handling for WP Fastest Cache.",
