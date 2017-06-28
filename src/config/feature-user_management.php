@@ -28,15 +28,6 @@
       ]
     },
     {
-      "slug": "section_multifactor_authentication",
-      "title": "Multi-Factor User Authentication",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out."
-      ]
-    },
-    {
       "slug": "section_bypass_user_accounts_management",
       "title": "By-Pass User Accounts Management",
       "title_short": "By-Pass",
@@ -113,8 +104,8 @@
       "link_info": "",
       "link_blog": "",
       "name": "Idle Timeout",
-      "summary": "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option.",
-      "description": "asdf."
+      "summary": "Specify How Many Hours After Inactivity To Automatically Logout User",
+      "description": "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option.",
     },
     {
       "key": "session_lock_location",

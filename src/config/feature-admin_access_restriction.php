@@ -139,7 +139,10 @@
         }
       ],
       "link_info": "http://icwp.io/wpsf21",
-      "link_blog": ""
+      "link_blog": "",
+      "summary": "Restrict Access To Key WordPress Plugin Actions",
+      "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
+
     },
     {
       "key": "admin_access_restrict_themes",
@@ -169,7 +172,9 @@
         }
       ],
       "link_info": "http://icwp.io/wpsf21",
-      "link_blog": ""
+      "link_blog": "",
+      "summary": "Restrict Access To WordPress Theme Actions",
+      "description": "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
     {
       "key": "admin_access_restrict_posts",
@@ -191,7 +196,9 @@
         }
       ],
       "link_info": "http://icwp.io/wpsf21",
-      "link_blog": ""
+      "link_blog": "",
+      "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
+      "description": "Careful: This will restrict access to page/post creation, editing and deletion.",
     }
   ],
   "definitions": {

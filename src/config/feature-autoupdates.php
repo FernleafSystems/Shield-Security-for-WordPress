@@ -28,15 +28,6 @@
       ]
     },
     {
-      "slug": "section_automatic_plugin_self_update",
-      "title": "Automatic Plugin Self-Update",
-      "title_short": "Self-Update",
-      "summary": [
-        "Purpose - Allows the shield plugin to automatically update itself when an update is available. ",
-        "Recommendation - Keep this option turned on."
-      ]
-    },
-    {
       "slug": "section_automatic_updates_for_wordpress_components",
       "title": "Automatic Updates For WordPress Components",
       "title_short": "WordPress Components",
