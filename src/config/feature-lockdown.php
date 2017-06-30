@@ -1,11 +1,13 @@
 {
   "slug": "lockdown",
   "properties": {
+    "slug": "lockdown",
     "name": "Lockdown",
     "show_feature_menu_item": true,
     "storage_key": "lockdown",
     "tagline": "Harden the more loosely controlled settings of your site",
-    "show_central": true
+    "show_central": true,
+    "order": 90
   },
   "sections": [
     {

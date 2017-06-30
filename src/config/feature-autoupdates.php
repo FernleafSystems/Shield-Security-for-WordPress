@@ -1,11 +1,13 @@
 {
   "slug": "autoupdates",
   "properties": {
+    "slug": "autoupdates",
     "name": "Automatic Updates",
     "show_feature_menu_item": true,
     "storage_key": "autoupdates",
     "tagline": "Take back full control of WordPress automatic updates",
-    "show_central": true
+    "show_central": true,
+    "order": 60
   },
   "sections": [
     {

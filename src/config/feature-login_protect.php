@@ -1,11 +1,13 @@
 {
   "slug": "login_protect",
   "properties": {
+    "slug": "login_protect",
     "name": "Login Protection",
     "show_feature_menu_item": true,
     "storage_key": "loginprotect",
     "tagline": "Block brute force attacks and secure user identities with Two-Factor Authentication",
-    "show_central": true
+    "show_central": true,
+    "order": 40
   },
   "admin_notices": {
     "email-verification-sent": {

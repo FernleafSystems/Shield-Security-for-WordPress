@@ -1,6 +1,7 @@
 {
   "slug": "email",
   "properties": {
+    "slug": "email",
     "name": "Email",
     "show_feature_menu_item": false,
     "storage_key": "email",

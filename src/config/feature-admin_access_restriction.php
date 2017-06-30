@@ -1,12 +1,14 @@
 {
   "slug": "admin_access_restriction",
   "properties": {
+    "slug": "admin_access_restriction",
     "name": "Security Admin",
     "show_feature_menu_item": true,
     "storage_key": "admin_access_restriction",
     "tagline": "Protect your security plugin not just your WordPress site",
     "menu_title": "Security Admin",
-    "show_central": true
+    "show_central": true,
+    "order": 20
   },
   "admin_notices": {
     "certain-options-restricted": {

@@ -1,11 +1,13 @@
 {
   "slug": "headers",
   "properties": {
+    "slug": "headers",
     "name": "HTTP Headers",
     "show_feature_menu_item": true,
     "storage_key": "headers",
     "tagline": "Control HTTP Security Headers",
-    "show_central": true
+    "show_central": true,
+    "order": 80
   },
   "sections": [
     {
