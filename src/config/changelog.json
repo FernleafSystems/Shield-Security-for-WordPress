@@ -7,7 +7,7 @@
 	  "patch": 1
 	},
 	"attributes": {
-	  "timestamp": "1497916800",
+	  "timestamp": "1498828475",
 	  "is_patch": false,
 	  "options_added": true,
 	  "options_removed": false
@@ -87,7 +87,7 @@
   },
   "changelog": [
 	{
-	  "type": "added",
+	  "type": "improved",
 	  "summary": "Further preparation for the Shield Central release.",
 	  "version": "5.10.1"
 	},
