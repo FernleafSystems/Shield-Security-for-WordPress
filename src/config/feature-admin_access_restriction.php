@@ -200,7 +200,7 @@
       "link_info": "http://icwp.io/wpsf21",
       "link_blog": "",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
-      "description": "Careful: This will restrict access to page/post creation, editing and deletion.",
+      "description": "Careful: This will restrict access to page/post creation, editing and deletion."
     }
   ],
   "definitions": {

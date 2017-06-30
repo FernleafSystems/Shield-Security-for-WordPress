@@ -106,7 +106,7 @@
       "link_blog": "",
       "name": "Idle Timeout",
       "summary": "Specify How Many Hours After Inactivity To Automatically Logout User",
-      "description": "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option.",
+      "description": "If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return. Set this to '0' to turn off this option."
     },
     {
       "key": "session_lock_location",
