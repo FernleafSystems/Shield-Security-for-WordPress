@@ -4,7 +4,9 @@
     "name": "Dashboard",
     "show_feature_menu_item": true,
     "storage_key": "plugin",
-    "tagline": "Overview of the plugin settings"
+    "tagline": "Overview of the plugin settings",
+    "show_central": true,
+    "order": 10
   },
   "admin_notices": {
     "override-forceoff": {

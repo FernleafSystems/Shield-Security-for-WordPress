@@ -1,9 +1,12 @@
 {
   "slug": "hack_protect",
   "properties": {
+    "slug": "hack_protect",
     "name": "Hack Protection",
     "show_feature_menu_item": true,
-    "storage_key": "hack_protect"
+    "storage_key": "hack_protect",
+    "show_central": true,
+    "order": 70
   },
   "sections": [
     {

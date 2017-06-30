@@ -1,11 +1,14 @@
 {
   "slug": "admin_access_restriction",
   "properties": {
+    "slug": "admin_access_restriction",
     "name": "Security Admin",
     "show_feature_menu_item": true,
     "storage_key": "admin_access_restriction",
     "tagline": "Protect your security plugin not just your WordPress site",
-    "menu_title": "Security Admin"
+    "menu_title": "Security Admin",
+    "show_central": true,
+    "order": 20
   },
   "admin_notices": {
     "certain-options-restricted": {
@@ -138,7 +141,10 @@
         }
       ],
       "link_info": "http://icwp.io/wpsf21",
-      "link_blog": ""
+      "link_blog": "",
+      "summary": "Restrict Access To Key WordPress Plugin Actions",
+      "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
+
     },
     {
       "key": "admin_access_restrict_themes",
@@ -168,7 +174,9 @@
         }
       ],
       "link_info": "http://icwp.io/wpsf21",
-      "link_blog": ""
+      "link_blog": "",
+      "summary": "Restrict Access To WordPress Theme Actions",
+      "description": "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
     {
       "key": "admin_access_restrict_posts",
@@ -190,7 +198,9 @@
         }
       ],
       "link_info": "http://icwp.io/wpsf21",
-      "link_blog": ""
+      "link_blog": "",
+      "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
+      "description": "Careful: This will restrict access to page/post creation, editing and deletion.",
     }
   ],
   "definitions": {

@@ -1,11 +1,14 @@
 {
   "slug": "comments_filter",
   "properties": {
+    "slug": "comments_filter",
     "name": "Comments SPAM",
     "show_feature_menu_item": true,
     "storage_key": "commentsfilter",
     "tagline": "Block comment SPAM and retain your privacy",
-    "use_sessions": true
+    "use_sessions": true,
+    "show_central": true,
+    "order": 50
   },
   "admin_notices": {
     "akismet-running": {

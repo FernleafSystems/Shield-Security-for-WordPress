@@ -1,10 +1,13 @@
 {
   "slug": "ips",
   "properties": {
+    "slug": "ips",
     "name": "IP Manager",
     "show_feature_menu_item": true,
     "storage_key": "ips",
-    "tagline": "Manage Visitor IP Address"
+    "tagline": "Manage Visitor IP Address",
+    "show_central": true,
+    "order": 100
   },
   "admin_notices": {
     "visitor-whitelisted": {
