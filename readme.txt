@@ -308,14 +308,18 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.10.1 Latest Point Release =
-*Released: 30th June, 2017*
+= 5.10.2 Latest Point Release =
+*Released: 11th July, 2017*
 
-* **(v.1)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
+* **(v.2)**  FIXED:			Fatal error with GASP + Password Reset.
+* **(v.2)**  FIXED:			Fatal error with failing reCAPTCHA HTTP requests.
 
 = 5.10 Series =
 *Released: 19th June, 2017*
 
+* **(v.2)**  FIXED:			Fatal error with GASP + Password Reset.
+* **(v.2)**  FIXED:			Fatal error with failing reCAPTCHA HTTP requests.
+* **(v.1)**  IMPROVEMENTS:	Further preparation for [Shield Central](http://icwp.io/83) release.
 * **(v.0)**  ADDED:			More in-depth reporting and statistics gathering - options for reports will be made available
  							in a later release.
 

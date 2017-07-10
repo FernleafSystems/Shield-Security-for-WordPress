@@ -1,4 +1,18 @@
 {
+  "5.10.2": {
+	"version": {
+	  "series": "5.10.0",
+	  "major": 5,
+	  "minor": 10,
+	  "patch": 2
+	},
+	"attributes": {
+	  "timestamp": "1498828475",
+	  "is_patch": true,
+	  "options_added": false,
+	  "options_removed": false
+	}
+  },
   "5.10.1": {
 	"version": {
 	  "series": "5.10.0",
@@ -86,6 +100,16 @@
     }
   },
   "changelog": [
+	{
+	  "type": "fixed",
+	  "summary": "Fatal error with GASP + Password Reset.",
+	  "version": "5.10.2"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "Fatal error with failing reCAPTCHA HTTP requests.",
+	  "version": "5.10.2"
+	},
 	{
 	  "type": "improved",
 	  "summary": "Further preparation for the Shield Central release.",

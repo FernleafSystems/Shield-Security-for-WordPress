@@ -1,6 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ) {
+	return;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
@@ -25,7 +27,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			//print the checkbox code:
 			add_action( 'register_form',		array( $this, 'printGaspLoginCheck_Action' ) );
 			add_action( 'lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ) );
-			
+
 			//verify the checkbox is present:
 			add_action( 'register_post',		array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
 			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10 );
@@ -91,7 +93,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
-		
+
 		$sStyles = '
 			<style>
 				#'.$sUniqElem.' {
@@ -186,4 +188,3 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		return true;
 	}
 }
-endif;
