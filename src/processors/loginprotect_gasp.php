@@ -1,6 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ) {
+	return;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
@@ -18,17 +20,17 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		add_filter( 'login_form_middle',		array( $this, 'printGaspLoginCheck_Filter' ) );
 
 		// before username/password check (20)
-		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 3 );
+		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 2 );
 
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
 			//print the checkbox code:
 			add_action( 'register_form',		array( $this, 'printGaspLoginCheck_Action' ) );
 			add_action( 'lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ) );
-			
+
 			//verify the checkbox is present:
 			add_action( 'register_post',		array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
-			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10, 1 );
+			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10 );
 		}
 	}
 
@@ -48,10 +50,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @param $oUser
 	 * @param $sUsername
-	 * @param $sPassword
 	 * @return WP_Error
 	 */
-	public function checkLoginForGasp_Filter( $oUser, $sUsername, $sPassword ) {
+	public function checkLoginForGasp_Filter( $oUser, $sUsername ) {
 		if ( !$this->loadWpFunctions()->getIsLoginRequest() ) {
 			return $oUser;
 		}
@@ -68,26 +69,18 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 
 	/**
 	 * @param string $sSanitizedUsername
-	 * @return WP_Error
+	 * @return void
 	 */
 	public function checkRegisterForGasp_Action( $sSanitizedUsername ) {
-		if ( $this->doGaspChecks( $sSanitizedUsername, _wpsf__( 'register' ) ) ) {
-			return $sSanitizedUsername;
-		}
-		//This doesn't actually ever get returned because we die() within doGaspChecks()
-		return new WP_Error( 'wpsf_gaspfail', _wpsf__( 'G.A.S.P. Checking Failed.' ) );
+		$this->doGaspChecks( $sSanitizedUsername, 'register' );
 	}
 
 	/**
-	 * @param string $sSanitizedUsername
-	 * @return WP_Error
+	 * @return void
 	 */
-	public function checkResetPasswordForGasp_Action( $sSanitizedUsername ) {
-		if ( $this->doGaspChecks( $sSanitizedUsername, _wpsf__( 'reset-password' ) ) ) {
-			return $sSanitizedUsername;
-		}
-		//This doesn't actually ever get returned because we die() within doGaspChecks()
-		return new WP_Error( 'wpsf_gaspfail', _wpsf__( 'G.A.S.P. Checking Failed.' ) );
+	public function checkResetPasswordForGasp_Action() {
+		$sSanitizedUsername = sanitize_user( $this->loadDataProcessor()->FetchPost( 'user_login', '' ) );
+		$this->doGaspChecks( $sSanitizedUsername, 'reset-password' );
 	}
 
 	/**
@@ -100,7 +93,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
-		
+
 		$sStyles = '
 			<style>
 				#'.$sUniqElem.' {
@@ -158,6 +151,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * Uses wpDie()
 	 * @param string $sUsername
 	 * @param string $sActionAttempted
 	 * @return bool
@@ -175,7 +169,8 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			// We now black mark this IP
 			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 
-			$this->loadWpFunctions()->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
+			$this->loadWpFunctions()
+				 ->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
 			return false;
 		}
 		else if ( !empty( $sHoney ) ) {
@@ -186,10 +181,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			// We now black mark this IP
 			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 
-			$this->loadWpFunctions()->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
+			$this->loadWpFunctions()
+				 ->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
 			return false;
 		}
 		return true;
 	}
 }
-endif;
