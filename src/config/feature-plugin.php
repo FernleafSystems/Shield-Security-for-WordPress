@@ -74,11 +74,6 @@
       "title_short": "Google"
     },
     {
-      "slug": "section_third_party_duo",
-      "title": "Duo Security",
-      "title_short": "Duo Security"
-    },
-    {
       "slug": "section_non_ui",
       "hidden": true
     }
