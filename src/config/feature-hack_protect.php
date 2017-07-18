@@ -20,15 +20,6 @@
       ]
     },
     {
-      "slug": "section_plugin_vulnerabilities_scan",
-      "title": "Plugin Vulnerabilities Scanner",
-      "title_short": "Plugin Vulnerabilities",
-      "summary": [
-        "Purpose - Regularly scan your plugins against a database of known vulnerabilities.",
-        "Recommendation - Keep the Plugin Vulnerabilities Scanner feature turned on."
-      ]
-    },
-    {
       "slug": "section_core_file_integrity_scan",
       "title": "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
