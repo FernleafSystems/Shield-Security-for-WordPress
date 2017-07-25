@@ -6,6 +6,7 @@
     "storage_key": "plugin",
     "tagline": "Overview of the plugin settings",
     "show_central": true,
+    "access_restricted": true,
     "order": 10
   },
   "admin_notices": {

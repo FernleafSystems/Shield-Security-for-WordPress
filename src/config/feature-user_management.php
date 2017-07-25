@@ -6,6 +6,7 @@
     "storage_key": "user_management",
     "tagline": "Get true user sessions and control account sharing, session duration and timeouts",
     "show_central": true,
+    "access_restricted": true,
     "order": 40
   },
   "sections": [

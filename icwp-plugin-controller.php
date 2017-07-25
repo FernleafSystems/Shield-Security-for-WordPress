@@ -295,10 +295,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
 	 */
 	public function onWpAdminMenu() {
-		return ( $this->getIsValidAdminArea() ? $this->createPluginMenu() : true );
+		if ( $this->getIsValidAdminArea() ) {
+			$this->createPluginMenu();
+		}
 	}
 
 	/**

@@ -6,6 +6,7 @@
     "show_feature_menu_item": true,
     "storage_key": "hack_protect",
     "show_central": true,
+    "access_restricted": true,
     "order": 70
   },
   "sections": [

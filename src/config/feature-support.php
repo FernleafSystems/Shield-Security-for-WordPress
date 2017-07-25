@@ -1,13 +1,14 @@
 {
   "properties": {
     "slug": "support",
-    "name": "Premium Support",
+    "name": "Shield Central Pro",
     "show_feature_menu_item": true,
     "storage_key": "support",
     "tagline": "Premium Plugin Support Centre",
     "auto_enabled": true,
     "highlight_menu_item": true,
-    "show_central": false
+    "show_central": false,
+    "access_restricted": false
   },
   "sections": [
     {
@@ -39,6 +40,7 @@
     }
   ],
   "definitions": {
-    "default_helpdesk_url": "http://icwp.io/shieldhelpdesk"
+    "default_helpdesk_url": "http://icwp.io/shieldhelpdesk",
+    "landing_page_url": "//icwp.io/shieldcentralpluginframe"
   }
 }

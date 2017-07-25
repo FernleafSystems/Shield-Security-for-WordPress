@@ -7,6 +7,7 @@
     "storage_key": "headers",
     "tagline": "Control HTTP Security Headers",
     "show_central": true,
+    "access_restricted": true,
     "order": 80
   },
   "sections": [
