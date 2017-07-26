@@ -1,4 +1,18 @@
 {
+  "5.11.1": {
+	"version": {
+	  "series": "5.11.0",
+	  "major": 5,
+	  "minor": 11,
+	  "patch": 1
+	},
+	"attributes": {
+	  "timestamp": "1501084082",
+	  "is_patch": true,
+	  "options_added": false,
+	  "options_removed": false
+	}
+  },
   "5.11.0": {
 	"version": {
 	  "series": "5.11.0",
@@ -114,6 +128,11 @@
     }
   },
   "changelog": [
+	{
+	  "type": "fixed",
+	  "summary": "JSON syntax error.",
+	  "version": "5.11.1"
+	},
 	{
 	  "type": "added",
 	  "summary": "Better Shield Central page.",
