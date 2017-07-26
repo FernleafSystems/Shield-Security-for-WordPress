@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: http://icwp.io/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 5.10.2
+ * Version: 5.11.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages/
  * Author: iControlWP
