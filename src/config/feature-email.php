@@ -5,7 +5,8 @@
     "name": "Email",
     "show_feature_menu_item": false,
     "storage_key": "email",
-    "show_central": false
+    "show_central": false,
+    "access_restricted": true,
   },
   "sections": [
     {

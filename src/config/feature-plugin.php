@@ -6,6 +6,7 @@
     "storage_key": "plugin",
     "tagline": "Overview of the plugin settings",
     "show_central": true,
+    "access_restricted": true,
     "order": 10
   },
   "admin_notices": {
@@ -72,11 +73,6 @@
       "slug": "section_third_party_google",
       "title": "Google",
       "title_short": "Google"
-    },
-    {
-      "slug": "section_third_party_duo",
-      "title": "Duo Security",
-      "title_short": "Duo Security"
     },
     {
       "slug": "section_non_ui",

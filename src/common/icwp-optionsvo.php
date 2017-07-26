@@ -474,6 +474,14 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function isAccessRestricted() {
+			$bAccessRestricted = $this->getFeatureProperty( 'access_restricted' );
+			return is_null( $bAccessRestricted ) ? true : (bool)$bAccessRestricted;
+		}
+
+		/**
 		 * @param string $sOptionKey
 		 * @return boolean
 		 */

@@ -8,6 +8,7 @@
     "tagline": "Protect your security plugin not just your WordPress site",
     "menu_title": "Security Admin",
     "show_central": true,
+    "access_restricted": true,
     "order": 20
   },
   "admin_notices": {

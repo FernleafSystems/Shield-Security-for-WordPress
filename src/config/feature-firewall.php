@@ -7,6 +7,7 @@
     "storage_key": "firewall",
     "tagline": "Automatically block malicious URLs and data sent to your site",
     "show_central": true,
+    "access_restricted": true,
     "order": 30
   },
   "sections": [

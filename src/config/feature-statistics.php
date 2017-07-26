@@ -5,7 +5,8 @@
     "show_feature_menu_item": false,
     "storage_key": "statistics",
     "tagline": "Summary of the main security actions taken by this plugin",
-    "show_central": false
+    "show_central": false,
+    "access_restricted": true
   },
   "sections": [
     {

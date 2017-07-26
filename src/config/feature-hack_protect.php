@@ -6,6 +6,7 @@
     "show_feature_menu_item": true,
     "storage_key": "hack_protect",
     "show_central": true,
+    "access_restricted": true,
     "order": 70
   },
   "sections": [
@@ -17,15 +18,6 @@
       "summary": [
         "Purpose - The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.",
         "Recommendation - Keep the Hack Protection feature turned on."
-      ]
-    },
-    {
-      "slug": "section_plugin_vulnerabilities_scan",
-      "title": "Plugin Vulnerabilities Scanner",
-      "title_short": "Plugin Vulnerabilities",
-      "summary": [
-        "Purpose - Regularly scan your plugins against a database of known vulnerabilities.",
-        "Recommendation - Keep the Plugin Vulnerabilities Scanner feature turned on."
       ]
     },
     {

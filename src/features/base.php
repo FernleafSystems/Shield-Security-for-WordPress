@@ -986,7 +986,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
 					'save_all_settings'                 => __( 'Save All Settings' ),
 					'see_help_video'                    => __( 'Watch Help Video' )
-				)
+				),
+				'flags' => array(
+					'wrap_page_content' => true,
+				),
 			);
 		}
 
@@ -1007,7 +1010,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 
 			// Get Base Data
 			$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-			$bPermissionToView = self::getController()->getHasPermissionToView();
+			$bPermissionToView = $this->getOptionsVo()->isAccessRestricted() ? self::getController()->getHasPermissionToView() : true;
 
 			if ( !$bPermissionToView ) {
 				$sSubView = 'subfeature-access_restricted';

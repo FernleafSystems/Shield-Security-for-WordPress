@@ -11,12 +11,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		public function displayFeatureConfigPage( ) {
 			$aData = array(
 				'has_premium_support' => $this->getHasPremiumSupport(),
-				'premium_support_registered_email' => $this->getPremiumSupportRegisteredEmail(),
 				'aHrefs' => array(
-					'support_centre_sso' => $this->getPremiumSupportHelpdeskUrl(),
 					'shield_pro_url' => 'http://icwp.io/shieldpro',
-					'shield_pro_more_info_url' => 'http://icwp.io/shld1'
-				)
+					'shield_pro_more_info_url' => 'http://icwp.io/shld1',
+					'iframe_url' => $this->getDefinition( 'landing_page_url' ),
+				),
+				'bShowStateSummary' => false,
+				'flags' => array(
+					'wrap_page_content' => false,
+				),
 			);
 			$this->display( $aData, 'feature-support' );
 		}
@@ -24,24 +27,9 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		/**
 		 * @return bool
 		 */
-		public function getPremiumSupportRegisteredEmail() {
-			return $this->getHasPremiumSupport() ? ICWP_Plugin::GetAssignedToEmail() : '';
-		}
-
-		/**
-		 * @return bool
-		 */
-		public function getPremiumSupportHelpdeskUrl() {
-			$sHelpdesk = $this->getHasPremiumSupport() ? ICWP_Plugin::GetHelpdeskSsoUrl() : '';
-			return $this->getDefinition( 'default_helpdesk_url' );
-//			return empty( $sHelpdesk ) ? $this->getDefinition( 'default_helpdesk_url' ) : $sHelpdesk;
-		}
-
-		/**
-		 * @return bool
-		 */
 		public function getHasPremiumSupport() {
-			return apply_filters( $this->prefix( 'has_premium_support' ), $this->getIcwpLinked() );
+			return false; // todo - detect whether Shield addon is active for this site.
+//			return apply_filters( $this->prefix( 'has_premium_support' ), $this->getIcwpLinked() );
 		}
 
 		/**

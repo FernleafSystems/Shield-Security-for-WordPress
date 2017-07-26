@@ -7,6 +7,7 @@
     "storage_key": "audit_trail",
     "tagline": "Get a view on what happens on your site, when it happens",
     "show_central": true,
+    "access_restricted": true,
     "order": 110
   },
   "sections": [

@@ -1,4 +1,18 @@
 {
+  "5.11.0": {
+	"version": {
+	  "series": "5.11.0",
+	  "major": 5,
+	  "minor": 11,
+	  "patch": 0
+	},
+	"attributes": {
+	  "timestamp": "1501059402",
+	  "is_patch": false,
+	  "options_added": false,
+	  "options_removed": false
+	}
+  },
   "5.10.2": {
 	"version": {
 	  "series": "5.10.0",
@@ -100,6 +114,16 @@
     }
   },
   "changelog": [
+	{
+	  "type": "added",
+	  "summary": "Better Shield Central page.",
+	  "version": "5.11.0"
+	},
+	{
+	  "type": "changed",
+	  "summary": "Removed unused options sections.",
+	  "version": "5.11.0"
+	},
 	{
 	  "type": "fixed",
 	  "summary": "Fatal error with GASP + Password Reset.",

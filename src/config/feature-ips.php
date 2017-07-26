@@ -7,6 +7,7 @@
     "storage_key": "ips",
     "tagline": "Manage Visitor IP Address",
     "show_central": true,
+    "access_restricted": true,
     "order": 100
   },
   "admin_notices": {

@@ -7,6 +7,7 @@
     "storage_key": "autoupdates",
     "tagline": "Take back full control of WordPress automatic updates",
     "show_central": true,
+    "access_restricted": true,
     "order": 60
   },
   "sections": [
