@@ -256,7 +256,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 						.'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime() / 60 ) )
 						.'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
 						.'</p>'
-						.'<p><a href="http://icwp.io/6i" target="_blank">'._wpsf__( 'Click here if you are the site owner.' ).'</a></p>'
 					);
 			}
 		}

@@ -336,7 +336,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Firewall', false ) ):
 		}
 
 		/**
-		 * @return array
+		 * @return string
 		 */
 		protected function getFirewallDieMessageForDisplay() {
 			$aMessages = apply_filters( $this->getFeature()->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
