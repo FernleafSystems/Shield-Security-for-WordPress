@@ -275,7 +275,9 @@
         "regex": [
           "concat\\s*\\(",
           "group_concat",
-          "union.*select"
+          "union.*select",
+          "drop\\s+table\\s+(`|'?)[a-z0-9]+\\1",
+          "'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+"
         ]
       },
       "exefile": {
