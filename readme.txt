@@ -313,12 +313,14 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 * **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/83) release. Automatically detect and delete
 							any files present in core WordPress directories that aren't part of your core installation.
+* **(v.0)**  ADDED:			Updated Firewall rules for SQL under the 'Aggressive' rule set.
 
 = 5.12 Series =
 *Released: 3rd August, 2017*
 
 * **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/83) release. Automatically detect and delete
 							any files present in core WordPress directories that aren't part of your core installation.
+* **(v.0)**  ADDED:			Updated Firewall rules for SQL under the 'Aggressive' rule set.
 
 = 5.11 Series =
 *Released: 26th July, 2017*
