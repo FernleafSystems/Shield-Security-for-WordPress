@@ -18,6 +18,10 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function run() {
 		$this->setupChecksumCron();
 
+		if ( $_GET[ 'test' ] ) {
+			$this->cron_dailyFileCleanerScan();
+		}
+
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oDp = $this->loadDataProcessor();
 
@@ -74,14 +78,15 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 
 	/**
 	 * @param string $sRootDir
-	 * @return array
+	 * @return string[]
 	 */
 	protected function scanCoreDir( $sRootDir ) {
 		$aOddFiles = array();
 
 		$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sRootDir ) );
 		$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
-		foreach ( $oRecursiveIterator as $oFsItem ) { /** @var SplFileInfo $oFsItem */
+		foreach ( $oRecursiveIterator as $oFsItem ) {
+			/** @var SplFileInfo $oFsItem */
 
 			if ( $oFsItem->isFile() && !$this->isExcluded( $oFsItem ) ) {
 				if ( !$this->isCoreFile( $oFsItem ) ) {
@@ -131,7 +136,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 * @return bool
 	 */
 	protected function isExcluded( $oFile ) {
-		return in_array( $oFile->getFilename(), $this->getFeature()->getDefinition( 'exclusions_core_file_cleaner' ) );
+		return in_array( $oFile->getFilename(), $this->getFeature()->getDefinition( 'exclusions_unrecognised_file_scanner' ) );
 	}
 
 	public function cron_dailyFileCleanerScan() {
@@ -139,11 +144,14 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			return;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
-		$aDiscoveredFiles = $this->doFileCleanerScan( $oFO->isUnrecognisedFileScannerDeleteFiles() );
-		if ( $oFO->isUnrecognisedFileScannerSendReport() && !empty( $aDiscoveredFiles ) ) {
-			$this->sendEmailNotification( $aDiscoveredFiles );
+		// Check that we can get the core files since if it's empty, we'd delete everything
+		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 for just a basic sanity check
+			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+			$oFO = $this->getFeature();
+			$aDiscoveredFiles = $this->doFileCleanerScan( $oFO->isUnrecognisedFileScannerDeleteFiles() );
+			if ( $oFO->isUnrecognisedFileScannerSendReport() && !empty( $aDiscoveredFiles ) ) {
+				$this->sendEmailNotification( $aDiscoveredFiles );
+			}
 		}
 	}
 
@@ -161,8 +169,8 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$oWp = $this->loadWpFunctions();
 		$sHomeUrl = $oWp->getHomeUrl();
 		$aContent = array(
-			sprintf( _wpsf__( '%s has detected files on your site which are not welcome.' ), $this->getController()
-																								  ->getHumanName() ),
+			sprintf( _wpsf__( '%s detected files on your site which are not recognised.' ), $this->getController()
+																								 ->getHumanName() ),
 			_wpsf__( 'This is part of the Hack Protection module for the WordPress Unrecognised File Scanner.' )
 			. ' [<a href="http://icwp.io/shieldmoreinfounrecognised">' . _wpsf__( 'More Info' ) . ']</a>',
 			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
@@ -190,7 +198,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		$sRecipient = $this->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unwanted WordPress Files(s) Detected.' ) );
+		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files(s) Detected.' ) );
 		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 
 		if ( $bSendSuccess ) {
@@ -214,6 +222,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	/**
+	 * TODO
 	 * @param string $sFile
 	 * @return string
 	 */
@@ -238,7 +247,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	protected function getCronName() {
 		$oFO = $this->getFeature();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'corechecksum_cron_name' ) );
+		return $oFO->prefixOptionKey( $oFO->getDefinition( 'unrecognisedscan_cron_name' ) );
 	}
 }
 
@@ -247,11 +256,10 @@ class CleanerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	public function accept() {
 		/** @var SplFileInfo $oCurrent */
 		$oCurrent = $this->current();
-		$sFileName = $oCurrent->getFilename();
 
 		$bRecurse = true; // I.e. consume the file.
 
-		if ( in_array( $sFileName, array( '.', '..' ) ) ) {
+		if ( in_array( $oCurrent->getFilename(), array( '.', '..' ) ) ) {
 			$bRecurse = false;
 		}
 

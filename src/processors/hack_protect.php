@@ -11,9 +11,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 			$oFO = $this->getFeature();
-			$oDp = $this->loadDataProcessor();
 
-			$sPath = $oDp->getRequestPath();
+			$sPath = $this->loadDataProcessor()->getRequestPath();
 			if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
 				$this->revSliderPatch_LFI();
 				$this->revSliderPatch_AFU();

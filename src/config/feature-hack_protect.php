@@ -111,6 +111,7 @@
     "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name": "plugin-vulnerabilities-notification",
     "corechecksum_cron_name": "core-checksum-notification",
+    "unrecognisedscan_cron_name": "unrecognised-scan-notification",
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn": "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n": "https://svn.automattic.com/wordpress-i18n/",
@@ -130,7 +131,7 @@
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
     ],
-    "exclusions_core_file_cleaner": [
+    "exclusions_unrecognised_file_scanner": [
       "error_log",
       ".htaccess",
       ".htpasswd",
