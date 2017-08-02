@@ -27,8 +27,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		/**
 		 * @return bool
 		 */
+		public function getIfShowFeatureMenuItem() {
+			return !$this->getHasPremiumSupport();
+		}
+
+		/**
+		 * @return bool
+		 */
 		public function getHasPremiumSupport() {
-			return false; // todo - detect whether Shield addon is active for this site.
+			return $this->getIcwpLinked(); // todo - detect whether Shield addon is active for this site.
 //			return apply_filters( $this->prefix( 'has_premium_support' ), $this->getIcwpLinked() );
 		}
 
@@ -47,13 +54,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Support', false ) ):
 		}
 
 		/**
-		 * @return boolean
+		 * @return bool
 		 */
 		protected function getIcwpPluginMeetsMinimumVersion() {
-			return version_compare( ICWP_Plugin::GetVersion(), '2.13', '>=' );
+			return version_compare( ICWP_Plugin::GetVersion(), '3.4', '>=' );
 		}
-
-		public function doPrePluginOptionsSave() {}
 
 		/**
 		 * @param array $aOptionsParams
