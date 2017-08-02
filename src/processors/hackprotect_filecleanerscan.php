@@ -18,10 +18,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function run() {
 		$this->setupChecksumCron();
 
-		if ( $_GET[ 'test' ] ) {
-			$this->cron_dailyFileCleanerScan();
-		}
-
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oDp = $this->loadDataProcessor();
 
