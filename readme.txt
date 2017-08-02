@@ -311,14 +311,14 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.12.0 Latest Point Release =
 *Released: 3rd August, 2017*
 
-* **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/83) release. Automatically detect and delete
+* **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/94) release. Automatically detect and delete
 							any files present in core WordPress directories that aren't part of your core installation.
 * **(v.0)**  ADDED:			Updated Firewall rules for SQL under the 'Aggressive' rule set.
 
 = 5.12 Series =
 *Released: 3rd August, 2017*
 
-* **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/83) release. Automatically detect and delete
+* **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/94) release. Automatically detect and delete
 							any files present in core WordPress directories that aren't part of your core installation.
 * **(v.0)**  ADDED:			Updated Firewall rules for SQL under the 'Aggressive' rule set.
 
