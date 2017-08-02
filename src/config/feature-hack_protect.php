@@ -132,7 +132,9 @@
     ],
     "exclusions_core_file_cleaner": [
       "error_log",
-      ".htaccess"
+      ".htaccess",
+      ".htpasswd",
+      ".user.ini"
     ]
   }
 }
