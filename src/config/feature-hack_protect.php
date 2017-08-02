@@ -80,12 +80,12 @@
     {
       "key": "enable_unrecognised_file_cleaner_scan",
       "section": "section_unrecognised_file_scan",
-      "default": "disabled",
+      "default": "enabled_report_only",
       "type": "select",
       "value_options": [
         {
           "value_key": "disabled",
-          "text": "Disabled"
+          "text": "Scan Disabled"
         },
         {
           "value_key": "enabled_report_only",
