@@ -9,6 +9,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		 * Override to set what this processor does when it's "run"
 		 */
 		public function run() {
+			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+			$oFO = $this->getFeature();
 			$oDp = $this->loadDataProcessor();
 
 			$sPath = $oDp->getRequestPath();
@@ -21,6 +23,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 
 			if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
 				$this->runChecksumScan();
+			}
+
+			if ( $oFO->isUnrecognisedFileScannerEnabled() ) {
+				$this->runFileCleanerScan();
 			}
 		}
 
@@ -47,6 +53,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 		protected function runChecksumScan() {
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
 			$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeature() );
+			$oPv->run();
+		}
+
+		/**
+		 */
+		protected function runFileCleanerScan() {
+			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'hackprotect_filecleanerscan.php' );
+			$oPv = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getFeature() );
 			$oPv->run();
 		}
 

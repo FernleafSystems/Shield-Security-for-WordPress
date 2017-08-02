@@ -30,6 +30,15 @@
       ]
     },
     {
+      "slug": "section_unrecognised_file_scan",
+      "title": "Unrecognised Files Scanner",
+      "title_short": "Unrecognised Files Scanner",
+      "summary": [
+        "Purpose - Scan your WordPress core folders for unrecognised files that don't belong.",
+        "Recommendation - Keep the Unrecognised Files Scanner feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -67,6 +76,35 @@
       "name": "Auto Repair",
       "summary": "Automatically Repair WordPress Core Files That Have Been Altered",
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
+    },
+    {
+      "key": "enable_unrecognised_file_cleaner_scan",
+      "section": "section_unrecognised_file_scan",
+      "default": "disabled",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text": "Disabled"
+        },
+        {
+          "value_key": "enabled_report_only",
+          "text": "Email Report Only"
+        },
+        {
+          "value_key": "enabled_delete_only",
+          "text": "Automatically Delete Files"
+        },
+        {
+          "value_key": "enabled_delete_report",
+          "text": "Auto Delete Files and Email Report"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Unrecognised Files Scanner",
+      "summary": "Scans Core Directories For Unrecognised Files",
+      "description": "Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation."
     }
   ],
   "definitions": {
@@ -91,6 +129,10 @@
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
+    ],
+    "exclusions_core_file_cleaner": [
+      "error_log",
+      ".htaccess"
     ]
   }
 }
