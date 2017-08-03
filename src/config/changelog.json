@@ -1,4 +1,18 @@
 {
+  "5.12.1": {
+	"version": {
+	  "series": "5.12.1",
+	  "major": 5,
+	  "minor": 12,
+	  "patch": 1
+	},
+	"attributes": {
+	  "timestamp": "1501774434",
+	  "is_patch": true,
+	  "options_added": false,
+	  "options_removed": false
+	}
+  },
   "5.12.0": {
 	"version": {
 	  "series": "5.12.0",
@@ -142,6 +156,16 @@
     }
   },
   "changelog": [
+	{
+	  "type": "added",
+	  "summary": "A few more exclusions for the Unrecognised File Scanner.",
+	  "version": "5.12.1"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "Fix for Fatal error: Class ‘ICWP_WPSF_FeatureHandler_HackProtect’ not found.",
+	  "version": "5.12.1"
+	},
 	{
 	  "type": "added",
 	  "summary": "Unrecognised File Scanner.",
