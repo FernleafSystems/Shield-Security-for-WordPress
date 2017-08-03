@@ -1,0 +1,5 @@
+language: php
+dist: trusty
+php:
+- 5.5
+script: phpunit tests/FilesHaveJsonFormatTest.php
