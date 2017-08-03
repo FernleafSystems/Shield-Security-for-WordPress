@@ -135,7 +135,9 @@
       "error_log",
       ".htaccess",
       ".htpasswd",
-      ".user.ini"
+      ".user.ini",
+      "php.ini",
+      "web.config"
     ]
   }
 }
