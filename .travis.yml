@@ -2,4 +2,6 @@ language: php
 dist: trusty
 php:
 - 5.5
+install:
+- composer install
 script: phpunit tests/FilesHaveJsonFormatTest.php
