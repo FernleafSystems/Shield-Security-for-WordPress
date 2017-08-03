@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ) {
+if ( class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ) {
 	return;
 }
 
