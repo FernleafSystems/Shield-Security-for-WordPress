@@ -1064,24 +1064,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sCurrentHash = @md5_file( $sSpecPath );
 		$sModifiedTime = $this->loadFS()->getModifiedTime( $sSpecPath );
 
-		if ( empty( $oConOptions->plugin_spec ) ) {
-			$this->bRebuildOptions = true;
-		}
-		else if ( !empty( $oConOptions->hash ) && is_string( $oConOptions->hash ) && strlen( $oConOptions->hash ) == 32 ) {
+		$this->bRebuildOptions = true;
 
-			if ( $oConOptions->hash == $sCurrentHash ) {
-				$this->bRebuildOptions = false;
-			}
-			else {
-				$this->bRebuildOptions = true;
-			}
+		if ( isset( $oConOptions->hash ) && is_string( $oConOptions->hash ) && ( $oConOptions->hash == $sCurrentHash ) ) {
+			$this->bRebuildOptions = false;
 		}
-		else if ( !empty( $oConOptions->mod_time ) ) {
-			$this->bRebuildOptions = $sModifiedTime > $oConOptions->mod_time;
+		else if ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
+			$this->bRebuildOptions = false;
 		}
-		else {
-			$this->bRebuildOptions = (bool) $this->loadFS()->isFile( $this->getPath_Flags( 'rebuild' ) );
-		}
+
 		$oConOptions->hash = $sCurrentHash;
 		$oConOptions->mod_time = $sModifiedTime;
 		return $this->bRebuildOptions;
