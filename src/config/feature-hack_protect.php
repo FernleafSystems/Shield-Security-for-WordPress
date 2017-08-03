@@ -100,7 +100,7 @@
           "text": "Auto Delete Files and Email Report"
         }
       ],
-      "link_info": "",
+      "link_info": "http://icwp.io/95",
       "link_blog": "",
       "name": "Unrecognised Files Scanner",
       "summary": "Scans Core Directories For Unrecognised Files",
