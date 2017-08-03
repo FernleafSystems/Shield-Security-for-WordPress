@@ -80,12 +80,12 @@
     {
       "key": "enable_unrecognised_file_cleaner_scan",
       "section": "section_unrecognised_file_scan",
-      "default": "disabled",
+      "default": "enabled_report_only",
       "type": "select",
       "value_options": [
         {
           "value_key": "disabled",
-          "text": "Disabled"
+          "text": "Scan Disabled"
         },
         {
           "value_key": "enabled_report_only",
@@ -100,7 +100,7 @@
           "text": "Auto Delete Files and Email Report"
         }
       ],
-      "link_info": "",
+      "link_info": "http://icwp.io/95",
       "link_blog": "",
       "name": "Unrecognised Files Scanner",
       "summary": "Scans Core Directories For Unrecognised Files",
@@ -111,6 +111,7 @@
     "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name": "plugin-vulnerabilities-notification",
     "corechecksum_cron_name": "core-checksum-notification",
+    "unrecognisedscan_cron_name": "unrecognised-scan-notification",
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn": "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n": "https://svn.automattic.com/wordpress-i18n/",
@@ -130,9 +131,11 @@
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
     ],
-    "exclusions_core_file_cleaner": [
+    "exclusions_unrecognised_file_scanner": [
       "error_log",
-      ".htaccess"
+      ".htaccess",
+      ".htpasswd",
+      ".user.ini"
     ]
   }
 }

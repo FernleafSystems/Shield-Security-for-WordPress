@@ -68,7 +68,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	public function doChecksumScan( $bAutoRepair ) {
 		$aChecksumData = $this->loadWpFunctions()->getCoreChecksums();
 
-		if ( empty( $aChecksumData ) || !is_array( $aChecksumData ) ) {
+		if ( empty( $aChecksumData ) ) {
 			return array();
 		}
 

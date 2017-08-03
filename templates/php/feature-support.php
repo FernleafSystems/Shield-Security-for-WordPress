@@ -1,6 +1,5 @@
-<?php if ( $has_premium_support ) : ?>
+<?php if ( !$has_premium_support ) : ?>
 
-<?php else : ?>
 <style>
 	#wpcontent {
 		padding-left: 0;
