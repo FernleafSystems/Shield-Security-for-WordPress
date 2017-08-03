@@ -138,7 +138,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
-		 * @return array|false
+		 * @return string[]
 		 */
 		public function getCoreChecksums() {
 			$aChecksumData = false;
@@ -161,7 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 					}
 				}
 			}
-			return $aChecksumData;
+			return is_array( $aChecksumData ) ? $aChecksumData : array();
 		}
 
 		/**

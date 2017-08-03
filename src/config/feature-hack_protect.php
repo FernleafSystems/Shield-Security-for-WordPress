@@ -30,6 +30,15 @@
       ]
     },
     {
+      "slug": "section_unrecognised_file_scan",
+      "title": "Unrecognised Files Scanner",
+      "title_short": "Unrecognised Files Scanner",
+      "summary": [
+        "Purpose - Scan your WordPress core folders for unrecognised files that don't belong.",
+        "Recommendation - Keep the Unrecognised Files Scanner feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -67,12 +76,42 @@
       "name": "Auto Repair",
       "summary": "Automatically Repair WordPress Core Files That Have Been Altered",
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
+    },
+    {
+      "key": "enable_unrecognised_file_cleaner_scan",
+      "section": "section_unrecognised_file_scan",
+      "default": "enabled_report_only",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text": "Scan Disabled"
+        },
+        {
+          "value_key": "enabled_report_only",
+          "text": "Email Report Only"
+        },
+        {
+          "value_key": "enabled_delete_only",
+          "text": "Automatically Delete Files"
+        },
+        {
+          "value_key": "enabled_delete_report",
+          "text": "Auto Delete Files and Email Report"
+        }
+      ],
+      "link_info": "http://icwp.io/95",
+      "link_blog": "",
+      "name": "Unrecognised Files Scanner",
+      "summary": "Scans Core Directories For Unrecognised Files",
+      "description": "Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation."
     }
   ],
   "definitions": {
     "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name": "plugin-vulnerabilities-notification",
     "corechecksum_cron_name": "core-checksum-notification",
+    "unrecognisedscan_cron_name": "unrecognised-scan-notification",
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn": "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n": "https://svn.automattic.com/wordpress-i18n/",
@@ -91,6 +130,12 @@
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
+    ],
+    "exclusions_unrecognised_file_scanner": [
+      "error_log",
+      ".htaccess",
+      ".htpasswd",
+      ".user.ini"
     ]
   }
 }
