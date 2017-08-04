@@ -210,10 +210,8 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			_wpsf__('Use the following code in the Login Verification page.'),
 			'',
 			sprintf( _wpsf__( 'Authentication Code: %s' ), $this->getSessionHashCode() ),
-			_wpsf__('Or:'),
 			'',
-			_wpsf__('Click the following link to validate your login by email.').' '._wpsf__('You will be logged in automatically upon successful authentication.'),
-			sprintf( _wpsf__( 'Authentication Link: %s' ), $sAuthLink ),
+			sprintf( '<a href="%s" target="_blank">%s</a>', 'http://icwp.io/96', _wpsf__('Why no login link?') ),
 			''
 		);
 		$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctions()->getHomeUrl() );
