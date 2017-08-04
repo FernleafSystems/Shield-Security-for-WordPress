@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, shield, firewall, two-factor authentication, 2FA, audit trail, brute force, whitelist, blacklist, spam, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
 Requires at least: 3.5.0
 Tested up to: 4.8
-Stable tag: 5.12.1
+Stable tag: 5.12.2
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
@@ -308,11 +308,12 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.12.1 Latest Point Release =
-*Released: 3rd August, 2017*
+= 5.12.2 Latest Point Release =
+*Released: 4th August, 2017*
 
-* **(v.1)**  ADDED:			A few more exclusions for the [Unrecognised File Scanner](http://icwp.io/94)
-* **(v.1)**  FIX:			Fix for Fatal error.
+* **(v.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](http://icwp.io/94)
+* **(v.2)**  CHANGED:		Removed the email-based 2FA automatic login link.
+* **(v.2)**  FIX:			Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.
 
 = 5.12 Series =
 *Released: 3rd August, 2017*
