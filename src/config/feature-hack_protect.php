@@ -148,7 +148,9 @@
       ".htpasswd",
       ".user.ini",
       "php.ini",
-      "web.config"
+      "web.config",
+      "php_mail.log",
+      "mail.log"
     ]
   }
 }
