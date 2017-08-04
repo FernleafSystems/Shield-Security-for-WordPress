@@ -141,7 +141,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			case 'ufc_scan_uploads' :
 				$sName = _wpsf__( 'Scan Uploads' );
 				$sSummary = _wpsf__( 'Scan Uploads Folder For PHP and Javascript' );
-				$sDescription = _wpsf__( 'The Uploads folder is used primarily for media, but can be used to store nefarious files.' );
+				$sDescription = _wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
 				break;
 
 			default:

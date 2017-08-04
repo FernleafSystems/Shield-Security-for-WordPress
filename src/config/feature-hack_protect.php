@@ -115,7 +115,7 @@
       "link_blog": "",
       "name": "Scan Uploads",
       "summary": "Scan Uploads Folder For PHP and Javascript",
-      "description": "The Uploads folder is used primarily for media, but may be used to store nefarious files."
+      "description": "The Uploads folder is primarily for media, but could be used to store nefarious files."
     }
   ],
   "definitions": {
