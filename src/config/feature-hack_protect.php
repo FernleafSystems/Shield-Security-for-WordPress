@@ -105,7 +105,18 @@
       "name": "Unrecognised Files Scanner",
       "summary": "Scans Core Directories For Unrecognised Files",
       "description": "Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation."
-    }
+    },
+    {
+      "key": "ufc_scan_uploads",
+      "section": "section_unrecognised_file_scan",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "http://icwp.io/95",
+      "link_blog": "",
+      "name": "Scan Uploads",
+      "summary": "Scan Uploads Folder For PHP and Javascript",
+      "description": "The Uploads folder is used primarily for media, but may be used to store nefarious files."
+    },
   ],
   "definitions": {
     "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",

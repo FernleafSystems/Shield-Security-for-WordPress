@@ -24,7 +24,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ):
 				$this->runChecksumScan();
 			}
 
-			if ( $oFO->isUnrecognisedFileScannerEnabled() ) {
+			if ( $oFO->isUfsEnabled() ) {
 				$this->runFileCleanerScan();
 			}
 		}
