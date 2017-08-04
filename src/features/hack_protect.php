@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isUfsEnabled() {
-		return ( $this->getUnrecognisedFileScannerOption() == 'disabled' );
+		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
 	}
 
 	/**

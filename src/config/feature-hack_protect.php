@@ -116,7 +116,7 @@
       "name": "Scan Uploads",
       "summary": "Scan Uploads Folder For PHP and Javascript",
       "description": "The Uploads folder is used primarily for media, but may be used to store nefarious files."
-    },
+    }
   ],
   "definitions": {
     "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",

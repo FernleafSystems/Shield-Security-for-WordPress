@@ -72,24 +72,20 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$aOddFiles = array();
 
 		$sUploadsDir = $this->loadWpFunctions()->getDirUploads();
-		if ( empty( $sUploadsDir ) ) {
-
+		if ( !empty( $sUploadsDir ) ) {
 			$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sUploadsDir ) );
 			$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
 
 			$sBadExtensionsReg = '#^' . implode( '|', array( 'js', 'php', 'php5' ) ) . '$#i';
-			foreach ( $oRecursiveIterator as $oFsItem ) {
-				/** @var SplFileInfo $oFsItem */
+			foreach ( $oRecursiveIterator as $oFsItem ) { /** @var SplFileInfo $oFsItem */
 
 				if ( !$oFsItem->isDir() && !$this->isExcluded( $oFsItem ) ) {
-
 					if ( preg_match( $sBadExtensionsReg, $oFsItem->getExtension() ) ) {
 						$aOddFiles[] = $oFsItem->getPathname();
 					}
 				}
 			}
 		}
-
 		return $aOddFiles;
 	}
 
@@ -213,7 +209,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 
 		if ( !empty( $aFiles ) ) {
 			$aContent[] = '';
-			$aContent[] = _wpsf__( 'The following files do not match the official WordPress.org Core Files:' );
+			$aContent[] = _wpsf__( 'The following files are considered "unrecognised" and should be examined:' );
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - ' . $sFile;
 			}
