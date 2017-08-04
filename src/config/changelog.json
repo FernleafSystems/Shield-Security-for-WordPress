@@ -1,7 +1,21 @@
 {
+  "5.12.2": {
+	"version": {
+	  "series": "5.12.0",
+	  "major": 5,
+	  "minor": 12,
+	  "patch": 2
+	},
+	"attributes": {
+	  "timestamp": "1501840824",
+	  "is_patch": true,
+	  "options_added": false,
+	  "options_removed": false
+	}
+  },
   "5.12.1": {
 	"version": {
-	  "series": "5.12.1",
+	  "series": "5.12.0",
 	  "major": 5,
 	  "minor": 12,
 	  "patch": 1
@@ -156,6 +170,21 @@
     }
   },
   "changelog": [
+	{
+	  "type": "improved",
+	  "summary": "Improved support for Windows IIS hosting for Unrecognised File Scanner.",
+	  "version": "5.12.2"
+	},
+	{
+	  "type": "changed",
+	  "summary": "Removed the email-based 2FA automatic login link.",
+	  "version": "5.12.2"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.",
+	  "version": "5.12.2"
+	},
 	{
 	  "type": "added",
 	  "summary": "A few more exclusions for the Unrecognised File Scanner.",
