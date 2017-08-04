@@ -198,7 +198,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 				. ' ' . _wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
 		}
 		else {
-			$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
+			$aContent[] = _wpsf__( 'You should review these files and remove them if required.' );
 			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to delete these files automatically.' )
 				. ' [<a href="http://icwp.io/shieldmoreinfounrecognised">' . _wpsf__( 'More Info' ) . ']</a>';
 		}
