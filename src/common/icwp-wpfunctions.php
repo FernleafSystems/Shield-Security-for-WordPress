@@ -165,6 +165,16 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		public function getDirUploads() {
+			$aDirParts = wp_get_upload_dir();
+			$bHasUploads = is_array( $aDirParts ) && !empty( $aDirParts[ 'basedir' ] )
+				&& $this->loadFS()->exists( $aDirParts[ 'basedir' ] );
+			return $bHasUploads ? $aDirParts[ 'basedir' ] : '';
+		}
+
+		/**
 		 * @param string $sPath
 		 * @return string
 		 */
