@@ -124,7 +124,17 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 * @return bool
 	 */
 	protected function isCoreFile( $oFsItem ) {
-		return in_array( str_replace( ABSPATH, '', $oFsItem->getPathname() ), $this->getCoreFiles() );
+		// We rtrim the '/' to prevent mixup with windows and deal only in SYSTEM-generated paths first.
+		$sFilePathNoAbs = ltrim( str_replace( rtrim( ABSPATH, '/' ), '', $oFsItem->getPathname() ), "\/" );
+		return in_array( $this->normalizeFilePathDS( $sFilePathNoAbs ), $this->getCoreFiles() );
+	}
+
+	/**
+	 * @param string $sPath
+	 * @return string
+	 */
+	protected function normalizeFilePathDS( $sPath ) {
+		return ( DIRECTORY_SEPARATOR == '/' ) ? $sPath : str_replace( '\\', '/', $sPath );
 	}
 
 	/**
@@ -141,7 +151,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		// Check that we can get the core files since if it's empty, we'd delete everything
-		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 for just a basic sanity check
+		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 as a basic sanity check
 			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 			$oFO = $this->getFeature();
 			$aDiscoveredFiles = $this->doFileCleanerScan( $oFO->isUnrecognisedFileScannerDeleteFiles() );
