@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			$oDp = $this->loadDataProcessor();
 
 			if ( $oDp->FetchGet( 'force_filecleanscan' ) == 1 ) {
-				$this->cron_dailyFileCleanerScan();
+				$this->runScan();
 			}
 			else {
 				$sAction = $oDp->FetchGet( 'shield_action' );
@@ -143,7 +143,9 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 * @return bool
 	 */
 	protected function isExcluded( $oFile ) {
-		return in_array( $oFile->getFilename(), $this->getFeature()->getDefinition( 'exclusions_unrecognised_file_scanner' ) );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		return in_array( $oFile->getFilename(), $oFO->getUfcFileExclusions() );
 	}
 
 	public function cron_dailyFileCleanerScan() {

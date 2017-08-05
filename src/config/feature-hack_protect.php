@@ -116,6 +116,26 @@
       "name": "Scan Uploads",
       "summary": "Scan Uploads Folder For PHP and Javascript",
       "description": "The Uploads folder is primarily for media, but could be used to store nefarious files."
+    },
+    {
+      "key": "ufc_exclusions",
+      "section": "section_unrecognised_file_scan",
+      "default": [
+      	"error_log",
+      	".htaccess",
+      	".htpasswd",
+      	".user.ini",
+      	"php.ini",
+      	"web.config",
+      	"php_mail.log",
+      	"mail.log"
+      ],
+      "type": "array",
+      "link_info": "http://icwp.io/95",
+      "link_blog": "",
+      "name": "File Exclusions",
+      "summary": "Provide A List Of Files To Be Excluded From The Scan",
+      "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
     }
   ],
   "definitions": {
@@ -141,16 +161,6 @@
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
-    ],
-    "exclusions_unrecognised_file_scanner": [
-      "error_log",
-      ".htaccess",
-      ".htpasswd",
-      ".user.ini",
-      "php.ini",
-      "web.config",
-      "php_mail.log",
-      "mail.log"
     ]
   }
 }
