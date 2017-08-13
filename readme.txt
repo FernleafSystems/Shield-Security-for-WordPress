@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.8
-Stable tag: 5.12.2
+Stable tag: 5.13.0
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
