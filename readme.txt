@@ -3,7 +3,7 @@ Contributors: paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, shield, firewall, two-factor authentication, 2FA, audit trail, brute force, whitelist, blacklist, spam, ithemes, wordfence, better wp security, all-in-one, lockdown, login, hack
+Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.8
 Stable tag: 5.12.2
@@ -308,16 +308,24 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.12.2 Latest Point Release =
-*Released: 4th August, 2017*
+= 5.13.0 Latest Point Release =
+*Released: 14th August, 2017*
 
-* **(v.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](http://icwp.io/94)
-* **(v.2)**  CHANGED:		Removed the email-based 2FA automatic login link.
-* **(v.2)**  FIX:			Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.
+* **(v.0)**  ADDED:			New option for [Unrecognised File Scanner](http://icwp.io/94) to scan the Uploads folder for JS and PHP files.
+* **(v.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](http://icwp.io/94).
+
+= 5.13 Series =
+*Released: 14th August, 2017*
+
+* **(v.0)**  ADDED:			New option for [Unrecognised File Scanner](http://icwp.io/94) to scan the Uploads folder for JS and PHP files.
+* **(v.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](http://icwp.io/94).
 
 = 5.12 Series =
 *Released: 3rd August, 2017*
 
+* **(v.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](http://icwp.io/94)
+* **(v.2)**  CHANGED:		Removed the email-based 2FA automatic login link.
+* **(v.2)**  FIX:			Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.
 * **(v.1)**  ADDED:			A few more exclusions for the [Unrecognised File Scanner](http://icwp.io/94)
 * **(v.1)**  FIX:			Fix for Fatal error.
 * **(v.0)**  ADDED:			[Unrecognised File Scanner](http://icwp.io/94) release. Automatically detect and delete
