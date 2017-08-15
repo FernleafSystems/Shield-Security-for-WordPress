@@ -77,7 +77,8 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
 
 			$sBadExtensionsReg = '#^' . implode( '|', array( 'js', 'php', 'php5' ) ) . '$#i';
-			foreach ( $oRecursiveIterator as $oFsItem ) { /** @var SplFileInfo $oFsItem */
+			foreach ( $oRecursiveIterator as $oFsItem ) {
+				/** @var SplFileInfo $oFsItem */
 
 				if ( !$oFsItem->isDir() && !$this->isExcluded( $oFsItem ) ) {
 					if ( preg_match( $sBadExtensionsReg, $oFsItem->getExtension() ) ) {
@@ -204,17 +205,14 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 																								 ->getHumanName() ),
 			_wpsf__( 'This is part of the Hack Protection module for the WordPress Unrecognised File Scanner.' )
 			. ' [<a href="http://icwp.io/shieldmoreinfounrecognised">' . _wpsf__( 'More Info' ) . ']</a>',
-			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',
-			_wpsf__( 'Details for the problem files are below:' ),
+			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			_wpsf__( 'The following files are considered "unrecognised" and should be examined:' ),
+			''
 		);
 
-		if ( !empty( $aFiles ) ) {
-			$aContent[] = '';
-			$aContent[] = _wpsf__( 'The following files are considered "unrecognised" and should be examined:' );
-			foreach ( $aFiles as $sFile ) {
-				$aContent[] = ' - ' . $sFile;
-			}
+		foreach ( $aFiles as $sFile ) {
+			$aContent[] = ' - ' . $sFile;
 		}
 
 		$aContent[] = '';
@@ -224,6 +222,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 		else {
 			$aContent[] = _wpsf__( 'You should review these files and remove them if required.' );
+			$aContent[] = _wpsf__( 'You can now add these file names to your exclusion list to no longer be warned about them.' );
 			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to delete these files automatically.' )
 				. ' [<a href="http://icwp.io/shieldmoreinfounrecognised">' . _wpsf__( 'More Info' ) . ']</a>';
 		}
