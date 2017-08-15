@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			$oDp = $this->loadDataProcessor();
 
 			if ( $oDp->FetchGet( 'force_filecleanscan' ) == 1 ) {
-				$this->cron_dailyFileCleanerScan();
+				$this->runScan();
 			}
 			else {
 				$sAction = $oDp->FetchGet( 'shield_action' );
@@ -52,24 +52,51 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	/**
-	 * @param bool $bAutoDelete
 	 * @return array
 	 */
-	public function doFileCleanerScan( $bAutoDelete ) {
+	protected function scanCore() {
 		$aOutOfPlaceFiles = array();
-
-		// First look for anything out of place in the Core folders.
-		foreach ( array( 'wp-admin', 'wp-includes' ) as $sMainFolder ) {
-			$aOutOfPlaceFiles = array_merge( $aOutOfPlaceFiles, $this->scanCoreDir( path_join( ABSPATH, $sMainFolder ) ) );
-		}
-
-		if ( $bAutoDelete ) {
-			foreach ( $aOutOfPlaceFiles as $sFilePath ) {
-				$this->loadFS()->deleteFile( $sFilePath );
+		// Check that we can get the core files since if it's empty, we'd delete everything
+		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 as a basic sanity check
+			foreach ( array( 'wp-admin', 'wp-includes' ) as $sMainFolder ) {
+				$aOutOfPlaceFiles = array_merge( $aOutOfPlaceFiles, $this->scanCoreDir( path_join( ABSPATH, $sMainFolder ) ) );
 			}
 		}
-
 		return $aOutOfPlaceFiles;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function scanUploads() {
+		$aOddFiles = array();
+
+		$sUploadsDir = $this->loadWpFunctions()->getDirUploads();
+		if ( !empty( $sUploadsDir ) ) {
+			$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sUploadsDir ) );
+			$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
+
+			$sBadExtensionsReg = '#^' . implode( '|', array( 'js', 'php', 'php5' ) ) . '$#i';
+			foreach ( $oRecursiveIterator as $oFsItem ) {
+				/** @var SplFileInfo $oFsItem */
+
+				if ( !$oFsItem->isDir() && !$this->isExcluded( $oFsItem ) ) {
+					if ( preg_match( $sBadExtensionsReg, $oFsItem->getExtension() ) ) {
+						$aOddFiles[] = $oFsItem->getPathname();
+					}
+				}
+			}
+		}
+		return $aOddFiles;
+	}
+
+	/**
+	 * @param string[] $aFilesToDelete
+	 */
+	protected function deleteFiles( $aFilesToDelete ) {
+		foreach ( $aFilesToDelete as $sFilePath ) {
+			$this->loadFS()->deleteFile( $sFilePath );
+		}
 	}
 
 	/**
@@ -86,31 +113,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 
 			if ( $oFsItem->isFile() && !$this->isExcluded( $oFsItem ) ) {
 				if ( !$this->isCoreFile( $oFsItem ) ) {
-					$aOddFiles[] = $oFsItem->getPathname();
-				}
-			}
-		}
-
-		return $aOddFiles;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function scanUploadsDir() {
-		$aOddFiles = array();
-
-		$sUploadsDir = path_join( WP_CONTENT_DIR, 'uploads' );
-		$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sUploadsDir ) );
-		$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
-
-		$sBadExtensionsReg = '#^' . implode( '|', array( 'js', 'php', 'php5' ) ) . '$#i';
-		foreach ( $oRecursiveIterator as $oFsItem ) {
-			/** @var SplFileInfo $oFsItem */
-
-			if ( !$oFsItem->isDir() && !$this->isExcluded( $oFsItem ) ) {
-
-				if ( preg_match( $sBadExtensionsReg, $oFsItem->getExtension() ) ) {
 					$aOddFiles[] = $oFsItem->getPathname();
 				}
 			}
@@ -142,20 +144,44 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 * @return bool
 	 */
 	protected function isExcluded( $oFile ) {
-		return in_array( $oFile->getFilename(), $this->getFeature()->getDefinition( 'exclusions_unrecognised_file_scanner' ) );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		return in_array( $oFile->getFilename(), $oFO->getUfcFileExclusions() );
 	}
 
 	public function cron_dailyFileCleanerScan() {
 		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
 			return;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->isUfsEnabled() ) {
+			try {
+				$this->runScan(); // The file scanning part can exception with permission & exists
+			}
+			catch ( Exception $oE ) {
+				// TODO
+			}
+		}
+	}
 
-		// Check that we can get the core files since if it's empty, we'd delete everything
-		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 as a basic sanity check
-			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-			$oFO = $this->getFeature();
-			$aDiscoveredFiles = $this->doFileCleanerScan( $oFO->isUnrecognisedFileScannerDeleteFiles() );
-			if ( $oFO->isUnrecognisedFileScannerSendReport() && !empty( $aDiscoveredFiles ) ) {
+	/**
+	 * @throws Exception
+	 */
+	public function runScan() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$aDiscoveredFiles = $this->scanCore();
+		if ( $oFO->isUfsScanUploads() ) {
+			$aDiscoveredFiles = array_merge( $aDiscoveredFiles, $this->scanUploads() );
+		}
+
+		if ( !empty( $aDiscoveredFiles ) ) {
+			if ( $oFO->isUfsDeleteFiles() ) {
+				$this->deleteFiles( $aDiscoveredFiles );
+			}
+			if ( $oFO->isUfsSendReport() ) {
 				$this->sendEmailNotification( $aDiscoveredFiles );
 			}
 		}
@@ -179,26 +205,24 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 																								 ->getHumanName() ),
 			_wpsf__( 'This is part of the Hack Protection module for the WordPress Unrecognised File Scanner.' )
 			. ' [<a href="http://icwp.io/shieldmoreinfounrecognised">' . _wpsf__( 'More Info' ) . ']</a>',
-			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',
-			_wpsf__( 'Details for the problem files are below:' ),
+			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			_wpsf__( 'The following files are considered "unrecognised" and should be examined:' ),
+			''
 		);
 
-		if ( !empty( $aFiles ) ) {
-			$aContent[] = '';
-			$aContent[] = _wpsf__( 'The following files do not match the official WordPress.org Core Files:' );
-			foreach ( $aFiles as $sFile ) {
-				$aContent[] = ' - ' . $sFile;
-			}
+		foreach ( $aFiles as $sFile ) {
+			$aContent[] = ' - ' . $sFile;
 		}
 
 		$aContent[] = '';
-		if ( $oFO->isUnrecognisedFileScannerDeleteFiles() ) {
+		if ( $oFO->isUfsDeleteFiles() ) {
 			$aContent[] = _wpsf__( 'We have already attempted to delete these files based on your current settings.' )
 				. ' ' . _wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
 		}
 		else {
 			$aContent[] = _wpsf__( 'You should review these files and remove them if required.' );
+			$aContent[] = _wpsf__( 'You can now add these file names to your exclusion list to no longer be warned about them.' );
 			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to delete these files automatically.' )
 				. ' [<a href="http://icwp.io/shieldmoreinfounrecognised">' . _wpsf__( 'More Info' ) . ']</a>';
 		}

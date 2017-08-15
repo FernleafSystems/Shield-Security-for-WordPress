@@ -16,24 +16,63 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function isUnrecognisedFileScannerDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array( 'enabled_delete_only', 'enabled_delete_report' ) );
+	public function getUfcFileExclusions() {
+		$aExclusions = $this->getOpt( 'ufc_exclusions', array() );
+		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
+			$aExclusions = array();
+		}
+		return $aExclusions;
+	}
+
+	/**
+	 */
+	protected function doPrePluginOptionsSave() {
+		$this->cleanFileExclusions();
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanFileExclusions() {
+		$aExclusions = array_map(
+			function ( $sExclusion ) {
+				$sExclusion = preg_replace( '#[^\.0-9a-z_-]#i', '', trim( $sExclusion ) );
+				return trim( $sExclusion );
+			},
+			$this->getUfcFileExclusions()
+		);
+
+		return $this->setOpt( 'ufc_exclusions', $aExclusions );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function isUnrecognisedFileScannerSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array( 'enabled_report_only', 'enabled_delete_report' ) );
+	public function isUfsDeleteFiles() {
+		return in_array( $this->getUnrecognisedFileScannerOption(), array( 'enabled_delete_only', 'enabled_delete_report' ) );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isUnrecognisedFileScannerEnabled() {
-		return !$this->getOptIs( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
+	public function isUfsEnabled() {
+		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isUfsScanUploads() {
+		return $this->getOptIs( 'ufc_scan_uploads', 'Y' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function isUfsSendReport() {
+		return in_array( $this->getUnrecognisedFileScannerOption(), array( 'enabled_report_only', 'enabled_delete_report' ) );
 	}
 
 	/**
@@ -129,6 +168,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Unrecognised Files Scanner' );
 				$sSummary = _wpsf__( 'Daily Scan For Unrecognised Files In Core Directories' );
 				$sDescription = _wpsf__( 'Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation.' );
+				break;
+
+			case 'ufc_scan_uploads' :
+				$sName = _wpsf__( 'Scan Uploads' );
+				$sSummary = _wpsf__( 'Scan Uploads Folder For PHP and Javascript' );
+				$sDescription = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Take care when turning on this option - if you are unsure, leave it disabled.' ) )
+				.'<br />'._wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
+				break;
+
+			case 'ufc_exclusions' :
+				$sName = _wpsf__( 'File Exclusions' );
+				$sSummary = _wpsf__( 'Provide A List Of Files To Be Excluded From The Scan' );
+				$sDefaults = implode( ', ', $this->getOptionsVo()->getOptDefault( 'ufc_exclusions' ) );
+				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
+					. '<br/><strong>' . _wpsf__( 'No commas are necessary.' ) . '</strong>'
+					. '<br/>' . sprintf( 'Default: %s', $sDefaults );
 				break;
 
 			default:

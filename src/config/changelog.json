@@ -1,175 +1,201 @@
 {
-  "5.12.2": {
-	"version": {
-	  "series": "5.12.0",
-	  "major": 5,
-	  "minor": 12,
-	  "patch": 2
+  "versions": {
+	"5.13.0": {
+	  "version": {
+		"series": "5.13.0",
+		"major": 5,
+		"minor": 13,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1502787859",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1501840824",
-	  "is_patch": true,
-	  "options_added": false,
-	  "options_removed": false
-	}
-  },
-  "5.12.1": {
-	"version": {
-	  "series": "5.12.0",
-	  "major": 5,
-	  "minor": 12,
-	  "patch": 1
+	"5.12.2": {
+	  "version": {
+		"series": "5.12.0",
+		"major": 5,
+		"minor": 12,
+		"patch": 2
+	  },
+	  "attributes": {
+		"timestamp": "1501840824",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1501774434",
-	  "is_patch": true,
-	  "options_added": false,
-	  "options_removed": false
-	}
-  },
-  "5.12.0": {
-	"version": {
-	  "series": "5.12.0",
-	  "major": 5,
-	  "minor": 12,
-	  "patch": 0
+	"5.12.1": {
+	  "version": {
+		"series": "5.12.0",
+		"major": 5,
+		"minor": 12,
+		"patch": 1
+	  },
+	  "attributes": {
+		"timestamp": "1501774434",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1501742306",
-	  "is_patch": false,
-	  "options_added": true,
-	  "options_removed": false
-	}
-  },
-  "5.11.1": {
-	"version": {
-	  "series": "5.11.0",
-	  "major": 5,
-	  "minor": 11,
-	  "patch": 1
+	"5.12.0": {
+	  "version": {
+		"series": "5.12.0",
+		"major": 5,
+		"minor": 12,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1501742306",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1501084082",
-	  "is_patch": true,
-	  "options_added": false,
-	  "options_removed": false
-	}
-  },
-  "5.11.0": {
-	"version": {
-	  "series": "5.11.0",
-	  "major": 5,
-	  "minor": 11,
-	  "patch": 0
+	"5.11.1": {
+	  "version": {
+		"series": "5.11.0",
+		"major": 5,
+		"minor": 11,
+		"patch": 1
+	  },
+	  "attributes": {
+		"timestamp": "1501084082",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1501059402",
-	  "is_patch": false,
-	  "options_added": false,
-	  "options_removed": false
-	}
-  },
-  "5.10.2": {
-	"version": {
-	  "series": "5.10.0",
-	  "major": 5,
-	  "minor": 10,
-	  "patch": 2
+	"5.11.0": {
+	  "version": {
+		"series": "5.11.0",
+		"major": 5,
+		"minor": 11,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1501059402",
+		"is_patch": false,
+		"options_added": false,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1498828475",
-	  "is_patch": true,
-	  "options_added": false,
-	  "options_removed": false
-	}
-  },
-  "5.10.1": {
-	"version": {
-	  "series": "5.10.0",
-	  "major": 5,
-	  "minor": 10,
-	  "patch": 1
+	"5.10.2": {
+	  "version": {
+		"series": "5.10.0",
+		"major": 5,
+		"minor": 10,
+		"patch": 2
+	  },
+	  "attributes": {
+		"timestamp": "1498828475",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1498828475",
-	  "is_patch": false,
-	  "options_added": true,
-	  "options_removed": false
-	}
-  },
-  "5.10.0": {
-	"version": {
-	  "series": "5.10.0",
-	  "major": 5,
-	  "minor": 10,
-	  "patch": 0
+	"5.10.1": {
+	  "version": {
+		"series": "5.10.0",
+		"major": 5,
+		"minor": 10,
+		"patch": 1
+	  },
+	  "attributes": {
+		"timestamp": "1498828475",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1497916800",
-	  "is_patch": false,
-	  "options_added": true,
-	  "options_removed": false
-	}
-  },
-  "5.9.0": {
-	"version": {
-	  "series": "5.9.0",
-	  "major": 5,
-	  "minor": 9,
-	  "patch": 0
+	"5.10.0": {
+	  "version": {
+		"series": "5.10.0",
+		"major": 5,
+		"minor": 10,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1497916800",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
 	},
-	"attributes": {
-	  "timestamp": "1496218394",
-	  "is_patch": false,
-	  "options_removed": true
+	"5.9.0": {
+	  "version": {
+		"series": "5.9.0",
+		"major": 5,
+		"minor": 9,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1496218394",
+		"is_patch": false,
+		"options_removed": true
+	  }
+	},
+	"5.8.2": {
+	  "version": {
+		"series": "5.8.0",
+		"major": 5,
+		"minor": 8,
+		"patch": 2
+	  },
+	  "attributes": {
+		"timestamp": "1493047356",
+		"is_patch": true
+	  }
+	},
+	"5.8.1": {
+	  "version": {
+		"series": "5.8.0",
+		"major": 5,
+		"minor": 8,
+		"patch": 1
+	  },
+	  "attributes": {
+		"timestamp": "1491523200",
+		"is_patch": true
+	  }
+	},
+	"5.8.0": {
+	  "version": {
+		"series": "5.8.0",
+		"major": 5,
+		"minor": 8,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1491523200",
+		"name": "",
+		"summary": "Introduction of Login Authentication Portal",
+		"link": "http://icwp.io/86",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": true
+	  },
+	  "requirements": {
+		"php": 5.2,
+		"wordpress": 3.5
+	  }
 	}
-  },
-  "5.8.2": {
-    "version": {
-      "series": "5.8.0",
-      "major": 5,
-      "minor": 8,
-      "patch": 2
-    },
-    "attributes": {
-      "timestamp": "1493047356",
-      "is_patch": true
-    }
-  },
-  "5.8.1": {
-    "version": {
-      "series": "5.8.0",
-      "major": 5,
-      "minor": 8,
-      "patch": 1
-    },
-    "attributes": {
-      "timestamp": "1491523200",
-      "is_patch": true
-    }
-  },
-  "5.8.0": {
-    "version": {
-      "series": "5.8.0",
-      "major": 5,
-      "minor": 8,
-      "patch": 0
-    },
-    "attributes": {
-      "timestamp": "1491523200",
-      "name": "",
-      "summary": "Introduction of Login Authentication Portal",
-      "link": "http://icwp.io/86",
-      "is_patch": false,
-      "options_added": true,
-      "options_removed": true
-    },
-    "requirements": {
-      "php": 5.2,
-      "wordpress": 3.5
-    }
   },
   "changelog": [
+	{
+	  "type": "added",
+	  "summary": "New option for Unrecognised File Scanner to scan the Uploads folder for JS and PHP files.",
+	  "version": "5.13.0"
+	},
+	{
+	  "type": "added",
+	  "summary": "Option to provide custom list of files to be excluded from the Unrecognised File Scanner.",
+	  "version": "5.13.0"
+	},
 	{
 	  "type": "improved",
 	  "summary": "Improved support for Windows IIS hosting for Unrecognised File Scanner.",
