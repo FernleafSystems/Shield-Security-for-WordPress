@@ -46,6 +46,7 @@ class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Foundation {
 		$sQuery = $this->buildQuery();
 		$mResult = $this->loadDbProcessor()->selectCustom( $sQuery, OBJECT );
 
+		// TODO: NOT PHP 5.2!
 		if ( is_array( $mResult ) ) {
 			include_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'StatisticsReportingVO.php' );
 			$mResult = array_map(

@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.13.1": {
+	  "version": {
+		"series": "5.13.0",
+		"major": 5,
+		"minor": 13,
+		"patch": 1
+	  },
+	  "attributes": {
+		"timestamp": "1502830656",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
+	},
 	"5.13.0": {
 	  "version": {
 		"series": "5.13.0",
