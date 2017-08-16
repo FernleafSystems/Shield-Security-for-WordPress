@@ -36,14 +36,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
-		$aExclusions = array_map(
-			function ( $sExclusion ) {
-				$sExclusion = preg_replace( '#[^\.0-9a-z_-]#i', '', trim( $sExclusion ) );
-				return trim( $sExclusion );
-			},
-			$this->getUfcFileExclusions()
-		);
-
+		$aExclusions = $this->getUfcFileExclusions();
+		foreach ( $aExclusions as $nKey => $sExclusion ) {
+			$aExclusions[ $nKey ] = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', trim( $sExclusion ) ) );
+		}
 		return $this->setOpt( 'ufc_exclusions', $aExclusions );
 	}
 
