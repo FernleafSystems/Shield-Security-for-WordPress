@@ -56,7 +56,7 @@ function printAllPluginOptionsFormTabs( $aAllOptions, $var_prefix = '', $iOption
 
 						<?php foreach( $sOptionSection['options'] as $nKeyRow => $aOption ) : ?>
 							<div class="row row_number_<?php echo $nKeyRow; ?>">
-								<?php getPluginOptionSpan( $aOption, $iOptionWidth, $var_prefix ); ?>
+								<?php //getPluginOptionSpan( $aOption, $iOptionWidth, $var_prefix ); ?>
 							</div>
 						<?php endforeach; ?>
 					</fieldset>
@@ -69,7 +69,6 @@ function printAllPluginOptionsFormTabs( $aAllOptions, $var_prefix = '', $iOption
 }
 
 function getPluginOptionSpan( $aOption, $nSpanSize, $var_prefix = '' ) {
-
 	$sOptionKey = $aOption['key'];
 	$sOptionType = $aOption['type']; ?>
 
@@ -82,9 +81,9 @@ function getPluginOptionSpan( $aOption, $nSpanSize, $var_prefix = '' ) {
 				<label class="control-label" for="<?php echo $var_prefix.$sOptionKey; ?>">
 					<?php echo $aOption['name']; ?>
 					<br />
-					[<a href="<?php echo $aOption['info_link']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
-					<?php if ( !empty( $aOption['blog_link'] ) ) : ?>
-						| <a href="<?php echo $aOption['blog_link']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
+					[<a href="<?php echo $aOption['link_info']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
+					<?php if ( !empty( $aOption['link_blog'] ) ) : ?>
+						| <a href="<?php echo $aOption['link_blog']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
 					<?php endif; ?>
 					]
 				</label>

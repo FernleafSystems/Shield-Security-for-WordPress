@@ -57,11 +57,11 @@
 												<label class="control-label" for="<?php echo $var_prefix.$sOptionKey; ?>">
 													<?php echo $aOption['name']; ?>
 													<br />
-													<?php if ( !empty( $aOption['info_link'] ) ) : ?>
+													<?php if ( !empty( $aOption['link_info'] ) ) : ?>
 														[
-														<a href="<?php echo $aOption['info_link']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
-														<?php if ( !empty( $aOption['blog_link'] ) ) : ?>
-															| <a href="<?php echo $aOption['blog_link']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
+														<a href="<?php echo $aOption['link_info']; ?>" target="_blank"><?php echo $strings['more_info']; ?></a>
+														<?php if ( !empty( $aOption['link_blog'] ) ) : ?>
+															| <a href="<?php echo $aOption['link_blog']; ?>" target="_blank"><?php echo $strings['blog']; ?></a>
 														<?php endif; ?>
 														]
 													<?php endif; ?>
