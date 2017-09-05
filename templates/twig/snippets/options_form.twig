@@ -43,11 +43,11 @@
 												<label class="control-label" for="{{ var_prefix~aOption.key }}">
 													{{ aOption.name }}
 													<br />
-													{% if aOption.info_link %}
+													{% if aOption.link_info %}
 														[
-														<a href="{{ aOption.info_link }}" target="_blank">{{ strings.more_info }}</a>
-														{% if aOption.blog_link %}
-															| <a href="{{ aOption.blog_link }}" target="_blank">{{ strings.blog }}</a>
+														<a href="{{ aOption.link_info }}" target="_blank">{{ strings.more_info }}</a>
+														{% if aOption.link_blog %}
+															| <a href="{{ aOption.link_blog }}" target="_blank">{{ strings.blog }}</a>
 														{% endif %}
 														]
 													{% endif %}
