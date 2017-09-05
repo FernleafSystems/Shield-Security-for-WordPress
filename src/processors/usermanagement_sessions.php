@@ -83,12 +83,15 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
 	public function checkCurrentUser_Action() {
+		$oWpUsers = $this->loadWpUsers();
 
-		if ( is_user_logged_in() ) {
+		if ( $oWpUsers->isUserLoggedIn() ) {
 			$oWp = $this->loadWpFunctions();
 
-			if ( is_admin() ) {
-				$nCode = $this->doVerifyCurrentSession();
+			$nCode = $this->doVerifyCurrentSession();
+
+			if ( is_admin() ) { // prevent any admin access on invalid Shield sessions.
+
 				if ( $nCode > 0 ) {
 
 					if ( $nCode == 3 ) { // a session was used from the wrong IP. We just block it.
@@ -106,23 +109,24 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 							2,
 							'um_session_not_found_redirect'
 						);
-						$this->loadWpUsers()
-							 ->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
+						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
 					}
 				}
 			}
+			else if ( $nCode > 0 ) { // it's not admin, but the user looks logged into WordPress and not to Shield
+				wp_set_current_user( 0 ); // ensures that is_user_logged_in() is false going forward.
+			}
 
-			// At this point session is validated
+			// Auto-redirect to admin: UNUSED
 			if ( $oWp->getIsLoginUrl() && $this->loadWpUsers()->isUserAdmin() ) {
 				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
-//					$oWp->redirectToAdmin();
+					// $oWp->redirectToAdmin();
 				}
 			}
 
-			// always track activity
-			$oUser = $this->loadWpUsers()->getCurrentWpUser();
-			$this->updateSessionLastActivity( $oUser );
+			// always track last activity
+			$this->updateSessionLastActivity( $oWpUsers->getCurrentWpUser() );
 		}
 	}
 
