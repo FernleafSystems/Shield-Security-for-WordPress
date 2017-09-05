@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.8
-Stable tag: 5.13.1
+Stable tag: 5.13.2
 
 Protect your website, your reputation, and your customers for free with Shield Security, the most powerful security system for WordPress
 
@@ -308,14 +308,17 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.13.1 Latest Point Release =
-*Released: 16th August, 2017*
+= 5.13.2 Latest Point Release =
+*Released: 6th September, 2017*
 
-* **(v.1)**  FIX:			PHP 5.2 incompatibility.
+* **(v.2)**  IMPROVEMENTS:	Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.
+* **(v.2)**  FIX:			Restore display of help links for options.
 
 = 5.13 Series =
 *Released: 15th August, 2017*
 
+* **(v.2)**  IMPROVEMENTS:	Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.
+* **(v.2)**  FIX:			Restore display of help links for options.
 * **(v.1)**  FIX:			PHP 5.2 incompatibility.
 * **(v.0)**  ADDED:			New option for [Unrecognised File Scanner](http://icwp.io/94) to scan the Uploads folder for JS and PHP files.
 * **(v.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](http://icwp.io/94).

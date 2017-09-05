@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.13.2": {
+	  "version": {
+		"series": "5.13.0",
+		"major": 5,
+		"minor": 13,
+		"patch": 2
+	  },
+	  "attributes": {
+		"timestamp": "1504618817",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
+	},
 	"5.13.1": {
 	  "version": {
 		"series": "5.13.0",
@@ -200,6 +214,21 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "improved",
+	  "summary": "Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.",
+	  "version": "5.13.2"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "Restore display of help links for options.",
+	  "version": "5.13.2"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "PHP 5.2 incompatibility with anonymous function.",
+	  "version": "5.13.1"
+	},
 	{
 	  "type": "added",
 	  "summary": "New option for Unrecognised File Scanner to scan the Uploads folder for JS and PHP files.",
