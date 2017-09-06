@@ -22,10 +22,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setVisitorIp();
 	}
 
+	/**
+	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
+	 */
 	protected function setVisitorIp() {
-		$sSource = $this->getVisitorAddressSource();
-		if ( !empty( $sSource ) ) {
-
+		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
+			$sSource = $this->getVisitorAddressSource();
+			$sIpAddress = $this->loadDataProcessor()->FetchServer( $sSource );
+			if ( !empty( $sIpAddress ) && $this->loadIpProcessor()->isValidIp_PublicRange( $sIpAddress ) ) {
+				$this->loadDataProcessor()->setVisitorIpAddress( $sIpAddress );
+			}
 		}
 	}
 
@@ -34,6 +40,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getVisitorAddressSource() {
 		return $this->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function isVisitorAddressSourceAutoDetect() {
+		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
@@ -276,6 +289,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return ( !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40 );
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function buildIpAddressMap() {
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
