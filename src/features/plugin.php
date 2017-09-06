@@ -27,9 +27,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function setVisitorIp() {
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
-			$sSource = $this->getVisitorAddressSource();
-			$sIpAddress = $this->loadDataProcessor()->FetchServer( $sSource );
-			if ( !empty( $sIpAddress ) && $this->loadIpProcessor()->isValidIp_PublicRange( $sIpAddress ) ) {
+			$sIpAddress = $this->loadDataProcessor()->FetchServer( $this->getVisitorAddressSource() );
+			if ( $this->loadIpProcessor()->isValidIp_PublicRange( $sIpAddress ) ) {
 				$this->loadDataProcessor()->setVisitorIpAddress( $sIpAddress );
 			}
 		}
