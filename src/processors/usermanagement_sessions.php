@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
 			$nSessionIdleTimeoutInterval = $this->getOption( 'session_idle_timeout_interval', 0 ) * HOUR_IN_SECONDS;
 			$bLockToIp = $this->getIsOption( 'session_lock_location', 'Y' );
-			$sVisitorIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
+			$sVisitorIp = $this->human_ip();
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 

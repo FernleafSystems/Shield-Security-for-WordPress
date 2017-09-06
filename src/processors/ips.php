@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
-						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress() ),
+						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
 						'notice_message' => sprintf(
 							_wpsf__( 'Notice - %s' ),
 							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )

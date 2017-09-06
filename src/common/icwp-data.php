@@ -75,6 +75,15 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param string $sAddress
+		 * @return $this
+		 */
+		public function setVisitorIpAddress( $sAddress ) {
+			self::$sIpAddress = $sAddress;
+			return $this;
+		}
+
+		/**
 		 * Cloudflare compatible.
 		 * @return string|bool
 		 */
