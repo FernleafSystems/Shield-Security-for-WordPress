@@ -313,8 +313,7 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return mixed|null
 		 */
 		public function getOptDefault( $sOptionKey, $mDefault = null ) {
-			$aOptions = $this->getRawData_AllOptions();
-			foreach( $aOptions as $aOption ) {
+			foreach( $this->getRawData_AllOptions() as $aOption ) {
 				if ( $aOption['key'] == $sOptionKey ) {
 					if ( isset( $aOption['value'] ) ) {
 						return $aOption['value'];
@@ -363,8 +362,8 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		public function getOptionsKeys() {
 			if ( !isset( $this->aOptionsKeys ) ) {
 				$this->aOptionsKeys = array();
-				foreach( $this->getRawData_AllOptions() as $aOption ) {
-					$this->aOptionsKeys[] = $aOption['key'];
+				foreach ( $this->getRawData_AllOptions() as $aOption ) {
+					$this->aOptionsKeys[] = $aOption[ 'key' ];
 				}
 				$this->aOptionsKeys = array_merge( $this->aOptionsKeys, $this->getCommonStandardOptions() );
 			}
@@ -383,6 +382,16 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 */
 		public function getOptionsStorageKey() {
 			return $this->sOptionsStorageKey;
+		}
+
+		/**
+		 * @param string $sOptKey
+		 * @param string $sProperty
+		 * @return mixed|null
+		 */
+		public function getOptProperty( $sOptKey, $sProperty ) {
+			$aOpt = $this->getRawData_SingleOption( $sOptKey );
+			return ( is_array( $aOpt ) && isset( $aOpt[ $sProperty ] ) ) ? $aOpt[ $sProperty ] : null;
 		}
 
 		/**
@@ -414,8 +423,8 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 */
 		protected function getRawData_AllOptions() {
-			$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-			return isset( $aAllRawOptions['options'] ) ? $aAllRawOptions['options'] : array();
+			$aRaw = $this->getRawData_FullFeatureConfig();
+			return ( isset( $aRaw[ 'options' ] ) && is_array( $aRaw[ 'options' ] ) ) ? $aRaw[ 'options' ] : array();
 		}
 
 		/**
@@ -455,12 +464,9 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 * @return array
 		 */
 		public function getRawData_SingleOption( $sOptionKey ) {
-			$aAllRawOptions = $this->getRawData_AllOptions();
-			if ( is_array( $aAllRawOptions ) ) {
-				foreach( $aAllRawOptions as $aOption ) {
-					if ( isset( $aOption['key'] ) && ( $sOptionKey == $aOption['key'] ) ) {
-						return $aOption;
-					}
+			foreach ( $this->getRawData_AllOptions() as $aOption ) {
+				if ( isset( $aOption[ 'key' ] ) && ( $sOptionKey == $aOption[ 'key' ] ) ) {
+					return $aOption;
 				}
 			}
 			return null;
@@ -486,6 +492,14 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		 */
 		public function isModulePremium() {
 			return (bool)$this->getFeatureProperty( 'is_premium' );
+		}
+
+		/**
+		 * @param string $sOptionKey
+		 * @return bool true if premium is set and true, false otherwise.
+		 */
+		public function isOptPremium( $sOptionKey ) {
+			return (bool)$this->getOptProperty( $sOptionKey, 'is_premium' );
 		}
 
 		/**
