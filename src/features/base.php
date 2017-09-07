@@ -677,14 +677,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
-		 * @param array $aOptionParams
+		 * @param array $aOptParams
 		 * @return array
 		 */
-		protected function buildOptionForUi( $aOptionParams ) {
+		protected function buildOptionForUi( $aOptParams ) {
 
-			$mCurrentVal = $aOptionParams[ 'value' ];
+			$mCurrentVal = $aOptParams[ 'value' ];
 
-			switch ( $aOptionParams[ 'type' ] ) {
+			switch ( $aOptParams[ 'type' ] ) {
 
 				case 'password':
 					if ( !empty( $mCurrentVal ) ) {
@@ -698,7 +698,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 						$mCurrentVal = array();
 					}
 
-					$aOptionParams[ 'rows' ] = count( $mCurrentVal ) + 1;
+					$aOptParams[ 'rows' ] = count( $mCurrentVal ) + 1;
 					$mCurrentVal = implode( "\n", $mCurrentVal );
 
 					break;
@@ -712,7 +712,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 							$aNewValues[] = $sPage.', '. implode( ", ", $aParams );
 						}
 					}
-					$aOptionParams[ 'rows' ] = count( $aNewValues ) + 1;
+					$aOptParams[ 'rows' ] = count( $aNewValues ) + 1;
 					$mCurrentVal = implode( "\n", $aNewValues );
 
 					break;
@@ -728,10 +728,11 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					break;
 			}
 
-			$aOptionParams['value'] = is_scalar( $mCurrentVal ) ? esc_attr( $mCurrentVal ) : $mCurrentVal;
-
+			$aOptParams[ 'value' ] = is_scalar( $mCurrentVal ) ? esc_attr( $mCurrentVal ) : $mCurrentVal;
+			$aOptParams[ 'disabled' ] = !$this->isPremium() && ( isset( $aOptParams[ 'is_premium' ] ) && $aOptParams[ 'is_premium' ] );
+			$aOptParams[ 'enabled' ] = !$aOptParams[ 'disabled' ];
 			// add strings
-			return $this->loadStrings_Options( $aOptionParams );
+			return $this->loadStrings_Options( $aOptParams );
 		}
 
 		/**
@@ -825,7 +826,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		protected function isPremium() {
-			return true; // TODO: Filter.
+			return false; // TODO: Filter.
 		}
 
 		/**
