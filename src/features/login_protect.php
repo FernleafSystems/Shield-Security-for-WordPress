@@ -439,6 +439,13 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 						. '<br />- ' . _wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
 					break;
 
+				case 'text_imahuman' :
+					$sName = _wpsf__( 'GASP Checkbox Text' );
+					$sSummary = _wpsf__( 'The User Message Displayed Next To The GASP Checkbox' );
+					$sDescription = _wpsf__( 'You can change the text displayed to the user beside the checkbox if you need a custom message.' )
+									. '<br />' . sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'text_imahuman' ) );
+					break;
+
 				default:
 					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 			}

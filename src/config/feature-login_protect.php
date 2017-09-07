@@ -231,6 +231,18 @@
       "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
     },
     {
+      "key": "text_imahuman",
+      "section": "section_brute_force_login_protection",
+      "is_premium": true,
+      "default": "I'm a human",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "GASP Checkbox Text",
+      "summary": "The User Message Displayed Next To The GASP Checkbox",
+      "description": "You can change the text displayed to the user beside the checkbox if you need a customized message."
+    },
+    {
       "key": "enable_yubikey",
       "section": "section_yubikey_authentication",
       "default": "N",

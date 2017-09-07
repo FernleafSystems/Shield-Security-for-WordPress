@@ -825,7 +825,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		 * @return bool
 		 */
 		protected function isPremium() {
-			return false; // TODO: Filter.
+			return true; // TODO: Filter.
 		}
 
 		/**
@@ -1021,7 +1021,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @param array $aData
 		 * @param string $sSubView
-		 * @return bool
 		 */
 		protected function display( $aData = array(), $sSubView = '' ) {
 			$oRndr = $this->loadRenderer( self::getController()->getPath_Templates());
@@ -1054,7 +1053,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		/**
 		 * @param array $aData
 		 * @param string $sSubView
-		 * @return bool
 		 */
 		protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
 

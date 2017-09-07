@@ -70,7 +70,9 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		$this->cleanOptions();
-		$this->resetPremiumOptsToDefault();
+		if ( !$this->isPremium() ) {
+			$this->resetPremiumOptsToDefault();
+		}
 		$this->setNeedSave( false );
 		if ( $bDeleteFirst ) {
 			$this->loadWpFunctions()->deleteOption( $this->getOptionsStorageKey() );
@@ -522,7 +524,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function resetPremiumOptsToDefault() {
 		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( isset( $aOption ) && $aOption[ 'is_premium' ] ) {
+			if ( isset( $aOption[ 'is_premium' ] ) && $aOption[ 'is_premium' ] ) {
 				$this->resetOptToDefault( $aOption[ 'key' ] );
 			}
 		}
