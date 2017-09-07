@@ -9,6 +9,7 @@
     "menu_title": "Security Admin",
     "show_central": true,
     "access_restricted": true,
+    "is_premium": false,
     "order": 20
   },
   "admin_notices": {

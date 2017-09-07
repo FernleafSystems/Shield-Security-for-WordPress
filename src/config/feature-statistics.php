@@ -6,6 +6,7 @@
     "storage_key": "statistics",
     "tagline": "Summary of the main security actions taken by this plugin",
     "show_central": false,
+    "is_premium": false,
     "access_restricted": true
   },
   "sections": [

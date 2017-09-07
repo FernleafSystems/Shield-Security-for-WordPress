@@ -8,6 +8,7 @@
     "tagline": "Get a view on what happens on your site, when it happens",
     "show_central": true,
     "access_restricted": true,
+    "is_premium": false,
     "order": 110
   },
   "sections": [

@@ -8,6 +8,7 @@
     "tagline": "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central": true,
     "access_restricted": true,
+    "is_premium": false,
     "order": 40
   },
   "admin_notices": {

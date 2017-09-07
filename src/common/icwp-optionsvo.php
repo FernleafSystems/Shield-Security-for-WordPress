@@ -482,6 +482,13 @@ if ( !class_exists( 'ICWP_WPSF_OptionsVO', false ) ) :
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function isModulePremium() {
+			return (bool)$this->getFeatureProperty( 'is_premium' );
+		}
+
+		/**
 		 * @param string $sOptionKey
 		 * @return boolean
 		 */
