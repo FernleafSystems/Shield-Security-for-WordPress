@@ -249,6 +249,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 				$oCon = self::getController();
 				$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
 				$this->oOptions
+					->setIsPremium( $this->isPremium() )
 					->setOptionsEncoding( $oCon->getOptionsEncoding() )
 					->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 					->setOptionsStorageKey( $this->getOptionsStorageKey() )
@@ -819,6 +820,23 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		protected function doExtraSubmitProcessing() { }
+
+		/**
+		 * @return bool
+		 */
+		protected function isPremium() {
+			return false; // TODO: Filter.
+		}
+
+		/**
+		 * UNUSED
+		 * Ensure that if an option is premium, it is never changed unless we have premium access
+		 */
+		protected function resetPremiumOptions() {
+			if ( !$this->isPremium() ) {
+				$this->getOptionsVo()->resetPremiumOptsToDefault();
+			}
+		}
 
 		/**
 		 * @param bool $bBypass

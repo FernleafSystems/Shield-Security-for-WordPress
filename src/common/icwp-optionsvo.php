@@ -20,6 +20,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
+	protected $bIsPremium;
+	/**
+	 * @var boolean
+	 */
 	protected $bRebuildFromFile = false;
 	/**
 	 * @var string
@@ -66,6 +70,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		$this->cleanOptions();
+		$this->resetPremiumOptsToDefault();
 		$this->setNeedSave( false );
 		if ( $bDeleteFirst ) {
 			$this->loadWpFunctions()->deleteOption( $this->getOptionsStorageKey() );
@@ -166,6 +171,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getFeatureTagline() {
 		return $this->getFeatureProperty( 'tagline' );
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIfLoadOptionsFromStorage() {
+		return $this->bLoadFromSaved;
 	}
 
 	/**
@@ -491,11 +503,38 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isPremium() {
+		return (bool)$this->bIsPremium;
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @return boolean
 	 */
 	public function resetOptToDefault( $sOptionKey ) {
 		return $this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey ) );
+	}
+
+	/**
+	 * Will traverse each premium option and set it to the default.
+	 */
+	public function resetPremiumOptsToDefault() {
+		foreach ( $this->getRawData_AllOptions() as $aOption ) {
+			if ( isset( $aOption ) && $aOption[ 'is_premium' ] ) {
+				$this->resetOptToDefault( $aOption[ 'key' ] );
+			}
+		}
+	}
+
+	/**
+	 * @param $bIsPremium
+	 * @return $this
+	 */
+	public function setIsPremium( $bIsPremium ) {
+		$this->bIsPremium = $bIsPremium;
+		return $this;
 	}
 
 	/**
@@ -505,13 +544,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	public function setOptionsStorageKey( $sKey ) {
 		$this->sOptionsStorageKey = $sKey;
 		return $this;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function getIfLoadOptionsFromStorage() {
-		return $this->bLoadFromSaved;
 	}
 
 	/**
