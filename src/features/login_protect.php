@@ -413,7 +413,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 				case 'enable_yubikey' :
 					$sName = _wpsf__( 'Enable Yubikey Authentication' );
 					$sSummary = _wpsf__( 'Turn On / Off Yubikey Authentication On This Site' );
-					$sDescription = _wpsf__( 'Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication' );
+					$sDescription = _wpsf__( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication' );
 					break;
 
 				case 'yubikey_app_id' :

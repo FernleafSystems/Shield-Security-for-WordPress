@@ -101,8 +101,8 @@
       "section": "section_admin_access_restriction_areas",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/wpsf32",
-      "link_blog": "",
+      "link_info": "http://icwp.io/a0",
+      "link_blog": "http://icwp.io/wpsf32",
       "name": "Pages",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
@@ -112,7 +112,7 @@
       "section": "section_admin_access_restriction_areas",
       "default": "N",
       "type": "checkbox",
-      "link_info": "",
+      "link_info": "http://icwp.io/a0",
       "link_blog": "",
       "name": "Admin Users",
       "summary": "Restrict Access To Create/Delete/Modify Other Admin Users",
@@ -141,8 +141,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/wpsf21",
-      "link_blog": "",
+      "link_info": "http://icwp.io/a0",
+      "link_blog": "http://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Plugin Actions",
       "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
 
@@ -174,8 +174,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/wpsf21",
-      "link_blog": "",
+      "link_info": "http://icwp.io/a0",
+      "link_blog": "http://icwp.io/wpsf21",
       "summary": "Restrict Access To WordPress Theme Actions",
       "description": "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
@@ -198,8 +198,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/wpsf21",
-      "link_blog": "",
+      "link_info": "http://icwp.io/a0",
+      "link_blog": "http://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion."
     }
