@@ -788,6 +788,20 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		}
 
 		/**
+		 * @return bool
+		 */
+		public function isRestUrl() {
+			$bIsRest = false;
+			if ( function_exists( 'rest_url' ) ) {
+				$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
+				$sRestPath = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
+				$sRequestPath = trim( $this->loadDataProcessor()->getRequestPath(), '/' );
+				$bIsRest = ( strpos( $sRequestPath, $sRestPath ) === 0 );
+			}
+			return $bIsRest;
+		}
+
+		/**
 		 * @param string $sKey
 		 * @param string $sValue
 		 * @return bool

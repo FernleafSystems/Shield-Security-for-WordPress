@@ -83,10 +83,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
 	public function checkCurrentUser_Action() {
+		$oWp = $this->loadWpFunctions();
 		$oWpUsers = $this->loadWpUsers();
 
 		if ( $oWpUsers->isUserLoggedIn() ) {
-			$oWp = $this->loadWpFunctions();
 
 			$nCode = $this->doVerifyCurrentSession();
 
@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 					}
 				}
 			}
-			else if ( $nCode > 0 ) { // it's not admin, but the user looks logged into WordPress and not to Shield
+			else if ( $nCode > 0 && !$oWp->isRestUrl() ) { // it's not admin, but the user looks logged into WordPress and not to Shield
 				wp_set_current_user( 0 ); // ensures that is_user_logged_in() is false going forward.
 			}
 
