@@ -295,7 +295,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
 						sprintf( _wpsf__( 'Note: %s' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
 					);
-					$sTitleShort = _wpsf__( 'Two-Factor Authentication' );
 					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					break;
 
@@ -315,6 +314,15 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'Note: you must own the appropriate Yubikey hardware device.' ) )
 					);
 					$sTitleShort = _wpsf__( 'Yubikey' );
+					break;
+
+				case 'section_user_strings' :
+					$sTitle = _wpsf__( 'User Messages' );
+					$aSummary = array(
+						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Customize all the messages displayed to the user by the plugin.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) )
+					);
+					$sTitleShort = _wpsf__( 'User Messages' );
 					break;
 
 				default:

@@ -497,6 +497,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Premium Plugin Support Centre' );
 		_wpsf__( 'User Management' );
 		_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' );
+		_wpsf__( 'Two-Factor Authentication' );
+
 
 		_wpsf__( "I'm a human." );
 		_wpsf__( "Please check the box to show us you're a human." );
