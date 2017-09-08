@@ -95,17 +95,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return string
 	 */
-	protected function getImAHumanText() {
-		return _wpsf__( $this->getOption( 'text_imahuman') );
-	}
-
-	/**
-	 * @return string
-	 */
 	protected function getGaspLoginHtml() {
 
-		$sLabel = $this->getImAHumanText();
-		$sAlert = _wpsf__( "Please check the box to show us you're a human." );
+		$sLabel = $this->getTextImAHuman();
+		$sAlert = $this->getTextPleaseCheckBox();
 
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
@@ -202,5 +195,19 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTextImAHuman() {
+		return _wpsf__( $this->getOption( 'text_imahuman') );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTextPleaseCheckBox() {
+		return _wpsf__( $this->getOption( 'text_pleasecheckbox') );
 	}
 }

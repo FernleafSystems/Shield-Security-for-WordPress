@@ -231,6 +231,18 @@
       "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
     },
     {
+      "key": "3pty_support_woocommerce",
+      "section": "section_brute_force_login_protection",
+      "is_premium": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Woocommerce Support",
+      "summary": "Add Support For Woocommerce Login and Password Reset Pages",
+      "description": "Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms."
+    },
+    {
       "key": "text_imahuman",
       "section": "section_brute_force_login_protection",
       "is_premium": true,
@@ -243,16 +255,16 @@
       "description": "You can change the text displayed to the user beside the checkbox if you need a customized message."
     },
     {
-      "key": "3pty_support_woocommerce",
+      "key": "text_pleasecheckbox",
       "section": "section_brute_force_login_protection",
       "is_premium": true,
-      "default": "N",
-      "type": "checkbox",
+      "default": "Please check the box to show us you're a human",
+      "type": "text",
       "link_info": "",
       "link_blog": "",
-      "name": "Woocommerce Support",
-      "summary": "Add Support For Woocommerce Login and Password Reset Pages",
-      "description": "Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms."
+      "name": "GASP Alert Text",
+      "summary": "The User Message Displayed If The User Doesn't Check The Box",
+      "description": "You can change the text displayed to the user in the alert message if they don't check the box."
     },
     {
       "key": "enable_yubikey",
