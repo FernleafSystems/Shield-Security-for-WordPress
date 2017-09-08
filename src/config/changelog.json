@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.14.0": {
+	  "version": {
+		"series": "5.14.0",
+		"major": 5,
+		"minor": 14,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1504618817",
+		"is_patch": true,
+		"options_added": true,
+		"options_removed": false
+	  }
+	},
 	"5.13.2": {
 	  "version": {
 		"series": "5.13.0",
@@ -214,6 +228,26 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "added",
+	  "summary": "Option for administrators to manually override and set the source of the visitor IP address.",
+	  "version": "5.14.0"
+	},
+	{
+	  "type": "updated",
+	  "summary": "In-plugin documentation links to updated and revised helpdesk articles/blogs.",
+	  "version": "5.14.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Strip out any non-alphanumeric characters uses in the generation of Google Authenticator URLs.",
+	  "version": "5.14.0"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "Shield now ignores any requests sent to Rest API URIs with respect to Shield user sessions.",
+	  "version": "5.14.0"
+	},
 	{
 	  "type": "improved",
 	  "summary": "Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.",
