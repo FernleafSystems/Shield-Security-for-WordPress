@@ -22,6 +22,11 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 2 );
 
+		$bWooCommerce = $oFO->getOptIs( '3pty_support_woocommerce', 'Y' );
+		if ( $bWooCommerce ) {
+			add_action( 'woocommerce_login_form', array( $this, 'printGaspLoginCheck_Action' ), 10 );
+		}
+
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
 			//print the checkbox code:
@@ -32,7 +37,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			add_action( 'register_post',		array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
 			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10 );
 
-			if ( $oFO->getOptIs( '3pty_support_woocommerce', 'Y' ) ) {
+			if ( $bWooCommerce ) {
 				add_action( 'woocommerce_lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
 			}
 		}
