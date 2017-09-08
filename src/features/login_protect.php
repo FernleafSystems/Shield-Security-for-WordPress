@@ -316,7 +316,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
-				case 'section_user_strings' :
+				case 'section_user_messages' :
 					$sTitle = _wpsf__( 'User Messages' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Customize all the messages displayed to the user by the plugin.' ) ),
@@ -453,10 +453,17 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 					$sDescription = _wpsf__( 'Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms.' );
 					break;
 
-				case 'text_imahuman' :
+				case 'text_pleasecheckbox' :
 					$sName = _wpsf__( 'GASP Checkbox Text' );
 					$sSummary = _wpsf__( 'The User Message Displayed Next To The GASP Checkbox' );
-					$sDescription = _wpsf__( 'You can change the text displayed to the user beside the checkbox if you need a custom message.' )
+					$sDescription = _wpsf__( "You can change the text displayed to the user beside the checkbox if you need a custom message." )
+									. '<br />' . sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'text_imahuman' ) );
+					break;
+
+				case 'text_imahuman' :
+					$sName = _wpsf__( 'GASP Alert Text' );
+					$sSummary = _wpsf__( "The Message Displayed If The User Doesn't Check The Box" );
+					$sDescription = _wpsf__( "You can change the text displayed to the user in the alert message if they don't check the box." )
 									. '<br />' . sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'text_imahuman' ) );
 					break;
 

@@ -67,21 +67,21 @@
       ]
     },
     {
-      "slug": "section_user_messages",
-      "title": "User Messages",
-      "title_short": "User Messages",
-      "summary": [
-        "Purpose - Customize all the messages displayed to the user by the plugin.",
-        "Recommendation - Use this section if you need to communicate to the user in a particular manner."
-      ]
-    },
-    {
       "slug": "section_bypass_login_protection",
       "title": "By-Pass Login Protection",
       "title_short": "By-Pass",
       "summary": [
         "Purpose - Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.",
         "Recommendation - Keep this turned off unless you know you need it."
+      ]
+    },
+    {
+      "slug": "section_user_messages",
+      "title": "User Messages",
+      "title_short": "User Messages",
+      "summary": [
+        "Purpose - Customize all the messages displayed to the user by the plugin.",
+        "Recommendation - Use this section if you need to communicate to the user in a particular manner."
       ]
     },
     {
@@ -288,26 +288,26 @@
     },
     {
 	   "key": "text_imahuman",
-	   "section": "section_user_strings",
+	   "section": "section_user_messages",
 	   "is_premium": true,
 	   "default": "I'm a human",
 	   "type": "text",
 	   "link_info": "",
 	   "link_blog": "",
 	   "name": "GASP Checkbox Text",
-	   "summary": "The User Message Displayed Next To The GASP Checkbox",
+	   "summary": "The Message Displayed Next To The GASP Checkbox",
 	   "description": "You can change the text displayed to the user beside the checkbox if you need a customized message."
 	},
 	{
 	   "key": "text_pleasecheckbox",
-	   "section": "section_user_strings",
+	   "section": "section_user_messages",
 	   "is_premium": true,
 	   "default": "Please check the box to show us you're a human",
 	   "type": "text",
 	   "link_info": "",
 	   "link_blog": "",
 	   "name": "GASP Alert Text",
-	   "summary": "The User Message Displayed If The User Doesn't Check The Box",
+	   "summary": "The Message Displayed If The User Doesn't Check The Box",
 	   "description": "You can change the text displayed to the user in the alert message if they don't check the box."
 	},
     {
