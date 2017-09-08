@@ -439,6 +439,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 						. '<br />- ' . _wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
 					break;
 
+				case '3pty_support_woocommerce' :
+					$sName = _wpsf__( 'Woocommerce Support' );
+					$sSummary = _wpsf__( 'Add Support For Woocommerce Login and Password Reset Pages' );
+					$sDescription = _wpsf__( 'Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms.' );
+					break;
+
 				case 'text_imahuman' :
 					$sName = _wpsf__( 'GASP Checkbox Text' );
 					$sSummary = _wpsf__( 'The User Message Displayed Next To The GASP Checkbox' );

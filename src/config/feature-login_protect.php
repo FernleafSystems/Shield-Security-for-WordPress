@@ -243,6 +243,18 @@
       "description": "You can change the text displayed to the user beside the checkbox if you need a customized message."
     },
     {
+      "key": "3pty_support_woocommerce",
+      "section": "section_brute_force_login_protection",
+      "is_premium": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Woocommerce Support",
+      "summary": "Add Support For Woocommerce Login and Password Reset Pages",
+      "description": "Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms."
+    },
+    {
       "key": "enable_yubikey",
       "section": "section_yubikey_authentication",
       "default": "N",
