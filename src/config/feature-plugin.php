@@ -103,6 +103,60 @@
       "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
     },
     {
+      "key": "visitor_address_source",
+      "section": "section_general_plugin_options",
+      "sensitive": true,
+      "type": "select",
+      "default": "AUTO_DETECT_IP",
+      "value_options": [
+        {
+          "value_key": "AUTO_DETECT_IP",
+          "text": "Automatically Detect Visitor IP"
+        },
+        {
+          "value_key": "REMOTE_ADDR",
+          "text": "REMOTE_ADDR"
+        },
+        {
+          "value_key": "HTTP_CF_CONNECTING_IP",
+          "text": "HTTP_CF_CONNECTING_IP"
+        },
+        {
+          "value_key": "HTTP_X_FORWARDED_FOR",
+          "text": "HTTP_X_FORWARDED_FOR"
+        },
+        {
+          "value_key": "HTTP_X_FORWARDED",
+          "text": "HTTP_X_FORWARDED"
+        },
+        {
+          "value_key": "HTTP_X_REAL_IP",
+          "text": "HTTP_X_REAL_IP"
+        },
+        {
+          "value_key": "HTTP_X_SUCURI_CLIENTIP",
+          "text": "HTTP_X_SUCURI_CLIENTIP"
+        },
+        {
+          "value_key": "HTTP_INCAP_CLIENT_IP",
+          "text": "HTTP_INCAP_CLIENT_IP"
+        },
+        {
+          "value_key": "HTTP_FORWARDED",
+          "text": "HTTP_FORWARDED"
+        },
+        {
+          "value_key": "HTTP_CLIENT_IP",
+          "text": "HTTP_CLIENT_IP"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Visitor IP Address",
+      "summary": "Which Address Is Yours",
+      "description": "There are many way to detect visitor IP addresses. Please select yours from the list."
+    },
+    {
       "key": "block_send_email_address",
       "section": "section_general_plugin_options",
       "sensitive": true,

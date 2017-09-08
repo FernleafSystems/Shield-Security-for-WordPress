@@ -471,7 +471,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function sendBlockEmail( $sRecipient ) {
 
-		$sIp = $this->loadDataProcessor()->getVisitorIpAddress( true );
+		$sIp = $this->human_ip();
 		$aMessage = array(
 			sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()->getHumanName() ),
 			_wpsf__( 'Log details for this visitor are below:' ),

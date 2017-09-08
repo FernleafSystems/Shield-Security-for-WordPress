@@ -85,7 +85,7 @@
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/57",
-      "link_blog": "",
+      "link_blog": "http://icwp.io/9w",
       "name": "Human SPAM Filter",
       "summary": "Enable (or Disable) The Human SPAM Filter Feature",
       "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
@@ -229,7 +229,7 @@
       "default": 600,
       "type": "integer",
       "link_info": "http://icwp.io/3o",
-      "link_blog": "",
+      "link_blog": "http://icwp.io/9v",
       "name": "Comment Token Expire",
       "summary": "A visitor has X seconds within which to post a comment",
       "description": "Default: 600 seconds (10 minutes). Each visitor is given a unique 'Token' so they can comment. This restricts spambots, but we need to force these tokens to expire and at the same time not bother the visitors."

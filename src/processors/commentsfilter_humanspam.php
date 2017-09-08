@@ -69,14 +69,13 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @param $aCommentData
 	 */
 	protected function doBlacklistSpamCheck( $aCommentData ) {
-		$oDp = $this->loadDataProcessor();
 		$this->doBlacklistSpamCheck_Action(
 			$aCommentData['comment_author'],
 			$aCommentData['comment_author_email'],
 			$aCommentData['comment_author_url'],
 			$aCommentData['comment_content'],
-			$oDp->getVisitorIpAddress( true ),
-			substr( $oDp->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
+			$this->human_ip(),
+			substr( $this->loadDataProcessor()->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
 		);
 	}
 

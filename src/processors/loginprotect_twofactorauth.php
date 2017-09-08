@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$this->doStatIncrement( 'login.twofactor.started' );
 			$this->sendEmailTwoFactorVerify(
 				$oUser,
-				$this->loadDataProcessor()->getVisitorIpAddress( true ),
+				$this->human_ip(),
 				$this->getController()->getSessionId()
 			);
 		}

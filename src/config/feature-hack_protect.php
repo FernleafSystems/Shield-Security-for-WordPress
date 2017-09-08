@@ -50,7 +50,7 @@
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf38",
-      "link_blog": "",
+      "link_blog": "http://icwp.io/9x",
       "name": "Enable Hack Protection",
       "summary": "Enable (or Disable) The Hack Protection Feature",
       "description": "Checking/Un-Checking this option will completely turn on/off the whole Hack Protection feature"
@@ -100,8 +100,8 @@
           "text": "Auto Delete Files and Email Report"
         }
       ],
-      "link_info": "http://icwp.io/95",
-      "link_blog": "",
+      "link_info": "http://icwp.io/9y",
+      "link_blog": "http://icwp.io/95",
       "name": "Unrecognised Files Scanner",
       "summary": "Scans Core Directories For Unrecognised Files",
       "description": "Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation."
@@ -131,8 +131,8 @@
       	"mail.log"
       ],
       "type": "array",
-      "link_info": "http://icwp.io/95",
-      "link_blog": "",
+      "link_info": "http://icwp.io/9z",
+      "link_blog": "http://icwp.io/95",
       "name": "File Exclusions",
       "summary": "Provide A List Of Files To Be Excluded From The Scan",
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
