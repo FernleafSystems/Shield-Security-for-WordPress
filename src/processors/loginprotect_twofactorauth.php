@@ -10,24 +10,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 
 	public function run() {
 		parent::run();
-		add_action( 'init', array( $this, 'onWpInit' ) );  // TODO: temporary, remove ASAP
-	}
-
-	/**
-	 * TODO: Temporary
-	 */
-	public function onWpInit() {
-		if ( $this->getController()->getIsValidAdminArea() ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeature();
-			$oDb = $this->loadDbProcessor();
-			$sTableName = $oDb->getPrefix().$oFO->getTwoFactorAuthTableName();
-			if ( $oDb->getIfTableExists( $sTableName ) ) {
-				$oDb->doDropTable( $sTableName );
-				$sCronName = $oFO->prefix( $oFO->getFeatureSlug().'_db_cleanup' );
-				wp_clear_scheduled_hook( $sCronName );
-			}
-		}
 	}
 
 	/**
@@ -41,11 +23,13 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 
 			// Now send email with authentication link for user.
 			$this->doStatIncrement( 'login.twofactor.started' );
-			$this->sendEmailTwoFactorVerify(
-				$oUser,
-				$this->human_ip(),
-				$this->getController()->getSessionId()
-			);
+			$this->loadWpUsers()
+				 ->updateUserMeta(
+					 $this->get2FaCodeUserMetaKey(),
+					 $this->getSessionHashCode(),
+					 $oUser->ID
+				 );
+			$this->sendEmailTwoFactorVerify( $oUser );
 		}
 		return $oUser;
 	}
@@ -76,7 +60,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
-		return $sOtpCode == $this->getSessionHashCode();
+		return $sOtpCode == $this->getStoredSessionHashCode();
 	}
 
 	/**
@@ -146,16 +130,23 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$oFO = $this->getFeature();
 		return hash_hmac(
 			'sha1',
-			$this->getController()->getSessionId(),
+			$this->getController()->getUniqueRequestId(),
 			$oFO->getTwoAuthSecretKey()
 		);
 	}
 
 	/**
-	 * @return string
+	 * @return string The unique 2FA 6-digit code
 	 */
 	protected function getSessionHashCode() {
 		return strtoupper( substr( $this->genSessionHash(), 0, 6 ) );
+	}
+
+	/**
+	 * @return string The unique 2FA 6-digit code
+	 */
+	protected function getStoredSessionHashCode() {
+		return $this->loadWpUsers()->getUserMeta( $this->get2FaCodeUserMetaKey() );
 	}
 
 	/**
@@ -193,14 +184,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 
 	/**
 	 * @param WP_User $oUser
-	 * @param string $sIpAddress
-	 * @param string $sSessionId
 	 * @return boolean
 	 */
-	public function sendEmailTwoFactorVerify( WP_User $oUser, $sIpAddress, $sSessionId ) {
-
+	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
+		$sIpAddress = $this->human_ip();
 		$sEmail = $oUser->get( 'user_email' );
-		$sAuthLink = $this->generateTwoFactorVerifyLink( $oUser->get( 'user_login' ), $sSessionId );
 
 		$aMessage = array(
 			_wpsf__( 'You, or someone pretending to be you, just attempted to login into your WordPress site.' ),
@@ -263,5 +251,12 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	protected function getStub() {
 		return ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function get2FaCodeUserMetaKey() {
+		return $this->getFeature()->prefix( 'tfaemail_reqid' );
 	}
 }

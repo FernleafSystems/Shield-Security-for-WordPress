@@ -1424,7 +1424,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getUniqueRequestId() {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( false ) . $oDp->getVisitorIpAddress() . $oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( true ) . $oDp->getVisitorIpAddress() . $oDp->time() );
 		}
 		return self::$sRequestId;
 	}
