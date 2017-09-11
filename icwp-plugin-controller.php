@@ -1419,12 +1419,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bSetSessionIfNeeded
 	 * @return string
 	 */
-	public function getUniqueRequestId() {
+	public function getUniqueRequestId( $bSetSessionIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( true ) . $oDp->getVisitorIpAddress() . $oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
 	}
@@ -1473,11 +1474,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function loadAllFeatures( $bRecreate = false, $bFullBuild = false ) {
 
-		$oMainPluginFeature = $this->loadCorePluginFeatureHandler();
-		$aPluginFeatures = $oMainPluginFeature->getActivePluginFeatures();
+		$oCoreModule = $this->loadCorePluginFeatureHandler();
 
 		$bSuccess = true;
-		foreach ( $aPluginFeatures as $sSlug => $aFeatureProperties ) {
+		foreach ( $oCoreModule->getActivePluginFeatures() as $sSlug => $aFeatureProperties ) {
 			try {
 				$this->loadFeatureHandler( $aFeatureProperties, $bRecreate, $bFullBuild );
 				$bSuccess = true;

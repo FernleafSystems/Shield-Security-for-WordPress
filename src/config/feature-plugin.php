@@ -266,6 +266,11 @@
         "load_priority": 20
       },
       {
+        "slug": "license",
+        "storage_key": "license",
+        "load_priority": 10
+      },
+      {
         "slug": "firewall",
         "storage_key": "firewall",
         "load_priority": 13
