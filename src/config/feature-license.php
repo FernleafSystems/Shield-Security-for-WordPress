@@ -3,7 +3,7 @@
   "properties": {
     "slug": "license",
     "name": "Shield Pro",
-    "show_feature_menu_item": false,
+    "show_feature_menu_item": true,
     "storage_key": "license",
     "show_central": true,
     "is_premium": false,
@@ -33,15 +33,40 @@
       "description": "License Key."
     },
     {
+      "key": "license_activated_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "license_deactivated_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
+    },
+    {
       "key": "license_last_checked_at",
       "transferable": false,
       "default": 0,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "license_expires_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "license_official_status",
+      "transferable": false,
+      "default": '',
       "section": "section_non_ui"
     }
   ],
   "definitions": {
     "license_store_url": "https://www.asdf.com",
     "license_item_name": "Shield Pro",
+    "license_item_id": "Shield Pro",
     "license_auto_deactivate_days": 3,
     "license_key_length": 32,
     "license_key_type": "alphanumeric"

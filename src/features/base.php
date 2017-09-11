@@ -789,13 +789,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function handleFormSubmit() {
-
-		if ( !$this->verifyFormSubmit() ) {
-			return false;
+		if ( $this->verifyFormSubmit() ) {
+			$this->doSaveStandardOptions();
+			$this->doExtraSubmitProcessing();
 		}
-		$this->doSaveStandardOptions();
-		$this->doExtraSubmitProcessing();
-		return true;
 	}
 
 	protected function verifyFormSubmit() {

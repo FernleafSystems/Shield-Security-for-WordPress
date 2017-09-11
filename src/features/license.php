@@ -9,7 +9,90 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_filter( $this->getPremiumLicenseFilterName(), array( $this, 'hasValidLicenseKey' ) );
+		add_filter( $this->getPremiumLicenseFilterName(), array( $this, 'hasValidActiveLicense' ) );
+	}
+
+	protected function doExtraSubmitProcessing() {
+		if ( $this->getOptionsVo()->getNeedSave() ) {
+			$sKey = $this->getLicenseKey();
+		}
+	}
+
+	protected function checkKey() {
+		$bValid = true; // TODO check key request
+		/** @var ICWP_EDD_LicenseVO $oLicense */
+		if ( $oLicense->isReady() ) {
+
+			$bWasActive = $this->isLicenseActive();
+
+			$this->setOpt( 'license_expires_at', $oLicense->getExpiresAt() )
+				 ->setOpt( 'license_last_checked_at', $this->loadDataProcessor()->time() )
+				 ->setOpt( 'license_official_status', $oLicense->getLicenseStatus() );
+
+			$bNowActive = $this->isLicenseActive();
+			if ( $this->isLicenseActive() ) {
+
+			}
+		}
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLicenseActivatedAt() {
+		return $this->getOpt( 'license_activated_at' );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLicenseDeactivatedAt() {
+		return $this->getOpt( 'license_deactivated_at' );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLicenseExpiresAt() {
+		return $this->getOpt( 'license_expires_at' );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLicenseLastCheckedAt() {
+		return $this->getOpt( 'license_last_checked_at' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getOfficialLicenseStatus() {
+		return $this->getOpt( 'license_official_status' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isOfficialLicenseValid() {
+		return ( $this->getOfficialLicenseStatus() == 'valid' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLicenseActive() {
+		return ( $this->getLicenseActivatedAt() > 0 )
+			   && $this->isOfficialLicenseValid()
+			   && ( $this->getLicenseDeactivatedAt() < $this->getLicenseActivatedAt() )
+			   && ( $this->getLicenseExpiresAt() > $this->loadDataProcessor()->GetRequestTime() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasValidActiveLicense() {
+		return $this->hasValidLicenseKey() && $this->isLicenseActive();
 	}
 
 	/**
@@ -93,7 +176,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 
 		$aOptionsParams[ 'title' ] = $sTitle;
