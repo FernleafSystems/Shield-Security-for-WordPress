@@ -87,7 +87,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
-						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
+						'your_ip' => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->loadDataProcessor()->getVisitorIpAddress( false ) ),
 						'notice_message' => sprintf(
 							_wpsf__( 'Notice - %s' ),
 							_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
@@ -133,7 +133,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 		/**
 		 * @param array $aMessages
-		 * @return string
+		 * @return array
 		 */
 		public function fAugmentFirewallDieMessage( $aMessages ) {
 			if ( !is_array( $aMessages ) ) {
@@ -334,10 +334,10 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 */
 		public function getIsIpOnWhiteList( $sIp, $bReturnListData = false ) {
 
-			$aIpData = $this->getIpListData( $sIp, self::LIST_MANUAL_WHITE );
+			$aIpData = $this->getIpListData( $sIp, array( self::LIST_MANUAL_WHITE ) );
 			$bOnList = count( $aIpData ) > 0;
 
-			return ( ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList );
+			return ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList;
 		}
 
 		/**
@@ -350,7 +350,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 			$aIpData = $this->getIpListData( $sIp, array( self::LIST_AUTO_BLACK, self::LIST_MANUAL_BLACK ) );
 			$bOnList = count( $aIpData ) > 0;
 
-			return ( ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList );
+			return ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList;
 		}
 
 		/**
@@ -360,7 +360,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		 */
 		public function getIsIpOnManualBlackList( $sIp, $bReturnListData = false ) {
 
-			$aIpData = $this->getIpListData( $sIp, self::LIST_MANUAL_BLACK );
+			$aIpData = $this->getIpListData( $sIp, array( self::LIST_MANUAL_BLACK ) );
 			$bOnList = count( $aIpData ) > 0;
 
 			return ( ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList );
@@ -468,7 +468,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 		/**
 		 * @param string $sIp
 		 * @param string $sLabel
-		 * @return bool|int
+		 * @return array|bool|int
 		 */
 		protected function query_addNewManualWhiteListIp( $sIp, $sLabel = '' ) {
 
@@ -489,7 +489,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Ips', false ) ):
 
 		/**
 		 * @param string $sIp
-		 * @return bool|int
+		 * @return array|bool|int
 		 */
 		protected function query_addNewAutoBlackListIp( $sIp ) {
 
