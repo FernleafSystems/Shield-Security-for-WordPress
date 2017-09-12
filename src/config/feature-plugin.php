@@ -106,7 +106,7 @@
     {
       "key": "visitor_address_source",
       "section": "section_general_plugin_options",
-      "sensitive": true,
+      "sensitive": false,
       "type": "select",
       "default": "AUTO_DETECT_IP",
       "value_options": [

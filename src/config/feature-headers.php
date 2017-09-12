@@ -105,6 +105,56 @@
       "description": "Reduces visitor exposure to malicious user-uploaded content."
     },
     {
+      "key": "x_referrer_policy",
+      "section": "section_security_headers",
+      "sensitive": false,
+      "type": "select",
+      "default": "empty",
+      "value_options": [
+        {
+          "value_key": "empty",
+          "text": "Leave Header Empty"
+        },
+        {
+          "value_key": "no-referrer",
+          "text": "No Referrer"
+        },
+        {
+          "value_key": "no-referrer-when-downgrade",
+          "text": "No Referrer When Downgrade"
+        },
+        {
+          "value_key": "same-origin",
+          "text": "Same Origin"
+        },
+        {
+          "value_key": "origin",
+          "text": "Origin"
+        },
+        {
+          "value_key": "strict-origin",
+          "text": "Strict Origin"
+        },
+        {
+          "value_key": "origin-when-cross-origin",
+          "text": "Origin When Cross-Origin"
+        },
+        {
+          "value_key": "strict-origin-when-cross-origin",
+          "text": "Strict Origin When Cross-Origin"
+        },
+        {
+          "value_key": "unsafe-url",
+          "text": "Unsafe URL"
+        }
+      ],
+      "link_info": "http://icwp.io/a5",
+      "link_blog": "",
+      "name": "Referrer Policy",
+      "summary": "Referrer Policy Header",
+      "description": "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
+    },
+    {
       "key": "enable_x_content_security_policy",
       "section": "section_content_security_policy",
       "default": "N",
