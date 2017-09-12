@@ -59,7 +59,7 @@
     {
       "key": "license_official_status",
       "transferable": false,
-      "default": '',
+      "default": "",
       "section": "section_non_ui"
     }
   ],
