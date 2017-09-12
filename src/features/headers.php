@@ -16,11 +16,20 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isReferrerPolicyEnabled() {
+		return !$this->getOptIs( 'x_referrer_policy', 'disabled' );
+	}
+
+	/**
+	 * Using this function without first checking isReferrerPolicyEnabled() will result in empty
+	 * referrer policy header in the case of "disabled"
 	 * @return string
 	 */
-	public function getReferrerPolicy() {
+	public function getReferrerPolicyValue() {
 		$sValue = $this->getOpt( 'x_referrer_policy' );
-		return ( $sValue == 'empty' ) ? '' : $sValue;
+		return in_array( $sValue, array( 'empty', 'disabled' ) ) ? '' : $sValue;
 	}
 
 	/**
