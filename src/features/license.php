@@ -23,8 +23,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 	}
 
+	/**
+	 * @param string $sDeactivatedReason
+	 */
 	protected function deactivate( $sDeactivatedReason = '' ) {
-		if ( $this->getLicenseDeactivatedAt() > 0 ) {
+		if ( $this->isLicenseActive() ) {
 			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() );
 			if ( !empty( $sDeactivatedReason ) ) {
 				$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
