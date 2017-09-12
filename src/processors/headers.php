@@ -98,7 +98,10 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function setReferrerPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getFeature();
-		$sValue = $oFO->getReferrerPolicy();
+		$sValue = null;
+		if ( $oFO->isReferrerPolicyEnabled() ) {
+			$sValue = $oFO->getReferrerPolicyValue();
+		}
 		return is_string( $sValue ) ? array( 'Referrer-Policy' => $sValue ) : null;
 	}
 

@@ -109,11 +109,11 @@
       "section": "section_security_headers",
       "sensitive": false,
       "type": "select",
-      "default": "empty",
+      "default": "unsafe-url",
       "value_options": [
         {
-          "value_key": "empty",
-          "text": "Leave Header Empty"
+          "value_key": "unsafe-url",
+          "text": "Default: Full Referrer URL (AKA 'Unsafe URL')"
         },
         {
           "value_key": "no-referrer",
@@ -144,8 +144,12 @@
           "text": "Strict Origin When Cross-Origin"
         },
         {
-          "value_key": "unsafe-url",
-          "text": "Unsafe URL"
+          "value_key": "empty",
+          "text": "Empty Header"
+        },
+        {
+          "value_key": "disabled",
+          "text": "Don't Send This Header"
         }
       ],
       "link_info": "http://icwp.io/a5",
