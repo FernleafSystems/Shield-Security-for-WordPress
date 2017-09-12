@@ -9,31 +9,62 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_filter( $this->getPremiumLicenseFilterName(), array( $this, 'hasValidActiveLicense' ) );
+		add_filter( $this->getPremiumLicenseFilterName(), array( $this, 'hasValidWorkingLicense' ) );
 	}
 
 	protected function doExtraSubmitProcessing() {
 		if ( $this->getOptionsVo()->getNeedSave() ) {
-			$sKey = $this->getLicenseKey();
+			if ( $this->isLicenseKeyValidFormat() ) {
+				$this->validateLicense();
+			}
+			else {
+				$this->deactivate( 'Invalid License Key Format' );
+			}
 		}
 	}
 
-	protected function checkKey() {
-		$bValid = true; // TODO check key request
+	protected function deactivate( $sDeactivatedReason = '' ) {
+		if ( $this->getLicenseDeactivatedAt() > 0 ) {
+			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() );
+			if ( !empty( $sDeactivatedReason ) ) {
+				$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
+			}
+		}
+	}
+
+	protected function validateLicense() {
+		$oDp = $this->loadDataProcessor();
+
+		$oLicense = $this->lookupOfficialLicense();
+
 		/** @var ICWP_EDD_LicenseVO $oLicense */
 		if ( $oLicense->isReady() ) {
 
 			$bWasActive = $this->isLicenseActive();
 
 			$this->setOpt( 'license_expires_at', $oLicense->getExpiresAt() )
-				 ->setOpt( 'license_last_checked_at', $this->loadDataProcessor()->time() )
+				 ->setOpt( 'license_last_checked_at', $oDp->time() )
 				 ->setOpt( 'license_official_status', $oLicense->getLicenseStatus() );
 
-			$bNowActive = $this->isLicenseActive();
-			if ( $this->isLicenseActive() ) {
+			$bOfficialActive = $this->isOfficialLicenseValid() && !$this->isLicenseExpired();
 
+			$bNewlyActivated = !$bWasActive && $bOfficialActive;
+			$bNewlyDeactivated = $bWasActive && !$bOfficialActive;
+
+			if ( $bNewlyActivated ) {
+				$this->setOpt( 'license_activated_at', $oDp->time() );
+			}
+			else if ( $bNewlyDeactivated ) {
+				$this->setOpt( 'license_deactivated_at', $oDp->time() );
 			}
 		}
+	}
+
+	/**
+	 * @return ICWP_EDD_LicenseVO
+	 */
+	protected function lookupOfficialLicense() {
+		//TODO
 	}
 
 	/**
@@ -83,23 +114,43 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function isLicenseActive() {
 		return ( $this->getLicenseActivatedAt() > 0 )
-			   && $this->isOfficialLicenseValid()
-			   && ( $this->getLicenseDeactivatedAt() < $this->getLicenseActivatedAt() )
-			   && ( $this->getLicenseExpiresAt() > $this->loadDataProcessor()->GetRequestTime() );
+			   && ( $this->getLicenseDeactivatedAt() < $this->getLicenseActivatedAt() );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasValidActiveLicense() {
-		return $this->hasValidLicenseKey() && $this->isLicenseActive();
+	protected function isLicenseExpired() {
+		return ( $this->getLicenseExpiresAt() < $this->loadDataProcessor()->GetRequestTime() );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasValidLicenseKey() {
-		return $this->isLicenseKeyValid( $this->getLicenseKey() );
+	protected function isLastCheckExpired() {
+		return ( $this->loadDataProcessor()->time() - $this->getLicenseLastCheckedAt()
+				 > $this->getDefinition( 'license_lack_check_expire_days' ) * DAY_IN_SECONDS );
+	}
+
+	/**
+	 * We text various data points:
+	 * 1) the key is valid format
+	 * 2) the official license status is 'valid'
+	 * 3) the license is marked as "active"
+	 * 4) the license hasn't expired
+	 * 5) the time since the last check hasn't expired
+	 * @return bool
+	 */
+	public function hasValidWorkingLicense() {
+		return $this->isOfficialLicenseValid() && $this->isLicenseKeyValidFormat()
+			   && $this->isLicenseActive() && !$this->isLicenseExpired() && !$this->isLastCheckExpired();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLicenseKeyValidFormat() {
+		return $this->verifyLicenseKeyFormat( $this->getLicenseKey() );
 	}
 
 	/**
@@ -127,7 +178,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @param string $sKey
 	 * @return bool
 	 */
-	public function isLicenseKeyValid( $sKey ) {
+	public function verifyLicenseKeyFormat( $sKey ) {
 		$bValid = !empty( $sKey ) && is_string( $sKey )
 				  && ( strlen( $sKey ) == $this->getDefinition( 'license_key_length' ) );
 
@@ -152,7 +203,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	protected function doPrePluginOptionsSave() {
-		if ( !$this->isLicenseKeyValid( $this->getLicenseKey() ) ) {
+		if ( !$this->verifyLicenseKeyFormat( $this->getLicenseKey() ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'license_key' );
 		}
 	}

@@ -61,13 +61,19 @@
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
+    },
+    {
+      "key": "license_deactivated_reason",
+      "transferable": false,
+      "default": "",
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
     "license_store_url": "https://www.asdf.com",
     "license_item_name": "Shield Pro",
     "license_item_id": "Shield Pro",
-    "license_auto_deactivate_days": 3,
+    "license_lack_check_expire_days": 3,
     "license_key_length": 32,
     "license_key_type": "alphanumeric"
   }
