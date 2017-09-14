@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getBaseAuditor() {
 		if ( !isset( $this->oAuditor ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_base_auditor.php' );
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_auditor_base.php' );
 			$this->oAuditor = new ICWP_WPSF_AuditTrail_Auditor_Base();
 		}
 		return $this->oAuditor;
