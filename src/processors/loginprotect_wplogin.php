@@ -29,6 +29,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		add_filter( 'site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 		add_filter( 'network_site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
 		add_filter( 'wp_redirect', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
+		add_filter( 'wp_redirect', array( $this, 'fProtectUnauthorizedLoginRedirect' ), 50, 2 );
 		add_filter( 'register_url', array( $this, 'blockRegisterUrlRedirect' ), 20, 1 );
 
 		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) ) ;
@@ -136,22 +137,45 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
-	 * @param string $sUrl
-	 * @param string $sPath
+	 * @param string $sLocation
+	 * @param string $mStatus
 	 * @return string
 	 */
-	public function fCheckForLoginPhp( $sUrl, $sPath ) {
-		if ( strpos( $sUrl, 'wp-login.php' ) !== false ) {
+	public function fCheckForLoginPhp( $sLocation, $mStatus ) {
+
+		$sRedirectPath = parse_url( $sLocation, PHP_URL_PATH );
+		if ( strpos( $sRedirectPath, 'wp-login.php' ) !== false ) {
 
 			$sLoginUrl = home_url( $this->getLoginPath() );
-			$aQueryArgs = explode( '?', $sUrl );
+			$aQueryArgs = explode( '?', $sLocation );
 			if ( !empty( $aQueryArgs[1] ) ) {
 				parse_str( $aQueryArgs[1], $aNewQueryArgs );
 				$sLoginUrl = add_query_arg( $aNewQueryArgs, $sLoginUrl );
 			}
 			return $sLoginUrl;
 		}
-		return $sUrl;
+		return $sLocation;
+	}
+
+	/**
+	 * @param string $sLocation
+	 * @param string $mStatus
+	 * @return string
+	 */
+	public function fProtectUnauthorizedLoginRedirect( $sLocation, $mStatus ) {
+
+		$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
+		$bRedirectIsHiddenUrl = $sRedirectPath == $this->getLoginPath();
+		try {
+			$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
+		}
+		catch ( Exception $oE ) {
+			$bLoggedIn = false;
+		}
+		if ( $bRedirectIsHiddenUrl && !$bLoggedIn ) {
+			$this->doWpLoginFailedRedirect404();
+		}
+		return $sLocation;
 	}
 
 	/**
