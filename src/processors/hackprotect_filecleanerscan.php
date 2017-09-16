@@ -127,16 +127,8 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	protected function isCoreFile( $oFsItem ) {
 		// We rtrim the '/' to prevent mixup with windows and deal only in SYSTEM-generated paths first.
-		$sFilePathNoAbs = ltrim( str_replace( rtrim( ABSPATH, '/' ), '', $oFsItem->getPathname() ), "\/" );
-		return in_array( $this->normalizeFilePathDS( $sFilePathNoAbs ), $this->getCoreFiles() );
-	}
-
-	/**
-	 * @param string $sPath
-	 * @return string
-	 */
-	protected function normalizeFilePathDS( $sPath ) {
-		return ( DIRECTORY_SEPARATOR == '/' ) ? $sPath : str_replace( '\\', '/', $sPath );
+		$sPathNoAbs = ltrim( str_replace( rtrim( ABSPATH, '/' ), '', $oFsItem->getPathname() ), "\/" );
+		return in_array( $this->loadFS()->normalizeFilePathDS( $sPathNoAbs ), $this->getCoreFiles() );
 	}
 
 	/**
@@ -146,7 +138,26 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	protected function isExcluded( $oFile ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		return in_array( $oFile->getFilename(), $oFO->getUfcFileExclusions() );
+		$oFS = $this->loadFS();
+
+		$sFileName = $oFile->getFilename();
+		$sFilePath = $oFile->getPathname();
+
+		$bExcluded = false;
+
+		foreach ( $oFO->getUfcFileExclusions() as $sExclusion ) {
+			if ( strpos( $oFS->normalizeFilePathDS( $sExclusion ), '/' ) === false ) { // filename only
+				$bExcluded = ( $sFileName == $sExclusion );
+			}
+			else {
+				$bExcluded = strpos( $sFilePath, $sExclusion );
+			}
+
+			if ( $bExcluded ) {
+				break;
+			}
+		}
+		return $bExcluded;
 	}
 
 	public function cron_dailyFileCleanerScan() {
