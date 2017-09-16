@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.15.0": {
+	  "version": {
+		"series": "5.15.0",
+		"major": 5,
+		"minor": 15,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1504618817",
+		"is_patch": true,
+		"options_added": true,
+		"options_removed": false
+	  }
+	},
 	"5.14.0": {
 	  "version": {
 		"series": "5.14.0",
@@ -228,6 +242,41 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "added",
+	  "summary": "New HTTP Security Header: Referrer Policy.",
+	  "version": "5.15.0"
+	},
+	{
+	  "type": "added",
+	  "summary": "Support paths for file exclusions in the Unrecognised File Scanner.",
+	  "version": "5.15.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Better interception of unintentional redirects to the hidden Login URL (e.g. /wp-admin/customize.php).",
+	  "version": "5.15.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Better handling of email sending entries in the Audit Trail.",
+	  "version": "5.15.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Improved display of Audit Trail.",
+	  "version": "5.15.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Better generation & handling of the One Time Password for email-base two-factor authentication.",
+	  "version": "5.15.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Some code clean up and refactoring.",
+	  "version": "5.15.0"
+	},
 	{
 	  "type": "added",
 	  "summary": "Option for administrators to manually override and set the source of the visitor IP address.",

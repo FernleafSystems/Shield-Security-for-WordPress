@@ -308,16 +308,24 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.14.0 Latest Point Release =
+= 5.15.0 Latest Point Release =
+*Released: 19th September, 2017*
+
+* **(v.0)**  ADDED:			New HTTP Security Header: Referrer Policy.
+* **(v.0)**  ADDED:			Support paths for file exclusions in the Unrecognised File Scanner.
+* **(v.0)**  IMPROVEMENTS:	Better interception of unintentional redirects to the hidden Login URL (e.g. /wp-admin/customize.php).
+* **(v.0)**  IMPROVEMENTS:	Better handling of email sending entries in the Audit Trail.
+* **(v.0)**  IMPROVEMENTS:	Improved display of Audit Trail.
+* **(v.0)**  IMPROVEMENTS:	Better generation & handling of the One Time Password for email-base two-factor authentication.
+* **(v.0)**  IMPROVEMENTS:	Some code clean up and refactoring.
+
+= 5.14 Series =
 *Released: 9th September, 2017*
 
 * **(v.0)**  ADDED:			Option for administrators to manually override and set the source of the visitor IP address.
 * **(v.0)**  UPDATED:		In-plugin documentation links to updated and revised helpdesk articles/blogs.
 * **(v.0)**  IMPROVEMENTS:	Strip out any non-alphanumeric characters uses in the generation of Google Authenticator URLs.
 * **(v.0)**  FIX:			Shield now ignores any requests sent to Rest API URIs with respect to Shield user sessions.
-
-= 5.14 Series =
-*Released: 9th September, 2017*
 
 = 5.13 Series =
 *Released: 15th August, 2017*
