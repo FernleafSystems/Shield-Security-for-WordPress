@@ -131,6 +131,15 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 			return false;
 		}
 
+		/**
+		 * Returns a path where all backslashes "\" are converted to "/"
+		 * @param string $sPath
+		 * @return string
+		 */
+		public function normalizeFilePathDS( $sPath ) {
+			return ( DIRECTORY_SEPARATOR == '/' ) ? $sPath : str_replace( '\\', '/', $sPath );
+		}
+
 		protected function setWpConfigPath() {
 			$this->sWpConfigPath = ABSPATH.'wp-config.php';
 			if ( !$this->exists($this->sWpConfigPath)  ) {
