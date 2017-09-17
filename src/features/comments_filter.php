@@ -164,28 +164,28 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					break;
 
 				case 'custom_message_checkbox' :
-					$sName = _wpsf__( 'Custom Checkbox Message' );
+					$sName = _wpsf__( 'GASP Checkbox Message' );
 					$sSummary = _wpsf__( 'If you want a custom checkbox message, please provide this here' );
 					$sDescription = _wpsf__( "You can customise the message beside the checkbox." )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__("Please check the box to confirm you're not a spammer") );
 					break;
 
 				case 'custom_message_alert' :
-					$sName = _wpsf__( 'Custom Alert Message' );
+					$sName = _wpsf__( 'GASP Alert Message' );
 					$sSummary = _wpsf__( 'If you want a custom alert message, please provide this here' );
 					$sDescription = _wpsf__( "This alert message is displayed when a visitor attempts to submit a comment without checking the box." )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__("Please check the box to confirm you're not a spammer") );
 					break;
 
 				case 'custom_message_comment_wait' :
-					$sName = _wpsf__( 'Custom Wait Message' );
+					$sName = _wpsf__( 'GASP Wait Message' );
 					$sSummary = _wpsf__( 'If you want a custom submit-button wait message, please provide this here.' );
 					$sDescription = _wpsf__( "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these." )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__('Please wait %s seconds before posting your comment') );
 					break;
 
 				case 'custom_message_comment_reload' :
-					$sName = _wpsf__( 'Custom Reload Message' );
+					$sName = _wpsf__( 'GASP Reload Message' );
 					$sSummary = _wpsf__( 'If you want a custom message when the comment token has expired, please provide this here.' );
 					$sDescription = _wpsf__( 'This message is displayed on the submit-button when the comment token is expired' )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__("Please reload this page to post a comment") );
