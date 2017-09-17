@@ -93,9 +93,9 @@
 															<?php elseif ( $sOptionType == 'text' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
-																<input type="text" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>"
-																	   class="span5" <?php echo $sDisabledText; ?> />
+																<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+																		  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
+																		  class="span5" <?php echo $sDisabledText; ?>><?php echo $aOption['value']; ?></textarea>
 
 															<?php elseif ( $sOptionType == 'noneditable_text' ) : ?>
 
