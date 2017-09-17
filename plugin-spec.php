@@ -11,6 +11,7 @@
     "logging_enabled": true,
     "show_dashboard_widget": true,
     "autoupdate": "confidence",
+    "autoupdate_days": 3,
     "options_encoding": "json"
   },
   "requirements": {
