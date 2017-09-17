@@ -116,6 +116,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 				#'.$sUniqElem.' input {
 					margin-right: 5px;
 				}
+				#'.$sUniqElem.' label {
+					display: block;
+				}
 			</style>
 		';
 		$sHtml =

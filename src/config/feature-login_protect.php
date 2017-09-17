@@ -302,7 +302,7 @@
 	   "key": "text_pleasecheckbox",
 	   "section": "section_user_messages",
 	   "premium": true,
-	   "default": "Please check the box to show us you're a human",
+	   "default": "default",
 	   "type": "text",
 	   "link_info": "",
 	   "link_blog": "",
