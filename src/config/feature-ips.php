@@ -54,6 +54,16 @@
       ]
     },
     {
+      "slug": "section_user_messages",
+      "title": "Customize Messages Shown To User",
+      "title_short": "Visitor Messages",
+      "summary":
+      [
+        "Purpose - Customize the messages shown to visitors when they view and use comment forms.",
+        "Recommendation - Be sure to change the messages to suit your audience."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -110,6 +120,30 @@
       "summary": "After 1 'X' a black listed IP will be removed from the black list",
       "description": "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
     },
+	{
+	   "key": "text_loginfailed",
+	   "section": "section_user_messages",
+	   "premium": true,
+	   "default": "default",
+	   "type": "text",
+	   "link_info": "",
+	   "link_blog": "",
+	   "name": "Login Failed",
+	   "summary": "Visitor Triggers The IP Transgression System Through A Failed Login",
+	   "description": "This message is displayed if the visitor fails a login attempt."
+	},
+	{
+	   "key": "text_remainingtrans",
+	   "section": "section_user_messages",
+	   "premium": true,
+	   "default": "default",
+	   "type": "text",
+	   "link_info": "",
+	   "link_blog": "",
+	   "name": "Remaining Transgressions",
+	   "summary": "Visitor Triggers The IP Transgression System Through A Firewall Block",
+	   "description": "This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked."
+	},
     {
       "key": "this_server_ip",
       "transferable": false,
