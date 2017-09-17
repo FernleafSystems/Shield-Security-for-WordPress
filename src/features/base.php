@@ -678,19 +678,33 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function buildOptions() {
 
+		$bPremiumEnabled = self::getController()->isPremiumExtensionsEnabled();
+
 		$aOptions = $this->getOptionsVo()->getOptionsForPluginUse();
 		foreach ( $aOptions as $nSectionKey => $aSection ) {
 
 			if ( !empty( $aSection[ 'options' ] ) ) {
 
 				foreach ( $aSection[ 'options' ] as $nKey => $aOptionParams ) {
-					$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOptionParams );
+					$bIsPrem = isset( $aOptionParams[ 'premium' ] ) && $aOptionParams[ 'premium' ];
+					if ( !$bIsPrem || $bPremiumEnabled ) {
+						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOptionParams );
+					}
+					else {
+						unset( $aSection[ 'options' ][ $nKey ] );
+					}
 				}
 
 				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
 					$aSection[ 'help_video_url' ] = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
 				}
-				$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
+
+				if ( empty( $aSection[ 'options' ] ) ) {
+					unset( $aOptions[ $nSectionKey ] );
+				}
+				else {
+					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
+				}
 			}
 		}
 

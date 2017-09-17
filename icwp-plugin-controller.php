@@ -1344,6 +1344,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isPremiumExtensionsEnabled() {
+		return (bool)$this->getPluginSpec_Property( 'enable_premium' );
+	}
+
+	/**
 	 */
 	protected function saveCurrentPluginControllerOptions() {
 		$oOptions = $this->getPluginControllerOptions();
