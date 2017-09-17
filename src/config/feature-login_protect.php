@@ -8,7 +8,7 @@
     "tagline": "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central": true,
     "access_restricted": true,
-    "is_premium": false,
+    "premium": false,
     "order": 40
   },
   "admin_notices": {
@@ -242,7 +242,7 @@
     {
       "key": "3pty_support_woocommerce",
       "section": "section_brute_force_login_protection",
-      "is_premium": true,
+      "premium": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -289,7 +289,7 @@
     {
 	   "key": "text_imahuman",
 	   "section": "section_user_messages",
-	   "is_premium": true,
+	   "premium": true,
 	   "default": "I'm a human",
 	   "type": "text",
 	   "link_info": "",
@@ -301,7 +301,7 @@
 	{
 	   "key": "text_pleasecheckbox",
 	   "section": "section_user_messages",
-	   "is_premium": true,
+	   "premium": true,
 	   "default": "Please check the box to show us you're a human",
 	   "type": "text",
 	   "link_info": "",

@@ -7,7 +7,7 @@
     "tagline": "Get true user sessions and control account sharing, session duration and timeouts",
     "show_central": true,
     "access_restricted": true,
-    "is_premium": false,
+    "premium": false,
     "order": 40
   },
   "sections": [

@@ -50,21 +50,21 @@
 								$bEnabled = $aOption[ 'enabled' ];
 								$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 								?>
-								<div class="row row_number_<?php echo $nKeyRow; ?> option_row
-									<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>">
-
-									<?php if ( !$bEnabled ) : ?>
-										<div class="option_overlay">
-											<div class="overlay_message">A Premium Feature</div>
-										</div>
-									<?php endif; ?>
+								<div class="row row_number_<?php echo $nKeyRow; ?> option_row">
 
 									<?php if ( $sOptionKey == 'spacer' ) : ?>
 										<div class="span8"></div>
 									<?php else: ?>
 										<div class="item_group span8
+													<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>
 													<?php echo ( $aOption['value'] == 'Y' || $aOption['value'] != $aOption['default'] ) ? 'selected_item_group':''; ?>"
 											 id="span_<?php echo $var_prefix.$sOptionKey; ?>">
+
+											<?php if ( !$bEnabled ) : ?>
+												<div class="option_overlay">
+													<div class="overlay_message">A Premium Feature</div>
+												</div>
+											<?php endif; ?>
 
 											<div class="control-group">
 												<label class="control-label" for="<?php echo $var_prefix.$sOptionKey; ?>">

@@ -7,7 +7,7 @@
     "tagline": "Overview of the plugin settings",
     "show_central": true,
     "access_restricted": true,
-    "is_premium": false,
+    "premium": false,
     "order": 10
   },
   "admin_notices": {

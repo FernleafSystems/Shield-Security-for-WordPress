@@ -729,7 +729,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aOptParams[ 'value' ] = is_scalar( $mCurrentVal ) ? esc_attr( $mCurrentVal ) : $mCurrentVal;
-		$aOptParams[ 'disabled' ] = !$this->isPremium() && ( isset( $aOptParams[ 'is_premium' ] ) && $aOptParams[ 'is_premium' ] );
+		$aOptParams[ 'disabled' ] = !$this->isPremium() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] );
 		$aOptParams[ 'enabled' ] = !$aOptParams[ 'disabled' ];
 		// add strings
 		return $this->loadStrings_Options( $aOptParams );
@@ -824,7 +824,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isPremium() {
-		return false; // TODO: Filter.
+		return $this->hasValidPremiumLicense();
 	}
 
 	/**

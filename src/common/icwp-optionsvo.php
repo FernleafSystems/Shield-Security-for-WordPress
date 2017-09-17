@@ -493,7 +493,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isModulePremium() {
-		return (bool)$this->getFeatureProperty( 'is_premium' );
+		return (bool)$this->getFeatureProperty( 'premium' );
 	}
 
 	/**
@@ -501,7 +501,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return bool true if premium is set and true, false otherwise.
 	 */
 	public function isOptPremium( $sOptionKey ) {
-		return (bool)$this->getOptProperty( $sOptionKey, 'is_premium' );
+		return (bool)$this->getOptProperty( $sOptionKey, 'premium' );
 	}
 
 	/**
@@ -524,7 +524,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function resetPremiumOptsToDefault() {
 		foreach ( $this->getRawData_AllOptions() as $aOption ) {
-			if ( isset( $aOption[ 'is_premium' ] ) && $aOption[ 'is_premium' ] ) {
+			if ( isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ] ) {
 				$this->resetOptToDefault( $aOption[ 'key' ] );
 			}
 		}

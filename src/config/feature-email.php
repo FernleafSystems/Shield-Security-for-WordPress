@@ -6,7 +6,7 @@
     "show_feature_menu_item": false,
     "storage_key": "email",
     "show_central": false,
-    "is_premium": false,
+    "premium": false,
     "access_restricted": true
   },
   "sections": [

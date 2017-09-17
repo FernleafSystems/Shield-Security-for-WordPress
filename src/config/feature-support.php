@@ -8,7 +8,7 @@
     "auto_enabled": true,
     "highlight_menu_item": true,
     "show_central": false,
-    "is_premium": false,
+    "premium": false,
     "access_restricted": false
   },
   "sections": [

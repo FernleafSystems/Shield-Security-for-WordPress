@@ -6,7 +6,7 @@
     "show_feature_menu_item": true,
     "storage_key": "license",
     "show_central": true,
-    "is_premium": false,
+    "premium": false,
     "access_restricted": true
   },
   "sections": [

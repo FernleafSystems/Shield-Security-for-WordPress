@@ -8,7 +8,7 @@
     "tagline": "Automatically block malicious URLs and data sent to your site",
     "show_central": true,
     "access_restricted": true,
-    "is_premium": false,
+    "premium": false,
     "order": 30
   },
   "sections": [
