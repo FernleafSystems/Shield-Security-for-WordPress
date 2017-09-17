@@ -524,6 +524,27 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 		}
 
 		/**
+		 * @param string $sOptKey
+		 * @return string
+		 */
+		public function getTextOpt( $sOptKey ) {
+			$sValue = $this->getOpt( $sOptKey, 'default' );
+			if ( $sValue == 'default' ) {
+				$sValue = $this->getTextOptDefault( $sOptKey );
+			}
+			return $sValue;
+		}
+
+		/**
+		 * Override this on each feature that has Text field options to supply the text field defaults
+		 * @param string $sOptKey
+		 * @return string
+		 */
+		public function getTextOptDefault( $sOptKey ) {
+			return 'Undefined Text Opt Default';
+		}
+
+		/**
 		 * @return string
 		 */
 		public function getVersion() {
@@ -723,7 +744,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ):
 					break;
 
 				case 'text':
-					$mCurrentVal = stripslashes( $mCurrentVal );
+					$mCurrentVal = stripslashes( $this->getTextOpt( $aOptionParams['key'] ) );
 					break;
 			}
 
