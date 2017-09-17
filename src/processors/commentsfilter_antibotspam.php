@@ -277,18 +277,20 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 	
 	protected function getGaspCommentsHtml() {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeature();
 
-		$sId			= $this->getUniqueFormId();
-		$sConfirm		= stripslashes( $this->getOption('custom_message_checkbox') );
-		$sAlert			= stripslashes( $this->getOption('custom_message_alert') );
-		$sCommentWait	= stripslashes( $this->getOption('custom_message_comment_wait') );
-		$nCooldown		= $this->getOption('comments_cooldown_interval');
-		$nExpire		= $this->getOption('comments_token_expire_interval');
+		$sId = $this->getUniqueFormId();
+		$sConfirm = stripslashes( $oFO->getTextOpt( 'custom_message_checkbox' ) );
+		$sAlert = stripslashes( $oFO->getTextOpt( 'custom_message_alert' ) );
+		$sCommentWait = stripslashes( $oFO->getTextOpt( 'custom_message_comment_wait' ) );
+		$sCommentReload = stripslashes( $oFO->getTextOpt( 'custom_message_comment_reload' ) );
+
+		$nCooldown = $this->getOption( 'comments_cooldown_interval' );
+		$nExpire = $this->getOption( 'comments_token_expire_interval' );
 
 		$sJsCommentWait = '"'.str_replace( '%s', '"+nRemaining+"', $sCommentWait ).'"';
-		$sCommentWait = str_replace( '%s', $nCooldown, $sCommentWait );
-
-		$sCommentReload = $this->getOption('custom_message_comment_reload');
+		$sCommentWait = str_replace( '%s', $nCooldown, $sCommentWait ); // don't use sprintf for errors.
 
 		$sReturn = "
 			<script type=\"text/javascript\">
@@ -318,7 +320,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				}
 				
 				var $sId				= document.getElementById('$sId');
-
 				var cb$sId				= document.createElement('input');
 				cb$sId.type				= 'checkbox';
 				cb$sId.id				= 'checkbox$sId';
