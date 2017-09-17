@@ -201,13 +201,13 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return string
 	 */
 	protected function getTextImAHuman() {
-		return _wpsf__( $this->getOption( 'text_imahuman') );
+		return $this->getFeature()->getTextOpt( 'text_imahuman' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getTextPleaseCheckBox() {
-		return _wpsf__( $this->getOption( 'text_pleasecheckbox') );
+		return $this->getFeature()->getTextOpt( 'text_pleasecheckbox' );
 	}
 }

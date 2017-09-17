@@ -252,6 +252,27 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		}
 
 		/**
+		 * @param string $sOptKey
+		 * @return string
+		 */
+		public function getTextOptDefault( $sOptKey ) {
+
+			switch ( $sOptKey ) {
+				case 'text_imahuman':
+					$sText = _wpsf__( "I'm a human." );
+					break;
+				case 'text_pleasecheckbox':
+					$sText = _wpsf__( "Please check the box to show us you're a human." );
+					break;
+				default:
+					$sText = parent::getTextOptDefault( $sOptKey );
+					break;
+			}
+
+			return $sText;
+		}
+
+		/**
 		 * @param array $aOptionsParams
 		 * @return array
 		 * @throws Exception
