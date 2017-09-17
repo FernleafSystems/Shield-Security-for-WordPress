@@ -8,6 +8,7 @@
     "tagline": "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central": true,
     "access_restricted": true,
+    "premium": false,
     "order": 40
   },
   "admin_notices": {
@@ -72,6 +73,15 @@
       "summary": [
         "Purpose - Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.",
         "Recommendation - Keep this turned off unless you know you need it."
+      ]
+    },
+    {
+      "slug": "section_user_messages",
+      "title": "User Messages",
+      "title_short": "User Messages",
+      "summary": [
+        "Purpose - Customize all the messages displayed to the user by the plugin.",
+        "Recommendation - Use this section if you need to communicate to the user in a particular manner."
       ]
     },
     {
@@ -230,6 +240,18 @@
       "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
     },
     {
+      "key": "3pty_support_woocommerce",
+      "section": "section_brute_force_login_protection",
+      "premium": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Woocommerce Support",
+      "summary": "Add Support For Woocommerce Login and Password Reset Pages",
+      "description": "Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms."
+    },
+    {
       "key": "enable_yubikey",
       "section": "section_yubikey_authentication",
       "default": "N",
@@ -264,6 +286,30 @@
       "summary": "Your Unique Yubikey App API Key",
       "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
+    {
+	   "key": "text_imahuman",
+	   "section": "section_user_messages",
+	   "premium": true,
+	   "default": "I'm a human",
+	   "type": "text",
+	   "link_info": "",
+	   "link_blog": "",
+	   "name": "GASP Checkbox Text",
+	   "summary": "The Message Displayed Next To The GASP Checkbox",
+	   "description": "You can change the text displayed to the user beside the checkbox if you need a customized message."
+	},
+	{
+	   "key": "text_pleasecheckbox",
+	   "section": "section_user_messages",
+	   "premium": true,
+	   "default": "Please check the box to show us you're a human",
+	   "type": "text",
+	   "link_info": "",
+	   "link_blog": "",
+	   "name": "GASP Alert Text",
+	   "summary": "The Message Displayed If The User Doesn't Check The Box",
+	   "description": "You can change the text displayed to the user in the alert message if they don't check the box."
+	},
     {
       "key": "email_can_send_verified_at",
       "transferable": false,

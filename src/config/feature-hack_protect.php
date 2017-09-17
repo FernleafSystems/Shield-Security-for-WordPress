@@ -7,6 +7,7 @@
     "storage_key": "hack_protect",
     "show_central": true,
     "access_restricted": true,
+    "premium": false,
     "order": 70
   },
   "sections": [

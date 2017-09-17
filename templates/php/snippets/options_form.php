@@ -44,15 +44,28 @@
 								</div>
 							<?php endif; ?>
 
-							<?php foreach( $sOptionSection['options'] as $nKeyRow => $aOption ) : ?>
-								<div class="row row_number_<?php echo $nKeyRow; ?>">
-									<?php $sOptionKey = $aOption['key']; $sOptionType = $aOption['type']; ?>
+							<?php foreach( $sOptionSection['options'] as $nKeyRow => $aOption ) :
+								$sOptionKey = $aOption['key'];
+								$sOptionType = $aOption['type'];
+								$bEnabled = $aOption[ 'enabled' ];
+								$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
+								?>
+								<div class="row row_number_<?php echo $nKeyRow; ?> option_row">
 
 									<?php if ( $sOptionKey == 'spacer' ) : ?>
 										<div class="span8"></div>
 									<?php else: ?>
+										<div class="item_group span8
+													<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>
+													<?php echo ( $aOption['value'] == 'Y' || $aOption['value'] != $aOption['default'] ) ? 'selected_item_group':''; ?>"
+											 id="span_<?php echo $var_prefix.$sOptionKey; ?>">
 
-										<div class="item_group span8 <?php echo ( $aOption['value'] == 'Y' || $aOption['value'] != $aOption['default'] ) ? 'selected_item_group':''; ?>" id="span_<?php echo $var_prefix.$sOptionKey; ?>">
+											<?php if ( !$bEnabled ) : ?>
+												<div class="option_overlay">
+													<div class="overlay_message">A Premium Feature</div>
+												</div>
+											<?php endif; ?>
+
 											<div class="control-group">
 												<label class="control-label" for="<?php echo $var_prefix.$sOptionKey; ?>">
 													<?php echo $aOption['name']; ?>
@@ -67,19 +80,22 @@
 													<?php endif; ?>
 												</label>
 												<div class="controls">
-													<div class="option_section <?php echo ( $aOption['value'] == 'Y' ) ? 'selected_item':''; ?>" id="option_section_<?php echo $var_prefix.$sOptionKey; ?>">
+													<div class="option_section <?php echo ( $aOption['value'] == 'Y' ) ? 'selected_item':''; ?>"
+														 id="option_section_<?php echo $var_prefix.$sOptionKey; ?>">
 														<label>
 															<?php if ( $sOptionType == 'checkbox' ) : ?>
 
 																<input type="checkbox" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																	   value="Y" <?php echo ( $aOption['value'] == 'Y' ) ? 'checked="checked"':''; ?> />
+																	   value="Y" <?php echo ( $aOption['value'] == 'Y' ) ? 'checked="checked"':''; ?>
+																		<?php echo $sDisabledText; ?> />
 																<?php echo $aOption['summary']; ?>
 
 															<?php elseif ( $sOptionType == 'text' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
 																<input type="text" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
+																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>"
+																	   class="span5" <?php echo $sDisabledText; ?> />
 
 															<?php elseif ( $sOptionType == 'noneditable_text' ) : ?>
 
@@ -90,18 +106,21 @@
 
 																<p><?php echo $aOption['summary']; ?></p>
 																<input type="password" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
+																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>"
+																	   class="span5" <?php echo $sDisabledText; ?> />
 
 															<?php elseif ( $sOptionType == 'email' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
 																<input type="email" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
+																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>"
+																	   class="span5" <?php echo $sDisabledText; ?> />
 
 															<?php elseif ( $sOptionType == 'select' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
-																<select name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>">
+																<select name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
+																	<?php echo $sDisabledText; ?> >
 																	<?php foreach( $aOption['value_options'] as $sOptionValue => $sOptionValueName ) : ?>
 																		<option value="<?php echo $sOptionValue; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>_<?php echo $sOptionValue; ?>"
 																			<?php echo ( $sOptionValue == $aOption['value'] ) ? 'selected="selected"' : ''; ?>
@@ -113,7 +132,8 @@
 
 																<p><?php echo $aOption['summary']; ?></p>
 																<select name="<?php echo $var_prefix.$sOptionKey; ?>[]" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																		multiple="multiple" multiple size="<?php echo count( $aOption['value_options'] ); ?>">
+																		multiple="multiple" multiple size="<?php echo count( $aOption['value_options'] ); ?>"
+																	<?php echo $sDisabledText; ?> >
 																	<?php foreach( $aOption['value_options'] as $sOptionValue => $sOptionValueName ) : ?>
 																		<option value="<?php echo $sOptionValue; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>_<?php echo $sOptionValue; ?>"
 																			<?php echo in_array( $sOptionValue, $aOption['value'] ) ? 'selected="selected"' : ''; ?>
@@ -126,20 +146,21 @@
 																<p><?php echo $aOption['summary']; ?></p>
 																<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
 																		  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
-																		  class="span5" ><?php echo $aOption['value']; ?></textarea>
+																		  class="span5" <?php echo $sDisabledText; ?>><?php echo $aOption['value']; ?></textarea>
 
 															<?php elseif ( $sOptionType == 'comma_separated_lists' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
 																<textarea name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
 																		  placeholder="<?php echo $aOption['value']; ?>" rows="<?php echo $aOption['rows']; ?>"
-																		  class="span5" ><?php echo $aOption['value']; ?></textarea>
+																		  class="span5" <?php echo $sDisabledText; ?> ><?php echo $aOption['value']; ?></textarea>
 
 															<?php elseif ( $sOptionType == 'integer' ) : ?>
 
 																<p><?php echo $aOption['summary']; ?></p>
 																<input type="text" name="<?php echo $var_prefix.$sOptionKey; ?>" id="<?php echo $var_prefix.$sOptionKey; ?>"
-																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>" class="span5" />
+																	   value="<?php echo $aOption['value']; ?>" placeholder="<?php echo $aOption['value']; ?>"
+																	   class="span5" <?php echo $sDisabledText; ?> />
 
 															<?php else : ?>
 																ERROR: Should never reach this point.

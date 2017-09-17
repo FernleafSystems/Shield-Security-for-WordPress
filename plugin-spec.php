@@ -12,7 +12,8 @@
     "show_dashboard_widget": true,
     "autoupdate": "confidence",
     "autoupdate_days": 3,
-    "options_encoding": "json"
+    "options_encoding": "json",
+    "enable_premium": false
   },
   "requirements": {
     "php": "5.2.4",

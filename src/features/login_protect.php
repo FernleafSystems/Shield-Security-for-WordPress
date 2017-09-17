@@ -258,71 +258,70 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['slug'];
-			switch( $sSectionSlug ) {
+			switch ( $aOptionsParams[ 'slug' ] ) {
 
 				case 'section_enable_plugin_feature_login_protection' :
 					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Login Protection blocks all automated and brute force attempts to log in to your site.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Login Protection' ) ) )
 					);
-					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 					break;
 
 				case 'section_bypass_login_protection' :
 					$sTitle = _wpsf__( 'By-Pass Login Protection' );
+					$sTitleShort = _wpsf__( 'By-Pass' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned off unless you know you need it.' ) )
 					);
-					$sTitleShort = _wpsf__( 'By-Pass' );
 					break;
 
 				case 'section_rename_wplogin' :
 					$sTitle = _wpsf__( 'Rename WP Login Page' );
+					$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )
 					);
-					$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 					break;
 
 				case 'section_multifactor_authentication' :
 					$sTitle = _wpsf__( 'Multi-Factor Authentication' );
+					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
 						sprintf( _wpsf__( 'Note: %s' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
 					);
-					$sTitleShort = _wpsf__( 'Two-Factor Authentication' );
-					$sTitleShort = _wpsf__( '2-Factor Auth' );
 					break;
 
 				case 'section_brute_force_login_protection' :
 					$sTitle = _wpsf__( 'Brute Force Login Protection' );
+					$sTitleShort = _wpsf__( 'Brute Force' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
 					);
-					$sTitleShort = _wpsf__( 'Brute Force' );
 					break;
 
 				case 'section_yubikey_authentication' :
 					$sTitle = _wpsf__( 'Yubikey Authentication' );
+					$sTitleShort = _wpsf__( 'Yubikey' );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ). ' '._wpsf__( 'Note: you must own the appropriate Yubikey hardware device.' ) )
+						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'Note: you must own the appropriate Yubikey hardware device.' ) )
 					);
-					$sTitleShort = _wpsf__( 'Yubikey' );
 					break;
 
 				default:
-					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 			}
-			$aOptionsParams['title'] = $sTitle;
-			$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-			$aOptionsParams['title_short'] = $sTitleShort;
+
+			$aOptionsParams[ 'title' ] = $sTitle;
+			$aOptionsParams[ 'title_short' ] = $sTitleShort;
+			$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
 			return $aOptionsParams;
 		}
 
@@ -437,6 +436,26 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_LoginProtect', false ) ):
 						. '<br />- ' . _wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
 						. '<br />- ' . _wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
 						. '<br />- ' . _wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
+					break;
+
+				case '3pty_support_woocommerce' :
+					$sName = _wpsf__( 'Woocommerce Support' );
+					$sSummary = _wpsf__( 'Add Support For Woocommerce Login and Password Reset Pages' );
+					$sDescription = _wpsf__( 'Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms.' );
+					break;
+
+				case 'text_pleasecheckbox' :
+					$sName = _wpsf__( 'GASP Checkbox Text' );
+					$sSummary = _wpsf__( 'The User Message Displayed Next To The GASP Checkbox' );
+					$sDescription = _wpsf__( "You can change the text displayed to the user beside the checkbox if you need a custom message." )
+									. '<br />' . sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'text_imahuman' ) );
+					break;
+
+				case 'text_imahuman' :
+					$sName = _wpsf__( 'GASP Alert Text' );
+					$sSummary = _wpsf__( "The Message Displayed If The User Doesn't Check The Box" );
+					$sDescription = _wpsf__( "You can change the text displayed to the user in the alert message if they don't check the box." )
+									. '<br />' . sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()->getOptDefault( 'text_imahuman' ) );
 					break;
 
 				default:

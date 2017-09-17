@@ -7,6 +7,7 @@
     "tagline": "Overview of the plugin settings",
     "show_central": true,
     "access_restricted": true,
+    "premium": false,
     "order": 10
   },
   "admin_notices": {
@@ -263,6 +264,11 @@
         "slug": "admin_access_restriction",
         "storage_key": "admin_access_restriction",
         "load_priority": 20
+      },
+      {
+        "slug": "license",
+        "storage_key": "license",
+        "load_priority": 10
       },
       {
         "slug": "firewall",

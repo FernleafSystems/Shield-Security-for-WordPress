@@ -22,6 +22,11 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 2 );
 
+		$bWooCommerce = $oFO->getOptIs( '3pty_support_woocommerce', 'Y' );
+		if ( $bWooCommerce ) {
+			add_action( 'woocommerce_login_form', array( $this, 'printGaspLoginCheck_Action' ), 10 );
+		}
+
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
 			//print the checkbox code:
@@ -31,6 +36,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			//verify the checkbox is present:
 			add_action( 'register_post',		array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
 			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10 );
+
+			if ( $bWooCommerce ) {
+				add_action( 'woocommerce_lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
+			}
 		}
 	}
 
@@ -88,8 +97,8 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function getGaspLoginHtml() {
 
-		$sLabel = _wpsf__( "I'm a human." );
-		$sAlert = _wpsf__( "Please check the box to show us you're a human." );
+		$sLabel = $this->getTextImAHuman();
+		$sAlert = $this->getTextPleaseCheckBox();
 
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
@@ -186,5 +195,19 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTextImAHuman() {
+		return _wpsf__( $this->getOption( 'text_imahuman') );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTextPleaseCheckBox() {
+		return _wpsf__( $this->getOption( 'text_pleasecheckbox') );
 	}
 }
