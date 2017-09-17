@@ -57,15 +57,27 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 		add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
-		add_filter( 'authenticate', array(
-			$this,
-			'addLoginFailedWarningMessage'
-		), 10000, 1 ); // 10000 ensures we're at the end
+		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
 		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
+		add_action( 'wp', array( $this, 'doTrack404' ) );
 	}
 
 	public function doBlackMarkIp() {
 		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+	}
+
+	public function doTrack404() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->is404Tracking() ) {
+			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
+				$this->doBlackMarkIp();
+			}
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadDataProcessor()->getRequestPath() ),
+				3, 'request_tracking_404'
+			);
+		}
 	}
 
 	/**
@@ -175,7 +187,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bBlackMark ) {
-			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+			$this->doBlackMarkIp();
 
 			if ( !is_wp_error( $oUserOrError ) ) {
 				$oUserOrError = new WP_Error();
@@ -206,7 +218,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		if ( empty( $sIp ) ) {
 			$sIp = $this->human_ip();
 		}
-		return $oFO->getTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
+		return $oFO->getOptTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
 	}
 
 	/**
@@ -251,7 +263,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()
 																											 ->getHumanName().'</a>'
 					 ).'</h3>'
-					 .'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getTransgressionLimit() )
+					 .'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() )
 					 .'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
 					 .'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime()/60 ) )
 					 .'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
@@ -280,7 +292,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getFeature();
 
 		// Never black mark IPs that are on the whitelist
-		if ( $oFO->isPluginDeleting() || !$oFO->getIsAutoBlackListFeatureEnabled() || $this->getIsVisitorWhitelisted() ) {
+		if ( $oFO->isPluginDeleting() || !$oFO->getIsAutoBlackListFeatureEnabled()
+			 || $this->getIsVisitorWhitelisted() ) {
 			return;
 		}
 
@@ -377,7 +390,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getFeature();
 
 		$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
-		$nTransgressions = $oFO->getTransgressionLimit();
+		$nTransgressions = $oFO->getOptTransgressionLimit();
 
 		$aIpData = $this->query_getAutoBlackListDataForIp( $sIp, $nSinceTimeToConsider, $nTransgressions );
 		return ( $bReturnListData ? $aIpData : !empty( $aIpData ) );

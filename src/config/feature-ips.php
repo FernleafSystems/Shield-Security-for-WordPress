@@ -54,6 +54,15 @@
       ]
     },
     {
+      "slug": "section_reqtracking",
+      "title": "Bad Request Tracking",
+      "title_short": "Request Tracking",
+      "summary": [
+        "Purpose - Track strange behaviour to determine whether visitors are legitimate.",
+        "Recommendation - These aren't security issues in their own right, but may indicate probing bots."
+      ]
+    },
+    {
       "slug": "section_user_messages",
       "title": "Customize Messages Shown To User",
       "title_short": "Visitor Messages",
@@ -133,6 +142,33 @@
 	   "summary": "Visitor Triggers The IP Transgression System Through A Failed Login",
 	   "description": "This message is displayed if the visitor fails a login attempt."
 	},
+    {
+      "key": "track_404",
+      "section": "section_reqtracking",
+      "sensitive": false,
+      "type": "select",
+      "premium": true,
+      "default": "disabled",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text": "Ingore 404s"
+        },
+        {
+          "value_key": "log-only",
+          "text": "Log Only (Audit Trail)"
+        },
+        {
+          "value_key": "assign-transgression",
+          "text": "Increment Transgression"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Track 404s",
+      "summary": "Use 404s As An Transgression",
+      "description": "Repeated 404s may indicate a probing bot especially where WP Login has been renamed."
+    },
 	{
 	   "key": "text_remainingtrans",
 	   "section": "section_user_messages",

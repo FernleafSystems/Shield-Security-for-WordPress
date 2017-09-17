@@ -11,8 +11,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	public function getTransgressionLimit() {
+	public function getOptTransgressionLimit() {
 		return $this->getOpt( 'transgression_limit' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getOptTracking404() {
+		return $this->getOpt( 'track_404', 'disabled' );
 	}
 
 	/**
@@ -26,7 +33,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return bool
 	 */
 	public function getIsAutoBlackListFeatureEnabled() {
-		return ( $this->getTransgressionLimit() > 0 );
+		return ( $this->getOptTransgressionLimit() > 0 );
 	}
 
 	/**
@@ -123,42 +130,23 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		return $this->prefix( $this->getDefinition( 'ip_lists_table_name' ), '_' );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function is404Tracking() {
+		return !$this->getOptIs( 'track_404', 'disabled' );
+	}
+
 	public function doPrePluginOptionsSave() {
 		$sSetting = $this->getOpt( 'auto_expire' );
 		if ( !in_array( $sSetting, array( 'minute', 'hour', 'day', 'week' ) ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
 		}
 
-		$nLimit = $this->getTransgressionLimit();
+		$nLimit = $this->getOptTransgressionLimit();
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
 		}
-	}
-
-	public function getTextOptDefault( $sOptKey ) {
-
-		switch ( $sOptKey ) {
-
-			case 'text_loginfailed':
-				$sText = sprintf(
-					_wpsf__( 'Warning: %s' ),
-					_wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' )
-				);
-				break;
-
-			case 'text_remainingtrans':
-				$sText = sprintf(
-					_wpsf__( 'Warning: %s' ),
-					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' )
-					.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
-				);
-				break;
-
-			default:
-				$sText = parent::getTextOptDefault( $sOptKey );
-				break;
-		}
-		return $sText;
 	}
 
 	protected function adminAjaxHandlers() {
@@ -273,6 +261,36 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @param string $sOptKey
+	 * @return string
+	 */
+	public function getTextOptDefault( $sOptKey ) {
+
+		switch ( $sOptKey ) {
+
+			case 'text_loginfailed':
+				$sText = sprintf(
+					_wpsf__( 'Warning: %s' ),
+					_wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' )
+				);
+				break;
+
+			case 'text_remainingtrans':
+				$sText = sprintf(
+					_wpsf__( 'Warning: %s' ),
+					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' )
+					.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
+				);
+				break;
+
+			default:
+				$sText = parent::getTextOptDefault( $sOptKey );
+				break;
+		}
+		return $sText;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -298,6 +316,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Auto Black List' );
+				break;
+
+			case 'section_reqtracking' :
+				$sTitle = _wpsf__( 'Bad Request Tracking' );
+				$sTitleShort = _wpsf__( 'Request Tracking' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Track strange behaviour to determine whether visitors are legitimate.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( "These aren't security issues in their own right, but may indicate probing bots." ) )
+				);
 				break;
 
 			default:
@@ -338,6 +365,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sDescription = _wpsf__( 'Permanent and lengthy IP Black Lists are harmful to performance.' )
 								.'<br />'._wpsf__( 'You should allow IP addresses on the black list to be eventually removed over time.' )
 								.'<br />'._wpsf__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.' );
+				break;
+
+			case 'track_404' :
+				$sName = _wpsf__( 'Track 404s' );
+				$sSummary = _wpsf__( 'Use 404s As An Transgression' );
+				$sDescription = _wpsf__( 'Repeated 404s may indicate a probing bot.' );
 				break;
 
 			case 'text_loginfailed' :

@@ -132,7 +132,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 				);
 			}
 
-			$this->aAuditEntry['message'][] = $sAdditionalMessage;
+			$this->aAuditEntry['message'][] = esc_sql( $sAdditionalMessage );
 
 			if ( $nCategory > $this->aAuditEntry['category'] ) {
 				$this->aAuditEntry['category'] = $nCategory;
