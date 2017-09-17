@@ -13,7 +13,7 @@
     "autoupdate": "confidence",
     "autoupdate_days": 3,
     "options_encoding": "json",
-    "enable_premium": false
+    "enable_premium": true
   },
   "requirements": {
     "php": "5.2.4",
