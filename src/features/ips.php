@@ -131,10 +131,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @premium
 	 * @return bool
 	 */
 	public function is404Tracking() {
-		return !$this->getOptIs( 'track_404', 'disabled' );
+		return !$this->getOptIs( 'track_404', 'disabled' ) && $this->isPremium();
 	}
 
 	public function doPrePluginOptionsSave() {
