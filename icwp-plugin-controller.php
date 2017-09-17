@@ -691,11 +691,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 				case 'confidence' :
 					$bDoAutoUpdate = false;
+					$nAutoupdateDays = $this->getPluginSpec_Property( 'autoupdate_days' );
 					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
 						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
-						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > WEEK_IN_SECONDS ) );
+						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * $nAutoupdateDays ) );
 					}
 					break;
 
