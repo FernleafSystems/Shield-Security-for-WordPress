@@ -49,7 +49,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sText = parent::getTextOptDefault( $sOptKey );
 					break;
 			}
-
 			return $sText;
 		}
 

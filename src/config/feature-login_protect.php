@@ -80,8 +80,9 @@
       "title": "User Messages",
       "title_short": "User Messages",
       "summary": [
-        "Purpose - Customize all the messages displayed to the user by the plugin.",
-        "Recommendation - Use this section if you need to communicate to the user in a particular manner."
+        "Purpose - Customize the messages shown to visitors.",
+        "Recommendation - Be sure to change the messages to suit your audience.",
+        "Hint - To reset any message to its default, enter the text exactly: default"
       ]
     },
     {
@@ -290,7 +291,7 @@
 	   "key": "text_imahuman",
 	   "section": "section_user_messages",
 	   "premium": true,
-	   "default": "I'm a human",
+	   "default": "default",
 	   "type": "text",
 	   "link_info": "",
 	   "link_blog": "",

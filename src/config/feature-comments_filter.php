@@ -59,8 +59,9 @@
       "title_short": "Visitor Messages",
       "summary":
       [
-        "Purpose - Customize the messages shown to visitors when they view and use comment forms.",
-        "Recommendation - Be sure to change the messages to suit your audience."
+        "Purpose - Customize the messages shown to visitors.",
+        "Recommendation - Be sure to change the messages to suit your audience.",
+        "Hint - To reset any message to its default, enter the text exactly: default"
       ]
     },
     {

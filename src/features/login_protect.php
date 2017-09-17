@@ -265,14 +265,15 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			case 'text_imahuman':
 				$sText = _wpsf__( "I'm a human." );
 				break;
+
 			case 'text_pleasecheckbox':
 				$sText = _wpsf__( "Please check the box to show us you're a human." );
 				break;
+
 			default:
 				$sText = parent::getTextOptDefault( $sOptKey );
 				break;
 		}
-
 		return $sText;
 	}
 
