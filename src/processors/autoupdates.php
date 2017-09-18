@@ -55,18 +55,17 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		add_action( 'wp_loaded', array( $this, 'force_run_autoupdates' ) );
 
-		// Adds automatic update indicator icon to all plugin meta in plugin listing.
-//			add_filter( 'plugin_row_meta', array( $this, 'fAddAutomaticUpdatePluginMeta' ), $nFilterPriority, 2 );
-
-		// Adds automatic update indicator column to all plugins in plugin listing.
-		add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
-
 		if ( $this->getIsOption( 'enable_upgrade_notification_email', 'Y' ) ) {
 			add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
 		}
 
 		if ( isset( $_GET[ 'auto' ] ) ) {
 			$this->loadWpFunctions()->doForceRunAutomaticUpdates();
+		}
+
+		if ( $oFO->isAutoupdateIndividualPlugins() && $oFO->getController()->getIsValidAdminArea() ) {
+			// Adds automatic update indicator column to all plugins in plugin listing.
+			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
 		}
 	}
 
@@ -250,10 +249,10 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
 		if ( !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
 			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
-			add_action( 'manage_plugins_custom_column', array(
-				$this,
-				'aPrintPluginsListAutoUpdateColumnContent'
-			), $this->getHookPriority(), 2 );
+			add_action( 'manage_plugins_custom_column',
+				array( $this, 'aPrintPluginsListAutoUpdateColumnContent' ),
+				$this->getHookPriority(), 2
+			);
 		}
 		return $aColumns;
 	}
@@ -266,8 +265,12 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $sColumnName != 'icwp_autoupdate' ) {
 			return;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getFeature();
 		$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
-		echo $this->getPluginAutoupdateIconHtml( $bUpdate );
+//		$bUpdate = in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
+		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
+		echo $this->getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bUpdate, $bDisabled );
 	}
 
 	/**
@@ -355,14 +358,20 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param boolean $bIsAutoupdate
+	 * @param string $sPluginBaseFileName
+	 * @param bool $bIsAutoupdate
+	 * @param bool $bDisabled
 	 * @return string
 	 */
-	protected function getPluginAutoupdateIconHtml( $bIsAutoupdate ) {
-		return sprintf(
-			'<span title="%s" class="icwp-pluginautoupdateicon dashicons dashicons-%s"></span>',
-			$bIsAutoupdate ? 'Updates are applied automatically by WordPress' : 'Updates are applied manually by Administrators',
-			$bIsAutoupdate ? 'update' : 'hammer'
+	protected function getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bIsAutoupdate, $bDisabled ) {
+		return sprintf( '<label class="icwp-toggle-switch">
+				<input type="checkbox" onchange="icwpTogglePluginUpdate( this );"
+				data-pluginfile="%s" %s %s
+				>
+				<span class="slider"></span></label>',
+			$sPluginBaseFileName,
+			$bIsAutoupdate ? 'checked="checked"' : '',
+			$bDisabled ? 'disabled="disabled"' : ''
 		);
 	}
 

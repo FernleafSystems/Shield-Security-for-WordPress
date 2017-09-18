@@ -119,7 +119,7 @@
       "link_info": "",
       "link_blog": "",
       "name": "Individually Select Plugins",
-      "summary": "Select Individual Updates To Automatically Update",
+      "summary": "Select Individual Plugins To Automatically Update",
       "description": "Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated."
     },
     {

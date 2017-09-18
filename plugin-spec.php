@@ -33,6 +33,7 @@
         "featherlight"
       ],
       "js": [
+        "global-plugin",
         "featherlight"
       ]
     },

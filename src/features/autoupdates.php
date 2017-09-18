@@ -149,13 +149,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'enable_autoupdate_plugins' :
 				$sName = _wpsf__( 'Plugins' );
-				$sSummary = _wpsf__( 'Automatically Update Plugins' );
+				$sSummary = _wpsf__( 'Automatically Update All Plugins' );
 				$sDescription = _wpsf__( 'Note: Automatic updates for plugins are disabled on WordPress by default.' );
 				break;
 
 			case 'enable_individual_autoupdate_plugins' :
 				$sName = _wpsf__( 'Individually Select Plugins' );
-				$sSummary = _wpsf__( 'Select Individual Updates To Automatically Update' );
+				$sSummary = _wpsf__( 'Select Individual Plugins To Automatically Update' );
 				$sDescription = _wpsf__( 'Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated.' );
 				break;
 
