@@ -111,6 +111,18 @@
       "description": "Note: Automatic updates for plugins are disabled on WordPress by default."
     },
     {
+      "key": "enable_individual_autoupdate_plugins",
+      "section": "section_automatic_updates_for_wordpress_components",
+      "default": "N",
+      "type": "checkbox",
+      "premium": true,
+      "link_info": "",
+      "link_blog": "",
+      "name": "Individually Select Plugins",
+      "summary": "Select Individual Updates To Automatically Update",
+      "description": "Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated."
+    },
+    {
       "key": "enable_autoupdate_themes",
       "section": "section_automatic_updates_for_wordpress_components",
       "default": "N",
@@ -166,6 +178,12 @@
       "name": "Report Email Address",
       "summary": "Where to send upgrade notification reports",
       "description": "If this is empty, it will default to the Site Admin email address"
+    },
+    {
+      "key": "selected_plugins",
+      "transferable": false,
+      "default": [],
+      "section": "section_non_ui"
     }
   ],
   "definitions": {

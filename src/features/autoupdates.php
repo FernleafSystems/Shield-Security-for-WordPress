@@ -8,6 +8,35 @@ require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @return string[]
+	 */
+	public function getAutoupdatePlugins() {
+		$aSelected = array();
+		if ( $this->isAutoupdateIndividualPlugins() ) {
+			$aSelected = $this->getOpt( 'selected_plugins', array() );
+			if ( !is_array( $aSelected ) ) {
+				$aSelected = array();
+			}
+		}
+		return $aSelected;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoupdateAllPlugins() {
+		return $this->getOptIs( 'enable_autoupdate_plugins', 'Y' );
+	}
+
+	/**
+	 * @premium
+	 * @return bool
+	 */
+	public function isAutoupdateIndividualPlugins() {
+		return $this->getOptIs( 'enable_individual_autoupdate_plugins', 'Y' );
+	}
+
 	protected function doPostConstruction() {
 		// Force run automatic updates
 		if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
@@ -122,6 +151,12 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Plugins' );
 				$sSummary = _wpsf__( 'Automatically Update Plugins' );
 				$sDescription = _wpsf__( 'Note: Automatic updates for plugins are disabled on WordPress by default.' );
+				break;
+
+			case 'enable_individual_autoupdate_plugins' :
+				$sName = _wpsf__( 'Individually Select Plugins' );
+				$sSummary = _wpsf__( 'Select Individual Updates To Automatically Update' );
+				$sDescription = _wpsf__( 'Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated.' );
 				break;
 
 			case 'enable_autoupdate_themes' :
