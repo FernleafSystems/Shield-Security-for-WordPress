@@ -367,11 +367,13 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		return sprintf( '<label class="icwp-toggle-switch">
 				<input type="checkbox" onchange="icwpTogglePluginUpdate( this );"
 				data-pluginfile="%s" %s %s
+				data-nonce="%s"
 				>
 				<span class="slider"></span></label>',
 			$sPluginBaseFileName,
 			$bIsAutoupdate ? 'checked="checked"' : '',
-			$bDisabled ? 'disabled="disabled"' : ''
+			$bDisabled ? 'disabled="disabled"' : '',
+			wp_create_nonce( 'icwp_ajax' )
 		);
 	}
 

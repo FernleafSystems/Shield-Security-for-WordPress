@@ -37,6 +37,53 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		return $this->getOptIs( 'enable_individual_autoupdate_plugins', 'Y' );
 	}
 
+	/**
+	 * @param $sPluginFile
+	 * @return bool
+	 */
+	public function isPluginSetToAutoupdate( $sPluginFile ) {
+		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		if ( $this->isAutoupdateIndividualPlugins() && $this->getController()->getIsValidAdminArea() ) {
+			add_action( 'wp_ajax_icwp_wpsf_TogglePluginAutoupdate', array( $this, 'ajaxTogglePluginAutoupdate' ) );
+		}
+	}
+
+	public function ajaxTogglePluginAutoupdate() {
+		if ( $this->checkAjaxNonce() ) {
+			$oDp = $this->loadDataProcessor();
+			$sFile = $oDp->FetchPost( 'pluginfile' );
+			if ( $this->loadWpFunctions()->getIsPluginInstalledByFile( $sFile ) ) {
+				$this->setPluginToAutoUpdate( $sFile );
+				$this->sendAjaxResponse( true );
+			}
+			else {
+				$this->sendAjaxResponse( false );
+			}
+		}
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @return $this
+	 */
+	protected function setPluginToAutoUpdate( $sPluginFile ) {
+		$aPlugins = $this->getAutoupdatePlugins();
+		$nKey = array_search( $sPluginFile, $aPlugins );
+
+		if ( $nKey === false ) {
+			$aPlugins[] = $sPluginFile;
+		}
+		else {
+			unset( $aPlugins[ $nKey ] );
+		}
+
+		return $this->setOpt( 'selected_plugins', $aPlugins );
+	}
+
 	protected function doPostConstruction() {
 		// Force run automatic updates
 		if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
