@@ -69,13 +69,13 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function doTrack404() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
-		if ( $oFO->is404Tracking() ) {
+		if ( $oFO->is404Tracking() && is_404() ) {
 			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
 				$this->doBlackMarkIp();
 			}
 			$this->addToAuditEntry(
 				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadDataProcessor()->getRequestPath() ),
-				3, 'request_tracking_404'
+				2, 'request_tracking_404'
 			);
 		}
 	}

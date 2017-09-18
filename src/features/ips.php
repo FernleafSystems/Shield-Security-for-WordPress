@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return string
 	 */
 	public function getOptTracking404() {
-		return $this->getOpt( 'track_404', 'disabled' );
+		return $this->getOpt( 'track_404' );
 	}
 
 	/**
@@ -135,19 +135,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return bool
 	 */
 	public function is404Tracking() {
-		return !$this->getOptIs( 'track_404', 'disabled' ) && $this->isPremium();
-	}
-
-	public function doPrePluginOptionsSave() {
-		$sSetting = $this->getOpt( 'auto_expire' );
-		if ( !in_array( $sSetting, array( 'minute', 'hour', 'day', 'week' ) ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
-		}
-
-		$nLimit = $this->getOptTransgressionLimit();
-		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
-		}
+		return !$this->getOptIs( 'track_404', 'disabled' );
 	}
 
 	protected function adminAjaxHandlers() {
@@ -259,6 +247,17 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		}
 
 		return $this->renderTemplate( 'snippets/ip_list_table.php', $aRenderData );
+	}
+
+	protected function doExtraSubmitProcessing() {
+		if ( !in_array( $this->getOpt( 'auto_expire' ), array( 'minute', 'hour', 'day', 'week' ) ) ) {
+			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
+		}
+
+		$nLimit = $this->getOptTransgressionLimit();
+		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
+			$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
+		}
 	}
 
 	/**
