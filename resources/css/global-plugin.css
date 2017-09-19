@@ -152,7 +152,7 @@ tr.icwp-plugin-vulnerability dd {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #ccc;
+	background-color: #c1bfa9;
 	-webkit-transition: .4s;
 	transition: .4s;
 }
@@ -170,11 +170,11 @@ tr.icwp-plugin-vulnerability dd {
 }
 
 .icwp-toggle-switch input:checked + .slider {
-	background-color: #2196F3;
+	background-color: #65bd84;
 }
 
 .icwp-toggle-switch input:focus + .slider {
-	box-shadow: 0 0 1px #2196F3;
+	box-shadow: 0 0 1px #65bd84;
 }
 
 .icwp-toggle-switch input:checked + .slider:before {

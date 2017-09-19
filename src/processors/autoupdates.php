@@ -251,7 +251,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
 			add_action( 'manage_plugins_custom_column',
 				array( $this, 'aPrintPluginsListAutoUpdateColumnContent' ),
-				$this->getHookPriority(), 2
+				PHP_INT_MAX, 2
 			);
 		}
 		return $aColumns;
@@ -367,8 +367,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		return sprintf( '<label class="icwp-toggle-switch">
 				<input type="checkbox" onchange="icwpTogglePluginUpdate( this );"
 				data-pluginfile="%s" %s %s
-				data-nonce="%s"
-				>
+				data-nonce="%s">
 				<span class="slider"></span></label>',
 			$sPluginBaseFileName,
 			$bIsAutoupdate ? 'checked="checked"' : '',
