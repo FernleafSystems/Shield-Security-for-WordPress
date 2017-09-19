@@ -54,7 +54,7 @@
 	color: rgba(199, 41, 0, 1);
 }
 
-td.icwp_autoupdate, th#icwp_autoupdate {
+th.column-icwp_autoupdate, td.icwp_autoupdate, th#icwp_autoupdate {
 	text-align: center;
 	vertical-align: middle;
 }
