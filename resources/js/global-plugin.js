@@ -1,6 +1,30 @@
-function icwpTogglePluginUpdate( oInput ) {
-	$oInput = jQuery( oInput );
-	icwpSendTogglePluginAutoupdate( $oInput.data( 'pluginfile' ), $oInput.data( 'nonce' ) );
+function icwpTogglePluginUpdate( event ) {
+	$oInput = jQuery( this );
+
+	if ( $oInput.data( 'disabled' ) !== 'no' ) {
+		icwpShowGrowl( $oInput.data( 'disabled' ), false );
+		return false;
+	}
+
+	$oInput.parent().addClass( 'icwp-waiting' );
+	$bSuccess = icwpSendTogglePluginAutoupdate( $oInput.data( 'pluginfile' ), $oInput.data( 'nonce' ) );
+	$oInput.parent().removeClass( 'icwp-waiting' );
+	return $bSuccess;
+}
+
+jQuery( document ).ready( function () {
+	jQuery( document ).on( "click", "input.icwp-autoupdate-plugin", icwpTogglePluginUpdate );
+} );
+
+function showIcwpOverlay() {
+	var $oDiv = jQuery( '<div />' ).prepend( 'body' );
+	$oDiv.attr( 'id', 'icwp-fade-wrapper' );
+	jQuery( '#icwp-fade-wrapper' ).show();
+}
+function hideIcwpOverlay() {
+	var $oDiv = jQuery( '#icwp-fade-wrapper' );
+	$oDiv.fadeOut();
+	$oDiv.remove();
 }
 
 function icwpSendTogglePluginAutoupdate( $sPluginFile, $sAjaxNonce ) {
@@ -10,9 +34,12 @@ function icwpSendTogglePluginAutoupdate( $sPluginFile, $sAjaxNonce ) {
 		'pluginfile': $sPluginFile,
 		'_ajax_nonce': $sAjaxNonce
 	};
+
 	jQuery.post(ajaxurl, requestData, function( oResponse ) {
 		icwpShowGrowl( oResponse.data.message, oResponse.success );
 	});
+
+	return true;
 }
 
 function icwpShowGrowl( sMessage, bSuccess ) {
@@ -26,7 +53,7 @@ function icwpShowGrowl( sMessage, bSuccess ) {
 
 	$oDiv.fadeIn().html( sMessage );
 	setTimeout( function () {
-		$oDiv.fadeOut();
+		$oDiv.fadeOut( 5000 );
 		$oDiv.remove();
-	}, 3000 );
+	}, 4000 );
 }

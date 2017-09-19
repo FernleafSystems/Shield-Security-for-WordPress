@@ -53,6 +53,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	public function ajaxTogglePluginAutoupdate() {
+
+		$bSuccess = false;
 		if ( $this->checkAjaxNonce() ) {
 			$oWp = $this->loadWpFunctions();
 			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
@@ -64,12 +66,16 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 					$oPlugin->Name,
 					$oWp->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
 				);
-				$this->sendAjaxResponse( true, array( 'message' => $sMessage ) );
+				$bSuccess = true;
 			}
 			else {
-				$this->sendAjaxResponse( false, array( 'message' => 'Failed' ) );
+				$sMessage = _wpsf__( 'Failed to change the update status of the plugin.' );
 			}
 		}
+		else {
+			$sMessage = _wpsf__( 'Nonce security checking failed. Please reload.' );
+		}
+		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
 	}
 
 	/**

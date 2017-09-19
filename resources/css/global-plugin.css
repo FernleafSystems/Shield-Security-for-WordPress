@@ -145,9 +145,11 @@ tr.icwp-plugin-vulnerability dd {
 .icwp-toggle-switch input {display:none;}
 
 /* The slider */
+.icwp-toggle-switch {
+	cursor: pointer;
+}
 .icwp-toggle-switch .slider {
 	position: absolute;
-	cursor: pointer;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -171,6 +173,10 @@ tr.icwp-plugin-vulnerability dd {
 
 .icwp-toggle-switch input:checked + .slider {
 	background-color: #65bd84;
+}
+
+.icwp-toggle-switch.disabled input + .slider {
+	background-color: #bd7429;
 }
 
 .icwp-toggle-switch input:focus + .slider {
@@ -201,4 +207,18 @@ tr.icwp-plugin-vulnerability dd {
 }
 .icwp-growl-notice.failed {
 	background: #bf0e12;
+}
+
+#icwp-fade-wrapper {
+	display: none;
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	top: 0;
+	left: 0;
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.icwp-waiting {
+	cursor: progress;
 }

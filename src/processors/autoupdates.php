@@ -364,14 +364,18 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bIsAutoupdate, $bDisabled ) {
-		return sprintf( '<label class="icwp-toggle-switch">
-				<input type="checkbox" onchange="icwpTogglePluginUpdate( this );"
-				data-pluginfile="%s" %s %s
+		return sprintf( '<label class="icwp-toggle-switch %s">
+				<input type="checkbox"
+				class="icwp-autoupdate-plugin"
+				data-pluginfile="%s"
+				data-disabled="%s"
+				%s
 				data-nonce="%s">
 				<span class="slider"></span></label>',
+			$bDisabled ? 'disabled' : '',
 			$sPluginBaseFileName,
+			$bDisabled ? _wpsf__( 'Automatic updates for this plugin is controlled by another plugin or setting.' ) : 'no',
 			$bIsAutoupdate ? 'checked="checked"' : '',
-			$bDisabled ? 'disabled="disabled"' : '',
 			wp_create_nonce( 'icwp_ajax' )
 		);
 	}
