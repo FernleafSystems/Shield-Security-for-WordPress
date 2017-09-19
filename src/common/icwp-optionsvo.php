@@ -192,14 +192,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return array
+	 * @return array[]
 	 */
 	public function getHiddenOptions() {
 
-		$aRawData = $this->getRawData_FullFeatureConfig();
 		$aOptionsData = array();
 
-		foreach ( $aRawData[ 'sections' ] as $nPosition => $aRawSection ) {
+		foreach ( $this->getRawData_OptionsSections() as $nPosition => $aRawSection ) {
 
 			// if hidden isn't specified we skip
 			if ( !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
