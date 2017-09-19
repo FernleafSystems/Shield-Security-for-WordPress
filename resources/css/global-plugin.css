@@ -182,3 +182,23 @@ tr.icwp-plugin-vulnerability dd {
 	-ms-transform: translateX(26px);
 	transform: translateX(26px);
 }
+
+.icwp-growl-notice {
+	display: none;
+	font-family: Helvetica, Verdana, sans-serif;
+	padding: 23px 20px;
+	border-radius: 4px;
+	opacity: .97;
+	font-size: 14px;
+	color: #ffffff;
+	position: fixed;
+	right: 10px;
+	bottom: 45px;
+	line-height: 19px;
+}
+.icwp-growl-notice.success {
+	background: #148b20;
+}
+.icwp-growl-notice.failed {
+	background: #bf0e12;
+}

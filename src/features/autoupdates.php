@@ -54,14 +54,20 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	public function ajaxTogglePluginAutoupdate() {
 		if ( $this->checkAjaxNonce() ) {
-			$oDp = $this->loadDataProcessor();
-			$sFile = $oDp->FetchPost( 'pluginfile' );
-			if ( $this->loadWpFunctions()->getIsPluginInstalledByFile( $sFile ) ) {
+			$oWp = $this->loadWpFunctions();
+			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
+			if ( $oWp->getIsPluginInstalledByFile( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
-				$this->sendAjaxResponse( true );
+
+				$oPlugin = $oWp->getPluginDataAsObject( $sFile );
+				$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
+					$oPlugin->Name,
+					$oWp->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
+				);
+				$this->sendAjaxResponse( true, array( 'message' => $sMessage ) );
 			}
 			else {
-				$this->sendAjaxResponse( false );
+				$this->sendAjaxResponse( false, array( 'message' => 'Failed' ) );
 			}
 		}
 	}

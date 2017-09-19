@@ -11,12 +11,22 @@ function icwpSendTogglePluginAutoupdate( $sPluginFile, $sAjaxNonce ) {
 		'_ajax_nonce': $sAjaxNonce
 	};
 	jQuery.post(ajaxurl, requestData, function( oResponse ) {
-		console.log( oResponse );
-		if( oResponse.data ) {
-			console.log( 'has data' );
-		}
-		else {
-			console.log( 'no data' );
-		}
+		icwpShowGrowl( oResponse.data.message, oResponse.success );
 	});
+}
+
+function icwpShowGrowl( sMessage, bSuccess ) {
+
+	nRandom = Math.floor((Math.random() * 100) + 1);
+
+	var $oDiv = jQuery('<div />').appendTo('body');
+	$oDiv.attr('id', 'icwp-growl-notice'+nRandom);
+	$oDiv.addClass( bSuccess ? 'success' : 'failed' )
+		 .addClass( 'icwp-growl-notice' );
+
+	$oDiv.fadeIn().html( sMessage );
+	setTimeout( function () {
+		$oDiv.fadeOut();
+		$oDiv.remove();
+	}, 3000 );
 }
