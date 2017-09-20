@@ -141,6 +141,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 		jQuery( document ).ready( function () {
 			var $oDiv = jQuery( '<div />' )
 			.attr( 'id', 'icwp-fade-wrapper' )
+			.html( '<div class="icwp-waiting"></div>' )
 			.appendTo( 'body' );
 		} );
 	};
