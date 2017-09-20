@@ -312,11 +312,11 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 *Released: 19th September, 2017*
 
 * **(v.0)**  ADDED:			New HTTP Security Header: Referrer Policy.
-* **(v.0)**  ADDED:			Support paths for file exclusions in the Unrecognised File Scanner.
+* **(v.0)**  ADDED:			Supports paths for file exclusions in the Unrecognised File Scanner.
 * **(v.0)**  IMPROVEMENTS:	Better interception of unintentional redirects to the hidden Login URL (e.g. /wp-admin/customize.php).
 * **(v.0)**  IMPROVEMENTS:	Better handling of email sending entries in the Audit Trail.
-* **(v.0)**  IMPROVEMENTS:	Improved display of Audit Trail.
-* **(v.0)**  IMPROVEMENTS:	Better generation & handling of the One Time Password for email-base two-factor authentication.
+* **(v.0)**  IMPROVEMENTS:	Improved (tabbed) display of Audit Trail.
+* **(v.0)**  IMPROVEMENTS:	Better generation & handling of the One Time Password for email-based two-factor authentication.
 * **(v.0)**  IMPROVEMENTS:	Some code clean up and refactoring.
 
 = 5.14 Series =
