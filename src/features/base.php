@@ -588,7 +588,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function adminAjaxHandlers() {
-		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxAdminOptionsSave' ) );
+		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
 	}
 
 	protected function frontEndAjaxHandlers() {}
@@ -823,14 +823,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return implode( self::CollateSeparator, $aToJoin );
 	}
 
-	public function ajaxAdminOptionsSave() {
-		$this->sendAjaxResponse(
-			$this->handleFormSubmit(),
-			array(
-				'message' => sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
-																								->getHumanName() )
-			)
-		);
+	public function ajaxOptionsFormSave() {
+		if ( $this->getFeatureSlug() == $this->loadDataProcessor()
+											 ->FetchPost( $this->prefixOptionKey( 'feature_slug' ) ) ) {
+			$this->sendAjaxResponse(
+				$this->handleFormSubmit(),
+				array(
+					'options_form' => $this->renderOptionsForm(),
+					'message'      => sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
+																										 ->getHumanName() )
+				)
+			);
+		}
 	}
 
 	/**
@@ -1016,9 +1020,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
 			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
+			'feature_slug'    => self::$sActivelyDisplayedModuleOptions,
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
 			'fShowAds'        => $this->getIsShowMarketing(),
-			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix() ),
+			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
 			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
 			'nOptionsPerRow'  => 1,
@@ -1067,6 +1072,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function renderOptionsForm() {
+		// Get the same Base Data as normal display
+		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), $this->getBaseDisplayData() );
+		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
+		return $this->loadRenderer( self::getController()->getPath_Templates() )
+					->setTemplate( 'snippets/options_form.php' )
+					->setRenderVars( $aData )
+					->render();
+	}
+
+	/**
 	 * @param array  $aData
 	 * @param string $sSubView
 	 */
@@ -1088,6 +1106,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
+		$aData[ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
 				->setTemplate( 'index.php' )

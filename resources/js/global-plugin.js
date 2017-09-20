@@ -86,6 +86,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				else {
 					sMessage = oResponse.data.message;
 				}
+				jQuery('div#icwpOptionsFormContainer').html( oResponse.data.options_form )
 				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 			}
 		).always( function () {
@@ -129,11 +130,11 @@ var iCWP_WPSF_Growl = new function () {
 var iCWP_WPSF_BodyOverlay = new function () {
 
 	this.show = function () {
-		jQuery( 'div#icwp-fade-wrapper' ).fadeIn();
+		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 2000 );
 	};
 
 	this.hide = function () {
-		jQuery( 'div#icwp-fade-wrapper' ).fadeOut();
+		jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
 	};
 
 	this.initialise = function () {

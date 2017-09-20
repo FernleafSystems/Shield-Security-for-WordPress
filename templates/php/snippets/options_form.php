@@ -1,3 +1,4 @@
+<div id="icwpOptionsFormContainer">
 <form action="<?php echo $form_action; ?>" method="post" class="form-horizontal icwpOptionsForm">
 	<?php echo $nonce_field; ?>
 
@@ -184,8 +185,10 @@
 	</div>
 
 	<div class="form-actions">
+		<input type="hidden" name="<?php echo $var_prefix; ?>feature_slug" value="<?php echo $feature_slug; ?>" />
 		<input type="hidden" name="<?php echo $var_prefix; ?>all_options_input" value="<?php echo $all_options_input; ?>" />
 		<input type="hidden" name="<?php echo $var_prefix; ?>plugin_form_submit" value="Y" />
 		<button type="submit" class="btn btn-primary btn-large icwp-form-button" name="submit"><?php _wpsf_e( 'Save All Settings' ); ?></button>
 	</div>
 </form>
+</div>
