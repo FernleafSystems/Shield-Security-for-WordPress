@@ -824,14 +824,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function ajaxOptionsFormSave() {
-		if ( $this->getFeatureSlug() == $this->loadDataProcessor()
-											 ->FetchPost( $this->prefixOptionKey( 'feature_slug' ) ) ) {
+		$sProcessingModule = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( 'feature_slug' ) );
+		if ( $this->getFeatureSlug() == $sProcessingModule ) {
+			$bSuccess = $this->handleFormSubmit();
+			$sName = self::getController()->getHumanName();
+			if ( $bSuccess ) {
+				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
+			}
 			$this->sendAjaxResponse(
-				$this->handleFormSubmit(),
+				$bSuccess,
 				array(
 					'options_form' => $this->renderOptionsForm(),
-					'message'      => sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
-																										 ->getHumanName() )
+					'message'      => $sMessage
 				)
 			);
 		}

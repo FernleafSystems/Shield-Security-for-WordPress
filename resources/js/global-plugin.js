@@ -130,7 +130,7 @@ var iCWP_WPSF_Growl = new function () {
 var iCWP_WPSF_BodyOverlay = new function () {
 
 	this.show = function () {
-		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 2000 );
+		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 1500 );
 	};
 
 	this.hide = function () {
