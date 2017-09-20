@@ -198,15 +198,24 @@ tr.icwp-plugin-vulnerability dd {
 	font-size: 14px;
 	color: #ffffff;
 	position: fixed;
-	right: 10px;
-	bottom: 45px;
+	right: 20px;
+	top: 45px;
 	line-height: 19px;
+	box-shadow: 1px 2px 6px rgba(0,0,0,0.6);
 }
 .icwp-growl-notice.success {
-	background: #148b20;
+	background: #008a00; /* Old browsers */
+	background: -moz-linear-gradient(45deg, #008a00 0%, #005700 91%, #004200 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(45deg, #008a00 0%,#005700 91%,#004200 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(45deg, #008a00 0%,#005700 91%,#004200 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008a00', endColorstr='#004200',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 .icwp-growl-notice.failed {
-	background: #bf0e12;
+	background: #a90329; /* Old browsers */
+	background: -moz-linear-gradient(45deg, #a90329 0%, #8f0222 44%, #6d0019 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(45deg, #a90329 0%,#8f0222 44%,#6d0019 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(45deg, #a90329 0%,#8f0222 44%,#6d0019 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a90329', endColorstr='#6d0019',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 
 #icwp-fade-wrapper {
@@ -216,7 +225,8 @@ tr.icwp-plugin-vulnerability dd {
 	width: 100vw;
 	top: 0;
 	left: 0;
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.7);
+	z-index: 999999;
 }
 
 .icwp-waiting {

@@ -579,7 +579,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWpFunctions()->getIsAjax() ) {
+		if ( $this->loadWpFunctions()->isAjax() ) {
 			if ( is_admin() || is_network_admin() ) {
 				$this->adminAjaxHandlers();
 			}
@@ -587,7 +587,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 	}
 
-	protected function adminAjaxHandlers() {}
+	protected function adminAjaxHandlers() {
+		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxAdminOptionsSave' ) );
+	}
 
 	protected function frontEndAjaxHandlers() {}
 
@@ -821,13 +823,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return implode( self::CollateSeparator, $aToJoin );
 	}
 
+	public function ajaxAdminOptionsSave() {
+		$this->sendAjaxResponse(
+			$this->handleFormSubmit(),
+			array(
+				'message' => sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
+																								->getHumanName() )
+			)
+		);
+	}
+
 	/**
+	 * @return bool
 	 */
 	public function handleFormSubmit() {
-		if ( $this->verifyFormSubmit() ) {
+		$bVerified = $this->verifyFormSubmit();
+		if ( $bVerified ) {
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
 		}
+		return $bVerified;
 	}
 
 	protected function verifyFormSubmit() {
