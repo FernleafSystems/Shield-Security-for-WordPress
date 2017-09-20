@@ -824,24 +824,35 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function ajaxOptionsFormSave() {
+
 		$sProcessingModule = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( 'feature_slug' ) );
-		if ( $this->getFeatureSlug() == $sProcessingModule ) {
+		if ( $this->getFeatureSlug() != $sProcessingModule ) {
+			return;
+		}
+
+		$oCon = self::getController();
+		$bSuccess = false;
+		$sName = $oCon->getHumanName();
+		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
+
+		if ( $oCon->getIsValidAdminArea() ) {
 			$bSuccess = $this->handleFormSubmit();
-			$sName = self::getController()->getHumanName();
 			if ( $bSuccess ) {
 				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
 			}
-			else {
-				$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
-			}
-			$this->sendAjaxResponse(
-				$bSuccess,
-				array(
-					'options_form' => $this->renderOptionsForm(),
-					'message'      => $sMessage
-				)
-			);
 		}
+		else {
+			$sMessage = _wpsf__( 'Failed up to update %s plugin options as you are not authenticated as a Security Admin.' );
+		}
+
+		$this->sendAjaxResponse(
+			$bSuccess,
+			array(
+				'options_form' => $this->renderOptionsForm(),
+				'message'      => $sMessage
+			)
+		);
+
 	}
 
 	/**
@@ -1082,13 +1093,29 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function renderOptionsForm() {
+
+		if ( $this->canDisplayOptionsForm() ) {
+			$sTemplate = 'snippets/options_form.php';
+		}
+		else {
+			$sTemplate = 'subfeature-access_restricted';
+		}
+
 		// Get the same Base Data as normal display
 		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), $this->getBaseDisplayData() );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		return $this->loadRenderer( self::getController()->getPath_Templates() )
-					->setTemplate( 'snippets/options_form.php' )
+					->setTemplate( $sTemplate )
 					->setRenderVars( $aData )
 					->render();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function canDisplayOptionsForm() {
+		return $this->getOptionsVo()->isAccessRestricted() ? self::getController()
+																 ->getHasPermissionToView() : true;
 	}
 
 	/**
@@ -1100,12 +1127,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		// Get Base Data
 		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-		$bPermissionToView = $this->getOptionsVo()->isAccessRestricted() ? self::getController()
-																			   ->getHasPermissionToView() : true;
-
-		if ( !$bPermissionToView ) {
-			$sSubView = 'subfeature-access_restricted';
-		}
 
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sSubView = 'feature-default';
