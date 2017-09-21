@@ -95,9 +95,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	public function doExtraSubmitProcessing() {
-		$this->loadAdminNoticesProcessor()
-			 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
-																								   ->getHumanName() ) );
+		if ( !$this->loadWpFunctions()->isAjax() ) {
+			$this->loadAdminNoticesProcessor()
+				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
+																									   ->getHumanName() ) );
+		}
 	}
 
 	/**

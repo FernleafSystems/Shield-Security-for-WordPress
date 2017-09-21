@@ -579,7 +579,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWpFunctions()->getIsAjax() ) {
+		if ( $this->loadWpFunctions()->isAjax() ) {
 			if ( is_admin() || is_network_admin() ) {
 				$this->adminAjaxHandlers();
 			}
@@ -587,7 +587,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 	}
 
-	protected function adminAjaxHandlers() {}
+	protected function adminAjaxHandlers() {
+		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
+	}
 
 	protected function frontEndAjaxHandlers() {}
 
@@ -821,13 +823,48 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return implode( self::CollateSeparator, $aToJoin );
 	}
 
+	public function ajaxOptionsFormSave() {
+
+		$sProcessingModule = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( 'feature_slug' ) );
+		if ( $this->getFeatureSlug() != $sProcessingModule ) {
+			return;
+		}
+
+		$oCon = self::getController();
+		$bSuccess = false;
+		$sName = $oCon->getHumanName();
+		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
+
+		if ( $oCon->getIsValidAdminArea() ) {
+			$bSuccess = $this->handleFormSubmit();
+			if ( $bSuccess ) {
+				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
+			}
+		}
+		else {
+			$sMessage = _wpsf__( 'Failed up to update %s plugin options as you are not authenticated as a Security Admin.' );
+		}
+
+		$this->sendAjaxResponse(
+			$bSuccess,
+			array(
+				'options_form' => $this->renderOptionsForm(),
+				'message'      => $sMessage
+			)
+		);
+
+	}
+
 	/**
+	 * @return bool
 	 */
 	public function handleFormSubmit() {
-		if ( $this->verifyFormSubmit() ) {
+		$bVerified = $this->verifyFormSubmit();
+		if ( $bVerified ) {
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
 		}
+		return $bVerified;
 	}
 
 	protected function verifyFormSubmit() {
@@ -1001,9 +1038,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
 			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
+			'feature_slug'    => self::$sActivelyDisplayedModuleOptions,
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
 			'fShowAds'        => $this->getIsShowMarketing(),
-			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix() ),
+			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
 			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
 			'nOptionsPerRow'  => 1,
@@ -1052,6 +1090,35 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function renderOptionsForm() {
+
+		if ( $this->canDisplayOptionsForm() ) {
+			$sTemplate = 'snippets/options_form.php';
+		}
+		else {
+			$sTemplate = 'subfeature-access_restricted';
+		}
+
+		// Get the same Base Data as normal display
+		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), $this->getBaseDisplayData() );
+		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
+		return $this->loadRenderer( self::getController()->getPath_Templates() )
+					->setTemplate( $sTemplate )
+					->setRenderVars( $aData )
+					->render();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function canDisplayOptionsForm() {
+		return $this->getOptionsVo()->isAccessRestricted() ? self::getController()
+																 ->getHasPermissionToView() : true;
+	}
+
+	/**
 	 * @param array  $aData
 	 * @param string $sSubView
 	 */
@@ -1060,12 +1127,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		// Get Base Data
 		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-		$bPermissionToView = $this->getOptionsVo()->isAccessRestricted() ? self::getController()
-																			   ->getHasPermissionToView() : true;
-
-		if ( !$bPermissionToView ) {
-			$sSubView = 'subfeature-access_restricted';
-		}
 
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sSubView = 'feature-default';
@@ -1073,6 +1134,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
+		$aData[ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
 				->setTemplate( 'index.php' )

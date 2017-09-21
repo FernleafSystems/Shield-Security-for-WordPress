@@ -1,7 +1,8 @@
 <div class="row">
 	<div class="<?php echo $fShowAds? 'span10' : 'span12'; ?>">
 
-		<div><?php include_once( $sBaseDirName.'snippets'.DIRECTORY_SEPARATOR.'options_form.php' ); ?></div>
+<!--		<div>--><?php //include_once( $sBaseDirName.'snippets'.DIRECTORY_SEPARATOR.'options_form.php' ); ?><!--</div>-->
+		<?php echo $options_form; ?>
 
 		<?php if ( $fShowAds ) : ?>
 			<div class="row-fluid">

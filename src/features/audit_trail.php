@@ -22,6 +22,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ):
 
 		public function displayAuditTrailViewer() {
 
+			if ( !$this->canDisplayOptionsForm() ) {
+				return $this->display();
+			}
+
 			/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 			$oAuditTrail = $this->loadFeatureProcessor();
 
