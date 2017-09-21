@@ -842,7 +842,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		else {
-			$sMessage = _wpsf__( 'Failed up to update %s plugin options as you are not authenticated as a Security Admin.' );
+			$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
 		}
 
 		$this->sendAjaxResponse(
