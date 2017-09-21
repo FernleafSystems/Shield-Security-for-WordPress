@@ -8,6 +8,7 @@
     "tagline": "Automatically block malicious URLs and data sent to your site",
     "show_central": true,
     "access_restricted": true,
+    "premium": false,
     "order": 30
   },
   "sections": [
@@ -46,6 +47,17 @@
       "summary": [
         "In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.",
         "Recommendation - Do not whitelist anything unless you are confident in what you are doing."
+      ]
+    },
+    {
+      "slug": "section_user_messages",
+      "title": "Customize Messages Shown To User",
+      "title_short": "Visitor Messages",
+      "summary":
+      [
+        "Purpose - Customize the messages shown to visitors.",
+        "Recommendation - Be sure to change the messages to suit your audience.",
+        "Hint - To reset any message to its default, enter the text exactly: default"
       ]
     },
     {
@@ -236,7 +248,19 @@
       "name": "Ignore Search Engines",
       "summary": "Ignore Search Engine Bot Traffic",
       "description": "The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them."
-    }
+    },
+    {
+	   "key": "text_firewalldie",
+	   "section": "section_user_messages",
+	   "premium": true,
+	   "default": "default",
+	   "type": "text",
+	   "link_info": "",
+	   "link_blog": "",
+	   "name": "Firewall Block Message",
+	   "summary": "Message Displayed To Visitor When A Firewall Block Is Triggered",
+	   "description": "When you select the option to display a message to the visitor, this is the message that is displayed."
+	}
   ],
 
   "definitions": {

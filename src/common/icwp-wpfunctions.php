@@ -740,7 +740,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		/**
 		 * @return boolean
 		 */
-		public function getIsAjax() {
+		public function isAjax() {
 			return defined( 'DOING_AJAX' ) && DOING_AJAX;
 		}
 

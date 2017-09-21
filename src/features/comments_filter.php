@@ -27,17 +27,42 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 		}
 
 		/**
+		 * @param string $sOptKey
+		 * @return string
+		 */
+		public function getTextOptDefault( $sOptKey ) {
+
+			switch ( $sOptKey ) {
+				case 'custom_message_checkbox':
+					$sText = _wpsf__( "I'm not a spammer." );
+					break;
+				case 'custom_message_alert':
+					$sText = _wpsf__( "Please check the box to confirm you're not a spammer." );
+					break;
+				case 'custom_message_comment_wait':
+					$sText = _wpsf__( "Please wait %s seconds before posting your comment." );
+					break;
+				case 'custom_message_comment_reload':
+					$sText = _wpsf__( "Please reload this page to post a comment." );
+					break;
+				default:
+					$sText = parent::getTextOptDefault( $sOptKey );
+					break;
+			}
+			return $sText;
+		}
+
+		/**
 		 * @param array $aOptionsParams
 		 * @return array
 		 * @throws Exception
 		 */
 		protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-			$sSectionSlug = $aOptionsParams['slug'];
-			switch( $sSectionSlug ) {
+			switch ( $aOptionsParams[ 'slug' ] ) {
 
 				case 'section_enable_plugin_feature_spam_comments_protection_filter' :
-					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__('SPAM Comments Protection Filter') );
+					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__( 'SPAM Comments Protection Filter' ) );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
@@ -46,7 +71,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					break;
 
 				case 'section_bot_comment_spam_protection_filter' :
-					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Automatic Bot') );
+					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__( 'Automatic Bot' ) );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -55,7 +80,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					break;
 
 				case 'section_human_spam_filter' :
-					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__('Human') );
+					$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__( 'Human' ) );
 					$aSummary = array(
 						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.' ) ),
 						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
@@ -64,21 +89,12 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					$sTitleShort = _wpsf__( 'Human SPAM' );
 					break;
 
-				case 'section_customize_messages_shown_to_user' :
-					$sTitle = _wpsf__( 'Customize Messages Shown To User' );
-					$aSummary = array(
-						sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Customize the messages shown to visitors when they view and use comment forms.' ) ),
-						sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Be sure to change the messages to suit your audience.' ) )
-					);
-					$sTitleShort = _wpsf__( 'Visitor Messages' );
-					break;
-
 				default:
-					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 			}
-			$aOptionsParams['title'] = $sTitle;
-			$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-			$aOptionsParams['title_short'] = $sTitleShort;
+			$aOptionsParams[ 'title' ] = $sTitle;
+			$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+			$aOptionsParams[ 'title_short' ] = $sTitleShort;
 			return $aOptionsParams;
 		}
 
@@ -147,28 +163,28 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ):
 					break;
 
 				case 'custom_message_checkbox' :
-					$sName = _wpsf__( 'Custom Checkbox Message' );
+					$sName = _wpsf__( 'GASP Checkbox Message' );
 					$sSummary = _wpsf__( 'If you want a custom checkbox message, please provide this here' );
 					$sDescription = _wpsf__( "You can customise the message beside the checkbox." )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__("Please check the box to confirm you're not a spammer") );
 					break;
 
 				case 'custom_message_alert' :
-					$sName = _wpsf__( 'Custom Alert Message' );
+					$sName = _wpsf__( 'GASP Alert Message' );
 					$sSummary = _wpsf__( 'If you want a custom alert message, please provide this here' );
 					$sDescription = _wpsf__( "This alert message is displayed when a visitor attempts to submit a comment without checking the box." )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__("Please check the box to confirm you're not a spammer") );
 					break;
 
 				case 'custom_message_comment_wait' :
-					$sName = _wpsf__( 'Custom Wait Message' );
+					$sName = _wpsf__( 'GASP Wait Message' );
 					$sSummary = _wpsf__( 'If you want a custom submit-button wait message, please provide this here.' );
 					$sDescription = _wpsf__( "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these." )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__('Please wait %s seconds before posting your comment') );
 					break;
 
 				case 'custom_message_comment_reload' :
-					$sName = _wpsf__( 'Custom Reload Message' );
+					$sName = _wpsf__( 'GASP Reload Message' );
 					$sSummary = _wpsf__( 'If you want a custom message when the comment token has expired, please provide this here.' );
 					$sDescription = _wpsf__( 'This message is displayed on the submit-button when the comment token is expired' )
 									.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__("Please reload this page to post a comment") );

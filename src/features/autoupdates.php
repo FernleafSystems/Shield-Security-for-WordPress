@@ -8,6 +8,94 @@ require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @return string[]
+	 */
+	public function getAutoupdatePlugins() {
+		$aSelected = array();
+		if ( $this->isAutoupdateIndividualPlugins() ) {
+			$aSelected = $this->getOpt( 'selected_plugins', array() );
+			if ( !is_array( $aSelected ) ) {
+				$aSelected = array();
+			}
+		}
+		return $aSelected;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoupdateAllPlugins() {
+		return $this->getOptIs( 'enable_autoupdate_plugins', 'Y' );
+	}
+
+	/**
+	 * @premium
+	 * @return bool
+	 */
+	public function isAutoupdateIndividualPlugins() {
+		return $this->getOptIs( 'enable_individual_autoupdate_plugins', 'Y' );
+	}
+
+	/**
+	 * @param $sPluginFile
+	 * @return bool
+	 */
+	public function isPluginSetToAutoupdate( $sPluginFile ) {
+		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		if ( $this->isAutoupdateIndividualPlugins() && $this->getController()->getIsValidAdminArea() ) {
+			add_action( 'wp_ajax_icwp_wpsf_TogglePluginAutoupdate', array( $this, 'ajaxTogglePluginAutoupdate' ) );
+		}
+	}
+
+	public function ajaxTogglePluginAutoupdate() {
+
+		$bSuccess = false;
+		if ( $this->checkAjaxNonce() ) {
+			$oWp = $this->loadWpFunctions();
+			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
+			if ( $oWp->getIsPluginInstalledByFile( $sFile ) ) {
+				$this->setPluginToAutoUpdate( $sFile );
+
+				$oPlugin = $oWp->getPluginDataAsObject( $sFile );
+				$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
+					$oPlugin->Name,
+					$oWp->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
+				);
+				$bSuccess = true;
+			}
+			else {
+				$sMessage = _wpsf__( 'Failed to change the update status of the plugin.' );
+			}
+		}
+		else {
+			$sMessage = _wpsf__( 'Nonce security checking failed. Please reload.' );
+		}
+		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @return $this
+	 */
+	protected function setPluginToAutoUpdate( $sPluginFile ) {
+		$aPlugins = $this->getAutoupdatePlugins();
+		$nKey = array_search( $sPluginFile, $aPlugins );
+
+		if ( $nKey === false ) {
+			$aPlugins[] = $sPluginFile;
+		}
+		else {
+			unset( $aPlugins[ $nKey ] );
+		}
+
+		return $this->setOpt( 'selected_plugins', $aPlugins );
+	}
+
 	protected function doPostConstruction() {
 		// Force run automatic updates
 		if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
@@ -120,8 +208,14 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'enable_autoupdate_plugins' :
 				$sName = _wpsf__( 'Plugins' );
-				$sSummary = _wpsf__( 'Automatically Update Plugins' );
+				$sSummary = _wpsf__( 'Automatically Update All Plugins' );
 				$sDescription = _wpsf__( 'Note: Automatic updates for plugins are disabled on WordPress by default.' );
+				break;
+
+			case 'enable_individual_autoupdate_plugins' :
+				$sName = _wpsf__( 'Individually Select Plugins' );
+				$sSummary = _wpsf__( 'Select Individual Plugins To Automatically Update' );
+				$sDescription = _wpsf__( 'Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated.' );
 				break;
 
 			case 'enable_autoupdate_themes' :

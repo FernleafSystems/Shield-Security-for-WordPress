@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -28,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 */
-	protected function doPrePluginOptionsSave() {
+	protected function doExtraSubmitProcessing() {
 		$this->cleanFileExclusions();
 	}
 
@@ -36,10 +36,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
-		$aExclusions = $this->getUfcFileExclusions();
-		foreach ( $aExclusions as $nKey => $sExclusion ) {
-			$aExclusions[ $nKey ] = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', trim( $sExclusion ) ) );
+		$aExclusions = array();
+
+		$oFS = $this->loadFS();
+		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
+			$sExclusion = trim( $sExclusion );
+
+			if ( strpos( $oFS->normalizeFilePathDS( $sExclusion ), '/' ) === false ) { // filename only
+				$sExclusion = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', $sExclusion ) );
+			}
+
+			if ( !empty( $sExclusion ) ) {
+				$aExclusions[] = $sExclusion;
+			}
 		}
+
 		return $this->setOpt( 'ufc_exclusions', $aExclusions );
 	}
 
@@ -47,7 +58,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function isUfsDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array( 'enabled_delete_only', 'enabled_delete_report' ) );
+		return in_array( $this->getUnrecognisedFileScannerOption(), array(
+			'enabled_delete_only',
+			'enabled_delete_report'
+		) );
 	}
 
 	/**
@@ -68,7 +82,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function isUfsSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array( 'enabled_report_only', 'enabled_delete_report' ) );
+		return in_array( $this->getUnrecognisedFileScannerOption(), array(
+			'enabled_report_only',
+			'enabled_delete_report'
+		) );
 	}
 
 	/**
@@ -151,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Core File Scanner' );
 				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans WordPress Core Files For Alterations' ) );
 				$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
-					. '<br />' . _wpsf__( 'WordPress Core files should never be altered for any reason.' );
+								.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
 				break;
 
 			case 'attempt_auto_file_repair' :
@@ -170,7 +187,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Scan Uploads' );
 				$sSummary = _wpsf__( 'Scan Uploads Folder For PHP and Javascript' );
 				$sDescription = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Take care when turning on this option - if you are unsure, leave it disabled.' ) )
-				.'<br />'._wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
+								.'<br />'._wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
 				break;
 
 			case 'ufc_exclusions' :
@@ -178,8 +195,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sSummary = _wpsf__( 'Provide A List Of Files To Be Excluded From The Scan' );
 				$sDefaults = implode( ', ', $this->getOptionsVo()->getOptDefault( 'ufc_exclusions' ) );
 				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
-					. '<br/><strong>' . _wpsf__( 'No commas are necessary.' ) . '</strong>'
-					. '<br/>' . sprintf( 'Default: %s', $sDefaults );
+								.'<br/><strong>'._wpsf__( 'No commas are necessary.' ).'</strong>'
+								.'<br/>'.sprintf( 'Default: %s', $sDefaults );
 				break;
 
 			default:

@@ -67,4 +67,30 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		);
 		return ( isset( $aStrings[ $sKey ] ) ? $aStrings[ $sKey ] : $sDefault );
 	}
+
+	/**
+	 * @param array $aOptionsParams
+	 * @return array
+	 * @throws Exception
+	 */
+	protected function loadStrings_SectionTitlesDefaults( $aOptionsParams ) {
+
+		switch ( $aOptionsParams[ 'slug' ] ) {
+
+			case 'section_user_messages' :
+				$sTitle = _wpsf__( 'User Messages' );
+				$sTitleShort = _wpsf__( 'User Messages' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Customize the messages displayed to the user.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) ),
+					sprintf( _wpsf__( 'Hint - %s' ), sprintf( _wpsf__( 'To reset any message to its default, enter the text exactly: %s' ), 'default' ) )
+				);
+				break;
+
+			default:
+				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
+		}
+
+		return array( $sTitle, $sTitleShort, $aSummary );
+	}
 }

@@ -9,6 +9,7 @@
     "use_sessions": true,
     "show_central": true,
     "access_restricted": true,
+    "premium": false,
     "order": 50
   },
   "admin_notices": {
@@ -53,13 +54,14 @@
       ]
     },
     {
-      "slug": "section_customize_messages_shown_to_user",
+      "slug": "section_user_messages",
       "title": "Customize Messages Shown To User",
       "title_short": "Visitor Messages",
       "summary":
       [
-        "Purpose - Customize the messages shown to visitors when they view and use comment forms.",
-        "Recommendation - Be sure to change the messages to suit your audience."
+        "Purpose - Customize the messages shown to visitors.",
+        "Recommendation - Be sure to change the messages to suit your audience.",
+        "Hint - To reset any message to its default, enter the text exactly: default"
       ]
     },
     {
@@ -236,9 +238,9 @@
     },
     {
       "key": "custom_message_checkbox",
-      "section": "section_customize_messages_shown_to_user",
+      "section": "section_user_messages",
       "sensitive": true,
-      "default": "I'm not a spammer",
+      "default": "default",
       "type": "text",
       "link_info": "http://icwp.io/3p",
       "link_blog": "",
@@ -248,9 +250,9 @@
     },
     {
       "key": "custom_message_alert",
-      "section": "section_customize_messages_shown_to_user",
+      "section": "section_user_messages",
       "sensitive": true,
-      "default": "Please check the box to confirm you're not a spammer",
+      "default": "default",
       "type": "text",
       "link_info": "http://icwp.io/3p",
       "link_blog": "",
@@ -260,9 +262,9 @@
     },
     {
       "key": "custom_message_comment_wait",
-      "section": "section_customize_messages_shown_to_user",
+      "section": "section_user_messages",
       "sensitive": true,
-      "default": "Please wait %s seconds before posting your comment",
+      "default": "default",
       "type": "text",
       "link_info": "http://icwp.io/3p",
       "link_blog": "",
@@ -272,9 +274,9 @@
     },
     {
       "key": "custom_message_comment_reload",
-      "section": "section_customize_messages_shown_to_user",
+      "section": "section_user_messages",
       "sensitive": true,
-      "default": "Please reload this page to post a comment",
+      "default": "default",
       "type": "text",
       "link_info": "http://icwp.io/3p",
       "link_blog": "",

@@ -214,20 +214,59 @@ p.code-description {
 	margin-bottom: 11px;
 	padding: 16px 0 3px;
 }
-.form-horizontal .item_group .control-group {
-	margin-bottom: 0;
-}
 .form-horizontal .item_group {
 	border: 1px solid rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 	box-sizing: border-box;
-	margin-bottom: 10px;
-	padding: 20px 20px 20px 0;
+	margin-left: 40px;
+	padding: 0;
  }
+.form-horizontal .item_group .control-group {
+	margin: 20px 20px 20px 0;
+}
+.form-horizontal .item_group .control-group .control-label {
+	padding-left: 10px;
+}
 .form-horizontal .selected_item_group {
 	background-color: rgba(135, 232, 38, 0.05);
 	border: 1px solid rgba(135, 232, 38, 0.55);
 }
+
+.row.option_row {
+	margin-bottom: 15px;
+}
+
+.overlay_container.disabled {
+	position: relative;
+}
+.option_overlay {
+	position: absolute;
+	background-color: rgba(0,0,0,0.2);
+	height: 100%;
+	width: 100%;
+	transition: background-color 0.5s ease;
+	z-index: 5;
+}
+.option_overlay:hover {
+	background-color: rgba(0,0,0,0.5);
+}
+.option_overlay .overlay_message {
+	display: none;
+}
+.option_overlay .overlay_message:hover,
+.option_overlay:hover .overlay_message {
+	display: block;
+	color: #333;
+	font-size: 32px;
+	margin: 25px auto auto auto;
+	padding: 0 20px;
+	width: auto;
+	background: rgba(255,255,255,0.8);
+	line-height: 50px;
+	text-align: center;
+	user-select: none;
+}
+
 .option_section {
 	background-color: rgba(0, 0, 0, 0.008);
 	border: 1px dashed rgba(0, 0, 0, 0.1);

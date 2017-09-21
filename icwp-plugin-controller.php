@@ -691,11 +691,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 				case 'confidence' :
 					$bDoAutoUpdate = false;
+					$nAutoupdateDays = $this->getPluginSpec_Property( 'autoupdate_days' );
 					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
 						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
-						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > WEEK_IN_SECONDS ) );
+						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * $nAutoupdateDays ) );
 					}
 					break;
 
@@ -1343,6 +1344,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isPremiumExtensionsEnabled() {
+		return (bool)$this->getPluginSpec_Property( 'enable_premium' );
+	}
+
+	/**
 	 */
 	protected function saveCurrentPluginControllerOptions() {
 		$oOptions = $this->getPluginControllerOptions();
@@ -1419,12 +1427,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bSetSessionIfNeeded
 	 * @return string
 	 */
-	public function getUniqueRequestId() {
+	public function getUniqueRequestId( $bSetSessionIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( false ) . $oDp->getVisitorIpAddress() . $oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->getVisitorIpAddress().$oDp->time() );
 		}
 		return self::$sRequestId;
 	}
@@ -1473,11 +1482,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function loadAllFeatures( $bRecreate = false, $bFullBuild = false ) {
 
-		$oMainPluginFeature = $this->loadCorePluginFeatureHandler();
-		$aPluginFeatures = $oMainPluginFeature->getActivePluginFeatures();
+		$oCoreModule = $this->loadCorePluginFeatureHandler();
 
 		$bSuccess = true;
-		foreach ( $aPluginFeatures as $sSlug => $aFeatureProperties ) {
+		foreach ( $oCoreModule->getActivePluginFeatures() as $sSlug => $aFeatureProperties ) {
 			try {
 				$this->loadFeatureHandler( $aFeatureProperties, $bRecreate, $bFullBuild );
 				$bSuccess = true;

@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @var array
 	 */
-	private $aFirewallDieMessage;
+	private $aDieMessage;
 
 	/**
 	 * @var bool
@@ -279,8 +279,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
 
 				$sRecipient = $this->getPluginDefaultRecipientAddress();
-				$fSendSuccess = $this->sendBlockEmail( $sRecipient );
-				if ( $fSendSuccess ) {
+				if ( $this->sendBlockEmail( $sRecipient ) ) {
 					$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
 				}
 				else {
@@ -325,16 +324,10 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getFirewallDieMessage() {
-		if ( !isset( $this->aFirewallDieMessage ) || !is_array( $this->aFirewallDieMessage ) ) {
-			$this->aFirewallDieMessage = array(
-				sprintf(
-					_wpsf__( "You were blocked by the %s." ),
-					'<a href="http://wordpress.org/plugins/wp-simple-firewall/" target="_blank">' . $this->getController()
-																										 ->getHumanName() . '</a>'
-				)
-			);
+		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
+			$this->aDieMessage = array( $this->getFeature()->getTextOpt( 'text_firewalldie' ) );
 		}
-		return $this->aFirewallDieMessage;
+		return $this->aDieMessage;
 	}
 
 	/**
@@ -356,7 +349,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function addToFirewallDieMessage( $sMessagePart ) {
 		$aMessages = $this->getFirewallDieMessage();
 		$aMessages[] = $sMessagePart;
-		$this->aFirewallDieMessage = $aMessages;
+		$this->aDieMessage = $aMessages;
 		return $this;
 	}
 

@@ -33,6 +33,28 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		}
 
 		/**
+		 * @param string $sOptKey
+		 * @return string
+		 */
+		public function getTextOptDefault( $sOptKey ) {
+
+			switch ( $sOptKey ) {
+				case 'text_firewalldie':
+					$sText = sprintf(
+						_wpsf__( "You were blocked by the %s." ),
+						'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()
+																										   ->getHumanName().'</a>'
+					);
+					break;
+
+				default:
+					$sText = parent::getTextOptDefault( $sOptKey );
+					break;
+			}
+			return $sText;
+		}
+
+		/**
 		 * @param array $aOptionsParams
 		 * @return array
 		 * @throws Exception
@@ -80,9 +102,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					break;
 
 				default:
-					$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
-					$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-//					throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 			}
 			$aOptionsParams['title'] = $sTitle;
 			$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -97,9 +117,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		 */
 		protected function loadStrings_Options( $aOptionsParams ) {
 
-			$sKey = $aOptionsParams['key'];
-
-			switch( $sKey ) {
+			switch( $aOptionsParams['key'] ) {
 
 				case 'enable_firewall' :
 					$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
@@ -194,8 +212,14 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 					$sDescription = _wpsf__( 'The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them.' );
 					break;
 
+				case 'text_firewalldie' :
+					$sName = _wpsf__( 'Firewall Block Message' );
+					$sSummary = _wpsf__( 'Message Displayed To Visitor When A Firewall Block Is Triggered' );
+					$sDescription = _wpsf__( 'This is the message displayed to visitors that trigger the firewall.' );
+					break;
+
 				default:
-					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+					throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $aOptionsParams['key'] ) );
 			}
 
 			$aOptionsParams['name'] = $sName;

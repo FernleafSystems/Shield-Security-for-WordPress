@@ -1,6 +1,6 @@
 {
   "properties": {
-    "version": "5.14.0",
+    "version": "5.15.0",
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "human_name": "Shield",
@@ -11,7 +11,9 @@
     "logging_enabled": true,
     "show_dashboard_widget": true,
     "autoupdate": "confidence",
-    "options_encoding": "json"
+    "autoupdate_days": 3,
+    "options_encoding": "json",
+    "enable_premium": false
   },
   "requirements": {
     "php": "5.2.4",
@@ -31,6 +33,7 @@
         "featherlight"
       ],
       "js": [
+        "global-plugin",
         "featherlight"
       ]
     },

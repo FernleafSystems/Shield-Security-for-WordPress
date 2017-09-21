@@ -95,9 +95,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	public function doExtraSubmitProcessing() {
-		$this->loadAdminNoticesProcessor()
-			 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
-																								   ->getHumanName() ) );
+		if ( !$this->loadWpFunctions()->isAjax() ) {
+			$this->loadAdminNoticesProcessor()
+				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
+																									   ->getHumanName() ) );
+		}
 	}
 
 	/**
@@ -107,15 +109,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aActiveFeatures = $this->getDefinition( 'active_plugin_features' );
 
 		$aPluginFeatures = array();
-		if ( empty( $aActiveFeatures ) || !is_array( $aActiveFeatures ) ) {
-			return $aPluginFeatures;
-		}
+		if ( !empty( $aActiveFeatures ) && is_array( $aActiveFeatures ) ) {
 
-		foreach ( $aActiveFeatures as $nPosition => $aFeature ) {
-			if ( isset( $aFeature[ 'hidden' ] ) && $aFeature[ 'hidden' ] ) {
-				continue;
+			foreach ( $aActiveFeatures as $nPosition => $aFeature ) {
+				if ( isset( $aFeature[ 'hidden' ] ) && $aFeature[ 'hidden' ] ) {
+					continue;
+				}
+				$aPluginFeatures[ $aFeature[ 'slug' ] ] = $aFeature;
 			}
-			$aPluginFeatures[ $aFeature[ 'slug' ] ] = $aFeature;
 		}
 		return $aPluginFeatures;
 	}
@@ -497,5 +498,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Premium Plugin Support Centre' );
 		_wpsf__( 'User Management' );
 		_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' );
+		_wpsf__( 'Two-Factor Authentication' );
+
 	}
 }

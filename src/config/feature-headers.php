@@ -8,6 +8,7 @@
     "tagline": "Control HTTP Security Headers",
     "show_central": true,
     "access_restricted": true,
+    "premium": false,
     "order": 80
   },
   "sections": [
@@ -102,6 +103,60 @@
       "name": "Prevent Mime-Sniff",
       "summary": "Turn-Off Browser Mime-Sniff",
       "description": "Reduces visitor exposure to malicious user-uploaded content."
+    },
+    {
+      "key": "x_referrer_policy",
+      "section": "section_security_headers",
+      "sensitive": false,
+      "type": "select",
+      "default": "unsafe-url",
+      "value_options": [
+        {
+          "value_key": "unsafe-url",
+          "text": "Default: Full Referrer URL (AKA 'Unsafe URL')"
+        },
+        {
+          "value_key": "no-referrer",
+          "text": "No Referrer"
+        },
+        {
+          "value_key": "no-referrer-when-downgrade",
+          "text": "No Referrer When Downgrade"
+        },
+        {
+          "value_key": "same-origin",
+          "text": "Same Origin"
+        },
+        {
+          "value_key": "origin",
+          "text": "Origin"
+        },
+        {
+          "value_key": "strict-origin",
+          "text": "Strict Origin"
+        },
+        {
+          "value_key": "origin-when-cross-origin",
+          "text": "Origin When Cross-Origin"
+        },
+        {
+          "value_key": "strict-origin-when-cross-origin",
+          "text": "Strict Origin When Cross-Origin"
+        },
+        {
+          "value_key": "empty",
+          "text": "Empty Header"
+        },
+        {
+          "value_key": "disabled",
+          "text": "Don't Send This Header"
+        }
+      ],
+      "link_info": "http://icwp.io/a5",
+      "link_blog": "",
+      "name": "Referrer Policy",
+      "summary": "Referrer Policy Header",
+      "description": "The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site."
     },
     {
       "key": "enable_x_content_security_policy",
