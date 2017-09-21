@@ -257,8 +257,9 @@ tr.icwp-plugin-vulnerability dd {
 	width: 200px;
 	height: 200px;
 	position: fixed;
-	top: 40%;
+	top: 45%;
 	left: 50%;
 	background: url("https://media.giphy.com/media/LLd6Ma5vQtXyw/giphy.gif") no-repeat 0 0 transparent;
 	background: url("https://media.giphy.com/media/sxJ1nCeUoNSfe/giphy.gif") no-repeat 0 0 transparent;
+	background-size: 40px;
 }
