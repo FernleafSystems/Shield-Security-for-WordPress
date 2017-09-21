@@ -190,18 +190,42 @@ tr.icwp-plugin-vulnerability dd {
 }
 
 .icwp-growl-notice {
-	display: none;
-	font-family: Helvetica, Verdana, sans-serif;
-	padding: 23px 20px;
-	border-radius: 4px;
-	opacity: .97;
-	font-size: 14px;
+	-webkit-transition: width 1.5s;
+	transition: width 1.5s;
+	transition-timing-function: ease;
+	-webkit-transition-timing-function: ease;
+
+	visibility: hidden;
+
+	height: 20px;
+	max-height: 20px;
+	width: 0;
+	font-size: 18px;
 	color: #ffffff;
 	position: fixed;
-	right: 20px;
-	top: 45px;
-	line-height: 19px;
+	bottom: 0;
+	line-height: 22px;
 	box-shadow: 1px 2px 6px rgba(0,0,0,0.6);
+	z-index: 100000;
+	opacity: 0.94;
+	text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+.icwp-growl-notice.shown {
+	padding: 23px 20px;
+	width: 100%;
+	visibility: visible;
+}
+.icwp-growl-notice:before {
+	-webkit-font-smoothing: antialiased;
+	display: inline-block;
+	font: 28px/1 'dashicons';
+	vertical-align: top;
+}
+.icwp-growl-notice.success:before {
+	content: "\f147";
+}
+.icwp-growl-notice.failed:before {
+	content: "\f158";
 }
 .icwp-growl-notice.success {
 	background: #008a00; /* Old browsers */

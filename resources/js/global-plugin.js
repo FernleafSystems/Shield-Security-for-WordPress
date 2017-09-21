@@ -107,13 +107,17 @@ var iCWP_WPSF_Growl = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
 		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( sMessage );
+		$oDiv.show().addClass( 'shown' );
 		setTimeout( function () {
-			$oDiv.fadeOut( 2500 );
+			$oDiv.html( sMessage );
+		}, 300 );
+		setTimeout( function () {
+			$oDiv.css( 'width', 0 );
 		}, 4000 );
 		setTimeout( function () {
-			$oDiv.remove();
-		}, 10000 );
+			$oDiv.html( '' )
+				 .fadeOut();
+		}, 4500 );
 	};
 
 	/**
