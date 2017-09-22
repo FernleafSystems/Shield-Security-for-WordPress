@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.15.1": {
+	  "version": {
+		"series": "5.15.0",
+		"major": 5,
+		"minor": 15,
+		"patch": 1
+	  },
+	  "attributes": {
+		"timestamp": "1506073375",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
+	},
 	"5.15.0": {
 	  "version": {
 		"series": "5.15.0",
@@ -9,7 +23,7 @@
 	  },
 	  "attributes": {
 		"timestamp": "1505986648",
-		"is_patch": true,
+		"is_patch": false,
 		"options_added": true,
 		"options_removed": false
 	  }
@@ -23,7 +37,7 @@
 	  },
 	  "attributes": {
 		"timestamp": "1504618817",
-		"is_patch": true,
+		"is_patch": false,
 		"options_added": true,
 		"options_removed": false
 	  }
@@ -242,6 +256,16 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "fixed",
+	  "summary": "Processing AJAX requests from the Network Admin side of WordPress.",
+	  "version": "5.15.1"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Better handling of fatal errors in loading Shield where some core files are missing.",
+	  "version": "5.15.1"
+	},
 	{
 	  "type": "added",
 	  "summary": "New HTTP Security Header: Referrer Policy.",
