@@ -1,27 +1,26 @@
 <?php
-if ( !class_exists( 'ICWP_WPSF_Factory', false ) ):
+if ( class_exists( 'ICWP_WPSF_Factory', false ) ) {
+	return;
+}
 
-	class ICWP_WPSF_Factory {
+class ICWP_WPSF_Factory {
 
-		/**
-		 * @param string $sOptionsName
-		 * @return ICWP_WPSF_OptionsVO
-		 */
-		static public function OptionsVo( $sOptionsName ) {
-			if ( !class_exists( 'ICWP_WPSF_OptionsVO' ) ) {
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'icwp-optionsvo.php' );
-			}
-			return new ICWP_WPSF_OptionsVO( $sOptionsName );
+	/**
+	 * @param string $sOptionsName
+	 * @return ICWP_WPSF_OptionsVO
+	 */
+	static public function OptionsVo( $sOptionsName ) {
+		if ( !class_exists( 'ICWP_WPSF_OptionsVO' ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-optionsvo.php' );
 		}
-
-
-
-		/**
-		 * @var ICWP_WPSF_WpCron
-		 */
-		protected static $oInstance = NULL;
-
-		private function __construct() {}
+		return new ICWP_WPSF_OptionsVO( $sOptionsName );
 	}
 
-endif;
+	/**
+	 * @var ICWP_WPSF_WpCron
+	 */
+	protected static $oInstance = null;
+
+	private function __construct() {
+	}
+}

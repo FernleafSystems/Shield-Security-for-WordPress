@@ -327,6 +327,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * TODO: Get rid of this crap and/or handle the Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
 	 */
 	public function getEmailHandler() {

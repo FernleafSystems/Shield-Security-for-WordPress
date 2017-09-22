@@ -94,6 +94,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @var boolean
 	 */
 	protected $bMeetsBasePermissions = false;
+	/**
+	 * @var string
+	 */
+	protected $sAdminNoticeError = '';
 
 	/**
 	 * @param $sRootFile
@@ -197,6 +201,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				 ->setRenderVars( $aDisplayData )
 				 ->display();
 		}
+	}
+
+	/**
+	 */
+	public function adminNoticePluginFailedToLoad() {
+		$aDisplayData = array(
+			'strings' => array(
+				'summary_title'    => 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.',
+				'more_information' => $this->sAdminNoticeError
+			)
+		);
+		$this->loadRenderer( $this->getPath_Templates() )
+			 ->setTemplate( 'notices/plugin-failed-to-load' )
+			 ->setRenderVars( $aDisplayData )
+			 ->display();
 	}
 
 	/**
@@ -1461,7 +1480,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * We let the exception from the core plugin feature to bubble up because it's fairly critical.
 	 * @return ICWP_WPSF_FeatureHandler_Plugin
+	 * @throws Exception from loadFeatureHandler()
 	 */
 	public function &loadCorePluginFeatureHandler() {
 		if ( !isset( $this->oFeatureHandlerPlugin ) ) {
@@ -1491,7 +1512,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$bSuccess = true;
 			}
 			catch ( Exception $oE ) {
-				$this->loadWpFunctions()->wpDie( $oE->getMessage() );
+				if ( $this->getIsValidAdminArea() ) {
+					$this->sAdminNoticeError = $oE->getMessage();
+					add_action( 'admin_menu', array( $this, 'adminNoticePluginFailedToLoad' ) );
+					add_action( 'network_admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );
+				}
 			}
 		}
 		return $bSuccess;
@@ -1528,14 +1553,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$sFeatureName
 		); // e.g. ICWP_WPSF_FeatureHandler_Plugin
 
-		require_once( $sSourceFile );
-		if ( class_exists( $sClassName, false ) ) {
+		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
+		$bIncluded = @include_once( $sSourceFile );
+		$bClassExists = class_exists( $sClassName, false );
+		if ( $bClassExists ) {
 			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
 				$this->{$sOptionsVarName} = new $sClassName( $this, $aFeatureProperties );
 			}
 			if ( $bFullBuild ) {
 				$this->{$sOptionsVarName}->buildOptions();
 			}
+		}
+		else {
+			$sMessage = sprintf( 'Source file for feature %s %s. ', $sFeatureSlug, $bIncluded ? 'exists' : 'missing' );
+			$sMessage .= sprintf( 'Class "%s" %s', $sClassName, $bClassExists ? 'exists' : 'missing' );
+			throw new Exception( $sMessage );
 		}
 		return $this->{$sOptionsVarName};
 	}
