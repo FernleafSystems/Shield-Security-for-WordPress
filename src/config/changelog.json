@@ -263,6 +263,11 @@
 	},
 	{
 	  "type": "improved",
+	  "summary": "Better handling of file exclusions in the hack protection module.",
+	  "version": "5.15.1"
+	},
+	{
+	  "type": "improved",
 	  "summary": "Better handling of fatal errors in loading Shield where some core files are missing.",
 	  "version": "5.15.1"
 	},
