@@ -311,7 +311,8 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 = 5.15.1 Latest Point Release =
 *Released: 22nd September, 2017*
 
-* **(v.1)**  FIXED:			Processing AJAX requests from the Network Admin side of WordPress
+* **(v.1)**  FIXED:			Processing AJAX requests from the Network Admin side of WordPress.
+* **(v.1)**  IMPROVEMENTS:	Better handling of file exclusions in the hack protection module.
 * **(v.1)**  IMPROVEMENTS:	Better handling of fatal errors in loading Shield where some core files are missing.
 
 = 5.15 Series =

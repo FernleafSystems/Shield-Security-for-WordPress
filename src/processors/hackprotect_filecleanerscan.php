@@ -141,12 +141,13 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$oFS = $this->loadFS();
 
 		$sFileName = $oFile->getFilename();
-		$sFilePath = $oFile->getPathname();
+		$sFilePath = $oFS->normalizeFilePathDS( $oFile->getPathname() );
 
 		$bExcluded = false;
 
 		foreach ( $oFO->getUfcFileExclusions() as $sExclusion ) {
-			if ( strpos( $oFS->normalizeFilePathDS( $sExclusion ), '/' ) === false ) { // filename only
+			$sExclusion = $oFS->normalizeFilePathDS( $sExclusion );
+			if ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$bExcluded = ( $sFileName == $sExclusion );
 			}
 			else {

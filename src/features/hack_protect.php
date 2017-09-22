@@ -40,9 +40,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$oFS = $this->loadFS();
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
-			$sExclusion = trim( $sExclusion );
+			$sExclusion = $oFS->normalizeFilePathDS( trim( $sExclusion ) );
 
-			if ( strpos( $oFS->normalizeFilePathDS( $sExclusion ), '/' ) === false ) { // filename only
+			if ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$sExclusion = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
