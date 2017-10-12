@@ -203,7 +203,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getPluginReportEmail( $sEmail ) {
 		$sReportEmail = $this->getOpt( 'block_send_email_address' );
-		if ( !empty( $sReportEmail ) && is_email( $sReportEmail ) ) {
+		if ( $this->loadDataProcessor()->validEmail( $sReportEmail ) ) {
 			$sEmail = $sReportEmail;
 		}
 		return $sEmail;

@@ -19,10 +19,10 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Lockdown', false ) ):
 			}
 		}
 
-		public function doPrePluginOptionsSave() {
-			$sCurrent = $this->getOpt( 'mask_wordpress_version' );
-			if ( !empty( $sCurrent ) ) {
-				$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sCurrent ) );
+		protected function doExtraSubmitProcessing() {
+			$sMask = $this->getOpt( 'mask_wordpress_version' );
+			if ( !empty( $sMask ) ) {
+				$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
 			}
 		}
 

@@ -216,7 +216,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @return boolean
 		 */
 		public function validEmail( $sEmail ) {
-			return ( !empty( $sEmail ) && is_email( $sEmail ) );
+			return ( !empty( $sEmail ) && function_exists( 'is_email' ) && is_email( $sEmail ) );
 		}
 
 		/**

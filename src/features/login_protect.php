@@ -51,11 +51,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}
-	}
-
-	public function doPrePluginOptionsSave() {
-
-		$this->cleanLoginUrlPath();
 
 		if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
@@ -64,6 +59,15 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$aTwoFactorAuthRoles = $this->getOpt( 'two_factor_auth_user_roles' );
 		if ( empty( $aTwoFactorAuthRoles ) || !is_array( $aTwoFactorAuthRoles ) ) {
 			$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
+		}
+
+		$this->cleanLoginUrlPath();
+	}
+
+	public function doPrePluginOptionsSave() {
+		// TODO: remove as it's a temporary transition for clashing options name
+		if ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) ) {
+			$this->setOpt( 'enable_google_recaptcha_login', 'Y' );
 		}
 	}
 
@@ -97,7 +101,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return string
 	 */
 	private function cleanLoginUrlPath() {
 		$sCustomLoginPath = $this->getCustomLoginPath();
@@ -105,7 +108,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
 			$this->setOpt( 'rename_wplogin_path', $sCustomLoginPath );
 		}
-		return $sCustomLoginPath;
 	}
 
 	/**
@@ -201,7 +203,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function getIsGoogleRecaptchaEnabled() {
-		return ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+		return ( $this->getOptIs( 'enable_google_recaptcha_login', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
 	}
 
 	/**

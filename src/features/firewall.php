@@ -13,10 +13,6 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ):
 		}
 
 		/**
-		 */
-		public function doPrePluginOptionsSave() {}
-
-		/**
 		 * @return array
 		 */
 		public function getPageParamWhitelist() {

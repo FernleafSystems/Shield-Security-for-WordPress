@@ -235,7 +235,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function verifyEmailAddress( $sEmailAddress = '' ) {
-		return ( empty( $sEmailAddress ) || !is_email( $sEmailAddress ) ) ? $this->getPluginDefaultRecipientAddress() : $sEmailAddress;
+		return $this->loadDataProcessor()->validEmail( $sEmailAddress ) ? $sEmailAddress : $this->getPluginDefaultRecipientAddress();
 	}
 
 	/**

@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
 
-			if ( is_email( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
+			if ( $this->loadDataProcessor()->validEmail( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
 				$this->sendLoginEmailNotification( $oUser );
 			}
 			$this->setUserLastLoginTime( $oUser );
