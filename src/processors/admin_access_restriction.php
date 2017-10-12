@@ -241,21 +241,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
 
-			$bSavingIsPermitted = false;
+			$bSavingIsPermitted = true;
 
-			if ( !$this->getIsOptionKeyForThisPlugin( $sOptionKey ) ) {
-				// Now we test certain other options saving based on where it's restricted
-				if ( !$this->getIsSavingOptionRestricted( $sOptionKey ) ) {
-					$bSavingIsPermitted = true;
-				}
-			}
-			else {
+			if ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) {
 				$bSavingIsPermitted = $this->isSecurityAdmin();
-			}
 
-			if ( !$bSavingIsPermitted ) {
-				$this->doStatIncrement( 'option.save.blocked' ); // TODO: Display stats
-				return $mOldValue;
+				if ( !$bSavingIsPermitted ) {
+					$this->doStatIncrement( 'option.save.blocked' );
+					return $mOldValue;
+				}
 			}
 
 			return $bSavingIsPermitted ? $mNewOptionValue : $mOldValue;
@@ -265,7 +259,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 * @param string $sOptionKey
 		 * @return int
 		 */
-		protected function getIsOptionKeyForThisPlugin( $sOptionKey ) {
+		protected function isOptionForThisPlugin( $sOptionKey ) {
 			return preg_match( $this->getOptionRegexPattern(), $sOptionKey );
 		}
 
@@ -273,7 +267,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 * @param string $sOptionKey
 		 * @return int
 		 */
-		protected function getIsSavingOptionRestricted( $sOptionKey ) {
+		protected function isOptionRestricted( $sOptionKey ) {
 			$bRestricted = false;
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getFeature();
