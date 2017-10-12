@@ -240,21 +240,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 * @return mixed
 		 */
 		public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
+
+			$bSavingIsPermitted = false;
+
 			if ( !$this->getIsOptionKeyForThisPlugin( $sOptionKey ) ) {
 				// Now we test certain other options saving based on where it's restricted
 				if ( !$this->getIsSavingOptionRestricted( $sOptionKey ) ) {
-					return $mNewOptionValue;
+					$bSavingIsPermitted = true;
 				}
 			}
+			else {
+				$bSavingIsPermitted = $this->isSecurityAdmin();
+			}
 
-			if ( !$this->isSecurityAdmin() ) {
-//				$sAuditMessage = sprintf( _wpsf__('Attempt to save/update option "%s" was blocked.'), $sOption );
-//			    $this->addToAuditEntry( $sAuditMessage, 3, 'admin_access_option_block' );
+			if ( !$bSavingIsPermitted ) {
 				$this->doStatIncrement( 'option.save.blocked' ); // TODO: Display stats
 				return $mOldValue;
 			}
 
-			return $mNewOptionValue;
+			return $bSavingIsPermitted ? $mNewOptionValue : $mOldValue;
 		}
 
 		/**
@@ -380,7 +384,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		protected function getOptionRegexPattern() {
 			if ( !isset( $this->sOptionRegexPattern ) ) {
-				$this->sOptionRegexPattern = '/^'. $this->getFeature()->getOptionStoragePrefix() . '.*_options$/';
+				$this->sOptionRegexPattern = sprintf( '/^%s.*_options$/',
+					$this->getFeature()->getOptionStoragePrefix()
+				);
 			}
 			return $this->sOptionRegexPattern;
 		}
