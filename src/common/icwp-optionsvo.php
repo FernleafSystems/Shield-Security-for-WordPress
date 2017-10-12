@@ -307,10 +307,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getOpt( $sOptionKey, $mDefault = false ) {
 		$aOptionsValues = $this->getAllOptionsValues();
-		if ( !isset( $aOptionsValues[ $sOptionKey ] ) ) {
+		if ( !isset( $aOptionsValues[ $sOptionKey ] ) && $this->getIsValidOptionKey( $sOptionKey ) ) {
 			$this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey, $mDefault ) );
 		}
-		return $this->aOptionsValues[ $sOptionKey ];
+		return isset( $this->aOptionsValues[ $sOptionKey ] ) ? $this->aOptionsValues[ $sOptionKey ] : $mDefault;
 	}
 
 	/**

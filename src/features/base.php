@@ -649,13 +649,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function savePluginOptions() {
 		$this->doPrePluginOptionsSave();
 		$this->updateOptionsVersion();
+		$this->store();
+	}
 
-		add_filter( $this->prefix( 'bypass_permission_to_manage' ), array( $this, 'getBypassAdminRestriction' ), 1000 );
+	private function store() {
+		add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
 		$this->getOptionsVo()->doOptionsSave( self::getController()->getIsResetPlugin() );
-		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), array(
-			$this,
-			'getBypassAdminRestriction'
-		), 1000 );
+		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
 	}
 
 	protected function updateOptionsVersion() {
