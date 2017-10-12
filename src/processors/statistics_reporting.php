@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Statistics_Reporting', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'basedb.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
 
 class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor {
 
@@ -16,12 +16,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	}
 
 	public function run() {
-//		include( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'query' . DIRECTORY_SEPARATOR . 'statistics_reporting.php' );
-//		$oQuery = new ICWP_WPSF_Query_Statistics_Reporting();
-//		$aResults = $oQuery->setFeature( $this->getFeature() )
-//			   ->setDateFrom( 0 )
-//			   ->countQuery();
-//		var_dump( $aResults );
+		$this->setupConsolidationCron();
 	}
 
 	/**
@@ -34,14 +29,15 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		}
 
 		$nColon = strpos( $sStatKey, ':' );
-		if( $nColon !== false ) {
+		if ( $nColon !== false ) {
 			$sStatKey = substr( $sStatKey, 0, $nColon );
 		}
 
 		// Now add new entry
 		$mResult = $this->insertData(
 			array(
-				'stat_key' => $sStatKey,
+				'stat_key'   => $sStatKey,
+				'tally'      => 1,
 				'created_at' => $this->time(),
 				'deleted_at' => 0,
 			)
@@ -54,6 +50,33 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		if ( !$this->getFeature()->isPluginDeleting() ) {
 			$this->commit();
 		}
+	}
+
+	public function cron_dailyReportingConsolidation() {
+		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
+		$oFO = $this->getFeature();
+		include( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'query' . DIRECTORY_SEPARATOR . 'statistics_consolidation.php' );
+		$oQuery = new ICWP_WPSF_Query_Statistics_Consolidation();
+		$oQuery->setFeature( $oFO )
+			   ->run();
+	}
+
+	protected function setupConsolidationCron() {
+		$this->loadWpCronProcessor()
+			 ->setRecurrence( 'daily' )
+			 ->createCronJob(
+				 $this->getCronName(),
+				 array( $this, 'cron_dailyReportingConsolidation' )
+			 );
+		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCronName() {
+		$oFO = $this->getFeature();
+		return $oFO->prefixOptionKey( $oFO->getDefinition( 'reporting_consolidation_cron_name' ) );
 	}
 
 	/**
@@ -71,6 +94,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		$sSqlTables = "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 				stat_key varchar(100) NOT NULL DEFAULT 0,
+				tally int(11) UNSIGNED NOT NULL DEFAULT 1,
 				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				PRIMARY KEY  (id)

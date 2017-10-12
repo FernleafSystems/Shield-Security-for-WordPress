@@ -9,6 +9,11 @@
     "premium": false,
     "access_restricted": true
   },
+  "requirements": {
+    "php": {
+      "version": "5.3.0"
+    }
+  },
   "sections": [
     {
       "slug": "section_enable_plugin_feature_statistics",
@@ -80,9 +85,11 @@
       "deleted_at"
     ],
     "reporting_table_name": "reporting",
+    "reporting_consolidation_cron_name": "reporting-consolidation",
     "reporting_table_columns": [
       "id",
       "stat_key",
+      "tally",
       "created_at",
       "deleted_at"
     ]
