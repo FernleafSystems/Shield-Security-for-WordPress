@@ -248,7 +248,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 				if ( !$bSavingIsPermitted ) {
 					$this->doStatIncrement( 'option.save.blocked' );
-					return $mOldValue;
 				}
 			}
 
