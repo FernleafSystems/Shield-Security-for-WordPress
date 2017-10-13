@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.16.0": {
+	  "version": {
+		"series": "5.16.0",
+		"major": 5,
+		"minor": 16,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1507889326",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": true
+	  }
+	},
 	"5.15.1": {
 	  "version": {
 		"series": "5.15.0",
@@ -256,6 +270,21 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "fixed",
+	  "summary": "Clashing of reCAPTCHA options for Comments and Login Protection.",
+	  "version": "5.16.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Statistic Reporting database management and pruning.",
+	  "version": "5.16.0"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "Various system fixes and improvements.",
+	  "version": "5.16.0"
+	},
 	{
 	  "type": "fixed",
 	  "summary": "Processing AJAX requests from the Network Admin side of WordPress.",
