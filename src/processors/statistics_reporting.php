@@ -9,6 +9,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
 class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
+	 * @var ICWP_WPSF_Query_Statistics_Consolidation
+	 */
+	private $oConsolidation;
+
+	/**
 	 * @param ICWP_WPSF_FeatureHandler_Statistics $oFeatureOptions
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oFeatureOptions ) {
@@ -53,12 +58,22 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	}
 
 	public function cron_dailyReportingConsolidation() {
-		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-		$oFO = $this->getFeature();
-		include( dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'query' . DIRECTORY_SEPARATOR . 'statistics_consolidation.php' );
-		$oQuery = new ICWP_WPSF_Query_Statistics_Consolidation();
-		$oQuery->setFeature( $oFO )
-			   ->run();
+		$this->getConsolidation()
+			 ->run();
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Statistics_Consolidation
+	 */
+	protected function getConsolidation() {
+		if ( !isset( $this->oConsolidation ) ) {
+			include( dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'query'.DIRECTORY_SEPARATOR.'statistics_consolidation.php' );
+			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
+			$oFO = $this->getFeature();
+			$this->oConsolidation = new ICWP_WPSF_Query_Statistics_Consolidation();
+			$this->oConsolidation->setFeature( $oFO );
+		}
+		return $this->oConsolidation;
 	}
 
 	protected function setupConsolidationCron() {

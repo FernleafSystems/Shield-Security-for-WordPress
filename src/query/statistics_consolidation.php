@@ -16,13 +16,13 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	}
 
 	protected function consolidateLastMonth() {
-		$this->setDateTo( strtotime( 'first second of this month' ) )
-			 ->setDateFrom( strtotime( 'first second of last month' ) )
+		$this->setDateTo( $this->getFirstOfThisMonth() )
+			 ->setDateFrom( $this->getFirstOfLastMonth() )
 			 ->consolidate();
 	}
 
 	protected function consolidateOld() {
-		$this->setDateTo( strtotime( 'first second of last month' ) )
+		$this->setDateTo( $this->getFirstOfLastMonth() )
 			 ->setDateFrom( 0 )
 			 ->consolidate();
 	}
@@ -57,5 +57,38 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 				)
 			);
 		}
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getFirstOfThisMonth() {
+		$oNow = $this->loadCarbon();
+		try {
+			$oNow->setTimezone( $this->loadWpFunctions()->getOption( 'timezone_string' ) );
+		}
+		catch ( Exception $oE ) {
+		}
+		return $oNow->day( 1 )
+					->hour( 0 )
+					->minute( 0 )
+					->second( 0 )->timestamp;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getFirstOfLastMonth() {
+		$oNow = $this->loadCarbon();
+		try {
+			$oNow->setTimezone( $this->loadWpFunctions()->getOption( 'timezone_string' ) );
+		}
+		catch ( Exception $oE ) {
+		}
+		return $oNow->day( 1 )
+					->hour( 0 )
+					->minute( 0 )
+					->second( 0 )
+					->subMonth( 1 )->timestamp;
 	}
 }

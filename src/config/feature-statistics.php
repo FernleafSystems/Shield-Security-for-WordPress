@@ -9,11 +9,6 @@
     "premium": false,
     "access_restricted": true
   },
-  "requirements": {
-    "php": {
-      "version": "5.3.0"
-    }
-  },
   "sections": [
     {
       "slug": "section_enable_plugin_feature_statistics",
