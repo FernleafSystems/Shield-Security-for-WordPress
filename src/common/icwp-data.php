@@ -1,7 +1,7 @@
 <?php
 if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 
-	class ICWP_WPSF_DataProcessor {
+	class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_DataProcessor
@@ -90,6 +90,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		protected function findViableVisitorIp() {
 
 			$aAddressSourceOptions = array(
+				'REMOTE_ADDR',
 				'HTTP_CF_CONNECTING_IP',
 				'HTTP_X_FORWARDED_FOR',
 				'HTTP_X_FORWARDED',
@@ -97,11 +98,11 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 				'HTTP_X_SUCURI_CLIENTIP',
 				'HTTP_INCAP_CLIENT_IP',
 				'HTTP_FORWARDED',
-				'HTTP_CLIENT_IP',
-				'REMOTE_ADDR'
+				'HTTP_CLIENT_IP'
 			);
 
 			$sIpToReturn = false;
+			$oIpFunc = $this->loadIpProcessor();
 			foreach ( $aAddressSourceOptions as $sOption ) {
 
 				$sIpAddressToTest = self::FetchServer( $sOption );
@@ -109,17 +110,10 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 					continue;
 				}
 
-				$aIpAddresses = explode( ',', $sIpAddressToTest ); //sometimes a comma-separated list is returned
-				foreach ( $aIpAddresses as $sIpAddress ) {
-					if ( empty( $sIpAddress ) ) {
-						continue;
-					}
-
-					// this version checking serves to weed out IPv6 if filter_var isn't supported by their PHP.
-					// I.e. We ONLY support IPv6 if filter_var() is supported.
-					$nVersion = $this->getIpAddressVersion( $sIpAddress );
-					if ( $nVersion != false ) {
-						$sIpToReturn = $sIpAddress;
+				$aIpAddresses = array_map( 'trim', explode( ',', $sIpAddressToTest ) ); //sometimes a comma-separated list is returned
+				foreach ( $aIpAddresses as $sIp ) {
+					if ( !empty( $sIp ) && $oIpFunc->isValidIp_PublicRemote( $sIp ) ) {
+						$sIpToReturn = $sIp;
 						break( 2 );
 					}
 				}
