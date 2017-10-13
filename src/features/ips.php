@@ -111,7 +111,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			$aListItem[ 'ip_link' ] =
 				sprintf( '<a href="%s" target="_blank">%s</a>',
 					(
-					( $this->loadIpService()->getIpAddressVersion( $aListItem[ 'ip' ] ) == 4 ) ?
+					( $this->loadIpService()->getIpVersion( $aListItem[ 'ip' ] ) == 4 ) ?
 						'http://whois.domaintools.com/'.$aListItem[ 'ip' ]
 						: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $aListItem[ 'ip' ] )
 					),

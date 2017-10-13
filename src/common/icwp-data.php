@@ -14,16 +14,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		public static $bUseFilterInput = false;
 
 		/**
-		 * @var string
-		 */
-		protected static $sIp = false;
-
-		/**
-		 * @var string
-		 */
-		protected static $nIpAddressVersion = false;
-
-		/**
 		 * @var integer
 		 */
 		protected static $nRequestTime;
@@ -57,68 +47,12 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @deprecated
 		 * @param boolean $bAsHuman
 		 * @return int|string|bool - visitor IP Address as IP2Long
 		 */
 		public function getVisitorIpAddress( $bAsHuman = true ) {
-
-			if ( empty( self::$sIp ) ) {
-				self::$sIp = $this->findViableVisitorIp();
-			}
-
-			if ( !self::$sIp || $bAsHuman ) {
-				return self::$sIp;
-			}
-
-			// If it's IPv6 we never return as long (we can't!)
-			return ( $this->loadIpService()->getIpAddressVersion( self::$sIp ) == 4 ) ? ip2long( self::$sIp ) : self::$sIp;
-		}
-
-		/**
-		 * @param string $sAddress
-		 * @return $this
-		 */
-		public function setVisitorIpAddress( $sAddress ) {
-			self::$sIp = $sAddress;
-			return $this;
-		}
-
-		/**
-		 * Cloudflare compatible.
-		 * @return string|bool
-		 */
-		protected function findViableVisitorIp() {
-
-			$aAddressSourceOptions = array(
-				'REMOTE_ADDR',
-				'HTTP_CF_CONNECTING_IP',
-				'HTTP_X_FORWARDED_FOR',
-				'HTTP_X_FORWARDED',
-				'HTTP_X_REAL_IP',
-				'HTTP_X_SUCURI_CLIENTIP',
-				'HTTP_INCAP_CLIENT_IP',
-				'HTTP_FORWARDED',
-				'HTTP_CLIENT_IP'
-			);
-
-			$sIpToReturn = false;
-			$oIpFunc = $this->loadIpService();
-			foreach ( $aAddressSourceOptions as $sOption ) {
-
-				$sIpAddressToTest = self::FetchServer( $sOption );
-				if ( empty( $sIpAddressToTest ) ) {
-					continue;
-				}
-
-				$aIpAddresses = array_map( 'trim', explode( ',', $sIpAddressToTest ) ); //sometimes a comma-separated list is returned
-				foreach ( $aIpAddresses as $sIp ) {
-					if ( !empty( $sIp ) && $oIpFunc->isValidIp_PublicRemote( $sIp ) ) {
-						$sIpToReturn = $sIp;
-						break( 2 );
-					}
-				}
-			}
-			return $sIpToReturn;
+			return $this->loadIpService()->getRequestIp( $bAsHuman );
 		}
 
 		/**
@@ -243,22 +177,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 				$aNewList[ $aParts[ 0 ] ] = $aParams;
 			}
 			return $aNewList;
-		}
-
-		/**
-		 * @param string $sRawAddress
-		 * @return string
-		 */
-		public static function Clean_Ip( $sRawAddress ) {
-			$sRawAddress = preg_replace( '/[a-z\s]/i', '', $sRawAddress );
-			$sRawAddress = str_replace( '.', 'PERIOD', $sRawAddress );
-			$sRawAddress = str_replace( '-', 'HYPEN', $sRawAddress );
-			$sRawAddress = str_replace( ':', 'COLON', $sRawAddress );
-			$sRawAddress = preg_replace( '/[^a-z0-9]/i', '', $sRawAddress );
-			$sRawAddress = str_replace( 'PERIOD', '.', $sRawAddress );
-			$sRawAddress = str_replace( 'HYPEN', '-', $sRawAddress );
-			$sRawAddress = str_replace( 'COLON', ':', $sRawAddress );
-			return $sRawAddress;
 		}
 
 		/**

@@ -489,7 +489,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$aNewData[ 'ip' ] = $sIp;
 		$aNewData[ 'label' ] = empty( $sLabel ) ? _wpsf__( 'No Label' ) : $sLabel;
 		$aNewData[ 'list' ] = self::LIST_MANUAL_WHITE;
-		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpAddressVersion( $sIp ) == 6;
+		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpVersion( $sIp ) == 6;
 		$aNewData[ 'transgressions' ] = 0;
 		$aNewData[ 'is_range' ] = strpos( $sIp, '/' ) !== false;
 		$aNewData[ 'last_access_at' ] = 0;
@@ -513,7 +513,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$aNewData[ 'ip' ] = $sIp;
 		$aNewData[ 'label' ] = 'auto';
 		$aNewData[ 'list' ] = self::LIST_AUTO_BLACK;
-		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpAddressVersion( $sIp ) == 6;
+		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpVersion( $sIp ) == 6;
 		$aNewData[ 'transgressions' ] = 1;
 		$aNewData[ 'is_range' ] = 0;
 		$aNewData[ 'last_access_at' ] = $this->time();
