@@ -24,6 +24,27 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		$this->setupConsolidationCron();
 	}
 
+	public function cron_dailyReportingConsolidation() {
+		$this->getConsolidation()
+			 ->run();
+	}
+
+	protected function setupConsolidationCron() {
+		$this->loadWpCronProcessor()
+			 ->setRecurrence( 'daily' )
+			 ->createCronJob(
+				 $this->getCronName(),
+				 array( $this, 'cron_dailyReportingConsolidation' )
+			 );
+		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+	}
+
+	/**
+	 */
+	public function deleteCron() {
+		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
+	}
+
 	/**
 	 * @param string $sStatKey
 	 * @return bool
@@ -57,11 +78,6 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		}
 	}
 
-	public function cron_dailyReportingConsolidation() {
-		$this->getConsolidation()
-			 ->run();
-	}
-
 	/**
 	 * @return ICWP_WPSF_Query_Statistics_Consolidation
 	 */
@@ -74,16 +90,6 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 			$this->oConsolidation->setFeature( $oFO );
 		}
 		return $this->oConsolidation;
-	}
-
-	protected function setupConsolidationCron() {
-		$this->loadWpCronProcessor()
-			 ->setRecurrence( 'daily' )
-			 ->createCronJob(
-				 $this->getCronName(),
-				 array( $this, 'cron_dailyReportingConsolidation' )
-			 );
-		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
