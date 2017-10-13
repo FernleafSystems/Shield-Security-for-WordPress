@@ -240,28 +240,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 * @return mixed
 		 */
 		public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
-			if ( !$this->getIsOptionKeyForThisPlugin( $sOptionKey ) ) {
-				// Now we test certain other options saving based on where it's restricted
-				if ( !$this->getIsSavingOptionRestricted( $sOptionKey ) ) {
-					return $mNewOptionValue;
+
+			$bSavingIsPermitted = true;
+
+			if ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) {
+				$bSavingIsPermitted = $this->isSecurityAdmin();
+
+				if ( !$bSavingIsPermitted ) {
+					$this->doStatIncrement( 'option.save.blocked' );
 				}
 			}
 
-			if ( !$this->isSecurityAdmin() ) {
-//				$sAuditMessage = sprintf( _wpsf__('Attempt to save/update option "%s" was blocked.'), $sOption );
-//			    $this->addToAuditEntry( $sAuditMessage, 3, 'admin_access_option_block' );
-				$this->doStatIncrement( 'option.save.blocked' ); // TODO: Display stats
-				return $mOldValue;
-			}
-
-			return $mNewOptionValue;
+			return $bSavingIsPermitted ? $mNewOptionValue : $mOldValue;
 		}
 
 		/**
 		 * @param string $sOptionKey
 		 * @return int
 		 */
-		protected function getIsOptionKeyForThisPlugin( $sOptionKey ) {
+		protected function isOptionForThisPlugin( $sOptionKey ) {
 			return preg_match( $this->getOptionRegexPattern(), $sOptionKey );
 		}
 
@@ -269,7 +266,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 * @param string $sOptionKey
 		 * @return int
 		 */
-		protected function getIsSavingOptionRestricted( $sOptionKey ) {
+		protected function isOptionRestricted( $sOptionKey ) {
 			$bRestricted = false;
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getFeature();
@@ -380,7 +377,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		protected function getOptionRegexPattern() {
 			if ( !isset( $this->sOptionRegexPattern ) ) {
-				$this->sOptionRegexPattern = '/^'. $this->getFeature()->getOptionStoragePrefix() . '.*_options$/';
+				$this->sOptionRegexPattern = sprintf( '/^%s.*_options$/',
+					$this->getFeature()->getOptionStoragePrefix()
+				);
 			}
 			return $this->sOptionRegexPattern;
 		}

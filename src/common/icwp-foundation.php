@@ -233,4 +233,13 @@ class ICWP_WPSF_Foundation {
 		}
 		return self::$oWpComments;
 	}
+
+	/**
+	 * @return \Carbon\Carbon
+	 */
+	static public function loadCarbon() {
+		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'lib'
+					  .DIRECTORY_SEPARATOR.'Carbon'.DIRECTORY_SEPARATOR.'Carbon.php' );
+		return new Carbon\Carbon();
+	}
 }
