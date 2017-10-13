@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
 		if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
 			$this->loadFS(); // to ensure the necessary Class exist - we can clean this up later
-			$sThisServerIp = $this->loadIpService()->WhatIsMyIp();
+			$sThisServerIp = $this->loadIpService()->whatIsMyIp();
 			if ( is_string( $sThisServerIp ) ) {
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}

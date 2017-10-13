@@ -16,6 +16,11 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	private $sIp;
 
 	/**
+	 * @var string
+	 */
+	private $sMyIp;
+
+	/**
 	 * @var ICWP_WPSF_Ip
 	 */
 	protected static $oInstance = null;
@@ -145,6 +150,19 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sIp
+	 * @return bool
+	 */
+	public function isCloudFlareIp( $sIp ) {
+		if ( $this->getIpVersion( $sIp ) == 4 ) {
+			return $this->checkIp4( $sIp, $this->getCloudFlareIpsV4() );
+		}
+		else {
+			return $this->checkIp4( $sIp, $this->getCloudFlareIpsV6() );
+		}
+	}
+
+	/**
+	 * @param string $sIp
 	 * @param bool   $flags
 	 * @return boolean
 	 */
@@ -191,19 +209,19 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string|false
+	 * @return string
 	 */
-	public static function WhatIsMyIp() {
+	public function whatIsMyIp() {
 
-		$sIp = '';
-		if ( class_exists( 'ICWP_WPSF_WpFilesystem' ) ) {
-			$oWpFs = ICWP_WPSF_WpFilesystem::GetInstance();
-			$sIp = $oWpFs->getUrlContent( self::IpifyEndpoint );
-			if ( empty( $sIp ) || !is_string( $sIp ) ) {
-				$sIp = '';
+		if ( empty( $this->sMyIp ) ) {
+			$sIp = $this->loadFS()
+						->getUrlContent( self::IpifyEndpoint );
+			if ( is_string( $sIp ) ) {
+				$sIp = trim( $sIp );
 			}
+			$this->sMyIp = empty( $sIp ) ? '' : $sIp;
 		}
-		return trim( $sIp );
+		return $this->sMyIp;
 	}
 
 	/**
@@ -221,7 +239,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 */
 	protected function findViableVisitorIp( $bRemoteVerify = false ) {
 
-		$sMyIp = $bRemoteVerify ? $this->WhatIsMyIp() : null;
+		$sMyIp = $bRemoteVerify ? $this->whatIsMyIp() : null;
 
 		$aAddressSourceOptions = array(
 			'REMOTE_ADDR',
@@ -249,7 +267,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 			$aIpAddresses = array_map( 'trim', explode( ',', $sIpToTest ) );
 			foreach ( $aIpAddresses as $sIp ) {
 
-				if ( !empty( $sIp ) && $this->isValidIp_PublicRemote( $sIp ) ) {
+				if ( !empty( $sIp ) && $this->isValidIp_PublicRemote( $sIp ) && !$this->isCloudFlareIp( $sIp ) ) {
 
 					if ( empty( $sMyIp ) || !$this->checkIp( $sIp, $sMyIp ) ) {
 						$sIpToReturn = $sIp;
@@ -262,6 +280,43 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		return array(
 			'source' => $sSource,
 			'ip' => $sIpToReturn
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getCloudFlareIpsV4() {
+		return array(
+			'103.21.244.0/22',
+			'103.22.200.0/22',
+			'103.31.4.0/22',
+			'104.16.0.0/12',
+			'108.162.192.0/18',
+			'131.0.72.0/22',
+			'141.101.64.0/18',
+			'162.158.0.0/15',
+			'172.64.0.0/13',
+			'173.245.48.0/20',
+			'188.114.96.0/20',
+			'190.93.240.0/20',
+			'197.234.240.0/22',
+			'198.41.128.0/17'
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getCloudFlareIpsV6() {
+		return array(
+			'2400:cb00::/32',
+			'2405:8100::/32',
+			'2405:b500::/32',
+			'2606:4700::/32',
+			'2803:f800::/32',
+			'2c0f:f248::/32',
+			'2a06:98c0::/29'
 		);
 	}
 }
