@@ -315,6 +315,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA
 settings are as you expect them to be.
 
+* **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
 * **(v.0)**  FIX:			Clashing of reCAPTCHA options for Comments and Login Protection.
 * **(v.0)**  IMPROVEMENT:	Statistic Reporting database management and pruning.
 * **(v.0)**  FIX:			Various system fixes and improvements.

@@ -271,6 +271,11 @@
   },
   "changelog": [
 	{
+	  "type": "improved",
+	  "summary": "Much better auto-detection of valid request/visitor IP addresses.",
+	  "version": "5.16.0"
+	},
+	{
 	  "type": "fixed",
 	  "summary": "Clashing of reCAPTCHA options for Comments and Login Protection.",
 	  "version": "5.16.0"
