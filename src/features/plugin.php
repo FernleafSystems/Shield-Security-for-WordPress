@@ -26,10 +26,28 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
+		$sIpAddress = null;
+		$oIpService = $this->loadIpService();
+		$oDp = $this->loadDataProcessor();
+
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
-			$sIpAddress = $this->loadDataProcessor()->FetchServer( $this->getVisitorAddressSource() );
-			if ( $this->loadIpService()->isValidIp_PublicRange( $sIpAddress ) ) {
-				$this->loadIpService()->setRequestIpAddress( $sIpAddress );
+
+			$sIpAddress = $oDp->FetchServer( $this->getVisitorAddressSource() );
+			if ( $oIpService->isValidIp_PublicRange( $sIpAddress ) ) {
+				$oIpService->setRequestIpAddress( $sIpAddress );
+			}
+			else {
+				$sIpAddress = null;
+			}
+		}
+
+		// If the address at this stage is null, then the current setting is failing for IP detection
+		// So we try and rediscover a more correct source for the Request IP Address.
+		if ( empty( $sIpAddress ) ) {
+			$sSource = $oIpService->runDiscoverRequestIpSource();
+			if ( !empty( $sSource ) ) {
+				$oIpService->setRequestIpAddress( $this->loadDataProcessor()->FetchServer( $sSource ) );
+				$this->setOpt( 'visitor_address_source', $sSource );
 			}
 		}
 	}
@@ -387,6 +405,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sSummary = _wpsf__( 'Which IP Address Is Yours' );
 				$sDescription = _wpsf__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.' )
 								.'<br />'._wpsf__( 'If the option you select becomes unavailable, we will revert to auto detection.' )
+								.'<br />'.sprintf( _wpsf__( 'Current source is: %s' ), '<strong>'.$this->getVisitorAddressSource().'</strong>' )
 								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );
 				break;
 

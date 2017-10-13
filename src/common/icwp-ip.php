@@ -132,7 +132,8 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	public function getRequestIp( $bAsHuman = true ) {
 
 		if ( empty( $this->sIp ) ) {
-			$this->sIp = $this->findViableVisitorIp();
+			$aResult = $this->findViableVisitorIp();
+			$this->sIp = $aResult[ 'ip' ];
 		}
 		if ( !$this->sIp || $bAsHuman ) {
 			return $this->sIp;
@@ -202,14 +203,25 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 				$sIp = '';
 			}
 		}
-		return $sIp;
+		return trim( $sIp );
+	}
+
+	/**
+	 * @return string|false
+	 */
+	public function runDiscoverRequestIpSource() {
+		$aResult = $this->findViableVisitorIp( true );
+		return $aResult[ 'source' ];
 	}
 
 	/**
 	 * Cloudflare compatible.
-	 * @return string|bool
+	 * @param bool $bRemoteVerify
+	 * @return array
 	 */
-	protected function findViableVisitorIp() {
+	protected function findViableVisitorIp( $bRemoteVerify = false ) {
+
+		$sMyIp = $bRemoteVerify ? $this->WhatIsMyIp() : null;
 
 		$aAddressSourceOptions = array(
 			'REMOTE_ADDR',
@@ -224,10 +236,11 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		);
 
 		$sIpToReturn = false;
+		$sSource = false;
 		$oDp = $this->loadDataProcessor();
-		foreach ( $aAddressSourceOptions as $sOption ) {
+		foreach ( $aAddressSourceOptions as $sSource ) {
 
-			$sIpToTest = $oDp->FetchServer( $sOption );
+			$sIpToTest = $oDp->FetchServer( $sSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}
@@ -235,12 +248,20 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 			// sometimes a comma-separated list is returned
 			$aIpAddresses = array_map( 'trim', explode( ',', $sIpToTest ) );
 			foreach ( $aIpAddresses as $sIp ) {
+
 				if ( !empty( $sIp ) && $this->isValidIp_PublicRemote( $sIp ) ) {
-					$sIpToReturn = $sIp;
-					break( 2 );
+
+					if ( empty( $sMyIp ) || !$this->checkIp( $sIp, $sMyIp ) ) {
+						$sIpToReturn = $sIp;
+						break( 2 );
+					}
 				}
 			}
 		}
-		return $sIpToReturn;
+
+		return array(
+			'source' => $sSource,
+			'ip' => $sIpToReturn
+		);
 	}
 }
