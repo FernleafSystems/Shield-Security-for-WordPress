@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
 		if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
 			$this->loadFS(); // to ensure the necessary Class exist - we can clean this up later
-			$sThisServerIp = $this->loadIpProcessor()->WhatIsMyIp();
+			$sThisServerIp = $this->loadIpService()->WhatIsMyIp();
 			if ( is_string( $sThisServerIp ) ) {
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}
@@ -111,7 +111,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			$aListItem[ 'ip_link' ] =
 				sprintf( '<a href="%s" target="_blank">%s</a>',
 					(
-					( $this->loadDataProcessor()->getIpAddressVersion( $aListItem[ 'ip' ] ) == 4 ) ?
+					( $this->loadIpService()->getIpAddressVersion( $aListItem[ 'ip' ] ) == 4 ) ?
 						'http://whois.domaintools.com/'.$aListItem[ 'ip' ]
 						: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $aListItem[ 'ip' ] )
 					),

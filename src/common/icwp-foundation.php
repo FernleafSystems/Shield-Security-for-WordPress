@@ -127,7 +127,7 @@ class ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_Ip
 	 */
-	static public function loadIpProcessor() {
+	static public function loadIpService() {
 		if ( !isset( self::$oIp ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-ip.php' );
 			self::$oIp = ICWP_WPSF_Ip::GetInstance();

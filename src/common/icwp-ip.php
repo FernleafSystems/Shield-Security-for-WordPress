@@ -115,6 +115,20 @@ if ( !class_exists( 'ICWP_WPSF_Ip', false ) ):
 
 		/**
 		 * @param string $sIp
+		 * @return bool|int
+		 */
+		public function getIpAddressVersion( $sIp ) {
+			if ( filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+				return 4;
+			}
+			if ( filter_var( $sIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+				return 6;
+			}
+			return false;
+		}
+
+		/**
+		 * @param string $sIp
 		 * @param bool $flags
 		 * @return boolean
 		 */

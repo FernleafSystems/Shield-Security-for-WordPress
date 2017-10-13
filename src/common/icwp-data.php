@@ -16,7 +16,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		/**
 		 * @var string
 		 */
-		protected static $sIpAddress = false;
+		protected static $sIp = false;
 
 		/**
 		 * @var string
@@ -62,16 +62,16 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 */
 		public function getVisitorIpAddress( $bAsHuman = true ) {
 
-			if ( empty( self::$sIpAddress ) ) {
-				self::$sIpAddress = $this->findViableVisitorIp();
+			if ( empty( self::$sIp ) ) {
+				self::$sIp = $this->findViableVisitorIp();
 			}
 
-			if ( !self::$sIpAddress || $bAsHuman ) {
-				return self::$sIpAddress;
+			if ( !self::$sIp || $bAsHuman ) {
+				return self::$sIp;
 			}
 
 			// If it's IPv6 we never return as long (we can't!)
-			return ( $this->getVisitorIpVersion() == 4 ) ? ip2long( self::$sIpAddress ) : self::$sIpAddress;
+			return ( $this->loadIpService()->getIpAddressVersion( self::$sIp ) == 4 ) ? ip2long( self::$sIp ) : self::$sIp;
 		}
 
 		/**
@@ -79,7 +79,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @return $this
 		 */
 		public function setVisitorIpAddress( $sAddress ) {
-			self::$sIpAddress = $sAddress;
+			self::$sIp = $sAddress;
 			return $this;
 		}
 
@@ -102,7 +102,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			);
 
 			$sIpToReturn = false;
-			$oIpFunc = $this->loadIpProcessor();
+			$oIpFunc = $this->loadIpService();
 			foreach ( $aAddressSourceOptions as $sOption ) {
 
 				$sIpAddressToTest = self::FetchServer( $sOption );
@@ -194,16 +194,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		public function getExtension( $sPath ) {
 			$nLastPeriod = strrpos( $sPath, '.' );
 			return ( $nLastPeriod === false ) ? $sPath : str_replace( '.', '', substr( $sPath, $nLastPeriod ) );
-		}
-
-		/**
-		 * @return bool|int|string
-		 */
-		public function getVisitorIpVersion() {
-			if ( empty( self::$nIpAddressVersion ) ) {
-				self::$nIpAddressVersion = $this->getIpAddressVersion( $this->getVisitorIpAddress( true ) );
-			}
-			return self::$nIpAddressVersion;
 		}
 
 		/**
@@ -541,22 +531,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		public function setDeleteCookie( $sKey ) {
 			unset( $_COOKIE[ $sKey ] );
 			return $this->setCookie( $sKey, '', -3600 );
-		}
-
-		/**
-		 * Effectively validates and IP Address.
-		 * @param string $sIpAddress
-		 * @return int|false
-		 */
-		public function getIpAddressVersion( $sIpAddress ) {
-
-			if ( filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-				return 4;
-			}
-			if ( filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
-				return 6;
-			}
-			return false;
 		}
 
 		/**

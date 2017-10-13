@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$sIp = $this->human_ip();
 
 		// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
-		return $this->loadIpProcessor()->isValidIp_PublicRemote( $sIp ) && ( $sThisServerIp != $sIp );
+		return $this->loadIpService()->isValidIp_PublicRemote( $sIp ) && ( $sThisServerIp != $sIp );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	protected function isValidIpOrRange( $sIp ) {
-		$oIP = $this->loadIpProcessor();
+		$oIP = $this->loadIpService();
 		return $oIP->isValidIp_PublicRemote( $sIp ) || $oIP->isValidIpRange( $sIp );
 	}
 
@@ -440,7 +440,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$aResult = $this->query_getListData( $aLists );
 		foreach ( $aResult as $aRow ) {
 			try {
-				if ( $this->loadIpProcessor()->checkIp( $sIp, $aRow[ 'ip' ] ) ) {
+				if ( $this->loadIpService()->checkIp( $sIp, $aRow[ 'ip' ] ) ) {
 					$aData[] = $aRow;
 				}
 			}
@@ -489,7 +489,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$aNewData[ 'ip' ] = $sIp;
 		$aNewData[ 'label' ] = empty( $sLabel ) ? _wpsf__( 'No Label' ) : $sLabel;
 		$aNewData[ 'list' ] = self::LIST_MANUAL_WHITE;
-		$aNewData[ 'ip6' ] = $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
+		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpAddressVersion( $sIp ) == 6;
 		$aNewData[ 'transgressions' ] = 0;
 		$aNewData[ 'is_range' ] = strpos( $sIp, '/' ) !== false;
 		$aNewData[ 'last_access_at' ] = 0;
@@ -513,7 +513,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$aNewData[ 'ip' ] = $sIp;
 		$aNewData[ 'label' ] = 'auto';
 		$aNewData[ 'list' ] = self::LIST_AUTO_BLACK;
-		$aNewData[ 'ip6' ] = $this->loadDataProcessor()->getIpAddressVersion( $sIp ) == 6;
+		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpAddressVersion( $sIp ) == 6;
 		$aNewData[ 'transgressions' ] = 1;
 		$aNewData[ 'is_range' ] = 0;
 		$aNewData[ 'last_access_at' ] = $this->time();
