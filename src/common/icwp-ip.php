@@ -154,10 +154,10 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 */
 	public function isCloudFlareIp( $sIp ) {
 		if ( $this->getIpVersion( $sIp ) == 4 ) {
-			return $this->checkIp4( $sIp, $this->getCloudFlareIpsV4() );
+			return $this->checkIp( $sIp, $this->getCloudFlareIpsV4() );
 		}
 		else {
-			return $this->checkIp4( $sIp, $this->getCloudFlareIpsV6() );
+			return $this->checkIp( $sIp, $this->getCloudFlareIpsV6() );
 		}
 	}
 
@@ -209,6 +209,15 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @return $this
+	 */
+	public function setServerIpAddress( $sIp ) {
+		$this->sMyIp = $sIp;
+		return $this;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function whatIsMyIp() {
@@ -227,7 +236,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string|false
 	 */
-	public function runDiscoverRequestIpSource() {
+	public function discoverViableRequestIpSource() {
 		$aResult = $this->findViableVisitorIp( true );
 		return $aResult[ 'source' ];
 	}

@@ -9,7 +9,7 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doExecuteProcessor() {
-		if ( !apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
+		if ( !$this->isVisitorWhitelisted() ) {
 			parent::doExecuteProcessor();
 		}
 	}

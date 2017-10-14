@@ -35,28 +35,31 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return bool
+	 */
+	protected function readyToRun() {
+		return ( parent::readyToRun() && $this->loadIpService()->isValidIp_PublicRemote( $this->human_ip() ) );
+	}
+
+	/**
 	 */
 	public function run() {
-
-		// Before anything else, verify we can actually get a valid remote visitor IP address
-		if ( $this->getIsValidRemoteIp() === false ) {
+		if ( !$this->readyToRun() ) {
 			return;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
-
-		add_filter( $oFO->prefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
-
 		$this->processBlacklist();
 
-		// We add text of the current number of transgressions remaining in the Firewall die message
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getFeature();
+		add_filter( $oFO->prefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
+
 		if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
+			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
+			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
 		}
 
-		add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
-		add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
 		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
 		add_action( 'wp', array( $this, 'doTrack404' ) );
@@ -120,21 +123,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getAllValidLists() {
 		return array( self::LIST_AUTO_BLACK, self::LIST_MANUAL_WHITE, self::LIST_MANUAL_BLACK );
-	}
-
-	/**
-	 * Note: Feature requirements in yaml already checks that all of these functions/constants are available
-	 * @return string|false
-	 */
-	protected function getIsValidRemoteIp() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
-
-		$sThisServerIp = $oFO->getWhatIsMyServerIp();
-		$sIp = $this->human_ip();
-
-		// Fail safe to protect against web hosts who don't populate server vars correctly and in-fact return the server's own IP address
-		return $this->loadIpService()->isValidIp_PublicRemote( $sIp ) && ( $sThisServerIp != $sIp );
 	}
 
 	/**

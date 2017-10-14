@@ -253,6 +253,19 @@
       "key": "installation_time",
       "transferable": false,
       "section": "section_non_ui"
+    },
+    {
+      "key": "this_server_ip",
+      "transferable": false,
+      "sensitive": true,
+      "section": "section_non_ui",
+      "value": ""
+    },
+    {
+      "key": "this_server_ip_last_check_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
     }
   ],
   "definitions": {

@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	protected function doExecuteProcessor() {
-		if ( !apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
+		if ( !$this->isVisitorWhitelisted() ) {
 			parent::doExecuteProcessor();
 		}
 	}

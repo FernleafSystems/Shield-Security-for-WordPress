@@ -37,38 +37,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getWhatIsMyServerIp() {
-
-		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
-		if ( $this->getIfLastCheckServerIpAtHasExpired() ) {
-			$this->loadFS(); // to ensure the necessary Class exist - we can clean this up later
-			$sThisServerIp = $this->loadIpService()->whatIsMyIp();
-			if ( is_string( $sThisServerIp ) ) {
-				$this->setOpt( 'this_server_ip', $sThisServerIp );
-			}
-			// we always update so we don't forever check on every single page load
-			$this->setOpt( 'this_server_ip_last_check_at', $this->loadDataProcessor()->time() );
-		}
-		return $sThisServerIp;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLastCheckServerIpAt() {
-		return $this->getOpt( 'this_server_ip_last_check_at', 0 );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIfLastCheckServerIpAtHasExpired() {
-		return ( ( $this->loadDataProcessor()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
-	}
-
-	/**
 	 */
 	public function displayFeatureConfigPage() {
 		add_thickbox();

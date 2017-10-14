@@ -69,6 +69,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return bool
+	 */
+	protected function isVisitorWhitelisted() {
+		return apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

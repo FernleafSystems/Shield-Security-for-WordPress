@@ -23,28 +23,61 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getLastCheckServerIpAtHasExpired() {
+		return ( ( $this->loadDataProcessor()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLastCheckServerIpAt() {
+		return $this->getOpt( 'this_server_ip_last_check_at', 0 );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMyServerIp() {
+
+		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
+		if ( $this->getLastCheckServerIpAtHasExpired() ) {
+			$oIp = $this->loadIpService();
+			$sThisServerIp = $oIp->whatIsMyIp();
+			if ( $oIp->isValidIp_PublicRemote( $sThisServerIp ) ) {
+				$this->setOpt( 'this_server_ip', $sThisServerIp );
+			}
+			// we always update so we don't forever check on every single page load
+			$this->setOpt( 'this_server_ip_last_check_at', $this->loadDataProcessor()->time() );
+		}
+		return $sThisServerIp;
+	}
+
+	/**
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
-		$sIpAddress = null;
+		$sIp = null;
 		$oIpService = $this->loadIpService();
 		$oDp = $this->loadDataProcessor();
 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
-			$sIpAddress = $oDp->FetchServer( $this->getVisitorAddressSource() );
-			if ( $oIpService->isValidIp_PublicRange( $sIpAddress ) ) {
-				$oIpService->setRequestIpAddress( $sIpAddress );
+			$sIp = $oDp->FetchServer( $this->getVisitorAddressSource() );
+			if ( $oIpService->isValidIp_PublicRange( $sIp ) && !$oIpService->checkIp( $sIp, $this->getMyServerIp() ) ) {
+				$oIpService->setRequestIpAddress( $sIp );
 			}
 			else {
-				$sIpAddress = null;
+				$sIp = null;
 			}
 		}
 
 		// If the address at this stage is null, then the current setting is failing for IP detection
 		// So we try and rediscover a more correct source for the Request IP Address.
-		if ( empty( $sIpAddress ) ) {
-			$sSource = $oIpService->runDiscoverRequestIpSource();
+		if ( empty( $sIp ) ) {
+			$sSource = $oIpService->setServerIpAddress( $this->getMyServerIp() )
+								  ->discoverViableRequestIpSource();
 			if ( !empty( $sSource ) ) {
 				$oIpService->setRequestIpAddress( $this->loadDataProcessor()->FetchServer( $sSource ) );
 				$this->setOpt( 'visitor_address_source', $sSource );
@@ -518,6 +551,5 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'User Management' );
 		_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' );
 		_wpsf__( 'Two-Factor Authentication' );
-
 	}
 }

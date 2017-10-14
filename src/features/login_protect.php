@@ -34,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	protected function doExecuteProcessor() {
-		if ( !apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
+		if ( !$this->isVisitorWhitelisted() ) {
 			parent::doExecuteProcessor();
 		}
 	}
