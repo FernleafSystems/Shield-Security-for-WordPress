@@ -43,12 +43,6 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return $aHosts;
 	}
 
-	protected function doExecuteProcessor() {
-		if ( !$this->isVisitorWhitelisted() ) {
-			parent::doExecuteProcessor();
-		}
-	}
-
 	protected function doExtraSubmitProcessing() {
 		$aDomains = $this->getCspHosts();
 		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
@@ -110,6 +104,13 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$aValidDomains = array_unique( $aValidDomains );
 			$this->setOpt( 'xcsp_hosts', $aValidDomains );
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	/**

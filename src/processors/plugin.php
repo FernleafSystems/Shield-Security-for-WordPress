@@ -174,7 +174,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ):
 		 */
 		protected function addNotice_override_forceoff( $aNoticeAttributes ) {
 
-			if ( $this->getController()->getIfOverrideOff() ) {
+			if ( $this->getController()->getIfForceOffActive() ) {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(

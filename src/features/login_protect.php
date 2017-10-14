@@ -33,12 +33,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return $this->getOptIs( 'use_login_intent_page', true );
 	}
 
-	protected function doExecuteProcessor() {
-		if ( !$this->isVisitorWhitelisted() ) {
-			parent::doExecuteProcessor();
-		}
-	}
-
 	protected function doExtraSubmitProcessing() {
 		/**
 		 * $oWp = $this->loadWpFunctionsProcessor();
@@ -80,6 +74,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			'wpsf-action' => 'emailsendverify'
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getHomeUrl() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	/**

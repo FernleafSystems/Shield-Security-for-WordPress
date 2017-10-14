@@ -7,10 +7,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doExecuteProcessor() {
-		if ( !$this->isVisitorWhitelisted() ) {
-			parent::doExecuteProcessor();
-		}
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	/**
