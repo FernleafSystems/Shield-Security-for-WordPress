@@ -21,11 +21,22 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
+		$oFO = $this->getFeature();
 		if ( $this->readyToRun() ) {
-			add_filter( $this->getFeature()
-							 ->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
-		$this->getReportingProcessor()->run();
+
+		// Reporting stats run or destroy
+		if ( $this->loadDataProcessor()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
+			$this->getReportingProcessor()
+				 ->run();
+		}
+		else { // delete the table for any site that had it running previously
+			// TODO: Delete this block after a while.
+			$oDb = $this->loadDbProcessor();
+			$oDb->doDropTable( $oDb->getPrefix().$oFO->getReportingTableName() );
+		}
 	}
 
 	/**

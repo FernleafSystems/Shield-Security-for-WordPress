@@ -127,7 +127,7 @@ class ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_Ip
 	 */
-	static public function loadIpProcessor() {
+	static public function loadIpService() {
 		if ( !isset( self::$oIp ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-ip.php' );
 			self::$oIp = ICWP_WPSF_Ip::GetInstance();
@@ -232,5 +232,14 @@ class ICWP_WPSF_Foundation {
 			self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
 		}
 		return self::$oWpComments;
+	}
+
+	/**
+	 * @return \Carbon\Carbon
+	 */
+	static public function loadCarbon() {
+		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'lib'
+					  .DIRECTORY_SEPARATOR.'Carbon'.DIRECTORY_SEPARATOR.'Carbon.php' );
+		return new Carbon\Carbon();
 	}
 }

@@ -38,6 +38,13 @@ class StatisticsReportingVO {
 	/**
 	 * @return int
 	 */
+	public function getTally() {
+		return $this->getRowData()->tally;
+	}
+
+	/**
+	 * @return int
+	 */
 	public function isDeleted() {
 		return $this->getRowData()->deleted_at > 0;
 	}

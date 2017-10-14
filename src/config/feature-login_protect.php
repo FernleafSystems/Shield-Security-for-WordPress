@@ -197,7 +197,7 @@
       "description": "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
-      "key": "enable_google_recaptcha",
+      "key": "enable_google_recaptcha_login",
       "section": "section_brute_force_login_protection",
       "default": "N",
       "type": "checkbox",

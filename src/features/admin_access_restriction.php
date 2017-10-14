@@ -8,10 +8,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	private $bHasPermissionToSubmit;
 
-	protected function doExecuteProcessor() {
-		if ( ! apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
-			parent::doExecuteProcessor();
-		}
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	protected function adminAjaxHandlers() {

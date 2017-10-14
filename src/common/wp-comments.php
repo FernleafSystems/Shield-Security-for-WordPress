@@ -52,7 +52,7 @@ if ( !class_exists( 'ICWP_WPSF_WpComments', false ) ):
 		 */
 		public function isCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
 
-			if ( empty( $sAuthorEmail ) || !is_email( $sAuthorEmail ) ) {
+			if ( !$this->loadDataProcessor()->validEmail( $sAuthorEmail ) ) {
 				return false;
 			}
 

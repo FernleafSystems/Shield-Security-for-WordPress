@@ -175,7 +175,7 @@
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
     },
     {
-      "key": "enable_google_recaptcha",
+      "key": "enable_google_recaptcha_comments",
       "section": "section_bot_comment_spam_protection_filter",
       "default": "N",
       "type": "checkbox",

@@ -1423,7 +1423,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
 	 */
-	public function getIfOverrideOff() {
+	public function getIfForceOffActive() {
 		if ( !isset( $this->bForceOffState ) ) {
 			$this->bForceOffState = $this->loadFS()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
 		}

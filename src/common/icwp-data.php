@@ -1,7 +1,7 @@
 <?php
 if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 
-	class ICWP_WPSF_DataProcessor {
+	class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 		/**
 		 * @var ICWP_WPSF_DataProcessor
@@ -12,16 +12,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @var bool
 		 */
 		public static $bUseFilterInput = false;
-
-		/**
-		 * @var string
-		 */
-		protected static $sIpAddress = false;
-
-		/**
-		 * @var string
-		 */
-		protected static $nIpAddressVersion = false;
 
 		/**
 		 * @var integer
@@ -57,74 +47,12 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @deprecated
 		 * @param boolean $bAsHuman
 		 * @return int|string|bool - visitor IP Address as IP2Long
 		 */
 		public function getVisitorIpAddress( $bAsHuman = true ) {
-
-			if ( empty( self::$sIpAddress ) ) {
-				self::$sIpAddress = $this->findViableVisitorIp();
-			}
-
-			if ( !self::$sIpAddress || $bAsHuman ) {
-				return self::$sIpAddress;
-			}
-
-			// If it's IPv6 we never return as long (we can't!)
-			return ( $this->getVisitorIpVersion() == 4 ) ? ip2long( self::$sIpAddress ) : self::$sIpAddress;
-		}
-
-		/**
-		 * @param string $sAddress
-		 * @return $this
-		 */
-		public function setVisitorIpAddress( $sAddress ) {
-			self::$sIpAddress = $sAddress;
-			return $this;
-		}
-
-		/**
-		 * Cloudflare compatible.
-		 * @return string|bool
-		 */
-		protected function findViableVisitorIp() {
-
-			$aAddressSourceOptions = array(
-				'HTTP_CF_CONNECTING_IP',
-				'HTTP_X_FORWARDED_FOR',
-				'HTTP_X_FORWARDED',
-				'HTTP_X_REAL_IP',
-				'HTTP_X_SUCURI_CLIENTIP',
-				'HTTP_INCAP_CLIENT_IP',
-				'HTTP_FORWARDED',
-				'HTTP_CLIENT_IP',
-				'REMOTE_ADDR'
-			);
-
-			$sIpToReturn = false;
-			foreach ( $aAddressSourceOptions as $sOption ) {
-
-				$sIpAddressToTest = self::FetchServer( $sOption );
-				if ( empty( $sIpAddressToTest ) ) {
-					continue;
-				}
-
-				$aIpAddresses = explode( ',', $sIpAddressToTest ); //sometimes a comma-separated list is returned
-				foreach ( $aIpAddresses as $sIpAddress ) {
-					if ( empty( $sIpAddress ) ) {
-						continue;
-					}
-
-					// this version checking serves to weed out IPv6 if filter_var isn't supported by their PHP.
-					// I.e. We ONLY support IPv6 if filter_var() is supported.
-					$nVersion = $this->getIpAddressVersion( $sIpAddress );
-					if ( $nVersion != false ) {
-						$sIpToReturn = $sIpAddress;
-						break( 2 );
-					}
-				}
-			}
-			return $sIpToReturn;
+			return $this->loadIpService()->getRequestIp( $bAsHuman );
 		}
 
 		/**
@@ -203,20 +131,10 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @return bool|int|string
-		 */
-		public function getVisitorIpVersion() {
-			if ( empty( self::$nIpAddressVersion ) ) {
-				self::$nIpAddressVersion = $this->getIpAddressVersion( $this->getVisitorIpAddress( true ) );
-			}
-			return self::$nIpAddressVersion;
-		}
-
-		/**
 		 * @return boolean
 		 */
 		public function validEmail( $sEmail ) {
-			return ( !empty( $sEmail ) && is_email( $sEmail ) );
+			return ( !empty( $sEmail ) && function_exists( 'is_email' ) && is_email( $sEmail ) );
 		}
 
 		/**
@@ -259,22 +177,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 				$aNewList[ $aParts[ 0 ] ] = $aParams;
 			}
 			return $aNewList;
-		}
-
-		/**
-		 * @param string $sRawAddress
-		 * @return string
-		 */
-		public static function Clean_Ip( $sRawAddress ) {
-			$sRawAddress = preg_replace( '/[a-z\s]/i', '', $sRawAddress );
-			$sRawAddress = str_replace( '.', 'PERIOD', $sRawAddress );
-			$sRawAddress = str_replace( '-', 'HYPEN', $sRawAddress );
-			$sRawAddress = str_replace( ':', 'COLON', $sRawAddress );
-			$sRawAddress = preg_replace( '/[^a-z0-9]/i', '', $sRawAddress );
-			$sRawAddress = str_replace( 'PERIOD', '.', $sRawAddress );
-			$sRawAddress = str_replace( 'HYPEN', '-', $sRawAddress );
-			$sRawAddress = str_replace( 'COLON', ':', $sRawAddress );
-			return $sRawAddress;
 		}
 
 		/**
@@ -547,22 +449,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		public function setDeleteCookie( $sKey ) {
 			unset( $_COOKIE[ $sKey ] );
 			return $this->setCookie( $sKey, '', -3600 );
-		}
-
-		/**
-		 * Effectively validates and IP Address.
-		 * @param string $sIpAddress
-		 * @return int|false
-		 */
-		public function getIpAddressVersion( $sIpAddress ) {
-
-			if ( filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-				return 4;
-			}
-			if ( filter_var( $sIpAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
-				return 6;
-			}
-			return false;
 		}
 
 		/**

@@ -278,7 +278,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
 
 		$sRecipient = $oUser->get( 'user_email' );
-		if ( is_email( $sRecipient ) ) {
+		if ( $this->loadDataProcessor()->validEmail( $sRecipient ) ) {
 			$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
 			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
 		}
