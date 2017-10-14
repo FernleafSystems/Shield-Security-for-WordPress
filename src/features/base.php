@@ -57,7 +57,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var ICWP_WPSF_Processor_Base
 	 */
-	protected $oFeatureProcessor;
+	protected $oProcessor;
 	/**
 	 * @var string
 	 */
@@ -175,11 +175,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpPluginsLoaded() {
 
 		$this->importOptions();
-
-		if ( $this->getIsMainFeatureEnabled() ) {
-			if ( $this->doExecutePreProcessor() && !self::getController()->getIfOverrideOff() ) {
-				$this->doExecuteProcessor();
-			}
+		if ( $this->getIsMainFeatureEnabled() && $this->isReadyToExecute() ) {
+			$this->doExecuteProcessor();
 		}
 	}
 
@@ -203,9 +200,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
 	 * functionality of the plugin.
 	 */
-	protected function doExecutePreProcessor() {
+	protected function isReadyToExecute() {
 		$oProcessor = $this->getProcessor();
-		return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base );
+		return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base )
+			   && !self::getController()->getIfForceOffActive();
 	}
 
 	protected function doExecuteProcessor() {
@@ -225,15 +223,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Base
 	 */
 	protected function loadFeatureProcessor() {
-		if ( !isset( $this->oFeatureProcessor ) ) {
+		if ( !isset( $this->oProcessor ) ) {
 			include_once( self::getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
 			}
-			$this->oFeatureProcessor = new $sClassName( $this );
+			$this->oProcessor = new $sClassName( $this );
 		}
-		return $this->oFeatureProcessor;
+		return $this->oProcessor;
 	}
 
 	/**

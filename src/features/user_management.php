@@ -8,10 +8,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doExecuteProcessor() {
-		if ( !apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
-			parent::doExecuteProcessor();
-		}
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	protected function doExtraSubmitProcessing() {

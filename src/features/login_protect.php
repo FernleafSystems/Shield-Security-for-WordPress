@@ -33,12 +33,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return $this->getOptIs( 'use_login_intent_page', true );
 	}
 
-	protected function doExecuteProcessor() {
-		if ( !apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false ) ) {
-			parent::doExecuteProcessor();
-		}
-	}
-
 	protected function doExtraSubmitProcessing() {
 		/**
 		 * $oWp = $this->loadWpFunctionsProcessor();
@@ -80,6 +74,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			'wpsf-action' => 'emailsendverify'
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getHomeUrl() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	/**
@@ -409,7 +410,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 								.'<br /><strong>'.sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'This setting only applies to %s.' ), _wpsf__( 'Email Authentication' ) ) ).'</strong>';
 				break;
 
-			case 'enable_google_recaptcha' :
+			case 'enable_google_recaptcha_login' :
 				$sName = _wpsf__( 'Google reCAPTCHA' );
 				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
 				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the login screen.' );
