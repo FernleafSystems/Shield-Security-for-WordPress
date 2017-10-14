@@ -410,7 +410,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 								.'<br /><strong>'.sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'This setting only applies to %s.' ), _wpsf__( 'Email Authentication' ) ) ).'</strong>';
 				break;
 
-			case 'enable_google_recaptcha' :
+			case 'enable_google_recaptcha_login' :
 				$sName = _wpsf__( 'Google reCAPTCHA' );
 				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
 				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the login screen.' );

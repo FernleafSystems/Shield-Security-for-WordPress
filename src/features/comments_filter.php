@@ -172,7 +172,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sDescription = _wpsf__( 'Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection.' );
 				break;
 
-			case 'enable_google_recaptcha' :
+			case 'enable_google_recaptcha_comments' :
 				$sName = 'Google reCAPTCHA';
 				$sSummary = _wpsf__( 'Enable Google reCAPTCHA For Comments' );
 				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.' );
