@@ -1,6 +1,8 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ) {
+	return;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
@@ -32,7 +34,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		add_filter( 'wp_redirect', array( $this, 'fProtectUnauthorizedLoginRedirect' ), 50, 2 );
 		add_filter( 'register_url', array( $this, 'blockRegisterUrlRedirect' ), 20, 1 );
 
-		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) ) ;
+		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) );
 	}
 
 	/**
@@ -102,7 +104,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
-		$bDoBlock = ( is_admin() && !is_user_logged_in() && !defined( 'DOING_AJAX' ) );
+		$bDoBlock = ( is_admin() && !$this->loadWpFunctions()->isAjax()&& !$this->loadWpUsers()->isUserLoggedIn() );
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
@@ -164,16 +166,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $sLocation, $mStatus ) {
 
-		$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
-		$bRedirectIsHiddenUrl = $sRedirectPath == $this->getLoginPath();
-		try {
-			$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
-		}
-		catch ( Exception $oE ) {
-			$bLoggedIn = false;
-		}
-		if ( $bRedirectIsHiddenUrl && !$bLoggedIn ) {
-			$this->doWpLoginFailedRedirect404();
+		if ( !$this->loadWpFunctions()->isValidLoginUrlRequest() ) {
+			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
+			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->getLoginPath() );
+			if ( $bRedirectIsHiddenUrl && !$this->loadWpUsers()->isUserLoggedIn() ) {
+				$this->doWpLoginFailedRedirect404();
+			}
 		}
 		return $sLocation;
 	}
@@ -243,6 +241,4 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			$this->loadWpFunctions()->getHomeUrl()
 		);
 	}
-
 }
-endif;

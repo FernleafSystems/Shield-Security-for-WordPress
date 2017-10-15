@@ -650,13 +650,26 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		/**
 		 * @return bool
 		 */
+		public function isValidLoginUrlRequest() {
+			return $this->getIsLoginRequest() || $this->isPasswordResetRequest();
+		}
+
+		/**
+		 * @return bool
+		 */
 		public function getIsLoginRequest() {
 			$oDp = $this->loadDataProcessor();
-			return
-				$oDp->GetIsRequestPost()
-				&& !is_null( $oDp->FetchPost( 'log' ) )
-				&& !is_null( $oDp->FetchPost( 'pwd' ) )
-				&& $this->getIsLoginUrl();
+			return $this->getIsLoginUrl() && $oDp->GetIsRequestPost()
+				   && !is_null( $oDp->FetchPost( 'log' ) ) && !is_null( $oDp->FetchPost( 'pwd' ) );
+		}
+
+		/**
+		 * @return bool
+		 */
+		public function isPasswordResetRequest() {
+			$oDp = $this->loadDataProcessor();
+			return $this->getIsLoginUrl() &&
+				   $oDp->GetIsRequestPost() && !is_null( $oDp->FetchPost( 'user_login' ) );
 		}
 
 		/**
@@ -675,9 +688,9 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		 * @return bool
 		 */
 		public function getIsLoginUrl() {
-			$aLoginUrlParts = @parse_url( wp_login_url() );
-			$aRequestParts = $this->loadDataProcessor()->getRequestUriParts();
-			return ( !empty( $aRequestParts['path'] ) && ( rtrim( $aRequestParts['path'], '/' ) == rtrim( $aLoginUrlParts['path'], '/' ) ) );
+			$sLoginUrlPath = @parse_url( wp_login_url(), PHP_URL_PATH );
+			$sRequestPath = $this->loadDataProcessor()->getRequestPath();
+			return ( !empty( $sRequestPath ) && ( rtrim( $sRequestPath, '/' ) == rtrim( $sLoginUrlPath, '/' ) ) );
 		}
 
 		/**
@@ -695,11 +708,9 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		public function getDoesWpPostSlugExist( $sTermSlug ) {
 			$oDb = $this->loadDbProcessor();
 			$sQuery = "
-				SELECT ID
-				FROM %s
-				WHERE
-					post_name = '%s'
-					LIMIT 1
+				SELECT ID FROM %s
+				WHERE post_name = '%s'
+				LIMIT 1
 			";
 			$sQuery = sprintf(
 				$sQuery,

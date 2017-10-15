@@ -309,7 +309,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 == Changelog ==
 
 = 5.16.0 Latest Point Release =
-*Released: 15th October, 2017*
+*Released: 16th October, 2017*
 
 With this release, we fixed a clash of options for Google reCAPTCHA. Every attempt was made
 to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA
@@ -317,15 +317,18 @@ settings are as you expect them to be.
 
 * **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
 * **(v.0)**  FIX:			Clashing of reCAPTCHA options for Comments and Login Protection.
+* **(v.0)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Statistic Reporting database management and pruning.
 * **(v.0)**  FIX:			Various system fixes and improvements.
 
 = 5.16 Series =
-*Released: 15th October, 2017*
+*Released: 16th October, 2017*
 
+* **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
 * **(v.0)**  FIX:			Clashing of reCAPTCHA options for Comments and Login Protection.
-* **(v.0)**  IMPROVEMENTS:	Improvements to Statistic Reporting database management and pruning.
-* **(v.0)**  FIXED:			Various system fixes and improvements.
+* **(v.0)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
+* **(v.0)**  IMPROVEMENT:	Statistic Reporting database management and pruning.
+* **(v.0)**  FIX:			Various system fixes and improvements.
 
 = 5.15 Series =
 *Released: 21st September, 2017*
