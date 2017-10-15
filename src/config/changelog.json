@@ -8,7 +8,7 @@
 		"patch": 0
 	  },
 	  "attributes": {
-		"timestamp": "1507889326",
+		"timestamp": "1508155200",
 		"is_patch": false,
 		"options_added": true,
 		"options_removed": true
@@ -278,6 +278,11 @@
 	{
 	  "type": "fixed",
 	  "summary": "Clashing of reCAPTCHA options for Comments and Login Protection.",
+	  "version": "5.16.0"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "404 page displayed for password reset request when Login URL is renamed.",
 	  "version": "5.16.0"
 	},
 	{
