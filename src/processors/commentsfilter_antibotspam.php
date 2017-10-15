@@ -222,24 +222,22 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return boolean
 	 */
 	protected function getIfDoGaspCheck() {
+		$bCheck = true;
 
 		if ( !$this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
-			return false;
+			$bCheck = false;
 		}
-
-		if ( is_user_logged_in() ) {
-			return false;
+		else if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			$bCheck = false;
 		}
-		// Compatibility with shoutbox WP Wall Plugin
-		// http://wordpress.org/plugins/wp-wall/
-		if ( function_exists( 'WPWall_Init' ) ) {
-			$oDp = $this->loadDataProcessor();
-			if ( !is_null( $oDp->FetchPost( 'submit_wall_post' ) ) ) {
-				return false;
+		else if ( function_exists( 'WPWall_Init' ) ) {
+			// Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
+			if ( !is_null( $this->loadDataProcessor()->FetchPost( 'submit_wall_post' ) ) ) {
+				$bCheck = false;
 			}
 		}
 
-		return true;
+		return $bCheck;
 	}
 
 	/**

@@ -81,13 +81,11 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 		 * @return null|WP_User
 		 */
 		public function getCurrentWpUser() {
-			if ( is_user_logged_in() ) {
+			$oUser = null;
+			if ( $this->isUserLoggedIn() ) {
 				$oUser = wp_get_current_user();
-				if ( is_object( $oUser ) && $oUser instanceof WP_User ) {
-					return $oUser;
-				}
 			}
-			return null;
+			return $oUser;
 		}
 
 		/**
@@ -165,13 +163,9 @@ if ( !class_exists( 'ICWP_WPSF_WpUsers', false ) ):
 
 		/**
 		 * @return bool
-		 * @throws Exception
 		 */
 		public function isUserLoggedIn() {
-			if ( !function_exists( 'is_user_logged_in' ) ) {
-				throw new Exception( sprintf( 'Function %s is not ready - you are calling it too early in the WP load.', 'is_user_logged_in()' ) );
-			}
-			return is_user_logged_in();
+			return function_exists( 'is_user_logged_in' ) && is_user_logged_in();
 		}
 
 		/**

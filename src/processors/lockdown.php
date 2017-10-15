@@ -169,10 +169,9 @@ if ( !class_exists('ICWP_WPSF_Processor_Lockdown') ):
 		 * @uses wp_die()
 		 */
 		public function interceptCanonicalRedirects() {
-			$oDp = $this->loadDataProcessor();
 
-			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !is_user_logged_in() ) {
-				$sAuthor = $oDp->FetchGet( 'author', '' );
+			if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
+				$sAuthor = $this->loadDataProcessor()->FetchGet( 'author', '' );
 				if ( !empty( $sAuthor ) ) {
 					$this->loadWpFunctions()->wpDie( sprintf(
 						_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
