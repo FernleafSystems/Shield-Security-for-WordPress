@@ -1,8 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
-endif;
+}
 
 require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'basedb.php' );
 

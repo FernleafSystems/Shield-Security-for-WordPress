@@ -1,8 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_IntentBase', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_IntentBase', false ) ) {
 	return;
-endif;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
