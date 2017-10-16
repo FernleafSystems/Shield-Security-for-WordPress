@@ -166,7 +166,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $sLocation, $mStatus ) {
 
-		if ( !$this->loadWpFunctions()->isValidLoginUrlRequest() ) {
+		if ( !$this->loadWpFunctions()->isRequestLoginUrl() ) {
 			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
 			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->getLoginPath() );
 			if ( $bRedirectIsHiddenUrl && !$this->loadWpUsers()->isUserLoggedIn() ) {
