@@ -650,8 +650,8 @@ if ( !class_exists( 'ICWP_WPSF_WpFunctions', false ) ):
 		/**
 		 * @return bool
 		 */
-		public function isValidLoginUrlRequest() {
-			return $this->getIsLoginRequest() || $this->isPasswordResetRequest();
+		public function isRequestLoginUrl() {
+			return $this->getIsLoginUrl();
 		}
 
 		/**
