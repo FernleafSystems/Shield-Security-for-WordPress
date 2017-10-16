@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.16.0
+Stable tag: 5.16.1
 
 Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
 
@@ -308,25 +308,25 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.16.0 Latest Point Release =
+= 5.16.1 Latest Point Release =
 *Released: 16th October, 2017*
 
 With this release, we fixed a clash of options for Google reCAPTCHA. Every attempt was made
 to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA
 settings are as you expect them to be.
 
+* **(v.1)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
 * **(v.0)**  FIX:			Clashing of reCAPTCHA options for Comments and Login Protection.
-* **(v.0)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Statistic Reporting database management and pruning.
 * **(v.0)**  FIX:			Various system fixes and improvements.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
 
+* **(v.1)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
 * **(v.0)**  FIX:			Clashing of reCAPTCHA options for Comments and Login Protection.
-* **(v.0)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Statistic Reporting database management and pruning.
 * **(v.0)**  FIX:			Various system fixes and improvements.
 
