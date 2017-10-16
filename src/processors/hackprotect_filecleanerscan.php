@@ -293,7 +293,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 }
 
-class CleanerRecursiveFilterIterator extends \RecursiveFilterIterator {
+class CleanerRecursiveFilterIterator extends RecursiveFilterIterator {
 
 	public function accept() {
 		/** @var SplFileInfo $oCurrent */
