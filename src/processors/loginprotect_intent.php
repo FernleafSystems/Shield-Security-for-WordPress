@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
-			if ( $this->loadWpFunctions()->getIsLoginRequest() ) {
+			if ( $this->loadWp()->isRequestUserLogin() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
 			add_action( 'init', array( $this, 'onWpInit' ), 0 );
@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
 					$this->loadWpUsers()->logoutUser(); // clears the login and login intent
-					$this->loadWpFunctions()->redirectToLogin();
+					$this->loadWp()->redirectToLogin();
 					return;
 				}
 
@@ -96,14 +96,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 					if ( !empty( $sRedirect ) ) {
-						$this->loadWpFunctions()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
+						$this->loadWp()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
 					}
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
 				}
-				$this->loadWpFunctions()->redirectHere();
+				$this->loadWp()->redirectHere();
 			}
 			if ( $this->printLoginIntentForm() ) {
 				die();
@@ -117,7 +117,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			}
 			else if ( $nIntent > 0 ) { // there was an old login intent
 				$this->loadWpUsers()->logoutUser(); // clears the login and login intent
-				$this->loadWpFunctions()->redirectHere();
+				$this->loadWp()->redirectHere();
 			}
 		}
 	}

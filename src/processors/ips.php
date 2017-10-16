@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return WP_User|WP_Error
 	 */
 	public function addLoginFailedWarningMessage( $oUserOrError ) {
-		if ( $this->loadWpFunctions()->getIsLoginRequest() && is_wp_error( $oUserOrError ) ) {
+		if ( $this->loadWp()->isRequestUserLogin() && is_wp_error( $oUserOrError ) ) {
 			$oUserOrError->add(
 				$this->getFeature()->prefix( 'transgression-warning' ),
 				$this->getFeature()->getTextOpt( 'text_loginfailed' )
@@ -158,8 +158,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		$bBlackMark = false;
-		$oWp = $this->loadWpFunctions();
-		if ( $oWp->getIsLoginRequest() ) {
+		$oWp = $this->loadWp();
+		if ( $oWp->isRequestUserLogin() ) {
 
 			// If there's an attempt to login with a non-existent username
 			if ( !empty( $sUsername ) && !in_array( $sUsername, $oWp->getAllUserLoginUsernames() ) ) {
@@ -245,7 +245,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 			$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 
-			$this->loadWpFunctions()
+			$this->loadWp()
 				 ->wpDie(
 					 '<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
 						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()

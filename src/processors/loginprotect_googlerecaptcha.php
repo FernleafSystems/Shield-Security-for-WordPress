@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
-		if ( !$this->loadWpFunctions()->getIsLoginUrl() || !$oFO->getIsGoogleRecaptchaReady() ) {
+		if ( !$this->loadWp()->isRequestLoginUrl() || !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 
@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return WP_Error
 	 */
 	public function checkLoginForGoogleRecaptcha_Filter( $oUser ) {
-		if ( !$this->loadWpFunctions()->getIsLoginRequest() ) {
+		if ( !$this->loadWp()->isRequestUserLogin() ) {
 			return $oUser;
 		}
 

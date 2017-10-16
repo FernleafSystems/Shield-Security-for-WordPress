@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		// XML-RPC Compatibility
-		if ( $this->loadWpFunctions()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
+		if ( $this->loadWp()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
 			return true;
 		}
 
@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 								'<p class="message">%s<br />%s</p>',
 								_wpsf__( "It appears you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()
 																																					  ->get( 'user_login' ) ),
-								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWpFunctions()
+								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWp()
 																												 ->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ).' &rarr;' ) : ''
 							).$sMessage;
 			}
@@ -125,7 +125,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $sColumnName != $sLastLoginKey ) {
 			return $sContent;
 		}
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 		$nLastLoginTime = $this->loadWpUsers()->getUserMeta( $sLastLoginKey, $nUserId );
 
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 
-		$sHomeUrl = $this->loadWpFunctions()->getHomeUrl();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aMessage = array(
 			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),

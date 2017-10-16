@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 
 		// XML-RPC Compatibility
 		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorGasp()->run();
 		}
 
-		if ( $this->getOption( 'login_limit_interval' ) > 0 && ( $oWp->getIsLoginRequest() || $oWp->getIsRegisterRequest() ) ) {
+		if ( $this->getOption( 'login_limit_interval' ) > 0 && ( $oWp->isRequestUserLogin() || $oWp->isRequestUserRegister() ) ) {
 			$this->getProcessorCooldown()->run();
 		}
 

@@ -97,12 +97,12 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	protected function getBaseTrackingData() {
 		$oDP = $this->loadDataProcessor();
-		$oWP = $this->loadWpFunctions();
+		$oWP = $this->loadWp();
 		return array(
 			'env' => array(
 				'options' => array(
 					'php'             => $oDP->getPhpVersionCleaned(),
-					'wordpress'       => $oWP->getWordpressVersion(),
+					'wordpress'       => $oWP->getVersion(),
 					'slug'            => $this->getController()->getPluginSlug(),
 					'version'         => $this->getController()->getVersion(),
 					'is_wpms'         => $oWP->isMultisite() ? 1 : 0,

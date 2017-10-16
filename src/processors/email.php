@@ -70,7 +70,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP - WordPress Management and Backup Protection For Professionals' )
 			),
 			'',
-			sprintf( _wpsf__( 'WordPress Site URL- %s.' ), $this->loadWpFunctions()->getHomeUrl() )
+			sprintf( _wpsf__( 'WordPress Site URL- %s.' ), $this->loadWp()->getHomeUrl() )
 			.' / ' .sprintf( _wpsf__( 'Current Plugin Version- %s.' ), $this->getController()->getVersion() ),
 		);
 
@@ -121,7 +121,6 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function setMailFrom( $sFrom ) {
 		$oDP = $this->loadDataProcessor();
-		$oWp = $this->loadWpFunctions();
 		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
 		if ( $oDP->validEmail( $sProposedFrom ) ) {
 			$sFrom = $sProposedFrom;
@@ -129,7 +128,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 		// We help out by trying to correct any funky "from" addresses
 		// So, at the very least, we don't fail on this for our emails.
 		if ( !$oDP->validEmail( $sFrom ) ) {
-			$aUrlParts = @parse_url( $oWp->getWpUrl() );
+			$aUrlParts = @parse_url( $this->loadWp()->getWpUrl() );
 			if ( !empty( $aUrlParts[ 'host' ] ) ) {
 				$sProposedFrom = 'wordpress@' . $aUrlParts[ 'host' ];
 				if ( $oDP->validEmail( $sProposedFrom ) ) {
@@ -242,7 +241,7 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function getSiteName() {
-		return $this->loadWpFunctions()->getSiteName();
+		return $this->loadWp()->getSiteName();
 	}
 	
 	public function getThrottleLimit() {

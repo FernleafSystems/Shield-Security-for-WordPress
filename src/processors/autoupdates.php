@@ -60,7 +60,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( isset( $_GET[ 'auto' ] ) ) {
-			$this->loadWpFunctions()->doForceRunAutomaticUpdates();
+			$this->loadWp()->doForceRunAutomaticUpdates();
 		}
 
 		if ( $oFO->isAutoupdateIndividualPlugins() && $oFO->getController()->getIsValidAdminArea() ) {
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 		$this->doStatIncrement( 'autoupdates.forcerun' );
-		return $this->loadWpFunctions()->doForceRunAutomaticUpdates();
+		return $this->loadWp()->doForceRunAutomaticUpdates();
 	}
 
 	/**
@@ -147,12 +147,12 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 
-		$sItemFile = $this->loadWpFunctions()->getFileFromAutomaticUpdateItem( $mItem );
+		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 
 		// If it's this plugin and autoupdate this plugin is set...
 		if ( $sItemFile === $oFO->getController()->getPluginBaseFile() ) {
 			$bDoAutoUpdate = true;
-			if ( $this->loadWpFunctions()->getIsRunningAutomaticUpdates() ) {
+			if ( $this->loadWp()->getIsRunningAutomaticUpdates() ) {
 				$this->doStatIncrement( 'autoupdates.plugins.self' );
 			}
 		}
@@ -179,7 +179,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 
-		$sItemFile = $this->loadWpFunctions()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
+		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
 
 		$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
 		if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sItemFile, $aAutoUpdates ) ) {
@@ -235,7 +235,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				return $aPluginMeta;
 			}
 		}
-		$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = $this->loadWp()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 		$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
 		array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
 		return $aPluginMeta;
@@ -267,7 +267,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getFeature();
-		$bUpdate = $this->loadWpFunctions()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = $this->loadWp()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 //		$bUpdate = in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		echo $this->getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bUpdate, $bDisabled );
@@ -351,7 +351,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$sTitle = sprintf(
 			_wpsf__( "Notice - %s" ),
-			sprintf( "Automatic Updates Completed For %s", $this->loadWpFunctions()->getSiteName() )
+			sprintf( "Automatic Updates Completed For %s", $this->loadWp()->getSiteName() )
 		);
 		$this->getEmailProcessor()
 			 ->sendEmailTo( $this->getOption( 'override_email_address', '' ), $sTitle, $aEmailContent );

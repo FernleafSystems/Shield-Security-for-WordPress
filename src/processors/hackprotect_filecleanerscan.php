@@ -71,7 +71,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	protected function scanUploads() {
 		$aOddFiles = array();
 
-		$sUploadsDir = $this->loadWpFunctions()->getDirUploads();
+		$sUploadsDir = $this->loadWp()->getDirUploads();
 		if ( !empty( $sUploadsDir ) ) {
 			$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sUploadsDir ) );
 			$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
@@ -210,7 +210,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 		$sHomeUrl = $oWp->getHomeUrl();
 		$aContent = array(
 			sprintf( _wpsf__( '%s detected files on your site which are not recognised.' ), $this->getController()
@@ -258,7 +258,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	protected function getCoreFiles() {
 		if ( empty( $this->aCoreFiles ) ) {
-			$this->aCoreFiles = array_keys( $this->loadWpFunctions()->getCoreChecksums() );
+			$this->aCoreFiles = array_keys( $this->loadWp()->getCoreChecksums() );
 		}
 		return $this->aCoreFiles;
 	}
@@ -275,11 +275,11 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 					'shield_action'    => 'repair_file',
 					'repair_file_path' => urlencode( $sFile )
 				),
-				$this->loadWpFunctions()->getUrl_WpAdmin()
+				$this->loadWp()->getUrl_WpAdmin()
 			),
 			_wpsf__( 'Repair file now' ),
-			$this->getFeature()->getDefinition( 'url_wordress_core_svn' ) . 'tags/' . $this->loadWpFunctions()
-																						   ->getWordpressVersion() . '/' . $sFile,
+			$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWp()
+																					   ->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
 	}

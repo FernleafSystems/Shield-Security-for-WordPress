@@ -299,7 +299,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $this->getIfDoFirewallBlock() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 			$oFO = $this->getFeature();
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWp();
 
 			switch ( $oFO->getBlockResponse() ) {
 				case 'redirect_die':
@@ -473,8 +473,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$aMessage = array_merge( $aMessage, $this->getRawAuditMessage( '- ' ) );
 		// TODO: Get audit trail messages
 		$aMessage[] = sprintf( _wpsf__( 'You can look up the offending IP Address here: %s' ), 'http://ip-lookup.net/?ip=' . $sIp );
-		$sEmailSubject = sprintf( _wpsf__( 'Firewall Block Email Alert for %s' ), $this->loadWpFunctions()
-																					   ->getHomeUrl() );
+		$sEmailSubject = sprintf( _wpsf__( 'Firewall Block Email Alert for %s' ), $this->loadWp()->getHomeUrl() );
 
 		$fSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aMessage );
 		return $fSendSuccess;

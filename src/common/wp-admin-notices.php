@@ -38,7 +38,7 @@ if ( !class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ):
 			add_action( 'network_admin_notices',	array( $this, 'onWpAdminNotices' ) );
 			add_action( 'wp_loaded',				array( $this, 'flushFlashMessage' ) );
 
-			if ( $this->loadWpFunctions()->isAjax() ) {
+			if ( $this->loadWp()->isAjax() ) {
 				add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
 			}
 		}

@@ -24,7 +24,7 @@ if ( !class_exists( 'ICWP_WPSF_WpComments', false ) ):
 		 * @return bool
 		 */
 		public function getIfCommentsMustBePreviouslyApproved() {
-			return ( $this->loadWpFunctions()->getOption( 'comment_whitelist' ) == 1 );
+			return ( $this->loadWp()->getOption( 'comment_whitelist' ) == 1 );
 		}
 
 		/**
@@ -43,7 +43,7 @@ if ( !class_exists( 'ICWP_WPSF_WpComments', false ) ):
 		 * @return bool
 		 */
 		public function isCommentsOpenByDefault() {
-			return ( $this->loadWpFunctions()->getOption( 'default_comment_status' ) == 'open' );
+			return ( $this->loadWp()->getOption( 'default_comment_status' ) == 'open' );
 		}
 
 		/**
@@ -78,7 +78,7 @@ if ( !class_exists( 'ICWP_WPSF_WpComments', false ) ):
 		 * @return bool
 		 */
 		public function isCommentPost() {
-			return $this->loadDataProcessor()->GetIsRequestPost() && $this->loadWpFunctions()->getIsCurrentPage( 'wp-comments-post.php' );
+			return $this->loadDataProcessor()->GetIsRequestPost() && $this->loadWp()->getIsCurrentPage( 'wp-comments-post.php' );
 		}
 	}
 

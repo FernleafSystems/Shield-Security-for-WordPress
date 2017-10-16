@@ -20,7 +20,7 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 		if ( empty( $sWpUsername ) ) {
 			$oCurrentUser = $this->loadWpUsers()->getCurrentWpUser();
 			if ( empty( $oCurrentUser ) ) {
-				if ( $this->loadWpFunctions()->getIsCron() ) {
+				if ( $this->loadWp()->isCron() ) {
 					$sWpUsername = 'WP Cron';
 				}
 				else {

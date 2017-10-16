@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
 
-			$aPlugins = $this->loadWpFunctions()->getPlugins();
+			$aPlugins = $this->loadWp()->getPlugins();
 
 			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
@@ -120,7 +120,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		}
 
 		public function addPluginVulnerabilityRows() {
-			$aPlugins = $this->loadWpFunctions()->getPlugins();
+			$aPlugins = $this->loadWp()->getPlugins();
 			foreach( array_keys( $aPlugins ) as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
@@ -197,7 +197,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 			if ( !isset( $this->aPluginVulnerabilities ) ) {
 
-				$oWp = $this->loadWpFunctions();
+				$oWp = $this->loadWp();
 				$oFO = $this->getFeature();
 				$this->aPluginVulnerabilities = $oWp->getTransient( $oFO->prefixOptionKey( self::PvSourceKey ) );
 				if ( empty( $this->aPluginVulnerabilities ) ) {
@@ -211,7 +211,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 * @return array|false
 		 */
 		protected function downloadPluginVulnerabilitiesFromSource() {
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWp();
 			$oFO = $this->getFeature();
 
 			$sSource = $oFO->getDefinition( 'plugin_vulnerabilities_data_source' );

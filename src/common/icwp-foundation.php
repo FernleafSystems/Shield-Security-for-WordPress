@@ -87,12 +87,21 @@ class ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_WpFunctions
 	 */
-	static public function loadWpFunctions() {
+	static public function loadWp() {
 		if ( !isset( self::$oWp ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-wpfunctions.php' );
 			self::$oWp = ICWP_WPSF_WpFunctions::GetInstance();
 		}
 		return self::$oWp;
+	}
+
+	/**
+	 * TODO: Remove
+	 * @alias
+	 * @return ICWP_WPSF_WpFunctions
+	 */
+	static public function loadWpFunctions() {
+		return self::loadWp();
 	}
 
 	/**

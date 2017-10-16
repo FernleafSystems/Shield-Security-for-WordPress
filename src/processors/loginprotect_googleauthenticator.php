@@ -57,7 +57,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$sChartUrl = $this->loadGoogleAuthenticatorProcessor()->getGoogleQrChartUrl(
 				$aData['user_google_authenticator_secret'],
 				preg_replace( '#[^0-9a-z]#i', '', $oUser->get('user_login') )
-				.'@'.preg_replace( '#[^0-9a-z]#i', '', $this->loadWpFunctions()->getSiteName() )
+				.'@'.preg_replace( '#[^0-9a-z]#i', '', $this->loadWp()->getSiteName() )
 			);
 			$aData[ 'chart_url' ] = $sChartUrl;
 		}
@@ -303,7 +303,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$this->processRemovalFromAccount( $oWpCurrentUser );
 		$this->loadAdminNoticesProcessor()
 			 ->addFlashMessage( _wpsf__( 'Google Authenticator was successfully removed from this account.' ) );
-		$this->loadWpFunctions()->redirectToAdmin();
+		$this->loadWp()->redirectToAdmin();
 	}
 
 	/**
@@ -349,7 +349,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			'wpsf-action'	=> 'garemovalconfirm',
 			'sessionid'		=> $this->getController()->getSessionId()
 		);
-		return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getUrl_WpAdmin() );
+		return add_query_arg( $aQueryArgs, $this->loadWp()->getUrl_WpAdmin() );
 	}
 
 	/**

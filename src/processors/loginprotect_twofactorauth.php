@@ -189,7 +189,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		if ( !empty( $sRedirectTo ) ) {
 			$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
 		}
-		return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getHomeUrl() );
+		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
 	}
 
 	/**
@@ -212,7 +212,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( '<a href="%s" target="_blank">%s</a>', 'http://icwp.io/96', _wpsf__( 'Why no login link?' ) ),
 			''
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWpFunctions()
+		$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWp()
 																						  ->getHomeUrl() );
 
 		$bResult = $this->getEmailProcessor()->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );

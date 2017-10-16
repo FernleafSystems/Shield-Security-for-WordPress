@@ -578,7 +578,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWpFunctions()->isAjax() ) {
+		if ( $this->loadWp()->isAjax() ) {
 			if ( is_admin() || is_network_admin() ) {
 				$this->adminAjaxHandlers();
 			}

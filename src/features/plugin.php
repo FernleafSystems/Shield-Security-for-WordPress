@@ -146,7 +146,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	public function doExtraSubmitProcessing() {
-		if ( !$this->loadWpFunctions()->isAjax() ) {
+		if ( !$this->loadWp()->isAjax() ) {
 			$this->loadAdminNoticesProcessor()
 				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
 																									   ->getHumanName() ) );
@@ -187,7 +187,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oCon = self::getController();
 		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
 			if ( !$oCon->getHasPermissionToManage() ) {
-				$this->loadWpFunctions()->wpDie(
+				$this->loadWp()->wpDie(
 					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
 					._wpsf__( 'You need to authenticate first.' )
 				);
@@ -216,7 +216,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getLinkToTrackingDataDump() {
 		return add_query_arg(
 			array( 'shield_action' => 'dump_tracking_data' ),
-			$this->loadWpFunctions()->getUrl_WpAdmin()
+			$this->loadWp()->getUrl_WpAdmin()
 		);
 	}
 
@@ -327,7 +327,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function genInstallId() {
 		return sha1(
 			$this->getPluginInstallationTime()
-			.$this->loadWpFunctions()->getWpUrl()
+			.$this->loadWp()->getWpUrl()
 			.$this->loadDbProcessor()->getPrefix()
 		);
 	}
