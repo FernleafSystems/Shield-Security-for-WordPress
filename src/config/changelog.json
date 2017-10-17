@@ -306,7 +306,7 @@
 	{
 	  "type": "fixed",
 	  "summary": "404 page displayed for password reset request when Login URL is renamed.",
-	  "version": "5.16.2"
+	  "version": "5.16.1"
 	},
 	{
 	  "type": "improved",
