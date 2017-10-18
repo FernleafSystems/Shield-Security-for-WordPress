@@ -9,11 +9,7 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
-	 * @var ICWP_WPSF_Processor_Plugin_Tracking
-	 */
-	protected $oTrackingProcessor;
-
-	/**
+	 * TODO: add ajax call when badge is closed
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
@@ -21,7 +17,6 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isDisplayPluginBadge() ) {
 			add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
 		}
-
 		add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
 		add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
 	}
