@@ -9,6 +9,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_plugin.php' );
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	/**
+	 * @var ICWP_WPSF_Processor_Plugin_Badge
+	 */
+	protected $oBadgeProcessor;
+
+	/**
 	 * @var ICWP_WPSF_Processor_Plugin_Tracking
 	 */
 	protected $oTrackingProcessor;
@@ -21,7 +26,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oFO = $this->getFeature();
 
 		$this->removePluginConflicts();
-		$this->doPluginBadge();
+		$this->getBadgeProcessor()
+			 ->run();
 
 		if ( $oFO->isTrackingEnabled() || !$oFO->isTrackingPermissionSet() ) {
 			$this->getTrackingProcessor()->run();
@@ -45,17 +51,14 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * Handle any actions pertaining to the plugin badge
+	 * @return ICWP_WPSF_Processor_Plugin_Badge
 	 */
-	public function doPluginBadge() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->isDisplayPluginBadge() ) {
-			add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
+	protected function getBadgeProcessor() {
+		if ( !isset( $this->oBadgeProcessor ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_badge.php' );
+			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getFeature() );
 		}
-
-		add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
-		add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
+		return $this->oBadgeProcessor;
 	}
 
 	/**
@@ -102,30 +105,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @param array $aContent
-	 * @return array
-	 */
-	public function gatherPluginWidgetContent( $aContent ) {
-
-		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ),
-			$this->getController()->getHumanName(),
-			sprintf( '<a href="%s">iControlWP</a>', 'http://icwp.io/7f' )
-		);
-		$aDisplayData = array(
-			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
-			'sFooter'           => $sFooter,
-			'sIpAddress'        => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() )
-		);
-
-		if ( !is_array( $aContent ) ) {
-			$aContent = array();
-		}
-		$aContent[] = $this->getFeature()
-						   ->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
-		return $aContent;
-	}
-
-	/**
 	 * Sets this plugin to be the first loaded of all the plugins.
 	 */
 	protected function maintainPluginLoadPosition() {
@@ -135,42 +114,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
 			$oWp->setActivePluginLoadFirst( $sBaseFile );
 		}
-	}
-
-	public function addPluginBadgeWidget() {
-		$this->loadWpWidgets();
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_badgewidget.php' );
-		ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getFeature() );
-		register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
-	}
-
-	/**
-	 * @uses echo
-	 */
-	public function printPluginBadge() {
-		echo $this->renderPluginBadge();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function renderPluginBadge() {
-		$oCon = $this->getController();
-		$oRender = $this->loadRenderer( $oCon->getPath_Templates().'html' );
-		$sContents = $oRender
-			->clearRenderVars()
-			->setTemplate( 'plugin_badge' )
-			->setTemplateEngineHtml()
-			->render();
-		$sBadgeText = sprintf(
-			_wpsf__( 'This Site Is Protected By %s' ),
-			sprintf(
-				'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
-				$oCon->getHumanName()
-			)
-		);
-		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
-		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 	}
 
 	public function printVisitorIpFooter() {
