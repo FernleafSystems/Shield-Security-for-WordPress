@@ -21,33 +21,41 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oFO = $this->getFeature();
 
 		$this->removePluginConflicts();
-
-		if ( $this->getIsOption( 'display_plugin_badge', 'Y' ) ) {
-			add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
-		}
-
-		add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
-		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
-
-		if ( $this->getController()->getIsValidAdminArea() ) {
-			$this->maintainPluginLoadPosition();
-		}
-
-		add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
+		$this->doPluginBadge();
 
 		if ( $oFO->isTrackingEnabled() || !$oFO->isTrackingPermissionSet() ) {
 			$this->getTrackingProcessor()->run();
 		}
 
-		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$oDp = $this->loadDataProcessor();
-			$sAction = $oDp->FetchGet( 'shield_action' );
-			switch ( $sAction ) {
-				case 'dump_tracking_data':
-					add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
-					break;
-			}
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
+		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
+
+		$sAction = $this->loadDataProcessor()->FetchGet( 'shield_action', '' );
+		switch ( $sAction ) {
+			case 'dump_tracking_data':
+				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
+				break;
 		}
+	}
+
+	public function onWpLoaded() {
+		if ( $this->getController()->getIsValidAdminArea() ) {
+			$this->maintainPluginLoadPosition();
+		}
+	}
+
+	/**
+	 * Handle any actions pertaining to the plugin badge
+	 */
+	public function doPluginBadge() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->isDisplayPluginBadge() ) {
+			add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
+		}
+
+		add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
+		add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
 	}
 
 	/**
@@ -64,12 +72,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 */
 	public function dumpTrackingData() {
-		if ( !$this->getController()->getIsValidAdminArea() ) {
-			return;
+		if ( $this->getController()->getIsValidAdminArea() ) {
+			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
+																	  ->collectTrackingData(), true ) );
+			die();
 		}
-		echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
-																  ->collectTrackingData(), true ) );
-		die();
 	}
 
 	/**
@@ -99,11 +106,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @return array
 	 */
 	public function gatherPluginWidgetContent( $aContent ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-		$oCon = $this->getController();
 
-		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(), sprintf( '<a href="%s">iControlWP</a>', 'http://icwp.io/7f' ) );
+		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ),
+			$this->getController()->getHumanName(),
+			sprintf( '<a href="%s">iControlWP</a>', 'http://icwp.io/7f' )
+		);
 		$aDisplayData = array(
 			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
 			'sFooter'           => $sFooter,
@@ -113,7 +120,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		if ( !is_array( $aContent ) ) {
 			$aContent = array();
 		}
-		$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
+		$aContent[] = $this->getFeature()
+						   ->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
 		return $aContent;
 	}
 

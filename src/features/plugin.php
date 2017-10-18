@@ -55,6 +55,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isDisplayPluginBadge() {
+		return $this->getOptIs( 'display_plugin_badge', 'Y' );
+	}
+
+	/**
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
