@@ -58,7 +58,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				foreach ( $aAuditData as &$aAuditEntry ) {
 					$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
 					$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
-					$aAuditEntry[ 'created_at' ] = $this->loadWpFunctions()
+					$aAuditEntry[ 'created_at' ] = $this->loadWp()
 														->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
 				}
 			}

@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$this->setIfCanSendEmail( true )
 					 ->setBypassAdminProtection( true )
 					 ->savePluginOptions();
-				$this->loadWpFunctions()->redirectToLogin();
+				$this->loadWp()->redirectToLogin();
 			}
 		}
 	}
@@ -73,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			'authkey'     => $this->getTwoAuthSecretKey(),
 			'wpsf-action' => 'emailsendverify'
 		);
-		return add_query_arg( $aQueryArgs, $this->loadWpFunctions()->getHomeUrl() );
+		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
 	}
 
 	/**
@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
 			sprintf( _wpsf__( 'Verify Link: %s' ), $this->generateCanSendEmailVerifyLink() ),
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWpFunctions()
+		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()
 																					   ->getHomeUrl() );
 
 		$bResult = $this->getEmailProcessor()

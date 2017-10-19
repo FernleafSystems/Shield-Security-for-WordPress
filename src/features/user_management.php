@@ -45,7 +45,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oProcessor = $this->getProcessor();
 		$aActiveSessions = $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
 
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
 		foreach ( $aActiveSessions as &$aSession ) {

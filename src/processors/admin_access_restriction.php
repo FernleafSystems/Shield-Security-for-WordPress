@@ -14,12 +14,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		public function run() {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getFeature();
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWp();
 
 			add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 			add_filter( $oFO->prefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 
-			if ( !$oFO->getIsUpgrading() && !$oWp->getIsLoginRequest() ) {
+			if ( !$oFO->getIsUpgrading() && !$oWp->isRequestUserLogin() ) {
 				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 			}
 
@@ -82,8 +82,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				$oWpUsers = $this->loadWpUsers();
 				$oUser = $oWpUsers->getUserById( $nId );
 				if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
-					$this->loadWpFunctions()
-						->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
+					$this->loadWp()
+						 ->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
 				}
 			}
 		}
@@ -160,7 +160,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				return;
 			}
 
-			$sCurrentPage = $this->loadWpFunctions()->getCurrentPage();
+			$sCurrentPage = $this->loadWp()->getCurrentPage();
 			$sCurrentGetPage = $this->loadDataProcessor()->FetchGet( 'page' );
 			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 				return;
@@ -195,7 +195,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				return;
 			}
 
-			$sCurrentPage = $this->loadWpFunctions()->getCurrentPage();
+			$sCurrentPage = $this->loadWp()->getCurrentPage();
 			if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
 				return;
 			}

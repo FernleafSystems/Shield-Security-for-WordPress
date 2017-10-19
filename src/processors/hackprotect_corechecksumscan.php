@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	public function doChecksumScan( $bAutoRepair ) {
-		$aChecksumData = $this->loadWpFunctions()->getCoreChecksums();
+		$aChecksumData = $this->loadWp()->getCoreChecksums();
 
 		if ( empty( $aChecksumData ) ) {
 			return array();
@@ -183,7 +183,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	protected function retrieveCoreFileContent( $sPath, $bUseLocale = true ) {
-		$sLocale = $this->loadWpFunctions()->getLocale( true );
+		$sLocale = $this->loadWp()->getLocale( true );
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 		if ( $bUseInternational ) {
 			$sRootUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn_il8n' ) . $sLocale;
@@ -194,7 +194,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$sFileUrl = sprintf(
 			'%s/tags/%s/%s',
 			$sRootUrl,
-			$this->loadWpFunctions()->getWordpressVersion(),
+			$this->loadWp()->getVersion(),
 			( $bUseInternational ? 'dist/' : '' ) . $sPath
 		);
 
@@ -230,8 +230,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			return true;
 		}
 
-		$oWp = $this->loadWpFunctions();
-		$sHomeUrl = $oWp->getHomeUrl();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
 		$aContent = array(
 			sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()
 																									->getHumanName() ),
@@ -292,11 +291,11 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					'shield_action'    => 'repair_file',
 					'repair_file_path' => urlencode( $sFile )
 				),
-				$this->loadWpFunctions()->getUrl_WpAdmin()
+				$this->loadWp()->getUrl_WpAdmin()
 			),
 			_wpsf__( 'Repair file now' ),
-			$this->getFeature()->getDefinition( 'url_wordress_core_svn' ) . 'tags/' . $this->loadWpFunctions()
-																						   ->getWordpressVersion() . '/' . $sFile,
+			$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWp()
+																					   ->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
 	}

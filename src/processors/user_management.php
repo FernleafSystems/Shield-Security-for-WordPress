@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ) {
+	return;
+}
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -17,8 +19,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function run() {
 
 		// Adds last login indicator column to all plugins in plugin listing.
-		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
-		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn') );
+		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
+		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
 		// Various stuff.
 		add_action( 'init', array( $this, 'onInit' ), 1 );
@@ -27,7 +29,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		// XML-RPC Compatibility
-		if ( $this->loadWpFunctions()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
+		if ( $this->loadWp()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
 			return true;
 		}
 
@@ -49,7 +51,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Only show Go To Admin link for Authors and above.
-	 *
 	 * @param string $sMessage
 	 * @return string
 	 * @throws Exception
@@ -59,12 +60,15 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oWpUsers->isUserLoggedIn() ) {
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeature();
-			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()->getCurrentUserHasValidSession() ) {
+			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()
+																	->getCurrentUserHasValidSession() ) {
 				$sMessage = sprintf(
-					'<p class="message">%s<br />%s</p>',
-					_wpsf__( "It appears you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()->get('user_login') ),
-					( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWpFunctions()->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ) . ' &rarr;' ) : ''
-				).$sMessage;
+								'<p class="message">%s<br />%s</p>',
+								_wpsf__( "It appears you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()
+																																					  ->get( 'user_login' ) ),
+								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWp()
+																												 ->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ).' &rarr;' ) : ''
+							).$sMessage;
 			}
 		}
 		return $sMessage;
@@ -72,14 +76,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Hooked to action wp_login
-	 *
 	 * @param $sUsername
 	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
 
-			if ( $this->loadDataProcessor()->validEmail( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
+			if ( $this->loadDataProcessor()
+					  ->validEmail( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
 				$this->sendLoginEmailNotification( $oUser );
 			}
 			$this->setUserLastLoginTime( $oUser );
@@ -96,7 +100,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
-	 *
 	 * @param array $aColumns
 	 * @return array
 	 */
@@ -112,10 +115,9 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
-	 *
 	 * @param string $sContent
 	 * @param string $sColumnName
-	 * @param int $nUserId
+	 * @param int    $nUserId
 	 * @return string
 	 */
 	public function aPrintUsersListLastLoginColumnContent( $sContent, $sColumnName, $nUserId ) {
@@ -123,7 +125,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $sColumnName != $sLastLoginKey ) {
 			return $sContent;
 		}
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 		$nLastLoginTime = $this->loadWpUsers()->getUserMeta( $sLastLoginKey, $nUserId );
 
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
@@ -145,10 +147,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$aUserCapToRolesMap = array(
 			'network_admin' => 'manage_network',
 			'administrator' => 'manage_options',
-			'editor' => 'edit_pages',
-			'author' => 'publish_posts',
-			'contributor' => 'delete_posts',
-			'subscriber' => 'read',
+			'editor'        => 'edit_pages',
+			'author'        => 'publish_posts',
+			'contributor'   => 'delete_posts',
+			'subscriber'    => 'read',
 		);
 
 		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()->prefix( 'login-notification-email-role' ), 'administrator' ) );
@@ -158,7 +160,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$sHumanName = ucwords( str_replace( '_', ' ', $sRoleToCheck ) ).'+';
 
 		$bIsUserSignificantEnough = false;
-		foreach( $aUserCapToRolesMap as $sRole => $sCap ) {
+		foreach ( $aUserCapToRolesMap as $sRole => $sCap ) {
 			if ( isset( $oUser->allcaps[ $sCap ] ) && $oUser->allcaps[ $sCap ] ) {
 				$bIsUserSignificantEnough = true;
 			}
@@ -170,20 +172,23 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 
-		$sHomeUrl = $this->loadWpFunctions()->getHomeUrl();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aMessage = array(
 			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),
 				$this->getController()->getHumanName(),
 				$sHumanName
 			),
-			'', sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
-			'', _wpsf__( 'Details for this user are below:' ),
+			'',
+			sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			'',
+			_wpsf__( 'Details for this user are below:' ),
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $sHomeUrl ),
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			'- '.sprintf( _wpsf__( 'User Email: %s' ), $oUser->get( 'user_email' ) ),
 			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->human_ip() ),
-			'', _wpsf__( 'Thanks.' )
+			'',
+			_wpsf__( 'Thanks.' )
 		);
 
 		return $this
@@ -201,7 +206,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
-			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'usermanagement_sessions.php' );
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeature();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
@@ -232,4 +237,3 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		return $this->getController()->doPluginOptionPrefix( 'userlastlogin' );
 	}
 }
-endif;

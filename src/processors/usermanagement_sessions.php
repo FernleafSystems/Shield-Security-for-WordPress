@@ -1,8 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
-endif;
+}
 
 require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'basedb.php' );
 
@@ -83,7 +83,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
 	public function checkCurrentUser_Action() {
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 		$oWpUsers = $this->loadWpUsers();
 
 		if ( $oWpUsers->isUserLoggedIn() ) {
@@ -118,7 +118,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			}
 
 			// Auto-redirect to admin: UNUSED
-			if ( $oWp->getIsLoginUrl() && $this->loadWpUsers()->isUserAdmin() ) {
+			if ( $oWp->isRequestLoginUrl() && $this->loadWpUsers()->isUserAdmin() ) {
 				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
 				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
 					// $oWp->redirectToAdmin();

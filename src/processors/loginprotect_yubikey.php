@@ -1,8 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ) {
 	return;
-endif;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_intent_base.php' );
 

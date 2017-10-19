@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return WP_Error
 	 */
 	public function checkLoginForGasp_Filter( $oUser, $sUsername ) {
-		if ( !$this->loadWpFunctions()->getIsLoginRequest() ) {
+		if ( !$this->loadWp()->isRequestUserLogin() ) {
 			return $oUser;
 		}
 
@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			// We now black mark this IP
 			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 
-			$this->loadWpFunctions()
+			$this->loadWp()
 				 ->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
 			return false;
 		}
@@ -193,7 +193,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			// We now black mark this IP
 			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
 
-			$this->loadWpFunctions()
+			$this->loadWp()
 				 ->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
 			return false;
 		}

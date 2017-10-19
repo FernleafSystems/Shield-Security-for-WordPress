@@ -56,7 +56,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 		$bSuccess = false;
 		if ( $this->checkAjaxNonce() ) {
-			$oWp = $this->loadWpFunctions();
+			$oWp = $this->loadWp();
 			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
 			if ( $oWp->getIsPluginInstalledByFile( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );

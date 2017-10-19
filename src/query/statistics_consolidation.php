@@ -63,9 +63,10 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	 * @return int
 	 */
 	public function getFirstOfThisMonth() {
-		$oNow = $this->loadCarbon();
+		$this->loadLib_Carbon();
+		$oNow = new \Carbon\Carbon();
 		try {
-			$oNow->setTimezone( $this->loadWpFunctions()->getOption( 'timezone_string' ) );
+			$oNow->setTimezone( $this->loadWp()->getOption( 'timezone_string' ) );
 		}
 		catch ( Exception $oE ) {
 		}
@@ -79,9 +80,10 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	 * @return int
 	 */
 	public function getFirstOfLastMonth() {
-		$oNow = $this->loadCarbon();
+		$this->loadLib_Carbon();
+		$oNow = new \Carbon\Carbon();
 		try {
-			$oNow->setTimezone( $this->loadWpFunctions()->getOption( 'timezone_string' ) );
+			$oNow->setTimezone( $this->loadWp()->getOption( 'timezone_string' ) );
 		}
 		catch ( Exception $oE ) {
 		}

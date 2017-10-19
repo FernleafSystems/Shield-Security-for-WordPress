@@ -73,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return array
 	 */
 	protected function formatIpListData( $aListData ) {
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 
 		foreach ( $aListData as &$aListItem ) {
 			$aListItem[ 'ip_link' ] =
@@ -189,7 +189,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function renderListTable( $sListToRender ) {
-		$oWp = $this->loadWpFunctions();
+		$oWp = $this->loadWp();
 		$aRenderData = array(
 			'list_id'      => $sListToRender,
 			'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,

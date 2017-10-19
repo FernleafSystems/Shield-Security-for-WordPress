@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.16.2": {
+	  "version": {
+		"series": "5.16.0",
+		"major": 5,
+		"minor": 16,
+		"patch": 2
+	  },
+	  "attributes": {
+		"timestamp": "1508156591",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
+	},
 	"5.16.1": {
 	  "version": {
 		"series": "5.16.0",
@@ -285,6 +299,16 @@
   },
   "changelog": [
 	{
+	  "type": "fixed",
+	  "summary": "Removed some namespace parsing that broke on sites with PHP 5.2.",
+	  "version": "5.16.2"
+	},
+	{
+	  "type": "fixed",
+	  "summary": "404 page displayed for password reset request when Login URL is renamed.",
+	  "version": "5.16.1"
+	},
+	{
 	  "type": "improved",
 	  "summary": "Much better auto-detection of valid request/visitor IP addresses.",
 	  "version": "5.16.0"
@@ -292,11 +316,6 @@
 	{
 	  "type": "fixed",
 	  "summary": "Clashing of reCAPTCHA options for Comments and Login Protection.",
-	  "version": "5.16.0"
-	},
-	{
-	  "type": "fixed",
-	  "summary": "404 page displayed for password reset request when Login URL is renamed.",
 	  "version": "5.16.0"
 	},
 	{

@@ -1,8 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ) {
 	return;
-endif;
+}
 
 class ICWP_WPSF_Processor_LoginProtect_Track {
 
