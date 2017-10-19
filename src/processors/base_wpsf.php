@@ -27,6 +27,17 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		}
 
 		/**
+		 * @return int
+		 */
+		protected function getInstallationDays() {
+			$nTimeInstalled = $this->getFeature()->getPluginInstallationTime();
+			if ( empty( $nTimeInstalled ) ) {
+				return 0;
+			}
+			return (int)round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
+		}
+
+		/**
 		 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
 		 * - it is not enabled by default.
 		 *

@@ -1012,6 +1012,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSuffix
+	 * @return string
+	 */
+	public function prefixWpAjax( $sSuffix = '' ) {
+		return sprintf( '%s%s',
+			'wp_ajax_',
+			$this->prefix( $sSuffix )
+		);
+	}
+
+	/**
 	 * @param string
 	 * @return string
 	 */

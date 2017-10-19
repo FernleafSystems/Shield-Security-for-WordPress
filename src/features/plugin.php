@@ -58,7 +58,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isDisplayPluginBadge() {
-		return $this->getOptIs( 'display_plugin_badge', 'Y' );
+		return $this->getOptIs( 'display_plugin_badge', 'Y' )
+			&& ( $this->loadDataProcessor()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
 	/**
@@ -104,6 +105,29 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isVisitorAddressSourceAutoDetect() {
 		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
+	}
+
+	protected function frontEndAjaxHandlers() {
+		add_action( $this->prefixWpAjax( 'PluginBadgeClose' ), array( $this, 'ajaxPluginBadgeClose' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCookieIdBadgeState() {
+		return $this->prefix( 'badgeState' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function ajaxPluginBadgeClose() {
+		return $this->loadDataProcessor()
+					->setCookie(
+						$this->getCookieIdBadgeState(),
+						'closed',
+						DAY_IN_SECONDS
+					);
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
