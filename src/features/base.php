@@ -586,23 +586,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
-			$oDp = $this->loadDataProcessor();
-
-			if ( $this->checkNonceAction( $oDp->FetchPost( 'icwp_nonce' ), $oDp->FetchPost( 'icwp_nonce_action' ) ) ) {
-				$this->frontEndAjaxHandlers();
-			}
-			else {
-				$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
-			}
+			$this->frontEndAjaxHandlers();
+//			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
 		}
 	}
 
 	/**
 	 * A valid Ajax request must have all the icwp items as posted with getBaseAjaxActionRenderData()
-	 * Note: Does not perform nonce checking
+	 * Note: Also performs nonce checking
 	 * @return bool
 	 */
-	private function isValidAjaxRequestForModule() {
+	protected function isValidAjaxRequestForModule() {
 		$oDp = $this->loadDataProcessor();
 
 		$bValid = $this->loadWp()->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
@@ -614,7 +608,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				}
 			}
 		}
-		return $bValid;
+		return $bValid && $this->checkNonceAction( $oDp->FetchPost( 'icwp_nonce' ), $oDp->FetchPost( 'icwp_nonce_action' ) );
 	}
 
 	/**
