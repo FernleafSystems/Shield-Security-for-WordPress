@@ -59,7 +59,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isDisplayPluginBadge() {
 		return $this->getOptIs( 'display_plugin_badge', 'Y' )
-			&& ( $this->loadDataProcessor()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
+			   && ( $this->loadDataProcessor()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
 	/**
@@ -122,12 +122,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function ajaxPluginBadgeClose() {
-		return $this->loadDataProcessor()
-					->setCookie(
-						$this->getCookieIdBadgeState(),
-						'closed',
-						DAY_IN_SECONDS
-					);
+		$bSuccess = $this->loadDataProcessor()
+						 ->setCookie(
+							 $this->getCookieIdBadgeState(),
+							 'closed',
+							 DAY_IN_SECONDS
+						 );
+		$sMessage = $bSuccess ? 'Badge Closed' : 'Badge Not Closed';
+		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
@@ -398,6 +400,29 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			}
 		}
 		return array_merge( $aMap, $aEmpties );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function renderPluginBadge() {
+		$oCon = $this->getController();
+		$sContents = $this->loadRenderer( $oCon->getPath_Templates() )
+						  ->setTemplateEnginePhp()
+						  ->clearRenderVars()
+						  ->setRenderVars( $this->getBaseAjaxActionRenderData( 'PluginBadgeClose' ) )
+						  ->setTemplate( 'snippets/plugin_badge' )
+						  ->render();
+
+		$sBadgeText = sprintf(
+			_wpsf__( 'This Site Is Protected By %s' ),
+			sprintf(
+				'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
+				$oCon->getHumanName()
+			)
+		);
+		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
+		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 	}
 
 	/**

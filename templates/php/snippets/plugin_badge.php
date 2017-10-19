@@ -92,7 +92,11 @@
 		var closeBadge = function () {
 
 			var requestData = {
-				'action': '<?php echo $icwp_ajax_action_pluginbadge; ?>',
+				'action': '<?php echo $icwp_ajax_action; ?>',
+				'icwp_ajax_action': '<?php echo $icwp_ajax_action; ?>',
+				'icwp_nonce': '<?php echo $icwp_nonce; ?>',
+				'icwp_nonce_action': '<?php echo $icwp_nonce_action; ?>',
+				'icwp_action_module': '<?php echo $icwp_action_module; ?>'
 			};
 
 			jQuery.post( '<?php echo $ajaxurl; ?>', requestData,

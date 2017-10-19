@@ -56,34 +56,8 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @uses echo
 	 */
 	public function printPluginBadge() {
-		echo $this->renderPluginBadge();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function renderPluginBadge() {
-		$oCon = $this->getController();
-		$oRender = $this->loadRenderer( $oCon->getPath_Templates() );
-		$sContents = $oRender
-			->clearRenderVars()
-			->setTemplateEnginePhp()
-			->setRenderVars(
-				array(
-					'icwp_ajax_action_pluginbadge' => $this->getFeature()->prefix( 'PluginBadgeClose' ),
-					'ajaxurl'                      => admin_url( 'admin-ajax.php' ),
-				)
-			)
-			->setTemplate( 'snippets/plugin_badge' )
-			->render();
-		$sBadgeText = sprintf(
-			_wpsf__( 'This Site Is Protected By %s' ),
-			sprintf(
-				'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
-				$oCon->getHumanName()
-			)
-		);
-		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
-		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+		echo $oFO->renderPluginBadge();
 	}
 }
