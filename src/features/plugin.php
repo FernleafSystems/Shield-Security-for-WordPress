@@ -73,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
 			$sIp = $oDp->FetchServer( $this->getVisitorAddressSource() );
-			if ( $oIpService->isViablePublicVisitorIp( $sIp ) ) {
+			if ( $oIpService->isViablePublicVisitorIp( $sIp, $this->getMyServerIp() ) ) {
 				$oIpService->setRequestIpAddress( $sIp );
 			}
 			else {
