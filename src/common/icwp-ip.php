@@ -9,17 +9,14 @@ if ( class_exists( 'ICWP_WPSF_Ip', false ) ) {
 class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 	const IpifyEndpoint = 'https://api.ipify.org';
-
 	/**
 	 * @var string
 	 */
 	private $sIp;
-
 	/**
 	 * @var string
 	 */
 	private $sMyIp;
-
 	/**
 	 * @var ICWP_WPSF_Ip
 	 */
@@ -200,6 +197,20 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Checks:
+	 * - valid public remote IP
+	 * - Not CloudFlare
+	 * - Not the IP of the currently running server if this is provided
+	 * @param string $sIp
+	 * @param string $sHostIp
+	 * @return bool
+	 */
+	public function isViablePublicVisitorIp( $sIp, $sHostIp = '' ) {
+		return !empty( $sIp ) && $this->isValidIp_PublicRemote( $sIp ) && !$this->isCloudFlareIp( $sIp )
+			   && ( empty( $sHostIp ) || !$this->checkIp( $sIp, $sHostIp ) );
+	}
+
+	/**
 	 * @param string $sIp
 	 * @return $this
 	 */
@@ -276,19 +287,16 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 			$aIpAddresses = array_map( 'trim', explode( ',', $sIpToTest ) );
 			foreach ( $aIpAddresses as $sIp ) {
 
-				if ( !empty( $sIp ) && $this->isValidIp_PublicRemote( $sIp ) && !$this->isCloudFlareIp( $sIp ) ) {
-
-					if ( empty( $sMyIp ) || !$this->checkIp( $sIp, $sMyIp ) ) {
-						$sIpToReturn = $sIp;
-						break( 2 );
-					}
+				if ( $this->isViablePublicVisitorIp( $sIp ) ) {
+					$sIpToReturn = $sIp;
+					break( 2 );
 				}
 			}
 		}
 
 		return array(
 			'source' => $sSource,
-			'ip' => $sIpToReturn
+			'ip'     => $sIpToReturn
 		);
 	}
 
