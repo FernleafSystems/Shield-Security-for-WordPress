@@ -312,6 +312,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 *Released: 26th October, 2017*
 
 * **(v.3)**  IMPROVEMENT:	Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.
+* **(v.3)**  IMPROVEMENT:	Plugin Badge will now stay closed when a visitor closes it.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
@@ -319,6 +320,7 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 With this release, we fixed a clash of options for Google reCAPTCHA. Every attempt was made to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA settings are as you expect them to be.
 
 * **(v.3)**  IMPROVEMENT:	Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.
+* **(v.3)**  IMPROVEMENT:	Plugin Badge will now stay closed when a visitor closes it.
 * **(v.2)**  FIX:			Removed some namespace parsing that broke on sites with PHP 5.2.
 * **(v.1)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
