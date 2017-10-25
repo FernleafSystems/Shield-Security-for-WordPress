@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.16.2
+Stable tag: 5.16.3
 
 Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
 
@@ -308,16 +308,17 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.16.2 Latest Point Release =
-*Released: 18th October, 2017*
+= 5.16.3 Latest Point Release =
+*Released: 26th October, 2017*
 
-* **(v.2)**  FIX:			Removed some namespace parsing that broke on sites with PHP 5.2.
+* **(v.3)**  IMPROVEMENT:	Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
 
 With this release, we fixed a clash of options for Google reCAPTCHA. Every attempt was made to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA settings are as you expect them to be.
 
+* **(v.3)**  IMPROVEMENT:	Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.
 * **(v.2)**  FIX:			Removed some namespace parsing that broke on sites with PHP 5.2.
 * **(v.1)**  FIX:			404 page displayed for password reset request when Login URL is renamed.
 * **(v.0)**  IMPROVEMENT:	Much better auto-detection of valid request/visitor IP addresses.
