@@ -314,6 +314,11 @@
   "changelog": [
 	{
 	  "type": "improved",
+	  "summary": "Plugin Badge will now stay closed when a visitor closes it.",
+	  "version": "5.16.3"
+	},
+	{
+	  "type": "improved",
 	  "summary": "Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.",
 	  "version": "5.16.3"
 	},
