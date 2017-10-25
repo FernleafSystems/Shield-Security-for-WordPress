@@ -55,6 +55,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isDisplayPluginBadge() {
+		return $this->getOptIs( 'display_plugin_badge', 'Y' )
+			   && ( $this->loadDataProcessor()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
+	}
+
+	/**
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
@@ -65,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
 			$sIp = $oDp->FetchServer( $this->getVisitorAddressSource() );
-			if ( $oIpService->isValidIp_PublicRange( $sIp ) && !$oIpService->checkIp( $sIp, $this->getMyServerIp() ) ) {
+			if ( $oIpService->isViablePublicVisitorIp( $sIp, $this->getMyServerIp() ) ) {
 				$oIpService->setRequestIpAddress( $sIp );
 			}
 			else {
@@ -97,6 +105,31 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isVisitorAddressSourceAutoDetect() {
 		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
+	}
+
+	protected function frontEndAjaxHandlers() {
+		add_action( $this->prefixWpAjax( 'PluginBadgeClose' ), array( $this, 'ajaxPluginBadgeClose' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCookieIdBadgeState() {
+		return $this->prefix( 'badgeState' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function ajaxPluginBadgeClose() {
+		$bSuccess = $this->loadDataProcessor()
+						 ->setCookie(
+							 $this->getCookieIdBadgeState(),
+							 'closed',
+							 DAY_IN_SECONDS
+						 );
+		$sMessage = $bSuccess ? 'Badge Closed' : 'Badge Not Closed';
+		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
@@ -367,6 +400,29 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			}
 		}
 		return array_merge( $aMap, $aEmpties );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function renderPluginBadge() {
+		$oCon = $this->getController();
+		$sContents = $this->loadRenderer( $oCon->getPath_Templates() )
+						  ->setTemplateEnginePhp()
+						  ->clearRenderVars()
+						  ->setRenderVars( $this->getBaseAjaxActionRenderData( 'PluginBadgeClose' ) )
+						  ->setTemplate( 'snippets/plugin_badge' )
+						  ->render();
+
+		$sBadgeText = sprintf(
+			_wpsf__( 'This Site Is Protected By %s' ),
+			sprintf(
+				'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
+				$oCon->getHumanName()
+			)
+		);
+		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
+		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
 	}
 
 	/**

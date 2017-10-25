@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.16.3": {
+	  "version": {
+		"series": "5.16.0",
+		"major": 5,
+		"minor": 16,
+		"patch": 3
+	  },
+	  "attributes": {
+		"timestamp": "1508933689",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
+	},
 	"5.16.2": {
 	  "version": {
 		"series": "5.16.0",
@@ -298,6 +312,11 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "improved",
+	  "summary": "Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.",
+	  "version": "5.16.3"
+	},
 	{
 	  "type": "fixed",
 	  "summary": "Removed some namespace parsing that broke on sites with PHP 5.2.",

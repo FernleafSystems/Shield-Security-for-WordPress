@@ -26,9 +26,12 @@
 		$oInput.prop( 'disabled', true );
 
 		var requestData = {
-			'action': 'icwp_wpsf_AdminAccessLogin',
-			'icwp_wpsf_admin_access_key_request': $oInput.val(),
-			'_ajax_nonce': $oInput.data('nonce')
+			'action': '<?php echo $icwp_ajax_action; ?>',
+			'icwp_ajax_action': '<?php echo $icwp_ajax_action; ?>',
+			'icwp_nonce': '<?php echo $icwp_nonce; ?>',
+			'icwp_nonce_action': '<?php echo $icwp_nonce_action; ?>',
+			'icwp_action_module': '<?php echo $icwp_action_module; ?>',
+			'icwp_wpsf_admin_access_key_request': $oInput.val()
 		};
 
 		jQuery.post(ajaxurl, requestData, function( oResponse ) {

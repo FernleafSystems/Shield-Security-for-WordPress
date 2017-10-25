@@ -398,7 +398,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getResourcesDir( $sSourceFile = '' ) {
-		return self::getController()->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
+		return self::getController()
+				   ->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
 	}
 
 	/**
@@ -546,7 +547,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return 'Undefined Text Opt Default';
 	}
 
-		/**
+	/**
 	 * @return string
 	 */
 	public function getVersion() {
@@ -578,19 +579,75 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWp()->isAjax() ) {
+		if ( $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
 			if ( is_admin() || is_network_admin() ) {
 				$this->adminAjaxHandlers();
 			}
-			$this->frontEndAjaxHandlers();
 		}
+
+		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
+			$this->frontEndAjaxHandlers();
+//			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
+		}
+	}
+
+	/**
+	 * A valid Ajax request must have all the icwp items as posted with getBaseAjaxActionRenderData()
+	 * Note: Also performs nonce checking
+	 * @return bool
+	 */
+	protected function isValidAjaxRequestForModule() {
+		$oDp = $this->loadDataProcessor();
+
+		$bValid = $this->loadWp()->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+		if ( $bValid ) {
+			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
+			foreach ( $aItems as $sKey ) {
+				if ( strpos( $sKey, 'icwp_' ) === 0 ) {
+					$bValid = $bValid && ( strlen( $oDp->FetchPost( $sKey, '' ) ) > 0 );
+				}
+			}
+		}
+		return $bValid && $this->checkNonceAction( $oDp->FetchPost( 'icwp_nonce' ), $oDp->FetchPost( 'icwp_nonce_action' ) );
+	}
+
+	/**
+	 * @param string $sAction
+	 * @return array
+	 */
+	protected function getBaseAjaxActionRenderData( $sAction = '' ) {
+		return array(
+			'icwp_ajax_action'   => $this->prefix( $sAction ),
+			'icwp_nonce'         => $this->genNonce( $sAction ),
+			'icwp_nonce_action'  => $sAction,
+			'icwp_action_module' => $this->prefix( $this->getFeatureSlug() ),
+			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+		);
 	}
 
 	protected function adminAjaxHandlers() {
 		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
 	}
 
-	protected function frontEndAjaxHandlers() {}
+	protected function frontEndAjaxHandlers() {
+	}
+
+	/**
+	 * @param string $sAction
+	 * @return string
+	 */
+	protected function genNonce( $sAction = '' ) {
+		return wp_create_nonce( $this->prefix( $sAction ) );
+	}
+
+	/**
+	 * @param string $sNonce
+	 * @param string $sAction
+	 * @return bool
+	 */
+	protected function checkNonceAction( $sNonce, $sAction = '' ) {
+		return wp_verify_nonce( $sNonce, $this->prefix( $sAction ) );
+	}
 
 	/**
 	 * Will send ajax error response immediately upon failure
@@ -760,7 +817,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				break;
 
 			case 'text':
-				$mCurrentVal = stripslashes( $this->getTextOpt( $aOptParams['key'] ) );
+				$mCurrentVal = stripslashes( $this->getTextOpt( $aOptParams[ 'key' ] ) );
 				break;
 		}
 
@@ -790,7 +847,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * This is the point where you would want to do any options verification
 	 */
-	protected function doPrePluginOptionsSave() {}
+	protected function doPrePluginOptionsSave() {
+	}
 
 	/**
 	 * Deletes all the options including direct save.
@@ -851,7 +909,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'message'      => $sMessage
 			)
 		);
-
 	}
 
 	/**
@@ -1009,6 +1066,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function prefix( $sSuffix = '', $sGlue = '-' ) {
 		return self::getController()->doPluginPrefix( $sSuffix, $sGlue );
+	}
+
+	/**
+	 * @param string $sSuffix
+	 * @return string
+	 */
+	public function prefixWpAjax( $sSuffix = '' ) {
+		return sprintf( '%s%s',
+			'wp_ajax_',
+			$this->prefix( $sSuffix )
+		);
 	}
 
 	/**
@@ -1173,16 +1241,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aData[ 'sFeatureInclude' ] = $sSubView;
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
-		try {
-			$this
-				->loadRenderer( $oCon->getPath_Templates() )
-				->setTemplate( 'features/'.$sSubView )
-				->setRenderVars( $aData )
-				->display();
-		}
-		catch ( Exception $oE ) {
-			echo $oE->getMessage();
-		}
+
+		echo $this->renderTemplate( 'features/'.$sSubView, $aData );
 	}
 
 	/**
