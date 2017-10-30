@@ -98,6 +98,12 @@
                                    id="<?php echo $aField['name']; ?>"
                                    placeholder="<?php echo $aField['placeholder']; ?>"
                                    autocomplete="off"
+								<?php
+								if ( !isset( $sFocus ) ) :
+									$sFocus = $aField[ 'name' ];
+									echo 'autofocus';
+								endif;
+								?>
                             />
                             <div class="input-group-addon">
                                 <a href="<?php echo $aField['help_link']; ?>" target="_blank" class="input-help">&quest;</a>
