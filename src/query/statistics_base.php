@@ -80,7 +80,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Foundation {
 		$sStatPart = $this->buildStatKeyQuery();
 		return sprintf( $sQuery,
 			$bIsCount ? 'COUNT(*) AS total' : '*',
-			$this->loadDbProcessor()->getPrefix() . $this->getFeature()->getReportingTableName(),
+			$this->getFeature()->getFullReportingTableName(),
 			$this->getDateFrom(),
 			$this->getDateTo(),
 			$this->isSelectDeleted() ? '>' : '=',
@@ -106,7 +106,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Foundation {
 
 		$sStatPart = $this->buildStatKeyQuery();
 		return sprintf( $sQuery,
-			$this->loadDbProcessor()->getPrefix().$this->getFeature()->getReportingTableName(),
+			$this->getFeature()->getFullReportingTableName(),
 			$this->getDateFrom(),
 			$this->getDateTo(),
 			empty( $sStatPart ) ? $sStatPart : 'AND '.$sStatPart
