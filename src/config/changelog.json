@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.16.4": {
+	  "version": {
+		"series": "5.16.0",
+		"major": 5,
+		"minor": 16,
+		"patch": 3
+	  },
+	  "attributes": {
+		"timestamp": "1509627037",
+		"is_patch": true,
+		"options_added": false,
+		"options_removed": false
+	  }
+	},
 	"5.16.3": {
 	  "version": {
 		"series": "5.16.0",
@@ -312,6 +326,11 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "fixed",
+	  "summary": "Error with incorrect/unprefixed database table name used in SQL query.",
+	  "version": "5.16.4"
+	},
 	{
 	  "type": "improved",
 	  "summary": "Plugin Badge will now stay closed when a visitor closes it.",
