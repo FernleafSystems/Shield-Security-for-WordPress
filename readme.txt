@@ -308,17 +308,17 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.16.3 Latest Point Release =
-*Released: 26th October, 2017*
+= 5.16.4 Latest Point Release =
+*Released: 2nd November, 2017*
 
-* **(v.3)**  IMPROVEMENT:	Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.
-* **(v.3)**  IMPROVEMENT:	Plugin Badge will now stay closed when a visitor closes it.
+* **(v.4)**  FIX:			Error with incorrect/unprefixed database table name used in SQL query.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
 
 With this release, we fixed a clash of options for Google reCAPTCHA. Every attempt was made to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA settings are as you expect them to be.
 
+* **(v.4)**  FIX:			Error with incorrect/unprefixed database table name used in SQL query.
 * **(v.3)**  IMPROVEMENT:	Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.
 * **(v.3)**  IMPROVEMENT:	Plugin Badge will now stay closed when a visitor closes it.
 * **(v.2)**  FIX:			Removed some namespace parsing that broke on sites with PHP 5.2.

@@ -18,6 +18,13 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return string
 	 */
+	public function getFullReportingTableName() {
+		return $this->loadDbProcessor()->getPrefix().$this->getReportingTableName();
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getStatisticsTableName() {
 		return $this->prefix( $this->getDefinition( 'statistics_table_name' ), '_' );
 	}

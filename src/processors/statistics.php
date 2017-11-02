@@ -35,7 +35,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		else { // delete the table for any site that had it running previously
 			// TODO: Delete this block after a while.
 			$oDb = $this->loadDbProcessor();
-			$oDb->doDropTable( $oDb->getPrefix().$oFO->getReportingTableName() );
+			$oDb->doDropTable( $oFO->getFullReportingTableName() );
 		}
 	}
 
