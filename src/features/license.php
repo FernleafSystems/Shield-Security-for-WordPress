@@ -28,7 +28,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function deactivate( $sDeactivatedReason = '' ) {
 		if ( $this->isLicenseActive() ) {
-			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() );
+			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() )
+				 ->setOpt( 'license_official_status', 'cleared' )
+				 ->setOpt( 'license_expires_at', 0 );
 			if ( !empty( $sDeactivatedReason ) ) {
 				$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
 			}
@@ -41,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oLicense = $this->lookupOfficialLicense();
 
 		/** @var ICWP_EDD_LicenseVO $oLicense */
-		if ( $oLicense->isReady() ) {
+		if ( $oLicense && $oLicense->isReady() ) {
 
 			$bWasActive = $this->isLicenseActive();
 
@@ -58,8 +60,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$this->setOpt( 'license_activated_at', $oDp->time() );
 			}
 			else if ( $bNewlyDeactivated ) {
-				$this->setOpt( 'license_deactivated_at', $oDp->time() );
+				$this->deactivate( 'Official license check returned invalid' );
 			}
+		}
+		else if ( $this->isOfficialLicenseValid() && $this->isLastCheckExpired() ) {
+			$this->setOpt( 'license_official_status', 'unknown' )
+				 ->deactivate( 'Forcefully deactivated due to inability to verify license.' );
 		}
 	}
 
@@ -67,7 +73,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return ICWP_EDD_LicenseVO
 	 */
 	protected function lookupOfficialLicense() {
-		//TODO
+		return $this->loadEdd()
+					->activateLicense(
+						$this->getLicenseStoreUrl(),
+						$this->getLicenseKey(),
+						$this->getLicenseItemName()
+					);
 	}
 
 	/**
@@ -132,11 +143,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function isLastCheckExpired() {
 		return ( $this->loadDataProcessor()->time() - $this->getLicenseLastCheckedAt()
-				 > $this->getDefinition( 'license_lack_check_expire_days' ) * DAY_IN_SECONDS );
+				 > $this->getDefinition( 'license_lack_check_expire_days' )*DAY_IN_SECONDS );
 	}
 
 	/**
-	 * We text various data points:
+	 * We test various data points:
 	 * 1) the key is valid format
 	 * 2) the official license status is 'valid'
 	 * 3) the license is marked as "active"
@@ -145,7 +156,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	public function hasValidWorkingLicense() {
-		return $this->isOfficialLicenseValid() && $this->isLicenseKeyValidFormat()
+		return $this->isLicenseKeyValidFormat() && $this->isOfficialLicenseValid()
 			   && $this->isLicenseActive() && !$this->isLicenseExpired() && !$this->isLastCheckExpired();
 	}
 
@@ -209,6 +220,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( !$this->verifyLicenseKeyFormat( $this->getLicenseKey() ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'license_key' );
 		}
+	}
+
+	/**
+	 * Hooked to the plugin's main plugin_shutdown action
+	 */
+	public function action_doFeatureShutdown() {
+		if ( $this->isOfficialLicenseValid() && $this->isLastCheckExpired() ) {
+			$this->validateLicense();
+		}
+		parent::action_doFeatureShutdown();
 	}
 
 	/**

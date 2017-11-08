@@ -184,7 +184,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * @param string $sUrl
 		 * @param array $aRequestArgs
-		 *
 		 * @return array|bool
 		 */
 		public function requestUrl( $sUrl, $aRequestArgs = array(), $bAlwaysRawResponse = false ) {
@@ -201,9 +200,8 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 
 		/**
 		 * @param string $sUrl
-		 * @param array $aRequestArgs
-		 *
-		 * @return bool
+		 * @param array  $aRequestArgs
+		 * @return array|bool
 		 */
 		public function getUrl( $sUrl, $aRequestArgs = array() ) {
 			$aRequestArgs['method'] = 'GET';
@@ -213,7 +211,6 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * @param string $sUrl
 		 * @param array $aRequestArgs
-		 *
 		 * @return false|string
 		 */
 		public function getUrlContent( $sUrl, $aRequestArgs = array() ) {
@@ -226,12 +223,11 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 
 		/**
 		 * @param string $sUrl
-		 * @param array $aRequestArgs
-		 *
-		 * @return bool
+		 * @param array  $aRequestArgs
+		 * @return array|false
 		 */
 		public function postUrl( $sUrl, $aRequestArgs = array() ) {
-			$aRequestArgs['method'] = 'POST';
+			$aRequestArgs[ 'method' ] = 'POST';
 			return $this->requestUrl( $sUrl, $aRequestArgs );
 		}
 

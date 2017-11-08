@@ -70,8 +70,8 @@
     }
   ],
   "definitions": {
-    "license_store_url": "https://www.asdf.com",
-    "license_item_name": "Shield Pro",
+    "license_store_url": "https://onedollarplugin.com/edd-sl/",
+    "license_item_name": "Shield Security Daily Subscription Test",
     "license_item_id": "Shield Pro",
     "license_lack_check_expire_days": 3,
     "license_key_length": 32,
