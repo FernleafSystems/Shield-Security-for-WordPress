@@ -19,6 +19,13 @@ class ICWP_EDD_LicenseVO {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getActivationsLeft() {
+		return $this->getRaw()->activations_left;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getCustomerEmail() {
@@ -33,12 +40,11 @@ class ICWP_EDD_LicenseVO {
 	}
 
 	/**
-	 * @param bool $bAsTimestamp
-	 * @return int|string
+	 * @return int
 	 */
-	public function getExpiresAt( $bAsTimestamp = true ) {
+	public function getExpiresAt() {
 		$sTime = $this->getRaw()->expires;
-		return $bAsTimestamp ? strtotime( $sTime ) : $sTime;
+		return ( $sTime == 'lifetime' ) ? PHP_INT_MAX : $sTime;
 	}
 
 	/**
@@ -46,6 +52,13 @@ class ICWP_EDD_LicenseVO {
 	 */
 	public function getItemName() {
 		return $this->getRaw()->item_name;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLicenseLimit() {
+		return $this->getRaw()->license_limit;
 	}
 
 	/**
@@ -60,6 +73,13 @@ class ICWP_EDD_LicenseVO {
 	 */
 	public function getPaymentId() {
 		return $this->getRaw()->payment_id;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSiteCount() {
+		return $this->getRaw()->site_count;
 	}
 
 	/**
