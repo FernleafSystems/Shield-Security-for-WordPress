@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class ICWP_EDD_LicenseVO
+ * Class ICWP_EDD_LicenseValidityTracker
  */
-class ICWP_EDD_LicenseVO {
+class ICWP_EDD_LicenseValidityTracker {
 
 	/**
 	 * @var stdClass
@@ -11,18 +11,11 @@ class ICWP_EDD_LicenseVO {
 	private $oRaw;
 
 	/**
-	 * ICWP_EDD_LicenseVO constructor.
-	 * @param stdClass $oData
+	 * ICWP_EDD_LicenseValidityTracker constructor.
+	 * @param $aOptions
 	 */
-	public function __construct( $oData ) {
-		$this->oRaw = $oData;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getActivationsLeft() {
-		return $this->getRaw()->activations_left;
+	public function __construct( $aOptions ) {
+		$this->oRaw = (object)$aOptions;
 	}
 
 	/**
@@ -44,7 +37,7 @@ class ICWP_EDD_LicenseVO {
 	 */
 	public function getExpiresAt() {
 		$sTime = $this->getRaw()->expires;
-		return ( $sTime == 'lifetime' ) ? PHP_INT_MAX : strtotime( $sTime );
+		return ( $sTime == 'lifetime' ) ? PHP_INT_MAX : $sTime;
 	}
 
 	/**
@@ -52,13 +45,6 @@ class ICWP_EDD_LicenseVO {
 	 */
 	public function getItemName() {
 		return $this->getRaw()->item_name;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLicenseLimit() {
-		return $this->getRaw()->license_limit;
 	}
 
 	/**
@@ -73,13 +59,6 @@ class ICWP_EDD_LicenseVO {
 	 */
 	public function getPaymentId() {
 		return $this->getRaw()->payment_id;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getSiteCount() {
-		return $this->getRaw()->site_count;
 	}
 
 	/**

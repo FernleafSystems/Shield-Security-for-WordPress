@@ -23,6 +23,38 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 */
+	public function displayFeatureConfigPage() {
+		$oWp = $this->loadWp();
+		$aData = array(
+			'strings'           => array(
+				'product_name'    => sprintf( 'Product Name' ),
+				'license_active'  => sprintf( 'License Active State' ),
+				'license_status'  => sprintf( 'License Official Status' ),
+				'license_key'     => sprintf( 'License Key' ),
+				'license_expires' => sprintf( 'License Expires' ),
+			),
+			'vars'              => array(
+				'product_name'    => $this->getLicenseItemName(),
+				'license_active'  => $this->hasValidWorkingLicense() ? 'Active' : 'Not Active',
+				'license_status'  => $this->getOfficialLicenseStatus(),
+				'license_key'     => $this->getLicenseKey(),
+				'license_expires' => date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) ),
+			),
+			'aHrefs'            => array(
+				'shield_pro_url'           => 'http://icwp.io/shieldpro',
+				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
+				'iframe_url'               => $this->getDefinition( 'landing_page_url' ),
+			),
+			'bShowStateSummary' => false,
+			'flags'             => array(
+				'wrap_page_content' => false,
+			),
+		);
+		$this->display( $aData );
+	}
+
+	/**
 	 * @param string $sDeactivatedReason
 	 */
 	public function deactivate( $sDeactivatedReason = '' ) {
@@ -66,7 +98,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$bNewlyActivated = !$bLicenseWasValid && $bLicenseIsValid;
 			$bNewlyDeactivated = $bLicenseWasValid && !$bLicenseIsValid;
 
-			if ( $bNewlyActivated ) {
+			if ( $bNewlyActivated || !$this->isLicenseActive() ) {
 				$this->setOpt( 'license_activated_at', $nRequestTime );
 			}
 			else if ( $bNewlyDeactivated ) {
