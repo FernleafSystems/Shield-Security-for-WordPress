@@ -26,6 +26,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function displayFeatureConfigPage() {
 		$oWp = $this->loadWp();
+
+		$this->validateLicense(); // just to ensure we have the latest going in.
+
 		$aData = array(
 			'strings'           => array(
 				'product_name'    => sprintf( 'Product Name' ),
@@ -33,6 +36,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'license_status'  => sprintf( 'License Official Status' ),
 				'license_key'     => sprintf( 'License Key' ),
 				'license_expires' => sprintf( 'License Expires' ),
+				'license_email'   => sprintf( 'License Owner Email' ),
 			),
 			'vars'              => array(
 				'product_name'    => $this->getLicenseItemName(),
@@ -40,6 +44,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'license_status'  => $this->getOfficialLicenseStatus(),
 				'license_key'     => $this->getLicenseKey(),
 				'license_expires' => date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) ),
+				'license_email'   => $this->getOfficialLicenseRegisteredEmail(),
 			),
 			'aHrefs'            => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
@@ -60,7 +65,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function deactivate( $sDeactivatedReason = '' ) {
 		if ( $this->isLicenseActive() ) {
 			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() )
-				 ->setOpt( 'license_expires_at', 0 );
+				 ->setOpt( 'license_expires_at', 0 )
+				 ->setOfficialLicenseRegisteredEmail( '' );
 			if ( $this->isOfficialLicenseStatusValid() ) {
 				$this->setOpt( 'license_official_status', 'cleared' );
 			}
@@ -91,7 +97,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 			$this->setOpt( 'license_expires_at', $oLicense->getExpiresAt() )
 				 ->setOpt( 'license_last_checked_at', $nRequestTime )
-				 ->setOpt( 'license_official_status', $oLicense->getLicenseStatus() );
+				 ->setOpt( 'license_official_status', $oLicense->getLicenseStatus() )
+				 ->setOfficialLicenseRegisteredEmail( $oLicense->getCustomerEmail() );
 
 			$bLicenseIsValid = $this->isOfficialLicenseStatusValid() && !$this->isLicenseExpired();
 
@@ -138,6 +145,34 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getLicenseKey() {
+		return $this->getOpt( 'license_key' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLicenseItemId() {
+		return $this->getDefinition( 'license_item_id' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLicenseItemName() {
+		return $this->getDefinition( 'license_item_name' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLicenseStoreUrl() {
+		return $this->getDefinition( 'license_store_url' );
+	}
+
+	/**
 	 * @return int
 	 */
 	protected function getLicenseExpiresAt() {
@@ -159,6 +194,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getOfficialLicenseRegisteredEmail() {
+		return $this->getOpt( 'license_registered_email' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isOfficialLicenseStatusValid() {
@@ -171,6 +213,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function isLicenseActive() {
 		return ( $this->getLicenseActivatedAt() > 0 )
 			   && ( $this->getLicenseDeactivatedAt() < $this->getLicenseActivatedAt() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLicenseKeyValidFormat() {
+		return $this->verifyLicenseKeyFormat( $this->getLicenseKey() );
 	}
 
 	/**
@@ -203,38 +252,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isLicenseKeyValidFormat() {
-		return $this->verifyLicenseKeyFormat( $this->getLicenseKey() );
-	}
-
-	/**
+	 * @param string $sEmail
 	 * @return string
 	 */
-	public function getLicenseKey() {
-		return $this->getOpt( 'license_key' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLicenseItemId() {
-		return $this->getDefinition( 'license_item_id' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLicenseItemName() {
-		return $this->getDefinition( 'license_item_name' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLicenseStoreUrl() {
-		return $this->getDefinition( 'license_store_url' );
+	protected function setOfficialLicenseRegisteredEmail( $sEmail ) {
+		return $this->setOpt( 'license_registered_email', $sEmail );
 	}
 
 	/**

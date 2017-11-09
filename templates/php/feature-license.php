@@ -41,6 +41,10 @@
 					<td><?php echo $strings[ 'license_expires' ]; ?>:</td>
 					<td><?php echo $vars[ 'license_expires' ]; ?></td>
 				</tr>
+				<tr>
+					<td><?php echo $strings[ 'license_email' ]; ?>:</td>
+					<td><?php echo $vars[ 'license_email' ]; ?></td>
+				</tr>
 			</table>
 		</div>
 	</div>

@@ -67,6 +67,12 @@
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
+    },
+    {
+      "key": "license_registered_email",
+      "transferable": false,
+      "default": "",
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
