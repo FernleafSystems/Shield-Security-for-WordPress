@@ -1196,7 +1196,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
 
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
-			$sSubView = 'feature-default';
+			$sModuleView = 'feature-'.$this->getFeatureSlug();
+			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
 		}
 
 		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );

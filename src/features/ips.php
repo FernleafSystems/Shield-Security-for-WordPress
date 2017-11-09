@@ -40,7 +40,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	public function displayFeatureConfigPage() {
 		add_thickbox();
-		$this->display( $this->getIpTableDisplayData(), 'feature-ips' );
+		$this->display( $this->getIpTableDisplayData() );
 	}
 
 	/**
