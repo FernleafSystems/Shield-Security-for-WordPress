@@ -77,7 +77,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					->activateLicense(
 						$this->getLicenseStoreUrl(),
 						$this->getLicenseKey(),
-						$this->getLicenseItemName()
+						$this->getLicenseItemId()
 					);
 	}
 
@@ -172,6 +172,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function getLicenseKey() {
 		return $this->getOpt( 'license_key' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLicenseItemId() {
+		return $this->getDefinition( 'license_item_id' );
 	}
 
 	/**

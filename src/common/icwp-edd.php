@@ -23,17 +23,17 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sStoreUrl
 	 * @param string $sKey
-	 * @param string $sName
+	 * @param string $sItemId
 	 * @return ICWP_EDD_LicenseVO|null
 	 */
-	public function activateLicense( $sStoreUrl, $sKey, $sName ) {
+	public function activateLicense( $sStoreUrl, $sKey, $sItemId ) {
 		$oLicense = null;
 
 		$aLicenseLookupParams = array(
 			'body' => array(
 				'edd_action' => 'activate_license',
 				'license'    => $sKey,
-				'item_name'  => rawurlencode_deep( $sName ),
+				'item_id'    => $sItemId,
 				'url'        => $this->loadWp()->getHomeUrl()
 			)
 		);
