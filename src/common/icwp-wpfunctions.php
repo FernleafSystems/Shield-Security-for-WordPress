@@ -929,7 +929,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
+	 * @param int $nTime
+	 * @return int
 	 */
 	public function getTimeAsGmtOffset( $nTime = null ) {
 
@@ -941,7 +942,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			}
 		}
 
-		$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+		$nTime = is_null( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
 		return $nTime + ( $nTimezoneOffset*HOUR_IN_SECONDS );
 	}
 

@@ -579,15 +579,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
-			if ( is_admin() || is_network_admin() ) {
-				$this->adminAjaxHandlers();
-			}
-		}
+		$bAdminRun = false;
 
 		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
 			$this->frontEndAjaxHandlers();
+			$this->adminAjaxHandlers();
+			$bAdminRun = true;
 //			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
+		}
+
+		if ( !$bAdminRun && $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
+			if ( is_admin() || is_network_admin() ) {
+				$this->adminAjaxHandlers();
+			}
 		}
 	}
 
@@ -1193,7 +1197,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oRndr = $this->loadRenderer( self::getController()->getPath_Templates() );
 
 		// Get Base Data
-		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+		$aData = apply_filters(
+			$this->prefix( $this->getFeatureSlug().'display_data' ),
+			array_merge( $this->getBaseDisplayData(), $aData )
+		);
 
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sModuleView = 'feature-'.$this->getFeatureSlug();

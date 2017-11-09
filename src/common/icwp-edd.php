@@ -27,11 +27,32 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @return ICWP_EDD_LicenseVO|null
 	 */
 	public function activateLicense( $sStoreUrl, $sKey, $sItemId ) {
+		return $this->commonLicenseAction( 'activate_license', $sStoreUrl, $sKey, $sItemId );
+	}
+
+	/**
+	 * @param string $sStoreUrl
+	 * @param string $sKey
+	 * @param string $sItemId
+	 * @return ICWP_EDD_LicenseVO|null
+	 */
+	public function deactivateLicense( $sStoreUrl, $sKey, $sItemId ) {
+		return $this->commonLicenseAction( 'deactivate_license', $sStoreUrl, $sKey, $sItemId );
+	}
+
+	/**
+	 * @param string $sAction
+	 * @param string $sStoreUrl
+	 * @param string $sKey
+	 * @param string $sItemId
+	 * @return ICWP_EDD_LicenseVO|null
+	 */
+	private function commonLicenseAction( $sAction, $sStoreUrl, $sKey, $sItemId ) {
 		$oLicense = null;
 
 		$aLicenseLookupParams = array(
 			'body' => array(
-				'edd_action' => 'activate_license',
+				'edd_action' => $sAction,
 				'license'    => $sKey,
 				'item_id'    => $sItemId,
 				'url'        => $this->loadWp()->getWpUrl()

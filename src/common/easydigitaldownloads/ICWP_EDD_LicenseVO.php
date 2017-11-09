@@ -83,6 +83,13 @@ class ICWP_EDD_LicenseVO {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSuccess() {
+		return $this->getRaw()->success;
+	}
+
+	/**
 	 * @return stdClass
 	 */
 	private function getRaw() {
@@ -92,7 +99,21 @@ class ICWP_EDD_LicenseVO {
 	/**
 	 * @return bool
 	 */
+	public function hasError() {
+		return isset( $this->oRaw->error );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasChecksum() {
+		return isset( $this->oRaw->checksum );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isReady() {
-		return isset( $this->oRaw ) && is_object( $this->oRaw ) && ( $this->getPaymentId() > 0 );
+		return isset( $this->oRaw ) && is_object( $this->oRaw ) && $this->hasChecksum();
 	}
 }

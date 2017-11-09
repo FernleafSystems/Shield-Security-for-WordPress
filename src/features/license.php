@@ -12,22 +12,20 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		add_filter( $this->getPremiumLicenseFilterName(), array( $this, 'hasValidWorkingLicense' ) );
 	}
 
-	protected function doExtraSubmitProcessing() {
-		// attempt activation on every save.
-		if ( $this->isLicenseKeyValidFormat() ) {
-			$this->validateLicense();
-		}
-		else {
-			$this->deactivate( 'Invalid License Key Format' );
-		}
-	}
-
 	/**
 	 */
 	public function displayFeatureConfigPage() {
 		$oWp = $this->loadWp();
 
 		$this->validateLicense(); // just to ensure we have the latest going in.
+
+		$nExpiresAt = $this->getLicenseExpiresAt();
+		if ( $nExpiresAt > 0 ) {
+			$sExpiresAt = date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) );
+		}
+		else {
+			$sExpiresAt = 'n/a';
+		}
 
 		$aData = array(
 			'strings'           => array(
@@ -43,9 +41,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'license_active'  => $this->hasValidWorkingLicense() ? 'Active' : 'Not Active',
 				'license_status'  => $this->getOfficialLicenseStatus(),
 				'license_key'     => $this->getLicenseKey(),
-				'license_expires' => date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) ),
+				'license_expires' => $sExpiresAt,
 				'license_email'   => $this->getOfficialLicenseRegisteredEmail(),
 			),
+			'inputs'            => array(
+				'license_key' => array(
+					'name'      => $this->prefixOptionKey( 'license_key' ),
+					'maxlength' => $this->getDefinition( 'license_key_length' ),
+				)
+			),
+			'ajax_vars'         => $this->getBaseAjaxActionRenderData( 'LicenseHandling' ),
 			'aHrefs'            => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
@@ -53,26 +58,71 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			),
 			'bShowStateSummary' => false,
 			'flags'             => array(
-				'wrap_page_content' => false,
+				'wrap_page_content'      => false,
+				'button_enabled_recheck' => $this->isLicenseKeyValidFormat(),
+				'button_enabled_remove'  => $this->isLicenseKeyValidFormat(),
 			),
 		);
 		$this->display( $aData );
+	}
+
+	protected function adminAjaxHandlers() {
+		add_action( $this->prefixWpAjax( 'LicenseHandling' ), array( $this, 'ajaxLicenseHandling' ) );
+	}
+
+	public function ajaxLicenseHandling() {
+		$bSuccess = false;
+		$oDp = $this->loadDataProcessor();
+
+		$sLicenseAction = $oDp->FetchPost( 'license-action' );
+
+		if ( $sLicenseAction == 'activate' ) {
+			$sKey = $oDp->FetchPost( $this->prefixOptionKey( 'license_key' ) );
+			if ( $this->verifyLicenseKeyFormat( $sKey ) ) {
+				$this->setOpt( 'license_key', $sKey );
+
+				if ( $this->isLicenseKeyValidFormat() ) {
+					$this->validateLicense();
+				}
+				else {
+					$this->deactivate( 'Invalid License Key Format' );
+				}
+			}
+		}
+		else if ( $sLicenseAction == 'remove' ) {
+			$oLicense = $this->loadEdd()
+							 ->deactivateLicense(
+								 $this->getLicenseStoreUrl(),
+								 $this->getLicenseKey(),
+								 $this->getLicenseItemId()
+							 );
+			if ( $oLicense ) {
+				$bSuccess = $oLicense->isSuccess();
+			}
+			$this->deactivate( 'User submitted deactivation' );
+			$this->setOpt( 'license_key', '' )
+				 ->setOpt( 'license_official_status', 'n/a' );
+		}
+
+		$this->sendAjaxResponse( $bSuccess );
 	}
 
 	/**
 	 * @param string $sDeactivatedReason
 	 */
 	public function deactivate( $sDeactivatedReason = '' ) {
+
+		$this->setOpt( 'license_expires_at', 0 )
+			 ->setOfficialLicenseRegisteredEmail( 'n/a' );
+
+		if ( $this->isOfficialLicenseStatusValid() ) {
+			$this->setOpt( 'license_official_status', 'cleared' );
+		}
 		if ( $this->isLicenseActive() ) {
-			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() )
-				 ->setOpt( 'license_expires_at', 0 )
-				 ->setOfficialLicenseRegisteredEmail( '' );
-			if ( $this->isOfficialLicenseStatusValid() ) {
-				$this->setOpt( 'license_official_status', 'cleared' );
-			}
-			if ( !empty( $sDeactivatedReason ) ) {
-				$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
-			}
+			$this->setOpt( 'license_deactivated_at', $this->loadDataProcessor()->time() );
+		}
+		if ( !empty( $sDeactivatedReason ) ) {
+			$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
 		}
 	}
 
@@ -95,10 +145,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 			$bLicenseWasValid = $this->isLicenseActive();
 
-			$this->setOpt( 'license_expires_at', $oLicense->getExpiresAt() )
-				 ->setOpt( 'license_last_checked_at', $nRequestTime )
-				 ->setOpt( 'license_official_status', $oLicense->getLicenseStatus() )
-				 ->setOfficialLicenseRegisteredEmail( $oLicense->getCustomerEmail() );
+			if ( $oLicense->getLicenseStatus() == 'valid' ) {
+				$this->setOpt( 'license_expires_at', $oLicense->getExpiresAt() )
+					 ->setOpt( 'license_last_checked_at', $nRequestTime )
+					 ->setOfficialLicenseRegisteredEmail( $oLicense->getCustomerEmail() );
+			}
+			$this->setOpt( 'license_official_status', $oLicense->getLicenseStatus() );
 
 			$bLicenseIsValid = $this->isOfficialLicenseStatusValid() && !$this->isLicenseExpired();
 
@@ -288,6 +340,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	protected function doPrePluginOptionsSave() {
+		// clean the key.
 		$sLicKey = $this->getLicenseKey();
 		if ( strlen( $sLicKey ) > 0 ) {
 			switch ( $this->getDefinition( 'license_key_type' ) ) {
