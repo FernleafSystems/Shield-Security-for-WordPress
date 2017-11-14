@@ -20,7 +20,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$this->validateLicense(); // just to ensure we have the latest going in.
 
 		$nExpiresAt = $this->getLicenseExpiresAt();
-		if ( $nExpiresAt > 0 ) {
+		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
 			$sExpiresAt = date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) );
 		}
 		else {
@@ -174,11 +174,37 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return ICWP_EDD_LicenseVO
 	 */
 	protected function activateOfficialLicense() {
+		$oLicense = $this->loadEdd()
+						 ->activateLicense(
+							 $this->getLicenseStoreUrl(),
+							 $this->getLicenseKey(),
+							 $this->getLicenseItemId()
+						 );
+
+		$this->setOpt( 'is_license_shield_central', false );
+
+		if ( !is_null( $oLicense ) ) {
+
+			if ( !$oLicense->isSuccess() ) {
+				$oScLicense = $this->activateOfficialLicenseShieldCentral();
+				if ( $oScLicense->isSuccess() ) {
+					$this->setOpt( 'is_license_shield_central', true );
+					$oLicense = $oScLicense;
+				}
+			}
+		}
+		return $oLicense;
+	}
+
+	/**
+	 * @return ICWP_EDD_LicenseVO
+	 */
+	protected function activateOfficialLicenseShieldCentral() {
 		return $this->loadEdd()
 					->activateLicense(
 						$this->getLicenseStoreUrl(),
 						$this->getLicenseKey(),
-						$this->getLicenseItemId()
+						$this->getLicenseItemIdShieldCentral()
 					);
 	}
 
@@ -213,8 +239,17 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return string
 	 */
+	public function getLicenseItemIdShieldCentral() {
+		return $this->getDefinition( 'license_item_id_sc' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getLicenseItemName() {
-		return $this->getDefinition( 'license_item_name' );
+		return $this->getOpt( 'is_license_shield_central' ) ?
+			$this->getDefinition( 'license_item_name_sc' ) :
+			$this->getDefinition( 'license_item_name' );
 	}
 
 	/**
@@ -265,6 +300,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function isLicenseActive() {
 		return ( $this->getLicenseActivatedAt() > 0 )
 			   && ( $this->getLicenseDeactivatedAt() < $this->getLicenseActivatedAt() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLicenseShieldCentral() {
+		return $this->getOpt( 'is_license_shield_central', true );
 	}
 
 	/**
