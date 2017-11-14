@@ -113,6 +113,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function deactivate( $sDeactivatedReason = '' ) {
 
 		$this->setOpt( 'license_expires_at', 0 )
+			 ->setOpt( 'is_license_shield_central', false )
 			 ->setOfficialLicenseRegisteredEmail( 'n/a' );
 
 		if ( $this->isOfficialLicenseStatusValid() ) {
