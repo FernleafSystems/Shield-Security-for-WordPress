@@ -1103,11 +1103,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function displayFeatureConfigPage() {
 		if ( $this->canDisplayOptionsForm() ) {
-			$this->display();
+			$this->displayModulePage();
 		}
 		else {
 			$this->displayRestrictedPage();
 		}
+	}
+
+	/**
+	 * Override this to customize anything with the display of the page
+	 */
+	protected function displayModulePage() {
+		$this->display();
 	}
 
 	protected function displayRestrictedPage() {

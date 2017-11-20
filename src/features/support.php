@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_Support extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 */
-	public function displayFeatureConfigPage() {
+	public function displayModulePage() {
 		$aData = array(
 			'has_premium_support' => $this->getHasPremiumSupport(),
 			'aHrefs'              => array(
