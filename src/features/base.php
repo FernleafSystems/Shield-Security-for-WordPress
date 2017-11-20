@@ -499,6 +499,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool   $bAsString
+	 * @param string $sGlue
+	 * @return string|array
+	 */
+	public function getLastErrors( $bAsString = true, $sGlue = " " ) {
+		$aErrors = $this->getOpt( 'last_errors' );
+		if ( !is_array( $aErrors ) ) {
+			$aErrors = array();
+		}
+		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @param mixed  $mDefault
 	 * @return mixed
@@ -553,6 +566,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getVersion() {
 		$sVersion = $this->getOpt( self::PluginVersionKey );
 		return empty( $sVersion ) ? self::getController()->getVersion() : $sVersion;
+	}
+
+	/**
+	 * @param array|string $mErrors
+	 * @return $this
+	 */
+	public function setLastErrors( $mErrors ) {
+		if ( !is_array( $mErrors ) ) {
+			if ( is_string( $mErrors ) ) {
+				$mErrors = array( $mErrors );
+			}
+			else {
+				$mErrors = array();
+			}
+		}
+		return $this->setOpt( 'last_errors', $mErrors );
 	}
 
 	/**
