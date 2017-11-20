@@ -92,6 +92,10 @@ iCWP_WPSF_LicenseHandler.initialise();
 				<td><?php echo $strings[ 'license_email' ]; ?>:</td>
 				<td><?php echo $vars[ 'license_email' ]; ?></td>
 			</tr>
+			<tr>
+				<td><?php echo $strings[ 'last_errors' ]; ?>:</td>
+				<td><?php echo $vars[ 'last_errors' ]; ?></td>
+			</tr>
 		</table>
 	</div>
 </div>

@@ -79,6 +79,18 @@
       "transferable": false,
       "default": false,
       "section": "section_non_ui"
+    },
+    {
+      "key": "last_error",
+      "transferable": false,
+      "default": '',
+      "section": "section_non_ui"
+    },
+    {
+      "key": "last_error_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
