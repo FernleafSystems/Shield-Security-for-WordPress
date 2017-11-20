@@ -2,7 +2,8 @@
   "properties": {
     "slug": "support",
     "name": "Shield Central Pro",
-    "show_feature_menu_item": true,
+    "show_feature_menu_item": false,
+    "hide_summary": true,
     "storage_key": "support",
     "tagline": "Premium Plugin Support Centre",
     "auto_enabled": true,

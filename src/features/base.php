@@ -471,7 +471,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function filter_getFeatureSummaryData( $aSummaryData ) {
-		if ( !$this->getIfShowFeatureMenuItem() ) {
+		if ( !$this->getIfShowSummaryItem() ) {
 			return $aSummaryData;
 		}
 
@@ -493,6 +493,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getIfShowFeatureMenuItem() {
 		return $this->getOptionsVo()->getFeatureProperty( 'show_feature_menu_item' );
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIfShowSummaryItem() {
+		return $this->getIfShowFeatureMenuItem() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
 	}
 
 	/**

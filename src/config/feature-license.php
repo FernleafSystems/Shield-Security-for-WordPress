@@ -3,7 +3,10 @@
   "properties": {
     "slug": "license",
     "name": "Shield Pro",
+    "auto_enabled": true,
     "show_feature_menu_item": true,
+    "highlight_menu_item": true,
+    "hide_summary": true,
     "storage_key": "license",
     "show_central": true,
     "premium": false,
@@ -83,7 +86,7 @@
     {
       "key": "last_error",
       "transferable": false,
-      "default": '',
+      "default": "",
       "section": "section_non_ui"
     },
     {
