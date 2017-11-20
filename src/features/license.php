@@ -14,7 +14,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 */
-	public function displayFeatureConfigPage() {
+	protected function displayModulePage() {
 		$oWp = $this->loadWp();
 
 		if ( $this->hasValidWorkingLicense() ) {
