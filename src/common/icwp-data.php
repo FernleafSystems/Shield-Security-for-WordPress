@@ -47,15 +47,6 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @deprecated
-		 * @param boolean $bAsHuman
-		 * @return int|string|bool - visitor IP Address as IP2Long
-		 */
-		public function getVisitorIpAddress( $bAsHuman = true ) {
-			return $this->loadIpService()->getRequestIp( $bAsHuman );
-		}
-
-		/**
 		 * @return string URI Path in lowercase
 		 */
 		public function getRequestPath() {

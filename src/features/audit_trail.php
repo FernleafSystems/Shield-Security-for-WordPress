@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		$aDisplayData = array(
-			'nYourIp'      => $this->loadDataProcessor()->getVisitorIpAddress( true ),
+			'nYourIp'      => $this->loadIpService()->getRequestIp(),
 			'sFeatureName' => _wpsf__( 'Audit Trail Viewer' )
 		);
 

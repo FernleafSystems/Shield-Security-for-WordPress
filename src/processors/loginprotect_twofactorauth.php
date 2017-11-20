@@ -197,7 +197,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return boolean
 	 */
 	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
-		$sIpAddress = $this->human_ip();
+		$sIpAddress = $this->ip();
 		$sEmail = $oUser->get( 'user_email' );
 
 		$aMessage = array(

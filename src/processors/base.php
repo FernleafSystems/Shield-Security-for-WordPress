@@ -201,15 +201,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		/**
 		 * @return bool|int|string
 		 */
-		protected function human_ip() {
-			return $this->loadDataProcessor()->getVisitorIpAddress();
-		}
-
-		/**
-		 * @return bool|int
-		 */
 		protected function ip() {
-			return $this->loadDataProcessor()->getVisitorIpAddress( false );
+			return $this->loadIpService()->getRequestIp();
 		}
 
 		/**
