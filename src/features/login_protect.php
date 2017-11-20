@@ -467,10 +467,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 								.'<br />- '._wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
 				break;
 
-			case '3pty_support_woocommerce' :
-				$sName = _wpsf__( 'Woocommerce Support' );
-				$sSummary = _wpsf__( 'Add Support For Woocommerce Login and Password Reset Pages' );
-				$sDescription = _wpsf__( 'Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms.' );
+			case 'login_protect_3pty' :
+				$sName = _wpsf__( '3rd-Party Support' );
+				$sSummary = _wpsf__( 'Support For 3rd-Party Plugins, e.g. WooCommerce' );
+				$sDescription = _wpsf__( 'Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads.' );
 				break;
 
 			case 'text_imahuman' :
