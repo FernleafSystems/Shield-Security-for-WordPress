@@ -38,7 +38,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 */
-	public function displayFeatureConfigPage() {
+	public function displayModulePage() {
 		add_thickbox();
 		$this->display( $this->getIpTableDisplayData() );
 	}
