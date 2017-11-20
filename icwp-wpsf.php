@@ -64,7 +64,7 @@ class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oController
 	 */
-	public function __construct( ICWP_WPSF_Plugin_Controller $oController ) {
+	protected function __construct( ICWP_WPSF_Plugin_Controller $oController ) {
 
 		// All core values of the plugin are derived from the values stored in this value object.
 		self::$oPluginController = $oController;

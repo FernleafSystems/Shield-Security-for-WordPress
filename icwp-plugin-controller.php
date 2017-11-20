@@ -100,6 +100,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $sAdminNoticeError = '';
 
 	/**
+	 * @var ICWP_WPSF_FeatureHandler_Plugin
+	 */
+	protected $oFeatureHandlerPlugin;
+
+	/**
 	 * @param $sRootFile
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
