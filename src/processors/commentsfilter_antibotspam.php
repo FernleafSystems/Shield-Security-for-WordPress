@@ -396,7 +396,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->getTableName(),
 			$sToken,
 			$sPostId,
-			$this->human_ip()
+			$this->ip()
 		);
 		$mResult = $this->selectCustom( $sQuery );
 
@@ -463,7 +463,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function deleteOldPostCommentTokens( $sPostId = null ) {
 		$aWhere = array(
-			'ip'        => $this->human_ip(),
+			'ip'        => $this->ip(),
 			'post_id'   => empty( $sPostId ) ? $this->loadWp()->getCurrentPostId() : $sPostId
 		);
 		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
@@ -476,7 +476,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$aData = array(
 			'post_id'       => $this->loadWp()->getCurrentPostId(),
 			'unique_token'  => $this->getUniqueCommentToken(),
-			'ip'            => $this->human_ip(),
+			'ip'            => $this->ip(),
 			'created_at'    => $this->time()
 		);
 		return $this->insertData( $aData );

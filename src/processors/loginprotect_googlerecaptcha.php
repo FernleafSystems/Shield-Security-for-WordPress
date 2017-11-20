@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 			}
 			else {
 				$oRecaptcha = $this->loadGoogleRecaptcha()->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() );
-				$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->human_ip() );
+				$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->ip() );
 				if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
 					$oError->add( 'shield_google_recaptcha_failed', _wpsf__( 'Whoops.' )
 						.' '. _wpsf__( 'Google reCAPTCHA verification failed.' ) );

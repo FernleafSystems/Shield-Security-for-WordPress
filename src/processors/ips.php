@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return bool
 	 */
 	protected function readyToRun() {
-		return ( parent::readyToRun() && $this->loadIpService()->isValidIp_PublicRemote( $this->human_ip() ) );
+		return ( parent::readyToRun() && $this->loadIpService()->isValidIp_PublicRemote( $this->ip() ) );
 	}
 
 	/**
@@ -106,7 +106,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'your_ip'           => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() ),
+					'your_ip'           => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
 					'notice_message'    => sprintf(
 						_wpsf__( 'Notice - %s' ),
 						_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
@@ -204,7 +204,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
 		if ( empty( $sIp ) ) {
-			$sIp = $this->human_ip();
+			$sIp = $this->ip();
 		}
 		return $oFO->getOptTransgressionLimit() - $this->getCurrentTransgressionsForIp( $sIp );
 	}
@@ -215,7 +215,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getCurrentTransgressionsForIp( $sIp ) {
 		if ( empty( $sIp ) ) {
-			$sIp = $this->human_ip();
+			$sIp = $this->ip();
 		}
 		$aData = $this->getIpHasTransgressions( $sIp, true );
 		return empty( $aData ) ? 0 : $aData[ 'transgressions' ];
@@ -230,7 +230,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
-		$sIp = $this->human_ip();
+		$sIp = $this->ip();
 		$bKill = false; // Manual black list first.
 
 		// now try auto black list
@@ -287,7 +287,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		$bDoBlackMark = apply_filters( $oFO->prefix( 'ip_black_mark' ), false );
 		if ( $bDoBlackMark ) {
-			$this->blackMarkIp( $this->human_ip() );
+			$this->blackMarkIp( $this->ip() );
 		}
 	}
 
@@ -323,7 +323,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
 		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-			$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $this->human_ip() );
+			$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $this->ip() );
 		}
 		return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
 	}

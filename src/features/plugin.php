@@ -387,7 +387,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = $oDp->getVisitorIpAddress();
+				$sIp = $oDp->loadIpService()->getRequestIp();
 			}
 			else {
 				$sIp = $oDp->FetchServer( $sKey );

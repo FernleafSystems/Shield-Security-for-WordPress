@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 		foreach ( $aEntries as $aEntry ) {
 			if ( empty( $aEntry[ 'ip' ] ) ) {
-				$aEntry[ 'ip' ] = $this->human_ip();
+				$aEntry[ 'ip' ] = $this->ip();
 			}
 			if ( is_array( $aEntry[ 'message' ] ) ) {
 				$aEntry[ 'message' ] = implode( ' ', $aEntry[ 'message' ] );

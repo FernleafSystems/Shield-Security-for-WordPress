@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		$aDisplayData = array(
 			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
 			'sFooter'           => $sFooter,
-			'sIpAddress'        => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() )
+			'sIpAddress'        => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() )
 		);
 
 		if ( !is_array( $aContent ) ) {

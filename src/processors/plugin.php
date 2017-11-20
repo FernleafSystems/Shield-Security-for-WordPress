@@ -118,7 +118,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	public function printVisitorIpFooter() {
 		if ( apply_filters( 'icwp_wpsf_print_admin_ip_footer', true ) ) {
-			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->human_ip() ) );
+			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
 		}
 	}
 
