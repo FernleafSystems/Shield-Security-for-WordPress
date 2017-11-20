@@ -10,18 +10,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @var ICWP_WPSF_Plugin_Controller
 	 */
 	static protected $oPluginController;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bBypassAdminAccess = false;
+
 	/**
 	 * @var ICWP_WPSF_OptionsVO
 	 */
 	protected $oOptions;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bModuleMeetsRequirements;
+
 	/**
 	 * @var string
 	 */
@@ -30,34 +34,42 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @var string
 	 */
 	const PluginVersionKey = 'current_plugin_version';
+
 	/**
 	 * @var boolean
 	 */
 	protected $bPluginDeleting = false;
+
 	/**
 	 * @var string
 	 */
 	protected $sOptionsStoreKey;
+
 	/**
 	 * @var string
 	 */
 	protected $sFeatureName;
+
 	/**
 	 * @var string
 	 */
 	protected $sFeatureSlug;
+
 	/**
 	 * @var boolean
 	 */
 	protected static $bForceOffFileExists;
+
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
 	 */
 	protected static $oEmailHandler;
+
 	/**
 	 * @var ICWP_WPSF_Processor_Base
 	 */
 	protected $oProcessor;
+
 	/**
 	 * @var string
 	 */
@@ -1090,7 +1102,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function displayFeatureConfigPage() {
-		$this->display();
+		if ( $this->canDisplayOptionsForm() ) {
+			$this->display();
+		}
+		else {
+			$this->displayRestrictedPage();
+		}
+	}
+
+	protected function displayRestrictedPage() {
+		$this->display( array( 'bShowStateSummary' => false ), 'subfeature-access_restricted.php' );
 	}
 
 	/**
