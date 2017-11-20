@@ -40,7 +40,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
-				add_action( 'edd_register_form_fields_after',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
+				add_action( 'edd_register_form_fields_before_submit',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
 			}
 		}
 	}
