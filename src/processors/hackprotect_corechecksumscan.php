@@ -160,6 +160,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		foreach ( $aExclusions as $nKey => $sExclusion ) {
 			$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
 		}
+
+		// Flywheel specific mods
+		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
+			$aExclusions[] = 'wp-settings.php';
+			$aExclusions[] = 'wp-admin/includes/upgrade.php';
+		}
+
 		return $aExclusions;
 	}
 

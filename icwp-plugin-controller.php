@@ -105,12 +105,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public static function GetInstance( $sRootFile ) {
 		if ( !isset( self::$oInstance ) ) {
-			try {
-				self::$oInstance = new self( $sRootFile );
-			}
-			catch ( Exception $oE ) {
-				return null;
-			}
+			self::$oInstance = new self( $sRootFile );
 		}
 		return self::$oInstance;
 	}
