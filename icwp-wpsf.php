@@ -122,9 +122,13 @@ class ICWP_WPSF_Shield_Security extends ICWP_Wordpress_Simple_Firewall {
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oController
 	 * @return self
+	 * @throws Exception
 	 */
-	public static function GetInstance( $oController ) {
+	public static function GetInstance( $oController = null ) {
 		if ( is_null( self::$oInstance ) ) {
+			if ( is_null( $oController ) || !( $oController instanceof ICWP_WPSF_Plugin_Controller ) ) {
+				throw new Exception( 'Trying to create a Shield Security instance without a valid Controller' );
+			}
 			self::$oInstance = new self( $oController );
 		}
 		return self::$oInstance;
