@@ -378,7 +378,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
 					. $this->loadWp()->getHomeUrl( true )
-					. '-' . date( 'ymdHis' ) . '.txt'
+					. '-' . date( 'y-m-d__H-i-s' ) . '.txt'
 				);
 			}
 		}

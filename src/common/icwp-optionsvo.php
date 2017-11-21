@@ -101,13 +101,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getTransferableOptions() {
-
-		$aOptions = $this->getAllOptionsValues();
-		$aRawOptions = $this->getRawData_AllOptions();
 		$aTransferable = array();
-		foreach ( $aRawOptions as $nKey => $aOptionData ) {
+
+		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptionData ) {
 			if ( !isset( $aOptionData[ 'transferable' ] ) || $aOptionData[ 'transferable' ] === true ) {
-				$aTransferable[ $aOptionData[ 'key' ] ] = $aOptions[ $aOptionData[ 'key' ] ];
+				$aTransferable[ $aOptionData[ 'key' ] ] = $this->getOpt( $aOptionData[ 'key' ] );
 			}
 		}
 		return $aTransferable;

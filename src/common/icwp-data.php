@@ -390,7 +390,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			header( "Content-type: application/octet-stream" );
 			header( "Content-disposition: attachment; filename=" . $sFilename );
 			header( "Content-Transfer-Encoding: binary" );
-			header( "Content-Length: " . filesize( $sStringContent ) );
+			header( "Content-Length: " . strlen( $sStringContent ) );
 			echo $sStringContent;
 			die();
 		}
