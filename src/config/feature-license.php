@@ -3,7 +3,10 @@
   "properties": {
     "slug": "license",
     "name": "Shield Pro",
+    "auto_enabled": true,
     "show_feature_menu_item": true,
+    "highlight_menu_item": true,
+    "hide_summary": true,
     "storage_key": "license",
     "show_central": true,
     "premium": false,
@@ -67,12 +70,38 @@
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
+    },
+    {
+      "key": "license_registered_email",
+      "transferable": false,
+      "default": "",
+      "section": "section_non_ui"
+    },
+    {
+      "key": "is_license_shield_central",
+      "transferable": false,
+      "default": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "last_errors",
+      "transferable": false,
+      "default": "",
+      "section": "section_non_ui"
+    },
+    {
+      "key": "last_error_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
-    "license_store_url": "https://www.asdf.com",
-    "license_item_name": "Shield Pro",
-    "license_item_id": "Shield Pro",
+    "license_store_url": "https://onedollarplugin.com/edd-sl/",
+    "license_item_name": "Shield Security Pro",
+    "license_item_id": "40",
+    "license_item_name_sc": "Shield Security Pro (via Shield Central)",
+    "license_item_id_sc": "968",
     "license_lack_check_expire_days": 3,
     "license_key_length": 32,
     "license_key_type": "alphanumeric"

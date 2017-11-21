@@ -471,7 +471,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function filter_getFeatureSummaryData( $aSummaryData ) {
-		if ( !$this->getIfShowFeatureMenuItem() ) {
+		if ( !$this->getIfShowSummaryItem() ) {
 			return $aSummaryData;
 		}
 
@@ -498,6 +498,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return boolean
 	 */
+	public function getIfShowSummaryItem() {
+		return $this->getIfShowFeatureMenuItem() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
+	}
+
+	/**
+	 * @return boolean
+	 */
 	public function getIfUseSessions() {
 		return $this->getOptionsVo()->getFeatureProperty( 'use_sessions' );
 	}
@@ -508,6 +515,33 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getDefinition( $sDefinitionKey ) {
 		return $this->getOptionsVo()->getFeatureDefinition( $sDefinitionKey );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearLastErrors() {
+		return $this->setLastErrors( array() );
+	}
+
+	/**
+	 * @param bool   $bAsString
+	 * @param string $sGlue
+	 * @return string|array
+	 */
+	public function getLastErrors( $bAsString = true, $sGlue = " " ) {
+		$aErrors = $this->getOpt( 'last_errors' );
+		if ( !is_array( $aErrors ) ) {
+			$aErrors = array();
+		}
+		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasLastErrors() {
+		return count( $this->getLastErrors( false ) ) > 0;
 	}
 
 	/**
@@ -568,6 +602,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param array|string $mErrors
+	 * @return $this
+	 */
+	public function setLastErrors( $mErrors ) {
+		if ( !is_array( $mErrors ) ) {
+			if ( is_string( $mErrors ) ) {
+				$mErrors = array( $mErrors );
+			}
+			else {
+				$mErrors = array();
+			}
+		}
+		return $this->setOpt( 'last_errors', $mErrors );
+	}
+
+	/**
 	 * Sets the value for the given option key
 	 * Note: We also set the ability to bypass admin access since setOpt() is a protected function
 	 * @param string $sOptionKey
@@ -591,15 +641,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
-			if ( is_admin() || is_network_admin() ) {
-				$this->adminAjaxHandlers();
-			}
-		}
+		$bAdminRun = false;
 
 		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
 			$this->frontEndAjaxHandlers();
+			$this->adminAjaxHandlers();
+			$bAdminRun = true;
 //			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
+		}
+
+		if ( !$bAdminRun && $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
+			if ( is_admin() || is_network_admin() ) {
+				$this->adminAjaxHandlers();
+			}
 		}
 	}
 
@@ -1221,7 +1275,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oRndr = $this->loadRenderer( self::getController()->getPath_Templates() );
 
 		// Get Base Data
-		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
+		$aData = apply_filters(
+			$this->prefix( $this->getFeatureSlug().'display_data' ),
+			array_merge( $this->getBaseDisplayData(), $aData )
+		);
 
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sModuleView = 'feature-'.$this->getFeatureSlug();

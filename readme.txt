@@ -1,5 +1,5 @@
 === Shield Security for WordPress ===
-Contributors: paultgoodchild
+Contributors: onedollarplugin, paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html

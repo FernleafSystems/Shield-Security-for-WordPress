@@ -61,6 +61,10 @@ class ICWP_WPSF_Foundation {
 	 * @var ICWP_WPSF_WpTrack
 	 */
 	private static $oTrack;
+	/**
+	 * @var ICWP_WPSF_Edd
+	 */
+	private static $oEdd;
 
 	/**
 	 * @return ICWP_WPSF_DataProcessor
@@ -241,6 +245,17 @@ class ICWP_WPSF_Foundation {
 			self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
 		}
 		return self::$oWpComments;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Edd
+	 */
+	static public function loadEdd() {
+		if ( !isset( self::$oEdd ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-edd.php' );
+			self::$oEdd = ICWP_WPSF_Edd::GetInstance();
+		}
+		return self::$oEdd;
 	}
 
 	/**
