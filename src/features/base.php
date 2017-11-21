@@ -518,6 +518,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function clearLastErrors() {
+		return $this->setLastErrors( array() );
+	}
+
+	/**
 	 * @param bool   $bAsString
 	 * @param string $sGlue
 	 * @return string|array
@@ -528,6 +535,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aErrors = array();
 		}
 		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasLastErrors() {
+		return count( $this->getLastErrors( false ) ) > 0;
 	}
 
 	/**

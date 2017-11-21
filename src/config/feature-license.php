@@ -84,7 +84,7 @@
       "section": "section_non_ui"
     },
     {
-      "key": "last_error",
+      "key": "last_errors",
       "transferable": false,
       "default": "",
       "section": "section_non_ui"

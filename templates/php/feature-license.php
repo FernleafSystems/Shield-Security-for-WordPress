@@ -98,7 +98,7 @@ iCWP_WPSF_LicenseHandler.initialise();
 			</tr>
 			<tr>
 				<td><?php echo $strings[ 'last_errors' ]; ?>:</td>
-				<td><?php echo $vars[ 'last_errors' ]; ?></td>
+				<td style="color: #b80000"><?php echo $vars[ 'last_errors' ]; ?></td>
 			</tr>
 		</table>
 	</div>
