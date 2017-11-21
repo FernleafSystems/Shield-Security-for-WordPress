@@ -17,10 +17,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function displayModulePage() {
 		$oWp = $this->loadWp();
 
-		if ( $this->hasValidWorkingLicense() ) {
-			$this->validateCurrentLicenseKey(); // just to ensure we have the latest going in.
-		}
-
 		$nExpiresAt = $this->getLicenseExpiresAt();
 		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
 			$sExpiresAt = date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) );
@@ -28,6 +24,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		else {
 			$sExpiresAt = 'n/a';
 		}
+
+		$sCheckedAt = date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseLastCheckedAt() ) );
 
 		$aData = array(
 			'vars'              => array(
@@ -37,6 +35,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'license_key'     => $this->hasLicenseKey() ? $this->getLicenseKey() : 'n/a',
 				'license_expires' => $sExpiresAt,
 				'license_email'   => $this->getOfficialLicenseRegisteredEmail(),
+				'last_checked'    => $sCheckedAt,
 				'last_errors'     => $this->getLastErrors(),
 			),
 			'inputs'            => array(
@@ -72,6 +71,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'license_key'     => _wpsf__( 'License Key' ),
 			'license_expires' => _wpsf__( 'License Expires' ),
 			'license_email'   => _wpsf__( 'License Owner Email' ),
+			'last_checked'    => _wpsf__( 'Last Checked' ),
 			'last_errors'     => _wpsf__( 'Last Errors' ),
 		);
 	}
@@ -120,7 +120,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		$sLicenseAction = $oDp->FetchPost( 'license-action' );
 
-		if ( $sLicenseAction == 'activate' ) {
+		if ( $sLicenseAction == 'recheck' ) {
+			$this->validateCurrentLicenseKey();
+			$bSuccess = $this->hasValidWorkingLicense();
+		}
+		else if ( $sLicenseAction == 'activate' ) {
 			$sKey = $oDp->FetchPost( $this->prefixOptionKey( 'license_key' ) );
 			$this->activateOfficialLicense( $sKey );
 			$bSuccess = $this->hasValidWorkingLicense();
@@ -164,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	protected function validateCurrentLicenseKey() {
-		$this->activateOfficialLicense( $this->getLicenseKey() );
+		$this->activateOfficialLicense( $this->getLicenseKey(), true );
 	}
 
 //	protected function validateLicenseKey( $sKey ) {
