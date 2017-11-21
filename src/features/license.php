@@ -212,41 +212,55 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 * @param string $sKey
+	 * @param bool   $bForceUpdate
 	 * @return ICWP_EDD_LicenseVO
 	 */
-	public function activateOfficialLicense( $sKey ) {
+	public function activateOfficialLicense( $sKey, $bForceUpdate = false ) {
 		$oLicense = null;
 		$sKey = $this->verifyLicenseKeyFormat( $sKey );
 		$sErrorMessage = '';
 
+		// i.e. only continue if the keys are different, or, if they're the same only if your license is expired.
 		if ( !is_null( $sKey ) ) {
-			$oLicense = $this->loadEdd()
-							 ->activateLicense(
-								 $this->getLicenseStoreUrl(),
-								 $sKey,
-								 $this->getLicenseItemId()
-							 );
 
-			if ( !is_null( $oLicense ) ) {
-				$this->setOpt( 'is_license_shield_central', false );
+			$sOrigKey = $this->getLicenseKey();
+			$bIsNewKey = $sOrigKey != $sKey;
+			$bDeactivateOriginal = $bIsNewKey && $this->hasValidWorkingLicense();
 
-				if ( !$oLicense->isSuccess() ) {
-					$oScLicense = $this->activateOfficialLicenseAsShieldCentral( $sKey );
-					if ( $oScLicense->isSuccess() ) {
-						$this->setOpt( 'is_license_shield_central', true );
-						$oLicense = $oScLicense;
+			if ( $bForceUpdate || $bIsNewKey || !$this->hasValidWorkingLicense() ) {
+				$oLicense = $this->loadEdd()
+								 ->activateLicense(
+									 $this->getLicenseStoreUrl(),
+									 $sKey,
+									 $this->getLicenseItemId()
+								 );
+
+				if ( !is_null( $oLicense ) ) {
+					$this->setOpt( 'is_license_shield_central', false );
+
+					if ( !$oLicense->isSuccess() ) {
+						$oScLicense = $this->activateOfficialLicenseAsShieldCentral( $sKey );
+						if ( $oScLicense->isSuccess() ) {
+							$this->setOpt( 'is_license_shield_central', true );
+							$oLicense = $oScLicense;
+						}
 					}
 				}
-			}
-			else {
-				$sErrorMessage = 'Could not successfully request license server.'; // error for license lookup
-			}
+				else {
+					$sErrorMessage = 'Could not successfully request license server.'; // error for license lookup
+				}
 
-			try {
-				$this->storeValidLicense( $sKey, $oLicense );
-			}
-			catch ( Exception $oE ) {
-				$sErrorMessage = $oE->getMessage();
+				try {
+					$this->storeValidLicense( $sKey, $oLicense );
+					// We also officially deactivate any existing valid licenses
+					if ( $bDeactivateOriginal && $oLicense->isSuccess() ) {
+						$this->loadEdd()
+							 ->deactivateLicense( $this->getLicenseStoreUrl(), $sOrigKey, $this->getLicenseItemId() );
+					}
+				}
+				catch ( Exception $oE ) {
+					$sErrorMessage = $oE->getMessage();
+				}
 			}
 		}
 		else {
