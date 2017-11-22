@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.16.3
+Stable tag: 5.17.0
 
 Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
 
@@ -308,10 +308,27 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.16.4 Latest Point Release =
-*Released: 2nd November, 2017*
+= 5.17.0 Latest Point Release =
+*Released: 23rd November, 2017*
 
-* **(v.4)**  FIX:			Error with incorrect/unprefixed database table name used in SQL query.
+Our policy has been to never restrict security features to Pro upgrades. This has **not changed**.
+
+We're now offering technical support and other features exclusively to premium customers. If you don't want to support
+our work, no problem! You can still continue to use Shield Security and its features in-full. Some newer options and
+extras will be restricted to you, however.
+
+You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support going-forward will be for premium clients only.
+
+* **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
+* **(v.0)**  IMPROVEMENT:	Fix and improvement to Google reCAPTCHA.
+* **(v.0)**  PRO:			Support for Woocommerce and Easy Digital Downloads login/registration form protection.
+* **(v.0)**  PRO:			Ability to customise most user-facing texts.
+* **(v.0)**  PRO:			Extra IP Transgression signal.
+
+= 5.17.0 Series =
+*Released: 23rd November, 2017*
+
+* **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
