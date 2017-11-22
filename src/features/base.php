@@ -1172,7 +1172,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function displayRestrictedPage() {
-		$this->display( array( 'bShowStateSummary' => false ), 'subfeature-access_restricted.php' );
+		$this->display(
+			array( 'flags' => array( 'show_summary' => false ) ),
+			'subfeature-access_restricted.php'
+		);
 	}
 
 	/**
@@ -1189,7 +1192,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
 			'feature_slug'    => self::$sActivelyDisplayedModuleOptions,
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
-			'fShowAds'        => $this->getIsShowMarketing(),
 			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
 			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
@@ -1207,8 +1209,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
 
-			'bShowStateSummary' => false,
-			'aSummaryData'      => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
 			'aAllOptions'       => $this->buildOptions(),
 			'aHiddenOptions'    => $this->getOptionsVo()->getHiddenOptions(),
@@ -1226,8 +1227,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'see_help_video'                    => __( 'Watch Help Video' )
 			),
 			'flags'      => array(
-				'wrap_page_content' => true,
+				'show_ads'              => $this->getIsShowMarketing(),
+				'show_summary'          => false,
+				'wrap_page_content'     => true,
+				'show_standard_options' => true,
+				'show_alt_content'      => false,
 			),
+			'content'    => array(
+				'alt' => ''
+			)
 		);
 	}
 
@@ -1235,7 +1243,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	protected function getIsShowMarketing() {
-		return apply_filters( $this->prefix( 'show_marketing' ), true );
+		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
 	/**
@@ -1273,13 +1281,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function display( $aData = array(), $sSubView = '' ) {
 		$oRndr = $this->loadRenderer( self::getController()->getPath_Templates() );
+		$oDp = $this->loadDataProcessor();
 
 		// Get Base Data
-		$aData = apply_filters(
-			$this->prefix( $this->getFeatureSlug().'display_data' ),
-			array_merge( $this->getBaseDisplayData(), $aData )
-		);
-
+		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sModuleView = 'feature-'.$this->getFeatureSlug();
 			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';

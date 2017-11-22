@@ -47,6 +47,22 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param array $aArray1
+		 * @param array $aArray2
+		 * @return array
+		 */
+		public function mergeArraysRecursive( $aArray1, $aArray2 ) {
+			foreach ( $aArray2 as $key => $Value ) {
+				if ( array_key_exists( $key, $aArray1 ) && is_array( $Value ) ) {
+					$aArray1[ $key ] = $this->mergeArraysRecursive( $aArray1[ $key ], $aArray2[ $key ] );
+				}
+				else {
+					$aArray1[ $key ] = $Value;
+				}
+			}
+			return $aArray1;
+		}
+		/**
 		 * @return string URI Path in lowercase
 		 */
 		public function getRequestPath() {

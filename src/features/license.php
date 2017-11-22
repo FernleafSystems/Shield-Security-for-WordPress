@@ -28,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$sCheckedAt = date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseLastCheckedAt() ) );
 
 		$aData = array(
-			'vars'              => array(
+			'vars'      => array(
 				'product_name'    => $this->getLicenseItemName(),
 				'license_active'  => $this->hasValidWorkingLicense() ? 'Active' : 'Not Active',
 				'license_status'  => $this->getOfficialLicenseStatus(),
@@ -38,24 +38,32 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'last_checked'    => $sCheckedAt,
 				'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : 'n/a'
 			),
-			'inputs'            => array(
+			'inputs'    => array(
 				'license_key' => array(
 					'name'      => $this->prefixOptionKey( 'license_key' ),
 					'maxlength' => $this->getDefinition( 'license_key_length' ),
 				)
 			),
-			'ajax_vars'         => $this->getBaseAjaxActionRenderData( 'LicenseHandling' ),
-			'aHrefs'            => array(
+			'ajax_vars' => $this->getBaseAjaxActionRenderData( 'LicenseHandling' ),
+			'aHrefs'    => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
 				'iframe_url'               => $this->getDefinition( 'landing_page_url' ),
 			),
-			'bShowStateSummary' => false,
-			'flags'             => array(
-				'wrap_page_content'      => false,
+			'flags'     => array(
+				'show_summary'           => false,
 				'button_enabled_recheck' => $this->isLicenseKeyValidFormat(),
 				'button_enabled_remove'  => $this->isLicenseKeyValidFormat(),
+				'show_standard_options'  => false,
+				'show_alt_content'       => true,
 			),
+			'strings'   => $this->getDisplayStrings(),
+		);
+		$aData[ 'content' ] = array(
+			'alt' => $this->loadRenderer( self::getController()->getPath_Templates() )
+						  ->setTemplate( 'snippets/pro.php' )
+						  ->setRenderVars( $aData )
+						  ->render()
 		);
 		$this->display( $aData );
 	}
