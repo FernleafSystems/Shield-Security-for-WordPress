@@ -161,7 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 
 		public function registerGoogleRecaptchaJs() {
 			$sJsUri = add_query_arg(
-				array( 'hl', $this->getGoogleRecaptchaLocale() ),
+				array( 'hl' => $this->getGoogleRecaptchaLocale() ),
 				'https://www.google.com/recaptcha/api.js'
 			);
 			wp_register_script( 'google-recaptcha', $sJsUri );
