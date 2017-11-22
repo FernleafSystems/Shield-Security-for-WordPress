@@ -64,7 +64,7 @@
 											<?php if ( !$bEnabled ) : ?>
 												<div class="option_overlay">
 													<div class="overlay_message">
-														<a href="" target="_blank">
+														<a href="<?php echo $hrefs['go_pro']; ?>" target="_blank">
 															A Pro Feature</a>
 													</div>
 												</div>
