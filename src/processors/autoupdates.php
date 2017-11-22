@@ -63,7 +63,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->loadWp()->doForceRunAutomaticUpdates();
 		}
 
-		if ( $oFO->isAutoupdateIndividualPlugins() && $oFO->getController()->getIsValidAdminArea() ) {
+		if ( $oFO->isAutoupdateIndividualPlugins() && $oFO->getConn()->getIsValidAdminArea() ) {
 			// Adds automatic update indicator column to all plugins in plugin listing.
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
 		}
@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 
 		// If it's this plugin and autoupdate this plugin is set...
-		if ( $sItemFile === $oFO->getController()->getPluginBaseFile() ) {
+		if ( $sItemFile === $oFO->getConn()->getPluginBaseFile() ) {
 			$bDoAutoUpdate = true;
 			if ( $this->loadWp()->getIsRunningAutomaticUpdates() ) {
 				$this->doStatIncrement( 'autoupdates.plugins.self' );

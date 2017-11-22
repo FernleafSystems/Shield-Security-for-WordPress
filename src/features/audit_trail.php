@@ -50,7 +50,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$aAudits = array();
 		foreach ( $aContexts as $sContext ) {
 			$aAuditContext = array();
-			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getController()
+			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getConn()
 																	  ->getHumanName() : _wpsf__( $sContext );
 
 			$aAuditData = $oAuditTrail->getAuditEntriesForContext( strtolower( $sContext ) );
@@ -152,7 +152,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
-		$oCon = self::getController();
+		$oCon = self::getConn();
 
 		$sKey = $aOptionsParams[ 'key' ];
 		switch ( $sKey ) {

@@ -47,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
-		if ( $this->isAutoupdateIndividualPlugins() && $this->getController()->getIsValidAdminArea() ) {
+		if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->getIsValidAdminArea() ) {
 			add_action( 'wp_ajax_icwp_wpsf_TogglePluginAutoupdate', array( $this, 'ajaxTogglePluginAutoupdate' ) );
 		}
 	}
@@ -134,7 +134,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_automatic_plugin_self_update' :
 				$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getController()->getHumanName() ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()->getHumanName() ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this option turned on.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Self-Update' );
@@ -191,7 +191,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'autoupdate_plugin_self' :
 				$sName = _wpsf__( 'Auto Update Plugin' );
 				$sSummary = _wpsf__( 'Always Automatically Update This Plugin' );
-				$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), self::getController()->getHumanName() );
+				$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), self::getConn()->getHumanName() );
 				break;
 
 			case 'autoupdate_core' :
