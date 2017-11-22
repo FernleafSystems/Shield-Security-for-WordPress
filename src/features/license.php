@@ -51,7 +51,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'iframe_url'               => $this->getDefinition( 'landing_page_url' ),
 			),
 			'flags'     => array(
+				'has_license_key'        => $this->isLicenseKeyValidFormat(),
 				'show_summary'           => false,
+				'show_ads'               => false,
 				'button_enabled_recheck' => $this->isLicenseKeyValidFormat(),
 				'button_enabled_remove'  => $this->isLicenseKeyValidFormat(),
 				'show_standard_options'  => false,
