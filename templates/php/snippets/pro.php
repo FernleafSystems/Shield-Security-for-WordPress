@@ -130,9 +130,10 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 						</p>
 						<p>Shield Pro is our 1st One Dollar Plugin and is sold for the equivalent of $1/month per site.($12/year)</p>
 						<ol>
-							<li>Just grab your license from One Dollar Plugin here.</li>
+							<li>Just grab a new license from the
+								<a href="http://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
 							<li>Activate your license on your sites using the Activate button (below).</li>
-							<li><strong>No manual premium plugin download</strong> - we automatically take care of it all for you! :)</li>
+							<li><strong>No manual premium download</strong> - we automatically take care of it all for you! :)</li>
 						</ol>
 
 						<p style="text-align: center">
