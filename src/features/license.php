@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'strings'   => $this->getDisplayStrings(),
 		);
 		$aData[ 'content' ] = array(
-			'alt' => $this->loadRenderer( self::getController()->getPath_Templates() )
+			'alt' => $this->loadRenderer( self::getConn()->getPath_Templates() )
 						  ->setTemplate( 'snippets/pro.php' )
 						  ->setRenderVars( $aData )
 						  ->render()
@@ -500,7 +500,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return boolean
 	 */
 	public function getIfShowFeatureMenuItem() {
-		return parent::getIfShowFeatureMenuItem() && self::getController()->isPremiumExtensionsEnabled();
+		return parent::getIfShowFeatureMenuItem() && self::getConn()->isPremiumExtensionsEnabled();
 	}
 
 	/**

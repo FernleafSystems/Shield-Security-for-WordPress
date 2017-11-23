@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.16.3
+Stable tag: 5.17.0
 
 Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
 
@@ -21,6 +21,27 @@ Protect your WordPress site, your reputation, and your customers for free with S
 >
 > <strong>Shield + iControlWP</strong><br />
 > If you have multiple sites, then Shield [combined with iControlWP](http://icwp.io/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
+
+= The New Shield Pro =
+
+As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that
+anything we consider standard website security *will always be free* - no upgrade necessary.
+
+For the equivalent of just $1/month:
+1. Exclusive Pro customer email support.
+1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads.
+1. Exclusive early access to new security features
+1. Text customisations for visitors.
+1. No manual Pro plugin downloads - we handle this all for you automatically.
+1. (coming soon) Import/Export of options across sites.
+1. (coming soon) Improved Audit Trail logging
+1. (coming soon) Improved performance 
+1. (coming soon) Statistics and Reporting
+1. (coming soon) Select individual automatic plugin updates
+
+Learn more and go Pro at [our One Dollar Plugin store](http://icwp.io/ab).
+
+= Our Mission =
 
 All the wonderful features of how we protect you and your site are set out below in detail, but there are a few things about us, that you should know first:
 
@@ -37,7 +58,7 @@ downloading and installing Shield now
 
 = What makes the Shield different? =
 
-* No "Pro" restrictions on security features - it's ALL there for you.
+* No "Pro" restrictions on security features - where possible, anything pertaining directly to site security is free.
 * Easy-To-Setup User Interface.
 * It won't break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
@@ -308,10 +329,27 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.16.4 Latest Point Release =
-*Released: 2nd November, 2017*
+= 5.17.0 Latest Point Release =
+*Released: 23rd November, 2017*
 
-* **(v.4)**  FIX:			Error with incorrect/unprefixed database table name used in SQL query.
+Our policy has been to never restrict security features to Pro upgrades. This has **not changed**.
+
+We're now offering technical support and other features exclusively to premium customers. If you don't want to support
+our work, no problem! You can still continue to use Shield Security and its features in-full. Some newer options and
+extras will be restricted to you, however.
+
+You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support going-forward will be for premium clients only.
+
+* **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
+* **(v.0)**  IMPROVEMENT:	Fix and improvement to Google reCAPTCHA.
+* **(v.0)**  PRO:			Support for Woocommerce and Easy Digital Downloads login/registration form protection.
+* **(v.0)**  PRO:			Ability to customise most user-facing texts.
+* **(v.0)**  PRO:			Extra IP Transgression signal.
+
+= 5.17.0 Series =
+*Released: 23rd November, 2017*
+
+* **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
 
 = 5.16 Series =
 *Released: 16th October, 2017*

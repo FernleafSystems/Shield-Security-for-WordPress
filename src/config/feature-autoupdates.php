@@ -112,7 +112,7 @@
     },
     {
       "key": "enable_individual_autoupdate_plugins",
-      "section": "section_automatic_updates_for_wordpress_components",
+      "section": "section_non_ui",
       "default": "N",
       "type": "checkbox",
       "premium": true,

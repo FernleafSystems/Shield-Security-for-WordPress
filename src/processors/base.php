@@ -46,7 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
 		public function getController() {
-			return $this->getFeature()->getController();
+			return $this->getFeature()->getConn();
 		}
 
 		public function autoAddToAdminNotices() {
