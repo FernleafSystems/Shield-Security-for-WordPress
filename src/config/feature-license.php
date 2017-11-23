@@ -100,7 +100,7 @@
   "definitions": {
     "license_store_url": "https://onedollarplugin.com/edd-sl/",
     "license_item_name": "Shield Security Pro",
-    "license_item_id": "40",
+    "license_item_id": "6047",
     "license_item_name_sc": "Shield Security Pro (via Shield Central)",
     "license_item_id_sc": "968",
     "license_lack_check_expire_days": 3,
