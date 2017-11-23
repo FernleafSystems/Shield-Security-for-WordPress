@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	public function displayAuditTrailViewer() {
 
 		if ( !$this->canDisplayOptionsForm() ) {
-			return $this->display();
+			return $this->displayRestrictedPage();
 		}
 
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
@@ -43,14 +43,14 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		$aDisplayData = array(
-			'nYourIp'      => $this->loadDataProcessor()->getVisitorIpAddress( true ),
+			'nYourIp'      => $this->loadIpService()->getRequestIp(),
 			'sFeatureName' => _wpsf__( 'Audit Trail Viewer' )
 		);
 
 		$aAudits = array();
 		foreach ( $aContexts as $sContext ) {
 			$aAuditContext = array();
-			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getController()
+			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getConn()
 																	  ->getHumanName() : _wpsf__( $sContext );
 
 			$aAuditData = $oAuditTrail->getAuditEntriesForContext( strtolower( $sContext ) );
@@ -152,7 +152,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
-		$oCon = self::getController();
+		$oCon = self::getConn();
 
 		$sKey = $aOptionsParams[ 'key' ];
 		switch ( $sKey ) {

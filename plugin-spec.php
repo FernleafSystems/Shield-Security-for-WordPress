@@ -1,6 +1,6 @@
 {
   "properties": {
-    "version": "5.16.4",
+    "version": "5.17.0",
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "human_name": "Shield",
@@ -13,7 +13,7 @@
     "autoupdate": "confidence",
     "autoupdate_days": 3,
     "options_encoding": "json",
-    "enable_premium": false
+    "enable_premium": true
   },
   "requirements": {
     "php": "5.2.4",

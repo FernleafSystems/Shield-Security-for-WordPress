@@ -186,7 +186,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $sHomeUrl ),
 			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			'- '.sprintf( _wpsf__( 'User Email: %s' ), $oUser->get( 'user_email' ) ),
-			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->human_ip() ),
+			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->ip() ),
 			'',
 			_wpsf__( 'Thanks.' )
 		);

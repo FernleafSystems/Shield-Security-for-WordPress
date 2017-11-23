@@ -10,18 +10,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @var ICWP_WPSF_Plugin_Controller
 	 */
 	static protected $oPluginController;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bBypassAdminAccess = false;
+
 	/**
 	 * @var ICWP_WPSF_OptionsVO
 	 */
 	protected $oOptions;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bModuleMeetsRequirements;
+
 	/**
 	 * @var string
 	 */
@@ -30,34 +34,42 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @var string
 	 */
 	const PluginVersionKey = 'current_plugin_version';
+
 	/**
 	 * @var boolean
 	 */
 	protected $bPluginDeleting = false;
+
 	/**
 	 * @var string
 	 */
 	protected $sOptionsStoreKey;
+
 	/**
 	 * @var string
 	 */
 	protected $sFeatureName;
+
 	/**
 	 * @var string
 	 */
 	protected $sFeatureSlug;
+
 	/**
 	 * @var boolean
 	 */
 	protected static $bForceOffFileExists;
+
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
 	 */
 	protected static $oEmailHandler;
+
 	/**
 	 * @var ICWP_WPSF_Processor_Base
 	 */
 	protected $oProcessor;
+
 	/**
 	 * @var string
 	 */
@@ -137,7 +149,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getPremiumLicenseFilterName() {
-		return $this->prefix( 'license_is_valid'.self::getController()->getUniqueRequestId( false ) );
+		return $this->prefix( 'license_is_valid'.self::getConn()->getUniqueRequestId( false ) );
 	}
 
 	/**
@@ -186,7 +198,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function importOptions() {
 		// So we don't poll for the file every page load.
 		if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
-			$aOptions = self::getController()->getOptionsImportFromFile();
+			$aOptions = self::getConn()->getOptionsImportFromFile();
 			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
 				$this
@@ -203,7 +215,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function isReadyToExecute() {
 		$oProcessor = $this->getProcessor();
 		return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base )
-			   && !self::getController()->getIfForceOffActive();
+			   && !self::getConn()->getIfForceOffActive();
 	}
 
 	protected function doExecuteProcessor() {
@@ -224,7 +236,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function loadFeatureProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			include_once( self::getController()->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
+			include_once( self::getConn()
+							  ->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
@@ -239,7 +252,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getProcessorClassName() {
-		return ucwords( self::getController()->getOptionStoragePrefix() ).'Processor_'.
+		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Processor_'.
 			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
 	}
 
@@ -248,7 +261,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
-			$oCon = self::getController();
+			$oCon = self::getConn();
 			$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
 			$this->oOptions
 				->setIsPremium( $this->isPremium() )
@@ -272,7 +285,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsUpgrading() {
 //			return $this->getVersion() != self::getController()->getVersion();
-		return self::getController()->getIsRebuildOptionsFromFile();
+		return self::getConn()->getIsRebuildOptionsFromFile();
 	}
 
 	/**
@@ -314,14 +327,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getFeatureAdminPageUrl() {
-		$sUrl = sprintf( 'admin.php?page=%s', $this->prefix( $this->getFeatureSlug() ) );
-		if ( self::getController()->getIsWpmsNetworkAdminOnly() ) {
-			$sUrl = network_admin_url( $sUrl );
-		}
-		else {
-			$sUrl = admin_url( $sUrl );
-		}
-		return $sUrl;
+		return $this->loadWp()
+					->getUrl_AdminPage(
+						$this->prefix( $this->getFeatureSlug() ),
+						self::getConn()->getIsWpmsNetworkAdminOnly()
+					);
 	}
 
 	/**
@@ -330,7 +340,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = self::getController()->loadFeatureHandler( array( 'slug' => 'email' ) );
+			self::$oEmailHandler = self::getConn()->loadFeatureHandler( array( 'slug' => 'email' ) );
 		}
 		return self::$oEmailHandler;
 	}
@@ -398,7 +408,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getResourcesDir( $sSourceFile = '' ) {
-		return self::getController()
+		return self::getConn()
 				   ->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
 	}
 
@@ -413,7 +423,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		if ( $this->getIfShowFeatureMenuItem() && !empty( $sMenuTitleName ) ) {
 
-			$sHumanName = self::getController()->getHumanName();
+			$sHumanName = self::getConn()->getHumanName();
 
 			$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
 			if ( $bMenuHighlighted ) {
@@ -459,7 +469,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function filter_getFeatureSummaryData( $aSummaryData ) {
-		if ( !$this->getIfShowFeatureMenuItem() ) {
+		if ( !$this->getIfShowSummaryItem() ) {
 			return $aSummaryData;
 		}
 
@@ -486,6 +496,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return boolean
 	 */
+	public function getIfShowSummaryItem() {
+		return $this->getIfShowFeatureMenuItem() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
+	}
+
+	/**
+	 * @return boolean
+	 */
 	public function getIfUseSessions() {
 		return $this->getOptionsVo()->getFeatureProperty( 'use_sessions' );
 	}
@@ -496,6 +513,33 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getDefinition( $sDefinitionKey ) {
 		return $this->getOptionsVo()->getFeatureDefinition( $sDefinitionKey );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearLastErrors() {
+		return $this->setLastErrors( array() );
+	}
+
+	/**
+	 * @param bool   $bAsString
+	 * @param string $sGlue
+	 * @return string|array
+	 */
+	public function getLastErrors( $bAsString = true, $sGlue = " " ) {
+		$aErrors = $this->getOpt( 'last_errors' );
+		if ( !is_array( $aErrors ) ) {
+			$aErrors = array();
+		}
+		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasLastErrors() {
+		return count( $this->getLastErrors( false ) ) > 0;
 	}
 
 	/**
@@ -552,7 +596,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getVersion() {
 		$sVersion = $this->getOpt( self::PluginVersionKey );
-		return empty( $sVersion ) ? self::getController()->getVersion() : $sVersion;
+		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
+	}
+
+	/**
+	 * @param array|string $mErrors
+	 * @return $this
+	 */
+	public function setLastErrors( $mErrors ) {
+		if ( !is_array( $mErrors ) ) {
+			if ( is_string( $mErrors ) ) {
+				$mErrors = array( $mErrors );
+			}
+			else {
+				$mErrors = array();
+			}
+		}
+		return $this->setOpt( 'last_errors', $mErrors );
 	}
 
 	/**
@@ -579,15 +639,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		if ( $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
-			if ( is_admin() || is_network_admin() ) {
-				$this->adminAjaxHandlers();
-			}
-		}
+		$bAdminRun = false;
 
 		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
 			$this->frontEndAjaxHandlers();
+			$this->adminAjaxHandlers();
+			$bAdminRun = true;
 //			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
+		}
+
+		if ( !$bAdminRun && $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
+			if ( is_admin() || is_network_admin() ) {
+				$this->adminAjaxHandlers();
+			}
 		}
 	}
 
@@ -709,13 +773,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	private function store() {
 		add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
-		$this->getOptionsVo()->doOptionsSave( self::getController()->getIsResetPlugin() );
+		$this->getOptionsVo()->doOptionsSave( self::getConn()->getIsResetPlugin() );
 		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
 	}
 
 	protected function updateOptionsVersion() {
-		if ( $this->getIsUpgrading() || self::getController()->getIsRebuildOptionsFromFile() ) {
-			$this->setOpt( self::PluginVersionKey, self::getController()->getVersion() );
+		if ( $this->getIsUpgrading() || self::getConn()->getIsRebuildOptionsFromFile() ) {
+			$this->setOpt( self::PluginVersionKey, self::getConn()->getVersion() );
 			$this->getOptionsVo()->cleanTransientStorage();
 		}
 	}
@@ -736,7 +800,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function buildOptions() {
 
-		$bPremiumEnabled = self::getController()->isPremiumExtensionsEnabled();
+		$bPremiumEnabled = self::getConn()->isPremiumExtensionsEnabled();
 
 		$aOptions = $this->getOptionsVo()->getOptionsForPluginUse();
 		foreach ( $aOptions as $nSectionKey => $aSection ) {
@@ -854,7 +918,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Deletes all the options including direct save.
 	 */
 	public function deletePluginOptions() {
-		if ( self::getController()->getHasPermissionToManage() ) {
+		if ( self::getConn()->getHasPermissionToManage() ) {
 			$this->getOptionsVo()->doOptionsDelete();
 			$this->bPluginDeleting = true;
 		}
@@ -887,7 +951,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			return;
 		}
 
-		$oCon = self::getController();
+		$oCon = self::getConn();
 		$bSuccess = false;
 		$sName = $oCon->getHumanName();
 		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
@@ -924,13 +988,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function verifyFormSubmit() {
-		if ( !self::getController()->getHasPermissionToManage() ) {
+		if ( !self::getConn()->getHasPermissionToManage() ) {
 //				TODO: manage how we react to prohibited submissions
 			return false;
 		}
 
 		// Now verify this is really a valid submission.
-		return check_admin_referer( self::getController()->getPluginPrefix() );
+		return check_admin_referer( self::getConn()->getPluginPrefix() );
 	}
 
 	/**
@@ -1065,7 +1129,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return self::getController()->doPluginPrefix( $sSuffix, $sGlue );
+		return self::getConn()->doPluginPrefix( $sSuffix, $sGlue );
 	}
 
 	/**
@@ -1084,20 +1148,39 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getOptionStoragePrefix() {
-		return self::getController()->getOptionStoragePrefix();
+		return self::getConn()->getOptionStoragePrefix();
 	}
 
 	/**
 	 */
 	public function displayFeatureConfigPage() {
+		if ( $this->canDisplayOptionsForm() ) {
+			$this->displayModulePage();
+		}
+		else {
+			$this->displayRestrictedPage();
+		}
+	}
+
+	/**
+	 * Override this to customize anything with the display of the page
+	 */
+	protected function displayModulePage() {
 		$this->display();
+	}
+
+	protected function displayRestrictedPage() {
+		$this->display(
+			array( 'flags' => array( 'show_summary' => false ) ),
+			'subfeature-access_restricted.php'
+		);
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getBaseDisplayData() {
-		$oCon = self::getController();
+		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
 		return array(
@@ -1107,7 +1190,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
 			'feature_slug'    => self::$sActivelyDisplayedModuleOptions,
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
-			'fShowAds'        => $this->getIsShowMarketing(),
 			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
 			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
@@ -1125,8 +1207,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
 
-			'bShowStateSummary' => false,
-			'aSummaryData'      => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
 			'aAllOptions'       => $this->buildOptions(),
 			'aHiddenOptions'    => $this->getOptionsVo()->getHiddenOptions(),
@@ -1144,8 +1225,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'see_help_video'                    => __( 'Watch Help Video' )
 			),
 			'flags'      => array(
-				'wrap_page_content' => true,
+				'show_ads'              => $this->getIsShowMarketing(),
+				'show_summary'          => false,
+				'wrap_page_content'     => true,
+				'show_standard_options' => true,
+				'show_alt_content'      => false,
 			),
+			'hrefs'      => array(
+				'go_pro' => $this->getUrlGoPro()
+			),
+			'content'    => array(
+				'alt' => ''
+			)
 		);
 	}
 
@@ -1153,7 +1244,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	protected function getIsShowMarketing() {
-		return apply_filters( $this->prefix( 'show_marketing' ), true );
+		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
 	/**
@@ -1171,7 +1262,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		// Get the same Base Data as normal display
 		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), $this->getBaseDisplayData() );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
-		return $this->loadRenderer( self::getController()->getPath_Templates() )
+		return $this->loadRenderer( self::getConn()->getPath_Templates() )
 					->setTemplate( $sTemplate )
 					->setRenderVars( $aData )
 					->render();
@@ -1181,7 +1272,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function canDisplayOptionsForm() {
-		return $this->getOptionsVo()->isAccessRestricted() ? self::getController()
+		return $this->getOptionsVo()->isAccessRestricted() ? self::getConn()
 																 ->getHasPermissionToView() : true;
 	}
 
@@ -1190,13 +1281,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sSubView
 	 */
 	protected function display( $aData = array(), $sSubView = '' ) {
-		$oRndr = $this->loadRenderer( self::getController()->getPath_Templates() );
+		$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
+		$oDp = $this->loadDataProcessor();
 
 		// Get Base Data
-		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-
+		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
-			$sSubView = 'feature-default';
+			$sModuleView = 'feature-'.$this->getFeatureSlug();
+			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
 		}
 
 		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
@@ -1219,7 +1311,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
 
-		$oCon = self::getController();
+		$oCon = self::getConn();
 		// Get Base Data
 		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
 		$bPermissionToView = $oCon->getHasPermissionToView();
@@ -1287,7 +1379,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		try {
 			$sOutput = $this
-				->loadRenderer( self::getController()->getPath_Templates() )
+				->loadRenderer( self::getConn()->getPath_Templates() )
 				->setTemplate( $sTemplate )
 				->setRenderVars( $aData )
 				->render();
@@ -1309,8 +1401,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
-	static public function getController() {
+	static public function getConn() {
 		return self::$oPluginController;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Plugin_Controller
+	 */
+	static public function getController() {
+		return self::getConn();
 	}
 
 	/**
@@ -1376,6 +1475,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getHelpVideoHasBeenDisplayed() {
 		return (bool)$this->getHelpVideoOption( 'displayed' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUrlGoPro() {
+		return $this->loadWp()
+					->getUrl_AdminPage(
+						$this->prefix( 'license' ),
+						$this->getConn()->getIsWpmsNetworkAdminOnly()
+					);
 	}
 
 	/**

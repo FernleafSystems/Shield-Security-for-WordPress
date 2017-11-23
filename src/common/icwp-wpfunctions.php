@@ -609,6 +609,16 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sPageSlug
+	 * @param bool   $bWpmsOnly
+	 * @return string
+	 */
+	public function getUrl_AdminPage( $sPageSlug, $bWpmsOnly = false ) {
+		$sUrl = sprintf( 'admin.php?page=%s', $sPageSlug );
+		return $bWpmsOnly ? network_admin_url( $sUrl ) : admin_url( $sUrl );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getUrl_CurrentAdminPage() {
@@ -929,7 +939,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
+	 * @param int $nTime
+	 * @return int
 	 */
 	public function getTimeAsGmtOffset( $nTime = null ) {
 
@@ -941,7 +952,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			}
 		}
 
-		$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+		$nTime = is_null( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
 		return $nTime + ( $nTimezoneOffset*HOUR_IN_SECONDS );
 	}
 

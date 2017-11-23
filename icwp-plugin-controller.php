@@ -100,17 +100,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $sAdminNoticeError = '';
 
 	/**
+	 * @var ICWP_WPSF_FeatureHandler_Plugin
+	 */
+	protected $oFeatureHandlerPlugin;
+
+	/**
 	 * @param $sRootFile
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
 	public static function GetInstance( $sRootFile ) {
 		if ( !isset( self::$oInstance ) ) {
-			try {
-				self::$oInstance = new self( $sRootFile );
-			}
-			catch ( Exception $oE ) {
-				return null;
-			}
+			self::$oInstance = new self( $sRootFile );
 		}
 		return self::$oInstance;
 	}
@@ -378,7 +378,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
 					. $this->loadWp()->getHomeUrl( true )
-					. '-' . date( 'ymdHis' ) . '.txt'
+					. '-' . date( 'y-m-d__H-i-s' ) . '.txt'
 				);
 			}
 		}
@@ -1452,7 +1452,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getUniqueRequestId( $bSetSessionIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->getVisitorIpAddress().$oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->loadIpService()->getRequestIp().$oDp->time() );
 		}
 		return self::$sRequestId;
 	}

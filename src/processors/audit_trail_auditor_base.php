@@ -33,7 +33,7 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aNewEntry = array(
-			'ip'          => $oDp->getVisitorIpAddress( true ),
+			'ip'          => $oDp->loadIpService()->getRequestIp(),
 			'created_at'  => $oDp->GetRequestTime(),
 			'wp_username' => $sWpUsername,
 			'context'     => $sContext,

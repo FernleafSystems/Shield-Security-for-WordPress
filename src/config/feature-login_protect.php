@@ -241,16 +241,16 @@
       "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
     },
     {
-      "key": "3pty_support_woocommerce",
+      "key": "login_protect_3pty",
       "section": "section_brute_force_login_protection",
       "premium": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "Woocommerce Support",
-      "summary": "Add Support For Woocommerce Login and Password Reset Pages",
-      "description": "Woocommerce is a 3rd party plugin that uses its own custom login and password reset forms."
+      "name": "3rd-Party Support",
+      "summary": "Support For 3rd-Party Plugins, e.g. WooCommerce",
+      "description": "Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads."
     },
     {
       "key": "enable_yubikey",

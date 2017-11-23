@@ -1,11 +1,25 @@
 {
   "versions": {
+	"5.17.0": {
+	  "version": {
+		"series": "5.17.0",
+		"major": 5,
+		"minor": 17,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1511452239",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
+	},
 	"5.16.4": {
 	  "version": {
 		"series": "5.16.0",
 		"major": 5,
 		"minor": 16,
-		"patch": 3
+		"patch": 4
 	  },
 	  "attributes": {
 		"timestamp": "1509627037",
@@ -326,6 +340,31 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "added",
+	  "summary": "Shield Security goes Pro! Added new options and extras to premium clients.",
+	  "version": "5.17.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Fix and improvement to Google reCAPTCHA.",
+	  "version": "5.17.0"
+	},
+	{
+	  "type": "pro",
+	  "summary": "Support for Woocommerce and Easy Digital Downloads login/registration form protection.",
+	  "version": "5.17.0"
+	},
+	{
+	  "type": "pro",
+	  "summary": "Ability to customise most user-facing texts.",
+	  "version": "5.17.0"
+	},
+	{
+	  "type": "pro",
+	  "summary": "Extra IP Transgression signal.",
+	  "version": "5.17.0"
+	},
 	{
 	  "type": "fixed",
 	  "summary": "Error with incorrect/unprefixed database table name used in SQL query.",

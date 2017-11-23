@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			$aCommentData['comment_author_email'],
 			$aCommentData['comment_author_url'],
 			$aCommentData['comment_content'],
-			$this->human_ip(),
+			$this->ip(),
 			substr( $this->loadDataProcessor()->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
 		);
 	}

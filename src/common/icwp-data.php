@@ -47,14 +47,21 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
-		 * @deprecated
-		 * @param boolean $bAsHuman
-		 * @return int|string|bool - visitor IP Address as IP2Long
+		 * @param array $aArray1
+		 * @param array $aArray2
+		 * @return array
 		 */
-		public function getVisitorIpAddress( $bAsHuman = true ) {
-			return $this->loadIpService()->getRequestIp( $bAsHuman );
+		public function mergeArraysRecursive( $aArray1, $aArray2 ) {
+			foreach ( $aArray2 as $key => $Value ) {
+				if ( array_key_exists( $key, $aArray1 ) && is_array( $Value ) ) {
+					$aArray1[ $key ] = $this->mergeArraysRecursive( $aArray1[ $key ], $aArray2[ $key ] );
+				}
+				else {
+					$aArray1[ $key ] = $Value;
+				}
+			}
+			return $aArray1;
 		}
-
 		/**
 		 * @return string URI Path in lowercase
 		 */
@@ -399,7 +406,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			header( "Content-type: application/octet-stream" );
 			header( "Content-disposition: attachment; filename=" . $sFilename );
 			header( "Content-Transfer-Encoding: binary" );
-			header( "Content-Length: " . filesize( $sStringContent ) );
+			header( "Content-Length: " . strlen( $sStringContent ) );
 			echo $sStringContent;
 			die();
 		}

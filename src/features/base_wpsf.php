@@ -56,7 +56,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'aar_submit_access_key'        => _wpsf__( 'Submit Access Key' )
 			)
 		);
-		$aData[ 'bShowStateSummary' ] = true;
+		$aData[ 'flags' ][ 'show_summary' ] = true;
 		return $aData;
 	}
 

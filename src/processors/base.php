@@ -46,7 +46,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 * @return ICWP_WPSF_Plugin_Controller
 		 */
 		public function getController() {
-			return $this->getFeature()->getController();
+			return $this->getFeature()->getConn();
 		}
 
 		public function autoAddToAdminNotices() {
@@ -161,7 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 
 		public function registerGoogleRecaptchaJs() {
 			$sJsUri = add_query_arg(
-				array( 'hl', $this->getGoogleRecaptchaLocale() ),
+				array( 'hl' => $this->getGoogleRecaptchaLocale() ),
 				'https://www.google.com/recaptcha/api.js'
 			);
 			wp_register_script( 'google-recaptcha', $sJsUri );
@@ -201,15 +201,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		/**
 		 * @return bool|int|string
 		 */
-		protected function human_ip() {
-			return $this->loadDataProcessor()->getVisitorIpAddress();
-		}
-
-		/**
-		 * @return bool|int
-		 */
 		protected function ip() {
-			return $this->loadDataProcessor()->getVisitorIpAddress( false );
+			return $this->loadIpService()->getRequestIp();
 		}
 
 		/**

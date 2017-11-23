@@ -279,11 +279,6 @@
         "load_priority": 20
       },
       {
-        "slug": "license",
-        "storage_key": "license",
-        "load_priority": 10
-      },
-      {
         "slug": "firewall",
         "storage_key": "firewall",
         "load_priority": 13
@@ -334,10 +329,9 @@
         "hidden": false
       },
       {
-        "slug": "support",
-        "storage_key": "support",
-        "load_priority": 20,
-        "hidden": false
+        "slug": "license",
+        "storage_key": "license",
+        "load_priority": 10
       },
       {
         "slug": "email",

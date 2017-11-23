@@ -58,7 +58,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 																											   ->time() ) ),
 			'aActiveSessions' => $aActiveSessions
 		);
-		$this->display( $aData, 'feature-user_management' );
+		$this->display( $aData );
 	}
 
 	/**

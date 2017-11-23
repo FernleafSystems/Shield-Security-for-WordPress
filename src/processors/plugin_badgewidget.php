@@ -17,9 +17,9 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	public function __construct() {
 		parent::__construct(
 			self::$oFeatureOptions->prefixOptionKey( 'plugin_badge' ),
-			sprintf( _wpsf__( '%s Plugin Badge' ), self::$oFeatureOptions->getController()->getHumanName() ),
+			sprintf( _wpsf__( '%s Plugin Badge' ), self::$oFeatureOptions->getConn()->getHumanName() ),
 			array(
-				'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), self::$oFeatureOptions->getController()
+				'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), self::$oFeatureOptions->getConn()
 																																						 ->getHumanName() ),
 			)
 		);
@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	 * @return string
 	 */
 	public function renderBadge() {
-		$oCon = self::$oFeatureOptions->getController();
+		$oCon = self::$oFeatureOptions->getConn();
 		$aData = array(
 			'strings' => array(
 				'plugin_name' => $oCon->getHumanName(),

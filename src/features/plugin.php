@@ -134,7 +134,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	public function ajaxSetPluginTrackingPermission() {
 
-		if ( self::getController()->getIsValidAdminArea() && $this->checkAjaxNonce() ) {
+		if ( self::getConn()->getIsValidAdminArea() && $this->checkAjaxNonce() ) {
 			$oDP = $this->loadDataProcessor();
 			$this->setOpt( 'enable_tracking', $oDP->FetchGet( 'agree', 0 ) ? 'Y' : 'N' );
 			$this->setOpt( 'tracking_permission_set_at', $oDP->time() );
@@ -181,7 +181,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function doExtraSubmitProcessing() {
 		if ( !$this->loadWp()->isAjax() ) {
 			$this->loadAdminNoticesProcessor()
-				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getController()
+				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
 																									   ->getHumanName() ) );
 		}
 	}
@@ -217,7 +217,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @param string $sPlugin
 	 */
 	public function onWpHookDeactivatePlugin( $sPlugin ) {
-		$oCon = self::getController();
+		$oCon = self::getConn();
 		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
 			if ( !$oCon->getHasPermissionToManage() ) {
 				$this->loadWp()->wpDie(
@@ -387,7 +387,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = $oDp->getVisitorIpAddress();
+				$sIp = $oDp->loadIpService()->getRequestIp();
 			}
 			else {
 				$sIp = $oDp->FetchServer( $sKey );
@@ -406,7 +406,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string
 	 */
 	public function renderPluginBadge() {
-		$oCon = $this->getController();
+		$oCon = $this->getConn();
 		$sContents = $this->loadRenderer( $oCon->getPath_Templates() )
 						  ->setTemplateEnginePhp()
 						  ->clearRenderVars()
@@ -477,7 +477,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'global_enable_plugin_features' :
 				$sName = _wpsf__( 'Enable Plugin Features' );
 				$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
-				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getController()
+				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getConn()
 																										   ->getHumanName() );
 				break;
 
