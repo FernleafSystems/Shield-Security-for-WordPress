@@ -28,6 +28,7 @@ As of 23rd November 2017, Shield Security now has a Pro version. But, it's impor
 anything we consider standard website security *will always be free* - no upgrade necessary.
 
 For the equivalent of just $1/month:
+
 1. Exclusive Pro customer email support.
 1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads.
 1. Exclusive early access to new security features
