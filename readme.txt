@@ -22,6 +22,27 @@ Protect your WordPress site, your reputation, and your customers for free with S
 > <strong>Shield + iControlWP</strong><br />
 > If you have multiple sites, then Shield [combined with iControlWP](http://icwp.io/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
 
+= The New Shield Pro =
+
+As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that
+anything we consider standard website security *will always be free* - no upgrade necessary.
+
+For the equivalent of just $1/month:
+1. Exclusive Pro customer email support.
+1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads.
+1. Exclusive early access to new security features
+1. Text customisations for visitors.
+1. No manual Pro plugin downloads - we handle this all for you automatically.
+1. (coming soon) Import/Export of options across sites.
+1. (coming soon) Improved Audit Trail logging
+1. (coming soon) Improved performance 
+1. (coming soon) Statistics and Reporting
+1. (coming soon) Select individual automatic plugin updates
+
+Learn more and go Pro at [our One Dollar Plugin store](http://icwp.io/ab).
+
+= Our Mission =
+
 All the wonderful features of how we protect you and your site are set out below in detail, but there are a few things about us, that you should know first:
 
 * We're on a mission to liberate people who manage websites from unnecessarily repetitive work, and by 2022 we want to
@@ -37,7 +58,7 @@ downloading and installing Shield now
 
 = What makes the Shield different? =
 
-* No "Pro" restrictions on security features - it's ALL there for you.
+* No "Pro" restrictions on security features - where possible, anything pertaining directly to site security is free.
 * Easy-To-Setup User Interface.
 * It won't break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
