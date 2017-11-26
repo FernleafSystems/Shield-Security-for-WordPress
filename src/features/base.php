@@ -185,7 +185,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Added to WordPress 'plugins_loaded' hook
 	 */
 	public function onWpPluginsLoaded() {
-
+		$this->getOptionsVo()
+			 ->setIsPremium( $this->isPremium() );
+		
 		$this->importOptions();
 		if ( $this->getIsMainFeatureEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
