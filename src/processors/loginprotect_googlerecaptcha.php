@@ -32,35 +32,21 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	public function printGoogleRecaptchaCheck_Filter() {
-		return $this->isRecaptchaInvisible() ? $this->getGoogleRecaptchaHtmlInvisible() : $this->getGoogleRecaptchaHtml();
+		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
 	public function printGoogleRecaptchaCheck() {
-		echo $this->isRecaptchaInvisible() ? $this->getGoogleRecaptchaHtmlInvisible() : $this->getGoogleRecaptchaHtml();
+		echo $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaHtml() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
-		return sprintf(
-			'%s<div class="g-recaptcha" data-sitekey="%s"></div>',
-			'<style>@media screen {
-#rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>',
-			$sSiteKey
-		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getGoogleRecaptchaHtmlInvisible() {
-		return '<div class="g-recaptcha"></div>';
+		$sNonInvisStyle = '<style>@media screen {#rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
+		return sprintf( '%s<div class="g-recaptcha"></div>', $this->isRecaptchaInvisible() ? '' : $sNonInvisStyle );
 	}
 
 	/**
