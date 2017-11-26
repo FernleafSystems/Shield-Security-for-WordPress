@@ -20,9 +20,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 		add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
 
-		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
-		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ) );
-		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ) );
+		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ), 100 );
+		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ), 100 );
+		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ), 100 );
 
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
@@ -32,13 +32,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	public function printGoogleRecaptchaCheck_Filter() {
-		return $this->getGoogleRecaptchaHtml();
+		return $this->isRecaptchaInvisible() ? $this->getGoogleRecaptchaHtmlInvisible() : $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
 	public function printGoogleRecaptchaCheck() {
-		echo $this->getGoogleRecaptchaHtml();
+		echo $this->isRecaptchaInvisible() ? $this->getGoogleRecaptchaHtmlInvisible() : $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
@@ -54,6 +54,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 #rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>',
 			$sSiteKey
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGoogleRecaptchaHtmlInvisible() {
+		return '<div class="g-recaptcha"></div>';
 	}
 
 	/**

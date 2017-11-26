@@ -9,11 +9,30 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
+	 * @return array
+	 */
+	public function getGoogleRecaptchaConfig() {
+		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), array() );
+		if ( !is_array( $aConfig ) ) {
+			$aConfig = array();
+		}
+		return array_merge(
+			array(
+				'key'    => '',
+				'secret' => '',
+				'style'  => 'light',
+			),
+			$aConfig
+		);
+	}
+
+	/**
 	 * Overriden in the plugin handler getting the option value
 	 * @return string
 	 */
 	public function getGoogleRecaptchaSecretKey() {
-		return apply_filters( $this->prefix( 'google_recaptcha_secret_key' ), '' );
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		return $aConfig[ 'secret' ];
 	}
 
 	/**
@@ -21,7 +40,17 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return string
 	 */
 	public function getGoogleRecaptchaSiteKey() {
-		return apply_filters( $this->prefix( 'google_recaptcha_site_key' ), '' );
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		return $aConfig[ 'key' ];
+	}
+
+	/**
+	 * Overriden in the plugin handler getting the option value
+	 * @return string
+	 */
+	public function getGoogleRecaptchaStyle() {
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		return $aConfig[ 'style' ];
 	}
 
 	/**

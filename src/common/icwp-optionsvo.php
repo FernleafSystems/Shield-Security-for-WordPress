@@ -688,7 +688,9 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				$aConfig = $this->readConfigurationJson();
 			}
 			catch ( Exception $oE ) {
-				trigger_error( $oE->getMessage() );
+				if ( WP_DEBUG ) {
+					trigger_error( $oE->getMessage() );
+				}
 				$aConfig = array();
 			}
 			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
@@ -703,7 +705,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	private function readConfigurationJson() {
 		$aConfig = json_decode( $this->readConfigurationFileContents(), true );
 		if ( empty( $aConfig ) ) {
-			throw new Exception( 'Reading JSON configuration from file failed.' );
+			throw new Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getOptionsName() ) );
 		}
 		return $aConfig;
 	}
