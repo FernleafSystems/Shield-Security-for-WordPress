@@ -68,7 +68,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		if ( !is_wp_error( $oUser ) ) {
 
 			$oError = new WP_Error();
-			$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+			$sCaptchaResponse = $this->getRecaptchaResponse();
 
 			if ( empty( $sCaptchaResponse ) ) {
 				$oError->add( 'shield_google_recaptcha_empty', _wpsf__( 'Whoops.' )

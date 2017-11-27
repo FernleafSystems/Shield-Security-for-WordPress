@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			return $aCommentData;
 		}
 
-		$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+		$sCaptchaResponse = $this->getRecaptchaResponse();
 
 		$bIsSpam = false;
 		$sStatKey = '';
