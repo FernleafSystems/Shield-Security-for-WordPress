@@ -64,7 +64,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 				),
 				'https://www.google.com/recaptcha/api.js'
 			);
-			wp_register_script( 'google-recaptcha', $sJsUri );
+			wp_register_script( 'google-recaptcha', $sJsUri, array( 'jquery' ) );
 			wp_enqueue_script( 'google-recaptcha' );
 
 			/**

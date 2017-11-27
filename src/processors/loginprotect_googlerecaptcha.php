@@ -45,8 +45,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaHtml() {
-		$sNonInvisStyle = '<style>@media screen {#rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
-		return sprintf( '%s<div class="g-recaptcha"></div>', $this->isRecaptchaInvisible() ? '' : $sNonInvisStyle );
+		$sNonInvisStyle = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
+		return sprintf( '%s<div class="icwpg-recaptcha"></div>', $this->isRecaptchaInvisible() ? '' : $sNonInvisStyle );
 	}
 
 	/**

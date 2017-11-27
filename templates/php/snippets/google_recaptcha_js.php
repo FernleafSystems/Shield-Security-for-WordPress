@@ -3,8 +3,11 @@
 	var iCWP_WPSF_Recaptcha = new function () {
 
 		this.setupForm = function ( form ) {
-			var recaptchaContainer = form.querySelector('.g-recaptcha');
+
+			var recaptchaContainer = form.querySelector('.icwpg-recaptcha');
+
 			if ( recaptchaContainer !== null ) {
+
 				var recaptchaContainerSpec = grecaptcha.render(
 					recaptchaContainer,
 					{
@@ -13,17 +16,22 @@
 						'theme': '<?php echo $theme;?>',
 						'badge': 'bottomright',
 						'callback' : function ( reCaptchaToken ) {
-							<?php if ( $invis ) : ?>HTMLFormElement.prototype.submit.call( form );<?php endif;?>
+							<?php if ( $invis ) : ?>
+							HTMLFormElement.prototype.submit.call( form );
+							<?php endif;?>
+						},
+						'expired-callback' : function() {
+							grecaptcha.reset( recaptchaContainerSpec );
 						}
 					}
 				);
 
-				form.onsubmit = function( event ) {
+				jQuery( 'input[type=submit]', form ).on( 'click', function( event ) {
 					<?php if ( $invis ) : ?>
 					event.preventDefault();
 					grecaptcha.execute( recaptchaContainerSpec );
 					<?php endif;?>
-				};
+				});
 			}
 		};
 
