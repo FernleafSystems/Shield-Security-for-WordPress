@@ -12,8 +12,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
 		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
 		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
-		add_filter( $this->prefix( 'google_recaptcha_secret_key' ), array( $this, 'supplyGoogleRecaptchaSecretKey' ) );
-		add_filter( $this->prefix( 'google_recaptcha_site_key' ), array( $this, 'supplyGoogleRecaptchaSiteKey' ) );
+		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
 
 		if ( !$this->isTrackingPermissionSet() ) {
 			add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
@@ -119,7 +118,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return bool
 	 */
 	public function ajaxPluginBadgeClose() {
 		$bSuccess = $this->loadDataProcessor()
@@ -146,28 +144,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return string
+	 * @return array
 	 */
-	public function supplyGoogleRecaptchaSecretKey( $sKey ) {
-		return $this->getOpt( 'google_recaptcha_secret_key', $sKey );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return string
-	 */
-	public function supplyGoogleRecaptchaSiteKey( $sKey ) {
-		$sThisKey = (string)$this->getOpt( 'google_recaptcha_site_key', '' );
-		$nSpacePos = strpos( $sThisKey, ' ' );
-		if ( $nSpacePos !== false ) {
-			$sThisKey = substr( $sThisKey, 0, $nSpacePos + 1 );
-			$this->setOpt( 'google_recaptcha_site_key', $sThisKey );
-		}
-		if ( !empty( $sThisKey ) ) {
-			$sKey = $sThisKey;
-		}
-		return $sKey;
+	public function supplyGoogleRecaptchaConfig() {
+		return array(
+			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
+			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
+			'style'  => $this->getOpt( 'google_recaptcha_style' ),
+		);
 	}
 
 	/**
@@ -448,6 +432,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'section_third_party_google' :
 				$sTitle = _wpsf__( 'Google' );
 				$sTitleShort = _wpsf__( 'Google' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Setup Google reCAPTCHA for use across Shield.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'Note: you must create your own Google reCAPTCHA API Keys.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Invisible Google reCAPTCHA is available with Shield Pro.' ) )
+				);
 				break;
 
 			case 'section_third_party_duo' :
@@ -540,6 +529,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'reCAPTCHA Site Key' );
 				$sSummary = _wpsf__( 'Google reCAPTCHA Site Key' );
 				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA site key for use throughout the plugin' );
+				break;
+
+			case 'google_recaptcha_style' :
+				$sName = _wpsf__( 'reCAPTCHA Style' );
+				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed By Default' );
+				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
 				break;
 
 			default:

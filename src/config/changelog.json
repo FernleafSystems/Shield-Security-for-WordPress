@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.18.0": {
+	  "version": {
+		"series": "5.18.0",
+		"major": 5,
+		"minor": 18,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1511778686",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
+	},
 	"5.17.0": {
 	  "version": {
 		"series": "5.17.0",
@@ -340,6 +354,21 @@
 	}
   },
   "changelog": [
+	{
+	  "type": "pro",
+	  "summary": "Added Invisible Google reCAPTCHA option.",
+	  "version": "5.18.0"
+	},
+	{
+	  "type": "pro",
+	  "summary": "Added support for Google reCAPTCHA themes - light and dark.",
+	  "version": "5.18.0"
+	},
+	{
+	  "type": "improved",
+	  "summary": "Google reCAPTCHA is more reliable and configurable.",
+	  "version": "5.18.0"
+	},
 	{
 	  "type": "added",
 	  "summary": "Shield Security goes Pro! Added new options and extras to premium clients.",

@@ -41,7 +41,16 @@
         "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
         "Recommendation - Use of this feature is highly recommend."
       ]
-
+    },
+    {
+      "slug": "section_recaptcha",
+      "title": "Google reCAPTCHA",
+      "title_short": "reCAPTCHA",
+      "summary": [
+        "Purpose - Adds Google reCAPTCHA to the Comment Forms.",
+        "Recommendation - Keep this turned on.",
+        "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
+      ]
     },
     {
       "slug": "section_human_spam_filter",
@@ -176,7 +185,7 @@
     },
     {
       "key": "enable_google_recaptcha_comments",
-      "section": "section_bot_comment_spam_protection_filter",
+      "section": "section_recaptcha",
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/shld5",
@@ -184,6 +193,40 @@
       "name": "Google reCAPTCHA",
       "summary": "Enable Google reCAPTCHA For Comments",
       "description": "Use Google reCAPTCHA on the comments form to prevent bot-spam comments."
+    },
+    {
+      "key": "google_recaptcha_style_comments",
+      "section": "section_recaptcha",
+      "premium": true,
+      "default": "default",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "default",
+          "text": "Default"
+        },
+        {
+          "value_key": "light",
+          "text": "Light Theme"
+        },
+        {
+          "value_key": "light",
+          "text": "Light Theme"
+        },
+        {
+          "value_key": "dark",
+          "text": "Dark Theme"
+        },
+        {
+          "value_key": "invisible",
+          "text": "Invisible reCAPTCHA"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "reCAPTCHA Style",
+      "summary": "How Google reCAPTCHA Will Be Displayed",
+      "description": "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
     },
     {
       "key": "comments_default_action_spam_bot",

@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 
-	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base.php' );
+	require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
 
 	abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
@@ -21,9 +21,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 */
 		public function init() {
 			$oFO = $this->getFeature();
-			add_filter( $oFO->prefix( 'collect_audit_trail' ),		array( $this, 'audit_Collect' ) );
-			add_filter( $oFO->prefix( 'collect_stats' ),			array( $this, 'stats_Collect' ) );
-			add_filter( $oFO->prefix( 'collect_tracking_data' ),	array( $this, 'tracking_DataCollect' ) );
+			add_filter( $oFO->prefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
+			add_filter( $oFO->prefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
+			add_filter( $oFO->prefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
 		}
 
 		/**
@@ -34,16 +34,72 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			if ( empty( $nTimeInstalled ) ) {
 				return 0;
 			}
-			return (int)round( ( $this->loadDataProcessor()->time() - $nTimeInstalled ) / DAY_IN_SECONDS );
+			return (int)round( ( $this->loadDataProcessor()->time() - $nTimeInstalled )/DAY_IN_SECONDS );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function getRecaptchaTheme() {
+			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+			$oFO = $this->getFeature();
+			return $this->isRecaptchaInvisible() ? 'light' : $oFO->getGoogleRecaptchaStyle();
+		}
+
+		/**
+		 * @return string
+		 */
+		protected function getRecaptchaResponse() {
+			return $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+		}
+
+		/**
+		 * @return bool
+		 */
+		protected function isRecaptchaInvisible() {
+			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+			$oFO = $this->getFeature();
+			return ( $oFO->getGoogleRecaptchaStyle() == 'invisible' );
+		}
+
+		public function registerGoogleRecaptchaJs() {
+			$sJsUri = add_query_arg(
+				array(
+					'hl'     => $this->getGoogleRecaptchaLocale(),
+					'onload' => 'onLoadIcwpRecaptchaCallback',
+					'render' => 'explicit',
+				),
+				'https://www.google.com/recaptcha/api.js'
+			);
+			wp_register_script( 'google-recaptcha', $sJsUri, array( 'jquery' ) );
+			wp_enqueue_script( 'google-recaptcha' );
+
+			/**
+			 * Change to recaptcha implementation now means
+			 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
+			 */
+
+			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+			$oFO = $this->getFeature();
+			echo $this->loadRenderer( $this->getController()->getPath_Templates() )
+					  ->setTemplateEnginePhp()
+					  ->setRenderVars(
+						  array(
+							  'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
+							  'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
+							  'theme'   => $this->getRecaptchaTheme(),
+							  'invis'   => $this->isRecaptchaInvisible(),
+						  )
+					  )
+					  ->setTemplate( 'snippets/google_recaptcha_js' )
+					  ->render();
 		}
 
 		/**
 		 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
 		 * - it is not enabled by default.
-		 *
 		 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain identifiable
 		 * data.
-		 *
 		 * @param $aData
 		 * @return array
 		 */
@@ -58,7 +114,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 
 		/**
 		 * A filter used to collect all the stats gathered in the plugin.
-		 *
 		 * @param array $aStats
 		 * @return array
 		 */
@@ -97,12 +152,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 
 		/**
 		 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
-		 *
 		 * @param string $sStatKey
 		 * @param string $sParentStatKey
 		 */
 		protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? $this->getFeature()->getFeatureSlug() : $sParentStatKey ) );
+			$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? $this->getFeature()
+																					->getFeatureSlug() : $sParentStatKey ) );
 		}
 
 		/**
@@ -121,7 +176,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 
 		/**
 		 * @param string $sAdditionalMessage
-		 * @param int $nCategory
+		 * @param int    $nCategory
 		 * @param string $sEvent
 		 * @param string $sWpUsername
 		 */
@@ -134,22 +189,22 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 				}
 
 				$this->aAuditEntry = array(
-					'created_at' => $this->time(),
+					'created_at'  => $this->time(),
 					'wp_username' => $sWpUsername,
-					'context' => 'wpsf',
-					'event' => $sEvent,
-					'category' => $nCategory,
-					'message' => array()
+					'context'     => 'wpsf',
+					'event'       => $sEvent,
+					'category'    => $nCategory,
+					'message'     => array()
 				);
 			}
 
-			$this->aAuditEntry['message'][] = esc_sql( $sAdditionalMessage );
+			$this->aAuditEntry[ 'message' ][] = esc_sql( $sAdditionalMessage );
 
-			if ( $nCategory > $this->aAuditEntry['category'] ) {
-				$this->aAuditEntry['category'] = $nCategory;
+			if ( $nCategory > $this->aAuditEntry[ 'category' ] ) {
+				$this->aAuditEntry[ 'category' ] = $nCategory;
 			}
 			if ( !empty( $sEvent ) ) {
-				$this->aAuditEntry['event'] = $sEvent;
+				$this->aAuditEntry[ 'event' ] = $sEvent;
 			}
 		}
 
@@ -166,14 +221,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		 * @return array
 		 */
 		protected function getRawAuditMessage( $sLinePrefix = '' ) {
-			if ( isset( $this->aAuditEntry['message'] ) && is_array( $this->aAuditEntry['message'] ) && !empty( $sLinePrefix ) ) {
+			if ( isset( $this->aAuditEntry[ 'message' ] ) && is_array( $this->aAuditEntry[ 'message' ] ) && !empty( $sLinePrefix ) ) {
 				$aAuditMessages = array();
-				foreach( $this->aAuditEntry['message'] as $sMessage ) {
+				foreach ( $this->aAuditEntry[ 'message' ] as $sMessage ) {
 					$aAuditMessages[] = $sLinePrefix.$sMessage;
 				}
 				return $aAuditMessages;
 			}
-			return isset( $this->aAuditEntry['message'] ) ? $this->aAuditEntry['message'] : array();
+			return isset( $this->aAuditEntry[ 'message' ] ) ? $this->aAuditEntry[ 'message' ] : array();
 		}
 	}
 

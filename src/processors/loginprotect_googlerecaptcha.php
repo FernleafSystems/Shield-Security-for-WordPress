@@ -20,9 +20,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 		add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
 
-		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
-		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ) );
-		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ) );
+		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ), 100 );
+		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ), 100 );
+		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ), 100 );
 
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
@@ -45,15 +45,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaHtml() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
-		return sprintf(
-			'%s<div class="g-recaptcha" data-sitekey="%s"></div>',
-			'<style>@media screen {
-#rc-imageselect, .g-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>',
-			$sSiteKey
-		);
+		$sNonInvisStyle = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
+		return sprintf( '%s<div class="icwpg-recaptcha"></div>', $this->isRecaptchaInvisible() ? '' : $sNonInvisStyle );
 	}
 
 	/**
@@ -75,7 +68,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		if ( !is_wp_error( $oUser ) ) {
 
 			$oError = new WP_Error();
-			$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+			$sCaptchaResponse = $this->getRecaptchaResponse();
 
 			if ( empty( $sCaptchaResponse ) ) {
 				$oError->add( 'shield_google_recaptcha_empty', _wpsf__( 'Whoops.' )

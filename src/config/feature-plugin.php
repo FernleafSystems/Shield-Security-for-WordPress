@@ -215,6 +215,32 @@
       "description": "Keep this ID private."
     },
     {
+      "key": "google_recaptcha_style",
+      "section": "section_third_party_google",
+      "premium": true,
+      "default": "light",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "light",
+          "text": "Light Theme"
+        },
+        {
+          "value_key": "dark",
+          "text": "Dark Theme"
+        },
+        {
+          "value_key": "invisible",
+          "text": "Invisible reCAPTCHA"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "reCAPTCHA Style",
+      "summary": "How Google reCAPTCHA Will Be Displayed By Default",
+      "description": "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
+    },
+    {
       "key": "google_recaptcha_site_key",
       "section": "section_third_party_google",
       "sensitive": true,

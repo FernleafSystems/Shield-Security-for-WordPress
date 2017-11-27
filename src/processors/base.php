@@ -159,15 +159,6 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 			return $bStrict? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 		}
 
-		public function registerGoogleRecaptchaJs() {
-			$sJsUri = add_query_arg(
-				array( 'hl' => $this->getGoogleRecaptchaLocale() ),
-				'https://www.google.com/recaptcha/api.js'
-			);
-			wp_register_script( 'google-recaptcha', $sJsUri );
-			wp_enqueue_script( 'google-recaptcha' );
-		}
-
 		/**
 		 * We don't handle locale derivatives (yet)
 		 * @return string

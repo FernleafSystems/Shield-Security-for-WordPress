@@ -185,6 +185,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Added to WordPress 'plugins_loaded' hook
 	 */
 	public function onWpPluginsLoaded() {
+		$this->getOptionsVo()
+			 ->setIsPremiumLicensed( $this->isPremium() );
 
 		$this->importOptions();
 		if ( $this->getIsMainFeatureEnabled() && $this->isReadyToExecute() ) {
@@ -264,7 +266,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$oCon = self::getConn();
 			$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
 			$this->oOptions
-				->setIsPremium( $this->isPremium() )
+				->setIsPremiumLicensed( $this->isPremium() )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 				->setOptionsStorageKey( $this->getOptionsStorageKey() )
@@ -768,6 +770,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function savePluginOptions() {
 		$this->doPrePluginOptionsSave();
 		$this->updateOptionsVersion();
+		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
+			$this->getOptionsVo()
+				 ->setIsPremiumLicensed( $this->isPremium() )
+				 ->setNeedSave( true );
+		}
 		$this->store();
 	}
 

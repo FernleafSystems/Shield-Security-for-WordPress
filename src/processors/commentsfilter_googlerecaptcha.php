@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 		parent::run();
 
 		add_action( 'wp_enqueue_scripts',		array( $this, 'registerGoogleRecaptchaJs' ), 99 );
-		add_action( 'comment_form',				array( $this, 'printGoogleRecaptchaCheck' ) );
+		add_action( 'comment_form_after_fields',				array( $this, 'printGoogleRecaptchaCheck' ) );
 	}
 
 	/**
@@ -38,13 +38,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaHtml() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
-		$sSiteKey = $oFO->getGoogleRecaptchaSiteKey();
-		return sprintf(
-			'<div class="g-recaptcha" data-sitekey="%s" style="margin: 10px 0; clear:both;"></div>',
-			$sSiteKey
-		);
+		return '<div class="icwpg-recaptcha" style="margin: 10px 0; clear:both;"></div>';
 	}
 
 	/**
@@ -60,7 +54,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			return $aCommentData;
 		}
 
-		$sCaptchaResponse = $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+		$sCaptchaResponse = $this->getRecaptchaResponse();
 
 		$bIsSpam = false;
 		$sStatKey = '';

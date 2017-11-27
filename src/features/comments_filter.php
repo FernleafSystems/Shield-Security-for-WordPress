@@ -30,6 +30,17 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getGoogleRecaptchaStyle() {
+		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
+		if ( $sStyle == 'default' ) {
+			$sStyle = parent::getGoogleRecaptchaStyle();
+		}
+		return $sStyle;
+	}
+
+	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -113,6 +124,16 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = _wpsf__( 'Bot SPAM' );
 				break;
 
+			case 'section_recaptcha' :
+				$sTitle = 'Google reCAPTCHA';
+				$sTitleShort = 'reCAPTCHA';
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Adds Google reCAPTCHA to the Comment Forms.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned on.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
+				);
+				break;
+
 			case 'section_human_spam_filter' :
 				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__( 'Human' ) );
 				$aSummary = array(
@@ -172,12 +193,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sDescription = _wpsf__( 'Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection.' );
 				break;
 
-			case 'enable_google_recaptcha_comments' :
-				$sName = 'Google reCAPTCHA';
-				$sSummary = _wpsf__( 'Enable Google reCAPTCHA For Comments' );
-				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.' );
-				break;
-
 			case 'comments_default_action_spam_bot' :
 				$sName = _wpsf__( 'Default SPAM Action' );
 				$sSummary = _wpsf__( 'How To Categorise Comments When Identified To Be SPAM' );
@@ -201,6 +216,18 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'If you want a custom checkbox message, please provide this here' );
 				$sDescription = _wpsf__( "You can customise the message beside the checkbox." )
 								.'<br />'.sprintf( _wpsf__( 'Default Message: %s' ), _wpsf__( "Please check the box to confirm you're not a spammer" ) );
+				break;
+
+			case 'enable_google_recaptcha_comments' :
+				$sName = 'Google reCAPTCHA';
+				$sSummary = _wpsf__( 'Enable Google reCAPTCHA For Comments' );
+				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.' );
+				break;
+
+			case 'google_recaptcha_style_comments' :
+				$sName = _wpsf__( 'reCAPTCHA Style' );
+				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed' );
+				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
 				break;
 
 			case 'custom_message_alert' :
