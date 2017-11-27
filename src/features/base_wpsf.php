@@ -11,7 +11,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	public function getGoogleRecaptchaConfig() {
+	protected function getGoogleRecaptchaConfig() {
 		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), array() );
 		if ( !is_array( $aConfig ) ) {
 			$aConfig = array();
@@ -27,7 +27,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * Overriden in the plugin handler getting the option value
+	 * Overridden in the plugin handler getting the option value
 	 * @return string
 	 */
 	public function getGoogleRecaptchaSecretKey() {

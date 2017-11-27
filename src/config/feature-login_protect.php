@@ -39,6 +39,16 @@
       ]
     },
     {
+      "slug": "section_recaptcha",
+      "title": "Google reCAPTCHA",
+      "title_short": "reCAPTCHA",
+      "summary": [
+        "Purpose - Adds Google reCAPTCHA to the Login Forms.",
+        "Recommendation - Keep this turned on.",
+        "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
+      ]
+    },
+    {
       "slug": "section_multifactor_authentication",
       "title": "Multi-Factor Authentication",
       "title_short": "2-Factor Auth",
@@ -64,15 +74,6 @@
       "summary": [
         "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
         "Recommendation - Use of this feature is highly recommend. Note: you must own the appropriate Yubikey hardware device."
-      ]
-    },
-    {
-      "slug": "section_bypass_login_protection",
-      "title": "By-Pass Login Protection",
-      "title_short": "By-Pass",
-      "summary": [
-        "Purpose - Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.",
-        "Recommendation - Keep this turned off unless you know you need it."
       ]
     },
     {
@@ -104,7 +105,7 @@
     },
     {
       "key": "enable_xmlrpc_compatibility",
-      "section": "section_bypass_login_protection",
+      "section": "section_enable_plugin_feature_login_protection",
       "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/9u",
@@ -198,7 +199,7 @@
     },
     {
       "key": "enable_google_recaptcha_login",
-      "section": "section_brute_force_login_protection",
+      "section": "section_recaptcha",
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/9m",
@@ -206,6 +207,36 @@
       "name": "Google reCAPTCHA",
       "summary": "Enable Google reCAPTCHA",
       "description": "Use Google reCAPTCHA on the login screen."
+    },
+    {
+      "key": "google_recaptcha_style_login",
+      "section": "section_recaptcha",
+      "premium": true,
+      "default": "default",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "default",
+          "text": "Default"
+        },
+        {
+          "value_key": "light",
+          "text": "Light Theme"
+        },
+        {
+          "value_key": "dark",
+          "text": "Dark Theme"
+        },
+        {
+          "value_key": "invisible",
+          "text": "Invisible reCAPTCHA"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "reCAPTCHA Style",
+      "summary": "How Google reCAPTCHA Will Be Displayed",
+      "description": "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
     },
     {
       "key": "enable_login_gasp_check",

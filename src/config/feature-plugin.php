@@ -237,7 +237,7 @@
       "link_info": "",
       "link_blog": "",
       "name": "reCAPTCHA Style",
-      "summary": "How Google reCAPTCHA Will Be Displayed",
+      "summary": "How Google reCAPTCHA Will Be Displayed By Default",
       "description": "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
     },
     {

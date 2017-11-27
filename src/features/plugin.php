@@ -533,7 +533,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'google_recaptcha_style' :
 				$sName = _wpsf__( 'reCAPTCHA Style' );
-				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed' );
+				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed By Default' );
 				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
 				break;
 

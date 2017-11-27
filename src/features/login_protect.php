@@ -229,6 +229,17 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getGoogleRecaptchaStyle() {
+		$sStyle = $this->getOpt( 'google_recaptcha_style_login' );
+		if ( $sStyle == 'default' ) {
+			$sStyle = parent::getGoogleRecaptchaStyle();
+		}
+		return $sStyle;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isChainedAuth() {
@@ -298,12 +309,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				);
 				break;
 
-			case 'section_bypass_login_protection' :
-				$sTitle = _wpsf__( 'By-Pass Login Protection' );
-				$sTitleShort = _wpsf__( 'By-Pass' );
+			case 'section_recaptcha' :
+				$sTitle = 'Google reCAPTCHA';
+				$sTitleShort = 'reCAPTCHA';
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned off unless you know you need it.' ) )
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Adds Google reCAPTCHA to the Login Forms.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned on.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
 				);
 				break;
 
@@ -414,6 +426,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = _wpsf__( 'Google reCAPTCHA' );
 				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
 				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the login screen.' );
+				break;
+
+			case 'google_recaptcha_style_login' :
+				$sName = _wpsf__( 'reCAPTCHA Style' );
+				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed' );
+				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
 				break;
 
 			case 'enable_login_gasp_check' :

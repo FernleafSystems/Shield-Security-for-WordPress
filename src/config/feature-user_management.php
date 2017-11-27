@@ -31,15 +31,6 @@
       ]
     },
     {
-      "slug": "section_bypass_user_accounts_management",
-      "title": "By-Pass User Accounts Management",
-      "title_short": "By-Pass",
-      "summary": [
-        "Purpose - Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.",
-        "Recommendation - Keep this turned off unless you know you need it."
-      ]
-    },
-    {
       "slug": "section_admin_login_notification",
       "title": "Admin Login Notification",
       "title_short": "Notifications",
@@ -67,7 +58,7 @@
     },
     {
       "key": "enable_xmlrpc_compatibility",
-      "section": "section_bypass_user_accounts_management",
+      "section": "section_enable_plugin_feature_user_accounts_management",
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
