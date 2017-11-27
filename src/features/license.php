@@ -174,6 +174,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( !empty( $sDeactivatedReason ) ) {
 			$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
 		}
+		// force all options to resave i.e. reset premium to defaults.
+		add_filter( $this->prefix( 'force_options_resave' ), '__return_true' );
 	}
 
 	protected function validateCurrentLicenseKey() {
