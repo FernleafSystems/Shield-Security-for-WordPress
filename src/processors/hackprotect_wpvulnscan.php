@@ -39,6 +39,10 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			foreach ( $aVulnerabilitiesData as $oSingleVulnerabilityData ) {
 				$bVulnerable = $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData );
 			}
+
+			if ( $bVulnerable ) {
+
+			}
 		}
 	}
 
@@ -76,7 +80,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	protected function getVulnerabilityDataForPlugin( $sPluginFile, $aPluginData ) {
-		$sSlug = !empty( $aPluginData[ 'slug' ] ) ? $aPluginData[ 'slug' ] : substr( $sPluginFile, 0, strpos( $sPluginFile, ICWP_DS ) );
+		$sSlug = !empty( $aPluginData[ 'slug' ] ) ? $aPluginData[ 'slug' ] : substr( $sPluginFile, 0, strpos( $sPluginFile, '/' ) );
 		if ( empty( $sSlug ) ) {
 			return array();
 		}
@@ -92,13 +96,14 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 		$oWp->setTransient( $sTransientKey, $sFullContent, DAY_IN_SECONDS );
 
+		$aVulns = array();
 		if ( !empty( $sFullContent ) ) {
-			$oData = json_decode( $sFullContent );
+			$oData = @json_decode( $sFullContent );
 			if ( isset( $oData->{$sSlug} ) && !empty( $oData->{$sSlug}->vulnerabilities ) && is_array( $oData->{$sSlug}->vulnerabilities ) ) {
-				return $oData->{$sSlug}->vulnerabilities;
+				$aVulns = $oData->{$sSlug}->vulnerabilities;
 			}
 		}
-		return array();
+		return $aVulns;
 	}
 
 	/**
