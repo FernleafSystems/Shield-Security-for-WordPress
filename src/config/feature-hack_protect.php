@@ -147,6 +147,7 @@
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn": "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n": "https://svn.automattic.com/wordpress-i18n/",
+    "wpvulndb_api_url_root": "https://wpvulndb.com/api/v2/",
     "corechecksum_exclusions": [
       "readme.html",
       "license.txt",
