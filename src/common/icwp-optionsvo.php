@@ -70,7 +70,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		$this->cleanOptions();
-		if ( !$this->isPremium() ) {
+		if ( !$this->isPremiumLicensed() ) {
 			$this->resetPremiumOptsToDefault();
 		}
 		$this->setNeedSave( false );
@@ -504,7 +504,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function isPremium() {
+	public function isPremiumLicensed() {
 		return (bool)$this->bIsPremium;
 	}
 
@@ -531,7 +531,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @param $bIsPremium
 	 * @return $this
 	 */
-	public function setIsPremium( $bIsPremium ) {
+	public function setIsPremiumLicensed( $bIsPremium ) {
 		$this->bIsPremium = $bIsPremium;
 		return $this;
 	}

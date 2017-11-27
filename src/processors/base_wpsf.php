@@ -47,6 +47,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 		}
 
 		/**
+		 * @return string
+		 */
+		protected function getRecaptchaResponse() {
+			return $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+		}
+
+		/**
 		 * @return bool
 		 */
 		protected function isRecaptchaInvisible() {
