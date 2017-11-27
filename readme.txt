@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.17.0
+Stable tag: 5.18.0
 
 Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
 
@@ -330,27 +330,36 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.17.0 Latest Point Release =
+= 5.18.0 Latest Point Release =
+*Released: 27th November, 2017*
+
+Our policy is to never restrict security features to Pro upgrades. **This has not changed**.
+
+We're now offering technical support and other features exclusively to premium customers.
+If you don't want to support the work, no problem! You can still continue to use Shield Security and its features in-full.
+Technical support, and some newer options and features will not be available to you, however.
+
+You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support will be available to premium clients only.
+
+* **(v.0)**  PRO:			Added **Invisible** Google reCAPTCHA option.
+* **(v.0)**  PRO:			Added support for Google reCAPTCHA themes - light and dark.
+* **(v.0)**  IMPROVEMENT:	Google reCAPTCHA is more reliable and configurable.
+
+= 5.18.0 Series =
+*Released: 27th November, 2017*
+
+* **(v.0)**  PRO:			Added **Invisible** Google reCAPTCHA option.
+* **(v.0)**  PRO:			Added support for Google reCAPTCHA themes - light and dark.
+* **(v.0)**  IMPROVEMENT:	Google reCAPTCHA is more reliable and configurable.
+
+= 5.17.0 Series =
 *Released: 23rd November, 2017*
-
-Our policy has been to never restrict security features to Pro upgrades. This has **not changed**.
-
-We're now offering technical support and other features exclusively to premium customers. If you don't want to support
-our work, no problem! You can still continue to use Shield Security and its features in-full. Some newer options and
-extras will be restricted to you, however.
-
-You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support going-forward will be for premium clients only.
 
 * **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
 * **(v.0)**  IMPROVEMENT:	Fix and improvement to Google reCAPTCHA.
 * **(v.0)**  PRO:			Support for Woocommerce and Easy Digital Downloads login/registration form protection.
 * **(v.0)**  PRO:			Ability to customise most user-facing texts.
 * **(v.0)**  PRO:			Extra IP Transgression signal.
-
-= 5.17.0 Series =
-*Released: 23rd November, 2017*
-
-* **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
