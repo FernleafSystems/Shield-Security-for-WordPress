@@ -16,9 +16,10 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	/**
 	 */
 	public function run() {
-		$this->setupVulnScanCron();
+//		$this->setupVulnScanCron();
 		if ( $this->loadDataProcessor()->FetchGet( 'force_wpvulnscan' ) == 1 ) {
-			$this->cron_dailyWpVulnScan();
+			$this->scanPlugins();
+			die();
 		}
 	}
 
@@ -28,22 +29,34 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	protected function scanPlugins() {
-		foreach ( $this->loadWp()->getPlugins() as $sFile => $aData ) {
+		$aVulnerable = $this->getVulnerablePlugins();
+		var_dump( $aVulnerable );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getVulnerablePlugins() {
+		$aApplicable = array();
+
+		foreach ( $this->loadWpPlugins()->getPlugins() as $sFile => $aData ) {
 
 			if ( empty( $aData[ 'Version' ] ) ) {
 				continue; // we can't check if we have no version.
 			}
 
-			$aVulnerabilitiesData = $this->getVulnerabilityDataForPlugin( $sFile, $aData );
+			$sSlug = empty( $aData[ 'slug' ] ) ? substr( $sFile, 0, strpos( $sFile, '/' ) ) : $aData[ 'slug' ];
+
+			$aApplicable[ $sFile ] = array();
 			/** @var stdClass $oVulnerabilityData */
-			foreach ( $aVulnerabilitiesData as $oSingleVulnerabilityData ) {
+			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
 				$bVulnerable = $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData );
-			}
-
-			if ( $bVulnerable ) {
-
+				if ( $bVulnerable ) {
+					$aApplicable[ $sFile ][] = $oSingleVulnerabilityData;
+				}
 			}
 		}
+		return $aApplicable;
 	}
 
 	protected function scanThemes() {
@@ -75,15 +88,10 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 * wpvulndb_api_url_wordpress: 'https://wpvulndb.com/api/v2/wordpresses/'
 	 * wpvulndb_api_url_plugins: 'https://wpvulndb.com/api/v2/plugins/'
 	 * wpvulndb_api_url_themes: 'https://wpvulndb.com/api/v2/themes/'
-	 * @param $sPluginFile
-	 * @param $aPluginData
+	 * @param string $sSlug
 	 * @return array
 	 */
-	protected function getVulnerabilityDataForPlugin( $sPluginFile, $aPluginData ) {
-		$sSlug = !empty( $aPluginData[ 'slug' ] ) ? $aPluginData[ 'slug' ] : substr( $sPluginFile, 0, strpos( $sPluginFile, '/' ) );
-		if ( empty( $sSlug ) ) {
-			return array();
-		}
+	protected function getVulnerabilityDataForPlugin( $sSlug ) {
 
 		$oWp = $this->loadWp();
 		$sTransientKey = $this->getFeature()->prefixOptionKey( 'wpvulnplugin-'.$sSlug );

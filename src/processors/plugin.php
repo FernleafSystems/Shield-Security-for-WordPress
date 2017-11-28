@@ -108,11 +108,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * Sets this plugin to be the first loaded of all the plugins.
 	 */
 	protected function maintainPluginLoadPosition() {
-		$oWp = $this->loadWp();
+		$oWpPlugins = $this->loadWpPlugins();
 		$sBaseFile = $this->getController()->getPluginBaseFile();
-		$nLoadPosition = $oWp->getActivePluginLoadPosition( $sBaseFile );
+		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
 		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
-			$oWp->setActivePluginLoadFirst( $sBaseFile );
+			$oWpPlugins->setActivePluginLoadFirst( $sBaseFile );
 		}
 	}
 

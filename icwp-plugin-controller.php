@@ -654,7 +654,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
 			&& isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
-			$sNewVersion = $this->loadWp()->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+
+			$sNewVersion = $this->loadWpPlugins()->getUpdateNewVersion( $this->getPluginBaseFile() );
 			if ( !empty( $sNewVersion ) ) {
 				$oConOptions = $this->getPluginControllerOptions();
 				if ( !isset( $oConOptions->update_first_detected ) || ( count( $oConOptions->update_first_detected ) > 3 ) ) {
@@ -685,11 +686,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
 		$oWp = $this->loadWp();
+		$oWpPlugins = $this->loadWpPlugins();
 
-		$sItemFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
+		$sFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
 
 		// The item in question is this plugin...
-		if ( $sItemFile === $this->getPluginBaseFile() ) {
+		if ( $sFile === $this->getPluginBaseFile() ) {
 			$sAutoupdateSpec = $this->getPluginSpec_Property( 'autoupdate' );
 
 			$oConOptions = $this->getPluginControllerOptions();
@@ -711,7 +713,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				case 'confidence' :
 					$bDoAutoUpdate = false;
 					$nAutoupdateDays = $this->getPluginSpec_Property( 'autoupdate_days' );
-					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+					$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
 						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
@@ -721,7 +723,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 				case 'pass' :
 					// Add block to version 6.0 if PHP < 5.3
-					$sNewVersion = $oWp->getPluginUpdateNewVersion( $this->getPluginBaseFile() );
+					$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
 					if ( version_compare( $sNewVersion, '6.0.0', '>=' ) && !$this->loadDataProcessor()
 																				 ->getPhpVersionIsAtLeast( '5.3.0' ) ) {
 						$bDoAutoUpdate = false;

@@ -22,6 +22,15 @@
       ]
     },
     {
+      "slug": "section_wpvuln_scan",
+      "title": "Vulnerability Scanner",
+      "title_short": "Vulnerability Scanner",
+      "summary": [
+        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
+      ]
+    },
+    {
       "slug": "section_core_file_integrity_scan",
       "title": "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
@@ -55,6 +64,18 @@
       "name": "Enable Hack Protection",
       "summary": "Enable (or Disable) The Hack Protection Feature",
       "description": "Checking/Un-Checking this option will completely turn on/off the whole Hack Protection feature"
+    },
+    {
+      "key": "enable_wpvuln_scan",
+      "section": "section_wpvuln_scan",
+      "premium": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Vulnerability Scanner",
+      "summary": "Enable The Vulnerability Scanner",
+      "description": "Scan all your WordPress assets for known security vulnerabilities."
     },
     {
       "key": "enable_core_file_integrity_scan",

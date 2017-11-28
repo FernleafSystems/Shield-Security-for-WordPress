@@ -26,9 +26,11 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
 			$this->runChecksumScan();
 		}
-
 		if ( $oFO->isUfsEnabled() ) {
 			$this->runFileCleanerScan();
+		}
+		if ( $oFO->isWpvulnEnabled() ) {
+			$this->runWpVulnScan();
 		}
 	}
 
@@ -41,29 +43,72 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param bool $bAutoRepair
-	 * @return array
 	 */
-	public function runManualChecksumScan( $bAutoRepair ) {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
-		$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeature() );
-		return $oPv->doChecksumScan( $bAutoRepair );
+	protected function runChecksumScan() {
+		$this->getSubProcessorChecksumScan()
+			 ->run();
 	}
 
 	/**
+	 * @param bool $bAutoRepair
+	 * @return array
 	 */
-	protected function runChecksumScan() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
-		$oPv = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeature() );
-		$oPv->run();
+	public function runChecksumScanManual( $bAutoRepair ) {
+		return $this->getSubProcessorChecksumScan()
+					->doChecksumScan( $bAutoRepair );
 	}
 
 	/**
 	 */
 	protected function runFileCleanerScan() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_filecleanerscan.php' );
-		$oPv = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getFeature() );
-		$oPv->run();
+		$this->getSubProcessorFileCleanerScan()
+			 ->run();
+	}
+
+	/**
+	 */
+	protected function runWpVulnScan() {
+		$this->getSubProcessorWpVulnScan()
+			 ->run();
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_CoreChecksumScan
+	 */
+	protected function getSubProcessorChecksumScan() {
+		$oProc = $this->getSubProcessor( 'checksum' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeature() );
+			$this->aSumProcessors[ 'checksum' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_FileCleanerScan
+	 */
+	protected function getSubProcessorFileCleanerScan() {
+		$oProc = $this->getSubProcessor( 'cleaner' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_filecleanerscan.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getFeature() );
+			$this->aSumProcessors[ 'cleaner' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_WpVulnScan
+	 */
+	protected function getSubProcessorWpVulnScan() {
+		$oProc = $this->getSubProcessor( 'vuln' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_wpvulnscan.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getFeature() );
+			$this->aSumProcessors[ 'vuln' ] = $oProc;
+		}
+		return $oProc;
 	}
 
 	/**

@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
 
-			$aPlugins = $this->loadWp()->getPlugins();
+			$aPlugins = $this->loadWpPlugins()->getPlugins();
 
 			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
@@ -120,7 +120,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		}
 
 		public function addPluginVulnerabilityRows() {
-			$aPlugins = $this->loadWp()->getPlugins();
+			$aPlugins = $this->loadWpPlugins()->getPlugins();
 			foreach( array_keys( $aPlugins ) as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
