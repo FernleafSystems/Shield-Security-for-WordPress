@@ -19,12 +19,66 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	protected $aNotifEmail;
 
 	/**
+	 * @var int
+	 */
+	protected $nColumnsCount;
+
+	/**
 	 */
 	public function run() {
 //		$this->setupVulnScanCron();
 		if ( $this->loadDataProcessor()->FetchGet( 'force_wpvulnscan' ) == 1 ) {
 			$this->scanPlugins();
 			die();
+		}
+
+		// For display on the Plugins page
+		add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
+		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
+	}
+
+	/**
+	 * @param array $aColumns
+	 * @return array
+	 */
+	public function fCountColumns( $aColumns ) {
+		if ( !isset( $this->nColumnsCount ) ) {
+			$this->nColumnsCount = count( $aColumns );
+		}
+		return $aColumns;
+	}
+
+	public function addPluginVulnerabilityRows() {
+		foreach ( array_keys( $this->loadWpPlugins()->getPlugins() ) as $sPluginFile ) {
+			add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
+		}
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param array  $aPluginData
+	 */
+	public function attachVulnerabilityWarning( $sPluginFile, $aPluginData ) {
+
+		$sOurName = $this->getController()->getHumanName();
+		$oFO = $this->getFeature();
+		foreach ( $this->getPluginVulnerabilities( $sPluginFile ) as $oVuln ) {
+
+			$aRenderData = array(
+				'strings'  => array(
+					'known_vuln'            => sprintf( _wpsf__( '%s has discovered that the currently installed version of the "%s" plugin has a known security vulnerability.' ), $sOurName, $aPluginData[ 'Name' ] ),
+					'vuln_type'             => _wpsf__( 'Vulnerability Type' ),
+					'vuln_type_explanation' => $oVuln->vuln_type,
+					'vuln_versions'         => _wpsf__( 'Fixed Versions' ),
+					'more_info'             => _wpsf__( 'More Info' ),
+					'fixed_version'         => isset( $oVuln->fixed_in ) ? $oVuln->fixed_in : 'unknown',
+				),
+				'hrefs'    => array(
+					'more_info' => $this->getVulnUrl( $oVuln )
+				),
+				'nColspan' => $this->nColumnsCount
+			);
+			echo $oFO->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
 		}
 	}
 
@@ -103,8 +157,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	protected function scanPlugins() {
-		$aVulnerable = $this->getVulnerablePlugins();
-		foreach ( $aVulnerable as $sFile => $aVulnerabilities ) {
+		foreach ( $this->getVulnerablePlugins() as $sFile => $aVulnerabilities ) {
 			foreach ( $aVulnerabilities as $oVuln ) {
 				$this->addVulnToEmail( $sFile, $oVuln );
 			}
@@ -113,7 +166,16 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
+	 * @param $sFile
 	 * @return stdClass[]
+	 */
+	protected function getPluginVulnerabilities( $sFile ) {
+		$aAll = $this->getVulnerablePlugins();
+		return isset( $aAll[ $sFile ] ) ? $aAll[ $sFile ] : array();
+	}
+
+	/**
+	 * @return stdClass[][]
 	 */
 	protected function getVulnerablePlugins() {
 		$aApplicable = array();
@@ -129,9 +191,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			$aThisVulns = array();
 			/** @var stdClass $oVulnerabilityData */
 			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
-				$bVulnerable = $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData );
-				if ( $bVulnerable ) {
-					var_dump( $oSingleVulnerabilityData );
+				if ( $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData ) ) {
 					$aThisVulns[] = $oSingleVulnerabilityData;
 				}
 			}
