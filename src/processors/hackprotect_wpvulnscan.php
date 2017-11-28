@@ -4,14 +4,19 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_WpVulnScan', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).ICWP_DS.'base.php' );
+require_once( dirname( __FILE__ ).ICWP_DS.'base_wpsf.php' );
 
-class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Base {
+class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @var string
 	 */
 	protected $sApiRootUrl;
+
+	/**
+	 * @var
+	 */
+	protected $aNotifEmail;
 
 	/**
 	 */
@@ -23,6 +28,75 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		}
 	}
 
+	/**
+	 * @param string   $sFile
+	 * @param stdClass $oVuln
+	 * @return $this
+	 */
+	protected function addVulnToEmail( $sFile, $oVuln ) {
+		if ( !isset( $this->aNotifEmail ) ) {
+			$this->aNotifEmail = array();
+		}
+
+		$aPlugin = $this->loadWpPlugins()
+						->getPlugin( $sFile );
+
+		$this->aNotifEmail = array_merge(
+			$this->aNotifEmail,
+			array(
+				'- '.sprintf( _wpsf__( 'Plugin Name: %s' ), $aPlugin[ 'Name' ] ),
+				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->title ),
+				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->vuln_type ),
+				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->fixed_in ),
+				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $this->getVulnUrl( $oVuln ) ),
+				'',
+			)
+		);
+
+		return $this;
+	}
+
+	/**
+	 * @param stdClass $oVuln
+	 * @return string
+	 */
+	protected function getVulnUrl( $oVuln ) {
+		return sprintf( 'https://wpvulndb.com/vulnerabilities/%s', $oVuln->id );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function sendVulnerabilityNotification() {
+		if ( empty( $this->aNotifEmail ) ) {
+			return true;
+		}
+		$oWp = $this->loadWp();
+		$oConn = $this->getController();
+
+		$aPreamble = array(
+			sprintf( _wpsf__( '%s has detected plugins with known security vulnerabilities.' ), $oConn->getHumanName() ),
+			_wpsf__( 'Details for the plugin(s) are below:' ),
+			'',
+		);
+		$this->aNotifEmail = array_merge( $aPreamble, $this->aNotifEmail );
+
+		$this->aNotifEmail[] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
+		$this->aNotifEmail[] = sprintf( _wpsf__( 'Go To Your Plugins: %s' ), $oWp->getAdminUrl_Plugins( $oConn->getIsWpmsNetworkAdminOnly() ) );
+
+		$sSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
+		$sRecipient = $this->getPluginDefaultRecipientAddress();
+		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sSubject, $this->aNotifEmail );
+
+		if ( $bSendSuccess ) {
+			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+		}
+		else {
+			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
+		}
+		return $bSendSuccess;
+	}
+
 	public function cron_dailyWpVulnScan() {
 		$this->scanPlugins();
 		$this->scanThemes();
@@ -30,11 +104,16 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 	protected function scanPlugins() {
 		$aVulnerable = $this->getVulnerablePlugins();
-		var_dump( $aVulnerable );
+		foreach ( $aVulnerable as $sFile => $aVulnerabilities ) {
+			foreach ( $aVulnerabilities as $oVuln ) {
+				$this->addVulnToEmail( $sFile, $oVuln );
+			}
+		}
+		$this->sendVulnerabilityNotification();
 	}
 
 	/**
-	 * @return array
+	 * @return stdClass[]
 	 */
 	protected function getVulnerablePlugins() {
 		$aApplicable = array();
@@ -47,13 +126,18 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 			$sSlug = empty( $aData[ 'slug' ] ) ? substr( $sFile, 0, strpos( $sFile, '/' ) ) : $aData[ 'slug' ];
 
-			$aApplicable[ $sFile ] = array();
+			$aThisVulns = array();
 			/** @var stdClass $oVulnerabilityData */
 			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
 				$bVulnerable = $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData );
 				if ( $bVulnerable ) {
-					$aApplicable[ $sFile ][] = $oSingleVulnerabilityData;
+					var_dump( $oSingleVulnerabilityData );
+					$aThisVulns[] = $oSingleVulnerabilityData;
 				}
+			}
+
+			if ( !empty( $aThisVulns ) ) {
+				$aApplicable[ $sFile ] = $aThisVulns;
 			}
 		}
 		return $aApplicable;

@@ -467,6 +467,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool   $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getUrl_CurrentAdminPage() {
