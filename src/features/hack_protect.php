@@ -89,6 +89,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isWpvulnEnabled() {
+		return $this->getOptIs( 'enable_wpvuln_scan', 'Y' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -105,6 +112,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Protection' ) ) )
 				);
 				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				break;
+
+			case 'section_wpvuln_scan' :
+				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Plugin Vulnerabilities Scanner' ) ) ),
+					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
+				);
+				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
 				break;
 
 			case 'section_plugin_vulnerabilities_scan' :
@@ -162,6 +179,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Plugin Vulnerabilities Scanner' );
 				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
 				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.' );
+				break;
+
+			case 'enable_wpvuln_scan' :
+				$sName = _wpsf__( 'Vulnerability Scanner' );
+				$sSummary = _wpsf__( 'Enable The Vulnerability Scanner' );
+				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.' );
 				break;
 
 			case 'enable_core_file_integrity_scan' :

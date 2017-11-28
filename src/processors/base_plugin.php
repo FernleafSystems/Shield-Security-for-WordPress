@@ -112,8 +112,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			}
 
 			$oWp = $this->loadWp();
+			$oWpPlugins = $this->loadWpPlugins();
 			$sBaseFile = $this->getController()->getPluginBaseFile();
-			if ( !$oWp->getIsPage_Updates() && $oWp->getIsPluginUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
+			if ( !$oWp->getIsPage_Updates() && $oWpPlugins->isUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'render_slug' => 'plugin-update-available',
@@ -123,7 +124,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 						'dismiss' => _wpsf__( 'Dismiss this notice' )
 					),
 					'hrefs' => array(
-						'upgrade_link' =>  $oWp->getPluginUpgradeLink( $sBaseFile )
+						'upgrade_link' =>  $oWpPlugins->getLinkPluginUpgrade( $sBaseFile )
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );

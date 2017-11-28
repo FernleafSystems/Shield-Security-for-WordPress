@@ -22,6 +22,14 @@ class ICWP_WPSF_Foundation {
 	 */
 	private static $oWp;
 	/**
+	 * @var ICWP_WPSF_WpFunctions_Plugins
+	 */
+	private static $oWpPlugins;
+	/**
+	 * @var ICWP_WPSF_WpFunctions_Themes
+	 */
+	private static $oWpThemes;
+	/**
 	 * @var ICWP_WPSF_WpDb
 	 */
 	private static $oWpDb;
@@ -65,16 +73,27 @@ class ICWP_WPSF_Foundation {
 	 * @var ICWP_WPSF_Edd
 	 */
 	private static $oEdd;
+	/**
+	 * @var ICWP_APP_WpUpgrades
+	 */
+	private static $oUpgrades;
 
 	/**
 	 * @return ICWP_WPSF_DataProcessor
 	 */
-	static public function loadDataProcessor() {
+	static public function loadDP() {
 		if ( !isset( self::$oDp ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-data.php' );
 			self::$oDp = ICWP_WPSF_DataProcessor::GetInstance();
 		}
 		return self::$oDp;
+	}
+
+	/**
+	 * @return ICWP_WPSF_DataProcessor
+	 */
+	static public function loadDataProcessor() {
+		return self::loadDP();
 	}
 
 	/**
@@ -100,12 +119,27 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * TODO: Remove
-	 * @alias
-	 * @return ICWP_WPSF_WpFunctions
+	 * @return ICWP_WPSF_WpFunctions_Plugins
 	 */
-	static public function loadWpFunctions() {
-		return self::loadWp();
+	public function loadWpPlugins() {
+		if ( ! isset( self::$oWpPlugins ) ) {
+			require_once( dirname( __FILE__ ) . ICWP_DS . 'icwp-wpfunctions-plugins.php' );
+			self::$oWpPlugins = ICWP_WPSF_WpFunctions_Plugins::GetInstance();
+		}
+
+		return self::$oWpPlugins;
+	}
+
+	/**
+	 * @return ICWP_WPSF_WpFunctions_Themes
+	 */
+	public function loadWpThemes() {
+		if ( ! isset( self::$oWpThemes ) ) {
+			require_once( dirname( __FILE__ ) . ICWP_DS . 'icwp-wpfunctions-themes.php' );
+			self::$oWpThemes = ICWP_WPSF_WpFunctions_Themes::GetInstance();
+		}
+
+		return self::$oWpThemes;
 	}
 
 	/**
@@ -117,6 +151,18 @@ class ICWP_WPSF_Foundation {
 			self::$oWpCron = ICWP_WPSF_WpCron::GetInstance();
 		}
 		return self::$oWpCron;
+	}
+
+	/**
+	 * @return ICWP_APP_WpUpgrades
+	 */
+	static public function loadWpUpgrades() {
+		if ( ! isset( self::$oUpgrades ) ) {
+			require_once( dirname( __FILE__ ) . ICWP_DS . 'icwp-wpupgrades.php' );
+			self::$oUpgrades = ICWP_APP_WpUpgrades::GetInstance();
+		}
+
+		return self::$oUpgrades;
 	}
 
 	/**

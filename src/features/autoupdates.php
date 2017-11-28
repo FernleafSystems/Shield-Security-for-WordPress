@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Autoupdates' ) ) {
 	return;
 }
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -56,15 +56,17 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 		$bSuccess = false;
 		if ( $this->checkAjaxNonce() ) {
-			$oWp = $this->loadWp();
+
+			$oWpPlugins = $this->loadWpPlugins();
 			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
-			if ( $oWp->getIsPluginInstalledByFile( $sFile ) ) {
+			if ( $oWpPlugins->isPluginInstalled( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
 
-				$oPlugin = $oWp->getPluginDataAsObject( $sFile );
+				$aPlugin = $oWpPlugins->getPlugin( $sFile );
 				$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
-					$oPlugin->Name,
-					$oWp->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
+					$aPlugin[ 'Name' ],
+					$this->loadWp()
+						 ->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
 				);
 				$bSuccess = true;
 			}
@@ -110,8 +112,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sSectionSlug = $aOptionsParams['slug'];
-		switch( $sSectionSlug ) {
+		$sSectionSlug = $aOptionsParams[ 'slug' ];
+		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
@@ -134,7 +136,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_automatic_plugin_self_update' :
 				$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()->getHumanName() ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()
+																																									->getHumanName() ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this option turned on.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Self-Update' );
@@ -160,9 +163,9 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			default:
 				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
-		$aOptionsParams['title'] = $sTitle;
-		$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-		$aOptionsParams['title_short'] = $sTitleShort;
+		$aOptionsParams[ 'title' ] = $sTitle;
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}
 
@@ -173,8 +176,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
-		$sKey = $aOptionsParams['key'];
-		switch( $sKey ) {
+		$sKey = $aOptionsParams[ 'key' ];
+		switch ( $sKey ) {
 
 			case 'enable_autoupdates' :
 				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
@@ -191,7 +194,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'autoupdate_plugin_self' :
 				$sName = _wpsf__( 'Auto Update Plugin' );
 				$sSummary = _wpsf__( 'Always Automatically Update This Plugin' );
-				$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), self::getConn()->getHumanName() );
+				$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), self::getConn()
+																																			 ->getHumanName() );
 				break;
 
 			case 'autoupdate_core' :
@@ -246,9 +250,9 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
-		$aOptionsParams['name'] = $sName;
-		$aOptionsParams['summary'] = $sSummary;
-		$aOptionsParams['description'] = $sDescription;
+		$aOptionsParams[ 'name' ] = $sName;
+		$aOptionsParams[ 'summary' ] = $sSummary;
+		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
 	}
 }

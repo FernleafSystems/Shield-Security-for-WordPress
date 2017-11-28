@@ -15,6 +15,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		static protected $nPromoNoticesCount = 0;
 
 		/**
+		 * @var ICWP_WPSF_Processor_Base[]
+		 */
+		protected $aSumProcessors;
+
+		/**
 		 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
 		 */
 		public function __construct( $oFeatureOptions ) {
@@ -187,6 +192,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_Base', false ) ):
 		 */
 		protected function getFeature() {
 			return $this->oFeatureOptions;
+		}
+
+		/**
+		 * @param string $sKey
+		 * @return ICWP_WPSF_Processor_Base|null
+		 */
+		protected function getSubProcessor( $sKey ) {
+			$aProcessors = $this->getSubProcessors();
+			return isset( $aProcessors[ $sKey ] ) ? $aProcessors[ $sKey ] : null;
+		}
+
+		/**
+		 * @return ICWP_WPSF_Processor_Base[]
+		 */
+		protected function getSubProcessors() {
+			if ( !isset( $this->aSumProcessors ) ) {
+				$this->aSumProcessors = array();
+			}
+			return $this->aSumProcessors;
 		}
 
 		/**
