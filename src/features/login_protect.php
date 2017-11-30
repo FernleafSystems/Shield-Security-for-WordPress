@@ -329,6 +329,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			case 'section_rename_wplogin' :
 				$sTitle = _wpsf__( 'Rename WP Login Page' );
 				$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
+				$sTitleShort = _wpsf__( 'Login URL' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )

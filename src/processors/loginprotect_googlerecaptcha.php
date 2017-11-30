@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
-		if ( !$this->loadWp()->isRequestLoginUrl() || !$oFO->getIsGoogleRecaptchaReady() ) {
+		if ( !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 
@@ -23,6 +23,16 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ), 100 );
 		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ), 100 );
 		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ), 100 );
+
+		if ( $oFO->getIfSupport3rdParty() && $oFO->getIsCheckingUserRegistrations() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+			add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGoogleRecaptchaCheck' ), 10 );
+			add_action( 'bp_signup_validate', array( $this, 'checkGoogleRecaptcha_Action' ), 10 );
+		}
+		else {
+			// TODO: improve and test the enqueing of JS only when necessary
+			add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+		}
 
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
@@ -47,6 +57,16 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	protected function getGoogleRecaptchaHtml() {
 		$sNonInvisStyle = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		return sprintf( '%s<div class="icwpg-recaptcha"></div>', $this->isRecaptchaInvisible() ? '' : $sNonInvisStyle );
+	}
+
+	public function checkGoogleRecaptcha_Action() {
+		try {
+			$this->checkRequestRecaptcha();
+		}
+		catch ( Exception $oE ) {
+			$this->loadWp()
+				 ->wpDie( 'Google reCAPTCHA checking failed.' );
+		}
 	}
 
 	/**
