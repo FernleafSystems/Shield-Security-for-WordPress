@@ -29,10 +29,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 			add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGoogleRecaptchaCheck' ), 10 );
 			add_action( 'bp_signup_validate', array( $this, 'checkGoogleRecaptcha_Action' ), 10 );
 		}
-		else {
-			// TODO: improve and test the enqueing of JS only when necessary
-			add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
-		}
+
+		add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
 
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
