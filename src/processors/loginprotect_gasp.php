@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		// before username/password check (20)
 		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 2 );
 
-		$b3rdParty = $oFO->getOptIs( 'login_protect_3pty', 'Y' );
+		$b3rdParty = $oFO->getIfSupport3rdParty();
 		if ( $b3rdParty ) {
 			add_action( 'woocommerce_login_form', array( $this, 'printGaspLoginCheck_Action' ), 10 );
 			add_action( 'edd_login_fields_after', array( $this, 'printGaspLoginCheck_Action' ), 10 );
@@ -41,6 +41,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
 				add_action( 'edd_register_form_fields_before_submit',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
+
+				// Buddypress custom registration page.
+				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGaspLoginCheck_Action' ), 10 );
+				add_action( 'bp_signup_validate', array( $this, 'checkRegisterForGasp_Action' ), 10 );
 			}
 		}
 	}
