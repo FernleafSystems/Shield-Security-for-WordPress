@@ -55,6 +55,30 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 
 		/**
 		 * @return bool
+		 * @throws Exception
+		 */
+		protected function checkRequestRecaptcha() {
+			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+			$oFO = $this->getFeature();
+
+			$sCaptchaResponse = $this->getRecaptchaResponse();
+
+			if ( empty( $sCaptchaResponse ) ) {
+				throw new Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA was not submitted.' ), 1 );
+			}
+			else {
+				$oResponse = $this->loadGoogleRecaptcha()
+								  ->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() )
+								  ->verify( $sCaptchaResponse, $this->ip() );
+				if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
+					throw new Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA verification failed.' ), 2 );
+				}
+			}
+			return true;
+		}
+
+		/**
+		 * @return bool
 		 */
 		protected function isRecaptchaInvisible() {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */

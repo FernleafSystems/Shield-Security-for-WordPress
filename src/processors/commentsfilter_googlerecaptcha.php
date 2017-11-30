@@ -54,24 +54,16 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			return $aCommentData;
 		}
 
-		$sCaptchaResponse = $this->getRecaptchaResponse();
-
 		$bIsSpam = false;
 		$sStatKey = '';
 		$sExplanation = '';
-		if ( empty( $sCaptchaResponse ) ) {
-			$bIsSpam = true;
-			$sStatKey = 'empty';
-			$sExplanation = _wpsf__( 'Google reCAPTCHA was not submitted.' );
+		try {
+			$this->checkRequestRecaptcha();
 		}
-		else {
-			$oRecaptcha = $this->loadGoogleRecaptcha()->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() );
-			$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->ip() );
-			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				$bIsSpam = true;
-				$sStatKey = 'failed';
-				$sExplanation = _wpsf__( 'Google reCAPTCHA verification failed.' );
-			}
+		catch ( Exception $oE ) {
+			$sStatKey = ( $oE->getCode() == 1 ) ? 'empty' : 'failed';
+			$sExplanation = $oE->getMessage();
+			$bIsSpam = true;
 		}
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"

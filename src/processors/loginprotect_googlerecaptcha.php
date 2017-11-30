@@ -61,28 +61,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 			return $oUser;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-
 		// we haven't already failed before now
 		if ( !is_wp_error( $oUser ) ) {
 
-			$oError = new WP_Error();
-			$sCaptchaResponse = $this->getRecaptchaResponse();
-
-			if ( empty( $sCaptchaResponse ) ) {
-				$oError->add( 'shield_google_recaptcha_empty', _wpsf__( 'Whoops.' )
-					.' '. _wpsf__( 'Google reCAPTCHA was not submitted.' ) );
-				$oUser = $oError;
+			try {
+				$this->checkRequestRecaptcha();
 			}
-			else {
-				$oRecaptcha = $this->loadGoogleRecaptcha()->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() );
-				$oResponse = $oRecaptcha->verify( $sCaptchaResponse, $this->ip() );
-				if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-					$oError->add( 'shield_google_recaptcha_failed', _wpsf__( 'Whoops.' )
-						.' '. _wpsf__( 'Google reCAPTCHA verification failed.' ) );
-					$oUser = $oError;
-				}
+			catch ( Exception $oE ) {
+				$sCode = ( $oE->getCode() == 1 ) ? 'shield_google_recaptcha_empty' : 'shield_google_recaptcha_failed';
+				$oUser = new WP_Error( $sCode, $oE->getMessage() );
 			}
 
 			if ( is_wp_error( $oUser ) ) {
