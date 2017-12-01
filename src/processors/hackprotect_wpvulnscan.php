@@ -60,31 +60,30 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	public function attachVulnerabilityWarning( $sPluginFile, $aPluginData ) {
 
-		$sOurName = $this->getController()->getHumanName();
-		$oFO = $this->getFeature();
-		foreach ( $this->getPluginVulnerabilities( $sPluginFile ) as $oVuln ) {
 
+		$aVuln = $this->getPluginVulnerabilities( $sPluginFile );
+		if ( count( $aVuln ) ) {
+			$sOurName = $this->getController()->getHumanName();
 			$aRenderData = array(
 				'strings'  => array(
-					'known_vuln'            => sprintf( _wpsf__( '%s has discovered that the currently installed version of the "%s" plugin has a known security vulnerability.' ), $sOurName, $aPluginData[ 'Name' ] ),
-					'vuln_type'             => _wpsf__( 'Vulnerability Type' ),
-					'vuln_type_explanation' => $oVuln->vuln_type,
-					'vuln_versions'         => _wpsf__( 'Fixed Versions' ),
-					'more_info'             => _wpsf__( 'More Info' ),
-					'fixed_version'         => isset( $oVuln->fixed_in ) ? $oVuln->fixed_in : 'unknown',
+					'known_vuln'     => sprintf( _wpsf__( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.' ),
+						$sOurName, '<strong>'.$aPluginData[ 'Name' ].'</strong>' ),
+					'name'           => _wpsf__( 'Vulnerability Name' ),
+					'type'           => _wpsf__( 'Vulnerability Type' ),
+					'fixed_versions' => _wpsf__( 'Fixed Versions' ),
+					'more_info'      => _wpsf__( 'More Info' ),
 				),
-				'hrefs'    => array(
-					'more_info' => $this->getVulnUrl( $oVuln )
-				),
+				'vulns'    => $this->getPluginVulnerabilities( $sPluginFile ),
 				'nColspan' => $this->nColumnsCount
 			);
-			echo $oFO->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
+			echo $this->getFeature()
+					  ->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
 		}
 	}
 
 	/**
-	 * @param string   $sFile
-	 * @param stdClass $oVuln
+	 * @param string             $sFile
+	 * @param ICWP_WPSF_WpVulnVO $oVuln
 	 * @return $this
 	 */
 	protected function addVulnToEmail( $sFile, $oVuln ) {
@@ -167,7 +166,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param $sFile
-	 * @return stdClass[]
+	 * @return ICWP_WPSF_WpVulnVO[]
 	 */
 	protected function getPluginVulnerabilities( $sFile ) {
 		$aAll = $this->getVulnerablePlugins();
@@ -175,10 +174,12 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * @return stdClass[][]
+	 * @return ICWP_WPSF_WpVulnVO[][]
 	 */
 	protected function getVulnerablePlugins() {
 		$aApplicable = array();
+
+		$this->requireCommonLib( 'wpvulndb/WpVulnVO.php' );
 
 		foreach ( $this->loadWpPlugins()->getPlugins() as $sFile => $aData ) {
 
@@ -192,7 +193,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			/** @var stdClass $oVulnerabilityData */
 			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
 				if ( $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData ) ) {
-					$aThisVulns[] = $oSingleVulnerabilityData;
+					$aThisVulns[] = new ICWP_WPSF_WpVulnVO( $oSingleVulnerabilityData );
 				}
 			}
 
