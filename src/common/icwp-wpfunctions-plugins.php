@@ -265,6 +265,13 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getInstalledPluginFiles() {
+		return array_keys( $this->getPlugins() );
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public function getPlugins() {

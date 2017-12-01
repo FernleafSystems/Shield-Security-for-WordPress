@@ -35,6 +35,23 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		// For display on the Plugins page
 		add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
 		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
+
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
+			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), 100, 2 );
+		}
+	}
+
+	/**
+	 * @param bool            $bDoAutoUpdate
+	 * @param StdClass|string $mItem
+	 * @return boolean
+	 */
+	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
+		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
+		// TODO Audit.
+		return $bDoAutoUpdate || $this->getPluginHasVulnerabilities( $sItemFile );
 	}
 
 	/**
@@ -60,7 +77,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	public function attachVulnerabilityWarning( $sPluginFile, $aPluginData ) {
 
-
 		$aVuln = $this->getPluginVulnerabilities( $sPluginFile );
 		if ( count( $aVuln ) ) {
 			$sOurName = $this->getController()->getHumanName();
@@ -73,7 +89,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 					'fixed_versions' => _wpsf__( 'Fixed Versions' ),
 					'more_info'      => _wpsf__( 'More Info' ),
 				),
-				'vulns'    => $this->getPluginVulnerabilities( $sPluginFile ),
+				'vulns'    => $aVuln,
 				'nColspan' => $this->nColumnsCount
 			);
 			echo $this->getFeature()
@@ -165,43 +181,52 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * @param $sFile
-	 * @return ICWP_WPSF_WpVulnVO[]
-	 */
-	protected function getPluginVulnerabilities( $sFile ) {
-		$aAll = $this->getVulnerablePlugins();
-		return isset( $aAll[ $sFile ] ) ? $aAll[ $sFile ] : array();
-	}
-
-	/**
 	 * @return ICWP_WPSF_WpVulnVO[][]
 	 */
 	protected function getVulnerablePlugins() {
 		$aApplicable = array();
 
+		foreach ( $this->loadWpPlugins()->getInstalledPluginFiles() as $sFile ) {
+
+			$aThisVulns = $this->getPluginVulnerabilities( $sFile );
+			if ( !empty( $aThisVulns ) ) {
+				$aApplicable[ $sFile ] = $aThisVulns;
+			}
+		}
+
+		return $aApplicable;
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return ICWP_WPSF_WpVulnVO[]
+	 */
+	protected function getPluginVulnerabilities( $sFile ) {
+		$aThisVulns = array();
 		$this->requireCommonLib( 'wpvulndb/WpVulnVO.php' );
 
-		foreach ( $this->loadWpPlugins()->getPlugins() as $sFile => $aData ) {
+		$aData = $this->loadWpPlugins()->getPlugin( $sFile );
 
-			if ( empty( $aData[ 'Version' ] ) ) {
-				continue; // we can't check if we have no version.
-			}
-
+		if ( !empty( $aData[ 'Version' ] ) ) {
 			$sSlug = empty( $aData[ 'slug' ] ) ? substr( $sFile, 0, strpos( $sFile, '/' ) ) : $aData[ 'slug' ];
 
-			$aThisVulns = array();
 			/** @var stdClass $oVulnerabilityData */
 			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
 				if ( $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData ) ) {
 					$aThisVulns[] = new ICWP_WPSF_WpVulnVO( $oSingleVulnerabilityData );
 				}
 			}
-
-			if ( !empty( $aThisVulns ) ) {
-				$aApplicable[ $sFile ] = $aThisVulns;
-			}
 		}
-		return $aApplicable;
+
+		return $aThisVulns;
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return bool
+	 */
+	protected function getPluginHasVulnerabilities( $sFile ) {
+		return count( $this->getPluginVulnerabilities( $sFile ) ) > 0;
 	}
 
 	protected function scanThemes() {

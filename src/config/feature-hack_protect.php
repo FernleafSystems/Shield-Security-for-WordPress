@@ -69,13 +69,25 @@
       "key": "enable_wpvuln_scan",
       "section": "section_wpvuln_scan",
       "premium": true,
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
       "name": "Vulnerability Scanner",
       "summary": "Enable The Vulnerability Scanner",
       "description": "Scan all your WordPress assets for known security vulnerabilities."
+    },
+    {
+      "key": "wpvuln_scan_autoupdate",
+      "section": "section_wpvuln_scan",
+      "premium": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Automatic Updates",
+      "summary": "Apply Updates Automatically To Vulnerable Plugins",
+      "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
     },
     {
       "key": "enable_core_file_integrity_scan",

@@ -92,7 +92,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isWpvulnEnabled() {
-		return $this->getOptIs( 'enable_wpvuln_scan', 'Y' );
+		return $this->isPremium() && $this->getOptIs( 'enable_wpvuln_scan', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnAutoupdatesEnabled() {
+		return $this->getOptIs( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	/**
@@ -185,6 +192,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Vulnerability Scanner' );
 				$sSummary = _wpsf__( 'Enable The Vulnerability Scanner' );
 				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.' );
+				break;
+
+			case 'wpvuln_scan_autoupdate' :
+				$sName = _wpsf__( 'Automatic Updates' );
+				$sSummary = _wpsf__( 'Apply Updates Automatically To Vulnerable Plugins' );
+				$sDescription = _wpsf__( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.' );
 				break;
 
 			case 'enable_core_file_integrity_scan' :
