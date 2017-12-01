@@ -103,6 +103,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return mixed
+	 */
+	public function getWpvulnPluginsHighlightOption() {
+		return $this->getOpt( 'wpvuln_scan_display' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnPluginsHighlightEnabled() {
+		$sOpt = $this->getWpvulnPluginsHighlightOption();
+		return ( $sOpt != 'disabled' ) && $this->loadWpUsers()->isUserAdmin()
+			   && ( ( $sOpt != 'enable_securityadmin' ) || $this->getConn()->getHasPermissionToManage() );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -198,6 +214,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Automatic Updates' );
 				$sSummary = _wpsf__( 'Apply Updates Automatically To Vulnerable Plugins' );
 				$sDescription = _wpsf__( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.' );
+				break;
+
+			case 'wpvuln_scan_display' :
+				$sName = _wpsf__( 'Highlight Plugins' );
+				$sSummary = _wpsf__( 'Highlight Vulnerable Plugins Upon Display' );
+				$sDescription = _wpsf__( 'Vulnerable plugins will be highlighted on the main plugins page.' );
 				break;
 
 			case 'enable_core_file_integrity_scan' :

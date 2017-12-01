@@ -90,6 +90,31 @@
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
     },
     {
+      "key": "wpvuln_scan_display",
+      "section": "section_wpvuln_scan",
+      "default": "enable_admin",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text": "Display Disabled"
+        },
+        {
+          "value_key": "enable_admin",
+          "text": "Display Enabled"
+        },
+        {
+          "value_key": "enable_securityadmin",
+          "text": "Display Only For Security Admins"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Highlight Plugins",
+      "summary": "Highlight Vulnerable Plugins",
+      "description": "Vulnerable plugins will be highlighted on the main plugins page."
+    },
+    {
       "key": "enable_core_file_integrity_scan",
       "section": "section_core_file_integrity_scan",
       "default": "Y",
