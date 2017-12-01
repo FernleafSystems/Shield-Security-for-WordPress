@@ -26,8 +26,8 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	/**
 	 */
 	public function run() {
-//		$this->setupVulnScanCron();
-		if ( $this->loadDataProcessor()->FetchGet( 'force_wpvulnscan' ) == 1 ) {
+
+		if ( $this->loadDP()->FetchGet( 'force_wpvulnscan' ) == 1 ) {
 			$this->scanPlugins();
 			die();
 		}
@@ -40,6 +40,14 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), 100, 2 );
 		}
+
+		try {
+			$this->setupVulnScanCron();
+		}
+		catch ( Exception $oE ) {
+			error_log( $oE->getMessage() );
+		}
+
 	}
 
 	/**

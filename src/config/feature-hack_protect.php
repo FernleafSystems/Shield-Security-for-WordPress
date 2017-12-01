@@ -74,7 +74,7 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text": "Display Disabled"
+          "text": "Scan Disabled"
         },
         {
           "value_key": "enabled_email",
