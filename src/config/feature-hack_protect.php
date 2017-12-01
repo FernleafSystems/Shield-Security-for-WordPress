@@ -69,8 +69,22 @@
       "key": "enable_wpvuln_scan",
       "section": "section_wpvuln_scan",
       "premium": true,
-      "default": "Y",
-      "type": "checkbox",
+      "default": "enabled_email",
+      "type": "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text": "Display Disabled"
+        },
+        {
+          "value_key": "enabled_email",
+          "text": "Enabled - Send Email Notification"
+        },
+        {
+          "value_key": "enabled_no_email",
+          "text": "Enabled - No Email Notification"
+        }
+      ],
       "link_info": "",
       "link_blog": "",
       "name": "Vulnerability Scanner",
@@ -100,11 +114,11 @@
           "text": "Display Disabled"
         },
         {
-          "value_key": "enable_admin",
+          "value_key": "enabled_admin",
           "text": "Display Enabled"
         },
         {
-          "value_key": "enable_securityadmin",
+          "value_key": "enabled_securityadmin",
           "text": "Display Only For Security Admins"
         }
       ],
@@ -200,6 +214,7 @@
   "definitions": {
     "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name": "plugin-vulnerabilities-notification",
+    "wpvulnscan_cron_name": "wpvulnscan-notification",
     "corechecksum_cron_name": "core-checksum-notification",
     "unrecognisedscan_cron_name": "unrecognised-scan-notification",
     "url_checksum_api": "https://api.wordpress.org/core/checksums/1.0/",

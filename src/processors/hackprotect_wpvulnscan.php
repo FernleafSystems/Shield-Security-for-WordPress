@@ -33,7 +33,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		}
 
 		// For display on the Plugins page
-		add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
 		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -120,10 +119,10 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			$this->aNotifEmail,
 			array(
 				'- '.sprintf( _wpsf__( 'Plugin Name: %s' ), $aPlugin[ 'Name' ] ),
-				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->title ),
-				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->vuln_type ),
-				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->fixed_in ),
-				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $this->getVulnUrl( $oVuln ) ),
+				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->getTitle() ),
+				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->getType() ),
+				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->getVersionFixedIn() ),
+				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
 				'',
 			)
 		);
@@ -178,12 +177,18 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	protected function scanPlugins() {
+
 		foreach ( $this->getVulnerablePlugins() as $sFile => $aVulnerabilities ) {
 			foreach ( $aVulnerabilities as $oVuln ) {
 				$this->addVulnToEmail( $sFile, $oVuln );
 			}
 		}
-		$this->sendVulnerabilityNotification();
+
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->isWpvulnSendEmail() ) {
+			$this->sendVulnerabilityNotification();
+		}
 	}
 
 	/**
@@ -218,7 +223,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 			/** @var stdClass $oVulnerabilityData */
 			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
-				if ( $this->getIsVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData ) ) {
+				if ( $this->isVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData ) ) {
 					$aThisVulns[] = new ICWP_WPSF_WpVulnVO( $oSingleVulnerabilityData );
 				}
 			}
@@ -236,18 +241,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	protected function scanThemes() {
-		/** @var WP_Theme $oTheme */
-		foreach ( $this->loadWp()->getThemes() as $sStylesheet => $oTheme ) {
-
-			if ( empty( $oTheme->version ) ) {
-				continue; // we can't check if we have no version.
-			}
-			$aVulnerabilitiesData = $this->getVulnerabilityDataForTheme( $oTheme );
-			/** @var stdClass $oVulnerabilityData */
-			foreach ( $aVulnerabilitiesData as $oSingleVulnerabilityData ) {
-				$bVulnerable = $this->getIsVulnerable( $oTheme->version, $oSingleVulnerabilityData );
-			}
-		}
+		//TODO
 	}
 
 	/**
@@ -255,7 +249,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 * @param $oVulnerabilityData
 	 * @return mixed
 	 */
-	protected function getIsVulnerable( $sVersion, $oVulnerabilityData ) {
+	protected function isVulnerable( $sVersion, $oVulnerabilityData ) {
 		$sFixedVersion = empty( $oVulnerabilityData->fixed_in ) ? '0' : $oVulnerabilityData->fixed_in;
 		return version_compare( $sVersion, $sFixedVersion, '<' );
 	}
@@ -317,9 +311,12 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		return array();
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	protected function setupVulnScanCron() {
-		$oWpCron = $this->loadWpCronProcessor();
-		$oWpCron->createCronJob( $this->getCronName(), array( $this, 'cron_dailyWpVulnScan' ) );
+		$this->loadWpCronProcessor()
+			 ->createCronJob( $this->getCronName(), array( $this, 'cron_dailyWpVulnScan' ) );
 		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 

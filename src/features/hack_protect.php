@@ -92,21 +92,28 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isWpvulnEnabled() {
-		return $this->isPremium() && $this->getOptIs( 'enable_wpvuln_scan', 'Y' );
+		return $this->isPremium() && !$this->getOptIs( 'enable_wpvuln_scan', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnSendEmail() {
+		return $this->isWpvulnEnabled() && $this->getOptIs( 'enable_wpvuln_scan', 'enabled_email' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isWpvulnAutoupdatesEnabled() {
-		return $this->getOptIs( 'wpvuln_scan_autoupdate', 'Y' );
+		return $this->isWpvulnEnabled() && $this->getOptIs( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	/**
 	 * @return mixed
 	 */
 	public function getWpvulnPluginsHighlightOption() {
-		return $this->getOpt( 'wpvuln_scan_display' );
+		return $this->isWpvulnEnabled() ? $this->getOpt( 'wpvuln_scan_display' ) : 'disabled';
 	}
 
 	/**
@@ -115,7 +122,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function isWpvulnPluginsHighlightEnabled() {
 		$sOpt = $this->getWpvulnPluginsHighlightOption();
 		return ( $sOpt != 'disabled' ) && $this->loadWpUsers()->isUserAdmin()
-			   && ( ( $sOpt != 'enable_securityadmin' ) || $this->getConn()->getHasPermissionToManage() );
+			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getConn()->getHasPermissionToManage() );
 	}
 
 	/**

@@ -233,7 +233,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 */
 		protected function getCronName() {
 			$oFO = $this->getFeature();
-			return $oFO->prefixOptionKey( $oFO->getDefinition( 'notifications_cron_name' ) );
+			return $oFO->prefix( $oFO->getDefinition( 'notifications_cron_name' ) );
 		}
 	}
 
