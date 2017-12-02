@@ -65,6 +65,10 @@ td.icwp_autoupdate span.icwp-pluginautoupdateicon.dashicons-hammer {
 	color: #87492e;
 }
 
+body.plugins-php .wrap > ul li.vulnerable a {
+	color: darkred;
+}
+
 tr.icwp-plugin-vulnerability > td {
 	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#fff4f4+0,f7e3e3+100 */
 	background: #fff4f4; /* Old browsers */

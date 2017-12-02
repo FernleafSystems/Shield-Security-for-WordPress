@@ -19,6 +19,11 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	protected $aNotifEmail;
 
 	/**
+	 * @var ICWP_WPSF_WpVulnVO[][]
+	 */
+	protected $aPluginVulnerabilities;
+
+	/**
 	 * @var int
 	 */
 	protected $nColumnsCount;
@@ -47,7 +52,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		catch ( Exception $oE ) {
 			error_log( $oE->getMessage() );
 		}
-
 	}
 
 	/**
@@ -76,12 +80,58 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		if ( $oFO->isWpvulnPluginsHighlightEnabled() ) {
+		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->getHasVulnerablePlugins() ) {
+
+			// These 3 add the 'Vulnerable' plugin status view.
+			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
+			add_action( 'pre_current_active_plugins', array( $this, 'addVulnerablePluginStatusView' ), 1000 );
+			add_filter( 'all_plugins', array( $this, 'filterPluginsToView' ), 1000 );
+			add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
+
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
 			foreach ( array_keys( $this->loadWpPlugins()->getPlugins() ) as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
 		}
+	}
+
+	public function addVulnerablePluginStatusView() {
+		if ( $this->loadDP()->FetchGet( 'plugin_status' ) == 'vulnerable' ) {
+			global $status;
+			$status = 'vulnerable';
+		}
+		add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
+	}
+
+	/**
+	 * FILTER
+	 * @param array $aViews
+	 * @return array
+	 */
+	public function addPluginsStatusViewLink( $aViews ) {
+		global $status;
+
+		$nTotalVulnerable = number_format_i18n( count( $this->getVulnerablePlugins() ) );
+		$aViews[ 'vulnerable' ] = sprintf( "<a href='%s' %s>%s</a>",
+			add_query_arg( 'plugin_status', 'vulnerable', 'plugins.php' ),
+			( 'vulnerable' === $status ) ? ' class="current"' : '',
+			sprintf( '%s <span class="count">(%s)</span>', _wpsf__( 'Vulnerable' ), $nTotalVulnerable )
+		);
+		return $aViews;
+	}
+
+	/**
+	 * FILTER
+	 * @param array $aPlugins
+	 * @return array
+	 */
+	public function filterPluginsToView( $aPlugins ) {
+		if ( $this->loadDP()->FetchGet( 'plugin_status' ) == 'vulnerable' ) {
+			global $status;
+			$status = 'vulnerable';
+			$aPlugins = array_intersect_key( $aPlugins, $this->getVulnerablePlugins() );
+		}
+		return $aPlugins;
 	}
 
 	/**
@@ -203,17 +253,20 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 * @return ICWP_WPSF_WpVulnVO[][]
 	 */
 	protected function getVulnerablePlugins() {
-		$aApplicable = array();
 
-		foreach ( $this->loadWpPlugins()->getInstalledPluginFiles() as $sFile ) {
+		if ( !isset( $this->aPluginVulnerabilities ) || !is_array( $this->aPluginVulnerabilities ) ) {
+			$this->aPluginVulnerabilities = array();
 
-			$aThisVulns = $this->getPluginVulnerabilities( $sFile );
-			if ( !empty( $aThisVulns ) ) {
-				$aApplicable[ $sFile ] = $aThisVulns;
+			foreach ( $this->loadWpPlugins()->getInstalledPluginFiles() as $sFile ) {
+
+				$aThisVulns = $this->getPluginVulnerabilities( $sFile );
+				if ( !empty( $aThisVulns ) ) {
+					$this->aPluginVulnerabilities[ $sFile ] = $aThisVulns;
+				}
 			}
 		}
 
-		return $aApplicable;
+		return $this->aPluginVulnerabilities;
 	}
 
 	/**
@@ -246,6 +299,13 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function getPluginHasVulnerabilities( $sFile ) {
 		return count( $this->getPluginVulnerabilities( $sFile ) ) > 0;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getHasVulnerablePlugins() {
+		return count( $this->getVulnerablePlugins() ) > 0;
 	}
 
 	protected function scanThemes() {
