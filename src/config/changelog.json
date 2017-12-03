@@ -383,6 +383,12 @@
 	{
 	  "type": "added",
 	  "pro": true,
+	  "summary": "Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.",
+	  "version": "5.19.0"
+	},
+	{
+	  "type": "added",
+	  "pro": true,
 	  "summary": "Bot-protection/Google reCAPTCHA support for BuddyPress register pages.",
 	  "version": "5.19.0"
 	},

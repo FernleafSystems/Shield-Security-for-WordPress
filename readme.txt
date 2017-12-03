@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Tested up to: 4.9
 Stable tag: 5.19.0
 
-Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
+Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
 == Description ==
 
@@ -24,16 +24,16 @@ Protect your WordPress site, your reputation, and your customers for free with S
 
 = The New Shield Pro =
 
-As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that
-anything we consider standard website security *will always be free* - no upgrade necessary.
+As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that anything we consider standard website security *will always be free* - no upgrade necessary.
 
 For the equivalent of just $1/month:
 
 1. Exclusive Pro customer email support.
-1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads.
+1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads, BuddyPress.
 1. Exclusive early access to new security features
 1. Text customisations for visitors.
 1. No manual Pro plugin downloads - we handle this all for you automatically.
+1. Plugin Vulnerability Scanner.
 1. (coming soon) Import/Export of options across sites.
 1. (coming soon) Improved Audit Trail logging
 1. (coming soon) Improved performance 
@@ -336,13 +336,14 @@ We're now offering technical support and other features exclusively to premium c
 If you don't want to support the work, no problem! You can still continue to use Shield Security and its features in-full.
 Technical support, and some newer options and features will not be available to you, however.
 
-You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support will be available to premium clients only.
+You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
 = 5.19.0 Latest Point Release =
 *Released: 4th December, 2017*
 
 * **(v.0)**  ADDED:			[**PRO**] Automated WordPress plugins vulnerability scanner with auto updates email notifications
 * **(v.0)**  ADDED:			Added Google reCAPTCHA support for register/forget password pages.
+* **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
 * **(v.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
 
 = 5.18.0 Series =
