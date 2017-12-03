@@ -264,3 +264,12 @@ tr.icwp-plugin-vulnerability dd {
 	background: url("https://media.giphy.com/media/sxJ1nCeUoNSfe/giphy.gif") no-repeat 0 0 transparent;
 	background-size: 40px;
 }
+
+#AuditTrailTabs table {
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
+}
+#AuditTrailTabs table th {
+	font-weight: bolder;
+	background-color: rgba(0, 0, 0, 0.03);
+}
