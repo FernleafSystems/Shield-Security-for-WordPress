@@ -23,7 +23,64 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		}
 	}
 
+	public function getContext() {
+
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
+		$oAuditTrail = $this->loadFeatureProcessor();
+		return $oAuditTrail->getAuditEntriesForContext( 'users' );
+	}
+
 	public function displayAuditTrailViewer() {
+
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
+		$oAuditTrail = $this->loadFeatureProcessor();
+
+		$aContexts = array(
+			'wpsf'      => 'Shield',
+			'wordpress' => 'WordPress',
+			'users'     => 'Users',
+			'posts'     => 'Posts',
+			'plugins'   => 'Plugins',
+			'themes'    => 'Themes',
+			'emails'    => 'Emails',
+		);
+
+		$this->requireCommonLib( 'Modules/AuditTrail/AuditTrailTable.php' );
+		$oTable = new AuditTrailTable();
+
+		$aAuditTables = array();
+		foreach ( $aContexts as $sContext => $sTitle ) {
+			$aAuditContext = array();
+			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getConn()
+																	  ->getHumanName() : _wpsf__( $sContext );
+
+			$aEntries = $oAuditTrail->getAuditEntriesForContext( $sContext );
+			if ( is_array( $aEntries ) ) {
+				foreach ( $aEntries as &$aEntry ) {
+					$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
+					$aEntry[ 'message' ] = sanitize_text_field( $aEntry[ 'message' ] );
+					$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
+				}
+			}
+			$aAuditContext[ 'trail' ] = $aEntries;
+			$aAudits[] = $aAuditContext;
+
+			ob_start();
+			$oTable->setAuditEntries( $aEntries )
+				   ->prepare_items()
+				   ->display();
+			$aAuditTables[ $sContext ] = ob_get_clean();
+		}
+
+		$aDisplayData = array(
+			'aAuditTables' => $aAuditTables,
+			'aContexts' => $aContexts,
+		);
+
+		$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
+	}
+
+	public function displayAuditTrailViewerOrig() {
 
 		if ( !$this->canDisplayOptionsForm() ) {
 			return $this->displayRestrictedPage();
