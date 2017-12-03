@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
-			if ( $this->loadWp()->isRequestUserLogin() ) {
+			if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
 				add_filter( 'authenticate', array( $this, 'setUserLoginIntent' ), 100, 1 );
 			}
 			add_action( 'init', array( $this, 'onWpInit' ), 0 );

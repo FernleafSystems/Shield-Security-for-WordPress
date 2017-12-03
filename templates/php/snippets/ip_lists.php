@@ -1,5 +1,5 @@
 
-<div class="row">
+<div class="row" style="margin-bottom:20px">
 	<div class="span12">
 		<h2>IP Lists Management</h2>
 		<p>Click the buttons below to manage the respective IP Address Lists</p>

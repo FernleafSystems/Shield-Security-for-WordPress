@@ -18,6 +18,6 @@ include_once( $sBaseDirName.'widgets'.DIRECTORY_SEPARATOR.'icwp_widgets.php' ); 
 					<?php endif; ?>
 			</h2>
 		</div>
-		<?php if ( isset( $flags[ 'show_summary' ] ) && $flags[ 'show_summary' ] ) : ?>
-			<?php include_once( $sBaseDirName.'snippets'.DIRECTORY_SEPARATOR.'state_summary.php' ); ?>
-		<?php endif; ?>
+<!--		--><?php //if ( isset( $flags[ 'show_summary' ] ) && $flags[ 'show_summary' ] ) : ?>
+<!--			--><?php //include_once( $sBaseDirName.'snippets'.DIRECTORY_SEPARATOR.'state_summary.php' ); ?>
+<!--		--><?php //endif; ?>
