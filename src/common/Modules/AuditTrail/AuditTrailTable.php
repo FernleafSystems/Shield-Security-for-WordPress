@@ -57,7 +57,7 @@ class AuditTrailTable extends WP_List_Table {
 		return array();
 //		$aCols = $this->get_columns();
 //		foreach ( $aCols as $sCol => $sName ) {
-//			$aCols[ $sCol] = array( $sCol, false );
+//			$aCols[ $sCol ] = array( $sCol, false );
 //		}
 //		return $aCols;
 	}

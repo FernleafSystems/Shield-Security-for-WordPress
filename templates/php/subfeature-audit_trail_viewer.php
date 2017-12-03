@@ -29,11 +29,10 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 	/**
 	 */
 	var refreshTable = function ( event ) {
+		event.preventDefault();
 		if ( bRequestCurrentlyRunning ) { // failsafe in case we balls up - we only run 1.
 			return false;
 		}
-
-		iCWP_WPSF_BodyOverlay.show();
 		bRequestCurrentlyRunning = true;
 
 		event.preventDefault();
@@ -41,6 +40,15 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTable"]' );
 		var $sAction = $oThis.data( 'tableaction' );
 
+		iCWP_WPSF_BodyOverlay.show();
+		$oMainContainer.html( 'loading...' );
+
+		var query = this.search.substring( 1 );
+		var filterPagingData = {
+			paged: extractQueryVars( query, 'paged' ) || '1',
+			order: extractQueryVars( query, 'order' ) || 'desc',
+			orderby: extractQueryVars( query, 'orderby' ) || 'created_at'
+		};
 		var requestData = {
 			'action': '<?php echo $icwp_ajax_action; ?>',
 			'icwp_ajax_action': '<?php echo $icwp_ajax_action; ?>',
@@ -51,8 +59,7 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 			'tableaction': $sAction
 		};
 
-		$oMainContainer.html( 'loading...' );
-		jQuery.post( ajaxurl, requestData,
+		jQuery.post( ajaxurl, jQuery.extend( filterPagingData, requestData ),
 			function ( oResponse ) {
 				$oMainContainer.html( oResponse.data.tablecontent )
 			}
@@ -66,6 +73,18 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 
 	};
 
+	var extractQueryVars = function ( query, variable ) {
+		var vars = query.split( "&" );
+		console.log( vars );
+		for ( var i = 0; i < vars.length; i++ ) {
+			var pair = vars[ i ].split( "=" );
+			if ( pair[ 0 ] == variable ) {
+				return pair[ 1 ];
+			}
+		}
+		return false;
+	};
+
 	var cleanHandlers = function () {
 		jQuery( document ).off( "click", 'a.tableActionRefresh' );
 	};
@@ -77,6 +96,23 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 
 	var setHandlers = function () {
 		jQuery( document ).on( "click", 'a.tableActionRefresh', refreshTable );
+		jQuery( document ).on( "click", '.tablenav-pages a', refreshTable );
+		jQuery( document ).on( "click", '.manage-column.sortable a', refreshTable );
+		jQuery( document ).on( "click", '.manage-column.sorted a', refreshTable );
+
+		// $('.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a').on('click', function(e) {
+		// 	// We don't want to actually follow these links
+		// 	e.preventDefault();
+		// 	// Simple way: use the URL to extract our needed variables
+		// 	var query = this.search.substring( 1 );
+		//
+		// 	var data = {
+		// 		paged: list.__query( query, 'paged' ) || '1',
+		// 		order: list.__query( query, 'order' ) || 'asc',
+		// 		orderby: list.__query( query, 'orderby' ) || 'title'
+		// 	};
+		// 	list.update( data );
+		// });
 	};
 
 	this.initialise = function () {

@@ -40,21 +40,48 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @param string $sContext
+	 * @param array  $aParams
 	 * @return string
 	 */
-	protected function renderTableForContext( $sContext ) {
+	protected function renderTableForContext( $sContext, $aParams = array() ) {
+		$oTable = $this->getTableRendererForContext( $sContext );
+
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+			),
+			$aParams
+		);
+
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
+		$oAuditTrail = $this->loadFeatureProcessor();
+		$aEntries = $oAuditTrail->getAuditEntriesForContext(
+			$sContext,
+			$aParams[ 'orderby' ],
+			$aParams[ 'order' ],
+			$aParams[ 'paged' ],
+			$this->getDefaultPerPage()
+		);
+
+		$oTable->setAuditEntries( $this->formattedEntriesForDisplay( $aEntries ) )
+			   ->prepare_items();
 		ob_start();
-		$this->getTableRendererForContext( $sContext )
-			 ->setAuditEntries( $this->getFormattedEntriesForContext( $sContext ) )
-			 ->prepare_items()
-			 ->display();
+		$oTable->display();
 		return ob_get_clean();
 	}
 
-	public function getFormattedEntriesForContext( $sContext ) {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadFeatureProcessor();
-		$aEntries = $oAuditTrail->getAuditEntriesForContext( $sContext );
+	protected function getDefaultPerPage() {
+		return 2;
+	}
+
+	/**
+	 * Move to table
+	 * @param $aEntries
+	 * @return array
+	 */
+	public function formattedEntriesForDisplay( $aEntries ) {
 		if ( is_array( $aEntries ) ) {
 			foreach ( $aEntries as &$aEntry ) {
 				$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
@@ -71,9 +98,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	public function ajaxAuditTable() {
-		$oDp = $this->loadDP();
-		$sContext = $oDp->FetchPost( 'auditcontext' );
-		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext ) ) );
+		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
+		$sContext = $this->loadDP()->FetchPost( 'auditcontext' );
+		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext, $aParams ) ) );
 	}
 
 	public function displayAuditTrailViewer() {
