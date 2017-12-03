@@ -530,7 +530,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isRequestUserLogin() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		return $this->isRequestLoginUrl() && $oDp->GetIsRequestPost()
 			   && !is_null( $oDp->FetchPost( 'log' ) ) && !is_null( $oDp->FetchPost( 'pwd' ) );
 	}

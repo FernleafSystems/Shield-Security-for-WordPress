@@ -24,7 +24,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 			add_action( $oFO->prefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
 		}
 
-		if ( $this->loadWp()->isRequestUserLogin() ) {
+		if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
 			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
