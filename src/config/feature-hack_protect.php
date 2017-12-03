@@ -106,7 +106,7 @@
     {
       "key": "wpvuln_scan_display",
       "section": "section_wpvuln_scan",
-      "default": "enable_admin",
+      "default": "enabled_admin",
       "type": "select",
       "value_options": [
         {

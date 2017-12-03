@@ -1,5 +1,19 @@
 {
   "versions": {
+	"5.19.0": {
+	  "version": {
+		"series": "5.19.0",
+		"major": 5,
+		"minor": 19,
+		"patch": 0
+	  },
+	  "attributes": {
+		"timestamp": "1511778686",
+		"is_patch": false,
+		"options_added": true,
+		"options_removed": false
+	  }
+	},
 	"5.18.0": {
 	  "version": {
 		"series": "5.18.0",
@@ -355,13 +369,39 @@
   },
   "changelog": [
 	{
-	  "type": "pro",
-	  "summary": "Added Invisible Google reCAPTCHA option.",
+	  "type": "added",
+	  "pro": true,
+	  "summary": "Automated WordPress plugins vulnerability scanner with auto updates email notifications.",
+	  "version": "5.19.0"
+	},
+	{
+	  "type": "added",
+	  "pro": false,
+	  "summary": "Added Google reCAPTCHA support for register/forget password pages.",
+	  "version": "5.19.0"
+	},
+	{
+	  "type": "added",
+	  "pro": true,
+	  "summary": "Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.",
+	  "version": "5.19.0"
+	},
+	{
+	  "type": "added",
+	  "pro": true,
+	  "summary": "Bot-protection/Google reCAPTCHA support for BuddyPress register pages.",
+	  "version": "5.19.0"
+	},
+	{
+	  "type": "added",
+	  "pro": true,
+	  "summary": "Invisible Google reCAPTCHA option.",
 	  "version": "5.18.0"
 	},
 	{
-	  "type": "pro",
-	  "summary": "Added support for Google reCAPTCHA themes - light and dark.",
+	  "type": "added",
+	  "pro": true,
+	  "summary": "Support for Google reCAPTCHA themes - light and dark.",
 	  "version": "5.18.0"
 	},
 	{
@@ -380,17 +420,20 @@
 	  "version": "5.17.0"
 	},
 	{
-	  "type": "pro",
+	  "type": "added",
+	  "pro": true,
 	  "summary": "Support for Woocommerce and Easy Digital Downloads login/registration form protection.",
 	  "version": "5.17.0"
 	},
 	{
-	  "type": "pro",
+	  "type": "added",
+	  "pro": true,
 	  "summary": "Ability to customise most user-facing texts.",
 	  "version": "5.17.0"
 	},
 	{
-	  "type": "pro",
+	  "type": "added",
+	  "pro": true,
 	  "summary": "Extra IP Transgression signal.",
 	  "version": "5.17.0"
 	},

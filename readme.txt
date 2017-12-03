@@ -6,9 +6,9 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.18.0
+Stable tag: 5.19.0
 
-Protect your WordPress site, your reputation, and your customers for free with Shield Security - the most powerful security system for WordPress
+Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
 == Description ==
 
@@ -24,16 +24,16 @@ Protect your WordPress site, your reputation, and your customers for free with S
 
 = The New Shield Pro =
 
-As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that
-anything we consider standard website security *will always be free* - no upgrade necessary.
+As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that anything we consider standard website security *will always be free* - no upgrade necessary.
 
 For the equivalent of just $1/month:
 
 1. Exclusive Pro customer email support.
-1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads.
+1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads, BuddyPress.
 1. Exclusive early access to new security features
 1. Text customisations for visitors.
 1. No manual Pro plugin downloads - we handle this all for you automatically.
+1. Plugin Vulnerability Scanner.
 1. (coming soon) Import/Export of options across sites.
 1. (coming soon) Improved Audit Trail logging
 1. (coming soon) Improved performance 
@@ -330,26 +330,27 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-= 5.18.0 Latest Point Release =
-*Released: 27th November, 2017*
-
 Our policy is to never restrict security features to Pro upgrades. **This has not changed**.
 
 We're now offering technical support and other features exclusively to premium customers.
 If you don't want to support the work, no problem! You can still continue to use Shield Security and its features in-full.
 Technical support, and some newer options and features will not be available to you, however.
 
-You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support will be available to premium clients only.
+You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-* **(v.0)**  PRO:			Added **Invisible** Google reCAPTCHA option.
-* **(v.0)**  PRO:			Added support for Google reCAPTCHA themes - light and dark.
-* **(v.0)**  IMPROVEMENT:	Google reCAPTCHA is more reliable and configurable.
+= 5.19.0 Latest Point Release =
+*Released: 4th December, 2017*
+
+* **(v.0)**  ADDED:			[**PRO**] Automated WordPress plugins vulnerability scanner with auto updates email notifications
+* **(v.0)**  ADDED:			Added Google reCAPTCHA support for register/forget password pages.
+* **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
+* **(v.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
 
 = 5.18.0 Series =
 *Released: 27th November, 2017*
 
-* **(v.0)**  PRO:			Added **Invisible** Google reCAPTCHA option.
-* **(v.0)**  PRO:			Added support for Google reCAPTCHA themes - light and dark.
+* **(v.0)**  ADDED:			[**PRO**] Invisible Google reCAPTCHA option.
+* **(v.0)**  ADDED:			[**PRO**] Support for Google reCAPTCHA themes - light and dark.
 * **(v.0)**  IMPROVEMENT:	Google reCAPTCHA is more reliable and configurable.
 
 = 5.17.0 Series =
@@ -357,9 +358,9 @@ You can [go Pro for a mere $1/month](http://icwp.io/aa). Technical support will 
 
 * **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
 * **(v.0)**  IMPROVEMENT:	Fix and improvement to Google reCAPTCHA.
-* **(v.0)**  PRO:			Support for Woocommerce and Easy Digital Downloads login/registration form protection.
-* **(v.0)**  PRO:			Ability to customise most user-facing texts.
-* **(v.0)**  PRO:			Extra IP Transgression signal.
+* **(v.0)**  ADDED:			[**PRO**] Support for Woocommerce and Easy Digital Downloads login/registration form protection.
+* **(v.0)**  ADDED:			[**PRO**] Ability to customise most user-facing texts.
+* **(v.0)**  ADDED:			[**PRO**] Extra IP Transgression signal.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
