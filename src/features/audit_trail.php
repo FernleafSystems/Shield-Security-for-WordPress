@@ -32,6 +32,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	public function displayAuditTrailViewer() {
 
+		if ( !$this->canDisplayOptionsForm() ) {
+			return $this->displayRestrictedPage();
+		}
+
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 		$oAuditTrail = $this->loadFeatureProcessor();
 
