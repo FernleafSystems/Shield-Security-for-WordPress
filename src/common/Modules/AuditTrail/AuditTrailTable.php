@@ -18,6 +18,9 @@ class AuditTrailTable extends WP_List_Table {
 	public function column_default( $aItem, $sColName ) {
 		return $aItem[ $sColName ];
 	}
+	protected function extra_tablenav( $which ) {
+		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
+	}
 
 	public function get_columns() {
 		return array(

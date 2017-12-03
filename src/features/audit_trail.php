@@ -23,11 +23,43 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		}
 	}
 
-	public function getContext() {
+	/**
+	 * @param string $sContext
+	 * @return string
+	 */
+	protected function renderTableForContext( $sContext ) {
+		$this->requireCommonLib( 'Modules/AuditTrail/AuditTrailTable.php' );
+		$oTable = new AuditTrailTable();
+		ob_start();
+		$oTable->setAuditEntries( $this->getFormattedEntriesForContext( $sContext ) )
+			   ->prepare_items()
+			   ->display();
+		return ob_get_clean();
+	}
 
+	public function getFormattedEntriesForContext( $sContext ) {
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 		$oAuditTrail = $this->loadFeatureProcessor();
-		return $oAuditTrail->getAuditEntriesForContext( 'users' );
+		$aEntries = $oAuditTrail->getAuditEntriesForContext( $sContext );
+		if ( is_array( $aEntries ) ) {
+			foreach ( $aEntries as &$aEntry ) {
+				$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
+				$aEntry[ 'message' ] = sanitize_text_field( $aEntry[ 'message' ] );
+				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
+			}
+		}
+		return $aEntries;
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'AuditTable' ), array( $this, 'ajaxAuditTable' ) );
+	}
+
+	public function ajaxAuditTable() {
+		$oDp = $this->loadDP();
+		$sContext = $oDp->FetchPost( 'auditcontext' );
+		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext ) ) );
 	}
 
 	public function displayAuditTrailViewer() {
@@ -35,9 +67,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		if ( !$this->canDisplayOptionsForm() ) {
 			return $this->displayRestrictedPage();
 		}
-
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadFeatureProcessor();
 
 		$aContexts = array(
 			'wpsf'      => 'Shield',
@@ -49,37 +78,16 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'emails'    => 'Emails',
 		);
 
-		$this->requireCommonLib( 'Modules/AuditTrail/AuditTrailTable.php' );
-		$oTable = new AuditTrailTable();
-
 		$aAuditTables = array();
 		foreach ( $aContexts as $sContext => $sTitle ) {
-			$aAuditContext = array();
-			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getConn()
-																	  ->getHumanName() : _wpsf__( $sContext );
-
-			$aEntries = $oAuditTrail->getAuditEntriesForContext( $sContext );
-			if ( is_array( $aEntries ) ) {
-				foreach ( $aEntries as &$aEntry ) {
-					$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
-					$aEntry[ 'message' ] = sanitize_text_field( $aEntry[ 'message' ] );
-					$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
-				}
-			}
-			$aAuditContext[ 'trail' ] = $aEntries;
-			$aAudits[] = $aAuditContext;
-
-			ob_start();
-			$oTable->setAuditEntries( $aEntries )
-				   ->prepare_items()
-				   ->display();
-			$aAuditTables[ $sContext ] = ob_get_clean();
+			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
 		}
 
 		$aDisplayData = array(
 			'aAuditTables' => $aAuditTables,
-			'aContexts' => $aContexts,
+			'aContexts'    => $aContexts,
 		);
+		$aDisplayData = array_merge( $aDisplayData, $this->getBaseAjaxActionRenderData( 'AuditTable' ) );
 
 		$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
 	}
