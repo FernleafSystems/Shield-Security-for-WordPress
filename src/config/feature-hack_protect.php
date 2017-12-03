@@ -209,6 +209,12 @@
       "name": "File Exclusions",
       "summary": "Provide A List Of Files To Be Excluded From The Scan",
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
+    },
+    {
+      "key": "wpvuln_notified_ids",
+      "transferable": false,
+      "section": "section_non_ui",
+      "default": []
     }
   ],
   "definitions": {
