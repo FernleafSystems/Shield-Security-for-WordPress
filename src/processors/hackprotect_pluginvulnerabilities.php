@@ -21,7 +21,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		/**
 		 * @var array
 		 */
-		protected $aPluginVulnerabilitiesEmailContents;
+		protected $aEmailContents;
 
 		/**
 		 */
@@ -54,7 +54,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
 
-			$aPlugins = $this->loadWp()->getPlugins();
+			$aPlugins = $this->loadWpPlugins()->getPlugins();
 
 			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
@@ -72,11 +72,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 * @param array $aVulnerabilityData
 		 */
 		protected function addPluginVulnerabilityToEmail( $aPluginData, $aVulnerabilityData ) {
-			if ( !isset( $this->aPluginVulnerabilitiesEmailContents ) ) {
-				$this->aPluginVulnerabilitiesEmailContents = array();
+			if ( !isset( $this->aEmailContents ) ) {
+				$this->aEmailContents = array();
 			}
-			$this->aPluginVulnerabilitiesEmailContents = array_merge(
-				$this->aPluginVulnerabilitiesEmailContents,
+			$this->aEmailContents = array_merge(
+				$this->aEmailContents,
 				array(
 					'- ' . sprintf( _wpsf__( 'Plugin Name: %s' ), $aPluginData[ 'Name' ] ),
 					'- ' . sprintf( _wpsf__( 'Vulnerability Type: %s' ), $aVulnerabilityData[ 'TypeOfVulnerability' ] ),
@@ -93,7 +93,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 */
 		protected function sendVulnerabilityNotification( $sRecipient ) {
 
-			if ( empty( $this->aPluginVulnerabilitiesEmailContents ) ) {
+			if ( empty( $this->aEmailContents ) ) {
 				return true;
 			}
 
@@ -103,12 +103,12 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 				'',
 			);
 
-			$this->aPluginVulnerabilitiesEmailContents = array_merge( $aPreamble, $this->aPluginVulnerabilitiesEmailContents );
-			$this->aPluginVulnerabilitiesEmailContents[ ] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
+			$this->aEmailContents = array_merge( $aPreamble, $this->aEmailContents );
+			$this->aEmailContents[ ] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
 
 			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
 
-			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $this->aPluginVulnerabilitiesEmailContents );
+			$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $this->aEmailContents );
 
 			if ( $bSendSuccess ) {
 				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );
@@ -120,7 +120,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		}
 
 		public function addPluginVulnerabilityRows() {
-			$aPlugins = $this->loadWp()->getPlugins();
+			$aPlugins = $this->loadWpPlugins()->getPlugins();
 			foreach( array_keys( $aPlugins ) as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
@@ -233,7 +233,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 */
 		protected function getCronName() {
 			$oFO = $this->getFeature();
-			return $oFO->prefixOptionKey( $oFO->getDefinition( 'notifications_cron_name' ) );
+			return $oFO->prefix( $oFO->getDefinition( 'notifications_cron_name' ) );
 		}
 	}
 

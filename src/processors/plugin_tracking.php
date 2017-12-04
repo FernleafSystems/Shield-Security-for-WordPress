@@ -98,6 +98,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	protected function getBaseTrackingData() {
 		$oDP = $this->loadDataProcessor();
 		$oWP = $this->loadWp();
+		$oWpPlugins = $this->loadWpPlugins();
 		return array(
 			'env' => array(
 				'options' => array(
@@ -108,9 +109,9 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'is_wpms'         => $oWP->isMultisite() ? 1 : 0,
 					'ssl'             => ( $oDP->FetchServer( 'HTTPS' ) == 'on' ) ? 1 : 0,
 					'locale'          => get_locale(),
-					'plugins_total'   => count( $oWP->getPlugins() ),
-					'plugins_active'  => count( $oWP->getActivePlugins() ),
-					'plugins_updates' => count( $oWP->getWordpressUpdates_Plugins() )
+					'plugins_total'   => count( $oWpPlugins->getPlugins() ),
+					'plugins_active'  => count( $oWpPlugins->getActivePlugins() ),
+					'plugins_updates' => count( $oWpPlugins->getUpdates() )
 				)
 			)
 		);

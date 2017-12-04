@@ -98,13 +98,12 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function doPluginUpgrade( $sPluginFile ) {
-
-		if ( !$this->getIsPluginUpdateAvailable( $sPluginFile )
+		$oWpPlugins = $this->loadWpPlugins();
+		if ( !$oWpPlugins->isUpdateAvailable( $sPluginFile )
 			 || ( isset( $GLOBALS[ 'pagenow' ] ) && $GLOBALS[ 'pagenow' ] == 'update.php' ) ) {
 			return true;
 		}
-		$sUrl = $this->getPluginUpgradeLink( $sPluginFile );
-		wp_redirect( $sUrl );
+		wp_redirect( $oWpPlugins->getLinkPluginUpgrade( $sPluginFile ) );
 		exit();
 	}
 
@@ -226,137 +225,6 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getPlugins() {
-		if ( !function_exists( 'get_plugins' ) ) {
-			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
-		}
-		return function_exists( 'get_plugins' ) ? get_plugins() : array();
-	}
-
-	/**
-	 * @param string $sRootPluginFile - the full path to the root plugin file
-	 * @return array|null
-	 */
-	public function getPluginData( $sRootPluginFile ) {
-		if ( !function_exists( 'get_plugin_data' ) ) {
-			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
-		}
-		return function_exists( 'get_plugin_data' ) ? get_plugin_data( $sRootPluginFile, false, false ) : array();
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return stdClass|null
-	 */
-	public function getPluginUpdateInfo( $sPluginFile ) {
-		$aUpdates = $this->getWordpressUpdates_Plugins();
-		return ( !empty( $aUpdates ) && isset( $aUpdates[ $sPluginFile ] ) ) ? $aUpdates[ $sPluginFile ] : null;
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getPluginUpdateNewVersion( $sPluginFile ) {
-		$oInfo = $this->getPluginUpdateInfo( $sPluginFile );
-		return ( !is_null( $oInfo ) && isset( $oInfo->new_version ) ) ? $oInfo->new_version : '';
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return boolean|stdClass
-	 */
-	public function getIsPluginUpdateAvailable( $sPluginFile ) {
-		$oInfo = $this->getPluginUpdateInfo( $sPluginFile );
-		return !is_null( $oInfo );
-	}
-
-	/**
-	 * @param string $sCompareString
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function getIsPluginActive( $sCompareString, $sKey = 'Name' ) {
-		$sPluginFile = $this->getIsPluginInstalled( $sCompareString, $sKey );
-		if ( !$sPluginFile ) {
-			return false;
-		}
-		return is_plugin_active( $sPluginFile ) ? $sPluginFile : false;
-	}
-
-	/**
-	 * @param string $sCompareString
-	 * @param string $sKey
-	 * @return bool|string
-	 */
-	public function getIsPluginInstalled( $sCompareString, $sKey = 'Name' ) {
-		$aPlugins = $this->getPlugins();
-		if ( empty( $aPlugins ) || !is_array( $aPlugins ) ) {
-			return false;
-		}
-
-		foreach ( $aPlugins as $sBaseFileName => $aPluginData ) {
-			if ( isset( $aPluginData[ $sKey ] ) && $sCompareString == $aPluginData[ $sKey ] ) {
-				return $sBaseFileName;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * @param string $sPluginBaseFile
-	 * @return bool
-	 */
-	public function getIsPluginInstalledByFile( $sPluginBaseFile ) {
-		$aPlugins = $this->getPlugins();
-		return isset( $aPlugins[ $sPluginBaseFile ] );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getPluginActivateLink( $sPluginFile ) {
-		$sUrl = self_admin_url( 'plugins.php' );
-		$aQueryArgs = array(
-			'action'   => 'activate',
-			'plugin'   => urlencode( $sPluginFile ),
-			'_wpnonce' => wp_create_nonce( 'activate-plugin_'.$sPluginFile )
-		);
-		return add_query_arg( $aQueryArgs, $sUrl );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getPluginDeactivateLink( $sPluginFile ) {
-		$sUrl = self_admin_url( 'plugins.php' );
-		$aQueryArgs = array(
-			'action'   => 'deactivate',
-			'plugin'   => urlencode( $sPluginFile ),
-			'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sPluginFile )
-		);
-		return add_query_arg( $aQueryArgs, $sUrl );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getPluginUpgradeLink( $sPluginFile ) {
-		$sUrl = self_admin_url( 'update.php' );
-		$aQueryArgs = array(
-			'action'   => 'upgrade-plugin',
-			'plugin'   => urlencode( $sPluginFile ),
-			'_wpnonce' => wp_create_nonce( 'upgrade-plugin_'.$sPluginFile )
-		);
-		return add_query_arg( $aQueryArgs, $sUrl );
-	}
-
-	/**
 	 * @param stdClass|string $mItem
 	 * @param string          $sContext from plugin|theme
 	 * @return string
@@ -388,13 +256,6 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	public function getWordpressUpdates( $sType = 'plugins' ) {
 		$oCurrent = $this->getTransient( 'update_'.$sType );
 		return ( isset( $oCurrent->response ) && is_array( $oCurrent->response ) ) ? $oCurrent->response : array();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getWordpressUpdates_Plugins() {
-		return $this->getWordpressUpdates( 'plugins' );
 	}
 
 	/**
@@ -459,19 +320,6 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$bResult = delete_option( '_site_transient_'.$sKey );
 		}
 		return $bResult;
-	}
-
-	/**
-	 * @param string $sPluginBaseFilename
-	 * @return null|stdClass
-	 */
-	public function getPluginDataAsObject( $sPluginBaseFilename ) {
-		$aPlugins = get_plugins();
-		if ( !isset( $aPlugins[ $sPluginBaseFilename ] ) || !is_array( $aPlugins[ $sPluginBaseFilename ] ) ) {
-			return null;
-		}
-
-		return $this->loadDataProcessor()->convertArrayToStdClass( $aPlugins[ $sPluginBaseFilename ] );
 	}
 
 	/**
@@ -619,6 +467,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool   $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getUrl_CurrentAdminPage() {
@@ -674,7 +530,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isRequestUserLogin() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		return $this->isRequestLoginUrl() && $oDp->GetIsRequestPost()
 			   && !is_null( $oDp->FetchPost( 'log' ) ) && !is_null( $oDp->FetchPost( 'pwd' ) );
 	}
@@ -869,54 +725,6 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$sCurrentPage = $oDp->FetchGet( 'page' );
 		}
 		return empty( $sCurrentPage ) ? '' : $sCurrentPage;
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return int
-	 */
-	public function getActivePluginLoadPosition( $sPluginFile ) {
-		$nPosition = array_search( $sPluginFile, $this->getActivePlugins() );
-		return ( $nPosition === false ) ? -1 : $nPosition;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getActivePlugins() {
-		$sOptionKey = $this->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
-		return $this->getOption( $sOptionKey );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @param int    $nDesiredPosition
-	 */
-	public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
-
-		$aActive = $this->loadDataProcessor()
-						->setArrayValueToPosition( $this->getOption( 'active_plugins' ), $sPluginFile, $nDesiredPosition );
-		$this->updateOption( 'active_plugins', $aActive );
-
-		if ( $this->isMultisite() ) {
-			$aActive = $this->loadDataProcessor()
-							->setArrayValueToPosition( $this->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
-			$this->updateOption( 'active_sitewide_plugins', $aActive );
-		}
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 */
-	public function setActivePluginLoadFirst( $sPluginFile ) {
-		$this->setActivePluginLoadPosition( $sPluginFile, 0 );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 */
-	public function setActivePluginLoadLast( $sPluginFile ) {
-		$this->setActivePluginLoadPosition( $sPluginFile, 1000 );
 	}
 
 	/**

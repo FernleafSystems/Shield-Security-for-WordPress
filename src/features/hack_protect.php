@@ -89,6 +89,72 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param int $nId
+	 * @return $this
+	 */
+	public function addWpvulnNotifiedId( $nId ) {
+		if ( !$this->isWpvulnIdAlreadyNotified( $nId ) ) {
+			$aIds = $this->getWpvulnNotifiedIds();
+			$aIds[] = (int)$nId;
+			$this->setOpt( 'wpvuln_notified_ids', $aIds );
+		}
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnEnabled() {
+		return $this->isPremium() && !$this->getOptIs( 'enable_wpvuln_scan', 'disabled' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getWpvulnNotifiedIds() {
+		$a = $this->getOpt( 'wpvuln_notified_ids', array() );
+		return is_array( $a ) ? $a : array();
+	}
+
+	/**
+	 * @param int $nId
+	 * @return bool
+	 */
+	public function isWpvulnIdAlreadyNotified( $nId ) {
+		return in_array( $nId, $this->getWpvulnNotifiedIds() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnSendEmail() {
+		return $this->isWpvulnEnabled() && $this->getOptIs( 'enable_wpvuln_scan', 'enabled_email' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnAutoupdatesEnabled() {
+		return $this->isWpvulnEnabled() && $this->getOptIs( 'wpvuln_scan_autoupdate', 'Y' );
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getWpvulnPluginsHighlightOption() {
+		return $this->isWpvulnEnabled() ? $this->getOpt( 'wpvuln_scan_display' ) : 'disabled';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnPluginsHighlightEnabled() {
+		$sOpt = $this->getWpvulnPluginsHighlightOption();
+		return ( $sOpt != 'disabled' ) && $this->loadWpUsers()->isUserAdmin()
+			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getConn()->getHasPermissionToManage() );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -105,6 +171,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Protection' ) ) )
 				);
 				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				break;
+
+			case 'section_wpvuln_scan' :
+				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Plugin Vulnerabilities Scanner' ) ) ),
+					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
+				);
+				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
 				break;
 
 			case 'section_plugin_vulnerabilities_scan' :
@@ -162,6 +238,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Plugin Vulnerabilities Scanner' );
 				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
 				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.' );
+				break;
+
+			case 'enable_wpvuln_scan' :
+				$sName = _wpsf__( 'Vulnerability Scanner' );
+				$sSummary = _wpsf__( 'Enable The Vulnerability Scanner' );
+				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.' );
+				break;
+
+			case 'wpvuln_scan_autoupdate' :
+				$sName = _wpsf__( 'Automatic Updates' );
+				$sSummary = _wpsf__( 'Apply Updates Automatically To Vulnerable Plugins' );
+				$sDescription = _wpsf__( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.' );
+				break;
+
+			case 'wpvuln_scan_display' :
+				$sName = _wpsf__( 'Highlight Plugins' );
+				$sSummary = _wpsf__( 'Highlight Vulnerable Plugins Upon Display' );
+				$sDescription = _wpsf__( 'Vulnerable plugins will be highlighted on the main plugins page.' );
 				break;
 
 			case 'enable_core_file_integrity_scan' :

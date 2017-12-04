@@ -53,10 +53,10 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// We only warn when the human spam filter is running
 		if ( $this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) && $this->getController()->getIsValidAdminArea() ) {
-			$oWp = $this->loadWp();
 
-			$sActivePluginFile = $oWp->getIsPluginActive( 'Akismet' );
-			if ( $sActivePluginFile ) {
+			$oWpPlugins = $this->loadWpPlugins();
+			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );
+			if ( !is_null( $sPluginFile ) && $oWpPlugins->isPluginActive( $sPluginFile ) ) {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 						'click_to_deactivate' => _wpsf__('Click to deactivate Akismet now.'),
 					),
 					'hrefs' => array(
-						'deactivate' => $oWp->getPluginDeactivateLink( $sActivePluginFile )
+						'deactivate' => $oWpPlugins->getLinkPluginDeactivate( $sPluginFile )
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );

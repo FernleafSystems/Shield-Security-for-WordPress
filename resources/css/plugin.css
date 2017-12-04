@@ -1,7 +1,7 @@
 @CHARSET "ISO-8859-1";
 
 /* GENERAL STYLES */
-	
+
 .bootstrap-wpadmin {
 }
 .bootstrap-wpadmin .row {
@@ -319,6 +319,9 @@ table#tbl_tbs_options_javascript td {
 }
 
 /** OPTIONS PAGES **/
+.bootstrap-wpadmin > .row {
+	width: 960px;
+}
 .bootstrap-wpadmin .row.row_number_1 {
 }
 label input[type=checkbox] {
@@ -326,13 +329,11 @@ label input[type=checkbox] {
 }
 
 /** FEature summaries **/
-.bootstrap-wpadmin .row-fluid.feature-summary-blocks {
-	background-color: rgba(255, 255, 255, 0.4);
-	border: 1px solid rgba(0, 0, 0, 0.06);
-	border-radius: 2px;
-	margin: 0 0 25px;
-	padding: 16px 10px 16px 10px;
-	width: 99.0%;
+.bootstrap-wpadmin .feature-summary-blocks {
+	border: 1px solid transparent;
+	border-left: 1px solid #ddd;
+	text-align: center;
+	width: 80%;
 }
 .feature-summary-blocks .feature-icon:before {
 	-webkit-font-smoothing: antialiased;
@@ -353,20 +354,29 @@ label input[type=checkbox] {
 }
 
 .feature-summary-blocks .summary-state {
+	border: 1px solid transparent;
 	overflow: hidden;
 	text-align: center;
-	padding: 6px 0;
+	margin-bottom: -1px;
 }
-.feature-summary-blocks .summary-state.active-feature {
-	background-color: rgba(255, 255, 255, 0.8);
-	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
+.feature-summary-blocks .summary-state.active-feature,
 .feature-summary-blocks .summary-state:hover {
-	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-left: 1px solid transparent;
+	background-color: rgba(255, 255, 255, 0.8);
 }
-.feature-summary-blocks .summary-state p {
+.feature-summary-blocks .summary-state:hover{
+}
+.feature-summary-blocks .summary-state a p {
+	text-shadow: 0 0 0 rgba(0,0,0, 0.6);
 	font-size: 12px;
 	margin: 0;
+}
+.feature-summary-blocks .summary-state a:hover {
+	text-decoration: none;
+}
+.feature-summary-blocks .summary-state a {
+	padding: 8px 0;
 }
 @media (max-width: 800px) {
 	.feature-summary-blocks .summary-state p {
@@ -377,16 +387,16 @@ label input[type=checkbox] {
 	}
 }
 .feature-summary-blocks .state-on a {
-	color: #8dc63f;
+	color: rgba(69, 119, 0, 1);
 }
 .feature-summary-blocks .state-off a {
-	color: rgba( 239, 141, 49, 0.85 );
+	color: rgba( 173, 84, 0, 0.85 );
 }
 .feature-summary-blocks .state-on a:hover {
-	color: rgba( 82, 196, 45, 1 );
+	color: rgb(99, 150, 0);
 }
 .feature-summary-blocks .state-off a:hover {
-	color: rgba( 239, 141, 49, 1 );
+	color: rgba(207, 90, 0, 0.85);
 }
 
 .feature-summary-blocks .feature-summary-block.state-on {
