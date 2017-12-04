@@ -89,10 +89,39 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param int $nId
+	 * @return $this
+	 */
+	public function addWpvulnNotifiedId( $nId ) {
+		if ( !$this->isWpvulnIdAlreadyNotified( $nId ) ) {
+			$aIds = $this->getWpvulnNotifiedIds();
+			$aIds[] = (int)$nId;
+			$this->setOpt( 'wpvuln_notified_ids', $aIds );
+		}
+		return $this;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isWpvulnEnabled() {
 		return $this->isPremium() && !$this->getOptIs( 'enable_wpvuln_scan', 'disabled' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getWpvulnNotifiedIds() {
+		$a = $this->getOpt( 'wpvuln_notified_ids', array() );
+		return is_array( $a ) ? $a : array();
+	}
+
+	/**
+	 * @param int $nId
+	 * @return bool
+	 */
+	public function isWpvulnIdAlreadyNotified( $nId ) {
+		return in_array( $nId, $this->getWpvulnNotifiedIds() );
 	}
 
 	/**
