@@ -170,20 +170,25 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			$this->aNotifEmail = array();
 		}
 
-		$aPlugin = $this->loadWpPlugins()
-						->getPlugin( $sFile );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		if ( !$oFO->isWpvulnIdAlreadyNotified( $oVuln->getId() ) ) {
 
-		$this->aNotifEmail = array_merge(
-			$this->aNotifEmail,
-			array(
-				'- '.sprintf( _wpsf__( 'Plugin Name: %s' ), $aPlugin[ 'Name' ] ),
-				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->getTitle() ),
-				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->getType() ),
-				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->getVersionFixedIn() ),
-				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
-				'',
-			)
-		);
+			$oFO->addWpvulnNotifiedId( $oVuln->getId() );
+
+			$aPlugin = $this->loadWpPlugins()->getPlugin( $sFile );
+			$this->aNotifEmail = array_merge(
+				$this->aNotifEmail,
+				array(
+					'- '.sprintf( _wpsf__( 'Plugin Name: %s' ), $aPlugin[ 'Name' ] ),
+					'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->getTitle() ),
+					'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->getType() ),
+					'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->getVersionFixedIn() ),
+					'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
+					'',
+				)
+			);
+		}
 
 		return $this;
 	}
