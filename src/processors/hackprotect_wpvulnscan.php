@@ -81,7 +81,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		$oFO = $this->getFeature();
 
 		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->getHasVulnerablePlugins() ) {
-
 			// These 3 add the 'Vulnerable' plugin status view.
 			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
 			add_action( 'pre_current_active_plugins', array( $this, 'addVulnerablePluginStatusView' ), 1000 );
@@ -340,9 +339,12 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		$sTransientKey = $this->getFeature()->prefixOptionKey( 'wpvulnplugin-'.$sSlug );
 
 		$sFullContent = $oWp->getTransient( $sTransientKey );
-		if ( empty( $sFullContent ) ) {
+		if ( $sFullContent === false ) {
 			$sUrl = $this->getApiRootUrl().'plugins/'.$sSlug;
 			$sFullContent = $this->loadFS()->getUrlContent( $sUrl );
+			if ( empty( $sFullContent ) ) {
+				$sFullContent = '';
+			}
 		}
 
 		$oWp->setTransient( $sTransientKey, $sFullContent, DAY_IN_SECONDS );

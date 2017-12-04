@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.19.0
+Stable tag: 5.19.1
 
 Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
@@ -338,9 +338,19 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 5.19.0 Latest Point Release =
+= 5.19.1 Latest Point Release =
 *Released: 4th December, 2017*
 
+* **(v.1)**  FIXED:			Plugin Vulnerabilities scan for premium plugins.
+* **(v.0)**  ADDED:			[**PRO**] Automated WordPress plugins vulnerability scanner with auto updates email notifications
+* **(v.0)**  ADDED:			Added Google reCAPTCHA support for register/forget password pages.
+* **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
+* **(v.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
+
+= 5.19.0 Series =
+*Released: 4th December, 2017*
+
+* **(v.1)**  FIXED:			Plugin Vulnerabilities scan for premium plugins.
 * **(v.0)**  ADDED:			[**PRO**] Automated WordPress plugins vulnerability scanner with auto updates email notifications
 * **(v.0)**  ADDED:			Added Google reCAPTCHA support for register/forget password pages.
 * **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
