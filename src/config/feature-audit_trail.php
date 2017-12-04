@@ -150,6 +150,8 @@
     }
   ],
   "definitions": {
+    "audit_trail_default_per_page": 25,
+    "audit_trail_default_max_entries": 50,
     "audit_trail_table_name": "audit_trail",
     "audit_trail_table_columns": [
       "id",

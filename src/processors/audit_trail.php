@@ -186,6 +186,18 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return bool|int
+	 */
+	public function cleanupDatabase() {
+//		$nAutoExpirePeriod = $this->getAutoExpirePeriod();
+//		if ( is_null( $nAutoExpirePeriod ) || !$this->getTableExists() ) {
+//			return false;
+//		}
+//		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
+//		return $this->deleteAllRowsOlderThan( $nTimeStamp );
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
