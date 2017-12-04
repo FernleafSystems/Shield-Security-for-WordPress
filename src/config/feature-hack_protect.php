@@ -85,7 +85,7 @@
           "text": "Enabled - No Email Notification"
         }
       ],
-      "link_info": "",
+      "link_info": "http://icwp.io/ah",
       "link_blog": "",
       "name": "Vulnerability Scanner",
       "summary": "Enable The Vulnerability Scanner",
