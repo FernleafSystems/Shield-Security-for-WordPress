@@ -90,7 +90,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return int
 	 */
 	public function getMaxEntries() {
-		return $this->getDefaultMaxEntries();
+		$nCustom = (int)$this->getOpt( 'audit_trail_max_entries' );
+		if ( $nCustom < 0 ) {
+			$this->getOptionsVo()
+				 ->resetOptToDefault( 'audit_trail_max_entries' );
+			$nCustom = $this->getOpt( 'audit_trail_max_entries' );
+		}
+		return $this->isPremium() ? $nCustom : $this->getDefaultMaxEntries();
 	}
 
 	/**
@@ -288,6 +294,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
 				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), $this->getMainFeatureName() );
 				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
+				break;
+
+			case 'audit_trail_max_entries' :
+				$sName = _wpsf__( 'Max Trail Length' );
+				$sSummary = _wpsf__( 'Maximum Audit Trail Length To Keep' );
+				$sDescription = _wpsf__( 'Automatically remove any audit trail entries when this limit is exceeded.' );
 				break;
 
 			case 'audit_trail_auto_clean' :

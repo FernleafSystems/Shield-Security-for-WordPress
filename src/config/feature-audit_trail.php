@@ -72,6 +72,18 @@
       "description": "Events older than the number of days specified will be automatically cleaned from the database"
     },
     {
+      "key": "audit_trail_max_entries",
+      "section": "section_audit_trail_options",
+      "premium": true,
+      "default": 1000,
+      "type": "integer",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Max Trail Length",
+      "summary": "Maximum Audit Trail Length To Keep",
+      "description": "Automatically remove any audit trail entries when this limit is exceeded."
+    },
+    {
       "key": "enable_audit_context_users",
       "section": "section_enable_audit_contexts",
       "default": "Y",

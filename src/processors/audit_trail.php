@@ -189,12 +189,13 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return bool|int
 	 */
 	public function cleanupDatabase() {
-//		$nAutoExpirePeriod = $this->getAutoExpirePeriod();
-//		if ( is_null( $nAutoExpirePeriod ) || !$this->getTableExists() ) {
-//			return false;
-//		}
-//		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
-//		return $this->deleteAllRowsOlderThan( $nTimeStamp );
+		parent::cleanupDatabase();
+
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getFeature();
+		$sQuery = "DELETE * FROM `%s` ORDER BY `id` DESC LIMIT %s,%s";
+		$sQuery = sprintf( $sQuery, $this->getTableName(), $oFO->getMaxEntries(), PHP_INT_MAX );
+		return $this->selectCustom( $sQuery );
 	}
 
 	/**
