@@ -295,3 +295,15 @@ tr.icwp-plugin-vulnerability dd {
 	font-weight: bolder;
 	background-color: rgba(0, 0, 0, 0.03);
 }
+#AuditTrailTabs table th.column-created_at {
+	width: 110px;
+}
+#AuditTrailTabs table th.column-ip {
+	width: 110px;
+}
+#AuditTrailTabs table th.column-wp_username {
+	width: 130px;
+}
+#AuditTrailTabs table th.column-event {
+	width: 110px;
+}
