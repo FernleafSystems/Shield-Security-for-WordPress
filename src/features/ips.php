@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function renderIpListsButtons() {
-		return $this->renderTemplate( 'snippets/ip_lists', $this->getIpTableDisplayData() );
+		return $this->renderTemplate( 'snippets/module-ip-lists', $this->getIpTableDisplayData() );
 	}
 	/**
 	 * @return array
