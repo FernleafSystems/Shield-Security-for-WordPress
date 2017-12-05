@@ -9,6 +9,44 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return string
+	 */
+	protected function getContentActions() {
+		if ( $this->canDisplayOptionsForm() ) {
+			return $this->renderUserSessions();
+		}
+		return parent::getContentActions();
+	}
+
+	protected function renderUserSessions() {
+		$aActiveSessions = $this->getActiveSessionsData();
+
+		$oWp = $this->loadWp();
+		$sTimeFormat = $oWp->getTimeFormat();
+		$sDateFormat = $oWp->getDateFormat();
+		foreach ( $aActiveSessions as &$aSession ) {
+			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'logged_in_at' ] );
+			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
+		}
+
+		$aData = array(
+			'strings'         => $this->getDisplayStrings(),
+			'time_now'        => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
+			'aActiveSessions' => $aActiveSessions
+		);
+		return $this->renderTemplate( 'snippets/user_sessions', $aData );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getActiveSessionsData() {
+		/** @var ICWP_WPSF_Processor_UserManagement $oProcessor */
+		$oProcessor = $this->getProcessor();
+		return $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
@@ -66,6 +104,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function getDisplayStrings() {
 		return array(
+			'actions_title'       => _wpsf__( 'User Sessions' ),
+			'actions_summary'     => _wpsf__( 'Review current user sessions' ),
+
 			'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
 			'um_username'                       => _wpsf__( 'Username' ),
 			'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),

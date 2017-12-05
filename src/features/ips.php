@@ -27,7 +27,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getDisplayStrings() {
 		return array(
 			'actions_title'       => _wpsf__( 'Manage IP Lists' ),
-			'actions_summary'     => _wpsf__( 'Add/Remove white list and black lists IPs' ),
+			'actions_summary'     => _wpsf__( 'Add/Remove white list and black lists IPs' )
 		);
 	}
 
