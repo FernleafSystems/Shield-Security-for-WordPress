@@ -44,9 +44,10 @@ class AuditTrailTable extends WP_List_Table {
 		return array(
 			'created_at'  => 'Date',
 			'event'       => 'Event',
-			'category'    => 'Category',
-			'ip'          => 'IP Address',
+			'message'     => 'Message',
 			'wp_username' => 'Username',
+			'ip'          => 'IP Address',
+//			'category'    => 'Category',
 		);
 	}
 

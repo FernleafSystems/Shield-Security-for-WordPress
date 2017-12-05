@@ -269,6 +269,24 @@ tr.icwp-plugin-vulnerability dd {
 	background-size: 40px;
 }
 
+#AuditTrailTabs .tablenav  {
+	padding: 5px 8px 5px 3px;
+}
+#AuditTrailTabs .tablenav-pages [class*="span"] {
+	float: none;
+	margin: 0;
+}
+#AuditTrailTabs .tablenav-pages input.current-page {
+	width: auto;
+}
+#AuditTrailTabs .tablenav-pages .paging-input {
+	display: inline-block;
+	margin: 0 8px;
+}
+#AuditTrailTabs .tablenav-pages a:hover {
+	text-decoration: none;
+}
+
 #AuditTrailTabs table {
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;

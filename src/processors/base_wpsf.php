@@ -208,8 +208,13 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ):
 			if ( !isset( $this->aAuditEntry ) ) {
 
 				if ( empty( $sWpUsername ) ) {
-					$oCurrentUser = $this->loadWpUsers()->getCurrentWpUser();
-					$sWpUsername = empty( $oCurrentUser ) ? 'unidentified' : $oCurrentUser->get( 'user_login' );
+					$oUser = $this->loadWpUsers()->getCurrentWpUser();
+					if ( $this->loadWp()->isCron() ) {
+						$sWpUsername = 'WP Cron';
+					}
+					else {
+						$sWpUsername = empty( $oUser ) ? 'unidentified' : $oUser->get( 'user_login' );
+					}
 				}
 
 				$this->aAuditEntry = array(
