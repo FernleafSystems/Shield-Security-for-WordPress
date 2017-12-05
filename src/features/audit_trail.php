@@ -25,11 +25,11 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return string
 	 */
-	protected function getContentActions() {
+	protected function getContentCustomActions() {
 		if ( $this->canDisplayOptionsForm() ) {
 			return $this->displayAuditTrailViewer();
 		}
-		return parent::getContentActions();
+		return parent::getContentCustomActions();
 	}
 
 	protected function adminAjaxHandlers() {

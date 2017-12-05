@@ -61,6 +61,12 @@ ul.nav-tabs li.active a {
 	color: #000000;
 }
 
+.bootstrap-wpadmin .form-horizontal .form-actions {
+	background-color: rgba(0,0,0,0.07);
+	border: 1px solid #ddd;
+	border-top: 1px solid transparent;
+}
+
 .bootstrap-wpadmin .icwpTopLevelRow {
 }
 .bootstrap-wpadmin .icwpTopLevelRow .icwpTopLevelSpan {

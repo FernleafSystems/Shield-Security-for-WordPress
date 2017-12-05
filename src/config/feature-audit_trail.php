@@ -9,6 +9,7 @@
     "show_central": true,
     "access_restricted": true,
     "premium": false,
+    "has_custom_actions": true,
     "order": 110
   },
   "sections": [

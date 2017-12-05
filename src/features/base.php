@@ -162,7 +162,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
+				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()
+												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {
 				foreach ( $aPhpReqs[ 'functions' ] as $sFunction ) {
@@ -179,7 +180,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $bMeetsReqs;
 	}
 
-	protected function doPostConstruction() {}
+	protected function doPostConstruction() {
+	}
 
 	/**
 	 * Added to WordPress 'plugins_loaded' hook
@@ -665,7 +667,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function isValidAjaxRequestForModule() {
 		$oDp = $this->loadDataProcessor();
 
-		$bValid = $this->loadWp()->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+		$bValid = $this->loadWp()
+					   ->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -1236,15 +1239,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_summary'          => false,
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
-				'show_content_actions'  => true,
+				'show_content_actions'  => $this->hasCustomActions(),
 				'show_alt_content'      => false,
 			),
 			'hrefs'      => array(
 				'go_pro' => $this->getUrlGoPro()
 			),
 			'content'    => array(
-				'alt' => '',
-				'actions' => $this->getContentActions()
+				'alt'     => '',
+				'actions' => $this->getContentCustomActions()
 			)
 		);
 	}
@@ -1252,8 +1255,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	protected function getContentActions() {
+	protected function getContentCustomActions() {
 		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function hasCustomActions() {
+		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_custom_actions' );
 	}
 
 	/**

@@ -11,11 +11,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getContentActions() {
+	protected function getContentCustomActions() {
 		if ( $this->canDisplayOptionsForm() ) {
 			return $this->renderIpListsButtons();
 		}
-		return parent::getContentActions();
+		return parent::getContentCustomActions();
 	}
 
 	protected function renderIpListsButtons() {

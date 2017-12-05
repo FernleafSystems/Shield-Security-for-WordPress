@@ -4,10 +4,11 @@
     "name": "User Management",
     "show_feature_menu_item": true,
     "storage_key": "user_management",
-    "tagline": "Get true user sessions and control account sharing, session duration and timeouts",
+    "tagline": "Control user sessions, duration, timeouts and account sharing",
     "show_central": true,
     "access_restricted": true,
     "premium": false,
+    "has_custom_actions": true,
     "order": 40
   },
   "sections": [

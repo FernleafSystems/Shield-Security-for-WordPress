@@ -11,11 +11,11 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return string
 	 */
-	protected function getContentActions() {
+	protected function getContentCustomActions() {
 		if ( $this->canDisplayOptionsForm() ) {
 			return $this->renderUserSessions();
 		}
-		return parent::getContentActions();
+		return parent::getContentCustomActions();
 	}
 
 	protected function renderUserSessions() {
