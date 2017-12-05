@@ -48,7 +48,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return AuditTrailTable
 	 */
 	protected function getTableRendererForContext( $sContext ) {
-		$this->requireCommonLib( 'Modules/AuditTrail/AuditTrailTable.php' );
+		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 		$oAuditTrail = $this->loadFeatureProcessor();
 		$nCount = $oAuditTrail->countAuditEntriesForContext( $sContext );

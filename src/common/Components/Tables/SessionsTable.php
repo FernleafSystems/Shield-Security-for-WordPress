@@ -4,7 +4,7 @@ if ( !class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php' );
 }
 
-class AuditTrailTable extends WP_List_Table {
+class SessionsTable extends WP_List_Table {
 
 	const DEFAULT_PER_PAGE = 2;
 
