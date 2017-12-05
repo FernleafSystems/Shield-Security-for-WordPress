@@ -113,18 +113,21 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array|bool
 	 */
 	public function countAuditEntriesForContext( $sContext ) {
+		$sContext = ( $sContext == 'all' ) ? '' : sprintf( "`context`= '%s' AND", $sContext );
 		$sQuery = "
 				SELECT COUNT(*)
 				FROM `%s`
 				WHERE
-					`context`			= '%s'
-					AND `deleted_at`	= 0
+					%s `deleted_at`	= 0
 			";
 		return $this->loadDbProcessor()->getVar( sprintf( $sQuery, $this->getTableName(), $sContext ) );
 	}
 
 	/**
 	 * @param string $sContext
+	 * @param string $sOrderBy
+	 * @param string $sOrder
+	 * @param int    $nPage
 	 * @param int    $nLimit
 	 * @return array|bool
 	 */
@@ -134,11 +137,13 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 				SELECT *
 				FROM `%s`
 				WHERE
-					`context`			= '%s'
-					AND `deleted_at`	= 0
+					%s `deleted_at`	= 0
 				ORDER BY `%s` %s
 				LIMIT %s OFFSET %s
 			";
+
+		$sContext = ( $sContext == 'all' ) ? '' : sprintf( "`context`= '%s' AND", $sContext );
+
 		$sQuery = sprintf( $sQuery, $this->getTableName(), $sContext, $sOrderBy, $sOrder, $nLimit, $sOffset );
 		return $this->selectCustom( $sQuery );
 	}

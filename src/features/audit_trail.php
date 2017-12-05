@@ -133,6 +133,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		}
 
 		$aContexts = array(
+			'all'      => 'All',
 			'wpsf'      => 'Shield',
 			'wordpress' => 'WordPress',
 			'users'     => 'Users',
