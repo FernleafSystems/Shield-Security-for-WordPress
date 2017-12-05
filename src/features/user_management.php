@@ -34,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			'time_now'        => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
 			'aActiveSessions' => $aActiveSessions
 		);
-		return $this->renderTemplate( 'snippets/user_sessions', $aData );
+		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
 	}
 
 	/**
