@@ -347,6 +347,15 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 * **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
 * **(v.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
 
+= 5.20.0 Series =
+*Released: 11th December, 2017*
+
+* **(v.0)**  IMPROVED:		[**PRO**] Audit Trail length are configurable. Length for free is 50 entries (the original unpaginated limit)
+* **(v.0)**  IMPROVED:		Large redesign of options sections to be more intuitive and cleaner
+* **(v.0)**  IMPROVED:		Certain modules have an new *Actions* centre, such a Audit Trail viewer and User Sessions manager
+* **(v.0)**  IMPROVED:		Audit Trails are now ajax-paginated. You can browse through all your audit trail entries
+* **(v.0)**  IMPROVED:		User session tables are also ajax-paginated.
+
 = 5.19.0 Series =
 *Released: 4th December, 2017*
 
