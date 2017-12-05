@@ -269,6 +269,29 @@ tr.icwp-plugin-vulnerability dd {
 	background-size: 40px;
 }
 
+#AuditTrailTabs .tablenav  {
+	padding: 5px 8px 5px 3px;
+}
+#AuditTrailTabs .row-fluid .tablenav-pages [class*="span"] {
+	float: none;
+	display: inline-block;
+	width: auto;
+}
+#AuditTrailTabs .tablenav-pages [class*="span"] {
+	float: none;
+	margin: 0;
+}
+#AuditTrailTabs .tablenav-pages input.current-page {
+	width: auto;
+}
+#AuditTrailTabs .tablenav-pages .paging-input {
+	display: inline-block;
+	margin: 0 8px;
+}
+#AuditTrailTabs .tablenav-pages a:hover {
+	text-decoration: none;
+}
+
 #AuditTrailTabs table {
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
@@ -276,4 +299,16 @@ tr.icwp-plugin-vulnerability dd {
 #AuditTrailTabs table th {
 	font-weight: bolder;
 	background-color: rgba(0, 0, 0, 0.03);
+}
+#AuditTrailTabs table th.column-created_at {
+	width: 110px;
+}
+#AuditTrailTabs table th.column-ip {
+	width: 110px;
+}
+#AuditTrailTabs table th.column-wp_username {
+	width: 130px;
+}
+#AuditTrailTabs table th.column-event {
+	width: 110px;
 }

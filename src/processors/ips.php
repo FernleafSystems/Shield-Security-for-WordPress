@@ -300,16 +300,16 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		if ( count( $aIpBlackListData ) > 0 ) {
 			$this->query_updateBmCounterForIp( $aIpBlackListData );
 			$sAuditMessage = sprintf(
-				_wpsf__( 'Auto Black List transgression counter was incremented from "%s" for visitor at IP address "%s".' ),
+				_wpsf__( 'Auto Black List transgression counter was incremented from %s to %s.' ),
 				$aIpBlackListData[ 'transgressions' ],
-				$sIp
+				$aIpBlackListData[ 'transgressions' ] + 1
 			);
 			$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_increment' );
 		}
 		else {
 			$this->query_addNewAutoBlackListIp( $sIp );
 			$sAuditMessage = sprintf(
-				_wpsf__( 'Auto Black List transgression counter was started for visitor at IP address "%s".' ),
+				_wpsf__( 'Auto Black List transgression counter was started for visitor.' ),
 				$sIp
 			);
 			$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
