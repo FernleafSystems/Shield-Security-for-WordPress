@@ -177,7 +177,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$this->getBaseAjaxActionRenderData( 'AuditTable' )
 		);
 
-		return $this->renderTemplate( 'snippets/audit_trail_viewer', $aDisplayData );
+		return $this->renderTemplate( 'snippets/module-audit_trail-viewer', $aDisplayData );
 	}
 
 	/**

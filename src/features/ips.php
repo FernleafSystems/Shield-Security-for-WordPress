@@ -11,6 +11,29 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return string
 	 */
+	protected function getContentActions() {
+		if ( $this->canDisplayOptionsForm() ) {
+			return $this->renderIpListsButtons();
+		}
+		return parent::getContentActions();
+	}
+
+	protected function renderIpListsButtons() {
+		return $this->renderTemplate( 'snippets/ip_lists', array() );
+	}
+	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return array(
+			'actions_title'       => _wpsf__( 'Manage IP Lists' ),
+			'actions_summary'     => _wpsf__( 'Add/Remove white list and black lists IPs' ),
+		);
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getOptTransgressionLimit() {
 		return $this->getOpt( 'transgression_limit' );
 	}

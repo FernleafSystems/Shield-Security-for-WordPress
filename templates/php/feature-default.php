@@ -2,7 +2,7 @@
 	<div class="icwpTopLevelSpan <?php echo $flags[ 'show_ads' ] ? 'span10' : 'span10'; ?>" id="icwpOptionsTopPill">
 
 		<ul class="nav nav-pills">
-			<li class="active">
+			<li>
 				<a href="#icwpPillOptions" data-toggle="pill">
 					<span class="dashicons dashicons-admin-settings">&nbsp;</span>
 					<div class="title"><?php echo $strings['options_title']; ?></div>
@@ -18,12 +18,15 @@
 			</li>
 		</ul>
 		<div class="tab-content">
-			<div class="tab-pane active" id="icwpPillOptions">
+			<div class="tab-pane" id="icwpPillOptions">
 				<?php echo $flags[ 'show_standard_options' ] ? $options_form : ''; ?>
 				<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
 			</div>
 			<div class="tab-pane" id="icwpPillActions">
-				<?php echo $flags[ 'show_content_actions' ] ? $content[ 'actions' ] : 'asdf'; ?>
+				<?php echo $flags[ 'show_content_actions' ] ? $content[ 'actions' ] : ''; ?>
+			</div>
+			<div class="tab-pane active" id="icwpPillSelect">
+				<h3 style="text-align: center">&uarr; <?php echo 'Select Desired Section Above'; ?> &uarr;</h3>
 			</div>
 		</div>
 
