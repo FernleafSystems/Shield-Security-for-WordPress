@@ -19,6 +19,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function renderUserSessions() {
+
 		$aActiveSessions = $this->getActiveSessionsData();
 
 		$oWp = $this->loadWp();
@@ -29,12 +30,33 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
 		}
 
+		$oTable = $this->getTableRendererForSessions()
+					   ->setItemEntries( $aActiveSessions )
+					   ->setPerPage( 5 )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		$sUserSessionsTable = ob_get_clean();
+
 		$aData = array(
-			'strings'         => $this->getDisplayStrings(),
-			'time_now'        => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
-			'aActiveSessions' => $aActiveSessions
+			'strings'            => $this->getDisplayStrings(),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
+			'sUserSessionsTable' => $sUserSessionsTable
 		);
 		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
+	}
+
+	/**
+	 * @return SessionsTable
+	 */
+	protected function getTableRendererForSessions() {
+		$this->requireCommonLib( 'Components/Tables/SessionsTable.php' );
+		/** @var ICWP_WPSF_Processor_UserManagement $oProc */
+		$oProc = $this->loadFeatureProcessor();
+//		$nCount = $oProc->countAuditEntriesForContext( $sContext );
+
+		$oTable = new SessionsTable();
+		return $oTable->setTotalRecords( 10 );
 	}
 
 	/**
@@ -77,35 +99,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 */
-	public function displayFeatureConfigPage() {
-		/** @var ICWP_WPSF_Processor_UserManagement $oProcessor */
-		$oProcessor = $this->getProcessor();
-		$aActiveSessions = $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
-
-		$oWp = $this->loadWp();
-		$sTimeFormat = $oWp->getTimeFormat();
-		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as &$aSession ) {
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'logged_in_at' ] );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
-		}
-
-		$aData = array(
-			'time_now'        => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDataProcessor()
-																											   ->time() ) ),
-			'aActiveSessions' => $aActiveSessions
-		);
-		$this->display( $aData );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
 		return array(
-			'actions_title'       => _wpsf__( 'User Sessions' ),
-			'actions_summary'     => _wpsf__( 'Review current user sessions' ),
+			'actions_title'   => _wpsf__( 'User Sessions' ),
+			'actions_summary' => _wpsf__( 'Review current user sessions' ),
 
 			'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
 			'um_username'                       => _wpsf__( 'Username' ),

@@ -88,6 +88,12 @@ ul.nav-tabs li.active a {
 	color: #666;
 	height: 50px;
 }
+#icwpOptionsTopPill > .nav-pills li a:hover {
+	background-color: rgba(38, 66, 1, 0.3);
+}
+#icwpOptionsTopPill > .nav-pills li a:focus {
+	box-shadow: none;
+}
 #icwpOptionsTopPill > .nav-pills li span.dashicons {
 	float: left;
 	height: 100%;
@@ -332,46 +338,46 @@ tr.icwp-plugin-vulnerability dd {
 	background-size: 40px;
 }
 
-#AuditTrailTabs .tablenav  {
+.icwpAjaxTableContainer .tablenav  {
 	padding: 5px 8px 5px 3px;
 }
-#AuditTrailTabs .row-fluid .tablenav-pages [class*="span"] {
+.icwpAjaxTableContainer .row-fluid .tablenav-pages [class*="span"] {
 	float: none;
 	display: inline-block;
 	width: auto;
 }
-#AuditTrailTabs .tablenav-pages [class*="span"] {
+.icwpAjaxTableContainer .tablenav-pages [class*="span"] {
 	float: none;
 	margin: 0;
 }
-#AuditTrailTabs .tablenav-pages input.current-page {
+.icwpAjaxTableContainer .tablenav-pages input.current-page {
 	width: auto;
 }
-#AuditTrailTabs .tablenav-pages .paging-input {
+.icwpAjaxTableContainer .tablenav-pages .paging-input {
 	display: inline-block;
 	margin: 0 8px;
 }
-#AuditTrailTabs .tablenav-pages a:hover {
+.icwpAjaxTableContainer .tablenav-pages a:hover {
 	text-decoration: none;
 }
 
-#AuditTrailTabs table {
+.icwpAjaxTableContainer table {
 	border-left: 1px solid transparent;
 	border-right: 1px solid transparent;
 }
-#AuditTrailTabs table th {
+.icwpAjaxTableContainer table th {
 	font-weight: bolder;
 	background-color: rgba(0, 0, 0, 0.03);
 }
-#AuditTrailTabs table th.column-created_at {
+.icwpAjaxTableContainer table th.column-created_at {
 	width: 110px;
 }
-#AuditTrailTabs table th.column-ip {
+.icwpAjaxTableContainer table th.column-ip {
 	width: 110px;
 }
-#AuditTrailTabs table th.column-wp_username {
+.icwpAjaxTableContainer table th.column-wp_username {
 	width: 130px;
 }
-#AuditTrailTabs table th.column-event {
+.icwpAjaxTableContainer table th.column-event {
 	width: 110px;
 }

@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$this->getDefaultPerPage()
 		);
 
-		$oTable->setAuditEntries( $this->formatEntriesForDisplay( $aEntries ) )
+		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
 			   ->setPerPage( $this->getDefaultPerPage() )
 			   ->prepare_items();
 		ob_start();

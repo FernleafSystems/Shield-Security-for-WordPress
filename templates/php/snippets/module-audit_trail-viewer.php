@@ -12,7 +12,7 @@
 	<div class="tab-content">
 		<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
 			<div class="tab-pane <?php echo !$sContext ? 'active' : '' ?>" id="Context<?php echo $sContext; ?>">
-				<div class="icwpAjaxTable"
+				<div class="icwpAjaxTableContainer"
 					 data-auditcontext="<?php echo $sContext; ?>"><?php echo $aAuditDataContext; ?></div>
 			</div>
 		<?php endforeach; ?>
@@ -32,7 +32,7 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		event.preventDefault();
 
 		var $oThis = jQuery( event.currentTarget );
-		var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTable"]' );
+		var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]' );
 
 		var query = this.search.substring( 1 );
 		var aTableRequestParams = {
@@ -111,7 +111,7 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 
 			// This time we fetch the variables in inputs
 			var $oThis = jQuery( event.currentTarget );
-			var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTable"]' );
+			var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]' );
 			var aTableRequestParams = {
 				paged: parseInt( jQuery( 'input[name=paged]', $oMainContainer ).val() ) || '1',
 				order: jQuery( 'input[name=order]', $oMainContainer ).val() || 'desc',
