@@ -177,12 +177,5 @@
       "created_at",
       "deleted_at"
     ]
-  },
-  "menu_items": [
-    {
-      "slug": "audit_trail_viewer",
-      "title": "Audit Trail Viewer",
-      "callback": "displayAuditTrailViewer"
-    }
-  ]
+  }
 }

@@ -1236,15 +1236,24 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_summary'          => false,
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
+				'show_content_actions'  => true,
 				'show_alt_content'      => false,
 			),
 			'hrefs'      => array(
 				'go_pro' => $this->getUrlGoPro()
 			),
 			'content'    => array(
-				'alt' => ''
+				'alt' => '',
+				'actions' => $this->getContentActions()
 			)
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentActions() {
+		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
 	}
 
 	/**

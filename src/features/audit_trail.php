@@ -17,10 +17,30 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 */
 	public function doPrePluginOptionsSave() {
-
 		if ( $this->getOpt( 'audit_trail_auto_clean' ) < 0 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'audit_trail_auto_clean' );
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentActions() {
+		if ( $this->canDisplayOptionsForm() ) {
+			return $this->displayAuditTrailViewer();
+		}
+		return parent::getContentActions();
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'AuditTable' ), array( $this, 'ajaxAuditTable' ) );
+	}
+
+	public function ajaxAuditTable() {
+		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
+		$sContext = $this->loadDP()->FetchPost( 'auditcontext' );
+		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext, $aParams ) ) );
 	}
 
 	/**
@@ -73,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$this->getDefaultPerPage()
 		);
 
-		$oTable->setAuditEntries( $this->formattedEntriesForDisplay( $aEntries ) )
+		$oTable->setAuditEntries( $this->formatEntriesForDisplay( $aEntries ) )
 			   ->setPerPage( $this->getDefaultPerPage() )
 			   ->prepare_items();
 		ob_start();
@@ -113,7 +133,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @param $aEntries
 	 * @return array
 	 */
-	public function formattedEntriesForDisplay( $aEntries ) {
+	public function formatEntriesForDisplay( $aEntries ) {
 		$sYou = $this->loadIpService()->getRequestIp();
 		if ( is_array( $aEntries ) ) {
 			foreach ( $aEntries as &$aEntry ) {
@@ -128,27 +148,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return $aEntries;
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		add_action( $this->prefixWpAjax( 'AuditTable' ), array( $this, 'ajaxAuditTable' ) );
-	}
-
-	public function ajaxAuditTable() {
-		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
-		$sContext = $this->loadDP()->FetchPost( 'auditcontext' );
-		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext, $aParams ) ) );
-	}
-
 	/**
+	 * @return string
 	 */
-	public function displayAuditTrailViewer() {
-
-		if ( !$this->canDisplayOptionsForm() ) {
-			return $this->displayRestrictedPage();
-		}
-
+	protected function displayAuditTrailViewer() {
 		$aContexts = array(
-			'all'       => 'All',
+			'all'       => 'All', //special
 			'wpsf'      => 'Shield',
 			'wordpress' => 'WordPress',
 			'users'     => 'Users',
@@ -163,60 +168,16 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
 		}
 
-		$aDisplayData = array(
-			'aAuditTables' => $aAuditTables,
-			'aContexts'    => $aContexts,
-		);
-		$aDisplayData = array_merge( $aDisplayData, $this->getBaseAjaxActionRenderData( 'AuditTable' ) );
-
-		return $this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
-	}
-
-	public function displayAuditTrailViewerOrig() {
-
-		if ( !$this->canDisplayOptionsForm() ) {
-			return $this->displayRestrictedPage();
-		}
-
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadFeatureProcessor();
-
-		$aContexts = array(
-			'Users',
-			'Plugins',
-			'Themes',
-			'WordPress',
-			'Posts',
-			'Emails',
-			'wpsf'
+		$aDisplayData = array_merge(
+			array(
+				'aAuditTables' => $aAuditTables,
+				'aContexts'    => $aContexts,
+				'sTitle'       => _wpsf__( 'Audit Trail Viewer' ),
+			),
+			$this->getBaseAjaxActionRenderData( 'AuditTable' )
 		);
 
-		$aDisplayData = array(
-			'nYourIp'      => $this->loadIpService()->getRequestIp(),
-			'sFeatureName' => _wpsf__( 'Audit Trail Viewer' )
-		);
-
-		$aAudits = array();
-		foreach ( $aContexts as $sContext ) {
-			$aAuditContext = array();
-			$aAuditContext[ 'title' ] = ( $sContext == 'wpsf' ) ? self::getConn()
-																	  ->getHumanName() : _wpsf__( $sContext );
-
-			$aAuditData = $oAuditTrail->getAuditEntriesForContext( strtolower( $sContext ) );
-			if ( is_array( $aAuditData ) ) {
-				foreach ( $aAuditData as &$aAuditEntry ) {
-					$aAuditEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aAuditEntry[ 'event' ] ) );
-					$aAuditEntry[ 'message' ] = sanitize_text_field( $aAuditEntry[ 'message' ] );
-					$aAuditEntry[ 'created_at' ] = $this->loadWp()
-														->getTimeStringForDisplay( $aAuditEntry[ 'created_at' ] );
-				}
-			}
-			$aAuditContext[ 'trail' ] = $aAuditData;
-			$aAudits[] = $aAuditContext;
-		}
-		$aDisplayData[ 'aAudits' ] = $aAudits;
-		$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
-//			$this->displayByTemplate( $aDisplayData, 'subfeature-audit_trail_viewer' );
+		return $this->renderTemplate( 'snippets/audit_trail_viewer', $aDisplayData );
 	}
 
 	/**
@@ -224,6 +185,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	protected function getDisplayStrings() {
 		return array(
+			'actions_title'       => _wpsf__( 'Audit Trail Viewer' ),
+			'actions_summary'     => _wpsf__( 'Review the logs in the audit trail' ),
+
 			'at_users'            => _wpsf__( 'Users' ),
 			'at_plugins'          => _wpsf__( 'Plugins' ),
 			'at_themes'           => _wpsf__( 'Themes' ),

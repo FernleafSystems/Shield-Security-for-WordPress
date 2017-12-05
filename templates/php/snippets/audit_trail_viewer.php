@@ -1,24 +1,24 @@
-<div class="row">
-	<div class="span12" id="AuditTrailTabs">
+<h2 style="margin: 0 0 20px"><?php echo $sTitle;?></h2>
+<div id="AuditTrailTabs">
 
-		<ul class="nav nav-tabs">
+	<ul class="nav nav-tabs">
+	<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
+		<li><a href="#Context<?php echo $sContext; ?>" data-toggle="tab">
+				<?php echo $aContexts[ $sContext ]; ?>
+			</a>
+		</li>
+	<?php endforeach; ?>
+	</ul>
+	<div class="tab-content">
 		<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
-			<li><a href="#Context<?php echo $sContext; ?>" data-toggle="tab">
-					<?php echo $aContexts[ $sContext ]; ?>
-				</a></li>
+			<div class="tab-pane <?php echo !$sContext ? 'active' : '' ?>" id="Context<?php echo $sContext; ?>">
+				<div class="icwpAjaxTable"
+					 data-auditcontext="<?php echo $sContext; ?>"><?php echo $aAuditDataContext; ?></div>
+			</div>
 		<?php endforeach; ?>
-		</ul>
-		<div class="tab-content">
-			<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
-				<div class="tab-pane <?php echo !$sContext ? 'active' : '' ?>" id="Context<?php echo $sContext; ?>">
-					<div class="icwpAjaxTable"
-						 data-auditcontext="<?php echo $sContext; ?>"><?php echo $aAuditDataContext; ?></div>
-				</div>
-			<?php endforeach; ?>
-		</div>
+	</div>
 
-	</div><!-- / span9 -->
-</div><!-- / row -->
+</div><!-- / span9 -->
 
 <script>
 
