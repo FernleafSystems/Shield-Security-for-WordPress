@@ -46,6 +46,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	protected function renderTableForContext( $sContext, $aParams = array() ) {
 		$oTable = $this->getTableRendererForContext( $sContext );
 
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9_]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+
 		$aParams = array_merge(
 			array(
 				'orderby' => 'created_at',
@@ -54,6 +61,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			),
 			$aParams
 		);
+		$nPage = (int)$aParams[ 'paged' ];
 
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
 		$oAuditTrail = $this->loadFeatureProcessor();
@@ -61,11 +69,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$sContext,
 			$aParams[ 'orderby' ],
 			$aParams[ 'order' ],
-			$aParams[ 'paged' ],
+			$nPage,
 			$this->getDefaultPerPage()
 		);
 
 		$oTable->setAuditEntries( $this->formattedEntriesForDisplay( $aEntries ) )
+			   ->setPerPage( $this->getDefaultPerPage() )
 			   ->prepare_items();
 		ob_start();
 		$oTable->display();
@@ -105,11 +114,15 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	public function formattedEntriesForDisplay( $aEntries ) {
+		$sYou = $this->loadIpService()->getRequestIp();
 		if ( is_array( $aEntries ) ) {
 			foreach ( $aEntries as &$aEntry ) {
 				$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
 				$aEntry[ 'message' ] = sanitize_text_field( $aEntry[ 'message' ] );
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
+				if ( $aEntry[ 'ip' ] == $sYou ) {
+					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
+				}
 			}
 		}
 		return $aEntries;
@@ -126,6 +139,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext, $aParams ) ) );
 	}
 
+	/**
+	 */
 	public function displayAuditTrailViewer() {
 
 		if ( !$this->canDisplayOptionsForm() ) {
@@ -133,7 +148,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		}
 
 		$aContexts = array(
-			'all'      => 'All',
+			'all'       => 'All',
 			'wpsf'      => 'Shield',
 			'wordpress' => 'WordPress',
 			'users'     => 'Users',
@@ -154,7 +169,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 		$aDisplayData = array_merge( $aDisplayData, $this->getBaseAjaxActionRenderData( 'AuditTable' ) );
 
-		$this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
+		return $this->display( $aDisplayData, 'subfeature-audit_trail_viewer' );
 	}
 
 	public function displayAuditTrailViewerOrig() {

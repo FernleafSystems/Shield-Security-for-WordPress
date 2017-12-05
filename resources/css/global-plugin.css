@@ -272,6 +272,11 @@ tr.icwp-plugin-vulnerability dd {
 #AuditTrailTabs .tablenav  {
 	padding: 5px 8px 5px 3px;
 }
+#AuditTrailTabs .row-fluid .tablenav-pages [class*="span"] {
+	float: none;
+	display: inline-block;
+	width: auto;
+}
 #AuditTrailTabs .tablenav-pages [class*="span"] {
 	float: none;
 	margin: 0;

@@ -52,7 +52,7 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		bRequestCurrentlyRunning = true;
 
 		iCWP_WPSF_BodyOverlay.show();
-		$oMainContainer.html( 'loading...' );
+		$oMainContainer.html( '' );
 
 		var requestData = {
 			'action': '<?php echo $icwp_ajax_action; ?>',
