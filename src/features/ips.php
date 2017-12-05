@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function renderIpListsButtons() {
-		return $this->renderTemplate( 'snippets/ip_lists', array() );
+		return $this->renderTemplate( 'snippets/ip_lists', $this->getIpTableDisplayData() );
 	}
 	/**
 	 * @return array
@@ -69,7 +69,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return array
 	 */
-	protected function getIpTableDisplayData() {
+	protected function getIpTableDisplayData() { // Use new standard AJAX
 		return array( 'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ) );
 	}
 
