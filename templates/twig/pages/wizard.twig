@@ -2,9 +2,40 @@
 
 {% block head_stylesheets %}
 	{{ parent() }}
+	<link rel="stylesheet" href="{{ hrefs.css_steps }}" />
 {% endblock %}
 
 {% block head_scripts %}
 	{{ parent() }}
 	<script type="text/javascript" src="{{ hrefs.js_steps }}"></script>
+{% endblock %}
+
+{% block body_content_main %}
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<div id="wizard">
+				<h1>First Step</h1>
+				<div>First Content</div>
+
+				<h1>Second Step</h1>
+				<div>Second Content</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block body_footer %}
+	<script type="text/javascript">
+
+		jQuery( document ).ready( function ( $ ) {
+			// Initialize wizard
+			var wizard = $( "#wizard" ).steps();
+
+			// Add step
+			wizard.steps( "add", {
+				title: "HTML code",
+				content: "<strong>HTML code</strong>"
+			} );
+		} );
+	</script>
 {% endblock %}

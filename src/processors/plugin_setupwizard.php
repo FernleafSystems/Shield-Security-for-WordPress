@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			'hrefs'   => array(
 				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
-				'css_steps'     => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
+				'css_steps'     => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
 				'js_jquery'     => $this->loadWpIncludes()->getUrl_Jquery(),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'js_steps'      => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
