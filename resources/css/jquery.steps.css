@@ -116,7 +116,7 @@
 .wizard > .steps .current a:hover,
 .wizard > .steps .current a:active
 {
-    background: #2184be;
+    background: rgba(69, 119, 0, 1);
     color: #fff;
     cursor: default;
 }
@@ -125,7 +125,7 @@
 .wizard > .steps .done a:hover,
 .wizard > .steps .done a:active
 {
-    background: #9dc8e2;
+    background: rgba(69, 119, 0, 0.5);
     color: #fff;
 }
 
@@ -139,7 +139,7 @@
 
 .wizard > .content
 {
-    background: #eee;
+    background: transparent;
     display: block;
     margin: 0.5em;
     min-height: 35em;
@@ -150,6 +150,7 @@
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+	border: 1px solid transparent;
 }
 
 .wizard.vertical > .content
@@ -253,7 +254,7 @@
 .wizard > .actions a:hover,
 .wizard > .actions a:active
 {
-    background: #2184be;
+    background: rgba(69, 119, 0, 1);
     color: #fff;
     display: block;
     padding: 0.5em 1em;

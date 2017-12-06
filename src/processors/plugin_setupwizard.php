@@ -42,7 +42,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$aDisplayData = array(
 			'strings' => array(
-				'cancel'          => _wpsf__( 'Cancel Login' ),
+				'welcome'         => _wpsf__( 'Welcome' ),
 				'time_remaining'  => _wpsf__( 'Time Remaining' ),
 				'calculating'     => _wpsf__( 'Calculating' ).' ...',
 				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
@@ -59,16 +59,17 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			'hrefs'   => array(
 				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
+				'css_pages'     => $oCon->getPluginUrl_Css( 'pages.css' ),
 				'css_steps'     => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
+				'css_wizard'     => $oCon->getPluginUrl_Css( 'wizard.css' ),
 				'js_jquery'     => $this->loadWpIncludes()->getUrl_Jquery(),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'js_steps'      => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
-				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
+				'shield_logo'   => 'https://plugins.svn.wordpress.org/wp-simple-firewall/assets/banner-1544x500-transparent.png',
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			)
 		);
-		
 		$this->loadRenderer( $this->getController()->getPath_Templates() )
 			 ->setTemplate( 'pages/wizard.twig' )
 			 ->setRenderVars( $aDisplayData )
