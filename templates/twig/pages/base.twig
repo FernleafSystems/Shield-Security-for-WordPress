@@ -1,7 +1,9 @@
 <html>
 <head>
-    <link rel="stylesheet" href="{{ hrefs.css_bootstrap }}" />
     <title>{{ strings.page_title }}</title>
+	{% block head_stylesheets %}
+		<link rel="stylesheet" href="{{ hrefs.css_bootstrap }}" />
+	{% endblock %}
     <link rel="icon" type="image/png" href="{{ hrefs.favicon }}" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>

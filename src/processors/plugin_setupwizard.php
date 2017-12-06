@@ -54,20 +54,24 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() )
 			),
 			'data'    => array(
-				'login_fields'      => $aLoginIntentFields,
+				'login_fields' => $aLoginIntentFields,
 			),
 			'hrefs'   => array(
 				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
+				'css_steps'     => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
+				'js_jquery'     => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
+				'js_steps'      => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
+				'js_steps'      => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			)
 		);
-
+		
 		$this->loadRenderer( $this->getController()->getPath_Templates() )
-			 ->setTemplate( 'pages/base.twig' )
+			 ->setTemplate( 'pages/wizard.twig' )
 			 ->setRenderVars( $aDisplayData )
 			 ->setTemplateEngineTwig()
 			 ->display();
