@@ -217,6 +217,14 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_WpIncludes
+	 */
+	static public function loadWpIncludes() {
+		self::requireCommonLib( 'icwp-wpincludes.php' );
+		return ICWP_WPSF_WpIncludes::GetInstance();
+	}
+
+	/**
 	 * @return ICWP_WPSF_WpTrack
 	 */
 	static public function loadWpTrack() {
