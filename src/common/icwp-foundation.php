@@ -306,8 +306,8 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 */
-	static public function loadLib_Carbon() {
-		self::requireCommonLib( 'lib'.DIRECTORY_SEPARATOR.'Carbon'.DIRECTORY_SEPARATOR.'Carbon.php' );
+	static public function loadAutoload() {
+		self::requireCommonLib( 'lib/vendor/autoload.php' );
 	}
 
 	/**
