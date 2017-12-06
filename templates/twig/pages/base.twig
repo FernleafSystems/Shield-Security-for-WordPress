@@ -1,27 +1,30 @@
 <html>
 <head>
+    <link rel="icon" type="image/png" href="{{ hrefs.favicon }}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>{{ strings.page_title }}</title>
+
 	{% block head_stylesheets %}
 		<link rel="stylesheet" href="{{ hrefs.css_bootstrap }}" />
 	{% endblock %}
-    <link rel="icon" type="image/png" href="{{ hrefs.favicon }}" />
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	{% block head_scripts %}
+		<script type="text/javascript" src="{{ hrefs.js_jquery }}"></script>
+		<script type="text/javascript" src="{{ hrefs.js_bootstrap }}"></script>
+	{% endblock %}
 </head>
+{% block body %}
 <body>
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-4 col-md-offset-4">
-            <img id="ShieldLogo" class="img-responsive" src="{{ hrefs.shield_logo }}" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-4 col-md-offset-4">
-
-			asdf
-        </div>
-    </div>
-</div>
-
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<img id="ShieldLogo" class="img-responsive" src="{{ hrefs.shield_logo }}" />
+			</div>
+		</div>
+    	<div class="row">
+        	<div class="col-md-4 col-md-offset-4"></div>
+		</div>
+	</div>
 </body>
+{% endblock %}
 </html>

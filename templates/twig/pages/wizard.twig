@@ -2,5 +2,9 @@
 
 {% block head_stylesheets %}
 	{{ parent() }}
-	<link rel="stylesheet" href="{{ hrefs.css_bootstrap }}" />
+{% endblock %}
+
+{% block head_scripts %}
+	{{ parent() }}
+	<script type="text/javascript" src="{{ hrefs.js_steps }}"></script>
 {% endblock %}
