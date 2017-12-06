@@ -43,6 +43,7 @@ class ICWP_WPSF_WpIncludes extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getIncludeUrl( $sInclude ) {
+		$sInclude = path_join( 'wp-includes', $sInclude );
 		return path_join( $this->loadWp()->getWpUrl(), $sInclude );
 	}
 }
