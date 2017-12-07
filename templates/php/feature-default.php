@@ -9,15 +9,15 @@
 					<p class="summary"><?php echo $strings[ 'options_summary' ]; ?></p>
 				</a>
 			</li>
+			<li>
 			<?php if ( $flags[ 'show_content_actions' ] ) : ?>
-				<li>
-					<a href="#icwpPillActions" data-toggle="pill">
-						<span class="dashicons dashicons-hammer">&nbsp;</span>
-						<div class="title"><?php echo $strings[ 'actions_title' ]; ?></div>
-						<p class="summary"><?php echo $strings[ 'actions_summary' ]; ?></p>
-					</a>
-				</li>
+				<a href="#icwpPillActions" data-toggle="pill">
+					<span class="dashicons dashicons-hammer">&nbsp;</span>
+					<div class="title"><?php echo $strings[ 'actions_title' ]; ?></div>
+					<p class="summary"><?php echo $strings[ 'actions_summary' ]; ?></p>
+				</a>
 			<?php endif; ?>
+			</li>
 			<?php if ( $flags[ 'show_content_help' ] ) : ?>
 				<li <?php echo $flags[ 'show_content_help' ] ? '' : 'class="active"'; ?>>
 				<a href="#icwpPillHelp" data-toggle="pill">
