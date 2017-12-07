@@ -78,9 +78,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
 				'save_all_settings'                 => _wpsf__( 'Save All Settings' ),
 				'options_title'                     => _wpsf__( 'Options' ),
-				'options_summary'                   => _wpsf__( 'Configure options and preferences' ),
+				'options_summary'                   => _wpsf__( 'Configure Module' ),
 				'actions_title'                     => _wpsf__( 'Actions and Info' ),
 				'actions_summary'                   => _wpsf__( 'Perform actions for this module' ),
+				'help_title'                        => _wpsf__( 'Help' ),
+				'help_summary'                      => _wpsf__( 'Learn More' ),
 
 				'aar_what_should_you_enter'    => _wpsf__( 'What should you enter here?' ),
 				'aar_must_supply_key_first'    => _wpsf__( 'At some point you entered a Security Admin Access Key - to manage this plugin, you must supply it here first.' ),

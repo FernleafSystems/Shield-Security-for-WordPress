@@ -104,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	protected function getDisplayStrings() {
 		return array(
 			'actions_title'   => _wpsf__( 'User Sessions' ),
-			'actions_summary' => _wpsf__( 'Review current user sessions' ),
+			'actions_summary' => _wpsf__( 'Review user sessions' ),
 
 			'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
 			'um_username'                       => _wpsf__( 'Username' ),

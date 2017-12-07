@@ -18,8 +18,22 @@
 					</a>
 				</li>
 			<?php endif; ?>
+			<?php if ( $flags[ 'show_content_help' ] ) : ?>
+				<li <?php echo $flags[ 'show_content_help' ] ? '' : 'class="active"'; ?>>
+				<a href="#icwpPillHelp" data-toggle="pill">
+					<span class="dashicons dashicons-editor-help">&nbsp;</span>
+					<div class="title"><?php echo $strings[ 'help_title' ]; ?></div>
+					<p class="summary"><?php echo $strings[ 'help_summary' ]; ?></p>
+				</a>
+			</li>
+			<?php endif; ?>
 		</ul>
 		<div class="tab-content">
+			<?php if ( $flags[ 'show_content_help' ] ) : ?>
+				<div class="tab-pane" id="icwpPillHelp">
+					<?php echo $content[ 'help' ]; ?>
+				</div>
+			<?php endif; ?>
 			<div class="tab-pane <?php echo $flags[ 'show_content_actions' ] ? '' : 'active'; ?>"
 				 id="icwpPillOptions">
 				<?php echo $flags[ 'show_standard_options' ] ? $options_form : ''; ?>
@@ -27,7 +41,7 @@
 			</div>
 			<?php if ( $flags[ 'show_content_actions' ] ) : ?>
 				<div class="tab-pane" id="icwpPillActions">
-					<?php echo $flags[ 'show_content_actions' ] ? $content[ 'actions' ] : ''; ?>
+					<?php echo $content[ 'actions' ]; ?>
 				</div>
 				<div class="tab-pane active" id="icwpPillSelect">
 					<h3 style="text-align: center">&uarr; <?php echo 'Select Desired Section Above'; ?> &uarr;</h3>

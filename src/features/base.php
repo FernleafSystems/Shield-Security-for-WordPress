@@ -1193,7 +1193,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
-		return array(
+		$aData = array(
 			'var_prefix'      => $oCon->getOptionStoragePrefix(),
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
@@ -1232,7 +1232,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'blog'                              => __( 'Blog' ),
 				'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
 				'save_all_settings'                 => __( 'Save All Settings' ),
-				'see_help_video'                    => __( 'Watch Help Video' )
+				'see_help_video'                    => __( 'Watch Help Video' ),
 			),
 			'flags'      => array(
 				'show_ads'              => $this->getIsShowMarketing(),
@@ -1247,9 +1247,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'content'    => array(
 				'alt'     => '',
-				'actions' => $this->getContentCustomActions()
+				'actions' => $this->getContentCustomActions(),
+				'help'    => $this->getContentHelp()
 			)
 		);
+		$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
+		return $aData;
 	}
 
 	/**
@@ -1257,6 +1260,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getContentCustomActions() {
 		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentHelp() {
+		return $this->renderTemplate( 'snippets/module-help-'.$this->getFeatureSlug().'.php', array(), true );
 	}
 
 	/**
@@ -1399,7 +1409,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array  $aData
 	 * @return string
 	 */
-	public function renderTemplate( $sTemplate, $aData ) {
+	public function renderTemplate( $sTemplate, $aData = array() ) {
 		if ( empty( $aData[ 'unique_render_id' ] ) ) {
 			$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 		}
