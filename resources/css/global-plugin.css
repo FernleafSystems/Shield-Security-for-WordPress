@@ -122,6 +122,25 @@ ul.nav-tabs li.active a {
 	background-color: transparent;
 	border: 1px solid transparent;
 }
+#icwpOptionsTopPill > .tab-content .content-help {
+	background-color: #fafafa;
+	padding: 10px 20px;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	margin: 5px;
+}
+#icwpOptionsTopPill .content-help h2 {
+	margin-bottom: 8px;
+}
+#icwpOptionsTopPill .content-help dl {
+	margin-bottom: 5px;
+}
+#icwpOptionsTopPill .content-help dt {
+	margin-bottom: 7px;
+}
+#icwpOptionsTopPill .content-help dd {
+	margin-bottom: 15px;
+	margin-left: 12px;
+}
 
 th.column-icwp_autoupdate, td.icwp_autoupdate, th#icwp_autoupdate {
 	text-align: center;
