@@ -131,11 +131,15 @@ ul.nav-tabs li.active a {
 #icwpOptionsTopPill .content-help h2 {
 	margin-bottom: 8px;
 }
-#icwpOptionsTopPill .content-help dl {
-	margin-bottom: 5px;
+#icwpOptionsTopPill .content-help p,
+#icwpOptionsTopPill .content-help li {
+	font-size: 14px;
 }
 #icwpOptionsTopPill .content-help dt {
+	border-bottom: 1px dotted rgba(0,0,0,0.2);
+	font-size: 16px;
 	margin-bottom: 7px;
+	padding-bottom: 3px;
 }
 #icwpOptionsTopPill .content-help dd {
 	margin-bottom: 15px;
