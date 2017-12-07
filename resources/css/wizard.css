@@ -2,3 +2,10 @@
 	background: #ffffff;
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }
+
+.wizard.vertical > .steps {
+	width: 20%; /** from 30 **/
+}
+.wizard.vertical > .content	{
+	width: 75%; /** from 65 **/
+}
