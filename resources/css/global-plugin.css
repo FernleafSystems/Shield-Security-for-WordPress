@@ -80,7 +80,7 @@ ul.nav-tabs li.active a {
 	padding-bottom: 10px;
 }
 #icwpOptionsTopPill > .nav-pills li {
-	width: 50%;
+	width: 33.3%;
 }
 #icwpOptionsTopPill > .nav-pills li a {
 	background-color: rgba(0, 0, 0, 0.2);
@@ -108,7 +108,7 @@ ul.nav-tabs li.active a {
 }
 #icwpOptionsTopPill > .nav-pills li a .title {
 	font-weight: bolder;
-	font-size: 24px;
+	font-size: 18px;
 	line-height: 24px;
 }
 #icwpOptionsTopPill > .nav-pills li a .summary {
