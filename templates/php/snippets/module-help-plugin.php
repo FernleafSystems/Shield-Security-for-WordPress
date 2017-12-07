@@ -12,11 +12,11 @@
 		   is often incorrect. This options allows you to tell Shield which IP address source is the
 		   correct one.
 		</p>
-		<p>Basically you select the IP address from the list that represent your own personal
+		<p>Basically you select the IP address from the list that represents your own, personal
 		   public IP address.
 		</p>
 		<p>Don't know your IP address? Go to Google and search: "What is my IP address"
-			(<a href="http://icwp.io/an" target="_blank">We've done it for you</a>)
+			(<a href="http://icwp.io/an" target="_blank">We've done it for you</a> ;)
 		</p>
 		<p>With this result, you should be able to select the correct item from the list. The higher up the
 		   list the better, with <code>REMOTE_ADDR</code> being the #1 preferred, if possible.</p>
