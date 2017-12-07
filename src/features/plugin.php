@@ -315,10 +315,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * Ensure we always a valid installation ID.
+	 * @deprecated but still used because it aligns with stats collection
 	 * @return string
 	 */
 	public function getPluginInstallationId() {
 		$sId = $this->getOpt( 'unique_installation_id', '' );
+
 		if ( !$this->isValidInstallId( $sId ) ) {
 			$sId = $this->setPluginInstallationId();
 		}
@@ -347,6 +349,26 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			.$this->loadWp()->getWpUrl()
 			.$this->loadDbProcessor()->getPrefix()
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getSecretKey() {
+		$sId = $this->getOpt( 'secret_key', '' );
+		if ( empty( $sId ) || $this->isSecretKeyExpired() ) {
+			$sId = sha1( $this->getPluginInstallationId().wp_rand( PHP_INT_MIN, PHP_INT_MAX ) );
+			$this->setOpt( 'secret_key', $sId )
+				 ->setOpt( 'secret_key_expires_at', $this->loadDP()->time() + HOUR_IN_SECONDS );
+		}
+		return $sId;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isSecretKeyExpired() {
+		return ( $this->loadDP()->time() > $this->getOpt( 'secret_key_expires_at' ) );
 	}
 
 	/**

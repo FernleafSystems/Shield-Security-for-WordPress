@@ -281,6 +281,16 @@
       "section": "section_non_ui"
     },
     {
+      "key": "secret_key",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "secret_key_expires_at",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
       "key": "this_server_ip",
       "transferable": false,
       "sensitive": true,
