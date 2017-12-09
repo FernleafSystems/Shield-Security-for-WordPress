@@ -19,7 +19,7 @@
 .wizard ul,
 .tabcontrol ul
 {
-    list-style: none !important;
+    list-style: none;
     padding: 0;
     margin: 0;
 }
@@ -172,7 +172,7 @@
 
 .wizard > .content > .body ul
 {
-    list-style: disc !important;
+    list-style: disc ;
 }
 
 .wizard > .content > .body ul > li
@@ -189,8 +189,8 @@
 
 .wizard > .content > .body input
 {
-    display: block;
-    border: 1px solid #ccc;
+    /*display: block;*/
+    /*border: 1px solid #ccc;*/
 }
 
 .wizard > .content > .body input[type="checkbox"]
@@ -207,8 +207,8 @@
 
 .wizard > .content > .body label
 {
-    display: inline-block;
-    margin-bottom: 0.5em;
+    /*display: inline-block;*/
+    /*margin-bottom: 0.5em;*/
 }
 
 .wizard > .content > .body label.error

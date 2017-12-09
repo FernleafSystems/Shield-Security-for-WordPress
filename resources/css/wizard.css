@@ -9,3 +9,21 @@
 .wizard.vertical > .content	{
 	width: 75%; /** from 65 **/
 }
+
+.wizard > .content > .body {
+	height: auto;
+	position: relative;
+}
+.wizard.vertical > .actions {
+	margin-bottom: 20px;
+}
+.wizard h3 {
+	margin-bottom: 20px;
+}
+.wizard p {
+	margin-bottom: 20px;
+}
+.wizard .body ul {
+	list-style: square inside none;
+	padding-left: 20px;
+}

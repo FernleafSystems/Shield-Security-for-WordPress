@@ -18,6 +18,9 @@
 				<h1>{{ strings.welcome }}</h1>
 				<div>{{ include( '/wizard/slide-welcome.twig' ) }}</div>
 
+				<h1>Security Admin</h1>
+				<div>{{ include( '/wizard/slide-securityadmin.twig' ) }}</div>
+
 				<h1>Step 3</h1>
 				<div>Second Content</div>
 
@@ -28,9 +31,6 @@
 				<div>Second Content</div>
 
 				<h1>Step 6</h1>
-				<div>Second Content</div>
-
-				<h1>Step 7</h1>
 				<div>Second Content</div>
 			</div>
 		</div>
@@ -44,43 +44,43 @@
 
 			var settings = {
 					/* Appearance */
-					headerTag: "h1",
-					bodyTag: "div",
-					contentContainerTag: "div",
-					actionContainerTag: "div",
-					stepsContainerTag: "div",
-					cssClass: "wizard",
-					stepsOrientation: $.fn.steps.stepsOrientation.vertical,
+				headerTag: "h1",
+				bodyTag: "div",
+				contentContainerTag: "div",
+				actionContainerTag: "div",
+				stepsContainerTag: "div",
+				cssClass: "wizard",
+				stepsOrientation: $.fn.steps.stepsOrientation.vertical,
 
-					/* Templates */
-					titleTemplate: '<span class="number">#index#.</span> #title#',
-					loadingTemplate: '<span class="spinner"></span> #text#',
+				/* Templates */
+				titleTemplate: '<span class="number">#index#.</span> #title#',
+				loadingTemplate: '<span class="spinner"></span> #text#',
 
-					/* Behaviour */
-					autoFocus: false,
-					enableAllSteps: false,
-					enableKeyNavigation: true,
-					enablePagination: true,
-					suppressPaginationOnFocus: true,
-					enableContentCache: true,
-					enableCancelButton: true,
-					enableFinishButton: true,
-					preloadContent: false,
-					showFinishButtonAlways: false,
-					forceMoveForward: false,
-					saveState: false,
-					startIndex: 0,
+				/* Behaviour */
+				autoFocus: false,
+				enableAllSteps: false,
+				enableKeyNavigation: true,
+				enablePagination: true,
+				suppressPaginationOnFocus: true,
+				enableContentCache: true,
+				enableCancelButton: true,
+				enableFinishButton: true,
+				preloadContent: false,
+				showFinishButtonAlways: false,
+				forceMoveForward: false,
+				saveState: false,
+				startIndex: 0,
 
-					/* Transition Effects */
-					transitionEffect: $.fn.steps.transitionEffect.none,
-					transitionEffectSpeed: 200,
+				/* Transition Effects */
+				transitionEffect: $.fn.steps.transitionEffect.none,
+				transitionEffectSpeed: 200,
 
-					/* Events */
-					onStepChanging: function (event, currentIndex, newIndex) { return true; },
-					onStepChanged: function (event, currentIndex, priorIndex) { },
+				/* Events */
+				onStepChanging: function (event, currentIndex, newIndex) { return true; },
+				onStepChanged: function (event, currentIndex, priorIndex) { },
 				onCanceled: function (event) { },
-			onFinishing: function (event, currentIndex) { return true; },
-			onFinished: function (event, currentIndex) { },
+				onFinishing: function (event, currentIndex) { return true; },
+				onFinished: function (event, currentIndex) { },
 
 			/* Labels */
 			labels: {
@@ -95,7 +95,77 @@
 		};
 
 			// Initialize wizard
-			var wizard = $( "#wizard" ).steps( settings );
+			var $oWizardContainer = $( "#wizard" );
+			var $oWizard = $oWizardContainer.steps( settings );
+			var $oActions = $( 'div.actions', $oWizard );
+			$oActions.prependTo( $oWizardContainer );
+
 		} );
 	</script>
+
+
+<script>
+var iCWP_WPSF_Wizard_FormHandler = new function () {
+
+	var bRequestCurrentlyRunning = false;
+
+	/**
+	 */
+	var submitWizardForm = function ( event ) {
+		event.preventDefault();
+
+		alert( 'here');
+
+		var $oThis = jQuery( event.currentTarget );
+		var $oForm = $oThis.closest( 'form' );
+
+		sendFormRequest( $oForm );
+	};
+
+	var sendFormRequest = function ( $oForm ) {
+		if ( bRequestCurrentlyRunning ) { // failsafe in case we balls up - we only run 1.
+			return false;
+		}
+		bRequestCurrentlyRunning = true;
+
+		iCWP_WPSF_BodyOverlay.show();
+
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
+							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
+							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
+							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce' ]; ?>" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
+							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce_action' ]; ?>" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
+							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_action_module' ]; ?>" )
+							 .appendTo( $oForm );
+
+		jQuery.post( ajaxurl, $oForm.serialize(),
+			function ( oResponse ) {
+			}
+		).always(
+			function () {
+				bRequestCurrentlyRunning = false;
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	var setHandlers = function () {
+		alert( 'h1232' );
+		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( setHandlers );
+	};
+}();
+iCWP_WPSF_Wizard_FormHandler.initialise();
+</script>
 {% endblock %}
