@@ -33,6 +33,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			case 'securityadmin':
 				$oResponse = $this->wizardSecurityAdmin();
 				break;
+
+			case 'audit_trail':
+				$oResponse = $this->wizardAuditTrail();
+				break;
 			default:
 				$oResponse = new \FernleafSystems\Utilities\Response();
 				$oResponse->setSuccessful( false )
@@ -78,12 +82,37 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			try {
 				$oModule->setNewAccessKeyManually( $sKey, true );
 				$bSuccess = true;
-				$sMessage = _wpsf__( 'Security Admin setup successfully.' );
+				$sMessage = _wpsf__( 'Security Admin setup was successful.' );
 			}
 			catch ( Exception $oE ) {
 				$sMessage = _wpsf__( $oE->getMessage() );
 			}
 		}
+
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardAuditTrail() {
+		$oDP = $this->loadDP();
+		$sAuditTrailOption = trim( $oDP->FetchPost( 'AuditTrailOption' ) );
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+
+		$bSuccess = true;
+		$bEnabled = $sAuditTrailOption === 'Y';
+
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
+		$oModule = $this->getController()->getModule( 'audit_trail' );
+		$oModule->setIsMainFeatureEnabled( $bEnabled )
+				->savePluginOptions();
+
+		$sMessage = sprintf( 'Audit Trail has been %s',
+			$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+		);
 
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );

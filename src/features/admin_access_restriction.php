@@ -234,7 +234,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( empty( $sKey ) ) {
 			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
 		}
-		
+
 		$this->setIsMainFeatureEnabled( true )
 			 ->setOpt( 'admin_access_key', md5( $sKey ) );
 		$this->savePluginOptions();
