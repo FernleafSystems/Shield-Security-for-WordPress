@@ -761,7 +761,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param       $bSuccess
 	 * @param array $aData
 	 */
-	protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+	public function sendAjaxResponse( $bSuccess, $aData = array() ) {
 		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 

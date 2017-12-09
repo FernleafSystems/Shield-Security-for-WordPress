@@ -23,46 +23,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
-		add_action( $this->prefixWpAjax( 'SetupWizard' ), array( $this, 'ajaxSetupWizard' ) );
-	}
-
-	public function ajaxSetupWizard() {
-		$oDP = $this->loadDP();
-
-		$bSuccess = false;
-		$sMessage = 'Unknown request';
-
-		switch ( $oDP->FetchPost( 'wizard-step' ) ) {
-
-			case 'securityadmin':
-				$this->wizardSecurityAdmin();
-				break;
-			default:
-				break;
-		}
-
-		if ( $bSuccess ) {
-			$sMessage .= '<br />'.sprintf( _wpsf__( 'Click "%s" (above) to move to the next stage.' ), _wpsf__( 'Next' ) );
-		}
-
-		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
-	}
-
-	private function wizardSecurityAdmin() {
-		$oDP = $this->loadDP();
-		$sKey = trim( $oDP->FetchPost( 'AccessKey' ) );
-		$sConfirm = trim( $oDP->FetchPost( 'AccessKeyConfirm' ) );
-
-		if ( empty( $sKey ) ) {
-			$sMessage = 'Access Key provided was empty.';
-		}
-		else if ( $sKey != $sConfirm ) {
-			$sMessage = 'Keys do not match.';
-		}
-		else {
-			$bSuccess = true;
-			$sMessage = _wpsf__( 'Security Admin setup successfully.' );
-		}
+		add_action( $this->prefixWpAjax( 'SetupWizard' ), array( $this->getSetupWizardProcessor(), 'ajaxSetupWizard' ) );
 	}
 
 	/**

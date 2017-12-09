@@ -6,13 +6,15 @@ if ( class_exists( 'ICWP_WPSF_Processor_Plugin_SetupWizard', false ) ) {
 
 require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
+/**
+ * @uses php 5.4+
+ * Class ICWP_WPSF_Processor_Plugin_SetupWizard
+ */
 class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
 		add_action( 'init', array( $this, 'onWpInit' ), 0 );
 	}
 
@@ -20,6 +22,57 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		if ( $this->loadWpUsers()->isUserLoggedIn() ) { // TODO: can manage
 			$this->loadWizard();
 		}
+	}
+
+	public function ajaxSetupWizard() {
+		$oDP = $this->loadDP();
+
+		$this->loadAutoload(); // for Response
+		switch ( $oDP->FetchPost( 'wizard-step' ) ) {
+
+			case 'securityadmin':
+				$oResponse = $this->wizardSecurityAdmin();
+				break;
+			default:
+				$oResponse = new \FernleafSystems\Utilities\Response();
+				$oResponse->setSuccessful( false )
+						  ->setMessageText( _wpsf__( 'Unknown request' ) );
+				break;
+		}
+
+		$aData = array_merge(
+			array( 'message' => $oResponse->getMessageText() ),
+			$oResponse->getData()
+		);
+
+		$this->getFeature()
+			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardSecurityAdmin() {
+		$oDP = $this->loadDP();
+		$sKey = trim( $oDP->FetchPost( 'AccessKey' ) );
+		$sConfirm = trim( $oDP->FetchPost( 'AccessKeyConfirm' ) );
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+
+		$bSuccess = false;
+		if ( empty( $sKey ) ) {
+			$sMessage = 'Access Key provided was empty.';
+		}
+		else if ( $sKey != $sConfirm ) {
+			$sMessage = 'Keys do not match.';
+		}
+		else {
+			$bSuccess = true;
+			$sMessage = _wpsf__( 'Security Admin setup successfully.' );
+		}
+
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
 	}
 
 	protected function loadWizard() {

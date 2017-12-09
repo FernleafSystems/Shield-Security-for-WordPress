@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		}
 
 		// TODO: Wrap up
-		if ( isset( $_GET[ 'wizard' ] ) ) {
+		if ( isset( $_GET[ 'wizard' ] ) && $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
 			$this->getSetupWizardProcessor()->run();
 		}
 	}
