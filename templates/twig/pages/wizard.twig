@@ -43,7 +43,7 @@
 		jQuery( document ).ready( function ( $ ) {
 
 			var settings = {
-					/* Appearance */
+				/* Appearance */
 				headerTag: "h1",
 				bodyTag: "div",
 				contentContainerTag: "div",
@@ -76,23 +76,30 @@
 				transitionEffectSpeed: 200,
 
 				/* Events */
-				onStepChanging: function (event, currentIndex, newIndex) { return true; },
-				onStepChanged: function (event, currentIndex, priorIndex) { },
-				onCanceled: function (event) { },
-				onFinishing: function (event, currentIndex) { return true; },
-				onFinished: function (event, currentIndex) { },
+				onStepChanging: function ( event, currentIndex, newIndex ) {
+					return true;
+				},
+				onStepChanged: function ( event, currentIndex, priorIndex ) {
+				},
+				onCanceled: function ( event ) {
+				},
+				onFinishing: function ( event, currentIndex ) {
+					return true;
+				},
+				onFinished: function ( event, currentIndex ) {
+				},
 
-			/* Labels */
-			labels: {
-				cancel: "Cancel",
+				/* Labels */
+				labels: {
+					cancel: "Cancel",
 					current: "current step:",
 					pagination: "Pagination",
 					finish: "Finish",
 					next: "Next",
 					previous: "Previous",
 					loading: "Loading ..."
-			}
-		};
+				}
+			};
 
 			// Initialize wizard
 			var $oWizardContainer = $( "#wizard" );
@@ -104,7 +111,7 @@
 	</script>
 
 
-<script>
+	<script>
 var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -143,8 +150,35 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 							 .attr( 'value', "{{ ajax.icwp_action_module }}" )
 							 .appendTo( $oForm );
 
+		if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
+			$oForm.append( '<p class="wizard-response"></p>' )
+		}
+
+		var $oResponseField = jQuery( 'p.wizard-response', $oForm );
+		$oResponseField.removeClass( 'bg-success bg-danger' )
+					   .html( '...' );
+
+		var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
+		$oSubmitButton.prop( 'disabled', true );
+
 		jQuery.post( '{{ ajax.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
+				var sMessage = '';
+				if ( undefined !== oResponse.data ) {
+					sMessage = oResponse.data.message;
+				}
+
+				if ( oResponse.success ) {
+					$oResponseField.removeClass( 'bg-danger' )
+								   .addClass( 'bg-success' );
+				}
+				else {
+					$oResponseField.removeClass( 'bg-success' )
+								   .addClass( 'bg-danger' );
+					$oSubmitButton.prop( 'disabled', false );
+				}
+				$oResponseField.html( sMessage );
+
 			}
 		).always(
 			function () {
@@ -162,6 +196,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		jQuery( document ).ready( setHandlers );
 	};
 }();
+iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_Wizard_FormHandler.initialise();
 </script>
 {% endblock %}

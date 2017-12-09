@@ -27,3 +27,7 @@
 	list-style: square inside none;
 	padding-left: 20px;
 }
+
+.wizard p.wizard-response {
+	padding: 10px 15px;
+}

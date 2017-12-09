@@ -22,10 +22,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		}
 	}
 
-	public function ajaxSetupWizard() {
-		var_dump( $_POST );
-	}
-
 	protected function loadWizard() {
 		$this->printWizard();
 		die();
