@@ -105,6 +105,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $oFeatureHandlerPlugin;
 
 	/**
+	 * @var ICWP_WPSF_FeatureHandler_Base[]
+	 */
+	protected $aModules;
+
+	/**
 	 * @param $sRootFile
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
@@ -1528,6 +1533,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return ICWP_WPSF_FeatureHandler_Base|null
+	 */
+	public function getModule( $sSlug ) {
+		if ( !is_array( $this->aModules ) ) {
+			$this->aModules = array();
+		}
+		$oModule = isset( $this->aModules[ $sSlug ] ) ? $this->aModules[ $sSlug ] : null;
+		if ( !is_null( $oModule ) && !( $oModule instanceof ICWP_WPSF_FeatureHandler_Base ) ) {
+			$oModule = null;
+		}
+		return $oModule;
+	}
+
+	/**
 	 * @param array $aFeatureProperties
 	 * @param bool  $bRecreate
 	 * @param bool  $bFullBuild
@@ -1538,12 +1558,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$sFeatureSlug = $aFeatureProperties[ 'slug' ];
 
+		$oHandler = $this->getModule( $sFeatureSlug );
+		if ( !empty( $oHandler ) ) {
+			return $oHandler;
+		}
+
 		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sFeatureSlug ) ) );
 		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $sFeatureName ); // e.g. oFeatureHandlerPlugin
-
-		if ( isset( $this->{$sOptionsVarName} ) ) {
-			return $this->{$sOptionsVarName};
-		}
 
 		$sSourceFile = $this->getPath_SourceFile(
 			sprintf(
@@ -1574,6 +1595,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$sMessage .= sprintf( 'Class "%s" %s', $sClassName, $bClassExists ? 'exists' : 'missing' );
 			throw new Exception( $sMessage );
 		}
+
+		$this->aModules[ $sFeatureSlug ] = $this->{$sOptionsVarName};
 		return $this->{$sOptionsVarName};
 	}
 }
