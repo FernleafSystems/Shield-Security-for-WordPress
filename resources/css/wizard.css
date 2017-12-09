@@ -1,4 +1,8 @@
-﻿.wizard > .content {
+﻿body{
+	padding-bottom: 200px;
+}
+
+.wizard > .content {
 	background: #ffffff;
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }

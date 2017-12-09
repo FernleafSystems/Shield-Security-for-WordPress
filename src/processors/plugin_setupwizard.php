@@ -37,6 +37,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			case 'audit_trail':
 				$oResponse = $this->wizardAuditTrail();
 				break;
+
+			case 'ips':
+				$oResponse = $this->wizardIps();
+				break;
 			default:
 				$oResponse = new \FernleafSystems\Utilities\Response();
 				$oResponse->setSuccessful( false )
@@ -97,23 +101,52 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardAuditTrail() {
-		$oDP = $this->loadDP();
-		$sAuditTrailOption = trim( $oDP->FetchPost( 'AuditTrailOption' ) );
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-
-		$bSuccess = true;
-		$bEnabled = $sAuditTrailOption === 'Y';
+		$bEnabled = trim( $this->loadDP()->FetchPost( 'AuditTrailOption' ) ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
 		$oModule = $this->getController()->getModule( 'audit_trail' );
 		$oModule->setIsMainFeatureEnabled( $bEnabled )
 				->savePluginOptions();
 
-		$sMessage = sprintf( 'Audit Trail has been %s',
-			$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
-		);
+		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+		if ( $bSuccess ) {
+			$sMessage = sprintf( 'Audit Trail has been %s.',
+				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+			);
+		}
+		else {
+			$sMessage = _wpsf__( 'Audit Trail setting could not be changed at this time.' );
+		}
 
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardIps() {
+
+		$bEnabled = trim( $this->loadDP()->FetchPost( 'IpManagerOption' ) ) === 'Y';
+
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
+		$oModule = $this->getController()->getModule( 'ips' );
+		$oModule->setIsMainFeatureEnabled( $bEnabled )
+				->savePluginOptions();
+
+		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+		if ( $bSuccess ) {
+			$sMessage = sprintf( 'IP Manager has been %s.',
+				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+			);
+		}
+		else {
+			$sMessage = _wpsf__( 'IP Manager setting could not be changed at this time.' );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
 	}
