@@ -40,10 +40,16 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				break;
 		}
 
-		$aData = array_merge(
-			array( 'message' => $oResponse->getMessageText() ),
-			$oResponse->getData()
-		);
+		$sMessage = $oResponse->getMessageText();
+		if ( $oResponse->successful() ) {
+			$sMessage .= '<br />'._wpsf__( 'Please click Next (above) to continue.' );
+		}
+		else {
+			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
+		}
+
+		$aData = $oResponse->getData();
+		$aData[ 'message' ] = $sMessage;
 
 		$this->getFeature()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
@@ -67,8 +73,16 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			$sMessage = 'Keys do not match.';
 		}
 		else {
-			$bSuccess = true;
-			$sMessage = _wpsf__( 'Security Admin setup successfully.' );
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
+			$oModule = $this->getController()->getModule( 'admin_access_restriction' );
+			try {
+				$oModule->setNewAccessKeyManually( $sKey, true );
+				$bSuccess = true;
+				$sMessage = _wpsf__( 'Security Admin setup successfully.' );
+			}
+			catch ( Exception $oE ) {
+				$sMessage = _wpsf__( $oE->getMessage() );
+			}
 		}
 
 		return $oResponse->setSuccessful( $bSuccess )

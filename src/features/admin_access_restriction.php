@@ -223,6 +223,27 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @param string $sKey
+	 * @param bool $bSetAccessCookie
+	 * @throws Exception
+	 */
+	public function setNewAccessKeyManually( $sKey, $bSetAccessCookie = false ) {
+		if ( !$this->doCheckHasPermissionToSubmit() ) {
+			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
+		}
+		if ( empty( $sKey ) ) {
+			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
+		}
+		
+		$this->setIsMainFeatureEnabled( true )
+			 ->setOpt( 'admin_access_key', md5( $sKey ) );
+		$this->savePluginOptions();
+		if ( $bSetAccessCookie ) {
+			$this->setAdminAccessCookie();
+		}
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
