@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
 	 */
-	protected function getSetupWizardProcessor() {
+	public function getSetupWizardProcessor() {
 		if ( !isset( $this->oSetupWizardProcessor ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_setupwizard.php' );
 			$this->oSetupWizardProcessor = new ICWP_WPSF_Processor_Plugin_SetupWizard( $this->getFeature() );

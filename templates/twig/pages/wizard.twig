@@ -114,8 +114,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	var submitWizardForm = function ( event ) {
 		event.preventDefault();
 
-		alert( 'here');
-
 		var $oThis = jQuery( event.currentTarget );
 		var $oForm = $oThis.closest( 'form' );
 
@@ -127,26 +125,25 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 			return false;
 		}
 		bRequestCurrentlyRunning = true;
-
 		iCWP_WPSF_BodyOverlay.show();
 
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
+							 .attr( 'value', "{{ ajax.icwp_ajax_action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
+							 .attr( 'value', "{{ ajax.icwp_ajax_action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce' ]; ?>" )
+							 .attr( 'value', "{{ ajax.icwp_nonce }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce_action' ]; ?>" )
+							 .attr( 'value', "{{ ajax.icwp_nonce_action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_action_module' ]; ?>" )
+							 .attr( 'value', "{{ ajax.icwp_action_module }}" )
 							 .appendTo( $oForm );
 
-		jQuery.post( ajaxurl, $oForm.serialize(),
+		jQuery.post( '{{ ajax.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
 			}
 		).always(
@@ -158,7 +155,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	};
 
 	var setHandlers = function () {
-		alert( 'h1232' );
 		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
 	};
 

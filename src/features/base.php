@@ -667,8 +667,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function isValidAjaxRequestForModule() {
 		$oDp = $this->loadDataProcessor();
 
-		$bValid = $this->loadWp()
-					   ->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+		$bValid = $this->loadWp()->isAjax()
+				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -684,7 +684,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sAction
 	 * @return array
 	 */
-	protected function getBaseAjaxActionRenderData( $sAction = '' ) {
+	public function getBaseAjaxActionRenderData( $sAction = '' ) {
 		return array(
 			'icwp_ajax_action'   => $this->prefix( $sAction ),
 			'icwp_nonce'         => $this->genNonce( $sAction ),

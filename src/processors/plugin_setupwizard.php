@@ -22,6 +22,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		}
 	}
 
+	public function ajaxSetupWizard() {
+		var_dump( $_POST );
+	}
+
 	protected function loadWizard() {
 		$this->printWizard();
 		die();
@@ -31,7 +35,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
 	public function printWizard() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
@@ -69,7 +73,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'shield_logo'     => 'https://plugins.svn.wordpress.org/wp-simple-firewall/assets/banner-1544x500-transparent.png',
 				'what_is_this'    => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'favicon'         => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-			)
+			),
+			'ajax'    => $oFO->getBaseAjaxActionRenderData( 'SetupWizard' ),
+
 		);
 		$this->loadRenderer( $this->getController()->getPath_Templates() )
 			 ->setTemplate( 'pages/wizard.twig' )

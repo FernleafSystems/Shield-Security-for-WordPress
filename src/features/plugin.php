@@ -21,6 +21,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setVisitorIp();
 	}
 
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'SetupWizard' ), array( $this->getSetupWizardProcessor(), 'ajaxSetupWizard' ) );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
+	 */
+	protected function getSetupWizardProcessor() {
+		/** @var ICWP_WPSF_Processor_Plugin $oMain */
+		$oMain = $this->getProcessor();
+		return $oMain->getSetupWizardProcessor();
+	}
+
 	/**
 	 * @return bool
 	 */
