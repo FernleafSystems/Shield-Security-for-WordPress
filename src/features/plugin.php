@@ -23,7 +23,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
-		add_action( $this->prefixWpAjax( 'SetupWizard' ), array( $this->getSetupWizardProcessor(), 'ajaxSetupWizard' ) );
+		add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array( $this->getSetupWizardProcessor(), 'ajaxSetupWizardContent' ) );
+		add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array( $this->getSetupWizardProcessor(), 'ajaxSetupWizardSteps' ) );
 	}
 
 	/**

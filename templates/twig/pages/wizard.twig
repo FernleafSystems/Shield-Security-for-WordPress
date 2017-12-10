@@ -18,26 +18,26 @@
 				<h1>{{ strings.welcome }}</h1>
 				<div>{{ include( '/wizard/slide-welcome.twig' ) }}</div>
 
-				<h1>Go Pro</h1>
-				<div>{{ include( '/wizard/slide-license.twig' ) }}</div>
+				{#<h1>Go Pro</h1>#}
+				{#<div>{{ include( '/wizard/slide-license.twig' ) }}</div>#}
 
-				<h1>Security Admin</h1>
-				<div>{{ include( '/wizard/slide-securityadmin.twig' ) }}</div>
+				{#<h1>Security Admin</h1>#}
+				{#<div>{{ include( '/wizard/slide-securityadmin.twig' ) }}</div>#}
 
-				<h1>Audit Trail</h1>
-				<div>{{ include( '/wizard/slide-audit_trail.twig' ) }}</div>
+				{#<h1>Audit Trail</h1>#}
+				{#<div>{{ include( '/wizard/slide-audit_trail.twig' ) }}</div>#}
 
-				<h1>IP Blacklist</h1>
-				<div>{{ include( '/wizard/slide-ips.twig' ) }}</div>
+				{#<h1>IP Blacklist</h1>#}
+				{#<div>{{ include( '/wizard/slide-ips.twig' ) }}</div>#}
 
-				<h1>Login Protection</h1>
-				<div>{{ include( '/wizard/slide-login_protect.twig' ) }}</div>
+				{#<h1>Login Protection</h1>#}
+				{#<div>{{ include( '/wizard/slide-login_protect.twig' ) }}</div>#}
 
-				<h1>Comment SPAM</h1>
-				<div>{{ include( '/wizard/slide-comments_filter.twig' ) }}</div>
+				{#<h1>Comment SPAM</h1>#}
+				{#<div>{{ include( '/wizard/slide-comments_filter.twig' ) }}</div>#}
 
-				<h1>Step 6</h1>
-				<div>Second Content</div>
+				{#<h1>Step 6</h1>#}
+				{#<div>Second Content</div>#}
 			</div>
 		</div>
 	</div>
@@ -73,7 +73,7 @@
 				enableFinishButton: true,
 				preloadContent: false,
 				showFinishButtonAlways: false,
-				forceMoveForward: false,
+				forceMoveForward: true,
 				saveState: false,
 				startIndex: 0,
 
@@ -110,9 +110,11 @@
 			// Initialize wizard
 			var $oWizardContainer = $( "#wizard" );
 			var $oWizard = $oWizardContainer.steps( settings );
+			$oWizard.add( {{ wizard_steps|raw }} );
 			var $oActions = $( 'div.actions', $oWizard );
 			$oActions.prependTo( $oWizardContainer );
 
+			jQuery( document ).off( "click", 'a#next' );
 		} );
 	</script>
 
@@ -122,8 +124,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var bRequestCurrentlyRunning = false;
 
-	/**
-	 */
 	var submitWizardForm = function ( event ) {
 		event.preventDefault();
 
@@ -141,19 +141,19 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "{{ ajax.icwp_ajax_action }}" )
+							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "{{ ajax.icwp_ajax_action }}" )
+							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "{{ ajax.icwp_nonce }}" )
+							 .attr( 'value', "{{ ajax.content.icwp_nonce }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "{{ ajax.icwp_nonce_action }}" )
+							 .attr( 'value', "{{ ajax.content.icwp_nonce_action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
-							 .attr( 'value', "{{ ajax.icwp_action_module }}" )
+							 .attr( 'value', "{{ ajax.content.icwp_action_module }}" )
 							 .appendTo( $oForm );
 
 		if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
@@ -167,7 +167,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
 		$oSubmitButton.prop( 'disabled', true );
 
-		jQuery.post( '{{ ajax.ajaxurl }}', $oForm.serialize(),
+		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
 				var sMessage = '';
 				if ( undefined !== oResponse.data ) {
@@ -185,6 +185,9 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 				}
 				$oResponseField.html( sMessage );
 
+				if ( undefined !== oResponse.data.next_step ) {
+					sMessage = oResponse.data.message;
+				}
 			}
 		).always(
 			function () {
@@ -194,8 +197,49 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		);
 	};
 
+	this.renderNextStep = function ( $oWizard ) {
+		var reqData = {{ ajax.steps_as_json|raw }};
+
+		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
+
+		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
+			function ( oResponse ) {
+			}
+		).always(
+			function () {
+			}
+		);
+	};
+
+	var renderNext = function ( event ) {
+		event.preventDefault();
+
+		var $oThis = jQuery( event.currentTarget );
+		$oThis.prop( 'disabled', true );
+		jQuery( "body" ).toggleClass( "wait" );
+
+		var $oWizard = jQuery( '#wizard' );
+
+		var reqData = {{ ajax.steps_as_json|raw }};
+		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
+
+		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
+			function ( oResponse ) {
+				if ( undefined !== oResponse.data.next_step ) {
+					$oWizard.steps( 'add', oResponse.data.next_step );
+					$oWizard.steps( 'next' );
+				}
+			}
+		).always(
+			function () {
+				jQuery( 'body' ).toggleClass( 'wait' );
+			}
+		);
+	};
+
 	var setHandlers = function () {
 		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
+		jQuery( document ).on( 'click', 'div.wizard-slide a.ButtonNextSlide', renderNext );
 	};
 
 	this.initialise = function () {

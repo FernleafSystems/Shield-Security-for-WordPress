@@ -682,16 +682,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAction
+	 * @param bool $bAsJsonEncodedObject
 	 * @return array
 	 */
-	public function getBaseAjaxActionRenderData( $sAction = '' ) {
-		return array(
+	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {
+		$aData = array(
+			'action'             => $this->prefix( $sAction ), //wp ajax doesn't work without this.
 			'icwp_ajax_action'   => $this->prefix( $sAction ),
 			'icwp_nonce'         => $this->genNonce( $sAction ),
 			'icwp_nonce_action'  => $sAction,
 			'icwp_action_module' => $this->prefix( $this->getFeatureSlug() ),
 			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
 		);
+		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
 	}
 
 	protected function adminAjaxHandlers() {
