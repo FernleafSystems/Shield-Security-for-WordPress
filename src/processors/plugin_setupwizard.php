@@ -30,6 +30,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$this->loadAutoload(); // for Response
 		switch ( $oDP->FetchPost( 'wizard-step' ) ) {
 
+			case 'license':
+				$oResponse = $this->wizardLicense();
+				break;
+
 			case 'securityadmin':
 				$oResponse = $this->wizardSecurityAdmin();
 				break;
@@ -70,6 +74,40 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$this->getFeature()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardLicense() {
+		$oDP = $this->loadDP();
+		$sKey = trim( $oDP->FetchPost( 'LicenseKey' ) );
+
+		$bSuccess = false;
+		if ( empty( $sKey ) ) {
+			$sMessage = 'Access Key provided was empty.';
+		}
+		else {
+			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
+			$oModule = $this->getController()->getModule( 'license' );
+			try {
+				$oModule->activateOfficialLicense( $sKey, true );
+				if ( $oModule->hasValidWorkingLicense() ) {
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'License was accepted and installed successfully.' );
+				}
+				else {
+					$sMessage = _wpsf__( 'License was not accepted.' );
+				}
+			}
+			catch ( Exception $oE ) {
+				$sMessage = _wpsf__( $oE->getMessage() );
+			}
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
 	}
 
 	/**
