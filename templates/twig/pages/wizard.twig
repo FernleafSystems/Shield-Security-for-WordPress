@@ -49,7 +49,7 @@
 				suppressPaginationOnFocus: true,
 				enableContentCache: true,
 				enableCancelButton: false,
-				enableFinishButton: true,
+				enableFinishButton: false,
 				preloadContent: false,
 				showFinishButtonAlways: false,
 				forceMoveForward: false,
@@ -164,8 +164,8 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 				}
 				$oResponseField.html( sMessage );
 
-				if ( undefined !== oResponse.data.next_step ) {
-					sMessage = oResponse.data.message;
+				if ( undefined !== oResponse.data.reRender && oResponse.data.reRender === true ) {
+					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
 				}
 			}
 		).always(
@@ -192,13 +192,14 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var renderNext = function ( event ) {
 		event.preventDefault();
+		jQuery( event.currentTarget ).prop( 'disabled', true );
+		renderNextAuto();
+	};
 
-		var $oThis = jQuery( event.currentTarget );
-		$oThis.prop( 'disabled', true );
+	var renderNextAuto = function () {
 		jQuery( "body" ).toggleClass( "wait" );
 
 		var $oWizard = jQuery( '#wizard' );
-
 		var reqData = {{ ajax.steps_as_json|raw }};
 		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
 
@@ -214,6 +215,14 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 				jQuery( 'body' ).toggleClass( 'wait' );
 			}
 		);
+	};
+
+	this.reRenderCurrent = function () {
+		var $oWizard = jQuery( '#wizard' );
+		$oWizard.steps( 'previous' );
+		var nCurrent = $oWizard.steps( 'getCurrentIndex' );
+		$oWizard.steps( 'remove', nCurrent+1 );
+		renderNextAuto();
 	};
 
 	var setHandlers = function () {

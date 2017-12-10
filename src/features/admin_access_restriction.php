@@ -196,7 +196,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @param bool $fPermission
 	 */
-	protected function setPermissionToSubmit( $fPermission = false ) {
+	public function setPermissionToSubmit( $fPermission = false ) {
 		if ( $fPermission ) {
 			$this->setAdminAccessCookie();
 		}
@@ -209,14 +209,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function checkAdminAccessKeySubmission() {
-		$oDp = $this->loadDataProcessor();
-
-		$sAccessKeyRequest = $oDp->FetchPost( $this->prefix( 'admin_access_key_request', '_' ) );
-		if ( empty( $sAccessKeyRequest ) ) {
-			return false;
-		}
-		$bSuccess = ( $this->getOpt( 'admin_access_key' ) === md5( $sAccessKeyRequest ) );
-		if ( !$bSuccess ) {
+		$sAccessKeyRequest = $this->loadDP()
+								  ->FetchPost( $this->prefix( 'admin_access_key_request', '_' ) );
+		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
+		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
 			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 		return $bSuccess;
@@ -224,10 +220,18 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @param string $sKey
-	 * @param bool $bSetAccessCookie
+	 * @return bool
+	 */
+	public function verifyAccessKey( $sKey ) {
+		return !empty( $sKey ) && ( $this->getOpt( 'admin_access_key' ) === md5( $sKey ) );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return $this
 	 * @throws Exception
 	 */
-	public function setNewAccessKeyManually( $sKey, $bSetAccessCookie = false ) {
+	public function setNewAccessKeyManually( $sKey ) {
 		if ( !$this->doCheckHasPermissionToSubmit() ) {
 			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
@@ -236,11 +240,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 
 		$this->setIsMainFeatureEnabled( true )
-			 ->setOpt( 'admin_access_key', md5( $sKey ) );
-		$this->savePluginOptions();
-		if ( $bSetAccessCookie ) {
-			$this->setAdminAccessCookie();
-		}
+			 ->setOpt( 'admin_access_key', md5( $sKey ) )
+			 ->savePluginOptions();
+		return $this;
 	}
 
 	/**

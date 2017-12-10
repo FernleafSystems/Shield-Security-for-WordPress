@@ -25,8 +25,15 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	public function ajaxSetupWizardSteps() {
+
 		$nCurrent = $this->loadDP()->FetchPost( 'current_index' );
 		$aNextStep = $this->getNextWizardStep( $nCurrent );
+
+		// So to keep things simple, we render as normal, but then we overwrite with Security Admin
+		if ( !$this->getController()->getHasPermissionToManage() ) {
+			$aNextStep[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrent );
+		}
+
 		return $this->getFeature()
 					->sendAjaxResponse(
 						true,
@@ -39,6 +46,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$this->loadAutoload(); // for Response
 		switch ( $oDP->FetchPost( 'wizard-step' ) ) {
+
+			case 'securityadmin_verify':
+				$oResponse = $this->wizardSecurityAdminVerify();
+				break;
 
 			case 'license':
 				$oResponse = $this->wizardLicense();
@@ -168,6 +179,20 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
+	 * @param int $nIndex
+	 * @return string
+	 */
+	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
+		return $this->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'wizard/slide-securityadmin_verify.twig' )
+					->setRenderVars( array(
+						'current_index' => $nIndex
+					) )
+					->setTemplateEngineTwig()
+					->render();
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return string
 	 */
@@ -267,6 +292,39 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
+	private function wizardSecurityAdminVerify() {
+		$oDP = $this->loadDP();
+		$sKey = trim( $oDP->FetchPost( 'AccessKey' ) );
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+
+		$bSuccess = false;
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
+		$oModule = $this->getController()->getModule( 'admin_access_restriction' );
+
+		$sMessage = '';
+		if ( empty( $sKey ) ) {
+			$sMessage = 'Security access key was empty.';
+		}
+		else if ( !$oModule->verifyAccessKey( $sKey ) ) {
+			$sMessage = _wpsf__( 'Security Admin Key was not correct.' );
+		}
+		else {
+			$bSuccess = true;
+			$oModule->setPermissionToSubmit( true );
+			$aData = array(
+				'reRender' => true
+			);
+			$oResponse->setData( $aData );
+		}
+
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
 	private function wizardSecurityAdmin() {
 		$oDP = $this->loadDP();
 		$sKey = trim( $oDP->FetchPost( 'AccessKey' ) );
@@ -276,7 +334,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$bSuccess = false;
 		if ( empty( $sKey ) ) {
-			$sMessage = 'Access Key provided was empty.';
+			$sMessage = 'Security access key was empty.';
 		}
 		else if ( $sKey != $sConfirm ) {
 			$sMessage = 'Keys do not match.';
@@ -285,7 +343,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
 			$oModule = $this->getController()->getModule( 'admin_access_restriction' );
 			try {
-				$oModule->setNewAccessKeyManually( $sKey, true );
+				$oModule->setNewAccessKeyManually( $sKey )
+						->setPermissionToSubmit( true );
 				$bSuccess = true;
 				$sMessage = _wpsf__( 'Security Admin setup was successful.' );
 			}
