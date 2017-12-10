@@ -245,11 +245,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content' => '',
 			),
 			array(
-				'title'   => _wpsf__( 'IP Blacklist' ),
-				'slug'    => 'ips',
-				'content' => '',
-			),
-			array(
+				'title'   => _wpsf__( 'Thank You' ),
+				'slug'    => 'thankyou',
 				'content' => '',
 			)
 		);
