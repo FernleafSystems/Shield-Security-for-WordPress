@@ -1,3 +1,7 @@
+{% extends 'wizard/base.twig' %}
+
+{% block slide_body %}
+
 <h3>Automatic IP Blacklist</h3>
 <p>Many security plugins offer the option of blacklisting IP addresses.</p>
 <p>But the big secret they're not telling you is that this is complete waste of your time.</p>
@@ -42,3 +46,5 @@ if you turned on the Audit Trail in the previous step, you can use this to monit
 		</div>
 	</div>
 </form>
+
+{% endblock %}
