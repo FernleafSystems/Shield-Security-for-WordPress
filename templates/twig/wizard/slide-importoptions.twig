@@ -1,0 +1,39 @@
+{% extends 'wizard/base.twig' %}
+
+{% block slide_body %}
+
+<h3>Import Options From Another Site</h3>
+<p>To setup this site quickly you may import the options directly from another site.</p>
+	<p>You will need the WordPress homepage URL, and the Shield Secret Key from the <em>Source</em> WordPress site.
+	   This key renews itself every hour so you may need to recheck its current value before proceeding.
+</p>
+
+<h4>Import Options</h4>
+<p><strong>Warning</strong>: If successful, most options on this site will be overwritten by those from the source.</p>
+<form class="form-horizontal icwp-wizard-form">
+	<input name="wizard-step" value="importoptions" type="hidden" />
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="SourceSiteUrl">Source Site URL</label>
+		<div class="col-md-8">
+			<input type="url" class="form-control"
+				   name="SourceSiteUrl" id="SourceSiteUrl" placeholder="http://www....">
+			<span id="helpBlock" class="help-block">Remember to include <code>http://</code> or <code>https://</code>.</span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="SourceSiteSecretKey">Source Site Secret Key</label>
+		<div class="col-md-8">
+			<input type="text" class="form-control" maxlength="40" minlength="40"
+				   name="SourceSiteSecretKey" id="SourceSiteSecretKey" placeholder="Secret Key">
+			<span id="helpBlock" class="help-block">The secret key can be found under<br/>
+													Shield Security > Dashboard > Import/Export > Secret Key</span>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-4 col-md-8">
+			<button type="submit" class="btn btn-default">Submit</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

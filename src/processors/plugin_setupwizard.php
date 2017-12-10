@@ -55,6 +55,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$oResponse = $this->wizardLicense();
 				break;
 
+			case 'importoptions':
+				$oResponse = $this->wizardImportOptions();
+				break;
+
 			case 'securityadmin':
 				$oResponse = $this->wizardSecurityAdmin();
 				break;
@@ -208,7 +212,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return array[]
 	 */
 	private function getWizardSteps() {
-		return array(
+		$aStandard = array(
 			array(
 				'title'   => _wpsf__( 'Welcome' ),
 				'slug'    => 'welcome',
@@ -250,6 +254,20 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content' => '',
 			)
 		);
+
+		$aPro = array(
+			array(
+				'title'   => _wpsf__( 'Import' ),
+				'slug'    => 'importoptions',
+				'content' => '',
+			)
+		);
+		
+		if ( $this->getFeature()->isPremium() ) {
+			array_splice( $aStandard, 2, 0, $aPro );
+		}
+
+		return $aStandard;
 	}
 
 	/**
@@ -266,6 +284,67 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
 			$oModule = $this->getController()->getModule( 'license' );
+			try {
+				$oModule->activateOfficialLicense( $sKey, true );
+				if ( $oModule->hasValidWorkingLicense() ) {
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'License key was accepted and installed successfully.' );
+				}
+				else {
+					$sMessage = _wpsf__( 'License key was not accepted.' );
+				}
+			}
+			catch ( Exception $oE ) {
+				$sMessage = _wpsf__( $oE->getMessage() );
+			}
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardImportOptions() {
+		$oDP = $this->loadDP();
+		$sSourceSiteUrl = trim( $oDP->FetchPost( 'SourceSiteUrl' ) );
+		$sSecretKey = trim( $oDP->FetchPost( 'SourceSiteSecretKey' ) );
+
+		$aParts = parse_url( $sSourceSiteUrl );
+
+		$bSuccess = false;
+		if ( empty( $sSecretKey ) ) {
+			$sMessage = _wpsf__( 'Secret key was empty.' );
+		}
+		else if ( strlen( $sSecretKey ) != 40 ) {
+			$sMessage = _wpsf__( 'Secret key was not 40 characters long.' );
+		}
+		else if ( preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
+			$sMessage = _wpsf__( 'Secret key contains invalid characters - it should be letters and numbers only.' );
+		}
+		else if ( empty( $aParts ) ) {
+			$sMessage = _wpsf__( 'Source site URL could not be parsed correctly.' );
+		}
+		else {
+			$bReady = true;
+			$aEssential = array( 'scheme', 'host' );
+			foreach ( $aEssential as $sKey ) {
+				$bReady = $bReady && !empty( $aParts[ $sKey ] );
+			}
+
+			$aOptionsExportArgs = array(
+				'shield_action' => 'options_export',
+				'secret'        => $sSecretKey
+			);
+
+			$sResponse = $this->loadFS()->getUrlContent( $sSourceSiteUrl, $aOptionsExportArgs );
+
+			// TODO: Now parse response and import.
+
+			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
+			$oModule = $this->getController()->getOptionsImportFromFile( 'license' );
 			try {
 				$oModule->activateOfficialLicense( $sKey, true );
 				if ( $oModule->hasValidWorkingLicense() ) {
