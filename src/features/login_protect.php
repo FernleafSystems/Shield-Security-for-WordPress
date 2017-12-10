@@ -299,6 +299,21 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledGaspCheck() {
+		return $this->getOptIs( 'enable_login_gasp_check', 'Y' );
+	}
+
+	/**
+	 * @param bool $bEnabled
+	 * @return $this
+	 */
+	public function setEnabledGaspCheck( $bEnabled = true ) {
+		return $this->setOpt( 'enable_login_gasp_check', $bEnabled ? 'Y' : 'N' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

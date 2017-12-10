@@ -120,7 +120,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 * @throws Exception
 		 */
 		private function renderTwig() {
-			throw new Exception( 'Twig codebase has been removed since version 5.3.3. Render using PHP instead.' );
+//			throw new Exception( 'Twig codebase has been removed since version 5.3.3. Render using PHP instead.' );
 			$oTwig = $this->getTwigEnvironment();
 			return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
 		}
@@ -153,7 +153,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 */
 		protected function getTwigEnvironment() {
 			if ( !isset( $this->oTwigEnv )  ) {
-				$this->autoload();
+				self::loadAutoload();
 				$this->oTwigEnv = new Twig_Environment( $this->getTwigLoader(),
 					array(
 						'debug' => true,
@@ -169,7 +169,6 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		 */
 		protected function getTwigLoader() {
 			if ( !isset( $this->oTwigLoader )  ) {
-				$this->autoload();
 				$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplateRoot() );
 			}
 			return $this->oTwigLoader;

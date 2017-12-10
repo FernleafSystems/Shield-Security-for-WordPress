@@ -154,6 +154,34 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getIsGoogleRecaptchaEnabled() {
+		return ( $this->getOptIs( 'enable_google_recaptcha_comments', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCommentsFilterTableName() {
+		return $this->prefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledGasp() {
+		return $this->getOptIs( 'enable_comments_gasp_protection', 'Y' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setEnabledGasp( $bEnabled = true ) {
+		return $this->setOpt( 'enable_comments_gasp_protection', $bEnabled ? 'Y' : 'N' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -259,19 +287,5 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$aOptionsParams[ 'summary' ] = $sSummary;
 		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIsGoogleRecaptchaEnabled() {
-		return ( $this->getOptIs( 'enable_google_recaptcha_comments', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCommentsFilterTableName() {
-		return $this->prefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
 	}
 }

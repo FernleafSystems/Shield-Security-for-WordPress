@@ -667,8 +667,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function isValidAjaxRequestForModule() {
 		$oDp = $this->loadDataProcessor();
 
-		$bValid = $this->loadWp()
-					   ->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+		$bValid = $this->loadWp()->isAjax()
+				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -682,16 +682,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAction
+	 * @param bool $bAsJsonEncodedObject
 	 * @return array
 	 */
-	protected function getBaseAjaxActionRenderData( $sAction = '' ) {
-		return array(
+	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {
+		$aData = array(
+			'action'             => $this->prefix( $sAction ), //wp ajax doesn't work without this.
 			'icwp_ajax_action'   => $this->prefix( $sAction ),
 			'icwp_nonce'         => $this->genNonce( $sAction ),
 			'icwp_nonce_action'  => $sAction,
 			'icwp_action_module' => $this->prefix( $this->getFeatureSlug() ),
 			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
 		);
+		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
 	}
 
 	protected function adminAjaxHandlers() {
@@ -761,7 +764,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param       $bSuccess
 	 * @param array $aData
 	 */
-	protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+	public function sendAjaxResponse( $bSuccess, $aData = array() ) {
 		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 

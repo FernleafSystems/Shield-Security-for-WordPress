@@ -1,0 +1,240 @@
+{% extends 'pages/base.twig' %}
+
+{% block head_stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ hrefs.css_steps }}" />
+	<link rel="stylesheet" href="{{ hrefs.css_wizard }}" />
+{% endblock %}
+
+{% block head_scripts %}
+	{{ parent() }}
+	<script type="text/javascript" src="{{ hrefs.js_steps }}"></script>
+{% endblock %}
+
+{% block body_content_main %}
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<div id="wizard">
+				<h1>{{ strings.welcome }}</h1>
+				<div>{{ include( '/wizard/slide-welcome.twig' ) }}</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block body_footer %}
+	<script type="text/javascript">
+
+		jQuery( document ).ready( function ( $ ) {
+
+			var settings = {
+				/* Appearance */
+				headerTag: "h1",
+				bodyTag: "div",
+				contentContainerTag: "div",
+				actionContainerTag: "div",
+				stepsContainerTag: "div",
+				cssClass: "wizard",
+				stepsOrientation: $.fn.steps.stepsOrientation.vertical,
+
+				/* Templates */
+				titleTemplate: '<span class="number">#index#.</span> #title#',
+				loadingTemplate: '<span class="spinner"></span> #text#',
+
+				/* Behaviour */
+				autoFocus: false,
+				enableAllSteps: false,
+				enableKeyNavigation: true,
+				enablePagination: true,
+				suppressPaginationOnFocus: true,
+				enableContentCache: true,
+				enableCancelButton: false,
+				enableFinishButton: false,
+				preloadContent: false,
+				showFinishButtonAlways: false,
+				forceMoveForward: false,
+				saveState: false,
+				startIndex: 0,
+
+				/* Transition Effects */
+				transitionEffect: $.fn.steps.transitionEffect.none,
+				transitionEffectSpeed: 200,
+
+				/* Events */
+				onStepChanging: function ( event, currentIndex, newIndex ) {
+					return true;
+				},
+				onStepChanged: function ( event, currentIndex, priorIndex ) {
+				},
+				onCanceled: function ( event ) {
+				},
+				onFinishing: function ( event, currentIndex ) {
+					return true;
+				},
+				onFinished: function ( event, currentIndex ) {
+				},
+
+				/* Labels */
+				labels: {
+					cancel: "Cancel",
+					current: "current step:",
+					pagination: "Pagination",
+					finish: "Finish",
+					next: "Next",
+					previous: "Previous",
+					loading: "Loading ..."
+				}
+			};
+
+			// Initialize wizard
+			var $oWizardContainer = $( "#wizard" );
+			var $oWizard = $oWizardContainer.steps( settings );
+			$oWizard.add( {{ wizard_steps|raw }} );
+			var $oActions = $( 'div.actions', $oWizard );
+			$oActions.prependTo( $oWizardContainer );
+
+			jQuery( document ).off( "click", 'a#next' );
+		} );
+	</script>
+
+
+	<script>
+var iCWP_WPSF_Wizard_FormHandler = new function () {
+
+	var bRequestCurrentlyRunning = false;
+
+	var submitWizardForm = function ( event ) {
+		event.preventDefault();
+
+		var $oThis = jQuery( event.currentTarget );
+		var $oForm = $oThis.closest( 'form' );
+
+		sendFormRequest( $oForm );
+	};
+
+	var sendFormRequest = function ( $oForm ) {
+		if ( bRequestCurrentlyRunning ) { // failsafe in case we balls up - we only run 1.
+			return false;
+		}
+		bRequestCurrentlyRunning = true;
+		iCWP_WPSF_BodyOverlay.show();
+
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
+							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
+							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
+							 .attr( 'value', "{{ ajax.content.icwp_nonce }}" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
+							 .attr( 'value', "{{ ajax.content.icwp_nonce_action }}" )
+							 .appendTo( $oForm );
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
+							 .attr( 'value', "{{ ajax.content.icwp_action_module }}" )
+							 .appendTo( $oForm );
+
+		if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
+			$oForm.append( '<p class="wizard-response"></p>' )
+		}
+
+		var $oResponseField = jQuery( 'p.wizard-response', $oForm );
+		$oResponseField.removeClass( 'bg-success bg-danger' )
+					   .html( '...' );
+
+		var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
+		$oSubmitButton.prop( 'disabled', true );
+
+		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
+			function ( oResponse ) {
+				var sMessage = '';
+				if ( undefined !== oResponse.data ) {
+					sMessage = oResponse.data.message;
+				}
+
+				if ( oResponse.success ) {
+					$oResponseField.removeClass( 'bg-danger' )
+								   .addClass( 'bg-success' );
+				}
+				else {
+					$oResponseField.removeClass( 'bg-success' )
+								   .addClass( 'bg-danger' );
+					$oSubmitButton.prop( 'disabled', false );
+				}
+				$oResponseField.html( sMessage );
+
+				if ( undefined !== oResponse.data.reRender && oResponse.data.reRender === true ) {
+					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
+				}
+			}
+		).always(
+			function () {
+				bRequestCurrentlyRunning = false;
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	this.renderNextStep = function ( $oWizard ) {
+		var reqData = {{ ajax.steps_as_json|raw }};
+
+		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
+
+		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
+			function ( oResponse ) {
+			}
+		).always(
+			function () {
+			}
+		);
+	};
+
+	var renderNext = function ( event ) {
+		event.preventDefault();
+		jQuery( event.currentTarget ).prop( 'disabled', true );
+		renderNextAuto();
+	};
+
+	var renderNextAuto = function () {
+		jQuery( "body" ).toggleClass( "wait" );
+
+		var $oWizard = jQuery( '#wizard' );
+		var reqData = {{ ajax.steps_as_json|raw }};
+		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
+
+		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
+			function ( oResponse ) {
+				if ( undefined !== oResponse.data.next_step ) {
+					$oWizard.steps( 'add', oResponse.data.next_step );
+					$oWizard.steps( 'next' );
+				}
+			}
+		).always(
+			function () {
+				jQuery( 'body' ).toggleClass( 'wait' );
+			}
+		);
+	};
+
+	this.reRenderCurrent = function () {
+		var $oWizard = jQuery( '#wizard' );
+		$oWizard.steps( 'previous' );
+		var nCurrent = $oWizard.steps( 'getCurrentIndex' );
+		$oWizard.steps( 'remove', nCurrent+1 );
+		renderNextAuto();
+	};
+
+	var setHandlers = function () {
+		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
+		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( setHandlers );
+	};
+}();
+iCWP_WPSF_BodyOverlay.initialise();
+iCWP_WPSF_Wizard_FormHandler.initialise();
+</script>
+{% endblock %}

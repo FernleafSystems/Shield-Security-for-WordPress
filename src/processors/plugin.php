@@ -9,6 +9,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_plugin.php' );
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	/**
+	 * @var ICWP_WPSF_Processor_Plugin_SetupWizard
+	 */
+	protected $oSetupWizardProcessor;
+
+	/**
 	 * @var ICWP_WPSF_Processor_Plugin_Badge
 	 */
 	protected $oBadgeProcessor;
@@ -42,6 +47,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
 				break;
 		}
+
+		// TODO: Wrap up
+		if ( isset( $_GET[ 'wizard' ] ) && $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
+			$this->getSetupWizardProcessor()->run();
+		}
 	}
 
 	public function onWpLoaded() {
@@ -59,6 +69,17 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getFeature() );
 		}
 		return $this->oBadgeProcessor;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
+	 */
+	public function getSetupWizardProcessor() {
+		if ( !isset( $this->oSetupWizardProcessor ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_setupwizard.php' );
+			$this->oSetupWizardProcessor = new ICWP_WPSF_Processor_Plugin_SetupWizard( $this->getFeature() );
+		}
+		return $this->oSetupWizardProcessor;
 	}
 
 	/**

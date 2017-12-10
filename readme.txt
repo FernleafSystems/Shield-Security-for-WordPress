@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.19.1
+Stable tag: 5.20.0
 
 Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
@@ -338,20 +338,22 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 5.19.1 Latest Point Release =
-*Released: 4th December, 2017*
+= 5.20.0 Latest Point Release =
+*Released: 11th December, 2017*
 
-* **(v.1)**  FIXED:			Plugin Vulnerabilities scan for premium plugins.
-* **(v.0)**  ADDED:			[**PRO**] Automated WordPress plugins vulnerability scanner with auto updates email notifications
-* **(v.0)**  ADDED:			Added Google reCAPTCHA support for register/forget password pages.
-* **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
-* **(v.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
+* **(v.0)**  IMPROVED:		[**PRO**] Audit Trail length is configurable. Length for free is 50 entries (the original unpaginated limit)
+* **(v.0)**  IMPROVED:		Large redesign of options sections to be more intuitive and cleaner
+* **(v.0)**  IMPROVED:		Added dedicated help section for each module.
+* **(v.0)**  IMPROVED:		Certain modules have an new *Actions* centre, such a Audit Trail viewer and User Sessions manager
+* **(v.0)**  IMPROVED:		Audit Trails are now ajax-paginated. You can browse through all your audit trail entries
+* **(v.0)**  IMPROVED:		User session tables are also ajax-paginated.
 
 = 5.20.0 Series =
 *Released: 11th December, 2017*
 
 * **(v.0)**  IMPROVED:		[**PRO**] Audit Trail length are configurable. Length for free is 50 entries (the original unpaginated limit)
 * **(v.0)**  IMPROVED:		Large redesign of options sections to be more intuitive and cleaner
+* **(v.0)**  IMPROVED:		Added dedicated help section for each module.
 * **(v.0)**  IMPROVED:		Certain modules have an new *Actions* centre, such a Audit Trail viewer and User Sessions manager
 * **(v.0)**  IMPROVED:		Audit Trails are now ajax-paginated. You can browse through all your audit trail entries
 * **(v.0)**  IMPROVED:		User session tables are also ajax-paginated.
