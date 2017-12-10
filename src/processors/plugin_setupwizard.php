@@ -46,6 +46,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$oResponse = $this->wizardCommentsFilter();
 				break;
 
+			case 'login_protect':
+				$oResponse = $this->wizardLoginProtect();
+				break;
+
 			default:
 				$oResponse = new \FernleafSystems\Utilities\Response();
 				$oResponse->setSuccessful( false )
@@ -149,6 +153,36 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		}
 		else {
 			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'IP Manager' ) );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardLoginProtect() {
+
+		$bEnabled = trim( $this->loadDP()->FetchPost( 'LoginProtectOption' ) ) === 'Y';
+
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
+		$oModule = $this->getController()->getModule( 'login_protect' );
+		if ( $bEnabled ) { // we don't disable the whole module
+			$oModule->setIsMainFeatureEnabled( true );
+		}
+		$oModule->setEnabledGaspCheck( $bEnabled )
+				->savePluginOptions();
+
+		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+		if ( $bSuccess ) {
+			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Protection' ),
+				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+			);
+		}
+		else {
+			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Protection' ) );
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
