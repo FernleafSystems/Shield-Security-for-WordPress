@@ -195,8 +195,36 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content' => '',
 			),
 			array(
-				'title'   => 'Security Admin',
+				'title'   => _wpsf__( 'Security Admin' ),
 				'slug'    => 'securityadmin',
+				'content' => '',
+			),
+			array(
+				'title'   => _wpsf__( 'Audit Trail' ),
+				'slug'    => 'audit_trail',
+				'content' => '',
+			),
+			array(
+				'title'   => _wpsf__( 'IP Blacklist' ),
+				'slug'    => 'ips',
+				'content' => '',
+			),
+			array(
+				'title'   => _wpsf__( 'Login Protection' ),
+				'slug'    => 'login_protect',
+				'content' => '',
+			),
+			array(
+				'title'   => _wpsf__( 'Comment SPAM' ),
+				'slug'    => 'comments_filter',
+				'content' => '',
+			),
+			array(
+				'title'   => _wpsf__( 'IP Blacklist' ),
+				'slug'    => 'ips',
+				'content' => '',
+			),
+			array(
 				'content' => '',
 			)
 		);

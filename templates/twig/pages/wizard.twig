@@ -17,27 +17,6 @@
 			<div id="wizard">
 				<h1>{{ strings.welcome }}</h1>
 				<div>{{ include( '/wizard/slide-welcome.twig' ) }}</div>
-
-				{#<h1>Go Pro</h1>#}
-				{#<div>{{ include( '/wizard/slide-license.twig' ) }}</div>#}
-
-				{#<h1>Security Admin</h1>#}
-				{#<div>{{ include( '/wizard/slide-securityadmin.twig' ) }}</div>#}
-
-				{#<h1>Audit Trail</h1>#}
-				{#<div>{{ include( '/wizard/slide-audit_trail.twig' ) }}</div>#}
-
-				{#<h1>IP Blacklist</h1>#}
-				{#<div>{{ include( '/wizard/slide-ips.twig' ) }}</div>#}
-
-				{#<h1>Login Protection</h1>#}
-				{#<div>{{ include( '/wizard/slide-login_protect.twig' ) }}</div>#}
-
-				{#<h1>Comment SPAM</h1>#}
-				{#<div>{{ include( '/wizard/slide-comments_filter.twig' ) }}</div>#}
-
-				{#<h1>Step 6</h1>#}
-				{#<div>Second Content</div>#}
 			</div>
 		</div>
 	</div>
@@ -73,7 +52,7 @@
 				enableFinishButton: true,
 				preloadContent: false,
 				showFinishButtonAlways: false,
-				forceMoveForward: true,
+				forceMoveForward: false,
 				saveState: false,
 				startIndex: 0,
 
@@ -239,7 +218,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var setHandlers = function () {
 		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
-		jQuery( document ).on( 'click', 'div.wizard-slide a.ButtonNextSlide', renderNext );
+		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
 	};
 
 	this.initialise = function () {
