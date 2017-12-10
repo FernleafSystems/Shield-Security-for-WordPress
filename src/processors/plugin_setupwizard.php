@@ -41,6 +41,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			case 'ips':
 				$oResponse = $this->wizardIps();
 				break;
+
+			case 'comments_filter':
+				$oResponse = $this->wizardCommentsFilter();
+				break;
+
 			default:
 				$oResponse = new \FernleafSystems\Utilities\Response();
 				$oResponse->setSuccessful( false )
@@ -111,12 +116,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
 		if ( $bSuccess ) {
-			$sMessage = sprintf( 'Audit Trail has been %s.',
+			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Audit Trail' ),
 				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 			);
 		}
 		else {
-			$sMessage = _wpsf__( 'Audit Trail setting could not be changed at this time.' );
+			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Audit Trail' ) );
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -138,12 +143,42 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
 		if ( $bSuccess ) {
-			$sMessage = sprintf( 'IP Manager has been %s.',
+			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'IP Manager' ),
 				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 			);
 		}
 		else {
-			$sMessage = _wpsf__( 'IP Manager setting could not be changed at this time.' );
+			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'IP Manager' ) );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardCommentsFilter() {
+
+		$bEnabled = trim( $this->loadDP()->FetchPost( 'CommentsFilterOption' ) ) === 'Y';
+
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
+		$oModule = $this->getController()->getModule( 'comments_filter' );
+		if ( $bEnabled ) { // we don't disable the whole module
+			$oModule->setIsMainFeatureEnabled( true );
+		}
+		$oModule->setEnabledGasp( $bEnabled )
+				->savePluginOptions();
+
+		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+		if ( $bSuccess ) {
+			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comments SPAM Protection' ),
+				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+			);
+		}
+		else {
+			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Comments SPAM Protection' ) );
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
