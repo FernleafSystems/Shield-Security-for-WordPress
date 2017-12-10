@@ -1028,7 +1028,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function isPremium() {
+	public function isPremium() {
 		return $this->hasValidPremiumLicense();
 	}
 

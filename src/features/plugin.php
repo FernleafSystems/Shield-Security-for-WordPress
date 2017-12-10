@@ -372,7 +372,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function getSecretKey() {
 		$sId = $this->getOpt( 'secret_key', '' );
 		if ( empty( $sId ) || $this->isSecretKeyExpired() ) {
-			$sId = sha1( $this->getPluginInstallationId().wp_rand( PHP_INT_MIN, PHP_INT_MAX ) );
+			$sId = sha1( $this->getPluginInstallationId().wp_rand( 0, PHP_INT_MAX ) );
 			$this->setOpt( 'secret_key', $sId )
 				 ->setOpt( 'secret_key_expires_at', $this->loadDP()->time() + HOUR_IN_SECONDS );
 		}
