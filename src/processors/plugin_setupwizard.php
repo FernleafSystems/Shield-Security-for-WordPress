@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$bSuccess = false;
 		if ( empty( $sKey ) ) {
-			$sMessage = 'Access Key provided was empty.';
+			$sMessage = 'License key was empty.';
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
@@ -94,10 +94,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$oModule->activateOfficialLicense( $sKey, true );
 				if ( $oModule->hasValidWorkingLicense() ) {
 					$bSuccess = true;
-					$sMessage = _wpsf__( 'License was accepted and installed successfully.' );
+					$sMessage = _wpsf__( 'License key was accepted and installed successfully.' );
 				}
 				else {
-					$sMessage = _wpsf__( 'License was not accepted.' );
+					$sMessage = _wpsf__( 'License key was not accepted.' );
 				}
 			}
 			catch ( Exception $oE ) {
