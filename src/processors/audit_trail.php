@@ -110,20 +110,41 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param string $sContext
+	 * @return array|bool
+	 */
+	public function countAuditEntriesForContext( $sContext ) {
+		$sContext = ( $sContext == 'all' ) ? '' : sprintf( "`context`= '%s' AND", $sContext );
+		$sQuery = "
+				SELECT COUNT(*)
+				FROM `%s`
+				WHERE
+					%s `deleted_at`	= 0
+			";
+		return $this->loadDbProcessor()->getVar( sprintf( $sQuery, $this->getTableName(), $sContext ) );
+	}
+
+	/**
+	 * @param string $sContext
+	 * @param string $sOrderBy
+	 * @param string $sOrder
+	 * @param int    $nPage
 	 * @param int    $nLimit
 	 * @return array|bool
 	 */
-	public function getAuditEntriesForContext( $sContext, $nLimit = 50 ) {
+	public function getAuditEntriesForContext( $sContext, $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
+		$sOffset = ( $nPage - 1 )*$nLimit;
 		$sQuery = "
 				SELECT *
 				FROM `%s`
 				WHERE
-					`context`			= '%s'
-					AND `deleted_at`	= '0'
-				ORDER BY `created_at` DESC
-				LIMIT %s
+					%s `deleted_at`	= 0
+				ORDER BY `%s` %s
+				LIMIT %s OFFSET %s
 			";
-		$sQuery = sprintf( $sQuery, $this->getTableName(), $sContext, $nLimit );
+
+		$sContext = ( $sContext == 'all' ) ? '' : sprintf( "`context`= '%s' AND", $sContext );
+
+		$sQuery = sprintf( $sQuery, $this->getTableName(), $sContext, $sOrderBy, $sOrder, $nLimit, $sOffset );
 		return $this->selectCustom( $sQuery );
 	}
 
@@ -167,6 +188,19 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 				PRIMARY KEY  (id)
 			) %s;";
 		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
+	}
+
+	/**
+	 * @return bool|int
+	 */
+	public function cleanupDatabase() {
+//		parent::cleanupDatabase();
+//
+//		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+//		$oFO = $this->getFeature();
+//		$sQuery = "DELETE * FROM `%s` ORDER BY `id` DESC LIMIT %s,%s";
+//		$sQuery = sprintf( $sQuery, $this->getTableName(), $oFO->getMaxEntries(), PHP_INT_MAX );
+//		return $this->selectCustom( $sQuery );
 	}
 
 	/**

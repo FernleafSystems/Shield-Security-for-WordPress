@@ -1156,10 +1156,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Asset( $sAsset ) {
-		if ( $this->loadFS()->exists( $this->getPath_Assets( $sAsset ) ) ) {
-			return $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ) . '/' . $sAsset );
+		$sUrl = '';
+		$sAssetPath = $this->getPath_Assets( $sAsset );
+		if ( $this->loadFS()->exists( $sAssetPath ) ) {
+			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ) . '/' . $sAsset );
+			return $this->loadWpIncludes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
-		return '';
+		return $sUrl;
 	}
 
 	/**

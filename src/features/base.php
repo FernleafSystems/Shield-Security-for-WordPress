@@ -162,7 +162,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
+				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()
+												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {
 				foreach ( $aPhpReqs[ 'functions' ] as $sFunction ) {
@@ -179,7 +180,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $bMeetsReqs;
 	}
 
-	protected function doPostConstruction() {}
+	protected function doPostConstruction() {
+	}
 
 	/**
 	 * Added to WordPress 'plugins_loaded' hook
@@ -665,7 +667,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function isValidAjaxRequestForModule() {
 		$oDp = $this->loadDataProcessor();
 
-		$bValid = $this->loadWp()->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+		$bValid = $this->loadWp()
+					   ->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -1190,7 +1193,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
-		return array(
+		$aData = array(
 			'var_prefix'      => $oCon->getOptionStoragePrefix(),
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
@@ -1229,22 +1232,48 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'blog'                              => __( 'Blog' ),
 				'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
 				'save_all_settings'                 => __( 'Save All Settings' ),
-				'see_help_video'                    => __( 'Watch Help Video' )
+				'see_help_video'                    => __( 'Watch Help Video' ),
 			),
 			'flags'      => array(
 				'show_ads'              => $this->getIsShowMarketing(),
 				'show_summary'          => false,
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
+				'show_content_actions'  => $this->hasCustomActions(),
 				'show_alt_content'      => false,
 			),
 			'hrefs'      => array(
 				'go_pro' => $this->getUrlGoPro()
 			),
 			'content'    => array(
-				'alt' => ''
+				'alt'     => '',
+				'actions' => $this->getContentCustomActions(),
+				'help'    => $this->getContentHelp()
 			)
 		);
+		$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
+		return $aData;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentCustomActions() {
+		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentHelp() {
+		return $this->renderTemplate( 'snippets/module-help-'.$this->getFeatureSlug().'.php', array(), true );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function hasCustomActions() {
+		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_custom_actions' );
 	}
 
 	/**
@@ -1380,7 +1409,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array  $aData
 	 * @return string
 	 */
-	public function renderTemplate( $sTemplate, $aData ) {
+	public function renderTemplate( $sTemplate, $aData = array() ) {
 		if ( empty( $aData[ 'unique_render_id' ] ) ) {
 			$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 		}

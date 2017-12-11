@@ -9,6 +9,7 @@
     "show_central": true,
     "access_restricted": true,
     "premium": false,
+    "has_custom_actions": true,
     "order": 110
   },
   "sections": [
@@ -70,6 +71,18 @@
       "name": "Auto Clean",
       "summary": "Enable Audit Auto Cleaning",
       "description": "Events older than the number of days specified will be automatically cleaned from the database"
+    },
+    {
+      "key": "audit_trail_max_entries",
+      "section": "section_audit_trail_options",
+      "premium": true,
+      "default": 1000,
+      "type": "integer",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Max Trail Length",
+      "summary": "Maximum Audit Trail Length To Keep",
+      "description": "Automatically remove any audit trail entries when this limit is exceeded."
     },
     {
       "key": "enable_audit_context_users",
@@ -150,6 +163,8 @@
     }
   ],
   "definitions": {
+    "audit_trail_default_per_page": 25,
+    "audit_trail_default_max_entries": 50,
     "audit_trail_table_name": "audit_trail",
     "audit_trail_table_columns": [
       "id",
@@ -163,12 +178,5 @@
       "created_at",
       "deleted_at"
     ]
-  },
-  "menu_items": [
-    {
-      "slug": "audit_trail_viewer",
-      "title": "Audit Trail Viewer",
-      "callback": "displayAuditTrailViewer"
-    }
-  ]
+  }
 }

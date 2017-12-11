@@ -54,6 +54,98 @@
 	color: rgba(199, 41, 0, 1);
 }
 
+ul.nav-tabs li a {
+	color: rgba(69, 119, 0, 1);
+}
+ul.nav-tabs li.active a {
+	color: #000000;
+}
+
+.bootstrap-wpadmin .form-horizontal .form-actions {
+	background-color: rgba(0,0,0,0.07);
+	border: 1px solid #ddd;
+	border-top: 1px solid transparent;
+}
+
+.bootstrap-wpadmin .icwpTopLevelRow {
+}
+.bootstrap-wpadmin .icwpTopLevelRow .icwpTopLevelSpan {
+	margin-left: 0;
+}
+
+#icwpOptionsTopPill {
+}
+#icwpOptionsTopPill > .nav-pills {
+	border-bottom: 1px dashed #999;
+	padding-bottom: 10px;
+}
+#icwpOptionsTopPill > .nav-pills li {
+	width: 33.3%;
+}
+#icwpOptionsTopPill > .nav-pills li a {
+	background-color: rgba(0, 0, 0, 0.2);
+	text-shadow: 1px 0 0 rgba(255, 255, 255, 0.4);
+	color: #666;
+	height: 50px;
+}
+#icwpOptionsTopPill > .nav-pills li a:hover {
+	background-color: rgba(38, 66, 1, 0.3);
+}
+#icwpOptionsTopPill > .nav-pills li a:focus {
+	box-shadow: none;
+}
+#icwpOptionsTopPill > .nav-pills li span.dashicons {
+	float: left;
+	height: 100%;
+	font-size: 48px;
+	display: block;
+	width: 62px;
+}
+#icwpOptionsTopPill > .nav-pills li.active a {
+	background-color: rgba(69, 119, 0, 1);
+	color: #ffffff;
+	text-shadow: 1px 0 0 rgba(0,0,0,0.5);
+}
+#icwpOptionsTopPill > .nav-pills li a .title {
+	font-weight: bolder;
+	font-size: 18px;
+	line-height: 24px;
+}
+#icwpOptionsTopPill > .nav-pills li a .summary {
+	font-size: 16px;
+	line-height: 28px;
+	padding-left: 10px;
+}
+#icwpOptionsTopPill > .nav-pills li a.active {
+}
+#icwpOptionsTopPill > .tab-content {
+	background-color: transparent;
+	border: 1px solid transparent;
+}
+#icwpOptionsTopPill > .tab-content .content-help {
+	background-color: #fafafa;
+	padding: 10px 20px;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	margin: 5px;
+}
+#icwpOptionsTopPill .content-help h2 {
+	margin-bottom: 8px;
+}
+#icwpOptionsTopPill .content-help p,
+#icwpOptionsTopPill .content-help li {
+	font-size: 14px;
+}
+#icwpOptionsTopPill .content-help dt {
+	border-bottom: 1px dotted rgba(0,0,0,0.2);
+	font-size: 16px;
+	margin-bottom: 7px;
+	padding-bottom: 3px;
+}
+#icwpOptionsTopPill .content-help dd {
+	margin-bottom: 15px;
+	margin-left: 12px;
+}
+
 th.column-icwp_autoupdate, td.icwp_autoupdate, th#icwp_autoupdate {
 	text-align: center;
 	vertical-align: middle;
@@ -267,4 +359,48 @@ tr.icwp-plugin-vulnerability dd {
 	background: url("https://media.giphy.com/media/LLd6Ma5vQtXyw/giphy.gif") no-repeat 0 0 transparent;
 	background: url("https://media.giphy.com/media/sxJ1nCeUoNSfe/giphy.gif") no-repeat 0 0 transparent;
 	background-size: 40px;
+}
+
+.icwpAjaxTableContainer .tablenav  {
+	padding: 5px 8px 5px 3px;
+}
+.icwpAjaxTableContainer .row-fluid .tablenav-pages [class*="span"] {
+	float: none;
+	display: inline-block;
+	width: auto;
+}
+.icwpAjaxTableContainer .tablenav-pages [class*="span"] {
+	float: none;
+	margin: 0;
+}
+.icwpAjaxTableContainer .tablenav-pages input.current-page {
+	width: auto;
+}
+.icwpAjaxTableContainer .tablenav-pages .paging-input {
+	display: inline-block;
+	margin: 0 8px;
+}
+.icwpAjaxTableContainer .tablenav-pages a:hover {
+	text-decoration: none;
+}
+
+.icwpAjaxTableContainer table {
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
+}
+.icwpAjaxTableContainer table th {
+	font-weight: bolder;
+	background-color: rgba(0, 0, 0, 0.03);
+}
+.icwpAjaxTableContainer table th.column-created_at {
+	width: 110px;
+}
+.icwpAjaxTableContainer table th.column-ip {
+	width: 110px;
+}
+.icwpAjaxTableContainer table th.column-wp_username {
+	width: 130px;
+}
+.icwpAjaxTableContainer table th.column-event {
+	width: 110px;
 }

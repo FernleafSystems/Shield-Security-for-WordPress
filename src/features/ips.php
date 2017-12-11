@@ -11,6 +11,29 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return string
 	 */
+	protected function getContentCustomActions() {
+		if ( $this->canDisplayOptionsForm() ) {
+			return $this->renderIpListsButtons();
+		}
+		return parent::getContentCustomActions();
+	}
+
+	protected function renderIpListsButtons() {
+		return $this->renderTemplate( 'snippets/module-ip-lists', $this->getIpTableDisplayData() );
+	}
+	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return array(
+			'actions_title'       => _wpsf__( 'Manage IP Lists' ),
+			'actions_summary'     => _wpsf__( 'Add/Remove IPs' )
+		);
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getOptTransgressionLimit() {
 		return $this->getOpt( 'transgression_limit' );
 	}
@@ -46,7 +69,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return array
 	 */
-	protected function getIpTableDisplayData() {
+	protected function getIpTableDisplayData() { // Use new standard AJAX
 		return array( 'sAjaxNonce' => wp_create_nonce( 'fable_ip_list_action' ) );
 	}
 

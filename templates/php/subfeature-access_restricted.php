@@ -20,7 +20,7 @@
 				<div class="form-actions">
 					<?php echo $nonce_field; ?>
 					<input type="hidden" name="<?php echo $var_prefix; ?>plugin_form_submit" value="Y" />
-					<button type="submit" class="btn btn-primary" name="submit"><?php echo $strings['aar_submit_access_key']; ?></button>
+					<button type="submit" class="btn btn-success" name="submit"><?php echo $strings['aar_submit_access_key']; ?></button>
 				</div>
 			</form>
 		</div>

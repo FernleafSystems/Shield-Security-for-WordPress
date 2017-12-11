@@ -1,15 +1,11 @@
 
-<div class="row" style="margin-bottom:20px">
-	<div class="span12">
-		<h2>IP Lists Management</h2>
-		<p>Click the buttons below to manage the respective IP Address Lists</p>
-		<p>
-			<!--<a href="#TB_inline?width=800&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-success">View White List</a>-->
-			<a href="#TB_inline?width=1000&height=600&inlineId=WpsfAutoBlackList" title="Automatic Black List" class="thickbox btn btn-warning btn-large">Manage: Auto Black List</a>
-			<a href="#TB_inline?width=1000&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-info btn-large">Manage: White List</a>
-		</p>
-	</div>
-</div>
+<h2>IP Lists Management</h2>
+<p>Click the buttons below to manage the respective IP Address Lists</p>
+<p>
+	<!--<a href="#TB_inline?width=800&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-success">View White List</a>-->
+	<a href="#TB_inline?width=1000&height=600&inlineId=WpsfAutoBlackList" title="Automatic Black List" class="thickbox btn btn-warning btn-large">Manage: Auto Black List</a>
+	<a href="#TB_inline?width=1000&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-info btn-large">Manage: White List</a>
+</p>
 
 <div id="WpsfWhiteList" style="display:none;">
 	<div class="bootstrap-wpadmin wpsf-ip-list" id="IpTableList_White"> </div>
