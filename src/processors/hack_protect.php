@@ -80,7 +80,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeature() );
-			$this->aSumProcessors[ 'checksum' ] = $oProc;
+			$this->aSubProcessors[ 'checksum' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_filecleanerscan.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getFeature() );
-			$this->aSumProcessors[ 'cleaner' ] = $oProc;
+			$this->aSubProcessors[ 'cleaner' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -106,7 +106,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_wpvulnscan.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getFeature() );
-			$this->aSumProcessors[ 'vuln' ] = $oProc;
+			$this->aSubProcessors[ 'vuln' ] = $oProc;
 		}
 		return $oProc;
 	}

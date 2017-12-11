@@ -17,8 +17,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( !$this->isTrackingPermissionSet() ) {
 			add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
 		}
-
 		$this->setVisitorIp();
+	}
+	/**
+	 * A action added to WordPress 'init' hook
+	 */
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getSecretKey();
 	}
 
 	protected function adminAjaxHandlers() {
@@ -367,6 +373,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isOptionsImportExportPermitted() {
+		return ( $this->isPremium() && $this->getOptIs( 'enable_importexport', 'Y' ) );
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getSecretKey() {
@@ -384,6 +397,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function isSecretKeyExpired() {
 		return ( $this->loadDP()->time() > $this->getOpt( 'secret_key_expires_at' ) );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function isSecretKey( $sKey ) {
+		return ( $this->getSecretKey() == $sKey );
 	}
 
 	/**
@@ -459,6 +480,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'section_global_security_options' :
 				$sTitle = _wpsf__( 'Global Plugin Security Options' );
 				$sTitleShort = _wpsf__( 'Global Options' );
+				break;
+
+			case 'section_defaults' :
+				$sTitle = _wpsf__( 'Plugin Defaults' );
+				$sTitleShort = _wpsf__( 'Plugin Defaults' );
+				break;
+
+			case 'section_importexport' :
+				$sTitle = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
+				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
 				break;
 
 			case 'section_general_plugin_options' :
@@ -548,6 +579,19 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'Delete Plugin Settings' );
 				$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
 				$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
+				break;
+
+			case 'enable_importexport' :
+				$sName = _wpsf__( 'Allow Import/Export' );
+				$sSummary = _wpsf__( 'Allow Import And Export Of Options On This Site' );
+				$sDescription = _wpsf__( 'Uncheck this box to completely disable import and export of options.' )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'Import/Export is a premium-only feature.' ) );
+				break;
+
+			case 'secret_key' :
+				$sName = _wpsf__( 'Secret Key' );
+				$sSummary = _wpsf__( 'Import/Export Secret Key' );
+				$sDescription = _wpsf__( 'Keep this Secret Key private as it will allow the import and export of options.' );
 				break;
 
 			case 'unique_installation_id' :

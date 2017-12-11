@@ -62,6 +62,25 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			}
 			return $aArray1;
 		}
+
+		/**
+		 * @param string $sKey
+		 * @param null $mDefault
+		 * @return mixed|null
+		 */
+		public function query( $sKey, $mDefault = null ) {
+			return $this->FetchGet( $sKey, $mDefault );
+		}
+
+		/**
+		 * @param string $sKey
+		 * @param null $mDefault
+		 * @return mixed|null
+		 */
+		public function post( $sKey, $mDefault = null ) {
+			return $this->FetchPost( $sKey, $mDefault );
+		}
+
 		/**
 		 * @return string URI Path in lowercase
 		 */

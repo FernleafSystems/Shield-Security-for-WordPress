@@ -279,7 +279,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'slug'    => 'license',
 				'content' => '',
 			),
-			'importoptions' => array(
+			'importoptions'   => array(
 				'title'   => _wpsf__( 'Import' ),
 				'slug'    => 'importoptions',
 				'content' => '',
@@ -383,29 +383,40 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$bReady = $bReady && !empty( $aParts[ $sKey ] );
 			}
 
-			$aOptionsExportArgs = array(
-				'shield_action' => 'options_export',
-				'secret'        => $sSecretKey
+			$sFinalUrl = add_query_arg(
+				array(
+					'shield_action' => 'options_export',
+					'secret'        => $sSecretKey
+				),
+				$sSourceSiteUrl
 			);
 
-			$sResponse = $this->loadFS()->getUrlContent( $sSourceSiteUrl, $aOptionsExportArgs );
+			$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
+			$aParts = @json_decode( $sResponse, false );
 
-			// TODO: Now parse response and import.
+			$bSuccess = false;
+			$sMessage = 'Unknown Error';
+			if ( empty( $aParts ) ) {
+				$sMessage = _wpsf__( 'Could not parse the response from the site.' );
+			}
+			else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
 
-			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
-			$oModule = $this->getController()->getOptionsImportFromFile( 'license' );
-			try {
-				$oModule->activateOfficialLicense( $sKey, true );
-				if ( $oModule->hasValidWorkingLicense() ) {
-					$bSuccess = true;
-					$sMessage = _wpsf__( 'License key was accepted and installed successfully.' );
+				if ( empty ( $aParts[ 'message' ] ) ) {
+					$sMessage = _wpsf__( 'Failure response returns from the site.' );
 				}
 				else {
-					$sMessage = _wpsf__( 'License key was not accepted.' );
+					$sMessage = $aParts[ 'message' ];
 				}
 			}
-			catch ( Exception $oE ) {
-				$sMessage = _wpsf__( $oE->getMessage() );
+			else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
+				$sMessage = _wpsf__( 'Data returned from the site was empty.' );
+			}
+			else {
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeature();
+				do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
+				$bSuccess = true;
+				$sMessage = _wpsf__( 'Options imported successfully' );
 			}
 		}
 

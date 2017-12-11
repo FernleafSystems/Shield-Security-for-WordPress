@@ -66,6 +66,16 @@
       "title_short": "Global Options"
     },
     {
+      "slug": "section_defaults",
+      "title": "Plugin Defaults",
+      "title_short": "Plugin Defaults"
+    },
+    {
+      "slug": "section_importexport",
+      "title": "Import / Export",
+      "title_short": "Import / Export"
+    },
+    {
       "slug": "section_general_plugin_options",
       "title": "General Plugin Options",
       "title_short": "General Options"
@@ -105,7 +115,7 @@
     },
     {
       "key": "visitor_address_source",
-      "section": "section_general_plugin_options",
+      "section": "section_defaults",
       "sensitive": false,
       "type": "select",
       "default": "AUTO_DETECT_IP",
@@ -159,7 +169,7 @@
     },
     {
       "key": "block_send_email_address",
-      "section": "section_general_plugin_options",
+      "section": "section_defaults",
       "sensitive": true,
       "default": "",
       "type": "email",
@@ -193,7 +203,7 @@
     },
     {
       "key": "delete_on_deactivate",
-      "section": "section_general_plugin_options",
+      "section": "section_defaults",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -201,6 +211,30 @@
       "name": "Delete Plugin Settings",
       "summary": "Delete All Plugin Settings Upon Plugin Deactivation",
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
+    },
+    {
+      "key": "enable_importexport",
+      "section": "section_importexport",
+      "premium": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Allow Import/Export",
+      "summary": "Allow Import Of Options To, And Export Of Options From, This Site",
+      "description": "Uncheck this box to completely disable import and export of options."
+    },
+    {
+      "key": "secret_key",
+      "section": "section_importexport",
+      "transferable": false,
+      "default": "",
+      "type": "noneditable_text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Secret Key",
+      "summary": "Import/Export Secret Key",
+      "description": "Keep this Secret Key private as it will allow the import and export of options."
     },
     {
       "key": "unique_installation_id",
@@ -277,11 +311,6 @@
     },
     {
       "key": "installation_time",
-      "transferable": false,
-      "section": "section_non_ui"
-    },
-    {
-      "key": "secret_key",
       "transferable": false,
       "section": "section_non_ui"
     },

@@ -103,6 +103,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			// Handle any upgrades as necessary (only go near this if it's the admin area)
 			add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
+			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
 			add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
@@ -190,9 +191,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->getOptionsVo()
 			 ->setIsPremiumLicensed( $this->isPremium() );
 
-		$this->importOptions();
 		if ( $this->getIsMainFeatureEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
+		}
+	}
+
+	/**
+	 * @param array $aOptions
+	 */
+	protected function processImportOptions( $aOptions ) {
+		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
+			$this->getOptionsVo()
+				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+			$this->setBypassAdminProtection( true )
+				 ->savePluginOptions();
 		}
 	}
 
@@ -682,7 +694,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAction
-	 * @param bool $bAsJsonEncodedObject
+	 * @param bool   $bAsJsonEncodedObject
 	 * @return array
 	 */
 	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {

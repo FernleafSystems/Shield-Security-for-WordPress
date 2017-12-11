@@ -19,7 +19,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var ICWP_WPSF_Processor_Base[]
 	 */
-	protected $aSumProcessors;
+	protected $aSubProcessors;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
@@ -220,10 +220,10 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Base[]
 	 */
 	protected function getSubProcessors() {
-		if ( !isset( $this->aSumProcessors ) ) {
-			$this->aSumProcessors = array();
+		if ( !isset( $this->aSubProcessors ) ) {
+			$this->aSubProcessors = array();
 		}
-		return $this->aSumProcessors;
+		return $this->aSubProcessors;
 	}
 
 	/**
