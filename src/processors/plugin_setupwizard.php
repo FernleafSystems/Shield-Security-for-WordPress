@@ -392,7 +392,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			);
 
 			$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
-			$aParts = @json_decode( $sResponse, false );
+			$aParts = @json_decode( $sResponse, true );
 
 			$bSuccess = false;
 			$sMessage = 'Unknown Error';
