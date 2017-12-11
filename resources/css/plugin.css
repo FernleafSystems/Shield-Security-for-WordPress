@@ -96,7 +96,7 @@ table.table-audit_trail .cell-ip {
 .bootstrap-wpadmin .page-header {
 	padding-bottom: 17px;
 	margin: 18px 0 0;
-	border-bottom: 1px solid #EEE;
+	border-bottom: 1px solid transparent;
 }
 /* Form elements */
 .bootstrap-wpadmin form fieldset {
@@ -352,6 +352,14 @@ label input[type=checkbox] {
 	overflow: hidden;
 	text-align: center;
 	margin-bottom: -1px;
+}
+.feature-summary-blocks .summary-state .popover {
+	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+	padding: 0;
+	border-radius: 1px;
+}
+.feature-summary-blocks .summary-state .popover .arrow {
+	display: none;
 }
 .feature-summary-blocks .summary-state.active-feature,
 .feature-summary-blocks .summary-state:hover {
