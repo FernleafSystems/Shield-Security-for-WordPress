@@ -383,40 +383,46 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$bReady = $bReady && !empty( $aParts[ $sKey ] );
 			}
 
-			$sFinalUrl = add_query_arg(
-				array(
-					'shield_action' => 'options_export',
-					'secret'        => $sSecretKey
-				),
-				$sSourceSiteUrl
-			);
-
-			$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
-			$aParts = @json_decode( $sResponse, true );
-
-			$bSuccess = false;
-			$sMessage = 'Unknown Error';
-			if ( empty( $aParts ) ) {
-				$sMessage = _wpsf__( 'Could not parse the response from the site.' );
-			}
-			else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
-
-				if ( empty ( $aParts[ 'message' ] ) ) {
-					$sMessage = _wpsf__( 'Failure response returned from the site.' );
-				}
-				else {
-					$sMessage = sprintf( _wpsf__( 'Remote site responded with - %s' ), $aParts[ 'message' ] );
-				}
-			}
-			else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
-				$sMessage = _wpsf__( 'Data returned from the site was empty.' );
+			if ( !$bReady ) {
+				$sMessage = _wpsf__( 'Source site URL could not be parsed correctly.' );
 			}
 			else {
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeature();
-				do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
-				$sMessage = _wpsf__( 'Options imported successfully to your site.' );
-				$bSuccess = true;
+				$sFinalUrl = add_query_arg(
+					array(
+						'shield_action' => 'options_export',
+						'secret'        => $sSecretKey
+					),
+					$sSourceSiteUrl
+				);
+
+				$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
+				$aParts = @json_decode( $sResponse, true );
+
+				$bSuccess = false;
+				$sMessage = 'Unknown Error';
+				if ( empty( $aParts ) ) {
+					$sMessage = _wpsf__( 'Could not parse the response from the site.' )
+								.' '._wpsf__( 'Check the secret key is correct for the remote site.' );
+				}
+				else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
+
+					if ( empty ( $aParts[ 'message' ] ) ) {
+						$sMessage = _wpsf__( 'Failure response returned from the site.' );
+					}
+					else {
+						$sMessage = sprintf( _wpsf__( 'Remote site responded with - %s' ), $aParts[ 'message' ] );
+					}
+				}
+				else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
+					$sMessage = _wpsf__( 'Data returned from the site was empty.' );
+				}
+				else {
+					/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+					$oFO = $this->getFeature();
+					do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
+					$sMessage = _wpsf__( 'Options imported successfully to your site.' );
+					$bSuccess = true;
+				}
 			}
 		}
 
