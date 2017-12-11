@@ -58,16 +58,10 @@
 		<?php endif; ?>
 	</div><!-- / span9 -->
 
-		<div class="span2" id="side_widgets">
+		<div class="span1" id="side_widgets">
 
 		<?php if ( isset( $flags[ 'show_summary' ] ) && $flags[ 'show_summary' ] ) : ?>
 			<?php include_once( $sBaseDirName.'snippets'.DIRECTORY_SEPARATOR.'state_summary.php' ); ?>
 		<?php endif; ?>
 		</div>
-
-		  <!--	--><?php //if ( $flags[ 'show_ads' ] ) : ?>
-		  <!--		<div class="span3" id="side_widgets">-->
-		  <!--			--><?php //echo getWidgetIframeHtml( 'side-widgets-wtb' ); ?>
-		  <!--		</div>-->
-		  <!--	--><?php //endif; ?>
 </div>

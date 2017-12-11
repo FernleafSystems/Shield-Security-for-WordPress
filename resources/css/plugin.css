@@ -333,24 +333,18 @@ label input[type=checkbox] {
 	border: 1px solid transparent;
 	border-left: 1px solid #ddd;
 	text-align: center;
-	width: 80%;
+	width: 100%;
 }
 .feature-summary-blocks .feature-icon:before {
 	-webkit-font-smoothing: antialiased;
 	display: inline-block;
-	font: 48px/1 'dashicons';
+	font: 32px/1 'dashicons';
 	vertical-align: top;
 }
 .feature-summary-blocks a {
 	display: block;
 	text-shadow: 1px 0 0 rgba(0, 0, 0, 0.4);
 	width: 100%;
-}
-.feature-summary-blocks .feature-icon:before {
-	-webkit-font-smoothing: antialiased;
-	display: inline-block;
-	font: 48px/1 'dashicons';
-	vertical-align: top;
 }
 
 .feature-summary-blocks .summary-state {
@@ -383,7 +377,7 @@ label input[type=checkbox] {
 		font-size: 8px;
 	}
 	.feature-summary-blocks .feature-icon:before {
-		font-size: 32px;
+		font-size: 16px;
 	}
 }
 .feature-summary-blocks .state-on a {

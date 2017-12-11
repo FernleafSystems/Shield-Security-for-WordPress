@@ -145,6 +145,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'js_bootstrap'    => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
 				'js_globalplugin' => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
 				'js_steps'        => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
+				'js_wizard'       => $oCon->getPluginUrl_Js( 'wizard.js' ),
 				'shield_logo'     => 'https://plugins.svn.wordpress.org/wp-simple-firewall/assets/banner-1544x500-transparent.png',
 				'what_is_this'    => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'favicon'         => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
@@ -262,7 +263,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content' => '',
 			)
 		);
-		
+
 		if ( $this->getFeature()->isPremium() ) {
 			array_splice( $aStandard, 2, 0, $aPro );
 		}
