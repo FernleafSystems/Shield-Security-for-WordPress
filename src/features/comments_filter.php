@@ -170,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function isEnabledGasp() {
+	public function isEnabledGaspCheck() {
 		return $this->getOptIs( 'enable_comments_gasp_protection', 'Y' );
 	}
 

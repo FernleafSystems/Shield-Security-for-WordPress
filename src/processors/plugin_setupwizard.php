@@ -25,9 +25,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	public function ajaxSetupWizardSteps() {
-
-		$nCurrent = $this->loadDP()->FetchPost( 'current_index' );
-		$aNextStep = $this->getNextWizardStep( $nCurrent );
+		$oDP = $this->loadDP();
+		$nCurrent = $oDP->FetchPost( 'current_index' );
+		$aSteps = $oDP->FetchPost( 'wizard_steps' );
+		$aNextStep = $this->getNextWizardStep( $aSteps, $nCurrent );
 
 		// So to keep things simple, we render as normal, but then we overwrite with Security Admin
 		if ( !$this->getController()->getHasPermissionToManage() ) {
@@ -88,7 +89,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'._wpsf__( 'Please click Next (above) to continue.' );
+			$sMessage .= '<br />'.sprintf( _wpsf__( 'Please click %s to continue.' ), _wpsf__( 'Next' ) );
 		}
 		else {
 			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
@@ -134,6 +135,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			),
 			'data'         => array(
 				'login_fields' => $aLoginIntentFields,
+				'wizard_steps' => json_encode( $this->determineWizardSteps() ),
 			),
 			'hrefs'        => array(
 				'form_action'      => $this->loadDataProcessor()->getRequestUri(),
@@ -174,13 +176,65 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
-	 * @param int $nCurrentStep
+	 * @return string[]
+	 */
+	protected function determineWizardSteps() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+
+		$aStepsSlugs = array( 'welcome' );
+		if ( !$oFO->isPremium() ) {
+			$aStepsSlugs[] = 'license';
+		}
+		else {
+			$aStepsSlugs[] = 'importoptions';
+		}
+
+		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
+			$aStepsSlugs[] = 'securityadmin';
+		}
+
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
+		$oModule = $this->getController()->getModule( 'audit_trail' );
+		if ( !$oModule->getIsMainFeatureEnabled() ) {
+			$aStepsSlugs[] = 'audit_trail';
+		}
+
+		if ( !$this->getController()->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
+			$aStepsSlugs[] = 'ips';
+		}
+
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
+		$oModule = $this->getController()->getModule( 'login_protect' );
+		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+			$aStepsSlugs[] = 'login_protect';
+		}
+
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
+		$oModule = $this->getController()->getModule( 'comments_filter' );
+		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+			$aStepsSlugs[] = 'comments_filter';
+		}
+
+		$aStepsSlugs[] = 'thankyou';
+		return $aStepsSlugs;
+	}
+
+	/**
+	 * @param array $aAllSteps
+	 * @param int   $nCurrentStep
 	 * @return array
 	 */
-	protected function getNextWizardStep( $nCurrentStep ) {
-		$aSteps = $this->getWizardSteps();
-		$aNext = $aSteps[ $nCurrentStep + 1 ];
-		$aNext[ 'content' ] = $this->renderWizardStep( $aNext[ 'slug' ] );
+	protected function getNextWizardStep( $aAllSteps, $nCurrentStep ) {
+		$aSteps = array_values( array_intersect_key( $this->getWizardSteps(), array_flip( $aAllSteps ) ) );
+
+		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
+			$aNext = $aSteps[ $nCurrentStep + 1 ];
+			$aNext[ 'content' ] = $this->renderWizardStep( $aNext[ 'slug' ] );
+		}
+		else {
+			$aNext = array();
+		}
 		return $aNext;
 	}
 
@@ -215,59 +269,52 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function getWizardSteps() {
 		$aStandard = array(
-			array(
+			'welcome'         => array(
 				'title'   => _wpsf__( 'Welcome' ),
 				'slug'    => 'welcome',
 				'content' => '',
 			),
-			array(
+			'license'         => array(
 				'title'   => _wpsf__( 'Go Pro' ),
 				'slug'    => 'license',
 				'content' => '',
 			),
-			array(
+			'importoptions' => array(
+				'title'   => _wpsf__( 'Import' ),
+				'slug'    => 'importoptions',
+				'content' => '',
+			),
+			'securityadmin'   => array(
 				'title'   => _wpsf__( 'Security Admin' ),
 				'slug'    => 'securityadmin',
 				'content' => '',
 			),
-			array(
+			'audit_trail'     => array(
 				'title'   => _wpsf__( 'Audit Trail' ),
 				'slug'    => 'audit_trail',
 				'content' => '',
 			),
-			array(
+			'ips'             => array(
 				'title'   => _wpsf__( 'IP Blacklist' ),
 				'slug'    => 'ips',
 				'content' => '',
 			),
-			array(
+			'login_protect'   => array(
 				'title'   => _wpsf__( 'Login Protection' ),
 				'slug'    => 'login_protect',
 				'content' => '',
 			),
-			array(
+			'comments_filter' => array(
 				'title'   => _wpsf__( 'Comment SPAM' ),
 				'slug'    => 'comments_filter',
 				'content' => '',
 			),
-			array(
+			'thankyou'        => array(
 				'title'   => _wpsf__( 'Thank You' ),
 				'slug'    => 'thankyou',
 				'content' => '',
 			)
 		);
-
-		$aPro = array(
-			array(
-				'title'   => _wpsf__( 'Import' ),
-				'slug'    => 'importoptions',
-				'content' => '',
-			)
-		);
-
-		if ( $this->getFeature()->isPremium() ) {
-			array_splice( $aStandard, 2, 0, $aPro );
-		}
 
 		return $aStandard;
 	}

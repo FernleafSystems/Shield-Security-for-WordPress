@@ -104,6 +104,8 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var bRequestCurrentlyRunning = false;
 
+	var aWizardSteps = {{ data.wizard_steps|raw }};
+
 	var submitWizardForm = function ( event ) {
 		event.preventDefault();
 
@@ -189,6 +191,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		var $oWizard = jQuery( '#wizard' );
 		var reqData = {{ ajax.steps_as_json|raw }};
 		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
+		reqData.wizard_steps = aWizardSteps;
 
 		iCWP_WPSF_BodyOverlay.show();
 		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,

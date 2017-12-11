@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getFeature();
 		add_filter( $oFO->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
-		if ( $oFO->isEnabledGasp() ) {
+		if ( $oFO->isEnabledGaspCheck() ) {
 			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
