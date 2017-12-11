@@ -353,6 +353,16 @@ label input[type=checkbox] {
 	text-align: center;
 	margin-bottom: -1px;
 }
+
+.feature-summary-blocks .summary-state.active-feature {
+	background-color: rgba(69, 119, 0, 1);
+}
+.feature-summary-blocks .summary-state.active-feature a {
+	color: rgba(255,255,255,1);
+}
+.feature-summary-blocks .summary-state.active-feature.state-off {
+	background-color: rgba( 173, 84, 0, 0.85 );
+}
 .feature-summary-blocks .summary-state .popover {
 	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
 	padding: 0;
@@ -361,7 +371,7 @@ label input[type=checkbox] {
 .feature-summary-blocks .summary-state .popover .arrow {
 	display: none;
 }
-.feature-summary-blocks .summary-state.active-feature,
+.feature-summary-blocks .summary-state.active-feature.state-off:hover,
 .feature-summary-blocks .summary-state:hover {
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-left: 1px solid transparent;
