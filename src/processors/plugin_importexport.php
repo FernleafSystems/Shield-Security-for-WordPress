@@ -37,6 +37,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 		else {
 			$nCode = 0;
+			$bSuccess = true;
 			$aData = apply_filters( $oFO->prefix( 'gather_options_for_export' ), array() );
 			$sMessage = 'Options Exported Successfully';
 		}

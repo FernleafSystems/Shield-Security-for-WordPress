@@ -402,10 +402,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
 
 				if ( empty ( $aParts[ 'message' ] ) ) {
-					$sMessage = _wpsf__( 'Failure response returns from the site.' );
+					$sMessage = _wpsf__( 'Failure response returned from the site.' );
 				}
 				else {
-					$sMessage = $aParts[ 'message' ];
+					$sMessage = sprintf( _wpsf__( 'Remote site responded with - %s' ), $aParts[ 'message' ] );
 				}
 			}
 			else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
@@ -415,8 +415,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 				$oFO = $this->getFeature();
 				do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
+				$sMessage = _wpsf__( 'Options imported successfully to your site.' );
 				$bSuccess = true;
-				$sMessage = _wpsf__( 'Options imported successfully' );
 			}
 		}
 
