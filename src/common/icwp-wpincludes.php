@@ -1,5 +1,5 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpFunctions', false ) ) {
+if ( class_exists( 'ICWP_WPSF_WpIncludes', false ) ) {
 	return;
 }
 

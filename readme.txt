@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 5.20.0
+Stable tag: 5.20.1
 
 Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
@@ -338,9 +338,10 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 5.20.0 Latest Point Release =
+= 5.20.1 Latest Point Release =
 *Released: 11th December, 2017*
 
+* **(v.1)**  FIXED:			File include error.
 * **(v.0)**  IMPROVED:		[**PRO**] Audit Trail length is configurable. Length for free is 50 entries (the original unpaginated limit)
 * **(v.0)**  IMPROVED:		Large redesign of options sections to be more intuitive and cleaner
 * **(v.0)**  IMPROVED:		Added dedicated help section for each module.
