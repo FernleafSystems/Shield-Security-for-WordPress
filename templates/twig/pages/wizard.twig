@@ -9,6 +9,7 @@
 {% block head_scripts %}
 	{{ parent() }}
 	<script type="text/javascript" src="{{ hrefs.js_steps }}"></script>
+	<script type="text/javascript" src="{{ hrefs.js_wizard }}"></script>
 {% endblock %}
 
 {% block body_content_main %}
@@ -176,20 +177,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		);
 	};
 
-	this.renderNextStep = function ( $oWizard ) {
-		var reqData = {{ ajax.steps_as_json|raw }};
-
-		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
-
-		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
-			function ( oResponse ) {
-			}
-		).always(
-			function () {
-			}
-		);
-	};
-
 	var renderNext = function ( event ) {
 		event.preventDefault();
 		jQuery( event.currentTarget ).prop( 'disabled', true );
@@ -203,6 +190,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		var reqData = {{ ajax.steps_as_json|raw }};
 		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
 
+		iCWP_WPSF_BodyOverlay.show();
 		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
 			function ( oResponse ) {
 				if ( undefined !== oResponse.data.next_step ) {
@@ -212,6 +200,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 			}
 		).always(
 			function () {
+				iCWP_WPSF_BodyOverlay.hide();
 				jQuery( 'body' ).toggleClass( 'wait' );
 			}
 		);
