@@ -58,8 +58,8 @@
 				startIndex: 0,
 
 				/* Transition Effects */
-				transitionEffect: $.fn.steps.transitionEffect.none,
-				transitionEffectSpeed: 200,
+				transitionEffect: $.fn.steps.transitionEffect.slide,
+				transitionEffectSpeed: 100,
 
 				/* Events */
 				onStepChanging: function ( event, currentIndex, newIndex ) {
@@ -93,8 +93,6 @@
 			$oWizard.add( {{ wizard_steps|raw }} );
 			var $oActions = $( 'div.actions', $oWizard );
 			$oActions.prependTo( $oWizardContainer );
-
-			jQuery( document ).off( "click", 'a#next' );
 		} );
 	</script>
 
@@ -116,11 +114,10 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	};
 
 	var sendFormRequest = function ( $oForm ) {
-		if ( bRequestCurrentlyRunning ) { // failsafe in case we balls up - we only run 1.
+		if ( bRequestCurrentlyRunning ) {
 			return false;
 		}
 		bRequestCurrentlyRunning = true;
-		iCWP_WPSF_BodyOverlay.show();
 
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
 							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
@@ -174,7 +171,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		).always(
 			function () {
 				bRequestCurrentlyRunning = false;
-				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 	};
@@ -186,14 +182,12 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	};
 
 	var renderNextAuto = function () {
-		jQuery( "body" ).toggleClass( "wait" );
 
 		var $oWizard = jQuery( '#wizard' );
 		var reqData = {{ ajax.steps_as_json|raw }};
 		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
 		reqData.wizard_steps = aWizardSteps;
 
-		iCWP_WPSF_BodyOverlay.show();
 		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
 			function ( oResponse ) {
 				if ( undefined !== oResponse.data.next_step ) {
@@ -203,8 +197,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 			}
 		).always(
 			function () {
-				iCWP_WPSF_BodyOverlay.hide();
-				jQuery( 'body' ).toggleClass( 'wait' );
 			}
 		);
 	};
@@ -213,7 +205,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		var $oWizard = jQuery( '#wizard' );
 		$oWizard.steps( 'previous' );
 		var nCurrent = $oWizard.steps( 'getCurrentIndex' );
-		$oWizard.steps( 'remove', nCurrent+1 );
+		$oWizard.steps( 'remove', nCurrent + 1 );
 		renderNextAuto();
 	};
 
@@ -228,5 +220,16 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 }();
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_Wizard_FormHandler.initialise();
+
+jQuery( document ).ajaxStart( function () {
+	iCWP_WPSF_BodyOverlay.show();
+	jQuery( 'body' ).toggleClass( 'wait' );
+} );
+jQuery( document ).ajaxComplete( function () {
+	iCWP_WPSF_BodyOverlay.hide();
+	jQuery( 'body' ).toggleClass( 'wait' );
+} );
+
+
 </script>
 {% endblock %}
