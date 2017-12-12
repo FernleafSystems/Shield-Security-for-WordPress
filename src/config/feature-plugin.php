@@ -225,6 +225,17 @@
       "description": "Uncheck this box to completely disable import and export of options."
     },
     {
+      "key": "importexport_masterurl",
+      "section": "section_importexport",
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Auto-Import URL",
+      "summary": "Automatically Import Options From This Site",
+      "description": "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
+    },
+    {
       "key": "importexport_whitelist",
       "section": "section_importexport",
       "transferable": false,
@@ -237,15 +248,15 @@
       "description": "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
     },
     {
-      "key": "importexport_autourl",
+      "key": "importexport_whitelist_notify",
       "section": "section_importexport",
-      "default": [],
-      "type": "text",
+      "default": "N",
+      "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "Auto-Import URL",
-      "summary": "Automatically Import Options From This Site",
-      "description": "Supplying a valid URL here will make this site an 'Options Slave' and will automatically import options daily."
+      "name": "Notify Whitelist",
+      "summary": "Notify Sites On The Whitelist To Update Options From Master",
+      "description": "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
     },
     {
       "key": "importexport_secretkey",

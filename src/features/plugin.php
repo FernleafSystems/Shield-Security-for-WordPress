@@ -323,7 +323,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->cleanRecaptchaKey( 'google_recaptcha_secret_key' );
 
 		$this->cleanImportExportWhitelistUrls();
-		$this->cleanImportExportAutoImportUrl();
+		$this->cleanImportExportMasterImportUrl();
 
 		$this->setPluginInstallationId();
 	}
@@ -385,8 +385,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return string
 	 */
-	public function getImportExportAutoUrl() {
-		return $this->getOpt( 'importexport_autourl', '' );
+	public function getImportExportMasterImportUrl() {
+		return $this->getOpt( 'importexport_masterurl', '' );
 	}
 
 	/**
@@ -432,6 +432,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isImportExportWhitelistNotify() {
+		return $this->getOptIs( 'importexport_whitelist_notify', 'Y' );
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return bool
 	 */
@@ -460,13 +467,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return $this
 	 */
-	protected function cleanImportExportAutoImportUrl() {
+	protected function cleanImportExportMasterImportUrl() {
 		$sUrl = $this->loadDP()
-					 ->validateSimpleHttpUrl( $this->getImportExportAutoUrl() );
+					 ->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
 		if ( $sUrl === false ) {
 			$sUrl = '';
 		}
-		return $this->setOpt( 'importexport_autourl', $sUrl );
+		return $this->setOpt( 'importexport_masterurl', $sUrl );
 	}
 
 	/**
@@ -667,11 +674,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 								.'<br />'._wpsf__( 'This is to be used in conjunction with the Master Import Site feature.' );
 				break;
 
-			case 'importexport_autourl' :
+			case 'importexport_masterurl' :
 				$sName = _wpsf__( 'Master Import Site' );
 				$sSummary = _wpsf__( 'Automatically Import Options From This Site URL' );
-				$sDescription = _wpsf__( "Supplying a valid URL here will make this site an 'Options Slave'." )
-								.'<br />'._wpsf__( 'Options will be automatically imported from the Auto-Import site each day.' );
+				$sDescription = _wpsf__( "Supplying a site URL here will make this site an 'Options Slave'." )
+								.'<br />'._wpsf__( 'Options will be automatically imported from the Master Import site each day.' )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.' ) );
+				break;
+
+			case 'importexport_whitelist_notify' :
+				$sName = _wpsf__( 'Notify Whitelist' );
+				$sSummary = _wpsf__( 'Notify Sites On The Whitelist To Update Options From Master' );
+				$sDescription = _wpsf__( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site." );
 				break;
 
 			case 'importexport_secretkey' :

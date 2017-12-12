@@ -20,6 +20,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				add_action( 'init', array( $this, 'runOptionsExportHandshake' ) );
 				break;
 
+			case 'importexport_updatenotify':
+				add_action( 'init', array( $this, 'runOptionsUpdateNotify' ) );
+				break;
+
 			default:
 				break;
 		}
@@ -31,6 +35,20 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * window for the handshake to complete.  We do not explicitly fail.
 	 */
 	public function runOptionsExportHandshake() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+		if ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) {
+			echo json_encode( array( 'success' => true ) );
+			die();
+		}
+		else {
+			return;
+		}
+	}
+	/**
+	 * TODO: set a cron to run in a minute to push out notifications to whitelisted sites.
+	 */
+	public function runOptionsUpdateNotify() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		if ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) {
