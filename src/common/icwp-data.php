@@ -68,17 +68,20 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 * @param null $mDefault
 		 * @return mixed|null
 		 */
-		public function query( $sKey, $mDefault = null ) {
-			return $this->FetchGet( $sKey, $mDefault );
+		public function query( $sKey, $mDefault = null, $bTrim = true ) {
+			$mVal = $this->FetchGet( $sKey, $mDefault );
+			return $bTrim ? trim( $mVal ) : $mVal;
 		}
 
 		/**
 		 * @param string $sKey
 		 * @param null $mDefault
+		 * @param bool $bTrim -automatically trim whitespace
 		 * @return mixed|null
 		 */
-		public function post( $sKey, $mDefault = null ) {
-			return $this->FetchPost( $sKey, $mDefault );
+		public function post( $sKey, $mDefault = null, $bTrim = true ) {
+			$mVal = $this->FetchPost( $sKey, $mDefault );
+			return $bTrim ? trim( $mVal ) : $mVal;
 		}
 
 		/**

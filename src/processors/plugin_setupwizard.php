@@ -387,10 +387,15 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$sMessage = _wpsf__( 'Source site URL could not be parsed correctly.' );
 			}
 			else {
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+				$oFO = $this->getFeature();
+				$oFO->startImportExportHandshake();
+
 				$sFinalUrl = add_query_arg(
 					array(
-						'shield_action' => 'options_export',
-						'secret'        => $sSecretKey
+						'shield_action' => 'importexport_export',
+						'secret'        => $sSecretKey,
+						'url'           => $this->loadWp()->getHomeUrl()
 					),
 					$sSourceSiteUrl
 				);

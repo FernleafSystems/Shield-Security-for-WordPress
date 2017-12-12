@@ -29,7 +29,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		$oDP = $this->loadDP();
 
 		$this->removePluginConflicts();
 		$this->getBadgeProcessor()
@@ -42,14 +41,17 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
 
-		$sAction = $oDP->FetchGet( 'shield_action', '' );
+		$sAction = $this->loadDP()->query( 'shield_action', '' );
 		switch ( $sAction ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
 				break;
 
-			case 'options_export':
-				$this->getSubProcessorImportExport()->run();
+			case 'importexport_export':
+			case 'importexport_handshake':
+				if ( $oFO->isPremium() ) {
+					$this->getSubProcessorImportExport()->run();
+				}
 				break;
 
 			default:

@@ -213,7 +213,7 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
-      "key": "enable_importexport",
+      "key": "importexport_enable",
       "section": "section_importexport",
       "premium": true,
       "default": "Y",
@@ -225,7 +225,29 @@
       "description": "Uncheck this box to completely disable import and export of options."
     },
     {
-      "key": "secret_key",
+      "key": "importexport_whitelist",
+      "section": "section_importexport",
+      "default": [],
+      "type": "array",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Export Whitelist",
+      "summary": "Whitelisted Sites Which Do Not Need The Secret Key To Export Options",
+      "description": "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
+    },
+    {
+      "key": "importexport_autourl",
+      "section": "section_importexport",
+      "default": [],
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Auto-Import URL",
+      "summary": "Automatically Import Options From This Site",
+      "description": "Supplying a valid URL here will make this site an 'Options Slave' and will automatically import options daily."
+    },
+    {
+      "key": "importexport_secretkey",
       "section": "section_importexport",
       "transferable": false,
       "default": "",
@@ -315,7 +337,12 @@
       "section": "section_non_ui"
     },
     {
-      "key": "secret_key_expires_at",
+      "key": "importexport_secretkey_expires_at",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "importexport_handshake_expires_at",
       "transferable": false,
       "section": "section_non_ui"
     },
