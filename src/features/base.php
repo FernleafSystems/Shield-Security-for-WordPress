@@ -1118,7 +1118,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				else if ( $sOptionType == 'multiple_select' ) {
 				}
 			}
-			$this->setOpt( $sOptionKey, $sOptionValue );
+
+			// Prevent overwriting of non-editable fields
+			if ( !in_array( $sOptionType, array( 'noneditable_text' ) ) ) {
+				$this->setOpt( $sOptionKey, $sOptionValue );
+			}
 		}
 		$this->savePluginOptions();
 	}
