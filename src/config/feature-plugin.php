@@ -227,6 +227,7 @@
     {
       "key": "importexport_whitelist",
       "section": "section_importexport",
+      "transferable": false,
       "default": [],
       "type": "array",
       "link_info": "",

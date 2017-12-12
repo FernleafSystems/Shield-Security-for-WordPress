@@ -50,10 +50,11 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$oDP = $this->loadDP();
 
 		$sSecretKey = trim( $oDP->query( 'secret', '' ) );
-		$sUrl = $oDP->query( 'url', '' );
-		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->verifyUrlWithHandshake( $sUrl ) ) {
+		$sUrl = $oDP->validateSimpleHttpUrl( $oDP->query( 'url', '' ) );
+		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
+
 
 		$bSuccess = false;
 		$aData = array();
@@ -65,6 +66,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		else if ( !$oFO->isImportExportPermitted() ) {
 			$nCode = 2;
 			$sMessage = _wpsf__( 'Export of options is currently disabled.' );
+		}
+		else if ( !$this->verifyUrlWithHandshake( $sUrl ) ) {
+			$nCode = 3;
+			$sMessage = _wpsf__( 'Handshake verification failed.' );
 		}
 		else {
 			$nCode = 0;
@@ -90,7 +95,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	protected function isUrlOnWhitelist( $sUrl ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		return in_array( rtrim( $sUrl, '/' ), $oFO->getImportExportWhitelist() );
+		return !empty( $sUrl ) && in_array( $sUrl, $oFO->getImportExportWhitelist() );
 	}
 
 	/**
@@ -100,9 +105,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	protected function verifyUrlWithHandshake( $sUrl ) {
 		$bVerified = false;
 
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
-
-		if ( !empty( $sUrl ) && $this->isUrlOnWhitelist( $sUrl ) ) {
+		if ( !empty( $sUrl )  ) {
 			$sFinalUrl = add_query_arg(
 				array( 'shield_action' => 'importexport_handshake' ),
 				$sUrl

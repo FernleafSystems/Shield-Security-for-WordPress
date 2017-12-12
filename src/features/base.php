@@ -199,7 +199,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @param array $aOptions
 	 */
-	protected function processImportOptions( $aOptions ) {
+	public function processImportOptions( $aOptions ) {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 			$this->getOptionsVo()
 				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );

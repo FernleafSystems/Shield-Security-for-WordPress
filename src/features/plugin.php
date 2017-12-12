@@ -664,7 +664,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sSummary = _wpsf__( 'Whitelisted Sites To Export Options From This Site' );
 				$sDescription = _wpsf__( 'Whitelisted sites may export options from this site without the key.' )
 								.'<br />'._wpsf__( 'List each site URL on a new line.' )
-								.'<br />'._wpsf__( 'This is useful for the auto-export feature.' );
+								.'<br />'._wpsf__( 'This is to be used in conjunction with the Master Import Site feature.' );
 				break;
 
 			case 'importexport_autourl' :

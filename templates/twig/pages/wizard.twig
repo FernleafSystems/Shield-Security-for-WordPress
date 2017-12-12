@@ -148,7 +148,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
-				var sMessage = '';
+				var sMessage = 'Unknown Error';
 				if ( undefined !== oResponse.data ) {
 					sMessage = oResponse.data.message;
 				}
@@ -164,7 +164,8 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 				}
 				$oResponseField.html( sMessage );
 
-				if ( undefined !== oResponse.data.reRender && oResponse.data.reRender === true ) {
+				if ( undefined !== oResponse.data && undefined !== oResponse.data.rerender
+					&& oResponse.data.rerender === true ) {
 					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
 				}
 			}

@@ -460,7 +460,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			$bSuccess = true;
 			$oModule->setPermissionToSubmit( true );
 			$aData = array(
-				'reRender' => true
+				'rerender' => true
 			);
 			$oResponse->setData( $aData );
 		}
