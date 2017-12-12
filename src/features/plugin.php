@@ -322,6 +322,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
 		$this->cleanRecaptchaKey( 'google_recaptcha_secret_key' );
 
+		$this->cleanImportExportWhitelistUrls();
+		$this->cleanImportExportAutoImportUrl();
+
 		$this->setPluginInstallationId();
 	}
 
@@ -380,6 +383,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getImportExportAutoUrl() {
+		return $this->getOpt( 'importexport_autourl', '' );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getImportExportHandshakeExpiresAt() {
@@ -427,6 +437,36 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isImportExportSecretKey( $sKey ) {
 		return ( $this->getImportExportSecretKey() == $sKey );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanImportExportWhitelistUrls() {
+		$oDP = $this->loadDP();
+
+		$aCleaned = array();
+		$aWhitelistUrls = $this->getImportExportWhitelist();
+		foreach ( $aWhitelistUrls as $nKey => $sUrl ) {
+
+			$sUrl = $oDP->validateSimpleHttpUrl( $sUrl );
+			if ( $sUrl !== false ) {
+				$aCleaned[] = $sUrl;
+			}
+		}
+		return $this->setOpt( 'importexport_whitelist', $aCleaned );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanImportExportAutoImportUrl() {
+		$sUrl = $this->loadDP()
+					 ->validateSimpleHttpUrl( $this->getImportExportAutoUrl() );
+		if ( $sUrl === false ) {
+			$sUrl = '';
+		}
+		return $this->setOpt( 'importexport_autourl', $sUrl );
 	}
 
 	/**
@@ -628,8 +668,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			case 'importexport_autourl' :
-				$sName = _wpsf__( 'Auto-Import URL' );
-				$sSummary = _wpsf__( 'Automatically Import Options From This Site' );
+				$sName = _wpsf__( 'Master Import Site' );
+				$sSummary = _wpsf__( 'Automatically Import Options From This Site URL' );
 				$sDescription = _wpsf__( "Supplying a valid URL here will make this site an 'Options Slave'." )
 								.'<br />'._wpsf__( 'Options will be automatically imported from the Auto-Import site each day.' );
 				break;

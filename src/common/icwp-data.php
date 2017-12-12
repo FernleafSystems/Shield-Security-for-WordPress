@@ -160,6 +160,32 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		}
 
 		/**
+		 * @param string $sUrl
+		 * @return string
+		 */
+		public function urlStripQueryPart( $sUrl ) {
+			return preg_replace( '#\s?\?.*$#', '', $sUrl );
+		}
+
+		/**
+		 * Will strip everything from a URL except Scheme+Host and requires that Scheme+Host be present
+		 * @return string|false
+		 */
+		public function validateSimpleHttpUrl( $sUrl ) {
+			$sValidatedUrl = false;
+
+			$sUrl = trim( $this->urlStripQueryPart( $sUrl ) );
+			if ( filter_var( $sUrl, FILTER_VALIDATE_URL ) ) { // we have a scheme+host
+				$aParts = parse_url( $sUrl );
+				if ( in_array( $aParts[ 'scheme' ], array( 'http', 'https' ) ) ) {
+					$sValidatedUrl = rtrim( $sUrl, '/' );
+				}
+			}
+
+			return $sValidatedUrl;
+		}
+
+		/**
 		 * @return boolean
 		 */
 		public function validEmail( $sEmail ) {

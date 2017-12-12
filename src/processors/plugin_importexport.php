@@ -100,12 +100,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	protected function verifyUrlWithHandshake( $sUrl ) {
 		$bVerified = false;
 
-		if ( filter_var( $sUrl, FILTER_VALIDATE_URL ) ) {
-			$sUrl = preg_replace( '#\s?\?.*$#', '', $sUrl ); // get rid of any sort of query string
-		}
-		else {
-			$sUrl = '';
-		}
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
 
 		if ( !empty( $sUrl ) && $this->isUrlOnWhitelist( $sUrl ) ) {
 			$sFinalUrl = add_query_arg(
