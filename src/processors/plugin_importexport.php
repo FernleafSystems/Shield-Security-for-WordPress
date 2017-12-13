@@ -37,7 +37,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runOptionsExportHandshake() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		if ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) {
+		if ( $oFO->isPremium() && $oFO->isImportExportPermitted() &&
+			 ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
 			echo json_encode( array( 'success' => true ) );
 			die();
 		}
@@ -45,19 +46,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			return;
 		}
 	}
+
 	/**
 	 * TODO: set a cron to run in a minute to push out notifications to whitelisted sites.
 	 */
 	public function runOptionsUpdateNotify() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		if ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) {
-			echo json_encode( array( 'success' => true ) );
-			die();
-		}
-		else {
-			return;
-		}
 	}
 
 	/**
@@ -72,7 +67,6 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
-
 
 		$bSuccess = false;
 		$aData = array();
@@ -123,7 +117,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	protected function verifyUrlWithHandshake( $sUrl ) {
 		$bVerified = false;
 
-		if ( !empty( $sUrl )  ) {
+		if ( !empty( $sUrl ) ) {
 			$sFinalUrl = add_query_arg(
 				array( 'shield_action' => 'importexport_handshake' ),
 				$sUrl

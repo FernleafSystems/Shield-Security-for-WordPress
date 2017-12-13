@@ -390,6 +390,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function hasImportExportMasterImportUrl() {
+		$sMaster = $this->getImportExportMasterImportUrl();
+		return !empty( $sMaster ) && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getImportExportHandshakeExpiresAt() {
@@ -421,7 +429,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportPermitted() {
-		return ( $this->isPremium() && $this->getOptIs( 'importexport_enable', 'Y' ) );
+		return $this->getOptIs( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -567,6 +575,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'section_importexport' :
 				$sTitle = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Automatically import options, and deploy configurations across your entire network.' ) ),
+					sprintf( _wpsf__( 'This is a Pro-only feature.' ) ),
+				);
 				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
 				break;
 
