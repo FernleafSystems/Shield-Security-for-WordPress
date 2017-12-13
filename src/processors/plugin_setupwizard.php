@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$this->loadAutoload(); // for Response
 		switch ( $oDP->FetchPost( 'wizard-step' ) ) {
 
-			case 'securityadmin_verify':
+			case 'admin_access_restriction_verify':
 				$oResponse = $this->wizardSecurityAdminVerify();
 				break;
 
@@ -60,7 +60,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$oResponse = $this->wizardImportOptions();
 				break;
 
-			case 'securityadmin':
+			case 'admin_access_restriction':
 				$oResponse = $this->wizardSecurityAdmin();
 				break;
 
@@ -186,12 +186,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		if ( !$oFO->isPremium() ) {
 			$aStepsSlugs[] = 'license';
 		}
-		else {
-			$aStepsSlugs[] = 'importoptions';
-		}
+
+		$aStepsSlugs[] = 'importoptions';
 
 		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'securityadmin';
+			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
@@ -230,7 +229,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
 			$aNext = $aSteps[ $nCurrentStep + 1 ];
-			$aNext[ 'content' ] = $this->renderWizardStep( $aNext[ 'slug' ] );
+			$aNext[ 'content' ] = $this->renderWizardStepDefault( $aNext[ 'slug' ] );
 		}
 		else {
 			$aNext = array();
@@ -239,27 +238,27 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
-	 * @param int $nIndex
+	 * @param string $sSlug
 	 * @return string
 	 */
-	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
+	protected function renderWizardStepDefault( $sSlug ) {
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( 'wizard/slide-securityadmin_verify.twig' )
-					->setRenderVars( array(
-						'current_index' => $nIndex
-					) )
+					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
+					->setRenderVars( array() )
 					->setTemplateEngineTwig()
 					->render();
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param int $nIndex
 	 * @return string
 	 */
-	protected function renderWizardStep( $sSlug ) {
+	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
-					->setRenderVars( array() )
+					->setTemplate( 'wizard/slide-admin_access_restriction_verify.twig' )
+					->setRenderVars( array(
+						'current_index' => $nIndex
+					) )
 					->setTemplateEngineTwig()
 					->render();
 	}
@@ -284,9 +283,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'slug'    => 'importoptions',
 				'content' => '',
 			),
-			'securityadmin'   => array(
+			'admin_access_restriction'   => array(
 				'title'   => _wpsf__( 'Security Admin' ),
-				'slug'    => 'securityadmin',
+				'slug'    => 'admin_access_restriction',
 				'content' => '',
 			),
 			'audit_trail'     => array(
