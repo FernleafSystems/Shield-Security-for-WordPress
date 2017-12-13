@@ -145,7 +145,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'more_info'       => _wpsf__( 'More Info' ),
 				'what_is_this'    => _wpsf__( 'What is this?' ),
 				'message'         => $sMessage,
-				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() )
+				'page_title'      => sprintf( _wpsf__( '%s Setup Wizard' ), $oCon->getHumanName() )
 			),
 			'data'         => array(
 				'login_fields' => $aLoginIntentFields,
