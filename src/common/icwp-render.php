@@ -61,6 +61,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 
 		/**
 		 * @return string
+		 * @throws Exception
 		 */
 		public function render() {
 
@@ -227,7 +228,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		}
 
 		/**
-		 * @return string
+		 * @return array
 		 */
 		public function getRenderVars() {
 			return $this->aRenderVars;

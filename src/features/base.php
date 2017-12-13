@@ -490,15 +490,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
-		$aSummaryData[] = array(
+		$aSummary = array(
 			'enabled'    => $this->getIsMainFeatureEnabled(),
 			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
 			'slug'       => $this->getFeatureSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
-			'href'       => network_admin_url( 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ) )
+			'href'       => network_admin_url( 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ) ),
 		);
+		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
 
+		$aSummaryData[] = $aSummary;
 		return $aSummaryData;
 	}
 

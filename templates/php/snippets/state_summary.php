@@ -13,7 +13,7 @@ if ( empty( $aSummaryData ) ) {
 			<a class="feature-icon"
 				<?php echo sprintf( 'href="%s"', $aSummary[ 'href' ] ); ?>
 			   title="<?php echo $aSummary[ 'name' ]; ?>"
-			   data-content="<?php echo $aSummary[ 'enabled' ] ? $strings[ 'on' ] : $strings[ 'off' ]; ?>"
+			   data-content="<?php echo $aSummary[ 'content' ]; ?>"
 			   style="display: block; text-align: center; width: 100%;"></a>
 		</div>
 	<?php endforeach; ?>
@@ -22,7 +22,8 @@ if ( empty( $aSummaryData ) ) {
 <script type="text/javascript">
 	jQuery( 'a.feature-icon' ).popover( {
 		placement: 'left',
-		trigger: 'hover'
+		trigger: 'hover',
+		html: true
 	} );
 	// jQuery( '#feature-plugin a.feature-icon' ).popover( 'show' );
 </script>
