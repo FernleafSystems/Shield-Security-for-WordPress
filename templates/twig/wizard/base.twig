@@ -3,6 +3,11 @@
 	{% block slide_body %} {% endblock %}
 	{% block slide_footer %}
 		<hr />
-		<button href="" class="btn btn-default ButtonNextSlide">Next Step</button>
+		{% block slide_footer_previous %}
+			<button class="btn btn-default ButtonPreviousSlide">&larr; Previous Step </button>
+		{% endblock %}
+		{% block slide_footer_next %}
+			<button class="btn btn-default ButtonNextSlide">Next Step &rarr;</button>
+		{% endblock %}
 	{% endblock %}
 </div>

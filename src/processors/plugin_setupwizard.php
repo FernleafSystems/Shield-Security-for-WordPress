@@ -230,13 +230,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
 			$aNext = $aSteps[ $nCurrentStep + 1 ];
 
-			$sMethod = 'renderWizardStep_'.$aNext[ 'slug' ];
-			if ( method_exists( $this, $sMethod ) ) {
-				$aNext[ 'content' ] = $this->{$sMethod}( $aNext[ 'slug' ] );
-			}
-			else {
-				$aNext[ 'content' ] = $this->renderWizardStepDefault( $aNext[ 'slug' ] );
-			}
+			$aData = $this->getRenderDataForStep( $aNext[ 'slug' ] );
+			$aNext[ 'content' ] = $this->renderWizardStep( $aNext[ 'slug' ], $aData );
 		}
 		else {
 			$aNext = array();
@@ -245,27 +240,46 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
-	 * @param string $sSlug
-	 * @return string
-	 */
-	protected function renderWizardStepDefault( $sSlug ) {
-		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
-					->setRenderVars( array() )
-					->setTemplateEngineTwig()
-					->render();
-	}
-
-	/**
 	 * @param int $nIndex
 	 * @return string
 	 */
 	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
+		return $this->renderWizardStep( 'admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return array
+	 */
+	protected function getRenderDataForStep( $sSlug ) {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+
+		$aData = array(
+			'flags' => array(
+				'is_premium' => $oFO->isPremium()
+			)
+		);
+
+		switch ( $sSlug ) {
+			case 'importoptions':
+				break;
+			default:
+				break;
+		}
+
+		return $aData;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @param array  $aRenderData
+	 * @return string
+	 */
+	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( 'wizard/slide-admin_access_restriction_verify.twig' )
-					->setRenderVars( array(
-						'current_index' => $nIndex
-					) )
+					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
+					->setRenderVars( $aRenderData )
 					->setTemplateEngineTwig()
 					->render();
 	}
@@ -275,47 +289,47 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function getWizardSteps() {
 		$aStandard = array(
-			'welcome'         => array(
+			'welcome'                  => array(
 				'title'   => _wpsf__( 'Welcome' ),
 				'slug'    => 'welcome',
 				'content' => '',
 			),
-			'license'         => array(
+			'license'                  => array(
 				'title'   => _wpsf__( 'Go Pro' ),
 				'slug'    => 'license',
 				'content' => '',
 			),
-			'importoptions'   => array(
+			'importoptions'            => array(
 				'title'   => _wpsf__( 'Import' ),
 				'slug'    => 'importoptions',
 				'content' => '',
 			),
-			'admin_access_restriction'   => array(
+			'admin_access_restriction' => array(
 				'title'   => _wpsf__( 'Security Admin' ),
 				'slug'    => 'admin_access_restriction',
 				'content' => '',
 			),
-			'audit_trail'     => array(
+			'audit_trail'              => array(
 				'title'   => _wpsf__( 'Audit Trail' ),
 				'slug'    => 'audit_trail',
 				'content' => '',
 			),
-			'ips'             => array(
+			'ips'                      => array(
 				'title'   => _wpsf__( 'IP Blacklist' ),
 				'slug'    => 'ips',
 				'content' => '',
 			),
-			'login_protect'   => array(
+			'login_protect'            => array(
 				'title'   => _wpsf__( 'Login Protection' ),
 				'slug'    => 'login_protect',
 				'content' => '',
 			),
-			'comments_filter' => array(
+			'comments_filter'          => array(
 				'title'   => _wpsf__( 'Comment SPAM' ),
 				'slug'    => 'comments_filter',
 				'content' => '',
 			),
-			'thankyou'        => array(
+			'thankyou'                 => array(
 				'title'   => _wpsf__( 'Thank You' ),
 				'slug'    => 'thankyou',
 				'content' => '',

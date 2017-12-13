@@ -53,7 +53,7 @@
 				enableFinishButton: false,
 				preloadContent: false,
 				showFinishButtonAlways: false,
-				forceMoveForward: false,
+				forceMoveForward: true,
 				saveState: false,
 				startIndex: 0,
 
@@ -224,11 +224,11 @@ iCWP_WPSF_Wizard_FormHandler.initialise();
 
 jQuery( document ).ajaxStart( function () {
 	iCWP_WPSF_BodyOverlay.show();
-	jQuery( 'body' ).toggleClass( 'wait' );
+	jQuery( 'body' ).addClass( 'wait' );
 } );
 jQuery( document ).ajaxComplete( function () {
 	iCWP_WPSF_BodyOverlay.hide();
-	jQuery( 'body' ).toggleClass( 'wait' );
+	jQuery( 'body' ).removeClass( 'wait' );
 } );
 
 
