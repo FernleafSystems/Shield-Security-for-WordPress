@@ -69,9 +69,11 @@
 				},
 				onStepChanged: function ( event, currentIndex, priorIndex ) {
 
-					// We delete the next step as they're dynamically generated.
+					// We delete the next steps as they're dynamically generated.
 					if ( currentIndex < priorIndex ) {
-						jQuery( this ).steps( "remove", priorIndex );
+						while ( priorIndex > currentIndex ) {
+							jQuery( this ).steps( "remove", priorIndex-- );
+						}
 					}
 				},
 				onCanceled: function ( event ) {

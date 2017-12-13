@@ -29,6 +29,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+		$oDP = $this->loadDP();
 
 		$this->removePluginConflicts();
 		$this->getBadgeProcessor()
@@ -41,8 +42,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
 
-		$sAction = $this->loadDP()->query( 'shield_action', '' );
-		switch ( $sAction ) {
+		switch ( (string)$oDP->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
 				break;
@@ -55,13 +55,14 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				}
 				break;
 
+			case 'wizard':
+				if ( $oDP->getPhpVersionIsAtLeast( 5.4 ) ) {
+					$this->getWizardProcessor()->run();
+				}
+				break;
+
 			default:
 				break;
-		}
-
-		// TODO: Wrap up
-		if ( isset( $_GET[ 'wizard' ] ) && $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
-			$this->getSetupWizardProcessor()->run();
 		}
 	}
 
@@ -85,7 +86,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
 	 */
-	public function getSetupWizardProcessor() {
+	public function getWizardProcessor() {
 		if ( !isset( $this->oSetupWizardProcessor ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_setupwizard.php' );
 			$this->oSetupWizardProcessor = new ICWP_WPSF_Processor_Plugin_SetupWizard( $this->getFeature() );

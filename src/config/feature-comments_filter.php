@@ -24,7 +24,7 @@
     {
       "slug": "section_enable_plugin_feature_spam_comments_protection_filter",
       "primary": true,
-      "title": "Enable Plugin Feature: SPAM Comments Protection Filter",
+      "title": "Enable Plugin Feature: Comments SPAM Protection",
       "title_short": "Enable / Disable",
       "summary":
       [
@@ -87,8 +87,8 @@
       "link_info": "http://icwp.io/3z",
       "link_blog": "http://icwp.io/wpsf04",
       "name": "Enable SPAM Protection",
-      "summary": "Enable (or Disable) The SPAM Comments Protection Filter Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole SPAM Comments Protection Filter feature"
+      "summary": "Enable (or Disable) The Comments SPAM Protection Feature",
+      "description": "Checking/Un-Checking this option will completely turn on/off the whole Comments SPAM Protection feature"
     },
     {
       "key": "enable_comments_human_spam_filter",

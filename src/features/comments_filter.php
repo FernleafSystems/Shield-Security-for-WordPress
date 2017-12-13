@@ -107,7 +107,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__( 'SPAM Comments Protection Filter' ) );
+				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__( 'Comments SPAM Protection' ) );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
@@ -116,7 +116,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				break;
 
 			case 'section_bot_comment_spam_protection_filter' :
-				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__( 'Automatic Bot' ) );
+				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection' ), _wpsf__( 'Automatic Bot' ) );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -193,8 +193,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 			case 'enable_comments_filter' :
 				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
-				$sSummary = _wpsf__( 'Enable (or Disable) The SPAM Comments Protection Filter Feature' );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), _wpsf__( 'SPAM Comments Protection Filter' ) );
+				$sSummary = _wpsf__( 'Enable (or Disable) The Comment SPAM Protection Feature' );
+				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), _wpsf__( 'Comment SPAM Protection' ) );
 				break;
 
 			case 'enable_comments_human_spam_filter' :

@@ -19,8 +19,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	public function onWpInit() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) { // TODO: can manage
-			$this->loadWizard();
+		if ( $this->loadWpUsers()->isUserAdmin() ) {
+			$this->loadWizard( $this->loadDP()->query( 'wizard' ) );
 		}
 	}
 
@@ -106,15 +106,25 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
 	}
 
-	protected function loadWizard() {
-		$this->printWizard();
+	protected function loadWizard( $sWizard ) {
+
+		$sContent = '';
+		switch ( $sWizard ) {
+			case 'welcome':
+				$sContent = $this->renderWelcomeWizard();
+				break;
+			default:
+				$this->loadWp()->redirectToAdmin();
+				break;
+		}
+		echo $sContent;
 		die();
 	}
 
 	/**
 	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
-	public function printWizard() {
+	public function renderWelcomeWizard() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();
@@ -172,13 +182,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			)
 		);
 
-		$this->loadRenderer( $this->getController()->getPath_Templates() )
-			 ->setTemplate( 'pages/wizard.twig' )
-			 ->setRenderVars( $aDisplayData )
-			 ->setTemplateEngineTwig()
-			 ->display();
-
-		return true;
+		return $this->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'pages/wizard.twig' )
+					->setRenderVars( $aDisplayData )
+					->setTemplateEngineTwig()
+					->render();
 	}
 
 	/**
@@ -276,13 +284,18 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		switch ( $sSlug ) {
 			case 'importoptions':
+				$aAdd = array(
+					'imgs'     => array(
+						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+					)
+				);
 				break;
 
 			case 'optin':
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				$aAdd = array(
 					'data' => array(
-						'name' => $oUser->first_name,
+						'name'       => $oUser->first_name,
 						'user_email' => $oUser->user_email
 					)
 				);
@@ -710,12 +723,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
 		if ( $bSuccess ) {
-			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comments SPAM Protection' ),
+			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comment SPAM Protection' ),
 				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 			);
 		}
 		else {
-			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Comments SPAM Protection' ) );
+			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Comment SPAM Protection' ) );
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();

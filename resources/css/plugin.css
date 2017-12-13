@@ -7,6 +7,9 @@
 .bootstrap-wpadmin .row {
 	margin-left: 0;
 }
+.bootstrap-wpadmin > .row > div[class*=span]:first-child {
+	margin-left: 0;
+}
 #pluginlogo_32 {
 	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
 }

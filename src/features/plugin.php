@@ -31,11 +31,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
 		add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array(
-			$this->getSetupWizardProcessor(),
+			$this->getWizardProcessor(),
 			'ajaxSetupWizardContent'
 		) );
 		add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array(
-			$this->getSetupWizardProcessor(),
+			$this->getWizardProcessor(),
 			'ajaxSetupWizardSteps'
 		) );
 	}
@@ -43,10 +43,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
 	 */
-	protected function getSetupWizardProcessor() {
-		/** @var ICWP_WPSF_Processor_Plugin $oMain */
-		$oMain = $this->getProcessor();
-		return $oMain->getSetupWizardProcessor();
+	protected function getWizardProcessor() {
+		/** @var ICWP_WPSF_Processor_Plugin $oP */
+		$oP = $this->getProcessor();
+		return $oP->getWizardProcessor();
 	}
 
 	/**

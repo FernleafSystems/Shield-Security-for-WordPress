@@ -54,6 +54,12 @@ body.wait {
 .wizard p.wizard-response {
 	padding: 10px 15px;
 }
+
+.wizard .slide-body img {
+	float: left;
+	width: 40%;
+	margin-right: 20px;
+}
 .wizard .slide-body .media {
 	margin-top: 25px
 }
