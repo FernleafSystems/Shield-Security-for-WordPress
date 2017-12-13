@@ -1,0 +1,75 @@
+{% extends 'wizard/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Join Us</h3>
+	<p>We hope you'll see we've put a lot of effort into making Shield Security powerful, full-featured,
+	yet easy to use.</p>
+	<p>We're always improving it, adding further security features, and making it easier to use.</p>
+	<p>We've got 2 further options for you:</p>
+
+	<h4>#1 Join Our Security Email Group</h4>
+	<p class="help-block">Become a member on the list for exclusive updates, information and news
+						  (you'll receive an email to confirm).
+		<br /><strong>We never SPAM</strong> and you can remove yourself at any time.
+	</p>
+	<form class="form-horizontal"
+		  action="https://icontrolwp.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259"
+		  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank" novalidate>
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="FNAME">Your Name</label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" name="FNAME" placeholder="{{ data.name }}"
+					   value="{{ data.name }}">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="EMAIL">Your Email</label>
+			<div class="col-md-8">
+				<input type="email" class="form-control" name="EMAIL" placeholder="{{ data.user_email }}"
+					   value="{{ data.user_email }}">
+
+				<p class="help-block">
+					<strong>We never SPAM</strong> and you can remove yourself at any time.
+				</p>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<input type="submit" value="Sign-Up" name="subscribe" class="btn btn-primary">
+			</div>
+		</div>
+	</form>
+
+	<hr />
+
+	<h4>#2 Anonymous Usage Data</h4>
+	<form class="form-horizontal icwp-wizard-form">
+		<input name="wizard-step" value="optin" type="hidden" />
+
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="AnonymousOption">Anonymous Usage Info:</label>
+			<div class="col-md-8">
+				<div class="radio">
+					<label>
+						<input type="radio" name="AnonymousOption" id="AnonymousOptionOn" value="Y" checked>
+						Turn On - Allow <em>completely anonymous</em> usage data to be sent to us
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="AnonymousOption" id="AnonymousOptionOff" value="N">
+						Turn Off - Do not contribute anonymous usage data
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}

@@ -159,16 +159,22 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
+		$bValid = self::getConn()->getIsValidAdminArea() && $this->checkAjaxNonce();
+		if ( $bValid ) {
+			$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
+		}
+		$this->sendAjaxResponse( $bValid );
+	}
 
-		if ( self::getConn()->getIsValidAdminArea() && $this->checkAjaxNonce() ) {
-			$oDP = $this->loadDataProcessor();
-			$this->setOpt( 'enable_tracking', $oDP->FetchGet( 'agree', 0 ) ? 'Y' : 'N' );
-			$this->setOpt( 'tracking_permission_set_at', $oDP->time() );
-			$this->sendAjaxResponse( true );
-		}
-		else {
-			$this->sendAjaxResponse( false );
-		}
+	/**
+	 * @param bool $bOnOrOff
+	 * @return $this
+	 */
+	public function setPluginTrackingPermission( $bOnOrOff = true ) {
+		$this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
+			 ->setOpt( 'tracking_permission_set_at', $this->loadDP()->time() )
+			 ->savePluginOptions();
+		return $this;
 	}
 
 	/**

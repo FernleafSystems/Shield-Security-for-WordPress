@@ -80,6 +80,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$oResponse = $this->wizardLoginProtect();
 				break;
 
+			case 'optin':
+				$oResponse = $this->wizardOptin();
+				break;
+
 			default:
 				$oResponse = new \FernleafSystems\Utilities\Response();
 				$oResponse->setSuccessful( false )
@@ -218,6 +222,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		}
 
 		$aStepsSlugs[] = 'how_shield_works';
+		$aStepsSlugs[] = 'optin';
 		$aStepsSlugs[] = 'thankyou';
 		return $aStepsSlugs;
 	}
@@ -267,23 +272,59 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			'imgs'  => array(),
 		);
 
+		$aAdd = array();
+
 		switch ( $sSlug ) {
 			case 'importoptions':
 				break;
+
+			case 'optin':
+				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$aAdd = array(
+					'data' => array(
+						'name' => $oUser->first_name,
+						'user_email' => $oUser->user_email
+					)
+				);
+				break;
+
 			case 'how_shield_works':
-				$aData[ 'imgs' ][ 'how_shield_works' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' );
-				$aData[ 'imgs' ][ 'modules' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' );
-				$aData[ 'imgs' ][ 'options' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' );
-				$aData[ 'imgs' ][ 'help' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' );
-				$aData[ 'imgs' ][ 'actions' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' );
-				$aData[ 'imgs' ][ 'module_onoff' ] = $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' );
-				$aData[ 'imgs' ][ 'option_help' ] = $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' );
+				$aAdd = array(
+					'imgs'     => array(
+						'how_shield_works' => $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' ),
+						'modules'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' ),
+						'options'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' ),
+						'help'             => $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' ),
+						'actions'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' ),
+						'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
+						'option_help'      => $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' ),
+					),
+					'headings' => array(
+						'how_shield_works' => _wpsf__( 'Where to find Shield' ),
+						'modules'          => _wpsf__( 'Accessing Each Module' ),
+						'options'          => _wpsf__( 'Accessing Options' ),
+						'help'             => _wpsf__( 'Finding Help' ),
+						'actions'          => _wpsf__( 'Actions (not Options)' ),
+						'module_onoff'     => _wpsf__( 'Module On/Off Switch' ),
+						'option_help'      => _wpsf__( 'Help For Each Option' ),
+					),
+					'captions' => array(
+						'how_shield_works' => _wpsf__( "You'll find the main Shield Security setting in the left-hand WordPress menu." ),
+						'modules'          => _wpsf__( 'Shield is split up into independent modules for accessing the options of each feature.' ),
+						'options'          => _wpsf__( 'When you load a module, you can access the options by clicking on the Options Panel link.' ),
+						'help'             => _wpsf__( 'Each module also has a brief overview help section - there is more in-depth help available.' ),
+						'actions'          => _wpsf__( 'Certain modules have extra actions and features, e.g. Audit Trail Viewer.' )
+											  .' '._wpsf__( 'Note: Not all modules have the actions section' ),
+						'module_onoff'     => _wpsf__( 'Each module has an Enable/Disable checkbox to turn on/off all processing for that module' ),
+						'option_help'      => _wpsf__( 'To help you understand each option, most of them have a more info link, and/or a blog link, to read more' ),
+					),
+				);
 				break;
 			default:
 				break;
 		}
 
-		return $aData;
+		return $this->loadDP()->mergeArraysRecursive( $aData, $aAdd );
 	}
 
 	/**
@@ -347,6 +388,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			'how_shield_works'         => array(
 				'title'   => _wpsf__( 'How Shield Works' ),
 				'slug'    => 'how_shield_works',
+				'content' => '',
+			),
+			'optin'                    => array(
+				'title'   => _wpsf__( 'Join Us!' ),
+				'slug'    => 'optin',
 				'content' => '',
 			),
 			'thankyou'                 => array(
@@ -625,6 +671,25 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardOptin() {
+		$oDP = $this->loadDP();
+
+		$bEnabledTracking = $oDP->post( 'AnonymousOption', 'N', true ) === 'Y';
+
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
+		$oModule = $this->getController()->getModule( 'plugin' );
+		$oModule->setPluginTrackingPermission( $bEnabledTracking );
+
+		$sMessage = _wpsf__( 'Preferences have been saved.' );
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( true )
 						 ->setMessageText( $sMessage );
 	}
 
