@@ -229,7 +229,14 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
 			$aNext = $aSteps[ $nCurrentStep + 1 ];
-			$aNext[ 'content' ] = $this->renderWizardStepDefault( $aNext[ 'slug' ] );
+
+			$sMethod = 'renderWizardStep_'.$aNext[ 'slug' ];
+			if ( method_exists( $this, $sMethod ) ) {
+				$aNext[ 'content' ] = $this->{$sMethod}( $aNext[ 'slug' ] );
+			}
+			else {
+				$aNext[ 'content' ] = $this->renderWizardStepDefault( $aNext[ 'slug' ] );
+			}
 		}
 		else {
 			$aNext = array();
