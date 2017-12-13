@@ -11,6 +11,7 @@ body.wait {
 	background: #ffffff;
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }
+
 .wizard.vertical > .steps {
 	width: 20%; /** from 30 **/
 }
@@ -20,6 +21,23 @@ body.wait {
 .wizard > .content > .body {
 	height: auto;
 	position: relative;
+	padding: 0;
+	width: 100%
+}
+.wizard > .content > .body .slide-header {
+	padding: 3% 3% 0 3%;
+}
+.wizard > .content > .body .slide-header .btn-block {
+	margin-bottom: -1px;
+}
+.wizard > .content > .body .slide-header hr {
+	margin: 15px 0;
+}
+.wizard > .content > .body .slide-body {
+	padding: 0 6% 0 6%;
+}
+.wizard > .content > .body .slide-footer {
+	padding: 0 6% 3% 6%;
 }
 .wizard.vertical > .actions {
 	margin-bottom: 20px;

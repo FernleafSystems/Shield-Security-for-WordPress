@@ -53,7 +53,7 @@
 				enableFinishButton: false,
 				preloadContent: false,
 				showFinishButtonAlways: false,
-				forceMoveForward: true,
+				forceMoveForward: false,
 				saveState: false,
 				startIndex: 0,
 
@@ -66,6 +66,11 @@
 					return true;
 				},
 				onStepChanged: function ( event, currentIndex, priorIndex ) {
+
+					// We delete the next step as they're dynamically generated.
+					if ( currentIndex < priorIndex ) {
+						jQuery( this ).steps( "remove", priorIndex );
+					}
 				},
 				onCanceled: function ( event ) {
 				},
@@ -93,6 +98,7 @@
 			$oWizard.add( {{ wizard_steps|raw }} );
 			var $oActions = $( 'div.actions', $oWizard );
 			$oActions.prependTo( $oWizardContainer );
+			$oActions.css( 'display', 'none' );
 		} );
 	</script>
 
@@ -178,8 +184,20 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 	var renderNext = function ( event ) {
 		event.preventDefault();
-		jQuery( event.currentTarget ).prop( 'disabled', true );
+		// jQuery( event.currentTarget ).prop( 'disabled', true );
 		renderNextAuto();
+	};
+
+	var renderPrevious = function ( event ) {
+		event.preventDefault();
+		// jQuery( event.currentTarget ).prop( 'disabled', true );
+		renderPreviousAuto();
+	};
+
+	var renderPreviousAuto = function () {
+		var $oWizard = jQuery( '#wizard' );
+		$oWizard.steps( 'previous' );
+		// $oWizard.steps( 'remove', $oWizard.steps( 'getCurrentIndex' )+1 );
 	};
 
 	var renderNextAuto = function () {
@@ -213,6 +231,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	var setHandlers = function () {
 		jQuery( document ).on( 'submit', 'form.icwp-wizard-form', submitWizardForm );
 		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonNextSlide', renderNext );
+		jQuery( document ).on( 'click', 'div.wizard-slide button.ButtonPreviousSlide', renderPrevious );
 	};
 
 	this.initialise = function () {
