@@ -1,0 +1,99 @@
+{% extends 'wizard/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>How Shield Works</h3>
+	<p>Now that you've set up the basic protection for your site, we'd like to show you a quick bit about how you can
+	adjust settings for all the other features.</p>
+
+	<p>Click on each image below to see a quick screenshot to show you the basics of the Shield plugin UI.</p>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.how_shield_works }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.how_shield_works }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Where to find Shield</h4>
+			You'll find the main Shield Security setting in the left-hand WordPress menu. (click image).
+		</div>
+	</div>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.modules }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.modules }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Accessing Each Module</h4>
+			Shield is split up into independent modules for accessing the options of each feature. (click image).
+		</div>
+	</div>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.options }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.options }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Accessing Options</h4>
+			When you load a module, you can access the options by clicking on the Options Panel link. (click image).
+		</div>
+	</div>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.help }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.help }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Finding Help</h4>
+			Each module also has a brief overview help section - there is more in-depth help available. (click image).
+		</div>
+	</div>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.actions }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.actions }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Actions (not Options)</h4>
+			Certain modules have extra actions and features, e.g. Audit Trail Viewer. (click image).
+			<br/>Note: Not all modules have the actions section.
+		</div>
+	</div>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.module_onoff }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.module_onoff }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Module On/Off Switch</h4>
+			Each module has an Enable/Disable checkbox to turn on/off all processing for that module.
+			(click image).
+		</div>
+	</div>
+
+	<div class="media">
+		<div class="media-left">
+			<a href="{{ imgs.option_help }}" data-fancybox>
+				<img class="media-object" src="{{ imgs.option_help }}" alt="">
+			</a>
+		</div>
+		<div class="media-body">
+			<h4 class="media-heading">Help For Each Option</h4>
+			To help you understand each option, most of them have a more info link, and/or
+			a blog link, to read more.
+			(click image).
+		</div>
+	</div>
+
+{% endblock %}

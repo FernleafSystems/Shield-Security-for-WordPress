@@ -142,10 +142,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
 				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
+				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min.css' ),
 				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin.css' ),
 				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard.css' ),
 				'js_jquery'        => $this->loadWpIncludes()->getUrl_Jquery(),
 				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
+				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min.js' ),
 				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
 				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
@@ -215,6 +217,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			$aStepsSlugs[] = 'comments_filter';
 		}
 
+		$aStepsSlugs[] = 'how_shield_works';
 		$aStepsSlugs[] = 'thankyou';
 		return $aStepsSlugs;
 	}
@@ -254,15 +257,27 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	protected function getRenderDataForStep( $sSlug ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+		$oConn = $this->getController();
 
 		$aData = array(
 			'flags' => array(
 				'is_premium' => $oFO->isPremium()
-			)
+			),
+			'hrefs' => array(),
+			'imgs'  => array(),
 		);
 
 		switch ( $sSlug ) {
 			case 'importoptions':
+				break;
+			case 'how_shield_works':
+				$aData[ 'imgs' ][ 'how_shield_works' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' );
+				$aData[ 'imgs' ][ 'modules' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' );
+				$aData[ 'imgs' ][ 'options' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' );
+				$aData[ 'imgs' ][ 'help' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' );
+				$aData[ 'imgs' ][ 'actions' ] = $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' );
+				$aData[ 'imgs' ][ 'module_onoff' ] = $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' );
+				$aData[ 'imgs' ][ 'option_help' ] = $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' );
 				break;
 			default:
 				break;
@@ -327,6 +342,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			'comments_filter'          => array(
 				'title'   => _wpsf__( 'Comment SPAM' ),
 				'slug'    => 'comments_filter',
+				'content' => '',
+			),
+			'how_shield_works'         => array(
+				'title'   => _wpsf__( 'How Shield Works' ),
+				'slug'    => 'how_shield_works',
 				'content' => '',
 			),
 			'thankyou'                 => array(

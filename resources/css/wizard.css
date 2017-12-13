@@ -11,7 +11,6 @@ body.wait {
 	background: #ffffff;
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }
-
 .wizard.vertical > .steps {
 	width: 20%; /** from 30 **/
 }
@@ -54,4 +53,11 @@ body.wait {
 }
 .wizard p.wizard-response {
 	padding: 10px 15px;
+}
+.wizard .slide-body .media {
+	margin-top: 25px
+}
+.wizard .slide-body .media-object {
+	height: 64px;
+	width: 64px;
 }
