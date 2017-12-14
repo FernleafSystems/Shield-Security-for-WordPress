@@ -33,7 +33,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$sContent = '';
 		switch ( $sWizard ) {
 			case 'welcome':
-				$sContent = $this->renderWelcomeWizard();
+				$sContent = $this->renderWizardWelcome();
+				break;
+			case 'import':
+				$sContent = $this->renderWizardImport();
 				break;
 			default:
 				$this->loadWp()->redirectToAdmin();
@@ -120,11 +123,15 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
 	}
 
+	protected function renderWizardImport() {
+		echo 'here';
+	}
+
 	/**
 	 * @return string
 	 * @throws Exception
 	 */
-	public function renderWelcomeWizard() {
+	protected function renderWizardWelcome() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();

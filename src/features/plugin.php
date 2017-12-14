@@ -50,6 +50,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$aData = array(
 			'strings' => $this->getDisplayStrings(),
+			'hrefs'   => array(
+				'wizard_welcome' => $this->getWizardUrl( 'welcome' ),
+				'wizard_import'  => $this->getWizardUrl( 'import' ),
+			)
 		);
 		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
 	}

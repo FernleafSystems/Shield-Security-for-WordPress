@@ -104,6 +104,20 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param string $sWizardSlug
+	 * @return string
+	 */
+	public function getWizardUrl( $sWizardSlug ) {
+		return add_query_arg(
+			array(
+				'shield_action' => 'wizard',
+				'wizard'        => $sWizardSlug
+			),
+			$this->getFeatureAdminPageUrl()
+		);
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isVisitorWhitelisted() {

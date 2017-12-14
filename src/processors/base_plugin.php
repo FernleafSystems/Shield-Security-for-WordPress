@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 
-	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+	require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 	class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -17,7 +17,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 
 		/**
 		 */
-		public function run() {}
+		public function run() {
+		}
 
 		/**
 		 * Override the original collection to then add plugin statistics to the mix
@@ -41,11 +42,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 */
 		protected function getIfDisplayAdminNotice( $aAttrs ) {
 
-			if ( ! parent::getIfDisplayAdminNotice( $aAttrs ) ) {
+			if ( !parent::getIfDisplayAdminNotice( $aAttrs ) ) {
 				return false;
 			}
-			if ( isset( $aAttrs[ 'delay_days'] ) && is_int( $aAttrs[ 'delay_days'] )
-				 && ( $this->getInstallationDays() < $aAttrs[ 'delay_days'] ) ) {
+			if ( isset( $aAttrs[ 'delay_days' ] ) && is_int( $aAttrs[ 'delay_days' ] )
+				 && ( $this->getInstallationDays() < $aAttrs[ 'delay_days' ] ) ) {
 				return false;
 			}
 			return true;
@@ -59,11 +60,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 
 			$aRenderData = array(
 				'notice_attributes' => $aAttr,
-				'strings' => array(
+				'strings'           => array(
 					'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
-					'forums' => __( 'Support Forums' )
+					'forums'  => __( 'Support Forums' )
 				),
-				'hrefs' => array(
+				'hrefs'             => array(
 					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
 				)
 			);
@@ -75,23 +76,16 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @throws Exception
 		 */
 		public function addNotice_wizard_welcome( $aNoticeAttributes ) {
-
-			$sWizardUrl = add_query_arg(
-				array(
-					'shield_action' => 'wizard',
-					'wizard' => 'welcome',
-				),
-				$this->loadWp()->getUrl_WpAdmin()
-			);
-
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+			$oFO = $this->getFeature();
 
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
-				'strings' => array(
+				'strings'           => array(
 					'dismiss' => _wpsf__( "I don't need the setup wizard just now" ),
 				),
-				'hrefs' => array(
-					'wizard' => $sWizardUrl,
+				'hrefs'             => array(
+					'wizard' => $oFO->getWizardUrl( 'welcome' ),
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );
@@ -111,15 +105,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$oCon = $this->getController();
 			$aRenderData = array(
 				'notice_attributes' => $aAttr,
-				'strings' => array(
-					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very (10+ years) old: %s' ), $oDp->getPhpVersion() ),
+				'strings'           => array(
+					'your_php_version'              => sprintf( _wpsf__( 'Your PHP version is very (10+ years) old: %s' ), $oDp->getPhpVersion() ),
 					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
-					'ask_host_to_upgrade' => sprintf( _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
-					'any_questions' => sprintf( _wpsf__( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
-					'dismiss' => _wpsf__( 'Dismiss this notice' ),
-					'forums' => __( 'Support Forums' )
+					'ask_host_to_upgrade'           => sprintf( _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
+					'any_questions'                 => sprintf( _wpsf__( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
+					'dismiss'                       => _wpsf__( 'Dismiss this notice' ),
+					'forums'                        => __( 'Support Forums' )
 				),
-				'hrefs' => array(
+				'hrefs'             => array(
 					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
 				)
 			);
@@ -150,14 +144,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( !$oWp->getIsPage_Updates() && $oWpPlugins->isUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
-					'render_slug' => 'plugin-update-available',
-					'strings' => array(
-						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()->getHumanName() ),
-						'click_update' => _wpsf__( 'Please click to update immediately' ),
-						'dismiss' => _wpsf__( 'Dismiss this notice' )
+					'render_slug'       => 'plugin-update-available',
+					'strings'           => array(
+						'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()
+																																   ->getHumanName() ),
+						'click_update'            => _wpsf__( 'Please click to update immediately' ),
+						'dismiss'                 => _wpsf__( 'Dismiss this notice' )
 					),
-					'hrefs' => array(
-						'upgrade_link' =>  $oWpPlugins->getLinkPluginUpgrade( $sBaseFile )
+					'hrefs'             => array(
+						'upgrade_link' => $oWpPlugins->getLinkPluginUpgrade( $sBaseFile )
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );
@@ -173,13 +168,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			if ( $this->getIfShowAdminNotices() ) {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
-					'strings' => array(
-						'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()->getHumanName() ),
+					'strings'           => array(
+						'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()
+																																		 ->getHumanName() ),
 						'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
-						'site_url' => 'translate.icontrolwp.com',
-						'dismiss' => _wpsf__( 'Dismiss this notice' )
+						'site_url'     => 'translate.icontrolwp.com',
+						'dismiss'      => _wpsf__( 'Dismiss this notice' )
 					),
-					'hrefs' => array(
+					'hrefs'             => array(
 						'translate' => 'http://translate.icontrolwp.com'
 					)
 				);
@@ -213,7 +209,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 					$bShow = !Worpit_Plugin::IsLinked();
 				}
 				else if ( $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned' ) == 'Y'
-				          && $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned_to' ) != '' ) {
+						  && $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned_to' ) != '' ) {
 
 					$bShow = false;
 				}
