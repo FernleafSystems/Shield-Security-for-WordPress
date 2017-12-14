@@ -131,6 +131,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
 	}
 
+	/**
+	 * @return string
+	 * @throws Exception
+	 */
 	protected function renderWizardImport() {
 		return $this->renderWizard();
 	}
@@ -143,6 +147,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		return $this->renderWizard();
 	}
 
+	/**
+	 * @return string
+	 * @throws Exception
+	 */
 	protected function renderWizard() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
@@ -204,7 +212,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 	/**
 	 * @return string[]
-	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
 
@@ -216,7 +223,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$aSteps = $this->determineWizardSteps_Import();
 				break;
 			default:
-				throw new Exception( sprintf( 'Wizard is not currently supported: .', $this->getCurrentWizard() ) );
+				$aSteps = array();
 				break;
 		}
 
@@ -227,7 +234,19 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Import() {
-		$aStepsSlugs = array( 'import_start' );
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+
+		// Special case: user doesn't meet even the basic plugin admin permissions
+		if ( !$oFO->getController()->getUserCanBasePerms() ) {
+			return array( 'no_access' );
+		}
+
+		$aStepsSlugs = array(
+			'import_start',
+			'importoptions',
+			'import_finished',
+		);
 
 		return $aStepsSlugs;
 	}
@@ -296,29 +315,25 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return array
 	 */
 	protected function getWizardNextStep( $aAllSteps, $nCurrentStep ) {
-		$aNextStep = array();
 
-		$aSteps = array_values( array_intersect_key( $this->getWizardSteps(), array_flip( $aAllSteps ) ) );
+		// The assumption here is that the step data exists!
+		$aStepData = $this->getWizardSteps()[ $aAllSteps[ $nCurrentStep + 1 ] ];
 
-		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
-			$aNextStep = $aSteps[ $nCurrentStep + 1 ];
-
-			$bRestrictedAccess = !isset( $aNextStep[ 'restricted_access' ] ) || $aNextStep[ 'restricted_access' ];
-			try {
-				if ( !$bRestrictedAccess || $this->getController()->getHasPermissionToManage() ) {
-					$aData = $this->getRenderDataForStep( $aNextStep[ 'slug' ] );
-					$aNextStep[ 'content' ] = $this->renderWizardStep( $aNextStep[ 'slug' ], $aData );
-				}
-				else {
-					$aNextStep[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrentStep );
-				}
+		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
+		try {
+			if ( !$bRestrictedAccess || $this->getController()->getHasPermissionToManage() ) {
+				$aData = $this->getRenderDataForStep( $aStepData[ 'slug' ] );
+				$aStepData[ 'content' ] = $this->renderWizardStep( $aStepData[ 'slug' ], $aData );
 			}
-			catch ( Exception $oE ) {
-				$aNextStep[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
+			else {
+				$aStepData[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrentStep );
 			}
 		}
+		catch ( Exception $oE ) {
+			$aStepData[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
+		}
 
-		return $aNextStep;
+		return $aStepData;
 	}
 
 	/**
@@ -343,7 +358,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			'flags' => array(
 				'is_premium' => $oFO->isPremium()
 			),
-			'hrefs' => array(),
+			'hrefs' => array(
+				'dashboard' => $oFO->getFeatureAdminPageUrl()
+			),
 			'imgs'  => array(),
 		);
 
@@ -442,6 +459,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function getWizardSteps() {
 		$aStandard = array(
+			'import_start'             => array(
+				'title'             => _wpsf__( 'Start Import' ),
+				'slug'              => 'import_start',
+				'content'           => '',
+				'restricted_access' => false
+			),
 			'no_access'                => array(
 				'title'             => _wpsf__( 'No Access' ),
 				'slug'              => 'no_access',
@@ -505,7 +528,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'slug'              => 'thankyou',
 				'content'           => '',
 				'restricted_access' => false,
-			)
+			),
+			'import_finished'          => array(
+				'title'   => _wpsf__( 'Import Finished' ),
+				'slug'    => 'import_finished',
+				'content' => '',
+			),
 		);
 
 		return $aStandard;
@@ -550,8 +578,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardImportOptions() {
 		$oDP = $this->loadDP();
-		$sSourceSiteUrl = trim( $oDP->FetchPost( 'SourceSiteUrl' ) );
-		$sSecretKey = trim( $oDP->FetchPost( 'SourceSiteSecretKey' ) );
+		$sSourceSiteUrl = $oDP->post( 'SourceSiteUrl' );
+		$sSecretKey = $oDP->post( 'SourceSiteSecretKey' );
 
 		$aParts = parse_url( $sSourceSiteUrl );
 

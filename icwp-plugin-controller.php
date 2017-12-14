@@ -268,7 +268,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function doRegisterHooks() {
 		$this->registerActivationHooks();
 
-		add_action( 'init', array( $this, 'onWpInit' ) );
+		add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		add_action( 'admin_init', array( $this, 'onWpAdminInit' ) );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 
@@ -362,7 +362,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function getMeetsBasePermissions() {
-		return $this->bMeetsBasePermissions;
+		return (bool)$this->bMeetsBasePermissions;
 	}
 
 	/**
