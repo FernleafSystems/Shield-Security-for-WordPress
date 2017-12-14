@@ -111,6 +111,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 	var bRequestCurrentlyRunning = false;
 
 	var aWizardSteps = {{ data.wizard_steps|raw }};
+	var sWizardSlug = '{{ data.wizard_slug }}';
 
 	var submitWizardForm = function ( event ) {
 		event.preventDefault();
@@ -208,6 +209,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		var reqData = {{ ajax.steps_as_json|raw }};
 		reqData.current_index = $oWizard.steps( 'getCurrentIndex' );
 		reqData.wizard_steps = aWizardSteps;
+		reqData.wizard_slug = sWizardSlug;
 
 		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
 			function ( oResponse ) {

@@ -65,23 +65,24 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 
 		/**
 		 * @param string $sKey
-		 * @param null $mDefault
+		 * @param null   $mDefault
+		 * @param bool   $bTrim -automatically trim whitespace
 		 * @return mixed|null
 		 */
 		public function query( $sKey, $mDefault = null, $bTrim = true ) {
 			$mVal = $this->FetchGet( $sKey, $mDefault );
-			return $bTrim ? trim( $mVal ) : $mVal;
+			return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
 		}
 
 		/**
 		 * @param string $sKey
-		 * @param null $mDefault
-		 * @param bool $bTrim -automatically trim whitespace
+		 * @param null   $mDefault
+		 * @param bool   $bTrim -automatically trim whitespace
 		 * @return mixed|null
 		 */
 		public function post( $sKey, $mDefault = null, $bTrim = true ) {
 			$mVal = $this->FetchPost( $sKey, $mDefault );
-			return $bTrim ? trim( $mVal ) : $mVal;
+			return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
 		}
 
 		/**
@@ -115,7 +116,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			if ( !isset( $this->aRequestUriParts ) ) {
 				$aExploded = explode( '?', $this->getRequestUri(), 2 );
 				$this->aRequestUriParts = array(
-					'path' => empty( $aExploded[ 0 ] ) ? '' : $aExploded[ 0 ],
+					'path'  => empty( $aExploded[ 0 ] ) ? '' : $aExploded[ 0 ],
 					'query' => empty( $aExploded[ 1 ] ) ? '' : $aExploded[ 1 ],
 				);
 			}
@@ -130,11 +131,11 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		public function addExtensionToFilePath( $sPath, $sExtensionToAdd ) {
 
 			if ( strpos( $sExtensionToAdd, '.' ) === false ) {
-				$sExtensionToAdd = '.' . $sExtensionToAdd;
+				$sExtensionToAdd = '.'.$sExtensionToAdd;
 			}
 
 			if ( !$this->getIfStringEndsIn( $sPath, $sExtensionToAdd ) ) {
-				$sPath = $sPath . $sExtensionToAdd;
+				$sPath = $sPath.$sExtensionToAdd;
 			}
 			return $sPath;
 		}
@@ -245,7 +246,7 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 			}
 
 			$sBots = 'Googlebot|bingbot|Twitterbot|Baiduspider|ia_archiver|R6_FeedFetcher|NetcraftSurveyAgent'
-				. '|Sogou web spider|Yahoo! Slurp|facebookexternalhit|PrintfulBot|msnbot|UnwindFetchor|urlresolver|Butterfly|TweetmemeBot';
+					 .'|Sogou web spider|Yahoo! Slurp|facebookexternalhit|PrintfulBot|msnbot|UnwindFetchor|urlresolver|Butterfly|TweetmemeBot';
 
 			return ( preg_match( "/$sBots/", $sUserAgent ) > 0 );
 		}
@@ -278,8 +279,8 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 
 			$sPassword = '';
 			$sCharset = implode( '', $aChars );
-			for ( $i = 0; $i < $nLength; $i++ ) {
-				$sPassword .= $sCharset[ ( rand() % strlen( $sCharset ) ) ];
+			for ( $i = 0 ; $i < $nLength ; $i++ ) {
+				$sPassword .= $sCharset[ ( rand()%strlen( $sCharset ) ) ];
 			}
 			return $sPassword;
 		}
@@ -452,9 +453,9 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 */
 		public function downloadStringAsFile( $sStringContent, $sFilename ) {
 			header( "Content-type: application/octet-stream" );
-			header( "Content-disposition: attachment; filename=" . $sFilename );
+			header( "Content-disposition: attachment; filename=".$sFilename );
 			header( "Content-Transfer-Encoding: binary" );
-			header( "Content-Length: " . strlen( $sStringContent ) );
+			header( "Content-Length: ".strlen( $sStringContent ) );
 			echo $sStringContent;
 			die();
 		}
@@ -548,9 +549,9 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		 */
 		public function getCanOpensslSign() {
 			return function_exists( 'base64_decode' )
-				&& function_exists( 'openssl_sign' )
-				&& function_exists( 'openssl_verify' )
-				&& defined( 'OPENSSL_ALGO_SHA1' );
+				   && function_exists( 'openssl_sign' )
+				   && function_exists( 'openssl_verify' )
+				   && defined( 'OPENSSL_ALGO_SHA1' );
 		}
 
 		/**
@@ -607,8 +608,8 @@ if ( !class_exists( 'ICWP_WPSF_DataProcessor', false ) ):
 		public function isValidDomainName( $sDomainName ) {
 			$sDomainName = trim( $sDomainName );
 			return ( preg_match( "/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $sDomainName ) //valid chars check
-				&& preg_match( "/^.{1,253}$/", $sDomainName ) //overall length check
-				&& preg_match( "/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $sDomainName ) );//length of each label
+					 && preg_match( "/^.{1,253}$/", $sDomainName ) //overall length check
+					 && preg_match( "/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $sDomainName ) );//length of each label
 		}
 
 		/**

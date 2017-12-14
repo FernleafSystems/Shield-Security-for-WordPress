@@ -1,5 +1,5 @@
 <h2>Plugin Walk-Through Wizards</h2>
-<p>Click the buttons below to launch the respective walk-through wizard.</p>
+<p>Click the buttons below to launch the respective walk-through wizard (opens in a new window).</p>
 
 <?php if ( !$flags[ 'can_php54' ] ) : ?>
 	<div class="alert alert-danger">
@@ -33,7 +33,9 @@
 	<p><a href="<?php echo $hrefs[ 'wizard_import' ]; ?>" title="Import Options Wizard" target="_blank"
 			<?php echo $flags[ 'can_import' ] ? '' : 'disabled="disabled" onclick="event.preventDefault();"'; ?>
 		  class="btn btn-default btn-large">Import Options Wizard</a></p>
-	<p class="text-warning">Warning: Use of this feature will overwrite all Shield settings on this site.</p>
+	<div class="alert alert-warning">
+		<p class="text-warning">Warning: Use of this feature will overwrite all Shield settings on this site.</p>
+	</div>
 </div>
 
 <hr />

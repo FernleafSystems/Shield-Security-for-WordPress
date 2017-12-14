@@ -13,6 +13,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
+	 * @var string
+	 */
+	private $sCurrentWizard;
+
+	/**
 	 */
 	public function run() {
 		add_action( 'init', array( $this, 'onWpInit' ), 0 );
@@ -31,6 +36,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	protected function loadWizard( $sWizard ) {
 
 		$sContent = '';
+		$this->setCurrentWizard( $sWizard );
 		switch ( $sWizard ) {
 			case 'welcome':
 				$sContent = $this->renderWizardWelcome();
@@ -50,7 +56,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	public function ajaxSetupWizardSteps() {
 		$oDP = $this->loadDP();
-		$aNextStep = $this->getWizardNextStep( $oDP->FetchPost( 'wizard_steps' ), $oDP->FetchPost( 'current_index' ) );
+
+		$this->setCurrentWizard( $oDP->post( 'wizard_slug' ) );
+		$aNextStep = $this->getWizardNextStep( $oDP->post( 'wizard_steps' ), $oDP->post( 'current_index' ) );
 
 		return $this->getFeature()
 					->sendAjaxResponse(
@@ -63,7 +71,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$oDP = $this->loadDP();
 
 		$this->loadAutoload(); // for Response
-		switch ( $oDP->FetchPost( 'wizard-step' ) ) {
+		switch ( $oDP->post( 'wizard-step' ) ) {
 
 			case 'admin_access_restriction_verify':
 				$oResponse = $this->wizardSecurityAdminVerify();
@@ -124,7 +132,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	protected function renderWizardImport() {
-		echo 'here';
+		return $this->renderWizard();
 	}
 
 	/**
@@ -132,10 +140,13 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @throws Exception
 	 */
 	protected function renderWizardWelcome() {
+		return $this->renderWizard();
+	}
+
+	protected function renderWizard() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();
-		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
 		$sMessage = $this->loadAdminNoticesProcessor()
 						 ->flushFlashMessage()
@@ -155,7 +166,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'page_title'      => sprintf( _wpsf__( '%s Setup Wizard' ), $oCon->getHumanName() )
 			),
 			'data'    => array(
-				'login_fields'      => $aLoginIntentFields,
+				'wizard_slug'       => $this->getCurrentWizard(),
 				'wizard_steps'      => json_encode( $this->determineWizardSteps() ),
 				'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 			),
@@ -193,8 +204,38 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 	/**
 	 * @return string[]
+	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
+
+		switch ( $this->getCurrentWizard() ) {
+			case 'welcome':
+				$aSteps = $this->determineWizardSteps_Welcome();
+				break;
+			case 'import':
+				$aSteps = $this->determineWizardSteps_Import();
+				break;
+			default:
+				throw new Exception( sprintf( 'Wizard is not currently supported: .', $this->getCurrentWizard() ) );
+				break;
+		}
+
+		return $aSteps;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Import() {
+		$aStepsSlugs = array( 'import_start' );
+
+		return $aStepsSlugs;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Welcome() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
@@ -787,5 +828,21 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrentWizard() {
+		return $this->sCurrentWizard;
+	}
+
+	/**
+	 * @param string $sCurrentWizard
+	 * @return $this
+	 */
+	public function setCurrentWizard( $sCurrentWizard ) {
+		$this->sCurrentWizard = $sCurrentWizard;
+		return $this;
 	}
 }
