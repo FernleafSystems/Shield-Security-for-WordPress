@@ -642,10 +642,17 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 					$sMessage = _wpsf__( 'Data returned from the site was empty.' );
 				}
 				else {
+
 					/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 					$oFO = $this->getFeature();
 					do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
 					$sMessage = _wpsf__( 'Options imported successfully to your site.' );
+
+					// if it's network enabled, we save the new master URL.
+					if ( $bEnabledNetwork ) {
+						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
+					}
+
 					$bSuccess = true;
 				}
 			}
