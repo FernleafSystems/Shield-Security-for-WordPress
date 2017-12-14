@@ -58,6 +58,10 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	public function printPluginBadge() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		echo $oFO->renderPluginBadge();
+		try {
+			echo $oFO->renderPluginBadge();
+		}
+		catch ( Exception $oE ) {
+		}
 	}
 }

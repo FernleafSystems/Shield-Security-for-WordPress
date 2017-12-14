@@ -491,6 +491,21 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param string $sUrl
+	 * @return $this
+	 */
+	public function addUrlToImportExportWhitelistUrls( $sUrl ) {
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		if ( $sUrl !== false ) {
+			$aWhitelistUrls = $this->getImportExportWhitelist();
+			$aWhitelistUrls[] = $sUrl;
+			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
+				 ->savePluginOptions();
+		}
+		return $this;
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return bool
 	 */
@@ -513,15 +528,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$aCleaned[] = $sUrl;
 			}
 		}
-		return $this->setOpt( 'importexport_whitelist', $aCleaned );
+		return $this->setOpt( 'importexport_whitelist', array_unique( $aCleaned ) );
 	}
 
 	/**
 	 * @return $this
 	 */
 	protected function cleanImportExportMasterImportUrl() {
-		$sUrl = $this->loadDP()
-					 ->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
 		if ( $sUrl === false ) {
 			$sUrl = '';
 		}
@@ -576,6 +590,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	public function renderPluginBadge() {
 		$oCon = $this->getConn();

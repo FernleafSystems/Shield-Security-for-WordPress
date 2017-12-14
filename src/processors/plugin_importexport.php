@@ -62,8 +62,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getFeature();
 		$oDP = $this->loadDP();
 
-		$sSecretKey = trim( $oDP->query( 'secret', '' ) );
+		$sSecretKey = $oDP->query( 'secret', '' );
+		$bNetwork = $oDP->query( 'network', '' ) === 'Y';
 		$sUrl = $oDP->validateSimpleHttpUrl( $oDP->query( 'url', '' ) );
+
 		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}

@@ -577,6 +577,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardImportOptions() {
 		$oDP = $this->loadDP();
+
 		$sMasterSiteUrl = $oDP->post( 'MasterSiteUrl' );
 		$sSecretKey = $oDP->post( 'MasterSiteSecretKey' );
 		$bEnabledNetwork = $oDP->post( 'ShieldNetworkCheck' ) === 'Y';
@@ -615,7 +616,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 					array(
 						'shield_action' => 'importexport_export',
 						'secret'        => $sSecretKey,
-						'url'           => $this->loadWp()->getHomeUrl()
+						'url'           => $this->loadWp()->getHomeUrl(),
+						'network'       => $bEnabledNetwork ? 'Y' : 'N'
 					),
 					$sMasterSiteUrl
 				);
@@ -647,10 +649,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 					$bSuccess = true;
 				}
 			}
-		}
-
-		if ( $bSuccess && $bEnabledNetwork ) {
-
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
