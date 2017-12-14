@@ -26,6 +26,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 	/**
 	 * @param string $sWizard
+	 * @throws Exception
 	 */
 	protected function loadWizard( $sWizard ) {
 
@@ -46,7 +47,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	public function ajaxSetupWizardSteps() {
 		$oDP = $this->loadDP();
-		$aNextStep = $this->getNextWizardStep( $oDP->FetchPost( 'wizard_steps' ), $oDP->FetchPost( 'current_index' ) );
+		$aNextStep = $this->getWizardNextStep( $oDP->FetchPost( 'wizard_steps' ), $oDP->FetchPost( 'current_index' ) );
 
 		return $this->getFeature()
 					->sendAjaxResponse(
@@ -134,7 +135,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 						 ->getRawFlashMessageText();
 
 		$aDisplayData = array(
-			'strings'      => array(
+			'strings' => array(
 				'welcome'         => _wpsf__( 'Welcome' ),
 				'time_remaining'  => _wpsf__( 'Time Remaining' ),
 				'calculating'     => _wpsf__( 'Calculating' ).' ...',
@@ -146,11 +147,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'message'         => $sMessage,
 				'page_title'      => sprintf( _wpsf__( '%s Setup Wizard' ), $oCon->getHumanName() )
 			),
-			'data'         => array(
-				'login_fields' => $aLoginIntentFields,
-				'wizard_steps' => json_encode( $this->determineWizardSteps() ),
+			'data'    => array(
+				'login_fields'      => $aLoginIntentFields,
+				'wizard_steps'      => json_encode( $this->determineWizardSteps() ),
+				'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 			),
-			'hrefs'        => array(
+			'hrefs'   => array(
 				'form_action'      => $this->loadDataProcessor()->getRequestUri(),
 				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
@@ -168,16 +170,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'what_is_this'     => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
-			'ajax'         => array(
+			'ajax'    => array(
 				'content'       => $oFO->getBaseAjaxActionRenderData( 'SetupWizardContent' ),
 				'steps'         => $oFO->getBaseAjaxActionRenderData( 'SetupWizardSteps' ),
 				'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'SetupWizardSteps', true ),
-			),
-			'wizard_steps' => json_encode(
-				(object)array(
-					'title'   => 'test title 1',
-					'content' => 'test content 1',
-				)
 			)
 		);
 
@@ -194,6 +190,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	protected function determineWizardSteps() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+
+		// Special case: user doesn't meet even the basic plugin admin permissions
+		if ( !$oFO->getController()->getUserCanBasePerms() ) {
+			return array( 'no_access' );
+		}
 
 		$aStepsSlugs = array( 'welcome' );
 		if ( !$oFO->isPremium() ) {
@@ -235,11 +236,18 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getWizardFirstStep() {
+		return $this->getWizardNextStep( $this->determineWizardSteps(), -1 );
+	}
+
+	/**
 	 * @param array $aAllSteps
 	 * @param int   $nCurrentStep
 	 * @return array
 	 */
-	protected function getNextWizardStep( $aAllSteps, $nCurrentStep ) {
+	protected function getWizardNextStep( $aAllSteps, $nCurrentStep ) {
 		$aNextStep = array();
 
 		$aSteps = array_values( array_intersect_key( $this->getWizardSteps(), array_flip( $aAllSteps ) ) );
@@ -247,8 +255,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
 			$aNextStep = $aSteps[ $nCurrentStep + 1 ];
 
+			$bRestrictedAccess = !isset( $aNextStep[ 'restricted_access' ] ) || $aNextStep[ 'restricted_access' ];
 			try {
-				if ( $this->getController()->getHasPermissionToManage() ) {
+				if ( !$bRestrictedAccess || $this->getController()->getHasPermissionToManage() ) {
 					$aData = $this->getRenderDataForStep( $aNextStep[ 'slug' ] );
 					$aNextStep[ 'content' ] = $this->renderWizardStep( $aNextStep[ 'slug' ], $aData );
 				}
@@ -293,6 +302,13 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$aAdd = array();
 
 		switch ( $sSlug ) {
+			case 'license':
+				$aAdd = array(
+					'hrefs' => array(
+						'gopro' => 'http://icwp.io/ap'
+					)
+				);
+				break;
 			case 'importoptions':
 				$aAdd = array(
 					'imgs' => array(
@@ -311,10 +327,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				);
 				break;
 
+			case 'no_access':
 			case 'thankyou':
 				$aAdd = array(
 					'hrefs' => array(
-						'dashboard'  => $oFO->getFeatureAdminPageUrl(),
+						'dashboard' => $oFO->getFeatureAdminPageUrl(),
 					)
 				);
 				break;
@@ -377,10 +394,17 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function getWizardSteps() {
 		$aStandard = array(
+			'no_access'                => array(
+				'title'             => _wpsf__( 'No Access' ),
+				'slug'              => 'no_access',
+				'content'           => '',
+				'restricted_access' => false
+			),
 			'welcome'                  => array(
-				'title'   => _wpsf__( 'Welcome' ),
-				'slug'    => 'welcome',
-				'content' => '',
+				'title'             => _wpsf__( 'Welcome' ),
+				'slug'              => 'welcome',
+				'content'           => '',
+				'restricted_access' => false,
 			),
 			'license'                  => array(
 				'title'   => _wpsf__( 'Go Pro' ),
@@ -418,9 +442,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content' => '',
 			),
 			'how_shield_works'         => array(
-				'title'   => _wpsf__( 'How Shield Works' ),
-				'slug'    => 'how_shield_works',
-				'content' => '',
+				'title'             => _wpsf__( 'How Shield Works' ),
+				'slug'              => 'how_shield_works',
+				'content'           => '',
+				'restricted_access' => false,
 			),
 			'optin'                    => array(
 				'title'   => _wpsf__( 'Join Us!' ),
@@ -428,9 +453,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content' => '',
 			),
 			'thankyou'                 => array(
-				'title'   => _wpsf__( 'Thank You' ),
-				'slug'    => 'thankyou',
-				'content' => '',
+				'title'             => _wpsf__( 'Thank You' ),
+				'slug'              => 'thankyou',
+				'content'           => '',
+				'restricted_access' => false,
 			)
 		);
 
@@ -522,7 +548,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$aParts = @json_decode( $sResponse, true );
 
 				$bSuccess = false;
-				$sMessage = 'Unknown Error';
 				if ( empty( $aParts ) ) {
 					$sMessage = _wpsf__( 'Could not parse the response from the site.' )
 								.' '._wpsf__( 'Check the secret key is correct for the remote site.' );
@@ -713,10 +738,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$oDP = $this->loadDP();
 
 		$bEnabledTracking = $oDP->post( 'AnonymousOption', 'N', true ) === 'Y';
+		$bEnabledBadge = $oDP->post( 'BadgeOption', 'N', true ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
 		$oModule = $this->getController()->getModule( 'plugin' );
-		$oModule->setPluginTrackingPermission( $bEnabledTracking );
+		$oModule->setIsDisplayPluginBadge( $bEnabledBadge )
+				->setPluginTrackingPermission( $bEnabledTracking );
 
 		$sMessage = _wpsf__( 'Preferences have been saved.' );
 

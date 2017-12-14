@@ -986,12 +986,19 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool $bCheckUserPermissions
 	 * @return bool
 	 */
-	public function getIsValidAdminArea( $bCheckUserPermissions = true ) {
-		if ( $bCheckUserPermissions && $this->loadWpTrack()
-											->getWpActionHasFired( 'init' ) && !current_user_can( $this->getBasePermissions() ) ) {
+	public function getUserCanBasePerms() {
+		return current_user_can( $this->getBasePermissions() );
+	}
+
+	/**
+	 * @param bool $bCheckUserPerms - do we check the logged-in user permissions
+	 * @return bool
+	 */
+	public function getIsValidAdminArea( $bCheckUserPerms = true ) {
+		if ( $bCheckUserPerms && $this->loadWpTrack()->getWpActionHasFired( 'init' )
+			 && !$this->getUserCanBasePerms() ) {
 			return false;
 		}
 

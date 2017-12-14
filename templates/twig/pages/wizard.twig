@@ -16,10 +16,8 @@
 
 {% block body_content_main %}
 	<div class="row">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-8 col-md-offset-2">
 			<div id="wizard">
-				<h1>{{ strings.welcome }}</h1>
-				<div>{{ include( '/wizard/slide-welcome.twig' ) }}</div>
 			</div>
 		</div>
 	</div>
@@ -99,7 +97,7 @@
 			// Initialize wizard
 			var $oWizardContainer = $( "#wizard" );
 			var $oWizard = $oWizardContainer.steps( settings );
-			$oWizard.add( {{ wizard_steps|raw }} );
+			$oWizard.steps( 'add', {{ data.wizard_first_step|raw }} );
 			var $oActions = $( 'div.actions', $oWizard );
 			$oActions.prependTo( $oWizardContainer );
 			$oActions.css( 'display', 'none' );

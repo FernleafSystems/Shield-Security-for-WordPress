@@ -90,6 +90,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param bool $bDisplay
+	 * @return $this
+	 */
+	public function setIsDisplayPluginBadge( $bDisplay ) {
+		return $this->setOpt( 'display_plugin_badge', $bDisplay ? 'Y' : 'N' );
+	}
+
+	/**
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
