@@ -47,12 +47,24 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( !$this->canDisplayOptionsForm() ) {
 			return parent::getContentCustomActions();
 		}
+		$oDP = $this->loadDP();
+		$bCanPhp54 = $oDP->getPhpVersionIsAtLeast( '5.4.0' );
+		$bCanWizardWelcome = $bCanPhp54;
+		$bCanWizardImport = $bCanPhp54 && $this->isPremium();
 
 		$aData = array(
 			'strings' => $this->getDisplayStrings(),
 			'hrefs'   => array(
-				'wizard_welcome' => $this->getWizardUrl( 'welcome' ),
-				'wizard_import'  => $this->getWizardUrl( 'import' ),
+				'wizard_welcome' => $bCanWizardWelcome ? $this->getWizardUrl( 'welcome' ) : 'javascript:{event.preventDefault();}',
+				'wizard_import'  => $bCanWizardImport ? $this->getWizardUrl( 'import' ) : 'javascript:{event.preventDefault();}',
+			),
+			'flags'   => array(
+				'can_php54'   => $bCanPhp54,
+				'can_welcome' => $bCanWizardWelcome,
+				'can_import'  => $bCanWizardImport
+			),
+			'data'    => array(
+				'phpversion' => $oDP->getPhpVersion(),
 			)
 		);
 		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
