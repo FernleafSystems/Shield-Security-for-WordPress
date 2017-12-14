@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				$oResponse = $this->wizardLicense();
 				break;
 
-			case 'importoptions':
+			case 'import_options':
 				$oResponse = $this->wizardImportOptions();
 				break;
 
@@ -244,7 +244,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$aStepsSlugs = array(
 			'import_start',
-			'importoptions',
+			'import_options',
 			'import_finished',
 		);
 
@@ -268,7 +268,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			$aStepsSlugs[] = 'license';
 		}
 
-		$aStepsSlugs[] = 'importoptions';
+		$aStepsSlugs[] = 'import_options';
 
 		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
@@ -374,7 +374,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 					)
 				);
 				break;
-			case 'importoptions':
+			case 'import_options':
 				$aAdd = array(
 					'imgs' => array(
 						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
@@ -482,9 +482,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'slug'    => 'license',
 				'content' => '',
 			),
-			'importoptions'            => array(
+			'import_options'           => array(
 				'title'   => _wpsf__( 'Import' ),
-				'slug'    => 'importoptions',
+				'slug'    => 'import_options',
 				'content' => '',
 			),
 			'admin_access_restriction' => array(
@@ -543,8 +543,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardLicense() {
-		$oDP = $this->loadDP();
-		$sKey = trim( $oDP->FetchPost( 'LicenseKey' ) );
+		$sKey = $this->loadDP()->post( 'LicenseKey' );
 
 		$bSuccess = false;
 		if ( empty( $sKey ) ) {
@@ -578,10 +577,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardImportOptions() {
 		$oDP = $this->loadDP();
-		$sSourceSiteUrl = $oDP->post( 'SourceSiteUrl' );
-		$sSecretKey = $oDP->post( 'SourceSiteSecretKey' );
+		$sMasterSiteUrl = $oDP->post( 'MasterSiteUrl' );
+		$sSecretKey = $oDP->post( 'MasterSiteSecretKey' );
+		$bEnabledNetwork = $oDP->post( 'ShieldNetworkCheck' ) === 'Y';
 
-		$aParts = parse_url( $sSourceSiteUrl );
+		$aParts = parse_url( $sMasterSiteUrl );
 
 		$bSuccess = false;
 		if ( empty( $sSecretKey ) ) {
@@ -617,13 +617,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 						'secret'        => $sSecretKey,
 						'url'           => $this->loadWp()->getHomeUrl()
 					),
-					$sSourceSiteUrl
+					$sMasterSiteUrl
 				);
 
 				$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
 				$aParts = @json_decode( $sResponse, true );
 
-				$bSuccess = false;
 				if ( empty( $aParts ) ) {
 					$sMessage = _wpsf__( 'Could not parse the response from the site.' )
 								.' '._wpsf__( 'Check the secret key is correct for the remote site.' );
@@ -650,6 +649,10 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			}
 		}
 
+		if ( $bSuccess && $bEnabledNetwork ) {
+
+		}
+
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
@@ -659,8 +662,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardSecurityAdminVerify() {
-		$oDP = $this->loadDP();
-		$sKey = trim( $oDP->FetchPost( 'AccessKey' ) );
+		$sKey = $this->loadDP()->post( 'AccessKey' );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 
@@ -693,8 +695,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardSecurityAdmin() {
 		$oDP = $this->loadDP();
-		$sKey = trim( $oDP->FetchPost( 'AccessKey' ) );
-		$sConfirm = trim( $oDP->FetchPost( 'AccessKeyConfirm' ) );
+		$sKey = $oDP->post( 'AccessKey' );
+		$sConfirm = $oDP->post( 'AccessKeyConfirm' );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 
@@ -727,8 +729,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardAuditTrail() {
-
-		$bEnabled = trim( $this->loadDP()->FetchPost( 'AuditTrailOption' ) ) === 'Y';
+		$bEnabled = $this->loadDP()->post( 'AuditTrailOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
 		$oModule = $this->getController()->getModule( 'audit_trail' );
@@ -755,7 +756,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardIps() {
 
-		$bEnabled = trim( $this->loadDP()->FetchPost( 'IpManagerOption' ) ) === 'Y';
+		$bEnabled = $this->loadDP()->post( 'IpManagerOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
 		$oModule = $this->getController()->getModule( 'ips' );
@@ -782,7 +783,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardLoginProtect() {
 
-		$bEnabled = trim( $this->loadDP()->FetchPost( 'LoginProtectOption' ) ) === 'Y';
+		$bEnabled = $this->loadDP()->post( 'LoginProtectOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
 		$oModule = $this->getController()->getModule( 'login_protect' );
@@ -833,7 +834,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	private function wizardCommentsFilter() {
 
-		$bEnabled = trim( $this->loadDP()->FetchPost( 'CommentsFilterOption' ) ) === 'Y';
+		$bEnabled = $this->loadDP()->post( 'CommentsFilterOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
 		$oModule = $this->getController()->getModule( 'comments_filter' );
