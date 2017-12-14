@@ -88,9 +88,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 		private function renderHtml() {
 			ob_start();
 			@include( $this->getTemplateRoot().ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR ) );
-			$sContents = ob_get_contents();
-			ob_end_clean();
-			return $sContents;
+			return ob_get_clean();
 		}
 
 		/**
@@ -105,8 +103,7 @@ if ( !class_exists( 'ICWP_WPSF_Render', false ) ):
 			if ( $this->loadFS()->isFile( $sTemplate ) ) {
 				ob_start();
 				include( $sTemplate );
-				$sContents = ob_get_contents();
-				ob_end_clean();
+				$sContents = ob_get_clean();
 			}
 			else {
 				$sContents = 'Error: Template file not found: ' . $sTemplate;

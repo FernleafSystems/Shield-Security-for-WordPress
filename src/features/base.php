@@ -1306,6 +1306,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function renderOptionsForm() {
 

@@ -41,6 +41,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getContentCustomActions() {
+		if ( !$this->canDisplayOptionsForm() ) {
+			return parent::getContentCustomActions();
+		}
+
+		$aData = array(
+			'strings' => $this->getDisplayStrings(),
+		);
+		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
 	 */
 	protected function getWizardProcessor() {
@@ -565,6 +579,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		);
 		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
 		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return array(
+			'actions_title'   => _wpsf__( 'Plugin Actions' ),
+			'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+		);
 	}
 
 	/**
