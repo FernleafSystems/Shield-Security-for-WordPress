@@ -20,20 +20,33 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 	public function onWpInit() {
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$this->loadWizard( $this->loadDP()->query( 'wizard' ) );
+			$this->loadWizard( (string)$this->loadDP()->query( 'wizard', '' ) );
 		}
 	}
 
+	/**
+	 * @param string $sWizard
+	 */
+	protected function loadWizard( $sWizard ) {
+
+		$sContent = '';
+		switch ( $sWizard ) {
+			case 'welcome':
+				$sContent = $this->renderWelcomeWizard();
+				break;
+			default:
+				$this->loadWp()->redirectToAdmin();
+				break;
+		}
+		echo $sContent;
+		die();
+	}
+
+	/**
+	 */
 	public function ajaxSetupWizardSteps() {
 		$oDP = $this->loadDP();
-		$nCurrent = $oDP->FetchPost( 'current_index' );
-		$aSteps = $oDP->FetchPost( 'wizard_steps' );
-		$aNextStep = $this->getNextWizardStep( $aSteps, $nCurrent );
-
-		// So to keep things simple, we render as normal, but then we overwrite with Security Admin
-		if ( !$this->getController()->getHasPermissionToManage() ) {
-			$aNextStep[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrent );
-		}
+		$aNextStep = $this->getNextWizardStep( $oDP->FetchPost( 'wizard_steps' ), $oDP->FetchPost( 'current_index' ) );
 
 		return $this->getFeature()
 					->sendAjaxResponse(
@@ -106,23 +119,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
 	}
 
-	protected function loadWizard( $sWizard ) {
-
-		$sContent = '';
-		switch ( $sWizard ) {
-			case 'welcome':
-				$sContent = $this->renderWelcomeWizard();
-				break;
-			default:
-				$this->loadWp()->redirectToAdmin();
-				break;
-		}
-		echo $sContent;
-		die();
-	}
-
 	/**
-	 * @return bool true if valid form printed, false otherwise. Should die() if true
+	 * @return string
+	 * @throws Exception
 	 */
 	public function renderWelcomeWizard() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
@@ -241,23 +240,34 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return array
 	 */
 	protected function getNextWizardStep( $aAllSteps, $nCurrentStep ) {
+		$aNextStep = array();
+
 		$aSteps = array_values( array_intersect_key( $this->getWizardSteps(), array_flip( $aAllSteps ) ) );
 
 		if ( isset( $aSteps[ $nCurrentStep + 1 ] ) ) {
-			$aNext = $aSteps[ $nCurrentStep + 1 ];
+			$aNextStep = $aSteps[ $nCurrentStep + 1 ];
 
-			$aData = $this->getRenderDataForStep( $aNext[ 'slug' ] );
-			$aNext[ 'content' ] = $this->renderWizardStep( $aNext[ 'slug' ], $aData );
+			try {
+				if ( $this->getController()->getHasPermissionToManage() ) {
+					$aData = $this->getRenderDataForStep( $aNextStep[ 'slug' ] );
+					$aNextStep[ 'content' ] = $this->renderWizardStep( $aNextStep[ 'slug' ], $aData );
+				}
+				else {
+					$aNextStep[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrentStep );
+				}
+			}
+			catch ( Exception $oE ) {
+				$aNextStep[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
+			}
 		}
-		else {
-			$aNext = array();
-		}
-		return $aNext;
+
+		return $aNextStep;
 	}
 
 	/**
 	 * @param int $nIndex
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
 		return $this->renderWizardStep( 'admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
@@ -285,7 +295,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		switch ( $sSlug ) {
 			case 'importoptions':
 				$aAdd = array(
-					'imgs'     => array(
+					'imgs' => array(
 						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
 					)
 				);
@@ -297,6 +307,14 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 					'data' => array(
 						'name'       => $oUser->first_name,
 						'user_email' => $oUser->user_email
+					)
+				);
+				break;
+
+			case 'thankyou':
+				$aAdd = array(
+					'hrefs' => array(
+						'dashboard'  => $oFO->getFeatureAdminPageUrl(),
 					)
 				);
 				break;
@@ -344,6 +362,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @param string $sSlug
 	 * @param array  $aRenderData
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
