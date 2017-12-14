@@ -36,24 +36,29 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		}
 
 		/**
-		 * @param array $aNoticeAttributes
+		 * @param array $aAttrs
 		 * @return bool
 		 */
-		protected function getIfDisplayAdminNotice( $aNoticeAttributes ) {
+		protected function getIfDisplayAdminNotice( $aAttrs ) {
 
-			if ( ! parent::getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
+			if ( ! parent::getIfDisplayAdminNotice( $aAttrs ) ) {
 				return false;
 			}
-			if ( isset( $aNoticeAttributes['delay_days'] ) && is_int( $aNoticeAttributes['delay_days'] ) && ( $this->getInstallationDays() < $aNoticeAttributes['delay_days'] ) ) {
+			if ( isset( $aAttrs[ 'delay_days'] ) && is_int( $aAttrs[ 'delay_days'] )
+				 && ( $this->getInstallationDays() < $aAttrs[ 'delay_days'] ) ) {
 				return false;
 			}
 			return true;
 		}
 
-		public function addNotice_rate_plugin( $aNoticeAttributes ) {
+		/**
+		 * @param $aAttr
+		 * @throws Exception
+		 */
+		public function addNotice_rate_plugin( $aAttr ) {
 
 			$aRenderData = array(
-				'notice_attributes' => $aNoticeAttributes,
+				'notice_attributes' => $aAttr,
 				'strings' => array(
 					'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
 					'forums' => __( 'Support Forums' )
@@ -66,10 +71,38 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		}
 
 		/**
-		 * @see autoAddToAdminNotices()
 		 * @param array $aNoticeAttributes
+		 * @throws Exception
 		 */
-		protected function addNotice_php53_version_warning( $aNoticeAttributes ) {
+		public function addNotice_wizard_welcome( $aNoticeAttributes ) {
+
+			$sWizardUrl = add_query_arg(
+				array(
+					'shield_action' => 'wizard',
+					'wizard' => 'welcome',
+				),
+				$this->loadWp()->getUrl_WpAdmin()
+			);
+
+
+			$aRenderData = array(
+				'notice_attributes' => $aNoticeAttributes,
+				'strings' => array(
+					'dismiss' => _wpsf__( "I don't need the setup wizard just now" ),
+				),
+				'hrefs' => array(
+					'wizard' => $sWizardUrl,
+				)
+			);
+			$this->insertAdminNotice( $aRenderData );
+		}
+
+		/**
+		 * @see autoAddToAdminNotices()
+		 * @param array $aAttr
+		 * @throws Exception
+		 */
+		protected function addNotice_php53_version_warning( $aAttr ) {
 			$oDp = $this->loadDataProcessor();
 			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
 				return;
@@ -77,7 +110,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 
 			$oCon = $this->getController();
 			$aRenderData = array(
-				'notice_attributes' => $aNoticeAttributes,
+				'notice_attributes' => $aAttr,
 				'strings' => array(
 					'your_php_version' => sprintf( _wpsf__( 'Your PHP version is very (10+ years) old: %s' ), $oDp->getPhpVersion() ),
 					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),

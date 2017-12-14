@@ -36,8 +36,8 @@
 
 #wpbody-content .info.icwp-admin-notice,
 #wpbody-content .promo.icwp-admin-notice {
-	background-color: rgba(40, 158, 214, 0.25);
-	border-color: rgba(25, 104, 137, 0.99);
+	background-color: rgba(199, 226, 239, 0.25);
+	border-color: rgba(108, 138, 150, 0.99);
 }
 #wpbody-content .info.icwp-admin-notice,
 #wpbody-content .info.icwp-admin-notice p,
@@ -52,6 +52,11 @@
 }
 #wpbody-content .error.icwp-admin-notice h3 {
 	color: rgba(199, 41, 0, 1);
+}
+#wpbody-content .dismiss-p,
+#wpbody-content .dismiss-p a {
+	color: rgb(103, 21, 0);
+	text-align: right;
 }
 
 ul.nav-tabs li a {

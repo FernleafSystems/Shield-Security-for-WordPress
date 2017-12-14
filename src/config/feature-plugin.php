@@ -29,9 +29,16 @@
       "valid_admin": true,
       "type": "warning"
     },
+    "wizard_welcome": {
+      "id": "wizard_welcome",
+      "schedule": "once",
+      "valid_admin": true,
+      "delay_days": 0,
+      "type": "promo"
+    },
     "allow-tracking": {
       "id": "allow-tracking",
-      "schedule": "once",
+      "schedule": "never",
       "valid_admin": true,
       "delay_days": 0,
       "type": "promo"

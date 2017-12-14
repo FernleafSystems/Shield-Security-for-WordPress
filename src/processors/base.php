@@ -69,8 +69,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			}
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
-			if ( method_exists( $this, $sMethodName )
-				 && isset( $aNoticeAttributes[ 'valid_admin' ] ) && $aNoticeAttributes[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
+			if ( method_exists( $this, $sMethodName ) && isset( $aNoticeAttributes[ 'valid_admin' ] )
+				 && $aNoticeAttributes[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
 
 				$aNoticeAttributes[ 'notice_id' ] = $sNoticeId;
 				call_user_func( array( $this, $sMethodName ), $aNoticeAttributes );
@@ -79,33 +79,37 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
+	 * @param array $aAttrs
 	 * @return bool
 	 */
-	protected function getIfDisplayAdminNotice( $aNoticeAttributes ) {
+	protected function getIfDisplayAdminNotice( $aAttrs ) {
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
-		if ( empty( $aNoticeAttributes[ 'schedule' ] ) || !in_array( $aNoticeAttributes[ 'schedule' ], array(
+		if ( empty( $aAttrs[ 'schedule' ] ) || !in_array( $aAttrs[ 'schedule' ], array(
 				'once',
 				'conditions',
 				'version'
 			) ) ) {
-			$aNoticeAttributes[ 'schedule' ] = 'conditions';
+			$aAttrs[ 'schedule' ] = 'conditions';
 		}
 
-		if ( $aNoticeAttributes[ 'schedule' ] == 'once'
-			 && ( !$this->loadWpUsers()
-						->getCanAddUpdateCurrentUserMeta() || $oWpNotices->getAdminNoticeIsDismissed( $aNoticeAttributes[ 'id' ] ) )
+		if ( $aAttrs[ 'schedule' ] == 'never' ) {
+			return false;
+		}
+
+		if ( $aAttrs[ 'schedule' ] == 'once'
+			 && ( !$this->loadWpUsers()->getCanAddUpdateCurrentUserMeta()
+				  || $oWpNotices->getAdminNoticeIsDismissed( $aAttrs[ 'id' ] ) )
 		) {
 			return false;
 		}
 
-		if ( $aNoticeAttributes[ 'schedule' ] == 'version' && ( $this->getFeature()
-																	 ->getVersion() == $oWpNotices->getAdminNoticeMeta( $aNoticeAttributes[ 'id' ] ) ) ) {
+		if ( $aAttrs[ 'schedule' ] == 'version'
+			 && ( $this->getFeature()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aAttrs[ 'id' ] ) ) ) {
 			return false;
 		}
 
-		if ( isset( $aNoticeAttributes[ 'type' ] ) && $aNoticeAttributes[ 'type' ] == 'promo' ) {
+		if ( isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo' ) {
 			if ( $this->loadWp()->getIsMobile() ) {
 				return false;
 			}
@@ -137,6 +141,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param array $aNoticeData
+	 * @throws Exception
 	 */
 	protected function insertAdminNotice( $aNoticeData ) {
 		$bIsPromo = isset( $aNoticeData[ 'notice_attributes' ][ 'type' ] ) && $aNoticeData[ 'notice_attributes' ][ 'type' ] == 'promo';
