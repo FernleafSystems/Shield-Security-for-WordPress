@@ -18,8 +18,8 @@
       "valid_admin": true,
       "type": "error"
     },
-    "php53-version-warning": {
-      "id": "php53-version-warning",
+    "php54_version_warning": {
+      "id": "php54_version_warning",
       "schedule": "once",
       "valid_admin": true,
       "type": "warning"

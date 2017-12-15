@@ -96,9 +96,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		 * @param array $aAttr
 		 * @throws Exception
 		 */
-		protected function addNotice_php53_version_warning( $aAttr ) {
-			$oDp = $this->loadDataProcessor();
-			if ( $oDp->getPhpVersionIsAtLeast( '5.3.2' ) ) {
+		protected function addNotice_php54_version_warning( $aAttr ) {
+			$oDp = $this->loadDP();
+			if ( $oDp->getPhpVersionIsAtLeast( '5.4.0' ) ) {
 				return;
 			}
 
@@ -106,15 +106,15 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 			$aRenderData = array(
 				'notice_attributes' => $aAttr,
 				'strings'           => array(
-					'your_php_version'              => sprintf( _wpsf__( 'Your PHP version is very (10+ years) old: %s' ), $oDp->getPhpVersion() ),
-					'future_versions_not_supported' => sprintf( _wpsf__( 'Future versions of the %s plugin will not support your PHP version.' ), $oCon->getHumanName() ),
-					'ask_host_to_upgrade'           => sprintf( _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ), $oCon->getHumanName() ),
-					'any_questions'                 => sprintf( _wpsf__( 'If you have any questions, please leave us a message in the forums.' ), $oCon->getHumanName() ),
-					'dismiss'                       => _wpsf__( 'Dismiss this notice' ),
-					'forums'                        => __( 'Support Forums' )
+					'your_version'  => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
+					'not_supported' => sprintf( _wpsf__( 'Newer features of %s do not support your PHP version.' ), $oCon->getHumanName() ),
+					'ask_host'      => _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ),
+					'questions'     => _wpsf__( 'Please read here for further information:' ),
+					'dismiss'       => _wpsf__( 'Dismiss this notice' ),
+					'help'          => __( 'Dropping support PHP 5.2 and 5.3' )
 				),
 				'hrefs'             => array(
-					'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
+					'help' => 'http://icwp.io/aq',
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );
@@ -123,6 +123,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ):
 		/**
 		 * @see autoAddToAdminNotices()
 		 * @param array $aNoticeAttributes
+		 * @throws Exception
 		 */
 		protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 			$oFO = $this->getFeature();
