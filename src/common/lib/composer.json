@@ -17,7 +17,7 @@
 	"php":                       ">=5.3.3",
 	"fernleafsystems/utilities": "^1.0",
 	"nesbot/carbon":             "^1.22.0",
-	"twig/twig":                 "^2.0.0"
+	"twig/twig":                 "^1.0"
   },
   "require-dev":  {
   },
