@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'ask_host'      => _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ),
 				'questions'     => _wpsf__( 'Please read here for further information:' ),
 				'dismiss'       => _wpsf__( 'Dismiss this notice' ),
-				'help'          => __( 'Dropping support PHP 5.2 and 5.3' )
+				'help'          => _wpsf__( 'Dropping support for PHP 5.2 and 5.3' )
 			),
 			'hrefs'             => array(
 				'help' => 'http://icwp.io/aq',
