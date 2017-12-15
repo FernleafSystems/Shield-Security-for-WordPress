@@ -167,7 +167,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * @param string $sSiteResponse
 	 * @return int
 	 */
-	public function runImport( $sMasterSiteUrl, $sSecretKey, $bEnableNetwork = false, &$sSiteResponse = '' ) {
+	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = false, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
@@ -201,16 +201,17 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			else {
 				$oFO->startImportExportHandshake();
 
-				$sFinalUrl = add_query_arg(
-					array(
-						'shield_action' => 'importexport_export',
-						'secret'        => $sSecretKey,
-						'url'           => $this->loadWp()->getHomeUrl(),
-						'network'       => $bEnableNetwork ? 'Y' : 'N'
-					),
-					$sMasterSiteUrl
+				$aData = array(
+					'shield_action' => 'importexport_export',
+					'secret'        => $sSecretKey,
+					'url'           => $this->loadWp()->getHomeUrl()
 				);
+				// Don't send the network setup request if it's the cron.
+				if ( !$this->loadWp()->isCron() ) {
+					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
+				}
 
+				$sFinalUrl = add_query_arg( $aData, $sMasterSiteUrl );
 				$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
 				$aParts = @json_decode( $sResponse, true );
 
@@ -247,7 +248,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function cron_autoImport() {
-
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+		$this->runImport( $oFO->getImportExportMasterImportUrl() );
 	}
 
 	public function deleteCron() {
