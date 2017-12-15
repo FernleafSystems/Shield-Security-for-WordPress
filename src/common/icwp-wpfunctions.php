@@ -512,6 +512,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sUrlPath
 	 * @return bool
 	 */
 	public function isLoginUrl( $sUrlPath ) {
