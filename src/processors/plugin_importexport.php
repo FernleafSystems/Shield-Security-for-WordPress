@@ -160,6 +160,92 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
+	/**
+	 * @param string $sMasterSiteUrl
+	 * @param string $sSecretKey
+	 * @param bool   $bEnableNetwork
+	 * @param string $sSiteResponse
+	 * @return int
+	 */
+	public function runImport( $sMasterSiteUrl, $sSecretKey, $bEnableNetwork = false, &$sSiteResponse = '' ) {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+
+		$aParts = parse_url( $sMasterSiteUrl );
+
+		$bCheckKeyFormat = !$oFO->hasImportExportMasterImportUrl();
+		$sSecretKey = preg_replace( '#[^0-9a-z]#i', '', $sSecretKey );
+
+		if ( $bCheckKeyFormat && empty( $sSecretKey ) ) {
+			$nErrorCode = 1;
+		}
+		else if ( $bCheckKeyFormat && strlen( $sSecretKey ) != 40 ) {
+			$nErrorCode = 2;
+		}
+		else if ( $bCheckKeyFormat && preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
+			$nErrorCode = 3; //unused
+		}
+		else if ( empty( $aParts ) ) {
+			$nErrorCode = 4;
+		}
+		else {
+			$bReady = true;
+			$aEssential = array( 'scheme', 'host' );
+			foreach ( $aEssential as $sKey ) {
+				$bReady = $bReady && !empty( $aParts[ $sKey ] );
+			}
+
+			if ( !$bReady ) {
+				$nErrorCode = 4;
+			}
+			else {
+				$oFO->startImportExportHandshake();
+
+				$sFinalUrl = add_query_arg(
+					array(
+						'shield_action' => 'importexport_export',
+						'secret'        => $sSecretKey,
+						'url'           => $this->loadWp()->getHomeUrl(),
+						'network'       => $bEnableNetwork ? 'Y' : 'N'
+					),
+					$sMasterSiteUrl
+				);
+
+				$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
+				$aParts = @json_decode( $sResponse, true );
+
+				if ( empty( $aParts ) ) {
+					$nErrorCode = 5;
+				}
+				else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
+
+					if ( empty ( $aParts[ 'message' ] ) ) {
+						$nErrorCode = 6;
+					}
+					else {
+						$nErrorCode = 7;
+						$sSiteResponse = $aParts[ 'message' ]; // This is crap because we can't use Response objects
+					}
+				}
+				else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
+					$nErrorCode = 8;
+				}
+				else {
+					do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
+
+					// if it's network enabled, we save the new master URL.
+					if ( $bEnableNetwork ) {
+						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
+					}
+
+					$nErrorCode = 0;
+				}
+			}
+		}
+
+		return $nErrorCode;
+	}
+
 	public function cron_autoImport() {
 
 	}

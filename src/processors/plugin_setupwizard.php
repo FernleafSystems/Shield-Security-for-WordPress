@@ -577,90 +577,36 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardImportOptions() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
 		$oDP = $this->loadDP();
 
 		$sMasterSiteUrl = $oDP->post( 'MasterSiteUrl' );
 		$sSecretKey = $oDP->post( 'MasterSiteSecretKey' );
 		$bEnabledNetwork = $oDP->post( 'ShieldNetworkCheck' ) === 'Y';
 
-		$aParts = parse_url( $sMasterSiteUrl );
+		/** @var ICWP_WPSF_Processor_Plugin $oProc */
+		$oProc = $oFO->getProcessor();
+		$nCode = $oProc->getSubProcessorImportExport()
+					   ->runImport( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork, $sSiteResponse );
 
-		$bSuccess = false;
-		if ( empty( $sSecretKey ) ) {
-			$sMessage = _wpsf__( 'Secret key was empty.' );
-		}
-		else if ( strlen( $sSecretKey ) != 40 ) {
-			$sMessage = _wpsf__( 'Secret key was not 40 characters long.' );
-		}
-		else if ( preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
-			$sMessage = _wpsf__( 'Secret key contains invalid characters - it should be letters and numbers only.' );
-		}
-		else if ( empty( $aParts ) ) {
-			$sMessage = _wpsf__( 'Source site URL could not be parsed correctly.' );
-		}
-		else {
-			$bReady = true;
-			$aEssential = array( 'scheme', 'host' );
-			foreach ( $aEssential as $sKey ) {
-				$bReady = $bReady && !empty( $aParts[ $sKey ] );
-			}
+		$aErrors = array(
+			_wpsf__( 'Options imported successfully to your site.' ), // success
+			_wpsf__( 'Secret key was empty.' ),
+			_wpsf__( 'Secret key was not 40 characters long.' ),
+			_wpsf__( 'Secret key contains invalid characters - it should be letters and numbers only.' ),
+			_wpsf__( 'Source site URL could not be parsed correctly.' ),
+			_wpsf__( 'Could not parse the response from the site.' )
+			.' '._wpsf__( 'Check the secret key is correct for the remote site.' ),
+			_wpsf__( 'Failure response returned from the site.' ),
+			sprintf( _wpsf__( 'Remote site responded with - %s' ), $sSiteResponse ),
+			_wpsf__( 'Data returned from the site was empty.' )
+		);
 
-			if ( !$bReady ) {
-				$sMessage = _wpsf__( 'Source site URL could not be parsed correctly.' );
-			}
-			else {
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-				$oFO = $this->getFeature();
-				$oFO->startImportExportHandshake();
-
-				$sFinalUrl = add_query_arg(
-					array(
-						'shield_action' => 'importexport_export',
-						'secret'        => $sSecretKey,
-						'url'           => $this->loadWp()->getHomeUrl(),
-						'network'       => $bEnabledNetwork ? 'Y' : 'N'
-					),
-					$sMasterSiteUrl
-				);
-
-				$sResponse = $this->loadFS()->getUrlContent( $sFinalUrl );
-				$aParts = @json_decode( $sResponse, true );
-
-				if ( empty( $aParts ) ) {
-					$sMessage = _wpsf__( 'Could not parse the response from the site.' )
-								.' '._wpsf__( 'Check the secret key is correct for the remote site.' );
-				}
-				else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
-
-					if ( empty ( $aParts[ 'message' ] ) ) {
-						$sMessage = _wpsf__( 'Failure response returned from the site.' );
-					}
-					else {
-						$sMessage = sprintf( _wpsf__( 'Remote site responded with - %s' ), $aParts[ 'message' ] );
-					}
-				}
-				else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
-					$sMessage = _wpsf__( 'Data returned from the site was empty.' );
-				}
-				else {
-
-					/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-					$oFO = $this->getFeature();
-					do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
-					$sMessage = _wpsf__( 'Options imported successfully to your site.' );
-
-					// if it's network enabled, we save the new master URL.
-					if ( $bEnabledNetwork ) {
-						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
-					}
-
-					$bSuccess = true;
-				}
-			}
-		}
+		$sMessage = isset( $aErrors[ $nCode ] ) ? $aErrors[ $nCode ] : 'Unknown Error';
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
+		return $oResponse->setSuccessful( $nCode === 0 )
 						 ->setMessageText( $sMessage );
 	}
 
