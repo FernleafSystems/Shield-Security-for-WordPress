@@ -465,6 +465,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'content'           => '',
 				'restricted_access' => false
 			),
+			'import_finished'          => array(
+				'title'             => _wpsf__( 'Import Finished' ),
+				'slug'              => 'import_finished',
+				'content'           => '',
+				'restricted_access' => false
+			),
 			'no_access'                => array(
 				'title'             => _wpsf__( 'No Access' ),
 				'slug'              => 'no_access',
@@ -528,12 +534,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'slug'              => 'thankyou',
 				'content'           => '',
 				'restricted_access' => false,
-			),
-			'import_finished'          => array(
-				'title'   => _wpsf__( 'Import Finished' ),
-				'slug'    => 'import_finished',
-				'content' => '',
-			),
+			)
 		);
 
 		return $aStandard;
