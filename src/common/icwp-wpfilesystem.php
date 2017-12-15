@@ -184,7 +184,7 @@ if ( !class_exists( 'ICWP_WPSF_WpFilesystem', false ) ):
 		/**
 		 * @param string $sUrl
 		 * @param array $aRequestArgs
-		 * @return array|bool
+		 * @return array|WP_Error|bool
 		 */
 		public function requestUrl( $sUrl, $aRequestArgs = array(), $bAlwaysRawResponse = false ) {
 

@@ -21,6 +21,43 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * A simple outgoing POST request to see that we can communicate with the ODP servers
+	 * @param string $sStoreUrl
+	 * @return string
+	 */
+	public function ping( $sStoreUrl ) {
+		$oLicense = null;
+
+		$sStoreUrl = add_query_arg(
+			array( 'license_ping' => 'Y' ),
+			$sStoreUrl
+		);
+
+		$aParams = array(
+			'method' => 'post',
+			'body'   => array(
+				'ping'    => 'pong',
+				'license' => 'abcdefghi',
+				'item_id' => '123',
+				'url'     => $this->loadWp()->getWpUrl()
+			)
+		);
+
+		$mResponse = $this->loadFS()
+						  ->requestUrl( $sStoreUrl, $aParams );
+
+		$sResult = 'Unknown Error';
+		if ( is_array( $mResponse ) && !empty( $mResponse[ 'body' ] ) ) {
+			$aResult = json_decode( $mResponse[ 'body' ], true );
+			$sResult = ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) ? 'success' : 'unknown failure';
+		}
+		else if ( is_wp_error( $mResponse ) ) {
+			$sResult = $mResponse->get_error_message();
+		}
+		return $sResult;
+	}
+
+	/**
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
