@@ -112,6 +112,7 @@ if ( !class_exists( 'ICWP_WPSF_WpCron', false ) ):
 		protected function setCronSchedule( $sUniqueCronActionName ) {
 			if ( ! wp_next_scheduled( $sUniqueCronActionName ) && ! defined( 'WP_INSTALLING' ) ) {
 				wp_schedule_event( $this->getNextRun(), $this->getRecurrence(), $sUniqueCronActionName );
+				$this->reset();
 			}
 			return $this;
 		}
