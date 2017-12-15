@@ -34,7 +34,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 		);
 
 		$aParams = array(
-			'method' => 'post',
+			'method' => 'POST',
 			'body'   => array(
 				'ping'    => 'pong',
 				'license' => 'abcdefghi',
@@ -46,9 +46,9 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 		$mResponse = $this->loadFS()
 						  ->requestUrl( $sStoreUrl, $aParams );
 
-		$sResult = 'Unknown Error';
+		$sResult = 'Unknown error communicating with license server';
 		if ( is_array( $mResponse ) && !empty( $mResponse[ 'body' ] ) ) {
-			$aResult = json_decode( $mResponse[ 'body' ], true );
+			$aResult = @json_decode( $mResponse[ 'body' ], true );
 			$sResult = ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) ? 'success' : 'unknown failure';
 		}
 		else if ( is_wp_error( $mResponse ) ) {

@@ -512,7 +512,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportSecretKey( $sKey ) {
-		return ( $this->getImportExportSecretKey() == $sKey );
+		return ( !empty( $sKey ) && $this->getImportExportSecretKey() == $sKey );
 	}
 
 	/**
