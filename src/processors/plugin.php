@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			case 'importexport_handshake':
 			case 'importexport_updatenotify':
 				if ( $oFO->isImportExportPermitted() ) {
-					$this->getSubProcessorImportExport()->run();
+					$this->getSubProcessorImportExport()->runAction();
 				}
 				break;
 
@@ -108,7 +108,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
 	 */
-	protected function getSubProcessorImportExport() {
+	public function getSubProcessorImportExport() {
 		$oProc = $this->getSubProcessor( 'importexport' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_importexport.php' );

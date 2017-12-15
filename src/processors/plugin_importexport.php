@@ -9,6 +9,20 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+
+		if ( $oFO->hasImportExportMasterImportUrl() ) {
+			try {
+				$this->setupCronImport();
+			}
+			catch ( Exception $oE ) {
+				error_log( $oE->getMessage() );
+			}
+		}
+	}
+
+	public function runAction() {
 		$oDP = $this->loadDP();
 		switch ( $oDP->query( 'shield_action' ) ) {
 
@@ -134,5 +148,31 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		return $bVerified;
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	protected function setupCronImport() {
+		$this->loadWpCronProcessor()
+			 ->setNextRun( strtotime( 'tomorrow 1am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
+			 ->createCronJob( $this->getCronName(), array( $this, 'cron_autoImport' ) );
+		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+	}
+
+	public function cron_autoImport() {
+
+	}
+
+	public function deleteCron() {
+		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCronName() {
+		$oFO = $this->getFeature();
+		return $oFO->prefixOptionKey( $oFO->getDefinition( 'importexport_cron_name' ) );
 	}
 }

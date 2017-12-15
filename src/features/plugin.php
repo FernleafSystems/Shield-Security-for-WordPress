@@ -80,6 +80,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
+	 */
+	protected function getImportProcessor() {
+		/** @var ICWP_WPSF_Processor_Plugin $oP */
+		$oP = $this->getProcessor();
+		return $oP->getSubProcessorImportExport();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
@@ -282,13 +291,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				);
 			}
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTrackingCronName() {
-		return $this->prefix( $this->getDefinition( 'tracking_cron_handle' ) );
 	}
 
 	/**

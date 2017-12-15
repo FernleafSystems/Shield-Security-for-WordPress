@@ -384,6 +384,7 @@
     "help_video_id": "",
     "tracking_cron_handle": "plugin_tracking_cron",
     "tracking_post_url": "https://tracking.icontrolwp.com/track/plugin/shield",
+    "importexport_cron_name": "autoimport",
     "active_plugin_features": [
       {
         "slug": "admin_access_restriction",
