@@ -127,9 +127,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
+		$this->doRegisterHooks();
 		$this->loadWpTrack();
 		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
+		$this->doLoadTextDomain();
 	}
 
 	/**
@@ -254,13 +255,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpActivatePlugin() {
 		do_action( $this->doPluginPrefix( 'plugin_activate' ) );
 		$this->loadAllFeatures( true, true );
-	}
-
-	/**
-	 */
-	public function onWpPluginsLoaded() {
-		$this->doLoadTextDomain();
-		$this->doRegisterHooks();
 	}
 
 	/**
@@ -1536,6 +1530,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				}
 			}
 		}
+
+		do_action( $this->doPluginPrefix( 'run_processors' ) );
+
 		return $bSuccess;
 	}
 
