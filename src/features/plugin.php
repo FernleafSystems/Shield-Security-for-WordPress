@@ -30,14 +30,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
-		add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array(
-			$this->getWizardProcessor(),
-			'ajaxSetupWizardContent'
-		) );
-		add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array(
-			$this->getWizardProcessor(),
-			'ajaxSetupWizardSteps'
-		) );
+
+		$oWizProc = $this->getWizardProcessor();
+		if ( !is_null( $oWizProc ) ) {
+			add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array(
+				$this->getWizardProcessor(),
+				'ajaxSetupWizardContent'
+			) );
+			add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array(
+				$this->getWizardProcessor(),
+				'ajaxSetupWizardSteps'
+			) );
+		}
 	}
 
 	/**
@@ -71,12 +75,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
+	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard|null
 	 */
 	protected function getWizardProcessor() {
-		/** @var ICWP_WPSF_Processor_Plugin $oP */
-		$oP = $this->getProcessor();
-		return $oP->getWizardProcessor();
+		if ( $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $this->getProcessor();
+			return $oP->getWizardProcessor();
+		}
+		return null;
 	}
 
 	/**
