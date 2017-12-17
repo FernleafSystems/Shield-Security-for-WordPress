@@ -105,8 +105,17 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			$aData = apply_filters( $oFO->prefix( 'gather_options_for_export' ), array() );
 			$sMessage = 'Options Exported Successfully';
 
+			$this->addToAuditEntry(
+				sprintf( _wpsf__( 'Options exported to site %s.' ), $sUrl ), 1, 'options_exported'
+			);
+
 			if ( $bNetwork ) {
 				$oFO->addUrlToImportExportWhitelistUrls( $sUrl );
+				$this->addToAuditEntry(
+					sprintf( _wpsf__( 'Site added to export white list: %s.' ), $sUrl ),
+					1,
+					'export_whitelist_site_added'
+				);
 			}
 		}
 
@@ -170,6 +179,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = false, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+		$oDP = $this->loadDP();
 
 		$aParts = parse_url( $sMasterSiteUrl );
 
@@ -188,6 +198,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		else if ( empty( $aParts ) ) {
 			$nErrorCode = 4;
 		}
+		else if ( $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ) === false ) {
+			$nErrorCode = 4; // a final check
+		}
 		else {
 			$bReady = true;
 			$aEssential = array( 'scheme', 'host' );
@@ -195,7 +208,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				$bReady = $bReady && !empty( $aParts[ $sKey ] );
 			}
 
-			if ( !$bReady ) {
+			$sMasterSiteUrl = $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
+
+			if ( !$bReady || !$sMasterSiteUrl ) {
 				$nErrorCode = 4;
 			}
 			else {
@@ -232,10 +247,24 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					$nErrorCode = 8;
 				}
 				else {
-					do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
+					$sHash = md5( serialize( $aParts[ 'data' ] ) );
+					if ( $sHash != $oFO->getImportExportLastImportHash() ) {
+						do_action( $oFO->prefix( 'import_options' ), $aParts[ 'data' ] );
+						$this->addToAuditEntry(
+							sprintf( _wpsf__( 'Options imported from %s.' ), $sMasterSiteUrl ),
+							1,
+							'options_imported'
+						);
+						$oFO->setImportExportLastImportHash( md5( serialize( $aParts[ 'data' ] ) ) );
+					}
 
 					// if it's network enabled, we save the new master URL.
 					if ( $bEnableNetwork ) {
+						$this->addToAuditEntry(
+							sprintf( _wpsf__( 'Master Site URL set to %s.' ), $sMasterSiteUrl ),
+							1,
+							'options_master_set'
+						);
 						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
 					}
 
