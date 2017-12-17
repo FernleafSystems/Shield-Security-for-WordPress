@@ -277,8 +277,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
 			$oCon = self::getConn();
-			$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
+			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
 			$this->oOptions
+				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getFeatureSlug() ) )
 				->setIsPremiumLicensed( $this->isPremium() )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )

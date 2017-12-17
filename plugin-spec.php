@@ -1,6 +1,6 @@
 {
   "properties": {
-    "version": "5.20.1",
+    "version": "6.0.0",
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "human_name": "Shield",

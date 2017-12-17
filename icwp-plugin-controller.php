@@ -1256,6 +1256,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPath_Config() {
+		return $this->getPath_Source().'config/';
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return string
+	 */
+	public function getPath_ConfigFile( $sSlug ) {
+		return $this->getPath_Config().sprintf( 'feature-%s.php', $sSlug );
+	}
+
+	/**
 	 * get the root directory for the plugin with the trailing slash
 	 * @return string
 	 */
