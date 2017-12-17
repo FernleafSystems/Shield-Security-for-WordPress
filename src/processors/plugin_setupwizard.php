@@ -268,7 +268,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 //			$aStepsSlugs[] = 'license'; not showing it for now
 		}
 
-		$aStepsSlugs[] = 'import_options';
+		if ( $oFO->isPremium() ) {
+			$aStepsSlugs[] = 'import_options';
+		}
 
 		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
@@ -298,6 +300,11 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$aStepsSlugs[] = 'how_shield_works';
 		$aStepsSlugs[] = 'optin';
+
+		if ( !$oFO->isPremium() ) {
+			$aStepsSlugs[] = 'import_options';
+		}
+
 		$aStepsSlugs[] = 'thankyou';
 		return $aStepsSlugs;
 	}
