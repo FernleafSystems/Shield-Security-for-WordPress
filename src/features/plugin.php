@@ -468,6 +468,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return string
 	 */
+	public function getImportExportLastImportHash() {
+		return $this->getOpt( 'importexport_last_import_hash', '' );
+	}
+
+	/**
+	 * @return string
+	 */
 	protected function getImportExportSecretKey() {
 		$sId = $this->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
@@ -558,6 +565,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setOpt( 'importexport_handshake_expires_at', $this->loadDP()->time() + 30 )
 			 ->savePluginOptions();
 		return $this;
+	}
+
+	/**
+	 * @param string $sHash
+	 * @return $this
+	 */
+	public function setImportExportLastImportHash( $sHash ) {
+		return $this->setOpt( 'importexport_last_import_hash', $sHash );
 	}
 
 	/**

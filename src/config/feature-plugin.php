@@ -367,6 +367,11 @@
       "section": "section_non_ui"
     },
     {
+      "key": "importexport_last_import_hash",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
       "key": "this_server_ip",
       "transferable": false,
       "sensitive": true,
