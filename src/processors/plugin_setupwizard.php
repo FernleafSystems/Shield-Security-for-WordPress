@@ -265,7 +265,7 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		$aStepsSlugs = array( 'welcome' );
 		if ( !$oFO->isPremium() ) {
-			$aStepsSlugs[] = 'license';
+//			$aStepsSlugs[] = 'license'; not showing it for now
 		}
 
 		$aStepsSlugs[] = 'import_options';
@@ -359,7 +359,8 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 				'is_premium' => $oFO->isPremium()
 			),
 			'hrefs' => array(
-				'dashboard' => $oFO->getFeatureAdminPageUrl()
+				'dashboard' => $oFO->getFeatureAdminPageUrl(),
+				'gopro'     => 'http://icwp.io/ap',
 			),
 			'imgs'  => array(),
 		);
@@ -368,14 +369,12 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 		switch ( $sSlug ) {
 			case 'license':
-				$aAdd = array(
-					'hrefs' => array(
-						'gopro' => 'http://icwp.io/ap'
-					)
-				);
 				break;
 			case 'import_options':
 				$aAdd = array(
+					'hrefs' => array(
+						'blog_importexport' => 'http://icwp.io/av'
+					),
 					'imgs' => array(
 						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
 					)
@@ -394,11 +393,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 
 			case 'no_access':
 			case 'thankyou':
-				$aAdd = array(
-					'hrefs' => array(
-						'dashboard' => $oFO->getFeatureAdminPageUrl(),
-					)
-				);
 				break;
 
 			case 'how_shield_works':
