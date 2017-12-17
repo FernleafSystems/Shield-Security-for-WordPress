@@ -417,7 +417,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
 	public function getRawData_FullFeatureConfig() {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
@@ -679,7 +678,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
 	private function readConfiguration() {
 		$oWp = $this->loadWp();
@@ -710,7 +708,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	private function readConfigurationJson() {
 		$aConfig = json_decode( $this->readConfigurationFileContents(), true );
 		if ( empty( $aConfig ) ) {
-			throw new Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getOptionsName() ) );
+			throw new Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getSlug() ) );
 		}
 		return $aConfig;
 	}
