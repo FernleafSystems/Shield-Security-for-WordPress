@@ -9,6 +9,13 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
+	 * @return bool
+	 */
+	public function getCanRunWizards() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getGoogleRecaptchaConfig() {

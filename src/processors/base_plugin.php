@@ -81,13 +81,21 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
+		$bCanWizardWelcome = $oFO->getCanRunWizards();
+
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => array(
-				'dismiss' => _wpsf__( "I don't need the setup wizard just now" ),
+				'dismiss'  => _wpsf__( "I don't need the setup wizard just now" ),
+				'title'    => _wpsf__( 'Try the all-new Welcome Wizard for the Shield Security plugin' ),
+				'setup'    => _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core Shield Security features.' ),
+				'no_setup' => _wpsf__( 'Unfortunately your site is running a PHP version that is too low to run the Setup Wizard. It needs to be PHP 5.4+' )
 			),
 			'hrefs'             => array(
-				'wizard' => $oFO->getWizardUrl( 'welcome' ),
+				'wizard' => $bCanWizardWelcome ? $oFO->getWizardUrl( 'welcome' ) : 'javascript:{event.preventDefault();}',
+			),
+			'flags'             => array(
+				'can_wizard' => $bCanWizardWelcome,
 			)
 		);
 		$this->insertAdminNotice( $aRenderData );
