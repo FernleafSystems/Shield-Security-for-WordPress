@@ -248,39 +248,46 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$bIsShieldCentral = false;
 
 			if ( $bForceUpdate || $bIsNewKey || !$bIsOrigValid ) {
-				$oLicense = $this->loadEdd()
-								 ->activateLicense(
-									 $this->getLicenseStoreUrl(),
-									 $sKey,
-									 $this->getLicenseItemId()
-								 );
+				$oEDD = $this->loadEdd();
+				$sPing = $oEDD->ping( $this->getLicenseStoreUrl() );
 
-				if ( !is_null( $oLicense ) ) {
+				if ( $sPing == 'success' ) {
+					$oLicense = $oEDD->activateLicense(
+						$this->getLicenseStoreUrl(),
+						$sKey,
+						$this->getLicenseItemId()
+					);
 
-					if ( !$oLicense->isSuccess() ) {
-						$oScLicense = $this->activateOfficialLicenseAsShieldCentral( $sKey );
-						if ( $oScLicense->isSuccess() ) {
-							$bIsShieldCentral = true;
-							$oLicense = $oScLicense;
+					if ( !is_null( $oLicense ) ) {
+
+						if ( !$oLicense->isSuccess() ) {
+							$oScLicense = $this->activateOfficialLicenseAsShieldCentral( $sKey );
+							if ( $oScLicense->isSuccess() ) {
+								$bIsShieldCentral = true;
+								$oLicense = $oScLicense;
+							}
 						}
+					}
+					else {
+						$sErrorMessage = 'Could not successfully request license server.'; // error for license lookup
+					}
+
+					try {
+						$this->storeLicense( $sKey, $oLicense );
+						$this->setOpt( 'is_license_shield_central', $bIsShieldCentral );
+						$this->clearLastErrors();
+						// We also officially deactivate any existing valid licenses
+						if ( $bDeactivateOriginal && $oLicense->isSuccess() ) {
+							$this->loadEdd()
+								 ->deactivateLicense( $this->getLicenseStoreUrl(), $sOrigKey, $this->getLicenseItemId() );
+						}
+					}
+					catch ( Exception $oE ) {
+						$sErrorMessage = $oE->getMessage();
 					}
 				}
 				else {
-					$sErrorMessage = 'Could not successfully request license server.'; // error for license lookup
-				}
-
-				try {
-					$this->storeLicense( $sKey, $oLicense );
-					$this->setOpt( 'is_license_shield_central', $bIsShieldCentral );
-					$this->clearLastErrors();
-					// We also officially deactivate any existing valid licenses
-					if ( $bDeactivateOriginal && $oLicense->isSuccess() ) {
-						$this->loadEdd()
-							 ->deactivateLicense( $this->getLicenseStoreUrl(), $sOrigKey, $this->getLicenseItemId() );
-					}
-				}
-				catch ( Exception $oE ) {
-					$sErrorMessage = $oE->getMessage();
+					$sErrorMessage = $sPing;
 				}
 			}
 		}

@@ -1,0 +1,28 @@
+{
+  "name":         "shield requirement",
+  "description":  "shield requirement",
+  "authors":      [
+	{
+	  "name":     "Paul Goodchild",
+	  "email":    "paul@paulgoodchild.me",
+	  "homepage": "https://paulgoodchild.me"
+	}
+  ],
+  "license":      "MIT",
+  "keywords":     [
+  ],
+  "repositories": [
+  ],
+  "require":      {
+	"php":                       ">=5.3.3",
+	"fernleafsystems/utilities": "^1.0",
+	"nesbot/carbon":             "^1.22.0",
+	"twig/twig":                 "^1.0"
+  },
+  "require-dev":  {
+  },
+  "autoload":     {
+	"psr-4": {
+	}
+  }
+}

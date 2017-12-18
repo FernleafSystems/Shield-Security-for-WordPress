@@ -8,6 +8,7 @@
     "show_central": true,
     "access_restricted": true,
     "premium": false,
+    "has_custom_actions": true,
     "order": 10
   },
   "admin_notices": {
@@ -17,8 +18,8 @@
       "valid_admin": true,
       "type": "error"
     },
-    "php53-version-warning": {
-      "id": "php53-version-warning",
+    "php54_version_warning": {
+      "id": "php54_version_warning",
       "schedule": "once",
       "valid_admin": true,
       "type": "warning"
@@ -29,9 +30,16 @@
       "valid_admin": true,
       "type": "warning"
     },
+    "wizard_welcome": {
+      "id": "wizard_welcome",
+      "schedule": "once",
+      "valid_admin": true,
+      "delay_days": 0,
+      "type": "promo"
+    },
     "allow-tracking": {
       "id": "allow-tracking",
-      "schedule": "once",
+      "schedule": "never",
       "valid_admin": true,
       "delay_days": 0,
       "type": "promo"
@@ -64,6 +72,16 @@
       "primary": true,
       "title": "Global Plugin Security Options",
       "title_short": "Global Options"
+    },
+    {
+      "slug": "section_defaults",
+      "title": "Plugin Defaults",
+      "title_short": "Plugin Defaults"
+    },
+    {
+      "slug": "section_importexport",
+      "title": "Import / Export",
+      "title_short": "Import / Export"
     },
     {
       "slug": "section_general_plugin_options",
@@ -105,7 +123,7 @@
     },
     {
       "key": "visitor_address_source",
-      "section": "section_general_plugin_options",
+      "section": "section_defaults",
       "sensitive": false,
       "type": "select",
       "default": "AUTO_DETECT_IP",
@@ -159,7 +177,7 @@
     },
     {
       "key": "block_send_email_address",
-      "section": "section_general_plugin_options",
+      "section": "section_defaults",
       "sensitive": true,
       "default": "",
       "type": "email",
@@ -193,7 +211,7 @@
     },
     {
       "key": "delete_on_deactivate",
-      "section": "section_general_plugin_options",
+      "section": "section_defaults",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -201,6 +219,64 @@
       "name": "Delete Plugin Settings",
       "summary": "Delete All Plugin Settings Upon Plugin Deactivation",
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
+    },
+    {
+      "key": "importexport_enable",
+      "section": "section_importexport",
+      "premium": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Allow Import/Export",
+      "summary": "Allow Import Of Options To, And Export Of Options From, This Site",
+      "description": "Uncheck this box to completely disable import and export of options."
+    },
+    {
+      "key": "importexport_masterurl",
+      "section": "section_importexport",
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Auto-Import URL",
+      "summary": "Automatically Import Options From This Site",
+      "description": "Supplying a valid site URL here will make this site an 'Options Slave' and will automatically import options daily."
+    },
+    {
+      "key": "importexport_whitelist",
+      "section": "section_importexport",
+      "transferable": false,
+      "default": [],
+      "type": "array",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Export Whitelist",
+      "summary": "Whitelisted Sites Which Do Not Need The Secret Key To Export Options",
+      "description": "Each site on this list will be able to export options from this site without providing the secret key. Take a new line for each URL."
+    },
+    {
+      "key": "importexport_whitelist_notify",
+      "section": "section_importexport",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Notify Whitelist",
+      "summary": "Notify Sites On The Whitelist To Update Options From Master",
+      "description": "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site."
+    },
+    {
+      "key": "importexport_secretkey",
+      "section": "section_importexport",
+      "transferable": false,
+      "default": "",
+      "type": "noneditable_text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Secret Key",
+      "summary": "Import/Export Secret Key",
+      "description": "Keep this Secret Key private as it will allow the import and export of options."
     },
     {
       "key": "unique_installation_id",
@@ -281,6 +357,21 @@
       "section": "section_non_ui"
     },
     {
+      "key": "importexport_secretkey_expires_at",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "importexport_handshake_expires_at",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
+      "key": "importexport_last_import_hash",
+      "transferable": false,
+      "section": "section_non_ui"
+    },
+    {
       "key": "this_server_ip",
       "transferable": false,
       "sensitive": true,
@@ -298,6 +389,7 @@
     "help_video_id": "",
     "tracking_cron_handle": "plugin_tracking_cron",
     "tracking_post_url": "https://tracking.icontrolwp.com/track/plugin/shield",
+    "importexport_cron_name": "autoimport",
     "active_plugin_features": [
       {
         "slug": "admin_access_restriction",

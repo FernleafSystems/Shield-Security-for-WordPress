@@ -1,5 +1,5 @@
 <div class="row icwpTopLevelRow">
-	<div class="icwpTopLevelSpan <?php echo $flags[ 'show_ads' ] ? 'span10' : 'span10'; ?>" id="icwpOptionsTopPill">
+	<div class="icwpTopLevelSpan <?php echo $flags[ 'show_ads' ] ? 'span11' : 'span11'; ?>" id="icwpOptionsTopPill">
 
 		<ul class="nav nav-pills">
 			<li>
@@ -58,16 +58,6 @@
 		<?php endif; ?>
 	</div><!-- / span9 -->
 
-		<div class="span2" id="side_widgets">
-
-		<?php if ( isset( $flags[ 'show_summary' ] ) && $flags[ 'show_summary' ] ) : ?>
-			<?php include_once( $sBaseDirName.'snippets'.DIRECTORY_SEPARATOR.'state_summary.php' ); ?>
-		<?php endif; ?>
+		<div class="span1" id="side_widgets">
 		</div>
-
-		  <!--	--><?php //if ( $flags[ 'show_ads' ] ) : ?>
-		  <!--		<div class="span3" id="side_widgets">-->
-		  <!--			--><?php //echo getWidgetIframeHtml( 'side-widgets-wtb' ); ?>
-		  <!--		</div>-->
-		  <!--	--><?php //endif; ?>
 </div>

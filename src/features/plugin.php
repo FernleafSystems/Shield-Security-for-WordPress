@@ -17,8 +17,82 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( !$this->isTrackingPermissionSet() ) {
 			add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
 		}
-
 		$this->setVisitorIp();
+	}
+
+	/**
+	 * A action added to WordPress 'init' hook
+	 */
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getImportExportSecretKey();
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+
+		$oWizProc = $this->getWizardProcessor();
+		if ( !is_null( $oWizProc ) ) {
+			add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array(
+				$this->getWizardProcessor(),
+				'ajaxSetupWizardContent'
+			) );
+			add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array(
+				$this->getWizardProcessor(),
+				'ajaxSetupWizardSteps'
+			) );
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentCustomActions() {
+		if ( !$this->canDisplayOptionsForm() ) {
+			return parent::getContentCustomActions();
+		}
+		$oDP = $this->loadDP();
+		$bCanPhp54 = $oDP->getPhpVersionIsAtLeast( '5.4.0' );
+		$bCanWizardWelcome = $bCanPhp54;
+		$bCanWizardImport = $bCanPhp54 && $this->isPremium();
+
+		$aData = array(
+			'strings' => $this->getDisplayStrings(),
+			'hrefs'   => array(
+				'wizard_welcome' => $bCanWizardWelcome ? $this->getWizardUrl( 'welcome' ) : 'javascript:{event.preventDefault();}',
+				'wizard_import'  => $bCanWizardImport ? $this->getWizardUrl( 'import' ) : 'javascript:{event.preventDefault();}',
+			),
+			'flags'   => array(
+				'can_php54'   => $bCanPhp54,
+				'can_welcome' => $bCanWizardWelcome,
+				'can_import'  => $bCanWizardImport
+			),
+			'data'    => array(
+				'phpversion' => $oDP->getPhpVersion(),
+			)
+		);
+		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard|null
+	 */
+	protected function getWizardProcessor() {
+		if ( $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $this->getProcessor();
+			return $oP->getWizardProcessor();
+		}
+		return null;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
+	 */
+	protected function getImportProcessor() {
+		/** @var ICWP_WPSF_Processor_Plugin $oP */
+		$oP = $this->getProcessor();
+		return $oP->getSubProcessorImportExport();
 	}
 
 	/**
@@ -59,6 +133,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function isDisplayPluginBadge() {
 		return $this->getOptIs( 'display_plugin_badge', 'Y' )
 			   && ( $this->loadDataProcessor()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
+	}
+
+	/**
+	 * @param bool $bDisplay
+	 * @return $this
+	 */
+	public function setIsDisplayPluginBadge( $bDisplay ) {
+		return $this->setOpt( 'display_plugin_badge', $bDisplay ? 'Y' : 'N' );
 	}
 
 	/**
@@ -131,16 +213,22 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
+		$bValid = self::getConn()->getIsValidAdminArea() && $this->checkAjaxNonce();
+		if ( $bValid ) {
+			$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
+		}
+		$this->sendAjaxResponse( $bValid );
+	}
 
-		if ( self::getConn()->getIsValidAdminArea() && $this->checkAjaxNonce() ) {
-			$oDP = $this->loadDataProcessor();
-			$this->setOpt( 'enable_tracking', $oDP->FetchGet( 'agree', 0 ) ? 'Y' : 'N' );
-			$this->setOpt( 'tracking_permission_set_at', $oDP->time() );
-			$this->sendAjaxResponse( true );
-		}
-		else {
-			$this->sendAjaxResponse( false );
-		}
+	/**
+	 * @param bool $bOnOrOff
+	 * @return $this
+	 */
+	public function setPluginTrackingPermission( $bOnOrOff = true ) {
+		$this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
+			 ->setOpt( 'tracking_permission_set_at', $this->loadDP()->time() )
+			 ->savePluginOptions();
+		return $this;
 	}
 
 	/**
@@ -210,13 +298,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				);
 			}
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTrackingCronName() {
-		return $this->prefix( $this->getDefinition( 'tracking_cron_handle' ) );
 	}
 
 	/**
@@ -294,6 +375,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
 		$this->cleanRecaptchaKey( 'google_recaptcha_secret_key' );
 
+		$this->cleanImportExportWhitelistUrls();
+		$this->cleanImportExportMasterImportUrl();
+
 		$this->setPluginInstallationId();
 	}
 
@@ -315,10 +399,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * Ensure we always a valid installation ID.
+	 * @deprecated but still used because it aligns with stats collection
 	 * @return string
 	 */
 	public function getPluginInstallationId() {
 		$sId = $this->getOpt( 'unique_installation_id', '' );
+
 		if ( !$this->isValidInstallId( $sId ) ) {
 			$sId = $this->setPluginInstallationId();
 		}
@@ -347,6 +433,156 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			.$this->loadWp()->getWpUrl()
 			.$this->loadDbProcessor()->getPrefix()
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getImportExportMasterImportUrl() {
+		return $this->getOpt( 'importexport_masterurl', '' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasImportExportMasterImportUrl() {
+		$sMaster = $this->getImportExportMasterImportUrl();
+		return !empty( $sMaster ) && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getImportExportHandshakeExpiresAt() {
+		return $this->getOpt( 'importexport_handshake_expires_at', $this->loadDP()->time() );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() {
+		$aWhitelist = $this->getOpt( 'importexport_whitelist', array() );
+		return is_array( $aWhitelist ) ? $aWhitelist : array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getImportExportLastImportHash() {
+		return $this->getOpt( 'importexport_last_import_hash', '' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getImportExportSecretKey() {
+		$sId = $this->getOpt( 'importexport_secretkey', '' );
+		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
+			$sId = sha1( $this->getPluginInstallationId().wp_rand( 0, PHP_INT_MAX ) );
+			$this->setOpt( 'importexport_secretkey', $sId )
+				 ->setOpt( 'importexport_secretkey_expires_at', $this->loadDP()->time() + HOUR_IN_SECONDS );
+		}
+		return $sId;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isImportExportPermitted() {
+		return $this->getOptIs( 'importexport_enable', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isImportExportSecretKeyExpired() {
+		return ( $this->loadDP()->time() > $this->getOpt( 'importexport_secretkey_expires_at' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isImportExportWhitelistNotify() {
+		return $this->getOptIs( 'importexport_whitelist_notify', 'Y' );
+	}
+
+	/**
+	 * @param string $sUrl
+	 * @return $this
+	 */
+	public function addUrlToImportExportWhitelistUrls( $sUrl ) {
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		if ( $sUrl !== false ) {
+			$aWhitelistUrls = $this->getImportExportWhitelist();
+			$aWhitelistUrls[] = $sUrl;
+			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
+				 ->savePluginOptions();
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function isImportExportSecretKey( $sKey ) {
+		return ( !empty( $sKey ) && $this->getImportExportSecretKey() == $sKey );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanImportExportWhitelistUrls() {
+		$oDP = $this->loadDP();
+
+		$aCleaned = array();
+		$aWhitelistUrls = $this->getImportExportWhitelist();
+		foreach ( $aWhitelistUrls as $nKey => $sUrl ) {
+
+			$sUrl = $oDP->validateSimpleHttpUrl( $sUrl );
+			if ( $sUrl !== false ) {
+				$aCleaned[] = $sUrl;
+			}
+		}
+		return $this->setOpt( 'importexport_whitelist', array_unique( $aCleaned ) );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanImportExportMasterImportUrl() {
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		if ( $sUrl === false ) {
+			$sUrl = '';
+		}
+		return $this->setOpt( 'importexport_masterurl', $sUrl );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function startImportExportHandshake() {
+		$this->setOpt( 'importexport_handshake_expires_at', $this->loadDP()->time() + 30 )
+			 ->savePluginOptions();
+		return $this;
+	}
+
+	/**
+	 * @param string $sHash
+	 * @return $this
+	 */
+	public function setImportExportLastImportHash( $sHash ) {
+		return $this->setOpt( 'importexport_last_import_hash', $sHash );
+	}
+
+	/**
+	 * @param string $sUrl
+	 * @return $this
+	 */
+	public function setImportExportMasterImportUrl( $sUrl ) {
+		$this->setOpt( 'importexport_masterurl', $sUrl )
+			 ->savePluginOptions(); //saving will clean the URL
+		return $this;
 	}
 
 	/**
@@ -388,6 +624,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	public function renderPluginBadge() {
 		$oCon = $this->getConn();
@@ -410,6 +647,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return array(
+			'actions_title'   => _wpsf__( 'Plugin Actions' ),
+			'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+		);
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -422,6 +669,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'section_global_security_options' :
 				$sTitle = _wpsf__( 'Global Plugin Security Options' );
 				$sTitleShort = _wpsf__( 'Global Options' );
+				break;
+
+			case 'section_defaults' :
+				$sTitle = _wpsf__( 'Plugin Defaults' );
+				$sTitleShort = _wpsf__( 'Plugin Defaults' );
+				break;
+
+			case 'section_importexport' :
+				$sTitle = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Automatically import options, and deploy configurations across your entire network.' ) ),
+					sprintf( _wpsf__( 'This is a Pro-only feature.' ) ),
+				);
+				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
 				break;
 
 			case 'section_general_plugin_options' :
@@ -511,6 +772,41 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'Delete Plugin Settings' );
 				$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
 				$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
+				break;
+
+			case 'importexport_enable' :
+				$sName = _wpsf__( 'Allow Import/Export' );
+				$sSummary = _wpsf__( 'Allow Import And Export Of Options On This Site' );
+				$sDescription = _wpsf__( 'Uncheck this box to completely disable import and export of options.' )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'Import/Export is a premium-only feature.' ) );
+				break;
+
+			case 'importexport_whitelist' :
+				$sName = _wpsf__( 'Export Whitelist' );
+				$sSummary = _wpsf__( 'Whitelisted Sites To Export Options From This Site' );
+				$sDescription = _wpsf__( 'Whitelisted sites may export options from this site without the key.' )
+								.'<br />'._wpsf__( 'List each site URL on a new line.' )
+								.'<br />'._wpsf__( 'This is to be used in conjunction with the Master Import Site feature.' );
+				break;
+
+			case 'importexport_masterurl' :
+				$sName = _wpsf__( 'Master Import Site' );
+				$sSummary = _wpsf__( 'Automatically Import Options From This Site URL' );
+				$sDescription = _wpsf__( "Supplying a site URL here will make this site an 'Options Slave'." )
+								.'<br />'._wpsf__( 'Options will be automatically imported from the Master Import site each day.' )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.' ) );
+				break;
+
+			case 'importexport_whitelist_notify' :
+				$sName = _wpsf__( 'Notify Whitelist' );
+				$sSummary = _wpsf__( 'Notify Sites On The Whitelist To Update Options From Master' );
+				$sDescription = _wpsf__( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site." );
+				break;
+
+			case 'importexport_secretkey' :
+				$sName = _wpsf__( 'Secret Key' );
+				$sSummary = _wpsf__( 'Import/Export Secret Key' );
+				$sDescription = _wpsf__( 'Keep this Secret Key private as it will allow the import and export of options.' );
 				break;
 
 			case 'unique_installation_id' :

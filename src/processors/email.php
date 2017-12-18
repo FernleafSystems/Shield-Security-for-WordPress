@@ -1,10 +1,12 @@
 <?php
 
-if ( !class_exists( 'ICWP_EmailProcessor_V1', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_Email', false ) ) {
+	return;
+}
 
 require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
-class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
 	
@@ -251,9 +253,3 @@ class ICWP_EmailProcessor_V1 extends ICWP_WPSF_Processor_BaseWpsf {
 		return $this->m_nEmailThrottleLimit;
 	}
 }
-
-endif;
-
-if ( !class_exists( 'ICWP_WPSF_Processor_Email', false ) ):
-	class ICWP_WPSF_Processor_Email extends ICWP_EmailProcessor_V1 { }
-endif;

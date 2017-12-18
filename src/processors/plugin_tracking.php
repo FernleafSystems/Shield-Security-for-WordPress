@@ -118,21 +118,27 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	}
 
 	/**
+	 * @throws Exception
 	 */
 	protected function createTrackingCollectionCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		$sFullHookName = $oFO->getTrackingCronName();
+		$sFullHookName = $this->getCronName();
 		$this->loadWpCronProcessor()
 			 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
 			 ->setRecurrence( 'daily' )
-			 ->createCronJob( $sFullHookName, array( $this, 'sendTrackingData' ) )
-			 ->reset();
+			 ->createCronJob( $sFullHookName, array( $this, 'sendTrackingData' ) );
 	}
 
 	public function deleteCron() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCronName() {
 		$oFO = $this->getFeature();
-		$this->loadWpCronProcessor()->deleteCronJob( $oFO->getTrackingCronName() );
+		return $oFO->prefix( $oFO->getDefinition( 'tracking_cron_handle' ) );
 	}
 }

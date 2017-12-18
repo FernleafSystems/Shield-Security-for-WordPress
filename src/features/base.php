@@ -103,6 +103,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			// Handle any upgrades as necessary (only go near this if it's the admin area)
 			add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
+			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
 			add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
@@ -190,9 +191,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->getOptionsVo()
 			 ->setIsPremiumLicensed( $this->isPremium() );
 
-		$this->importOptions();
 		if ( $this->getIsMainFeatureEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
+		}
+	}
+
+	/**
+	 * @param array $aOptions
+	 */
+	public function processImportOptions( $aOptions ) {
+		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
+			$this->getOptionsVo()
+				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+			$this->setBypassAdminProtection( true )
+				 ->savePluginOptions();
 		}
 	}
 
@@ -266,8 +278,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
 			$oCon = self::getConn();
-			$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
+			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
 			$this->oOptions
+				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getFeatureSlug() ) )
 				->setIsPremiumLicensed( $this->isPremium() )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
@@ -478,15 +491,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
-		$aSummaryData[] = array(
+		$aSummary = array(
 			'enabled'    => $this->getIsMainFeatureEnabled(),
 			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
 			'slug'       => $this->getFeatureSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
-			'href'       => network_admin_url( 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ) )
+			'href'       => network_admin_url( 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ) ),
 		);
+		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
 
+		$aSummaryData[] = $aSummary;
 		return $aSummaryData;
 	}
 
@@ -667,8 +682,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function isValidAjaxRequestForModule() {
 		$oDp = $this->loadDataProcessor();
 
-		$bValid = $this->loadWp()
-					   ->isAjax() && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+		$bValid = $this->loadWp()->isAjax()
+				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -682,16 +697,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sAction
+	 * @param bool   $bAsJsonEncodedObject
 	 * @return array
 	 */
-	protected function getBaseAjaxActionRenderData( $sAction = '' ) {
-		return array(
+	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {
+		$aData = array(
+			'action'             => $this->prefix( $sAction ), //wp ajax doesn't work without this.
 			'icwp_ajax_action'   => $this->prefix( $sAction ),
 			'icwp_nonce'         => $this->genNonce( $sAction ),
 			'icwp_nonce_action'  => $sAction,
 			'icwp_action_module' => $this->prefix( $this->getFeatureSlug() ),
 			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
 		);
+		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
 	}
 
 	protected function adminAjaxHandlers() {
@@ -761,7 +779,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param       $bSuccess
 	 * @param array $aData
 	 */
-	protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
+	public function sendAjaxResponse( $bSuccess, $aData = array() ) {
 		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 
@@ -1025,7 +1043,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function isPremium() {
+	public function isPremium() {
 		return $this->hasValidPremiumLicense();
 	}
 
@@ -1103,7 +1121,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				else if ( $sOptionType == 'multiple_select' ) {
 				}
 			}
-			$this->setOpt( $sOptionKey, $sOptionValue );
+
+			// Prevent overwriting of non-editable fields
+			if ( !in_array( $sOptionType, array( 'noneditable_text' ) ) ) {
+				$this->setOpt( $sOptionKey, $sOptionValue );
+			}
 		}
 		$this->savePluginOptions();
 	}
@@ -1243,7 +1265,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_alt_content'      => false,
 			),
 			'hrefs'      => array(
-				'go_pro' => $this->getUrlGoPro()
+				'go_pro' => 'http://icwp.io/shieldgoprofeature'
 			),
 			'content'    => array(
 				'alt'     => '',
@@ -1285,6 +1307,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function renderOptionsForm() {
 
@@ -1511,17 +1534,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getHelpVideoHasBeenDisplayed() {
 		return (bool)$this->getHelpVideoOption( 'displayed' );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getUrlGoPro() {
-		return $this->loadWp()
-					->getUrl_AdminPage(
-						$this->prefix( 'license' ),
-						$this->getConn()->getIsWpmsNetworkAdminOnly()
-					);
 	}
 
 	/**

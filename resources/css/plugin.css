@@ -7,6 +7,9 @@
 .bootstrap-wpadmin .row {
 	margin-left: 0;
 }
+.bootstrap-wpadmin > .row > div[class*=span]:first-child {
+	margin-left: 0;
+}
 #pluginlogo_32 {
 	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -96,7 +99,7 @@ table.table-audit_trail .cell-ip {
 .bootstrap-wpadmin .page-header {
 	padding-bottom: 17px;
 	margin: 18px 0 0;
-	border-bottom: 1px solid #EEE;
+	border-bottom: 1px solid transparent;
 }
 /* Form elements */
 .bootstrap-wpadmin form fieldset {
@@ -330,27 +333,21 @@ label input[type=checkbox] {
 
 /** FEature summaries **/
 .bootstrap-wpadmin .feature-summary-blocks {
-	border: 1px solid transparent;
-	border-left: 1px solid #ddd;
 	text-align: center;
-	width: 80%;
+	width: 100%;
+	margin-top: 20px;
+	box-shadow: 3px 3px 6px 0 rgba(0,0,0,0.3);
 }
 .feature-summary-blocks .feature-icon:before {
 	-webkit-font-smoothing: antialiased;
 	display: inline-block;
-	font: 48px/1 'dashicons';
+	font: 32px/1 'dashicons';
 	vertical-align: top;
 }
 .feature-summary-blocks a {
 	display: block;
 	text-shadow: 1px 0 0 rgba(0, 0, 0, 0.4);
 	width: 100%;
-}
-.feature-summary-blocks .feature-icon:before {
-	-webkit-font-smoothing: antialiased;
-	display: inline-block;
-	font: 48px/1 'dashicons';
-	vertical-align: top;
 }
 
 .feature-summary-blocks .summary-state {
@@ -359,7 +356,27 @@ label input[type=checkbox] {
 	text-align: center;
 	margin-bottom: -1px;
 }
-.feature-summary-blocks .summary-state.active-feature,
+
+.feature-summary-blocks .summary-state.active-feature {
+	background-color: rgba(69, 119, 0, 1);
+}
+.feature-summary-blocks .summary-state.active-feature a {
+	color: rgba(255,255,255,1);
+}
+.feature-summary-blocks .summary-state.active-feature.state-off {
+	background-color: rgba( 173, 84, 0, 0.85 );
+}
+.feature-summary-blocks .summary-state .popover {
+	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+	padding: 0;
+	border-radius: 1px;
+	text-align: left;
+	width: 200px;
+}
+.feature-summary-blocks .summary-state .popover .arrow {
+	display: none;
+}
+.feature-summary-blocks .summary-state.active-feature.state-off:hover,
 .feature-summary-blocks .summary-state:hover {
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-left: 1px solid transparent;
@@ -383,7 +400,7 @@ label input[type=checkbox] {
 		font-size: 8px;
 	}
 	.feature-summary-blocks .feature-icon:before {
-		font-size: 32px;
+		font-size: 16px;
 	}
 }
 .feature-summary-blocks .state-on a {

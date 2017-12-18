@@ -46,7 +46,7 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 	};
 
 	var sendTableRequest = function ( $oMainContainer, aTableRequestParams ) {
-		if ( bRequestCurrentlyRunning ) { // failsafe in case we balls up - we only run 1.
+		if ( bRequestCurrentlyRunning ) {
 			return false;
 		}
 		bRequestCurrentlyRunning = true;

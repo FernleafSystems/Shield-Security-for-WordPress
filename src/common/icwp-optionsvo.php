@@ -45,13 +45,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	protected $sOptionsName;
+	protected $sPathToConfig;
 
 	/**
-	 * @param string $sOptionsName
 	 */
-	public function __construct( $sOptionsName ) {
-		$this->sOptionsName = $sOptionsName;
+	public function __construct() {
 	}
 
 	/**
@@ -94,6 +92,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getAllOptionsValues() {
 		return $this->getStoredOptions();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSlug() {
+		return $this->getFeatureProperty( 'slug' );
 	}
 
 	/**
@@ -377,8 +382,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getOptionsName() {
-		return $this->sOptionsName;
+	public function getPathToConfig() {
+		return $this->sPathToConfig;
 	}
 
 	/**
@@ -412,7 +417,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
 	public function getRawData_FullFeatureConfig() {
 		if ( empty( $this->aRawOptionsConfigData ) ) {
@@ -674,7 +678,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
 	private function readConfiguration() {
 		$oWp = $this->loadWp();
@@ -705,7 +708,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	private function readConfigurationJson() {
 		$aConfig = json_decode( $this->readConfigurationFileContents(), true );
 		if ( empty( $aConfig ) ) {
-			throw new Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getOptionsName() ) );
+			throw new Exception( sprintf( 'Reading JSON configuration from file "%s" failed.', $this->getSlug() ) );
 		}
 		return $aConfig;
 	}
@@ -716,32 +719,32 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	private function readConfigurationFileContents() {
 		if ( !$this->getConfigFileExists() ) {
-			throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getConfigFilePath() ) );
+			throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getPathToConfig() ) );
 		}
-		return $this->loadDataProcessor()->readFileContentsUsingInclude( $this->getConfigFilePath() );
+		return $this->loadDP()->readFileContentsUsingInclude( $this->getPathToConfig() );
 	}
 
 	/**
 	 * @return string
 	 */
 	private function getSpecTransientStorageKey() {
-		return 'icwp_'.md5( $this->getConfigFilePath() );
+		return 'icwp_'.md5( $this->getPathToConfig() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	private function getConfigFileExists() {
-		$sPath = $this->getConfigFilePath();
+		$sPath = $this->getPathToConfig();
 		return !empty( $sPath ) && $this->loadFS()->isFile( $sPath );
 	}
 
 	/**
-	 * @return string
+	 * @param string $sPathToConfig
+	 * @return $this
 	 */
-	private function getConfigFilePath() {
-		return realpath( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR
-						 .sprintf( 'config'.DIRECTORY_SEPARATOR.'feature-%s.%s', $this->getOptionsName(), 'php' )
-		);
+	public function setPathToConfig( $sPathToConfig ) {
+		$this->sPathToConfig = $sPathToConfig;
+		return $this;
 	}
 }

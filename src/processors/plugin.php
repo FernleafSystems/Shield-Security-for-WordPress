@@ -9,6 +9,11 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_plugin.php' );
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	/**
+	 * @var ICWP_WPSF_Processor_Plugin_SetupWizard
+	 */
+	protected $oSetupWizardProcessor;
+
+	/**
 	 * @var ICWP_WPSF_Processor_Plugin_Badge
 	 */
 	protected $oBadgeProcessor;
@@ -24,6 +29,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+		$oDP = $this->loadDP();
 
 		$this->removePluginConflicts();
 		$this->getBadgeProcessor()
@@ -36,10 +42,26 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
 
-		$sAction = $this->loadDataProcessor()->FetchGet( 'shield_action', '' );
-		switch ( $sAction ) {
+		switch ( (string)$oDP->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
+				break;
+
+			case 'importexport_export':
+			case 'importexport_handshake':
+			case 'importexport_updatenotify':
+				if ( $oFO->isImportExportPermitted() ) {
+					$this->getSubProcessorImportExport()->runAction();
+				}
+				break;
+
+			case 'wizard':
+				if ( $oDP->getPhpVersionIsAtLeast( 5.4 ) ) {
+					$this->getWizardProcessor()->run();
+				}
+				break;
+
+			default:
 				break;
 		}
 	}
@@ -62,6 +84,17 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
+	 */
+	public function getWizardProcessor() {
+		if ( !isset( $this->oSetupWizardProcessor ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_setupwizard.php' );
+			$this->oSetupWizardProcessor = new ICWP_WPSF_Processor_Plugin_SetupWizard( $this->getFeature() );
+		}
+		return $this->oSetupWizardProcessor;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_Plugin_Tracking
 	 */
 	protected function getTrackingProcessor() {
@@ -70,6 +103,19 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeature() );
 		}
 		return $this->oTrackingProcessor;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
+	 */
+	public function getSubProcessorImportExport() {
+		$oProc = $this->getSubProcessor( 'importexport' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_importexport.php' );
+			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getFeature() );
+			$this->aSubProcessors[ 'importexport' ] = $oProc;
+		}
+		return $oProc;
 	}
 
 	/**
