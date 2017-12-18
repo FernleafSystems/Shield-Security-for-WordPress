@@ -343,7 +343,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 
 * **(v.0)**  ADDED:			All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.
 * **(v.0)**  ADDED:			[**PRO**] [Shield options import and export](http://icwp.io/at)
-* **(v.0)**  ADDED:			[**PRO**]In conjunction with import/export - Shield Security Network: automated options synching.
+* **(v.0)**  ADDED:			[**PRO**] In conjunction with import/export - Shield Security Network: automated options syncing.
 * **(v.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](http://icwp.io/au). Existing features will remain unaffected.
 
 = 6.0.0 Series =
