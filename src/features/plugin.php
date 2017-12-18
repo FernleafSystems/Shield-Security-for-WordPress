@@ -51,10 +51,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( !$this->canDisplayOptionsForm() ) {
 			return parent::getContentCustomActions();
 		}
-		$oDP = $this->loadDP();
-		$bCanPhp54 = $oDP->getPhpVersionIsAtLeast( '5.4.0' );
-		$bCanWizardWelcome = $bCanPhp54;
-		$bCanWizardImport = $bCanPhp54 && $this->isPremium();
+
+		$bCanWizard = $this->getCanRunWizards();
+		$bCanWizardWelcome = $bCanWizard;
+		$bCanWizardImport = $bCanWizard && $this->isPremium();
 
 		$aData = array(
 			'strings' => $this->getDisplayStrings(),
@@ -63,12 +63,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'wizard_import'  => $bCanWizardImport ? $this->getWizardUrl( 'import' ) : 'javascript:{event.preventDefault();}',
 			),
 			'flags'   => array(
-				'can_php54'   => $bCanPhp54,
+				'can_php54'   => $bCanWizard,
 				'can_welcome' => $bCanWizardWelcome,
 				'can_import'  => $bCanWizardImport
 			),
 			'data'    => array(
-				'phpversion' => $oDP->getPhpVersion(),
+				'phpversion' => $this->loadDP()->getPhpVersion(),
 			)
 		);
 		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
