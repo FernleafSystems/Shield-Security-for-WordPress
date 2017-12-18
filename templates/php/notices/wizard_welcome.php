@@ -4,9 +4,13 @@
 	</div>
 
 	<div class="notice-content">
-		<h3>Try the all-new Setup Wizard for the Shield Security plugin!</h3>
-		<p><strong><a href="<?php echo $hrefs['wizard'];?>" target="_blank">Launch Setup Wizard</a></strong>
-			- The setup wizard will help you get setup quickly and familiar with some of the core Shield Security features.</p>
+		<h3><?php echo $strings['title'];?>!</h3>
+		<?php if ( $flags['can_wizard'] ) : ?>
+			<p><strong><a href="<?php echo $hrefs['wizard'];?>" target="_blank">Launch Setup Wizard</a></strong>
+			- <?php echo $strings['setup'];?></p>
+		<?php else : ?>
+			<p><?php echo $strings['no_setup'];?></p>
+		<?php endif; ?>
 	</div>
 </div>
 
