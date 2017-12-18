@@ -1,7 +1,7 @@
 {% extends 'wizard/base.twig' %}
 
 {% block slide_body %}
-	<h3>Start Building Your Shield Network</h3>
+	<h3>Build Your Shield Security Network</h3>
 
 	{% if flags.is_premium %}
 		<p>To setup this site quickly you may import the options directly from another site.</p>
@@ -62,15 +62,18 @@
 		<p>With Shield Pro you have the ability to quickly import options directly from any remote site that's
 		   running Shield Pro.</p>
 		<p>Not only that, you can setup Shield to automatically (each day) import options from that site. This means
-		   you can create a "Master options site", where you update only 1 site, and all your other
-		   Shield sites will align themselves to it.</p>
+		   you can create what we call a "Master options site". This is where you set your child sties to
+		   automatically copy the options from your master site - so you only need to manually update 1 site.</p>
+		<p>You can <a href="{{ hrefs.blog_importexport }}" target="_blank">learn a bit more about this here</a>.</p>
 		<p><img src="{{ imgs.shieldnetworkmini }}" class="img-responsive media-left" />
 			This goes far beyond normal import/export features and you start creating your own adaptive
 			<strong>Shield Security Network</strong>, with no extra work on your part.</p>
 		<p>Options import is just the beginning of what you'll be able to achieve with your Shield Network.</p>
 		<p>For now though, if you're not a Pro subscriber, you can just skip this
-		part and setup the plugin manually as normal. Or, you can go back to the previous step and put in your
-		Pro License.</p>
+		part and setup the plugin manually as normal.
+		   Or, you can purchase <a href="{{ hrefs.gopro }}" target="_blank">Shield Pro for your sites ($1/month)</a>
+		   and return to this wizard (or launch the Import Wizard) at any time.</p>
+		<div class="clearfix"></div>
 	{% endif %}
 
 {% endblock %}

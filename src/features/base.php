@@ -278,8 +278,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
 			$oCon = self::getConn();
-			$this->oOptions = ICWP_WPSF_Factory::OptionsVo( $this->getFeatureSlug() );
+			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
 			$this->oOptions
+				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getFeatureSlug() ) )
 				->setIsPremiumLicensed( $this->isPremium() )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
@@ -1264,7 +1265,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_alt_content'      => false,
 			),
 			'hrefs'      => array(
-				'go_pro' => $this->getUrlGoPro()
+				'go_pro' => 'http://icwp.io/shieldgoprofeature'
 			),
 			'content'    => array(
 				'alt'     => '',
@@ -1533,17 +1534,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getHelpVideoHasBeenDisplayed() {
 		return (bool)$this->getHelpVideoOption( 'displayed' );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getUrlGoPro() {
-		return $this->loadWp()
-					->getUrl_AdminPage(
-						$this->prefix( 'license' ),
-						$this->getConn()->getIsWpmsNetworkAdminOnly()
-					);
 	}
 
 	/**
