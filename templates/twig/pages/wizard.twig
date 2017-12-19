@@ -157,10 +157,6 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
-				var sMessage = 'Unknown Error';
-				if ( undefined !== oResponse.data ) {
-					sMessage = oResponse.data.message;
-				}
 
 				if ( oResponse.success ) {
 					$oResponseField.removeClass( 'bg-danger' )
@@ -171,12 +167,23 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 								   .addClass( 'bg-danger' );
 					$oSubmitButton.prop( 'disabled', false );
 				}
+
+				var bRerender = false;
+				var sMessage = 'Unknown Error';
+				if ( undefined !== oResponse.data ) {
+
+					if ( undefined !== oResponse.data.rerender && oResponse.data.rerender === true ) {
+						bRerender = true;
+					}
+					sMessage = oResponse.data.message;
+				}
 				$oResponseField.html( sMessage );
 
-				if ( undefined !== oResponse.data && undefined !== oResponse.data.rerender
-					&& oResponse.data.rerender === true ) {
+				if ( bRerender ) {
 					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
 				}
+
+				jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse.success );
 			}
 		).always(
 			function () {

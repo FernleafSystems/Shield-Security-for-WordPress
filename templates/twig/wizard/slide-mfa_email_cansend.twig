@@ -13,7 +13,7 @@
 
 	<h4>Send Test Verification Email</h4>
 	<p>Click the button below to confirm your email address and that we'll send you an email.</p>
-	<form class="form-horizontal icwp-wizard-form">
+	<form class="form-horizontal icwp-wizard-form" id>
 		<input name="wizard-step" value="emailcansend" type="hidden" />
 
 		<div class="form-group">
@@ -24,7 +24,7 @@
 			</div>
 		</div>
 
-		<div class="form-group hidden">
+		<div class="form-group" id="GroupVerificationCode" style="display: none;">
 			<label class="col-md-4 control-label" for="code">Verification Code</label>
 			<div class="col-md-8">
 				<input type="text" class="form-control" name="code"
@@ -37,6 +37,13 @@
 				<button type="submit" class="btn btn-primary">Send Verification Email</button>
 			</div>
 		</div>
-
 	</form>
+
+	<script type="text/javascript">
+		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event ) {
+			var $oForm = jQuery( event.target );
+			jQuery( '#GroupVerificationCode', $oForm ).slideDown();
+			jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );
+		} );
+	</script>
 {% endblock %}
