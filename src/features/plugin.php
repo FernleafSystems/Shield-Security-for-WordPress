@@ -75,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard|null
+	 * @return ICWP_WPSF_Processor_Plugin_Wizard|null
 	 */
 	protected function getWizardProcessor() {
 		if ( $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {

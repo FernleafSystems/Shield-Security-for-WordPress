@@ -1,32 +1,25 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_SetupWizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Wizard', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
 
 /**
  * @uses php 5.4+
  * Class ICWP_WPSF_Processor_Plugin_SetupWizard
  */
-class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
 
 	/**
-	 * @var string
+	 * @return string[]
 	 */
-	private $sCurrentWizard;
-
-	/**
-	 */
-	public function run() {
-		add_action( 'init', array( $this, 'onWpInit' ), 0 );
-	}
-
-	public function onWpInit() {
-		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$this->loadWizard( (string)$this->loadDP()->query( 'wizard', '' ) );
-		}
+	protected function getSupportedWizards() {
+		return array(
+			'welcome',
+			'importexport',
+		);
 	}
 
 	/**
@@ -50,21 +43,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		}
 		echo $sContent;
 		die();
-	}
-
-	/**
-	 */
-	public function ajaxSetupWizardSteps() {
-		$oDP = $this->loadDP();
-
-		$this->setCurrentWizard( $oDP->post( 'wizard_slug' ) );
-		$aNextStep = $this->getWizardNextStep( $oDP->post( 'wizard_steps' ), $oDP->post( 'current_index' ) );
-
-		return $this->getFeature()
-					->sendAjaxResponse(
-						true,
-						array( 'next_step' => $aNextStep )
-					);
 	}
 
 	public function ajaxSetupWizardContent() {
@@ -145,69 +123,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	 */
 	protected function renderWizardWelcome() {
 		return $this->renderWizard();
-	}
-
-	/**
-	 * @return string
-	 * @throws Exception
-	 */
-	protected function renderWizard() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-		$oCon = $this->getController();
-
-		$sMessage = $this->loadAdminNoticesProcessor()
-						 ->flushFlashMessage()
-						 ->getRawFlashMessageText();
-
-		$aDisplayData = array(
-			'strings' => array(
-				'welcome'         => _wpsf__( 'Welcome' ),
-				'time_remaining'  => _wpsf__( 'Time Remaining' ),
-				'calculating'     => _wpsf__( 'Calculating' ).' ...',
-				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
-				'login_expired'   => _wpsf__( 'Login Expired' ),
-				'verify_my_login' => _wpsf__( 'Verify My Login' ),
-				'more_info'       => _wpsf__( 'More Info' ),
-				'what_is_this'    => _wpsf__( 'What is this?' ),
-				'message'         => $sMessage,
-				'page_title'      => sprintf( _wpsf__( '%s Setup Wizard' ), $oCon->getHumanName() )
-			),
-			'data'    => array(
-				'wizard_slug'       => $this->getCurrentWizard(),
-				'wizard_steps'      => json_encode( $this->determineWizardSteps() ),
-				'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
-			),
-			'hrefs'   => array(
-				'form_action'      => $this->loadDataProcessor()->getRequestUri(),
-				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
-				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
-				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
-				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min.css' ),
-				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin.css' ),
-				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard.css' ),
-				'js_jquery'        => $this->loadWpIncludes()->getUrl_Jquery(),
-				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
-				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min.js' ),
-				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
-				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
-				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
-				'shield_logo'      => 'https://plugins.svn.wordpress.org/wp-simple-firewall/assets/banner-1544x500-transparent.png',
-				'what_is_this'     => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
-				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-			),
-			'ajax'    => array(
-				'content'       => $oFO->getBaseAjaxActionRenderData( 'SetupWizardContent' ),
-				'steps'         => $oFO->getBaseAjaxActionRenderData( 'SetupWizardSteps' ),
-				'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'SetupWizardSteps', true ),
-			)
-		);
-
-		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( 'pages/wizard.twig' )
-					->setRenderVars( $aDisplayData )
-					->setTemplateEngineTwig()
-					->render();
 	}
 
 	/**
@@ -310,49 +225,6 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getWizardFirstStep() {
-		return $this->getWizardNextStep( $this->determineWizardSteps(), -1 );
-	}
-
-	/**
-	 * @param array $aAllSteps
-	 * @param int   $nCurrentStep
-	 * @return array
-	 */
-	protected function getWizardNextStep( $aAllSteps, $nCurrentStep ) {
-
-		// The assumption here is that the step data exists!
-		$aStepData = $this->getWizardSteps()[ $aAllSteps[ $nCurrentStep + 1 ] ];
-
-		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
-		try {
-			if ( !$bRestrictedAccess || $this->getController()->getHasPermissionToManage() ) {
-				$aData = $this->getRenderDataForStep( $aStepData[ 'slug' ] );
-				$aStepData[ 'content' ] = $this->renderWizardStep( $aStepData[ 'slug' ], $aData );
-			}
-			else {
-				$aStepData[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrentStep );
-			}
-		}
-		catch ( Exception $oE ) {
-			$aStepData[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
-		}
-
-		return $aStepData;
-	}
-
-	/**
-	 * @param int $nIndex
-	 * @return string
-	 * @throws Exception
-	 */
-	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
-		return $this->renderWizardStep( 'admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return array
 	 */
@@ -442,23 +314,9 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 	}
 
 	/**
-	 * @param string $sSlug
-	 * @param array  $aRenderData
-	 * @return string
-	 * @throws Exception
-	 */
-	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
-		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
-					->setRenderVars( $aRenderData )
-					->setTemplateEngineTwig()
-					->render();
-	}
-
-	/**
 	 * @return array[]
 	 */
-	private function getWizardSteps() {
+	protected function getWizardSteps() {
 		$aStandard = array(
 			'import_start'             => array(
 				'title'             => _wpsf__( 'Start Import' ),
@@ -810,21 +668,5 @@ class ICWP_WPSF_Processor_Plugin_SetupWizard extends ICWP_WPSF_Processor_BaseWps
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCurrentWizard() {
-		return $this->sCurrentWizard;
-	}
-
-	/**
-	 * @param string $sCurrentWizard
-	 * @return $this
-	 */
-	public function setCurrentWizard( $sCurrentWizard ) {
-		$this->sCurrentWizard = $sCurrentWizard;
-		return $this;
 	}
 }
