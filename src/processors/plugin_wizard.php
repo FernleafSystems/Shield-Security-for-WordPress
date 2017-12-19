@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		);
 	}
 
-	public function ajaxSetupWizardContent() {
+	public function ajaxWizardProcessStepSubmit() {
 		$oDP = $this->loadDP();
 
 		$this->loadAutoload(); // for Response
