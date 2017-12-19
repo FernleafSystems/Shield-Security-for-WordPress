@@ -76,47 +76,6 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		$oFO = $this->getFeature();
 
 		$aStepsSlugs = array( 'mfa_start' );
-		if ( !$oFO->isPremium() ) {
-//			$aStepsSlugs[] = 'license'; not showing it for now
-		}
-
-		if ( $oFO->isPremium() ) {
-			$aStepsSlugs[] = 'import_options';
-		}
-
-		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'admin_access_restriction';
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
-		$oModule = $this->getController()->getModule( 'audit_trail' );
-		if ( !$oModule->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'audit_trail';
-		}
-
-		if ( !$this->getController()->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'ips';
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-		$oModule = $this->getController()->getModule( 'login_protect' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'login_protect';
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $this->getController()->getModule( 'comments_filter' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'comments_filter';
-		}
-
-		$aStepsSlugs[] = 'how_shield_works';
-		$aStepsSlugs[] = 'optin';
-
-		if ( !$oFO->isPremium() ) {
-			$aStepsSlugs[] = 'import_options';
-		}
-
 		$aStepsSlugs[] = 'mfa_finished';
 		return $aStepsSlugs;
 	}
@@ -166,22 +125,18 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	/**
 	 * @return array[]
 	 */
-	protected function getWizardSteps() {
-		$aStandard = array(
+	protected function getAllDefinedSteps() {
+		return array(
 			'mfa_start'    => array(
 				'title'             => _wpsf__( 'Start Import' ),
-				'slug'              => 'import_start',
 				'content'           => '',
 				'restricted_access' => false
 			),
 			'mfa_finished' => array(
 				'title'             => _wpsf__( 'Import Finished' ),
-				'slug'              => 'import_finished',
 				'content'           => '',
 				'restricted_access' => false
 			),
 		);
-
-		return array_merge( $aStandard, parent::getWizardSteps() );
 	}
 }

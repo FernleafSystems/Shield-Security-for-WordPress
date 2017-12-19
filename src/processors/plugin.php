@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				break;
 
 			case 'wizard':
-				if ( $oDP->getPhpVersionIsAtLeast( 5.4 ) ) {
+				if ( $oFO->getCanRunWizards() ) {
 					$this->getWizardProcessor()->run();
 				}
 				break;

@@ -202,7 +202,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	protected function getWizardNextStep( $aAllSteps, $nCurrentStep ) {
 
 		// The assumption here is that the step data exists!
-		$aStepData = $this->getWizardSteps()[ $aAllSteps[ $nCurrentStep + 1 ] ];
+		$aStepData = $this->getWizardStepsDefinition()[ $aAllSteps[ $nCurrentStep + 1 ] ];
 
 		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
 		try {
@@ -275,17 +275,29 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
+	 * Overwrite to supply all the possible steps
 	 * @return array[]
 	 */
-	protected function getWizardSteps() {
-		return array(
-			'no_access'                => array(
+	protected function getAllDefinedSteps() {
+		return array();
+	}
+
+	/**
+	 * @return array[]
+	 */
+	private function getWizardStepsDefinition() {
+		$aNoAccess = array(
+			'no_access' => array(
 				'title'             => _wpsf__( 'No Access' ),
-				'slug'              => 'no_access',
-				'content'           => '',
 				'restricted_access' => false
 			)
 		);
+		$aSteps = array_merge( $this->getAllDefinedSteps(), $aNoAccess );
+		foreach ( $aSteps as $sSlug => &$aStep ) {
+			$aStep[ 'slug' ] = $sSlug;
+			$aStep[ 'content' ] = '';
+		}
+		return $aSteps;
 	}
 
 	/**
