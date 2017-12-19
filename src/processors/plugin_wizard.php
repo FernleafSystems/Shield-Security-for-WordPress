@@ -22,29 +22,6 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		);
 	}
 
-	/**
-	 * @param string $sWizard
-	 * @throws Exception
-	 */
-	protected function loadWizard( $sWizard ) {
-
-		$sContent = '';
-		$this->setCurrentWizard( $sWizard );
-		switch ( $sWizard ) {
-			case 'welcome':
-				$sContent = $this->renderWizardWelcome();
-				break;
-			case 'import':
-				$sContent = $this->renderWizardImport();
-				break;
-			default:
-				$this->loadWp()->redirectToAdmin();
-				break;
-		}
-		echo $sContent;
-		die();
-	}
-
 	public function ajaxSetupWizardContent() {
 		$oDP = $this->loadDP();
 
@@ -107,22 +84,6 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 
 		$this->getFeature()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
-	}
-
-	/**
-	 * @return string
-	 * @throws Exception
-	 */
-	protected function renderWizardImport() {
-		return $this->renderWizard();
-	}
-
-	/**
-	 * @return string
-	 * @throws Exception
-	 */
-	protected function renderWizardWelcome() {
-		return $this->renderWizard();
 	}
 
 	/**
@@ -254,7 +215,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 					'hrefs' => array(
 						'blog_importexport' => 'http://icwp.io/av'
 					),
-					'imgs' => array(
+					'imgs'  => array(
 						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
 					)
 				);

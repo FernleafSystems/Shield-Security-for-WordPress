@@ -9,7 +9,7 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_plugin.php' );
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	/**
-	 * @var ICWP_WPSF_Processor_Plugin_SetupWizard
+	 * @var ICWP_WPSF_Processor_Plugin_Wizard
 	 */
 	protected $oSetupWizardProcessor;
 
@@ -84,12 +84,12 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard
+	 * @return ICWP_WPSF_Processor_Plugin_Wizard
 	 */
 	public function getWizardProcessor() {
 		if ( !isset( $this->oSetupWizardProcessor ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_setupwizard.php' );
-			$this->oSetupWizardProcessor = new ICWP_WPSF_Processor_Plugin_SetupWizard( $this->getFeature() );
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_wizard.php' );
+			$this->oSetupWizardProcessor = new ICWP_WPSF_Processor_Plugin_Wizard( $this->getFeature() );
 		}
 		return $this->oSetupWizardProcessor;
 	}
