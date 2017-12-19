@@ -294,8 +294,8 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 		);
 		$aSteps = array_merge( $this->getAllDefinedSteps(), $aNoAccess );
 		foreach ( $aSteps as $sSlug => $aStep ) {
-			$aStep[ $sSlug ][ 'slug' ] = $sSlug;
-			$aStep[ $sSlug ][ 'content' ] = '';
+			$aSteps[ $sSlug ][ 'slug' ] = $sSlug;
+			$aSteps[ $sSlug ][ 'content' ] = '';
 		}
 		return $aSteps;
 	}
