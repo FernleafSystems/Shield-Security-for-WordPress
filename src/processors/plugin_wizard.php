@@ -110,21 +110,11 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Import() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-
-		// Special case: user doesn't meet even the basic plugin admin permissions
-		if ( !$oFO->getController()->getUserCanBasePerms() ) {
-			return array( 'no_access' );
-		}
-
-		$aStepsSlugs = array(
+		return array(
 			'import_start',
 			'import_options',
 			'import_finished',
 		);
-
-		return $aStepsSlugs;
 	}
 
 	/**
@@ -133,11 +123,6 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	private function determineWizardSteps_Welcome() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-
-		// Special case: user doesn't meet even the basic plugin admin permissions
-		if ( !$oFO->getController()->getUserCanBasePerms() ) {
-			return array( 'no_access' );
-		}
 
 		$aStepsSlugs = array( 'welcome' );
 		if ( !$oFO->isPremium() ) {
@@ -181,7 +166,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 			$aStepsSlugs[] = 'import_options';
 		}
 
-		$aStepsSlugs[] = 'thankyou';
+		$aStepsSlugs[] = 'finish';
 		return $aStepsSlugs;
 	}
 
@@ -231,7 +216,6 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 				);
 				break;
 
-			case 'no_access':
 			case 'thankyou':
 				break;
 
@@ -288,12 +272,6 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 			'import_finished'          => array(
 				'title'             => _wpsf__( 'Import Finished' ),
 				'slug'              => 'import_finished',
-				'content'           => '',
-				'restricted_access' => false
-			),
-			'no_access'                => array(
-				'title'             => _wpsf__( 'No Access' ),
-				'slug'              => 'no_access',
 				'content'           => '',
 				'restricted_access' => false
 			),
@@ -357,7 +335,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 			)
 		);
 
-		return $aStandard;
+		return array_merge( $aStandard, parent::getWizardSteps() );
 	}
 
 	/**

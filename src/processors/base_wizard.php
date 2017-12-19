@@ -174,13 +174,16 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @return string[]
 	 */
 	protected function determineWizardSteps() {
+		// Special case: user doesn't meet even the basic plugin admin permissions
+		if ( !$this->getController()->getUserCanBasePerms() ) {
+			return array( 'no_access' );
+		}
 
 		switch ( $this->getCurrentWizard() ) {
 			default:
 				$aSteps = array();
 				break;
 		}
-
 		return $aSteps;
 	}
 
@@ -247,8 +250,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 		);
 
 		$aAdd = array();
-
 		switch ( $sSlug ) {
+			case 'no_access':
+				break;
 			default:
 				break;
 		}
@@ -274,7 +278,14 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @return array[]
 	 */
 	protected function getWizardSteps() {
-		return array();
+		return array(
+			'no_access'                => array(
+				'title'             => _wpsf__( 'No Access' ),
+				'slug'              => 'no_access',
+				'content'           => '',
+				'restricted_access' => false
+			)
+		);
 	}
 
 	/**
