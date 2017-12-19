@@ -19,6 +19,11 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	private $aStatistics;
 
 	/**
+	 * @var ICWP_WPSF_Processor_Base_Wizard
+	 */
+	protected $oWizProcessor = null;
+
+	/**
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
@@ -53,6 +58,18 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getRecaptchaResponse() {
 		return $this->loadDataProcessor()->FetchPost( 'g-recaptcha-response' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Base_Wizard|mixed|null
+	 */
+	public function getWizardProcessor() {
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->getCanRunWizards() ) {
+			return $this->oWizProcessor;
+		}
+		return null;
 	}
 
 	/**
