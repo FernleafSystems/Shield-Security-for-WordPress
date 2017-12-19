@@ -15,6 +15,33 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
 	}
 
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+
+		if ( $this->getCanRunWizards() ) {
+			$oWiz = $this->getWizardProcessor();
+			if ( !is_null( $oWiz ) ) {
+				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
+					$oWiz,
+					'ajaxWizardProcessStepSubmit'
+				) );
+				add_action( $this->prefixWpAjax( 'WizardRenderStep' ), array(
+					$oWiz,
+					'ajaxWizardRenderStep'
+				) );
+			}
+		}
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Base_Wizard|null
+	 */
+	protected function getWizardProcessor() {
+		/** @var ICWP_WPSF_Processor_BaseWpsf $oP */
+		$oP = $this->getProcessor();
+		return $oP->getWizardProcessor();
+	}
+
 	/**
 	 * @return array
 	 */

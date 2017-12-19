@@ -19,7 +19,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		return array( 'mfa' );
 	}
 
-	public function ajaxSetupWizardContent() {
+	public function ajaxWizardProcessStepSubmit() {
 		$oDP = $this->loadDP();
 
 		$this->loadAutoload(); // for Response

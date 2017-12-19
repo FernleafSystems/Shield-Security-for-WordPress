@@ -51,7 +51,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	/**
 	 * Ensure to only ever process supported wizards
 	 */
-	public function ajaxSetupWizardSteps() {
+	public function ajaxWizardRenderStep() {
 		$oDP = $this->loadDP();
 
 		$sWizard = $oDP->post( 'wizard_slug' );
@@ -80,7 +80,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 */
 	abstract protected function getSupportedWizards();
 
-	public function ajaxSetupWizardContent() {
+	public function ajaxWizardProcessStepSubmit() {
 
 		$this->loadAutoload(); // for Response
 		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
@@ -157,9 +157,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
 			'ajax'    => array(
-				'content'       => $oFO->getBaseAjaxActionRenderData( 'SetupWizardContent' ),
-				'steps'         => $oFO->getBaseAjaxActionRenderData( 'SetupWizardSteps' ),
-				'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'SetupWizardSteps', true ),
+				'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
+				'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
+				'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
 			)
 		);
 

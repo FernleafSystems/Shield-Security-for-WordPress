@@ -28,22 +28,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->getImportExportSecretKey();
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-
-		$oWizProc = $this->getWizardProcessor();
-		if ( !is_null( $oWizProc ) ) {
-			add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array(
-				$this->getWizardProcessor(),
-				'ajaxSetupWizardContent'
-			) );
-			add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array(
-				$this->getWizardProcessor(),
-				'ajaxSetupWizardSteps'
-			) );
-		}
-	}
-
 	/**
 	 * @return string
 	 */
@@ -72,18 +56,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			)
 		);
 		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Wizard|null
-	 */
-	protected function getWizardProcessor() {
-		if ( $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $this->getProcessor();
-			return $oP->getWizardProcessor();
-		}
-		return null;
 	}
 
 	/**
