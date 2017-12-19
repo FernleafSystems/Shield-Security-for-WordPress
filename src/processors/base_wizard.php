@@ -84,11 +84,8 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 
 		$this->loadAutoload(); // for Response
 		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
-
 			default:
-				$oResponse = new \FernleafSystems\Utilities\Response();
-				$oResponse->setSuccessful( false )
-						  ->setMessageText( _wpsf__( 'Unknown request' ) );
+				return; // we don't process any steps we don't recognise.
 				break;
 		}
 
@@ -131,7 +128,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'more_info'       => _wpsf__( 'More Info' ),
 				'what_is_this'    => _wpsf__( 'What is this?' ),
 				'message'         => $sMessage,
-				'page_title'      => sprintf( _wpsf__( '%s Setup Wizard' ), $oCon->getHumanName() )
+				'page_title'      => $this->getPageTitle()
 			),
 			'data'    => array(
 				'wizard_slug'       => $this->getCurrentWizard(),
@@ -168,6 +165,13 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 					->setRenderVars( $aDisplayData )
 					->setTemplateEngineTwig()
 					->render();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getPageTitle() {
+		return sprintf( _wpsf__( '%s Wizard' ), $this->getController()->getHumanName() );
 	}
 
 	/**

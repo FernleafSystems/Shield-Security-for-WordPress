@@ -1,0 +1,42 @@
+{% extends 'wizard/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Setup Email-Based Authentication</h3>
+	<p>Email-based authentication involves you receiving an email to the address attached to your WordPress
+	   user account. This email will contain a 6-digit code which you'll need to put into the
+	   login confirmation page.</p>
+	<p>The tricky thing with email is that WordPress sites are terrible for sending emails, as most domains
+	   and webhosting aren't configured properly for sending email reliably.</p>
+	<p>This means if you set this up and you don't get the email, you'll be locked out. So, before enabling
+	   email-based authentication, we'll send you a test email first and ask you to verify that you got it.</p>
+
+	<h4>Send Test Verification Email</h4>
+	<p>Click the button below to confirm your email address and that we'll send you an email.</p>
+	<form class="form-horizontal icwp-wizard-form">
+		<input name="wizard-step" value="emailcansend" type="hidden" />
+
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="EMAIL">Your Email</label>
+			<div class="col-md-8">
+				<input type="email" class="form-control" name="email" placeholder="{{ data.user_email }}"
+					   value="{{ data.user_email }}">
+			</div>
+		</div>
+
+		<div class="form-group hidden">
+			<label class="col-md-4 control-label" for="code">Verification Code</label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" name="code"
+					   maxlength="6" minlength="6" placeholder="" value="">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Send Verification Email</button>
+			</div>
+		</div>
+
+	</form>
+{% endblock %}

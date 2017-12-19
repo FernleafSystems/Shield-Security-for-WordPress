@@ -22,6 +22,13 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		);
 	}
 
+	/**
+	 * @return string
+	 */
+	protected function getPageTitle() {
+		return sprintf( _wpsf__( '%s Welcome Wizard' ), $this->getController()->getHumanName() );
+	}
+
 	public function ajaxWizardProcessStepSubmit() {
 		$oDP = $this->loadDP();
 
@@ -65,9 +72,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 				break;
 
 			default:
-				$oResponse = new \FernleafSystems\Utilities\Response();
-				$oResponse->setSuccessful( false )
-						  ->setMessageText( _wpsf__( 'Unknown request' ) );
+				return; // we don't process any steps we don't recognise.
 				break;
 		}
 

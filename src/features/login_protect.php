@@ -14,12 +14,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function onWpInit() {
 		parent::onWpInit();
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		// User has clicked a link in their email to verify they can send email.
-		if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
-			if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'authkey' ) ) {
+		if ( $oDp->query( 'wpsf-action' ) == 'emailsendverify' ) {
+			if ( $oDp->query( 'authkey' ) == substr( $this->getTwoAuthSecretKey(), 0, 6 ) ) {
 				$this->setIfCanSendEmail( true )
-					 ->setBypassAdminProtection( true )
 					 ->savePluginOptions();
 				$this->loadWp()->redirectToLogin();
 			}
@@ -91,20 +90,32 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param string $sEmail
+	 * @param bool   $bSendAsLink
 	 * @return boolean
 	 */
-	public function sendEmailVerifyCanSend() {
+	public function sendEmailVerifyCanSend( $sEmail = null, $bSendAsLink = true ) {
+
+		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
+			$sEmail = get_bloginfo( 'admin_email' );
+		}
+
+		if ( $bSendAsLink ) {
+			$sVerify = $this->generateCanSendEmailVerifyLink();
+		}
+		else {
+			$sVerify = substr( $this->getTwoAuthSecretKey(), 0, 6 );
+		}
 
 		$aMessage = array(
 			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
-			sprintf( _wpsf__( 'Verify Link: %s' ), $this->generateCanSendEmailVerifyLink() ),
+			sprintf( _wpsf__( 'Verify Code: %s' ), $sVerify ),
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()
-																					   ->getHomeUrl() );
+		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
 
 		$bResult = $this->getEmailProcessor()
-						->sendEmailTo( get_bloginfo( 'admin_email' ), $sEmailSubject, $aMessage );
+						->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 		return $bResult;
 	}
 
