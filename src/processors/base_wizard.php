@@ -36,7 +36,13 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @param string $sWizard
 	 */
 	protected function loadWizard( $sWizard ) {
-		$this->loadWp()->redirectToAdmin();
+		try {
+			$this->setCurrentWizard( $sWizard )
+				 ->renderWizard();
+		}
+		catch ( Exception $oE ) {
+			echo $oE->getMessage();
+		}
 		die();
 	}
 
