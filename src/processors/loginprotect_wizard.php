@@ -30,8 +30,12 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		$this->loadAutoload(); // for Response
 		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
 
-			case 'emailauth':
-				$oResponse = $this->processEmailAuth();
+			case 'authemail':
+				$oResponse = $this->processAuthEmail();
+				break;
+
+			case 'authga':
+				$oResponse = $this->processAuthGa();
 				break;
 
 			default:
@@ -57,7 +61,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
-	private function processEmailAuth() {
+	private function processAuthEmail() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oDP = $this->loadDP();
@@ -101,6 +105,46 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
 								.'Email-based two factor authentication option has not been updated.';
 				}
+			}
+		}
+
+		return $oResponse->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function processAuthGa() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		$oDP = $this->loadDP();
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		$oResponse->setSuccessful( false );
+
+		$sCode = $oDP->post( 'code' );
+
+		if ( empty( $sCode ) ) {
+			$sMessage = _wpsf__( 'Code was empty.' );
+		}
+		else {
+
+			$oUser = $this->loadWpUsers()->getCurrentWpUser();
+			/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
+			$oProc = $oFO->getProcessor();
+			$oProcGa = $oProc->getProcessorLoginIntent()
+							 ->getProcessorGoogleAuthenticator();
+			$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
+
+			if ( $bValidated ) {
+				$oFO->setEnabled2FaGoogleAuthenticator( true );
+				$oProcGa->setProfileValidated( $oUser, true );
+
+				$oResponse->setSuccessful( true );
+				$sMessage = 'Google Authenticator was validated.';
+			}
+			else {
+				$sMessage = 'Could not validate - this does not appear to be the correct 6-digit code.';
 			}
 		}
 
@@ -178,6 +222,24 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 					)
 				);
 				break;
+
+			case 'mfa_authga':
+				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
+				$oProc = $oFO->getProcessor();
+				$sGaUrl = $oProc->getProcessorLoginIntent()
+								->getProcessorGoogleAuthenticator()
+								->getGaRegisterChartUrl( $oUser );
+				$aAdd = array(
+					'data'  => array(
+						'name'       => $oUser->first_name,
+						'user_email' => $oUser->user_email
+					),
+					'hrefs' => array(
+						'ga_chart' => $sGaUrl,
+					)
+				);
+				break;
 			default:
 				break;
 		}
@@ -190,17 +252,17 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	protected function getAllDefinedSteps() {
 		return array(
-			'mfa_start'      => array(
+			'mfa_start'     => array(
 				'title'             => _wpsf__( 'Start Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),
 			'mfa_authemail' => array(
 				'title' => _wpsf__( 'Email Authentication' ),
 			),
-			'mfa_authga' => array(
+			'mfa_authga'    => array(
 				'title' => _wpsf__( 'Google Authenticator' ),
 			),
-			'mfa_finished'   => array(
+			'mfa_finished'  => array(
 				'title'             => _wpsf__( 'Finished: Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),

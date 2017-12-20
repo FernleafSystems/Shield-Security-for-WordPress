@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
-	protected function getProcessorLoginIntent() {
+	public function getProcessorLoginIntent() {
 		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_intent.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getFeature() );
 		return $oProc;

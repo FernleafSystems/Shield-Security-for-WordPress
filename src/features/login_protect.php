@@ -303,6 +303,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param bool $bCan
+	 * @return $this
+	 */
+	public function setEnabled2FaGoogleAuthenticator( $bCan ) {
+		return $this->setOpt( 'enable_google_authenticator', $bCan ? 'Y' : 'N' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getLoginIntentRequestFlag() {

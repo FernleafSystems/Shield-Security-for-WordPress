@@ -292,7 +292,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
 	 */
-	protected function getProcessorGoogleAuthenticator() {
+	public function getProcessorGoogleAuthenticator() {
 		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
