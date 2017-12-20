@@ -30,8 +30,8 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		$this->loadAutoload(); // for Response
 		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
 
-			case 'emailcansend':
-				$oResponse = $this->processEmailCanSend();
+			case 'emailauth':
+				$oResponse = $this->processEmailAuth();
 				break;
 
 			default:
@@ -54,17 +54,20 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
 	}
 
-	private function processEmailCanSend() {
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function processEmailAuth() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oDP = $this->loadDP();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
-		$sMessage = 'Unknown Error';
 
 		$sEmail = $oDP->post( 'email' );
 		$sCode = $oDP->post( 'code' );
+		$bFa = $oDP->post( 'Email2FAOption' ) === 'Y';
 
 		if ( !$oDP->validEmail( $sEmail ) ) {
 			$sMessage = _wpsf__( 'Invalid email address' );
@@ -86,14 +89,17 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 					$oFO->setIfCanSendEmail( true );
 
-					$bFa = $oDP->post( 'Email2FAOption' ) === 'Y';
 					if ( $bFa ) {
 						$oFO->setEnabled2FaEmail( true );
-						$sMessage .= ' '.'Email-based two factor authentication has been enabled.';
+						$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
+					}
+					else {
+						$sMessage .= ' '.'Email-based two factor authentication is NOT enabled.';
 					}
 				}
 				else {
-					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.';
+					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
+								.'Email-based two factor authentication option has not been updated.';
 				}
 			}
 		}
@@ -127,8 +133,12 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 		$aStepsSlugs = array( 'mfa_start' );
 
-		if ( !$oFO->getIfCanSendEmailVerified() ) {
-			$aStepsSlugs[] = 'mfa_email_cansend';
+		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->getIsEmailAuthenticationEnabled() ) {
+			$aStepsSlugs[] = 'mfa_authemail';
+		}
+
+		if ( !$oFO->getIsEnabledGoogleAuthenticator() ) {
+			$aStepsSlugs[] = 'mfa_authga';
 		}
 
 		$aStepsSlugs[] = 'mfa_finished';
@@ -159,7 +169,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 		switch ( $sSlug ) {
 
-			case 'mfa_email_cansend':
+			case 'mfa_authemail':
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				$aAdd = array(
 					'data' => array(
@@ -180,14 +190,17 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	protected function getAllDefinedSteps() {
 		return array(
-			'mfa_start'         => array(
+			'mfa_start'      => array(
 				'title'             => _wpsf__( 'Start Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),
-			'mfa_email_cansend' => array(
-				'title' => _wpsf__( 'Verify Email Sending' ),
+			'mfa_authemail' => array(
+				'title' => _wpsf__( 'Email Authentication' ),
 			),
-			'mfa_finished'      => array(
+			'mfa_authga' => array(
+				'title' => _wpsf__( 'Google Authenticator' ),
+			),
+			'mfa_finished'   => array(
 				'title'             => _wpsf__( 'Finished: Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),

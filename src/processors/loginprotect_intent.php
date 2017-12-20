@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		$oLoginTracker = $this->getLoginTrack();
 
-		if ( $this->getIsOption( 'enable_google_authenticator', 'Y' ) ) {
+		if ( $oFO->getIsEnabledGoogleAuthenticator() ) {
 			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 			$this->getProcessorGoogleAuthenticator()->run();
 		}
