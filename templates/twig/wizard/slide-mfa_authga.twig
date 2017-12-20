@@ -12,28 +12,55 @@
 	   to turn it on for all users on the site.</p>
 
 	<h4>Register Google Authenticator On Your Account</h4>
-	<p>Scan the barcode below and enter the 6-digit code to register.</p>
+
+	{% if flags.has_ga %}
+		<p>It looks like Google Authenticator is already configured for your WordPress account so
+		   no need to set that up again.</p>
+	{% else %}
+		<p>Scan the barcode below and enter the 6-digit code to register.</p>
+	{% endif %}
+
 	<form class="form-horizontal icwp-wizard-form" id>
 		<input name="wizard-step" value="authga" type="hidden" />
 
-		<div class="form-group">
-			<label class="col-md-4 control-label" for="email">Scan your unique code</label>
-			<div class="col-md-8">
-				<img src="{{ hrefs.ga_chart }}" />
-			</div>
-		</div>
+		{% if flags.has_ga %}
+			<input name="enablega" value="Y" type="hidden" />
+			<input name="code" value="ignore" type="hidden" />
 
-		<div class="form-group">
-			<label class="col-md-4 control-label" for="code">Authenticator Code</label>
-			<div class="col-md-8">
-				<input type="text" class="form-control" name="code"
-					   maxlength="6" minlength="6" placeholder="" value="">
+			<div class="form-group stage-verificationcode">
+				<label class="col-md-4 control-label" for="enablega">Turn On Google Authenticator</label>
+				<div class="col-md-8">
+					<label for="enablega">
+						<input type="checkbox" value="Y" name="enablega" id="enablega">
+						Check to turn on Google Authenticator for this site
+					</label>
+					<span id="helpBlock" class="help-block">
+						When enabled, this will allow any other users of the site to configure and
+						use Google Authenticator on their WordPress accounts.
+					</span>
+				</div>
 			</div>
-		</div>
+		{% else %}
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="email">Scan your unique code</label>
+				<div class="col-md-8">
+					<img src="{{ hrefs.ga_chart }}" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="code">Authenticator Code</label>
+				<div class="col-md-8">
+					<input type="text" class="form-control" name="code"
+						   maxlength="6" minlength="6" placeholder="" value="">
+				</div>
+			</div>
+		{% endif %}
 
 		<div class="form-group">
 			<div class="col-md-offset-4 col-md-8">
-				<button type="submit" class="btn btn-primary">Register Google Authenticator</button>
+				<button type="submit" class="btn btn-primary">Configure Google Authenticator</button>
 			</div>
 		</div>
 	</form>

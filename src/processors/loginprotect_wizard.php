@@ -123,29 +123,39 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		$oResponse->setSuccessful( false );
 
 		$sCode = $oDP->post( 'code' );
+		$bEnableGa = $oDP->post( 'enablega' ) === 'Y';
 
-		if ( empty( $sCode ) ) {
-			$sMessage = _wpsf__( 'Code was empty.' );
-		}
-		else {
+		if ( $sCode != 'ignore' ) {
 
-			$oUser = $this->loadWpUsers()->getCurrentWpUser();
-			/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
-			$oProc = $oFO->getProcessor();
-			$oProcGa = $oProc->getProcessorLoginIntent()
-							 ->getProcessorGoogleAuthenticator();
-			$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
-
-			if ( $bValidated ) {
-				$oFO->setEnabled2FaGoogleAuthenticator( true );
-				$oProcGa->setProfileValidated( $oUser, true );
-
-				$oResponse->setSuccessful( true );
-				$sMessage = 'Google Authenticator was validated.';
+			if ( empty( $sCode ) ) {
+				$sMessage = _wpsf__( 'Code was empty.' );
 			}
 			else {
-				$sMessage = 'Could not validate - this does not appear to be the correct 6-digit code.';
+				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
+				$oProc = $oFO->getProcessor();
+				$oProcGa = $oProc->getProcessorLoginIntent()
+								 ->getProcessorGoogleAuthenticator();
+				$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
+
+				if ( $bValidated ) {
+					$oProcGa->setProfileValidated( $oUser, true );
+					$sMessage = 'Google Authenticator was validated.';
+					$oResponse->setSuccessful( true );
+				}
+				else {
+					$sMessage = 'Could not validate - this does not appear to be the correct 6-digit code.';
+					$bEnableGa = false; // we don't enable GA on the site if the code was bad.
+				}
 			}
+		}
+		else {
+			$oResponse->setSuccessful( true );
+		}
+
+		if ( $bEnableGa ) {
+			$oFO->setEnabled2FaGoogleAuthenticator( true );
+			$sMessage .= ' '._wpsf__( 'Google Authenticator was enabled for the site.' );
 		}
 
 		return $oResponse->setMessageText( $sMessage );
@@ -227,9 +237,9 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
-				$sGaUrl = $oProc->getProcessorLoginIntent()
-								->getProcessorGoogleAuthenticator()
-								->getGaRegisterChartUrl( $oUser );
+				$oProcGa = $oProc->getProcessorLoginIntent()
+								 ->getProcessorGoogleAuthenticator();
+				$sGaUrl = $oProcGa->getGaRegisterChartUrl( $oUser );
 				$aAdd = array(
 					'data'  => array(
 						'name'       => $oUser->first_name,
@@ -237,6 +247,9 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 					),
 					'hrefs' => array(
 						'ga_chart' => $sGaUrl,
+					),
+					'flags' => array(
+						'has_ga' => $oProcGa->getCurrentUserHasValidatedProfile(),
 					)
 				);
 				break;
