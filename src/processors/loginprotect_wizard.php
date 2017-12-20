@@ -38,6 +38,10 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				$oResponse = $this->processAuthGa();
 				break;
 
+			case 'multiselect':
+				$oResponse = $this->processMultiSelect();
+				break;
+
 			default:
 				return; // we don't process any steps we don't recognise.
 				break;
@@ -162,6 +166,24 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	}
 
 	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function processMultiSelect() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$bEnabledMulti = $this->loadDP()->post( 'multiselect' ) === 'Y';
+		$oFO->setIsChainedAuth( $bEnabledMulti );
+		$sMessage = sprintf( _wpsf__( 'Multi-Factor Authentication was %s for the site.' ),
+			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )
+		);
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( true )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	protected function determineWizardSteps() {
@@ -195,6 +217,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 			$aStepsSlugs[] = 'mfa_authga';
 		}
 
+		$aStepsSlugs[] = 'mfa_multiselect';
 		$aStepsSlugs[] = 'mfa_finished';
 		return $aStepsSlugs;
 	}
@@ -253,6 +276,15 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 					)
 				);
 				break;
+
+			case 'mfa_multiselect':
+				$aAdd = array(
+					'flags' => array(
+						'has_multiselect' => $oFO->isChainedAuth(),
+					)
+				);
+				break;
+
 			default:
 				break;
 		}
@@ -265,17 +297,20 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	protected function getAllDefinedSteps() {
 		return array(
-			'mfa_start'     => array(
+			'mfa_start'       => array(
 				'title'             => _wpsf__( 'Start Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),
-			'mfa_authemail' => array(
+			'mfa_authemail'   => array(
 				'title' => _wpsf__( 'Email Authentication' ),
 			),
-			'mfa_authga'    => array(
+			'mfa_authga'      => array(
 				'title' => _wpsf__( 'Google Authenticator' ),
 			),
-			'mfa_finished'  => array(
+			'mfa_multiselect' => array(
+				'title' => _wpsf__( 'Select Multifactor Auth' ),
+			),
+			'mfa_finished'    => array(
 				'title'             => _wpsf__( 'Finished: Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),

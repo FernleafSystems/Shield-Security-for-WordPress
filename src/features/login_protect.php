@@ -279,6 +279,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param bool $bIsChained
+	 * @return $this
+	 */
+	public function setIsChainedAuth( $bIsChained ) {
+		return $this->setOpt( 'enable_chained_authentication', $bIsChained ? 'Y' : 'N' );
+	}
+
+	/**
 	 * @param bool $bCan
 	 * @return $this
 	 */
