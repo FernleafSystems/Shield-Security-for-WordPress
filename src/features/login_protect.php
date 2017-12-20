@@ -17,7 +17,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oDp = $this->loadDP();
 		// User has clicked a link in their email to verify they can send email.
 		if ( $oDp->query( 'wpsf-action' ) == 'emailsendverify' ) {
-			if ( $oDp->query( 'authkey' ) == substr( $this->getTwoAuthSecretKey(), 0, 6 ) ) {
+			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
 				$this->loadWp()->redirectToLogin();
@@ -104,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sVerify = $this->generateCanSendEmailVerifyLink();
 		}
 		else {
-			$sVerify = substr( $this->getTwoAuthSecretKey(), 0, 6 );
+			$sVerify = $this->getCanEmailVerifyCode();
 		}
 
 		$aMessage = array(
@@ -194,6 +194,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return string
 	 */
+	public function getCanEmailVerifyCode() {
+		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getTwoAuthSecretKey() {
 		$sKey = $this->getOpt( 'two_factor_secret_key' );
 		if ( empty( $sKey ) ) {
@@ -278,6 +285,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 		$this->setOpt( 'email_can_send_verified_at', $nDateAt );
 		return $this;
+	}
+
+	/**
+	 * @param bool $bCan
+	 * @return $this
+	 */
+	public function setEnabled2FaEmail( $bCan ) {
+		return $this->setOpt( 'enable_email_authentication', $bCan ? 'Y' : 'N' );
 	}
 
 	/**

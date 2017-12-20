@@ -26,7 +26,6 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	}
 
 	public function ajaxWizardProcessStepSubmit() {
-		$oDP = $this->loadDP();
 
 		$this->loadAutoload(); // for Response
 		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
@@ -74,10 +73,27 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 			if ( empty( $sCode ) ) {
 				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
 					$oResponse->setSuccessful( true );
-					$sMessage = 'Verification email sent';
+					$sMessage = 'Verification email sent - please check your email (including your SPAM)';
 				}
 				else {
 					$sMessage = 'Failed to send verification email';
+				}
+			}
+			else {
+				if ( $sCode == $oFO->getCanEmailVerifyCode() ) {
+					$oResponse->setSuccessful( true );
+					$sMessage = 'Email sending has been verified successfully.';
+
+					$oFO->setIfCanSendEmail( true );
+
+					$bFa = $oDP->post( 'Email2FAOption' ) === 'Y';
+					if ( $bFa ) {
+						$oFO->setEnabled2FaEmail( true );
+						$sMessage .= ' '.'Email-based two factor authentication has been enabled.';
+					}
+				}
+				else {
+					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.';
 				}
 			}
 		}
