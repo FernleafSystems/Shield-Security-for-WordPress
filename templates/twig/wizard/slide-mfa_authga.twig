@@ -24,26 +24,35 @@
 		<input name="wizard-step" value="authga" type="hidden" />
 
 		{% if flags.has_ga %}
-			<input name="enablega" value="Y" type="hidden" />
 			<input name="code" value="ignore" type="hidden" />
 
 			<div class="form-group stage-verificationcode">
 				<label class="col-md-4 control-label" for="enablega">Turn On Google Authenticator</label>
 				<div class="col-md-8">
-					<label for="enablega">
-						<input type="checkbox" value="Y" name="enablega" id="enablega">
-						Check to turn on Google Authenticator for this site
-					</label>
+					<div class="radio">
+						<label>
+							<input type="radio" name="enablega" id="enablegaOn" value="Y" checked>
+							Enable Google Authenticator
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="enablega" id="enablegaOff" value="N">
+							Disable Google Authenticator
+						</label>
+					</div>
+
 					<span id="helpBlock" class="help-block">
-						When enabled, this will allow any other users of the site to configure and
+						When enabled, this will allow any users of this site to configure and
 						use Google Authenticator on their WordPress accounts.
 					</span>
 				</div>
 			</div>
 		{% else %}
+			<input name="enablega" value="Y" type="hidden" />
 
 			<div class="form-group">
-				<label class="col-md-4 control-label" for="email">Scan your unique code</label>
+				<label class="col-md-4 control-label">Scan your unique code</label>
 				<div class="col-md-8">
 					<img src="{{ hrefs.ga_chart }}" />
 				</div>
