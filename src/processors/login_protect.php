@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// XML-RPC Compatibility
 		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
-			return true;
+			return;
 		}
 
 		if ( $oFO->getIsCustomLoginPathEnabled() ) {
@@ -40,14 +40,27 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->getProcessorLoginIntent()->run();
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-		return true;
+
+		switch ( (string)$this->loadDP()->query( 'shield_action', '' ) ) {
+
+			case 'wizard':
+				if ( $oFO->getCanRunWizards() ) {
+					$this->getWizardProcessor()->run();
+				}
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Wizard
 	 */
 	public function getWizardProcessor() {
-		if ( !isset( $this->oWizProcessor ) ) {
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->getCanRunWizards() && !isset( $this->oWizProcessor ) ) {
 			require_once( dirname( __FILE__ ).'/loginprotect_wizard.php' );
 			$this->oWizProcessor = new ICWP_WPSF_Processor_LoginProtect_Wizard( $this->getFeature() );
 		}
@@ -110,7 +123,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
-	protected function getProcessorLoginIntent() {
+	public function getProcessorLoginIntent() {
 		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_intent.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getFeature() );
 		return $oProc;

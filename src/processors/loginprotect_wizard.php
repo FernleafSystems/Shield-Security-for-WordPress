@@ -7,8 +7,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Wizard', false ) ) {
 require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
 
 /**
- * @uses php 5.4+
- * Class ICWP_WPSF_Processor_Plugin_SetupWizard
+ * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
 class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
 
@@ -19,20 +18,32 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		return array( 'mfa' );
 	}
 
+	/**
+	 * @return string
+	 */
+	protected function getPageTitle() {
+		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getController()->getHumanName() );
+	}
+
 	public function ajaxWizardProcessStepSubmit() {
-		$oDP = $this->loadDP();
 
 		$this->loadAutoload(); // for Response
-		switch ( $oDP->post( 'wizard-step' ) ) {
+		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
 
-			case 'optin':
-				$oResponse = $this->wizardOptin();
+			case 'authemail':
+				$oResponse = $this->processAuthEmail();
+				break;
+
+			case 'authga':
+				$oResponse = $this->processAuthGa();
+				break;
+
+			case 'multiselect':
+				$oResponse = $this->processMultiSelect();
 				break;
 
 			default:
-				$oResponse = new \FernleafSystems\Utilities\Response();
-				$oResponse->setSuccessful( false )
-						  ->setMessageText( _wpsf__( 'Unknown request' ) );
+				return; // we don't process any steps we don't recognise.
 				break;
 		}
 
@@ -49,6 +60,127 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 		$this->getFeature()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function processAuthEmail() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		$oDP = $this->loadDP();
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		$oResponse->setSuccessful( false );
+
+		$sEmail = $oDP->post( 'email' );
+		$sCode = $oDP->post( 'code' );
+		$bFa = $oDP->post( 'Email2FAOption' ) === 'Y';
+
+		if ( !$oDP->validEmail( $sEmail ) ) {
+			$sMessage = _wpsf__( 'Invalid email address' );
+		}
+		else {
+			if ( empty( $sCode ) ) {
+				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
+					$oResponse->setSuccessful( true );
+					$sMessage = 'Verification email sent - please check your email (including your SPAM)';
+				}
+				else {
+					$sMessage = 'Failed to send verification email';
+				}
+			}
+			else {
+				if ( $sCode == $oFO->getCanEmailVerifyCode() ) {
+					$oResponse->setSuccessful( true );
+					$sMessage = 'Email sending has been verified successfully.';
+
+					$oFO->setIfCanSendEmail( true );
+
+					if ( $bFa ) {
+						$oFO->setEnabled2FaEmail( true );
+						$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
+					}
+					else {
+						$sMessage .= ' '.'Email-based two factor authentication is NOT enabled.';
+					}
+				}
+				else {
+					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
+								.'Email-based two factor authentication option has not been updated.';
+				}
+			}
+		}
+
+		return $oResponse->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function processAuthGa() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		$oDP = $this->loadDP();
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		$oResponse->setSuccessful( false );
+
+		$sCode = $oDP->post( 'code' );
+		$bEnableGa = $oDP->post( 'enablega' ) === 'Y';
+
+		if ( $sCode != 'ignore' ) {
+
+			if ( empty( $sCode ) ) {
+				$sMessage = _wpsf__( 'Code was empty.' );
+			}
+			else {
+				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
+				$oProc = $oFO->getProcessor();
+				$oProcGa = $oProc->getProcessorLoginIntent()
+								 ->getProcessorGoogleAuthenticator();
+				$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
+
+				if ( $bValidated ) {
+					$oProcGa->setProfileValidated( $oUser, true );
+					$sMessage = 'Google Authenticator was validated.';
+					$oResponse->setSuccessful( true );
+				}
+				else {
+					$sMessage = 'Could not validate - this does not appear to be the correct 6-digit code.';
+					$bEnableGa = false; // we don't enable GA on the site if the code was bad.
+				}
+			}
+		}
+		else {
+			$oResponse->setSuccessful( true );
+		}
+
+		if ( $bEnableGa ) {
+			$oFO->setEnabled2FaGoogleAuthenticator( true );
+			$sMessage .= ' '._wpsf__( 'Google Authenticator was enabled for the site.' );
+		}
+
+		return $oResponse->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function processMultiSelect() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$bEnabledMulti = $this->loadDP()->post( 'multiselect' ) === 'Y';
+		$oFO->setIsChainedAuth( $bEnabledMulti );
+		$sMessage = sprintf( _wpsf__( 'Multi-Factor Authentication was %s for the site.' ),
+			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )
+		);
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( true )
+						 ->setMessageText( $sMessage );
 	}
 
 	/**
@@ -72,51 +204,20 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Mfa() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
 		$aStepsSlugs = array( 'mfa_start' );
-		if ( !$oFO->isPremium() ) {
-//			$aStepsSlugs[] = 'license'; not showing it for now
+
+		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->getIsEmailAuthenticationEnabled() ) {
+			$aStepsSlugs[] = 'mfa_authemail';
 		}
 
-		if ( $oFO->isPremium() ) {
-			$aStepsSlugs[] = 'import_options';
+		if ( !$oFO->getIsEnabledGoogleAuthenticator() ) {
+			$aStepsSlugs[] = 'mfa_authga';
 		}
 
-		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'admin_access_restriction';
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
-		$oModule = $this->getController()->getModule( 'audit_trail' );
-		if ( !$oModule->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'audit_trail';
-		}
-
-		if ( !$this->getController()->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
-			$aStepsSlugs[] = 'ips';
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-		$oModule = $this->getController()->getModule( 'login_protect' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'login_protect';
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $this->getController()->getModule( 'comments_filter' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
-			$aStepsSlugs[] = 'comments_filter';
-		}
-
-		$aStepsSlugs[] = 'how_shield_works';
-		$aStepsSlugs[] = 'optin';
-
-		if ( !$oFO->isPremium() ) {
-			$aStepsSlugs[] = 'import_options';
-		}
-
+		$aStepsSlugs[] = 'mfa_multiselect';
 		$aStepsSlugs[] = 'mfa_finished';
 		return $aStepsSlugs;
 	}
@@ -126,7 +227,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 * @return array
 	 */
 	protected function getRenderDataForStep( $sSlug ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oConn = $this->getController();
 
@@ -144,18 +245,46 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		$aAdd = array();
 
 		switch ( $sSlug ) {
-			case 'license':
-				break;
-			case 'import_options':
+
+			case 'mfa_authemail':
+				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				$aAdd = array(
-					'hrefs' => array(
-						'blog_importexport' => 'http://icwp.io/av'
-					),
-					'imgs'  => array(
-						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+					'data' => array(
+						'name'       => $oUser->first_name,
+						'user_email' => $oUser->user_email
 					)
 				);
 				break;
+
+			case 'mfa_authga':
+				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
+				$oProc = $oFO->getProcessor();
+				$oProcGa = $oProc->getProcessorLoginIntent()
+								 ->getProcessorGoogleAuthenticator();
+				$sGaUrl = $oProcGa->getGaRegisterChartUrl( $oUser );
+				$aAdd = array(
+					'data'  => array(
+						'name'       => $oUser->first_name,
+						'user_email' => $oUser->user_email
+					),
+					'hrefs' => array(
+						'ga_chart' => $sGaUrl,
+					),
+					'flags' => array(
+						'has_ga' => $oProcGa->getCurrentUserHasValidatedProfile(),
+					)
+				);
+				break;
+
+			case 'mfa_multiselect':
+				$aAdd = array(
+					'flags' => array(
+						'has_multiselect' => $oFO->isChainedAuth(),
+					)
+				);
+				break;
+
 			default:
 				break;
 		}
@@ -166,22 +295,25 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	/**
 	 * @return array[]
 	 */
-	protected function getWizardSteps() {
-		$aStandard = array(
-			'mfa_start'    => array(
-				'title'             => _wpsf__( 'Start Import' ),
-				'slug'              => 'import_start',
-				'content'           => '',
+	protected function getAllDefinedSteps() {
+		return array(
+			'mfa_start'       => array(
+				'title'             => _wpsf__( 'Start Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),
-			'mfa_finished' => array(
-				'title'             => _wpsf__( 'Import Finished' ),
-				'slug'              => 'import_finished',
-				'content'           => '',
+			'mfa_authemail'   => array(
+				'title' => _wpsf__( 'Email Authentication' ),
+			),
+			'mfa_authga'      => array(
+				'title' => _wpsf__( 'Google Authenticator' ),
+			),
+			'mfa_multiselect' => array(
+				'title' => _wpsf__( 'Select Multifactor Auth' ),
+			),
+			'mfa_finished'    => array(
+				'title'             => _wpsf__( 'Finished: Multi-Factor Authentication Setup' ),
 				'restricted_access' => false
 			),
 		);
-
-		return array_merge( $aStandard, parent::getWizardSteps() );
 	}
 }
