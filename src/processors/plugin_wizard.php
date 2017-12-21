@@ -22,11 +22,19 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		);
 	}
 
-	public function ajaxWizardProcessStepSubmit() {
-		$oDP = $this->loadDP();
+	/**
+	 * @return string
+	 */
+	protected function getPageTitle() {
+		return sprintf( _wpsf__( '%s Welcome Wizard' ), $this->getController()->getHumanName() );
+	}
 
-		$this->loadAutoload(); // for Response
-		switch ( $oDP->post( 'wizard-step' ) ) {
+	/**
+	 * @param string $sStep
+	 * @return \FernleafSystems\Utilities\Response|null
+	 */
+	protected function processWizardStep( $sStep ) {
+		switch ( $sStep ) {
 
 			case 'admin_access_restriction_verify':
 				$oResponse = $this->wizardSecurityAdminVerify();
@@ -65,25 +73,10 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 				break;
 
 			default:
-				$oResponse = new \FernleafSystems\Utilities\Response();
-				$oResponse->setSuccessful( false )
-						  ->setMessageText( _wpsf__( 'Unknown request' ) );
+				$oResponse = null; // we don't process any steps we don't recognise.
 				break;
 		}
-
-		$sMessage = $oResponse->getMessageText();
-		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( _wpsf__( 'Please click %s to continue.' ), _wpsf__( 'Next' ) );
-		}
-		else {
-			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
-		}
-
-		$aData = $oResponse->getData();
-		$aData[ 'message' ] = $sMessage;
-
-		$this->getFeature()
-			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+		return $oResponse;
 	}
 
 	/**
@@ -261,81 +254,54 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	/**
 	 * @return array[]
 	 */
-	protected function getWizardSteps() {
-		$aStandard = array(
+	protected function getAllDefinedSteps() {
+		return array(
 			'import_start'             => array(
 				'title'             => _wpsf__( 'Start Import' ),
-				'slug'              => 'import_start',
-				'content'           => '',
 				'restricted_access' => false
 			),
 			'import_finished'          => array(
 				'title'             => _wpsf__( 'Import Finished' ),
-				'slug'              => 'import_finished',
-				'content'           => '',
 				'restricted_access' => false
 			),
 			'welcome'                  => array(
 				'title'             => _wpsf__( 'Welcome' ),
-				'slug'              => 'welcome',
-				'content'           => '',
 				'restricted_access' => false,
 			),
 			'license'                  => array(
-				'title'   => _wpsf__( 'Go Pro' ),
-				'slug'    => 'license',
-				'content' => '',
+				'title' => _wpsf__( 'Go Pro' ),
 			),
 			'import_options'           => array(
-				'title'   => _wpsf__( 'Import' ),
-				'slug'    => 'import_options',
-				'content' => '',
+				'title' => _wpsf__( 'Import' ),
 			),
 			'admin_access_restriction' => array(
-				'title'   => _wpsf__( 'Security Admin' ),
-				'slug'    => 'admin_access_restriction',
-				'content' => '',
+				'title' => _wpsf__( 'Security Admin' ),
 			),
 			'audit_trail'              => array(
-				'title'   => _wpsf__( 'Audit Trail' ),
-				'slug'    => 'audit_trail',
-				'content' => '',
+				'title' => _wpsf__( 'Audit Trail' ),
 			),
 			'ips'                      => array(
-				'title'   => _wpsf__( 'IP Blacklist' ),
-				'slug'    => 'ips',
-				'content' => '',
+				'title' => _wpsf__( 'IP Blacklist' ),
 			),
 			'login_protect'            => array(
-				'title'   => _wpsf__( 'Login Protection' ),
-				'slug'    => 'login_protect',
-				'content' => '',
+				'title' => _wpsf__( 'Login Protection' ),
 			),
 			'comments_filter'          => array(
-				'title'   => _wpsf__( 'Comment SPAM' ),
-				'slug'    => 'comments_filter',
-				'content' => '',
+				'title' => _wpsf__( 'Comment SPAM' ),
 			),
 			'how_shield_works'         => array(
 				'title'             => _wpsf__( 'How Shield Works' ),
-				'slug'              => 'how_shield_works',
-				'content'           => '',
 				'restricted_access' => false,
 			),
 			'optin'                    => array(
 				'title'   => _wpsf__( 'Join Us!' ),
-				'slug'    => 'optin',
 				'content' => '',
 			),
 			'thankyou'                 => array(
 				'title'             => _wpsf__( 'Thank You' ),
-				'slug'              => 'thankyou',
-				'content'           => '',
 				'restricted_access' => false,
 			)
 		);
-
-		return array_merge( $aStandard, parent::getWizardSteps() );
 	}
 
 	/**

@@ -81,27 +81,42 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	abstract protected function getSupportedWizards();
 
 	public function ajaxWizardProcessStepSubmit() {
-
 		$this->loadAutoload(); // for Response
-		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
+		$oResponse = $this->processWizardStep( $this->loadDP()->post( 'wizard-step' ) );
+		if ( !empty( $oResponse ) ) {
+			$this->sendWizardResponse( $oResponse );
+		}
+	}
 
+	/**
+	 * @param string $sStep
+	 * @return \FernleafSystems\Utilities\Response|null
+	 */
+	protected function processWizardStep( $sStep ) {
+		switch ( $sStep ) {
 			default:
-				$oResponse = new \FernleafSystems\Utilities\Response();
-				$oResponse->setSuccessful( false )
-						  ->setMessageText( _wpsf__( 'Unknown request' ) );
+				$oResponse = null; // we don't process any steps we don't recognise.
 				break;
 		}
+		return $oResponse;
+	}
+
+	/**
+	 * @param \FernleafSystems\Utilities\Response $oResponse
+	 */
+	protected function sendWizardResponse( $oResponse ) {
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( _wpsf__( 'Please click %s to continue.' ), _wpsf__( 'Next' ) );
+			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next' ) );
 		}
 		else {
-			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
+			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );
 		}
 
 		$aData = $oResponse->getData();
 		$aData[ 'message' ] = $sMessage;
+		$oResponse->setData( $aData );
 
 		$this->getFeature()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
@@ -116,22 +131,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();
 
-		$sMessage = $this->loadAdminNoticesProcessor()
-						 ->flushFlashMessage()
-						 ->getRawFlashMessageText();
-
 		$aDisplayData = array(
 			'strings' => array(
-				'welcome'         => _wpsf__( 'Welcome' ),
-				'time_remaining'  => _wpsf__( 'Time Remaining' ),
-				'calculating'     => _wpsf__( 'Calculating' ).' ...',
-				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
-				'login_expired'   => _wpsf__( 'Login Expired' ),
-				'verify_my_login' => _wpsf__( 'Verify My Login' ),
-				'more_info'       => _wpsf__( 'More Info' ),
-				'what_is_this'    => _wpsf__( 'What is this?' ),
-				'message'         => $sMessage,
-				'page_title'      => sprintf( _wpsf__( '%s Setup Wizard' ), $oCon->getHumanName() )
+				'page_title' => $this->getPageTitle()
 			),
 			'data'    => array(
 				'wizard_slug'       => $this->getCurrentWizard(),
@@ -171,6 +173,13 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getPageTitle() {
+		return sprintf( _wpsf__( '%s Wizard' ), $this->getController()->getHumanName() );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	protected function determineWizardSteps() {
@@ -202,7 +211,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	protected function getWizardNextStep( $aAllSteps, $nCurrentStep ) {
 
 		// The assumption here is that the step data exists!
-		$aStepData = $this->getWizardSteps()[ $aAllSteps[ $nCurrentStep + 1 ] ];
+		$aStepData = $this->getWizardStepsDefinition()[ $aAllSteps[ $nCurrentStep + 1 ] ];
 
 		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
 		try {
@@ -275,17 +284,29 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
+	 * Overwrite to supply all the possible steps
 	 * @return array[]
 	 */
-	protected function getWizardSteps() {
-		return array(
-			'no_access'                => array(
+	protected function getAllDefinedSteps() {
+		return array();
+	}
+
+	/**
+	 * @return array[]
+	 */
+	private function getWizardStepsDefinition() {
+		$aNoAccess = array(
+			'no_access' => array(
 				'title'             => _wpsf__( 'No Access' ),
-				'slug'              => 'no_access',
-				'content'           => '',
 				'restricted_access' => false
 			)
 		);
+		$aSteps = array_merge( $this->getAllDefinedSteps(), $aNoAccess );
+		foreach ( $aSteps as $sSlug => $aStep ) {
+			$aSteps[ $sSlug ][ 'slug' ] = $sSlug;
+			$aSteps[ $sSlug ][ 'content' ] = '';
+		}
+		return $aSteps;
 	}
 
 	/**

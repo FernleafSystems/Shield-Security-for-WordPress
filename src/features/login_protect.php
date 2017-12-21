@@ -14,12 +14,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function onWpInit() {
 		parent::onWpInit();
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		// User has clicked a link in their email to verify they can send email.
-		if ( $oDp->FetchGet( 'wpsf-action' ) == 'emailsendverify' ) {
-			if ( $this->getTwoAuthSecretKey() == $oDp->FetchGet( 'authkey' ) ) {
+		if ( $oDp->query( 'wpsf-action' ) == 'emailsendverify' ) {
+			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
-					 ->setBypassAdminProtection( true )
 					 ->savePluginOptions();
 				$this->loadWp()->redirectToLogin();
 			}
@@ -91,20 +90,32 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param string $sEmail
+	 * @param bool   $bSendAsLink
 	 * @return boolean
 	 */
-	public function sendEmailVerifyCanSend() {
+	public function sendEmailVerifyCanSend( $sEmail = null, $bSendAsLink = true ) {
+
+		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
+			$sEmail = get_bloginfo( 'admin_email' );
+		}
+
+		if ( $bSendAsLink ) {
+			$sVerify = $this->generateCanSendEmailVerifyLink();
+		}
+		else {
+			$sVerify = $this->getCanEmailVerifyCode();
+		}
 
 		$aMessage = array(
 			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
-			sprintf( _wpsf__( 'Verify Link: %s' ), $this->generateCanSendEmailVerifyLink() ),
+			sprintf( _wpsf__( 'Verify Code: %s' ), $sVerify ),
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()
-																					   ->getHomeUrl() );
+		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
 
 		$bResult = $this->getEmailProcessor()
-						->sendEmailTo( get_bloginfo( 'admin_email' ), $sEmailSubject, $aMessage );
+						->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 		return $bResult;
 	}
 
@@ -183,6 +194,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return string
 	 */
+	public function getCanEmailVerifyCode() {
+		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getTwoAuthSecretKey() {
 		$sKey = $this->getOpt( 'two_factor_secret_key' );
 		if ( empty( $sKey ) ) {
@@ -205,6 +223,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getIsEmailAuthenticationEnabled() {
 		return $this->getIfCanSendEmail() && $this->getIsEmailAuthenticationOptionOn();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getIsEnabledGoogleAuthenticator() {
+		return $this->getOptIs( 'enable_google_authenticator', 'Y' );
 	}
 
 	/**
@@ -254,6 +279,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param bool $bIsChained
+	 * @return $this
+	 */
+	public function setIsChainedAuth( $bIsChained ) {
+		return $this->setOpt( 'enable_chained_authentication', $bIsChained ? 'Y' : 'N' );
+	}
+
+	/**
 	 * @param bool $bCan
 	 * @return $this
 	 */
@@ -267,6 +300,22 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 		$this->setOpt( 'email_can_send_verified_at', $nDateAt );
 		return $this;
+	}
+
+	/**
+	 * @param bool $bCan
+	 * @return $this
+	 */
+	public function setEnabled2FaEmail( $bCan ) {
+		return $this->setOpt( 'enable_email_authentication', $bCan ? 'Y' : 'N' );
+	}
+
+	/**
+	 * @param bool $bCan
+	 * @return $this
+	 */
+	public function setEnabled2FaGoogleAuthenticator( $bCan ) {
+		return $this->setOpt( 'enable_google_authenticator', $bCan ? 'Y' : 'N' );
 	}
 
 	/**
