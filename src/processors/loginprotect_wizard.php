@@ -25,10 +25,12 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getController()->getHumanName() );
 	}
 
-	public function ajaxWizardProcessStepSubmit() {
-
-		$this->loadAutoload(); // for Response
-		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
+	/**
+	 * @param string $sStep
+	 * @return \FernleafSystems\Utilities\Response|null
+	 */
+	protected function processWizardStep( $sStep ) {
+		switch ( $sStep ) {
 
 			case 'authemail':
 				$oResponse = $this->processAuthEmail();
@@ -43,23 +45,10 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				break;
 
 			default:
-				return; // we don't process any steps we don't recognise.
+				$oResponse = null; // we don't process any steps we don't recognise.
 				break;
 		}
-
-		$sMessage = $oResponse->getMessageText();
-		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( _wpsf__( 'Please click %s to continue.' ), _wpsf__( 'Next' ) );
-		}
-		else {
-			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
-		}
-
-		$aData = $oResponse->getData();
-		$aData[ 'message' ] = $sMessage;
-
-		$this->getFeature()
-			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+		return $oResponse;
 	}
 
 	/**
@@ -129,6 +118,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 		$sCode = $oDP->post( 'code' );
 		$bEnableGa = $oDP->post( 'enablega' ) === 'Y';
 
+		$sMessage = '';
 		if ( $sCode != 'ignore' ) {
 
 			if ( empty( $sCode ) ) {
@@ -229,7 +219,6 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	protected function getRenderDataForStep( $sSlug ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
-		$oConn = $this->getController();
 
 		$aData = array(
 			'flags' => array(

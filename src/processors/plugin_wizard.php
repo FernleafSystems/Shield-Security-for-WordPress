@@ -29,11 +29,12 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		return sprintf( _wpsf__( '%s Welcome Wizard' ), $this->getController()->getHumanName() );
 	}
 
-	public function ajaxWizardProcessStepSubmit() {
-		$oDP = $this->loadDP();
-
-		$this->loadAutoload(); // for Response
-		switch ( $oDP->post( 'wizard-step' ) ) {
+	/**
+	 * @param string $sStep
+	 * @return \FernleafSystems\Utilities\Response|null
+	 */
+	protected function processWizardStep( $sStep ) {
+		switch ( $sStep ) {
 
 			case 'admin_access_restriction_verify':
 				$oResponse = $this->wizardSecurityAdminVerify();
@@ -72,23 +73,10 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 				break;
 
 			default:
-				return; // we don't process any steps we don't recognise.
+				$oResponse = null; // we don't process any steps we don't recognise.
 				break;
 		}
-
-		$sMessage = $oResponse->getMessageText();
-		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( _wpsf__( 'Please click %s to continue.' ), _wpsf__( 'Next' ) );
-		}
-		else {
-			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
-		}
-
-		$aData = $oResponse->getData();
-		$aData[ 'message' ] = $sMessage;
-
-		$this->getFeature()
-			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+		return $oResponse;
 	}
 
 	/**

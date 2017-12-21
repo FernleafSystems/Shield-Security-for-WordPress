@@ -81,24 +81,42 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	abstract protected function getSupportedWizards();
 
 	public function ajaxWizardProcessStepSubmit() {
-
 		$this->loadAutoload(); // for Response
-		switch ( $this->loadDP()->post( 'wizard-step' ) ) {
+		$oResponse = $this->processWizardStep( $this->loadDP()->post( 'wizard-step' ) );
+		if ( !empty( $oResponse ) ) {
+			$this->sendWizardResponse( $oResponse );
+		}
+	}
+
+	/**
+	 * @param string $sStep
+	 * @return \FernleafSystems\Utilities\Response|null
+	 */
+	protected function processWizardStep( $sStep ) {
+		switch ( $sStep ) {
 			default:
-				return; // we don't process any steps we don't recognise.
+				$oResponse = null; // we don't process any steps we don't recognise.
 				break;
 		}
+		return $oResponse;
+	}
+
+	/**
+	 * @param \FernleafSystems\Utilities\Response $oResponse
+	 */
+	protected function sendWizardResponse( $oResponse ) {
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( _wpsf__( 'Please click %s to continue.' ), _wpsf__( 'Next' ) );
+			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next' ) );
 		}
 		else {
-			$sMessage = sprintf( '%s: %s', _wpsf__( 'Error' ), $sMessage );
+			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );
 		}
 
 		$aData = $oResponse->getData();
 		$aData[ 'message' ] = $sMessage;
+		$oResponse->setData( $aData );
 
 		$this->getFeature()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
@@ -115,7 +133,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 
 		$aDisplayData = array(
 			'strings' => array(
-				'page_title'      => $this->getPageTitle()
+				'page_title' => $this->getPageTitle()
 			),
 			'data'    => array(
 				'wizard_slug'       => $this->getCurrentWizard(),
