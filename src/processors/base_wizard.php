@@ -113,21 +113,8 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();
 
-		$sMessage = $this->loadAdminNoticesProcessor()
-						 ->flushFlashMessage()
-						 ->getRawFlashMessageText();
-
 		$aDisplayData = array(
 			'strings' => array(
-				'welcome'         => _wpsf__( 'Welcome' ),
-				'time_remaining'  => _wpsf__( 'Time Remaining' ),
-				'calculating'     => _wpsf__( 'Calculating' ).' ...',
-				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
-				'login_expired'   => _wpsf__( 'Login Expired' ),
-				'verify_my_login' => _wpsf__( 'Verify My Login' ),
-				'more_info'       => _wpsf__( 'More Info' ),
-				'what_is_this'    => _wpsf__( 'What is this?' ),
-				'message'         => $sMessage,
 				'page_title'      => $this->getPageTitle()
 			),
 			'data'    => array(
