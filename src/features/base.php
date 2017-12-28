@@ -1263,9 +1263,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_standard_options' => true,
 				'show_content_actions'  => $this->hasCustomActions(),
 				'show_alt_content'      => false,
+				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'      => array(
-				'go_pro' => 'http://icwp.io/shieldgoprofeature'
+				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
+				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' )
 			),
 			'content'    => array(
 				'alt'     => '',
@@ -1296,6 +1298,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function hasCustomActions() {
 		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_custom_actions' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function hasWizard() {
+		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_wizard' );
 	}
 
 	/**

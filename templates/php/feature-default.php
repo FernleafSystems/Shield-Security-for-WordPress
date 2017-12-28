@@ -1,3 +1,8 @@
+<style>
+	#icwpOptionsTopPill > .nav-pills li#icwpWizardPill a {
+		background-image: url("<?php echo $hrefs['img_wizard_wand'];?>");
+	}
+</style>
 <div class="row icwpTopLevelRow">
 	<div class="icwpTopLevelSpan <?php echo $flags[ 'show_ads' ] ? 'span11' : 'span11'; ?>" id="icwpOptionsTopPill">
 
@@ -25,6 +30,11 @@
 						<div class="title"><?php echo $strings[ 'help_title' ]; ?></div>
 						<p class="summary"><?php echo $strings[ 'help_summary' ]; ?></p>
 					</a>
+				</li>
+			<?php endif; ?>
+			<?php if ( $flags[ 'has_wizard' ] ) : ?>
+				<li id="icwpWizardPill">
+					<a href="#" data-toggle="pill" title="Launch Guided Setup Wizard">&nbsp;</a>
 				</li>
 			<?php endif; ?>
 		</ul>

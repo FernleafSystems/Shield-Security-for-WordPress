@@ -9,6 +9,7 @@
     "show_central": true,
     "access_restricted": true,
     "premium": false,
+    "has_wizard": true,
     "order": 40
   },
   "admin_notices": {
