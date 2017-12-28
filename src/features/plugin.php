@@ -615,7 +615,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			)
 		);
 		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
-		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
+		$bNoFollow = apply_filters( 'icwp_shield_badge_relnofollow', false );
+		return sprintf( $sContents,
+			$bNoFollow ? 'rel="nofollow"' : '',
+			$oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ),
+			$oCon->getHumanName(),
+			$sBadgeText
+		);
 	}
 
 	/**
