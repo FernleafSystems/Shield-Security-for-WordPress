@@ -44,7 +44,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 		);
 
 		$mResponse = $this->loadFS()
-						  ->requestUrl( $sStoreUrl, $aParams );
+						  ->requestUrl( $sStoreUrl, $aParams, true );
 
 		$sResult = 'Unknown error communicating with license server';
 		if ( is_array( $mResponse ) && !empty( $mResponse[ 'body' ] ) ) {
