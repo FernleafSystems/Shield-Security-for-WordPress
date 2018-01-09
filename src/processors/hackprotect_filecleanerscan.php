@@ -184,11 +184,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$aDiscoveredFiles = $this->scanCore();
-		if ( $oFO->isUfsScanUploads() ) {
-			$aDiscoveredFiles = array_merge( $aDiscoveredFiles, $this->scanUploads() );
-		}
-
+		$aDiscoveredFiles = $this->discoverFiles();
 		if ( !empty( $aDiscoveredFiles ) ) {
 			if ( $oFO->isUfsDeleteFiles() ) {
 				$this->deleteFiles( $aDiscoveredFiles );
@@ -197,6 +193,20 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 				$this->sendEmailNotification( $aDiscoveredFiles );
 			}
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function discoverFiles() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$aDiscoveredFiles = $this->scanCore();
+		if ( $oFO->isUfsScanUploads() ) {
+			$aDiscoveredFiles = array_merge( $aDiscoveredFiles, $this->scanUploads() );
+		}
+		return $aDiscoveredFiles;
 	}
 
 	/**

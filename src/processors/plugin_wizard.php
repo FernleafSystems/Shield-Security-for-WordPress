@@ -16,10 +16,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 * @return string[]
 	 */
 	protected function getSupportedWizards() {
-		return array(
-			'welcome',
-			'importexport',
-		);
+		return array( 'welcome', 'importexport' );
 	}
 
 	/**

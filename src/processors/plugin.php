@@ -49,13 +49,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					$this->getSubProcessorImportExport()->runAction();
 				}
 				break;
-
-			case 'wizard':
-				if ( $oFO->getCanRunWizards() ) {
-					$this->getWizardProcessor()->run();
-				}
-				break;
-
 			default:
 				break;
 		}

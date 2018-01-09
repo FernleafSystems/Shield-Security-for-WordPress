@@ -43,8 +43,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aData = array(
 			'strings' => $this->getDisplayStrings(),
 			'hrefs'   => array(
-				'wizard_welcome' => $bCanWizardWelcome ? $this->getWizardUrl( 'welcome' ) : 'javascript:{event.preventDefault();}',
-				'wizard_import'  => $bCanWizardImport ? $this->getWizardUrl( 'import' ) : 'javascript:{event.preventDefault();}',
+				'wizard_welcome' => $bCanWizardWelcome ? $this->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
+				'wizard_import'  => $bCanWizardImport ? $this->getUrl_Wizard( 'import' ) : 'javascript:{event.preventDefault();}',
 			),
 			'flags'   => array(
 				'can_php54'   => $bCanWizard,

@@ -714,6 +714,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	protected function adminAjaxHandlers() {
 		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
+
+		if ( $this->getCanRunWizards() ) {
+			$oWiz = $this->getWizardProcessor();
+			if ( !is_null( $oWiz ) ) {
+				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
+					$oWiz,
+					'ajaxWizardProcessStepSubmit'
+				) );
+				add_action( $this->prefixWpAjax( 'WizardRenderStep' ), array(
+					$oWiz,
+					'ajaxWizardRenderStep'
+				) );
+			}
+		}
 	}
 
 	protected function frontEndAjaxHandlers() {
@@ -773,6 +787,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getTranslatedString( $sKey, $sDefault ) {
 		return $sDefault;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Base_Wizard|null
+	 */
+	protected function getWizardProcessor() {
+		/** @var ICWP_WPSF_Processor_BaseWpsf $oP */
+		$oP = $this->getProcessor();
+		return $oP->getWizardProcessor();
 	}
 
 	/**
@@ -1267,7 +1290,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'hrefs'      => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
-				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' )
+				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
+				'primary_wizard'  => $this->getUrl_PrimaryWizard(),
 			),
 			'content'    => array(
 				'alt'     => '',
@@ -1287,10 +1311,24 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getCanRunWizards() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-'.$this->getFeatureSlug().'.php', array(), true );
+		return $this->renderTemplate( 'snippets/module-help-'.$this->getFeatureSlug().'.php', array() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getUrl_PrimaryWizard() {
+		return '';
 	}
 
 	/**
@@ -1303,7 +1341,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function hasWizard() {
+	public function hasWizard() {
 		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_wizard' );
 	}
 

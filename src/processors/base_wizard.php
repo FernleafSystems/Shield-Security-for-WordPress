@@ -20,7 +20,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	/**
 	 */
 	public function run() {
-		add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		if ( $this->hasYetToRun() ) {
+			add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		}
 	}
 
 	public function onWpInit() {
@@ -240,7 +242,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @throws Exception
 	 */
 	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
-		return $this->renderWizardStep( 'admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
+		return $this->renderWizardStep( 'common/admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
 	}
 
 	/**
@@ -280,8 +282,12 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @throws Exception
 	 */
 	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
+		if ( strpos( $sSlug, '/' ) === false ) {
+			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $this->getCurrentWizard();
+			$sSlug = sprintf( '%s/%s', $sBase, $sSlug );
+		}
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
+					->setTemplate( sprintf( 'wizard/slides/%s.twig', $sSlug ) )
 					->setRenderVars( $aRenderData )
 					->setTemplateEngineTwig()
 					->render();

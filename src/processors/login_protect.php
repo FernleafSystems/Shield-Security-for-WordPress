@@ -40,18 +40,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->getProcessorLoginIntent()->run();
 
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-
-		switch ( (string)$this->loadDP()->query( 'shield_action', '' ) ) {
-
-			case 'wizard':
-				if ( $oFO->getCanRunWizards() ) {
-					$this->getWizardProcessor()->run();
-				}
-				break;
-
-			default:
-				break;
-		}
 	}
 
 	/**

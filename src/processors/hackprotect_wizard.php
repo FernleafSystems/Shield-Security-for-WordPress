@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Wizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wizard', false ) ) {
 	return;
 }
 
@@ -9,20 +9,20 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
-class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
+class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
 
 	/**
 	 * @return string[]
 	 */
 	protected function getSupportedWizards() {
-		return array( 'mfa' );
+		return array( 'ccs', 'fcs', 'wpvuln' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getController()->getHumanName() );
+		return sprintf( _wpsf__( '%s Hack Protect Wizard' ), $this->getController()->getHumanName() );
 	}
 
 	/**
@@ -179,8 +179,11 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	protected function determineWizardSteps() {
 
 		switch ( $this->getCurrentWizard() ) {
-			case 'mfa':
-				$aSteps = $this->determineWizardSteps_Mfa();
+			case 'ccs':
+				$aSteps = $this->determineWizardSteps_Ccs();
+				break;
+			case 'fcs':
+				$aSteps = $this->determineWizardSteps_Fcs();
 				break;
 			default:
 				$aSteps = array();
@@ -193,22 +196,30 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	/**
 	 * @return string[]
 	 */
-	private function determineWizardSteps_Mfa() {
+	private function determineWizardSteps_Ccs() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$aStepsSlugs = array( 'mfa_start' );
+		$aStepsSlugs = array(
+			'ccs_start',
+			'ccs_scanresult',
+			'ccs_finished'
+		);
+		return $aStepsSlugs;
+	}
 
-		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->getIsEmailAuthenticationEnabled() ) {
-			$aStepsSlugs[] = 'mfa_authemail';
-		}
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Fcs() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
 
-		if ( !$oFO->getIsEnabledGoogleAuthenticator() ) {
-			$aStepsSlugs[] = 'mfa_authga';
-		}
-
-		$aStepsSlugs[] = 'mfa_multiselect';
-		$aStepsSlugs[] = 'mfa_finished';
+		$aStepsSlugs = array(
+			'fcs_start',
+			'fcs_scanresult',
+			'fcs_finished'
+		);
 		return $aStepsSlugs;
 	}
 
@@ -217,8 +228,10 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 * @return array
 	 */
 	protected function getRenderDataForStep( $sSlug ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+		$oProc = $oFO->getProcessor();
 
 		$aData = array(
 			'flags' => array(
@@ -235,12 +248,11 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 		switch ( $sSlug ) {
 
-			case 'mfa_authemail':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+			case 'fcs_scanresult':
+				$oProc = $oProc->getSubProcessorFileCleanerScan();
 				$aAdd = array(
 					'data' => array(
-						'name'       => $oUser->first_name,
-						'user_email' => $oUser->user_email
+						'file_list'  => $oProc->discoverFiles(),
 					)
 				);
 				break;
@@ -286,21 +298,15 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	protected function getAllDefinedSteps() {
 		return array(
-			'mfa_start'       => array(
-				'title'             => _wpsf__( 'Start Multi-Factor Authentication Setup' ),
+			'fcs_start'       => array(
+				'title'             => _wpsf__( 'Start File Cleaner' ),
 				'restricted_access' => false
 			),
-			'mfa_authemail'   => array(
-				'title' => _wpsf__( 'Email Authentication' ),
+			'fcs_scanresult'   => array(
+				'title' => _wpsf__( 'Scan Result' ),
 			),
-			'mfa_authga'      => array(
-				'title' => _wpsf__( 'Google Authenticator' ),
-			),
-			'mfa_multiselect' => array(
-				'title' => _wpsf__( 'Select Multifactor Auth' ),
-			),
-			'mfa_finished'    => array(
-				'title'             => _wpsf__( 'Finished: Multi-Factor Authentication Setup' ),
+			'fcs_finished'    => array(
+				'title'             => _wpsf__( 'Finished: File Cleaner' ),
 				'restricted_access' => false
 			),
 		);

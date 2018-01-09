@@ -9,40 +9,6 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
-	 * @return bool
-	 */
-	public function getCanRunWizards() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
-	}
-
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-
-		if ( $this->getCanRunWizards() ) {
-			$oWiz = $this->getWizardProcessor();
-			if ( !is_null( $oWiz ) ) {
-				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
-					$oWiz,
-					'ajaxWizardProcessStepSubmit'
-				) );
-				add_action( $this->prefixWpAjax( 'WizardRenderStep' ), array(
-					$oWiz,
-					'ajaxWizardRenderStep'
-				) );
-			}
-		}
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_Base_Wizard|null
-	 */
-	protected function getWizardProcessor() {
-		/** @var ICWP_WPSF_Processor_BaseWpsf $oP */
-		$oP = $this->getProcessor();
-		return $oP->getWizardProcessor();
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getGoogleRecaptchaConfig() {
@@ -141,7 +107,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @param string $sWizardSlug
 	 * @return string
 	 */
-	public function getWizardUrl( $sWizardSlug ) {
+	public function getUrl_Wizard( $sWizardSlug ) {
 		return add_query_arg(
 			array(
 				'shield_action' => 'wizard',
@@ -149,6 +115,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			),
 			$this->getFeatureAdminPageUrl()
 		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getUrl_PrimaryWizard() {
+		return $this->getUrl_Wizard( $this->getOptionsVo()->getFeatureProperty( 'primary_wizard' ) );
 	}
 
 	/**

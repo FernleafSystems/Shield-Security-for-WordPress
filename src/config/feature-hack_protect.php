@@ -7,6 +7,8 @@
     "storage_key": "hack_protect",
     "show_central": true,
     "access_restricted": true,
+    "has_wizard": true,
+    "primary_wizard": "fcs",
     "premium": false,
     "order": 70
   },
