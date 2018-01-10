@@ -8,7 +8,7 @@
     "show_central": true,
     "access_restricted": true,
     "has_wizard": true,
-    "primary_wizard": "fcs",
+    "primary_wizard": "ufc",
     "premium": false,
     "order": 70
   },

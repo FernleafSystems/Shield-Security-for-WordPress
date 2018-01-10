@@ -15,7 +15,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 * @return string[]
 	 */
 	protected function getSupportedWizards() {
-		return array( 'ccs', 'fcs', 'wpvuln' );
+		return array( 'cfs', 'ufc', 'wpvuln' );
 	}
 
 	/**
@@ -115,11 +115,11 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	protected function determineWizardSteps() {
 
 		switch ( $this->getCurrentWizard() ) {
-			case 'ccs':
-				$aSteps = $this->determineWizardSteps_Ccs();
+			case 'cfs':
+				$aSteps = $this->determineWizardSteps_Cfs();
 				break;
-			case 'fcs':
-				$aSteps = $this->determineWizardSteps_Fcs();
+			case 'ufc':
+				$aSteps = $this->determineWizardSteps_Ufc();
 				break;
 			default:
 				$aSteps = array();
@@ -132,14 +132,14 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	/**
 	 * @return string[]
 	 */
-	private function determineWizardSteps_Ccs() {
+	private function determineWizardSteps_Cfs() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
 		$aStepsSlugs = array(
-			'ccs_start',
-			'ccs_scanresult',
-			'ccs_finished'
+			'cfs_start',
+			'cfs_scanresult',
+			'cfs_finished'
 		);
 		return $aStepsSlugs;
 	}
@@ -147,15 +147,15 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	/**
 	 * @return string[]
 	 */
-	private function determineWizardSteps_Fcs() {
+	private function determineWizardSteps_Ufc() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
 		$aStepsSlugs = array(
-			'fcs_start',
-			'fcs_exclusions',
-			'fcs_scanresult',
-			'fcs_finished'
+			'ufc_start',
+			'ufc_exclusions',
+			'ufc_scanresult',
+			'ufc_finished'
 		);
 		return $aStepsSlugs;
 	}
@@ -174,7 +174,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 
 		switch ( $sStep ) {
 
-			case 'fcs_exclusions':
+			case 'ufc_exclusions':
 				$aFiles = $oFO->getUfcFileExclusions();
 				$aAdd[ 'data' ] = array(
 					'files' => array(
@@ -185,7 +185,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 				);
 				break;
 
-			case 'fcs_scanresult':
+			case 'ufc_scanresult':
 				$aFiles = array_map(
 					function ( $sFile ) {
 						return str_replace( ABSPATH, '', $sFile );
@@ -202,25 +202,24 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 				);
 				break;
 
-			case 'mfa_authga':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
-				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
-				$oProc = $oFO->getProcessor();
-				$oProcGa = $oProc->getProcessorLoginIntent()
-								 ->getProcessorGoogleAuthenticator();
-				$sGaUrl = $oProcGa->getGaRegisterChartUrl( $oUser );
-				$aAdd = array(
-					'data'  => array(
-						'name'       => $oUser->first_name,
-						'user_email' => $oUser->user_email
-					),
-					'hrefs' => array(
-						'ga_chart' => $sGaUrl,
-					),
-					'flags' => array(
-						'has_ga' => $oProcGa->getCurrentUserHasValidatedProfile(),
+			case 'cfs_scanresult':
+				$aFiles = array_map(
+					function ( $sFile ) {
+						return str_replace( ABSPATH, '', $sFile );
+					},
+					$oProc->getSubProcessorFileCleanerScan()->discoverFiles()
+				);
+
+				$aAdd[ 'data' ] = array(
+					'files' => array(
+						'count' => count( $aFiles ),
+						'has'   => !empty( $aFiles ),
+						'list'  => $aFiles,
 					)
 				);
+				break;
+
+			case 'cfs_start':
 				break;
 
 			case 'mfa_multiselect':
@@ -243,17 +242,17 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	protected function getAllDefinedSteps() {
 		return array(
-			'fcs_start'      => array(
+			'ufc_start'      => array(
 				'title'             => _wpsf__( 'Start File Cleaner' ),
 				'restricted_access' => false
 			),
-			'fcs_exclusions' => array(
+			'ufc_exclusions' => array(
 				'title' => _wpsf__( 'Exclude Files' ),
 			),
-			'fcs_scanresult' => array(
+			'ufc_scanresult' => array(
 				'title' => _wpsf__( 'Scan Result' ),
 			),
-			'fcs_finished'   => array(
+			'ufc_finished'   => array(
 				'title'             => _wpsf__( 'Finished: File Cleaner' ),
 				'restricted_access' => false
 			),

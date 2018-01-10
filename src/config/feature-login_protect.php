@@ -10,7 +10,7 @@
     "access_restricted": true,
     "premium": false,
     "has_wizard": true,
-    "primary_wizard": "fcs",
+    "primary_wizard": "mfa",
     "order": 40
   },
   "admin_notices": {

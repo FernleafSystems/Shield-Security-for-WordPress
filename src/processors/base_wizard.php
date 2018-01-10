@@ -285,7 +285,11 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 */
 	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
 		if ( strpos( $sSlug, '/' ) === false ) {
-			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $this->getCurrentWizard();
+			// first trim the prefixed wizard slug, e.g. ufc_
+			$sCurrentWizard = $this->getCurrentWizard();
+			$sSlug = preg_replace( sprintf( '#^%s_#', $sCurrentWizard ), '', $sSlug );
+
+			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $sCurrentWizard;
 			$sSlug = sprintf( '%s/%s', $sBase, $sSlug );
 		}
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
