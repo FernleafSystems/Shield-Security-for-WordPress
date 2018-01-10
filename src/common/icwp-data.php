@@ -70,6 +70,17 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
 	 */
+	public function cookie( $sKey, $mDefault = null, $bTrim = true ) {
+		$mVal = $this->FetchCookie( $sKey, $mDefault );
+		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param null   $mDefault
+	 * @param bool   $bTrim -automatically trim whitespace
+	 * @return mixed|null
+	 */
 	public function query( $sKey, $mDefault = null, $bTrim = true ) {
 		$mVal = $this->FetchGet( $sKey, $mDefault );
 		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
@@ -485,10 +496,10 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = false ) {
+		$_COOKIE[ $sKey ] = $mValue;
 		if ( function_exists( 'headers_sent' ) && headers_sent() ) {
 			return false;
 		}
-		$_COOKIE[ $sKey ] = $mValue;
 		return setcookie(
 			$sKey,
 			$mValue,
