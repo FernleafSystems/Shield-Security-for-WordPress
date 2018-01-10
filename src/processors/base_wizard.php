@@ -110,7 +110,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next' ) );
+			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
 		}
 		else {
 			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );
