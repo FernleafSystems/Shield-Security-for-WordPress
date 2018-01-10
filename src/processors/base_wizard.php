@@ -169,6 +169,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
 				'plugin_banner'    => $oCon->getPluginUrl_Image( 'pluginbanner_1500x500.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'dashboard'        => $oFO->getFeatureAdminPageUrl(),
 			),
 			'ajax'    => array(
 				'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
@@ -246,10 +247,10 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sSlug ) {
+	protected function getRenderDataForStep( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
@@ -262,10 +263,11 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'gopro'     => 'http://icwp.io/ap',
 			),
 			'imgs'  => array(),
+			'data'  => array(),
 		);
 
 		$aAdd = array();
-		switch ( $sSlug ) {
+		switch ( $sStep ) {
 			case 'no_access':
 				break;
 			default:

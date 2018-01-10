@@ -31,17 +31,11 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	protected function processWizardStep( $sStep ) {
 		switch ( $sStep ) {
-
-			case 'authemail':
-				$oResponse = $this->processAuthEmail();
+			case 'exclusions':
+				$oResponse = $this->process_Exclusions();
 				break;
-
-			case 'authga':
-				$oResponse = $this->processAuthGa();
-				break;
-
-			case 'multiselect':
-				$oResponse = $this->processMultiSelect();
+			case 'deletefiles':
+				$oResponse = $this->process_DeleteFiles();
 				break;
 
 			default:
@@ -54,60 +48,20 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
-	private function processAuthEmail() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+	private function process_Exclusions() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		$oDP = $this->loadDP();
+		$oFO->setUfcFileExclusions( explode( "\n", $this->loadDP()->post( 'exclusions' ) ) );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		$oResponse->setSuccessful( false );
-
-		$sEmail = $oDP->post( 'email' );
-		$sCode = $oDP->post( 'code' );
-		$bFa = $oDP->post( 'Email2FAOption' ) === 'Y';
-
-		if ( !$oDP->validEmail( $sEmail ) ) {
-			$sMessage = _wpsf__( 'Invalid email address' );
-		}
-		else {
-			if ( empty( $sCode ) ) {
-				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
-					$oResponse->setSuccessful( true );
-					$sMessage = 'Verification email sent - please check your email (including your SPAM)';
-				}
-				else {
-					$sMessage = 'Failed to send verification email';
-				}
-			}
-			else {
-				if ( $sCode == $oFO->getCanEmailVerifyCode() ) {
-					$oResponse->setSuccessful( true );
-					$sMessage = 'Email sending has been verified successfully.';
-
-					$oFO->setIfCanSendEmail( true );
-
-					if ( $bFa ) {
-						$oFO->setEnabled2FaEmail( true );
-						$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
-					}
-					else {
-						$sMessage .= ' '.'Email-based two factor authentication is NOT enabled.';
-					}
-				}
-				else {
-					$sMessage = 'This does not appear to be the correct 6-digit code that was sent to you.'
-								.'Email-based two factor authentication option has not been updated.';
-				}
-			}
-		}
-
-		return $oResponse->setMessageText( $sMessage );
+		return $oResponse->setSuccessful( true )
+						 ->setMessageText( 'File exclusions list has been updated.' );
 	}
 
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
-	private function processAuthGa() {
+	private function process_DeleteFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oDP = $this->loadDP();
@@ -217,6 +171,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 
 		$aStepsSlugs = array(
 			'fcs_start',
+			'fcs_exclusions',
 			'fcs_scanresult',
 			'fcs_finished'
 		);
@@ -224,35 +179,43 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sSlug ) {
+	protected function getRenderDataForStep( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $oFO->getProcessor();
 
-		$aData = array(
-			'flags' => array(
-				'is_premium' => $oFO->isPremium()
-			),
-			'hrefs' => array(
-				'dashboard' => $oFO->getFeatureAdminPageUrl(),
-				'gopro'     => 'http://icwp.io/ap',
-			),
-			'imgs'  => array(),
-		);
-
 		$aAdd = array();
 
-		switch ( $sSlug ) {
+		switch ( $sStep ) {
+
+			case 'fcs_exclusions':
+				$aFiles = $oFO->getUfcFileExclusions();
+				$aAdd[ 'data' ] = array(
+					'files' => array(
+						'count' => count( $aFiles ),
+						'has'   => !empty( $aFiles ),
+						'list'  => implode( "\n", $aFiles ),
+					)
+				);
+				break;
 
 			case 'fcs_scanresult':
-				$oProc = $oProc->getSubProcessorFileCleanerScan();
-				$aAdd = array(
-					'data' => array(
-						'file_list'  => $oProc->discoverFiles(),
+				$aFiles = array_map(
+					function ( $sFile ) {
+						return str_replace( ABSPATH, '', $sFile );
+					},
+					$oProc->getSubProcessorFileCleanerScan()->discoverFiles()
+				);
+
+				$aAdd[ 'data' ] = array(
+					'files' => array(
+						'count' => count( $aFiles ),
+						'has'   => !empty( $aFiles ),
+						'list'  => $aFiles,
 					)
 				);
 				break;
@@ -290,7 +253,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 				break;
 		}
 
-		return $this->loadDP()->mergeArraysRecursive( $aData, $aAdd );
+		return $this->loadDP()->mergeArraysRecursive( parent::getRenderDataForStep( $sStep ), $aAdd );
 	}
 
 	/**
@@ -298,14 +261,17 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	protected function getAllDefinedSteps() {
 		return array(
-			'fcs_start'       => array(
+			'fcs_start'      => array(
 				'title'             => _wpsf__( 'Start File Cleaner' ),
 				'restricted_access' => false
 			),
-			'fcs_scanresult'   => array(
+			'fcs_exclusions' => array(
+				'title' => _wpsf__( 'Exclude Files' ),
+			),
+			'fcs_scanresult' => array(
 				'title' => _wpsf__( 'Scan Result' ),
 			),
-			'fcs_finished'    => array(
+			'fcs_finished'   => array(
 				'title'             => _wpsf__( 'Finished: File Cleaner' ),
 				'restricted_access' => false
 			),

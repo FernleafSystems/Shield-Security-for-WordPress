@@ -27,6 +27,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param array $aExclusions
+	 * @return $this
+	 */
+	public function setUfcFileExclusions( $aExclusions ) {
+		if ( !is_array( $aExclusions ) ) {
+			$aExclusions = array();
+		}
+		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
+	}
+
+	/**
 	 */
 	protected function doExtraSubmitProcessing() {
 		$this->cleanFileExclusions();

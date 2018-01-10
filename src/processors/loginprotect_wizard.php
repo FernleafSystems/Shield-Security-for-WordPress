@@ -213,10 +213,10 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sSlug ) {
+	protected function getRenderDataForStep( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
@@ -233,7 +233,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 		$aAdd = array();
 
-		switch ( $sSlug ) {
+		switch ( $sStep ) {
 
 			case 'mfa_authemail':
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
