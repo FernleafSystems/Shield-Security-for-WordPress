@@ -108,6 +108,36 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isWcfScanAutoRepair() {
+		return $this->getOptIs( 'attempt_auto_file_repair', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWcfScanEnabled() {
+		return $this->getOptIs( 'enable_core_file_integrity_scan', 'Y' );
+	}
+
+	/**
+	 * @param bool $bEnabled
+	 * @return $this
+	 */
+	public function setWcfScanEnabled( $bEnabled ) {
+		return $this->setOpt( 'enable_core_file_integrity_scan', $bEnabled ? 'Y' : 'N' );
+	}
+
+	/**
+	 * @param bool $bEnabled
+	 * @return $this
+	 */
+	public function setWcfScanAutoRepair( $bEnabled ) {
+		return $this->setOpt( 'attempt_auto_file_repair', $bEnabled ? 'Y' : 'N' );
+	}
+
+	/**
 	 * @param int $nId
 	 * @return $this
 	 */

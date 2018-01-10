@@ -1,0 +1,36 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	<h3>Turn On Automatic WordPress Core File Scanner</h3>
+	<p>It looks like the WordPress Core File scanner isn't set to run automatically.</p>
+	<p>We recommend the final option
+	   - automatically restore any discovered files and send an email report.</p>
+	<p>You can adjust this using the settings below.</p>
+
+	<form class="form-horizontal icwp-wizard-form">
+		<input name="wizard-step" value="wcfconfig" type="hidden" />
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="enable_scan">Enable Automatic Scanning</label>
+			<div class="col-md-8">
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanReport" value="enabled_report_only">
+						Scan WordPress Core files and send email report
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanDeleteReport" value="enabled_restore_report">
+						Scan and automatically restore any discovered files and send email report<br/>(<em>recommended</em>)
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Set Automatic Scan</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}

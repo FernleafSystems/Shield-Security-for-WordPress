@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		// not probably necessary any longer since it's patched in the Core
 		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
-		if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
+		if ( $oFO->isWcfScanEnabled() ) {
 			$this->runChecksumScan();
 		}
 		if ( $oFO->isUfsEnabled() ) {

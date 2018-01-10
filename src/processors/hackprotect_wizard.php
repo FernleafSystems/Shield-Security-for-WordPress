@@ -40,6 +40,12 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 			case 'restorefiles':
 				$oResponse = $this->process_RestoreFiles();
 				break;
+			case 'ufcconfig':
+				$oResponse = $this->process_UfcConfig();
+				break;
+			case 'wcfconfig':
+				$oResponse = $this->process_WcfConfig();
+				break;
 
 			default:
 				$oResponse = null; // we don't process any steps we don't recognise.
@@ -120,18 +126,83 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
-	private function processMultiSelect() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+	private function process_UfcConfig() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$bEnabledMulti = $this->loadDP()->post( 'multiselect' ) === 'Y';
-		$oFO->setIsChainedAuth( $bEnabledMulti );
-		$sMessage = sprintf( _wpsf__( 'Multi-Factor Authentication was %s for the site.' ),
-			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )
-		);
+		$sSetting = $this->loadDP()->post( 'enable_scan' );
+		$oFO->setUfcOption( $sSetting )
+			->savePluginOptions();
+
+		$bSuccess = ( $sSetting == $oFO->getUnrecognisedFileScannerOption() );
+
+		if ( $bSuccess ) {
+			if ( $oFO->isUfsEnabled() ) {
+				$sMessage = 'Scanner automation has been enabled.';
+			}
+			else {
+				$sMessage = 'Scanner automation has been disabled.';
+			}
+		}
+		else {
+			$sMessage = 'There was a problem with saving this option. You may need to reload.';
+		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function process_WcfConfig() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$sSetting = $this->loadDP()->post( 'enable_scan' );
+
+		$bEnabled = true;
+		$bRestore = false;
+		$bProcess = true;
+		switch ( $sSetting ) {
+			case 'enabled_report_only':
+				break;
+			case 'enabled_restore_report':
+				$bRestore = true;
+				break;
+			default:
+				$bProcess = false;
+				break;
+		}
+
+		$bSuccess = false;
+		if ( $bProcess ) {
+
+			$oFO->setWcfScanEnabled( $bEnabled )
+				->setWcfScanAutoRepair( $bRestore )
+				->savePluginOptions();
+
+			$bSuccess = ( $bEnabled == $oFO->isWcfScanEnabled() ) && ( $bRestore === $oFO->isWcfScanAutoRepair() );
+
+			if ( $bSuccess ) {
+				if ( $bEnabled ) {
+					$sMessage = 'Scanner automation has been enabled.';
+				}
+				else {
+					$sMessage = 'Scanner automation has been disabled.';
+				}
+			}
+			else {
+				$sMessage = 'There was a problem with saving this option. You may need to reload.';
+			}
+		}
+		else {
+			$sMessage = 'Scanner automation is unchanged because of failed request.';
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
 	}
 
@@ -159,14 +230,17 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Wcf() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
 		$aStepsSlugs = array(
 			'wcf_start',
 			'wcf_scanresult',
-			'wcf_finished'
 		);
+		if ( !$oFO->isWcfScanEnabled() ) {
+			$aStepsSlugs[] = 'wcf_config';
+		}
+		$aStepsSlugs[] = 'wcf_finished';
 		return $aStepsSlugs;
 	}
 
@@ -174,15 +248,18 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Ufc() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
 		$aStepsSlugs = array(
 			'ufc_start',
 			'ufc_exclusions',
-			'ufc_scanresult',
-			'ufc_finished'
+			'ufc_scanresult'
 		);
+		if ( !$oFO->isUfsEnabled() ) {
+			$aStepsSlugs[] = 'ufc_config';
+		}
+		$aStepsSlugs[] = 'ufc_finished';
 		return $aStepsSlugs;
 	}
 
@@ -271,6 +348,9 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 			'ufc_scanresult' => array(
 				'title' => _wpsf__( 'Scan Results' ),
 			),
+			'ufc_config'     => array(
+				'title' => _wpsf__( 'Scan Automation' ),
+			),
 			'ufc_finished'   => array(
 				'title'             => sprintf( '%s: %s', _wpsf__( 'Finished' ), _wpsf__( 'Unrecognised File Scanner' ) ),
 				'restricted_access' => false
@@ -281,6 +361,9 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 			),
 			'wcf_scanresult' => array(
 				'title' => _wpsf__( 'Scan Results' ),
+			),
+			'wcf_config'     => array(
+				'title' => _wpsf__( 'Scan Automation' ),
 			),
 			'wcf_finished'   => array(
 				'title'             => sprintf( '%s: %s', _wpsf__( 'Finished' ), _wpsf__( 'WordPress Core File Scanner' ) ),

@@ -1,0 +1,42 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	<h3>Turn On Automatic Unrecognised File Scanner</h3>
+	<p>It looks like the unrecognised file scanner isn't set to run automatically.</p>
+	<p>Now that you've setup your file exclusions, we recommend the final option
+	   - automatically delete discovered files and send an email report.</p>
+	<p>You can adjust this using the settings below.</p>
+
+	<form class="form-horizontal icwp-wizard-form">
+		<input name="wizard-step" value="ufcconfig" type="hidden" />
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="enable_scan">Enable Automatic Scanning</label>
+			<div class="col-md-8">
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanReport" value="enabled_report_only">
+						Send email report only
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanDelete" value="enabled_delete_only">
+						Automatically delete discovered files
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanDeleteReport" value="enabled_delete_report">
+						Automatically delete discovered files and send email report<br/>(<em>recommended</em>)
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Set Automatic Scan</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}
