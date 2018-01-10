@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Intent', false ) ) {
 	return;
 }
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -70,12 +70,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getFeature();
 
 		if ( $this->userHasPendingLoginIntent() ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 
 			$bIsLoginIntentSubmission = $oDp->FetchRequest( $oFO->getLoginIntentRequestFlag() ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
 
-				if ( $oDp->FetchPost( 'cancel' ) == 1 ) {
+				if ( $oDp->post( 'cancel' ) == 1 ) {
 					$this->loadWpUsers()->logoutUser(); // clears the login and login intent
 					$this->loadWp()->redirectToLogin();
 					return;
@@ -92,11 +92,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 				if ( $bLoginIntentValidated ) {
 					$this->removeLoginIntent();
-					$sRedirect = $oDp->FetchRequest( 'redirect_to' );
+					$sRedirect = $oDp->post( 'redirect_to' );
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 					if ( !empty( $sRedirect ) ) {
-						$this->loadWp()->doRedirect( esc_url( rawurldecode( $sRedirect ) ) );
+//						$this->loadWp()->doRedirect( site_url( rawurldecode( $sRedirect ) ) );
 					}
 				}
 				else {
@@ -144,7 +144,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @param int $nExpirationTime
+	 * @param int  $nExpirationTime
 	 * @param null $oUser
 	 */
 	protected function setLoginIntentExpiration( $nExpirationTime, $oUser = null ) {
@@ -170,7 +170,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				$oF->prefix( 'login_intent_timeout' ),
 				$oF->getDefinition( 'login_intent_timeout' )
 			);
-			$this->setLoginIntentExpiration($this->time() + MINUTE_IN_SECONDS*$nTimeout, $oUser );
+			$this->setLoginIntentExpiration( $this->time() + MINUTE_IN_SECONDS*$nTimeout, $oUser );
 		}
 		return $oUser;
 	}
@@ -226,16 +226,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$sMessageType = 'warning';
 		}
 
-		$sRedirectTo = $this->loadDataProcessor()->FetchGet( 'redirect_to' );
-		if ( empty( $sRedirectTo ) ) {
-			$sRedirectTo = rawurlencode( esc_url( $this->loadDataProcessor()->getRequestUri() ) );
-		}
+		$sRedirectTo = rawurlencode( $this->loadDP()->getRequestUri() ); // not actually used
 
 		$aDisplayData = array(
 			'strings' => array(
 				'cancel'          => _wpsf__( 'Cancel Login' ),
 				'time_remaining'  => _wpsf__( 'Time Remaining' ),
-				'calculating'     => _wpsf__( 'Calculating' ) . ' ...',
+				'calculating'     => _wpsf__( 'Calculating' ).' ...',
 				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
 				'login_expired'   => _wpsf__( 'Login Expired' ),
 				'verify_my_login' => _wpsf__( 'Verify My Login' ),
@@ -273,7 +270,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
 	 */
 	protected function getProcessorTwoFactor() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
+		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
@@ -284,7 +281,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
 	 */
 	protected function getProcessorYubikey() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
+		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -293,7 +290,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
 	 */
 	public function getProcessorGoogleAuthenticator() {
-		require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
+		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -303,7 +300,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function getLoginTrack() {
 		if ( !isset( $this->oLoginTrack ) ) {
-			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_track.php' );
+			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_track.php' );
 			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
 		}
 		return $this->oLoginTrack;

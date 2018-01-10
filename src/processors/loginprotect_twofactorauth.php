@@ -161,38 +161,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * Given the necessary components, creates the 2-factor verification link for giving to the user.
-	 * @param string $sUser
-	 * @param string $sSessionId
-	 * @return string
-	 */
-	protected function generateTwoFactorVerifyLink( $sUser, $sSessionId ) {
-		$sUrl = $this->buildTwoFactorVerifyUrl( $sUser, $sSessionId );
-		return sprintf( '<a href="%s" target="_blank">%s</a>', $sUrl, $sUrl );
-	}
-
-	/**
-	 * @param string $sUser
-	 * @param string $sSessionId
-	 * @return string
-	 */
-	protected function buildTwoFactorVerifyUrl( $sUser, $sSessionId ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$aQueryArgs = array(
-			$this->getLoginFormParameter()    => $this->getSessionHashCode(),
-			$oFO->getLoginIntentRequestFlag() => 1,
-			'username'                        => rawurlencode( $sUser ),
-			'sessionid'                       => $sSessionId
-		);
-		$sRedirectTo = esc_url( $this->loadDataProcessor()->FetchPost( 'redirect_to' ) );
-		if ( !empty( $sRedirectTo ) ) {
-			$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
-		}
-		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
-	}
-
-	/**
 	 * @param WP_User $oUser
 	 * @return boolean
 	 */
