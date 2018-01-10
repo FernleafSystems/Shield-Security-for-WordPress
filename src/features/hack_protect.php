@@ -16,6 +16,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sOption
+	 * @return $this
+	 */
+	public function setUfcOption( $sOption ) {
+		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {

@@ -62,51 +62,33 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function process_DeleteFiles() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		$oDP = $this->loadDP();
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		$oResponse->setSuccessful( false );
-
-		$sCode = $oDP->post( 'code' );
-		$bEnableGa = $oDP->post( 'enablega' ) === 'Y';
-
-		$sMessage = '';
-		if ( $sCode != 'ignore' ) {
-
-			if ( empty( $sCode ) ) {
-				$sMessage = _wpsf__( 'Code was empty.' );
+		if ( $this->loadDP()->post( 'DeleteFiles' ) === 'Y' ) {
+			// First get the current setting and if necessary, modify it and then reset it.
+			$sDesiredOption = 'enabled_delete_only';
+			$sCurrentOption = $oFO->getUnrecognisedFileScannerOption();
+			if ( $sCurrentOption != $sDesiredOption ) {
+				$oFO->setUfcOption( $sDesiredOption );
 			}
-			else {
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
-				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
-				$oProc = $oFO->getProcessor();
-				$oProcGa = $oProc->getProcessorLoginIntent()
-								 ->getProcessorGoogleAuthenticator();
-				$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
 
-				if ( $bValidated ) {
-					$oProcGa->setProfileValidated( $oUser, true );
-					$sMessage = 'Google Authenticator was validated.';
-					$oResponse->setSuccessful( true );
-				}
-				else {
-					$sMessage = 'Could not validate - this does not appear to be the correct 6-digit code.';
-					$bEnableGa = false; // we don't enable GA on the site if the code was bad.
-				}
-			}
+			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+			$oProc = $oFO->getProcessor();
+			$oProc->getSubProcessorFileCleanerScan()
+				  ->runScan();
+			$oFO->setUfcOption( $sCurrentOption )
+				->savePluginOptions();
+
+			$sMessage = 'The scanner will have deleted these files if your filesystem permissions allowed it.';
 		}
 		else {
-			$oResponse->setSuccessful( true );
+			$sMessage = 'No attempt was made to delete the files since the checkbox was not checked.';
 		}
 
-		if ( $bEnableGa ) {
-			$oFO->setEnabled2FaGoogleAuthenticator( true );
-			$sMessage .= ' '._wpsf__( 'Google Authenticator was enabled for the site.' );
-		}
-
-		return $oResponse->setMessageText( $sMessage );
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( true )
+						 ->setMessageText( $sMessage );
 	}
 
 	/**

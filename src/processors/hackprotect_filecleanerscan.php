@@ -178,7 +178,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	/**
-	 * @throws Exception
 	 */
 	public function runScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
