@@ -69,3 +69,6 @@ body.wait {
 	height: 64px;
 	width: 64px;
 }
+.wizard .indent_slight {
+	margin-left: 26px;
+}
