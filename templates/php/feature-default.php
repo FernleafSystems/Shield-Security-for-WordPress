@@ -54,7 +54,7 @@
 					<div class="content-help"><?php echo $content[ 'help' ]; ?></div>
 				</div>
 			<?php endif; ?>
-			<div class="tab-pane active" id="icwpPillSelect">
+			<div class="tab-pane" id="icwpPillSelect">
 				<h3 style="text-align: center">&uarr; <?php echo 'Select Desired Section Above'; ?> &uarr;</h3>
 			</div>
 		</div>
