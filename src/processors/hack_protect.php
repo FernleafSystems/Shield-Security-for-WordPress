@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		// not probably necessary any longer since it's patched in the Core
 		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
-		if ( $this->getIsOption( 'enable_core_file_integrity_scan', 'Y' ) ) {
+		if ( $oFO->isWcfScanEnabled() ) {
 			$this->runChecksumScan();
 		}
 		if ( $oFO->isUfsEnabled() ) {
@@ -75,7 +75,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_CoreChecksumScan
 	 */
-	protected function getSubProcessorChecksumScan() {
+	public function getSubProcessorChecksumScan() {
 		$oProc = $this->getSubProcessor( 'checksum' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_corechecksumscan.php' );
@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_FileCleanerScan
 	 */
-	protected function getSubProcessorFileCleanerScan() {
+	public function getSubProcessorFileCleanerScan() {
 		$oProc = $this->getSubProcessor( 'cleaner' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_filecleanerscan.php' );
@@ -109,6 +109,19 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->aSubProcessors[ 'vuln' ] = $oProc;
 		}
 		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Wizard
+	 */
+	public function getWizardProcessor() {
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->getCanRunWizards() && !isset( $this->oWizProcessor ) ) {
+			require_once( dirname( __FILE__ ).'/hackprotect_wizard.php' );
+			$this->oWizProcessor = new ICWP_WPSF_Processor_HackProtect_Wizard( $this->getFeature() );
+		}
+		return $this->oWizProcessor;
 	}
 
 	/**

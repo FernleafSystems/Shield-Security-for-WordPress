@@ -20,7 +20,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	/**
 	 */
 	public function run() {
-		add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		if ( $this->hasYetToRun() ) {
+			add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		}
 	}
 
 	public function onWpInit() {
@@ -108,7 +110,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
-			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next' ) );
+			$sMessage .= '<br />'.sprintf( 'Please click %s to continue.', __( 'Next Step' ) );
 		}
 		else {
 			$sMessage = sprintf( '%s: %s', __( 'Error' ), $sMessage );
@@ -127,11 +129,22 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @throws Exception
 	 */
 	protected function renderWizard() {
+		return $this->loadRenderer( $this->getController()->getPath_Templates() )
+					->setTemplate( 'pages/wizard.twig' )
+					->setRenderVars( $this->getDisplayData() )
+					->setTemplateEngineTwig()
+					->render();
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getDisplayData() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		$oCon = $this->getController();
 
-		$aDisplayData = array(
+		return array(
 			'strings' => array(
 				'page_title' => $this->getPageTitle()
 			),
@@ -154,9 +167,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
 				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
-				'shield_logo'      => 'https://plugins.svn.wordpress.org/wp-simple-firewall/assets/banner-1544x500-transparent.png',
-				'what_is_this'     => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
+				'plugin_banner'    => $oCon->getPluginUrl_Image( 'pluginbanner_1500x500.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'dashboard'        => $oFO->getFeatureAdminPageUrl(),
 			),
 			'ajax'    => array(
 				'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
@@ -164,12 +177,6 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
 			)
 		);
-
-		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( 'pages/wizard.twig' )
-					->setRenderVars( $aDisplayData )
-					->setTemplateEngineTwig()
-					->render();
 	}
 
 	/**
@@ -184,7 +191,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 */
 	protected function determineWizardSteps() {
 		// Special case: user doesn't meet even the basic plugin admin permissions
-		if ( !$this->getController()->getUserCanBasePerms() ) {
+		if ( !$this->getController()->getMeetsBasePermissions() ) {
 			return array( 'no_access' );
 		}
 
@@ -236,14 +243,14 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @throws Exception
 	 */
 	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
-		return $this->renderWizardStep( 'admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
+		return $this->renderWizardStep( 'common/admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sSlug ) {
+	protected function getRenderDataForStep( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
@@ -256,10 +263,11 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 				'gopro'     => 'http://icwp.io/ap',
 			),
 			'imgs'  => array(),
+			'data'  => array(),
 		);
 
 		$aAdd = array();
-		switch ( $sSlug ) {
+		switch ( $sStep ) {
 			case 'no_access':
 				break;
 			default:
@@ -276,8 +284,16 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @throws Exception
 	 */
 	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
+		if ( strpos( $sSlug, '/' ) === false ) {
+			// first trim the prefixed wizard slug, e.g. ufc_
+			$sCurrentWizard = $this->getCurrentWizard();
+			$sSlug = preg_replace( sprintf( '#^%s_#', $sCurrentWizard ), '', $sSlug );
+
+			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $sCurrentWizard;
+			$sSlug = sprintf( '%s/%s', $sBase, $sSlug );
+		}
 		return $this->loadRenderer( $this->getController()->getPath_Templates() )
-					->setTemplate( sprintf( 'wizard/slide-%s.twig', $sSlug ) )
+					->setTemplate( sprintf( 'wizard/slides/%s.twig', $sSlug ) )
 					->setRenderVars( $aRenderData )
 					->setTemplateEngineTwig()
 					->render();

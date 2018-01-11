@@ -1,0 +1,64 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>WordPress Core File Scanner Results</h3>
+	{% if data.files.has %}
+		<p>A total of {{ data.files.count }} file(s) were discovered.</p>
+		<div class="indent_slight">
+			{% if data.files.checksum.has %}
+				<h4>Modified Core Files: {{ data.files.checksum.count }}</h4>
+				<ul>
+					{% for file in data.files.checksum.list %}
+						<li><code class="filepath">{{ file }}</code></li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+		</div>
+
+		<div class="indent_slight">
+			{% if data.files.missing.has %}
+				<h4>Missing Core Files: {{ data.files.missing.count }}</h4>
+				<ul>
+					{% for file in data.files.missing.list %}
+						<li><code class="filepath">{{ file }}</code></li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+		</div>
+
+		<p>To replace the files listed above with the official versions taken
+		   directly from WordPress.org, use the confirmation form below.</p>
+		<p><strong>Important</strong>: Remember it is not the job of the scanner to determine
+			whether you need to replace these files on your website. This is <em>your role</em>.
+			We can only show you what's there. If you have doubts, please discuss
+			this with your web hosting provider or developers.
+		</p>
+		<form class="form-horizontal icwp-wizard-form">
+			<input name="wizard-step" value="restorefiles" type="hidden" />
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="RestoreFiles">Replace Modified Files</label>
+				<div class="col-md-8">
+					<label for="RestoreFiles">
+						<input type="checkbox" value="Y" name="RestoreFiles" id="RestoreFiles">
+						Check to replace all of the modified files.
+					</label>
+					<span id="helpBlock" class="help-block">
+						If you are unsure about whether you can restore these files to official
+						WordPress originals, please discuss the results of this scan with your
+						web host/developer.
+					</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-md-offset-4 col-md-8">
+					<button type="submit" class="btn btn-warning">Replace Files</button>
+				</div>
+			</div>
+		</form>
+
+	{% else %}
+		<p>There were no modified files discovered in the scan.</p>
+	{% endif %}
+{% endblock %}

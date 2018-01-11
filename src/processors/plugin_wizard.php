@@ -16,10 +16,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 * @return string[]
 	 */
 	protected function getSupportedWizards() {
-		return array(
-			'welcome',
-			'importexport',
-		);
+		return array( 'welcome', 'importexport' );
 	}
 
 	/**
@@ -164,10 +161,10 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sSlug ) {
+	protected function getRenderDataForStep( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		$oConn = $this->getController();
@@ -185,7 +182,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 
 		$aAdd = array();
 
-		switch ( $sSlug ) {
+		switch ( $sStep ) {
 			case 'license':
 				break;
 			case 'import_options':

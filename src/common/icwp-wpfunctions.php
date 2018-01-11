@@ -406,10 +406,10 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 		$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		// we prevent any repetitive redirect loops
 		if ( $bProtectAgainstInfiniteLoops ) {
-			if ( $oDp->FetchCookie( 'icwp-isredirect' ) == 'yes' ) {
+			if ( $oDp->cookie( 'icwp-isredirect' ) == 'yes' ) {
 				return;
 			}
 			else {
@@ -420,7 +420,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		// based on: https://make.wordpress.org/plugins/2015/04/20/fixing-add_query_arg-and-remove_query_arg-usage/
 		// we now escape the URL to be absolutely sure since we can't guarantee the URL coming through there
 		$sUrl = esc_url_raw( $sUrl );
-		$bSafe ? wp_safe_redirect( $sUrl ) : wp_redirect( $sUrl );
+		$bSafe ? wp_redirect( $sUrl ) : wp_redirect( $sUrl );
 		exit();
 	}
 

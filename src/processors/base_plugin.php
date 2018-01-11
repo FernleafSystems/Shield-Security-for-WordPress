@@ -92,7 +92,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'no_setup' => _wpsf__( 'Unfortunately your site is running a PHP version that is too low to run the Setup Wizard. It needs to be PHP 5.4+' )
 			),
 			'hrefs'             => array(
-				'wizard' => $bCanWizardWelcome ? $oFO->getWizardUrl( 'welcome' ) : 'javascript:{event.preventDefault();}',
+				'wizard' => $bCanWizardWelcome ? $oFO->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
 			),
 			'flags'             => array(
 				'can_wizard' => $bCanWizardWelcome,

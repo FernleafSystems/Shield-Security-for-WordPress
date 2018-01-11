@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists('ICWP_WPSF_FeatureHandler_AdminAccessRestriction') ):
+if ( class_exists( 'ICWP_WPSF_FeatureHandler_AdminAccessRestriction' ) ) {
+	return;
+}
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -47,7 +49,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bSuccess = $this->checkAdminAccessKeySubmission();
 			if ( $bSuccess ) {
 				$this->setPermissionToSubmit( true );
-				$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ). ' '. _wpsf__('Please wait').' ...';
+				$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
 			}
 			else {
 				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
@@ -72,16 +74,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			return $this->bHasPermissionToSubmit;
 		}
 
-		$oDp = $this->loadDataProcessor();
-
 		$this->bHasPermissionToSubmit = $fHasPermission;
-		if ( $this->getIsMainFeatureEnabled() )  {
+		if ( $this->getIsMainFeatureEnabled() ) {
 
 			$sAccessKey = $this->getOpt( 'admin_access_key' );
 			if ( !empty( $sAccessKey ) ) {
-				$sHash = md5( $sAccessKey );
-				$sCookieValue = $oDp->FetchCookie( $this->getAdminAccessKeyCookieName() );
-				$this->bHasPermissionToSubmit = ( $sCookieValue === $sHash );
+				$oDp = $this->loadDP();
+				$sCookieValue = $oDp->cookie( $this->getSecurityAdminCookieName() );
+				$this->bHasPermissionToSubmit = ( $sCookieValue === md5( $sAccessKey ) );
 			}
 		}
 		return $this->bHasPermissionToSubmit;
@@ -134,14 +134,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * TODO: Bug where if $sType is defined, it'll be set to 'wp' anyway
-	 *
 	 * @param string $sType - wp or wpms
 	 * @return array
 	 */
 	public function getOptionsToRestrict( $sType = '' ) {
 		$sType = empty( $sType ) ? ( $this->loadWp()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[$sType.'_options'] ) && is_array( $aOptions[$sType.'_options'] ) ) ? $aOptions[$sType.'_options'] : array();
+		return ( isset( $aOptions[ $sType.'_options' ] ) && is_array( $aOptions[ $sType.'_options' ] ) ) ? $aOptions[ $sType.'_options' ] : array();
 	}
 
 	/**
@@ -151,7 +150,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getOptionsPagesToRestrict( $sType = '' ) {
 		$sType = empty( $sType ) ? ( $this->loadWp()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[$sType.'_pages'] ) && is_array( $aOptions[$sType.'_pages'] ) ) ? $aOptions[$sType.'_pages'] : array();
+		return ( isset( $aOptions[ $sType.'_pages' ] ) && is_array( $aOptions[ $sType.'_pages' ] ) ) ? $aOptions[ $sType.'_pages' ] : array();
 	}
 
 	/**
@@ -159,21 +158,19 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function setAdminAccessCookie() {
 		$sAccessKey = $this->getOpt( 'admin_access_key' );
 		if ( !empty( $sAccessKey ) ) {
-			$sValue = md5( $sAccessKey );
-			$sTimeout = $this->getOpt( 'admin_access_timeout' ) * 60;
-			$_COOKIE[ $this->getAdminAccessKeyCookieName() ] = $sValue;
-			$this->loadDataProcessor()->setCookie(
-				$this->getAdminAccessKeyCookieName(),
-				$sValue,
-				$sTimeout
-			);
+			$this->loadDP()
+				 ->setCookie(
+					 $this->getSecurityAdminCookieName(),
+					 md5( $sAccessKey ),
+					 $this->getOpt( 'admin_access_timeout' )*60
+				 );
 		}
 	}
 
 	/**
 	 */
 	protected function clearAdminAccessCookie() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getAdminAccessKeyCookieName() );
+		$this->loadDataProcessor()->setDeleteCookie( $this->getSecurityAdminCookieName() );
 	}
 
 	/**
@@ -189,8 +186,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return string
 	 */
-	public function getAdminAccessKeyCookieName() {
-		return $this->getDefinition( 'admin_access_key_cookie_name' );
+	public function getSecurityAdminCookieName() {
+		return $this->getDefinition( 'security_admin_cookie_name' );
 	}
 
 	/**
@@ -253,7 +250,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch( $sSectionSlug ) {
+		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
@@ -286,9 +283,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			default:
 				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
-		$aOptionsParams['title'] = $sTitle;
-		$aOptionsParams['summary'] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
-		$aOptionsParams['title_short'] = $sTitleShort;
+		$aOptionsParams[ 'title' ] = $sTitle;
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}
 
@@ -299,8 +296,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
-		$sKey = $aOptionsParams['key'];
-		switch( $sKey ) {
+		$sKey = $aOptionsParams[ 'key' ];
+		switch ( $sKey ) {
 
 			case 'enable_admin_access_restriction' :
 				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Security Admin' ) );
@@ -314,27 +311,27 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) );
 				break;
 
-
 			case 'admin_access_timeout' :
 				$sName = _wpsf__( 'Security Admin Timeout' );
 				$sSummary = _wpsf__( 'Specify An Automatic Timeout Interval For Security Admin Access' );
-				$sDescription = _wpsf__( 'This will automatically expire your Security Admin Session.')
-					.' '._wpsf__( 'Does not apply until you enter the access key again.' )
-					.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()->getOptDefault( 'admin_access_timeout' ) );
+				$sDescription = _wpsf__( 'This will automatically expire your Security Admin Session.' )
+								.' '._wpsf__( 'Does not apply until you enter the access key again.' )
+								.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()
+																						   ->getOptDefault( 'admin_access_timeout' ) );
 				break;
 
 			case 'admin_access_restrict_posts' :
 				$sName = _wpsf__( 'Pages' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Posts And Pages Actions' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to page/post creation, editing and deletion.' ) )
-								.'<br />'.sprintf(_wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__('Edit') ) );
+								.'<br />'.sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__( 'Edit' ) ) );
 				break;
 
 			case 'admin_access_restrict_plugins' :
 				$sName = _wpsf__( 'Plugins' );
 				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
-					. '<br />' . sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__( 'Activate' ) ) );
+								.'<br />'.sprintf( _wpsf__( 'Note: %s' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__( 'Activate' ) ) );
 				break;
 
 			case 'admin_access_restrict_options' :
@@ -359,7 +356,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 									sprintf(
 										_wpsf__( 'Selecting "%s" will also restrict all other options.' ),
 										sprintf(
-											_wpsf__('%s and %s'),
+											_wpsf__( '%s and %s' ),
 											_wpsf__( 'Activate' ),
 											_wpsf__( 'Edit Theme Options' )
 										)
@@ -371,9 +368,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
-		$aOptionsParams['name'] = $sName;
-		$aOptionsParams['summary'] = $sSummary;
-		$aOptionsParams['description'] = $sDescription;
+		$aOptionsParams[ 'name' ] = $sName;
+		$aOptionsParams[ 'summary' ] = $sSummary;
+		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
 	}
 
@@ -396,7 +393,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
 			$this->setOpt(
 				'admin_access_restrict_plugins',
-				array_unique( array_merge( $aPluginsRestrictions, array( 'install_plugins', 'update_plugins', 'delete_plugins' ) ) )
+				array_unique( array_merge( $aPluginsRestrictions, array(
+					'install_plugins',
+					'update_plugins',
+					'delete_plugins'
+				) ) )
 			);
 		}
 
@@ -405,7 +406,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
 			$this->setOpt(
 				'admin_access_restrict_themes',
-				array_unique( array_merge( $aThemesRestrictions, array( 'install_themes', 'update_themes', 'delete_themes' ) ) )
+				array_unique( array_merge( $aThemesRestrictions, array(
+					'install_themes',
+					'update_themes',
+					'delete_themes'
+				) ) )
 			);
 		}
 
@@ -418,4 +423,3 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 }
-endif;
