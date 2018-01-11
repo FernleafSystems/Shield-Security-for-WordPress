@@ -51,8 +51,8 @@ if ( !function_exists( '_wpsf__' ) ) {
 }
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'common'.DIRECTORY_SEPARATOR.'icwp-foundation.php' );
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-plugin-controller.php' );
+require_once( dirname( __FILE__ ).'/src/common/icwp-foundation.php' );
+require_once( dirname( __FILE__ ).'/icwp-plugin-controller.php' );
 
 class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 

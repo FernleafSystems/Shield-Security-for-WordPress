@@ -9,7 +9,6 @@
     "access_restricted": true,
     "premium": false,
     "has_custom_actions": true,
-    "has_wizard": true,
     "order": 10
   },
   "admin_notices": {

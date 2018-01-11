@@ -7,8 +7,6 @@
     "storage_key": "hack_protect",
     "show_central": true,
     "access_restricted": true,
-    "has_wizard": true,
-    "primary_wizard": "ufc",
     "premium": false,
     "order": 70
   },
@@ -244,6 +242,49 @@
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
-    ]
+    ],
+    "wizards": {
+      "ufc": {
+  	    "min_user_permissions": "manage_options",
+  	    "steps": {
+		  "start": {
+		    "restricted_access" => false,
+		    "title" => "Start: Unrecognised File Scanner"
+		  },
+		  "scanresult": {
+		    "title" => "Scan Results"
+		  },
+		  "config": {,
+		    "title" => "Setup Scan Automation"
+		  },
+		  "finished": {
+		    "restricted_access" => false,
+		    "title" => "Finished: Unrecognised File Scanner"
+		  }
+  	    }
+      },
+      "wcf": {
+  	    "min_user_permissions": "manage_options",
+  	    "steps": {
+		  "start": {
+		    "restricted_access" => false,
+		    "title" => "Start: WordPress Core File Scanner"
+		  },
+		  "exclusions": {
+		    "title" => "Exclude Files"
+		  },
+		  "scanresult": {
+		    "title" => "Scan Results"
+		  },
+		  "config": {
+		    "title" => "Setup Scan Automation"
+		  },
+		  "finished": {
+		    "restricted_access" => false,
+		    "title" => "Finished: WordPress Core File Scanner"
+		  }
+  	    }
+      }
+    }
   }
 }

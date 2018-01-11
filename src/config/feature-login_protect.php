@@ -9,8 +9,6 @@
     "show_central": true,
     "access_restricted": true,
     "premium": false,
-    "has_wizard": true,
-    "primary_wizard": "mfa",
     "order": 40
   },
   "admin_notices": {
@@ -386,6 +384,30 @@
       "expired_at",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "wizards": {
+      "mfa": {
+  	    "min_user_permissions": "manage_options",
+  	    "steps": {
+		  "start": {
+		    "restricted_access" => false,
+		    "title" => "Start: Unrecognised File Scanner"
+		  },
+		  "authemail": {
+		    "title" => "Email Authentication"
+		  },
+		  "authga": {,
+		    "title" => "Google Authenticator"
+		  },
+		  "multiselect": {,
+		    "title" => "Select Multifactor Auth"
+		  },
+		  "finished": {
+		    "restricted_access" => false,
+		    "title" => "Finished: Unrecognised File Scanner"
+		  }
+  	    }
+      }
+    }
   }
 }

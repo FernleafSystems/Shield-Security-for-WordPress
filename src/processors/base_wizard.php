@@ -304,7 +304,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @return array[]
 	 */
 	protected function getAllDefinedSteps() {
-		return array();
+		return $this->getFeature()->getWizardDefinitions()[ $this->getCurrentWizard() ];
 	}
 
 	/**

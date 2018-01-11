@@ -1325,10 +1325,47 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
+	 * @return string|null
+	 */
+	protected function getPrimaryWizard() {
+		return $this->hasWizard() ? key( $this->getWizardDefinitions() ) : null;
+	}
+
+	/**
+	 * @return string
 	 */
 	protected function getUrl_PrimaryWizard() {
-		return '';
+		$sPrimary = $this->getPrimaryWizard();
+		return $this->getUrl_Wizard( $sPrimary );
+	}
+
+	/**
+	 * @param string $sWizardSlug
+	 * @return string
+	 */
+	public function getUrl_Wizard( $sWizardSlug ) {
+		return add_query_arg(
+			array(
+				'shield_action' => 'wizard',
+				'wizard'        => $sWizardSlug
+			),
+			$this->getFeatureAdminPageUrl()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getWizardDefinitions() {
+		$aW = $this->getDefinition( 'wizards' );
+		return is_array( $aW ) ? $aW : array();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasWizard() {
+		return ( count( $this->getWizardDefinitions() ) > 0 );
 	}
 
 	/**
@@ -1336,13 +1373,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function hasCustomActions() {
 		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_custom_actions' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasWizard() {
-		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_wizard' );
 	}
 
 	/**
