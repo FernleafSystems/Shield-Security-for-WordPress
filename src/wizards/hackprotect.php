@@ -4,12 +4,12 @@ if ( class_exists( 'ICWP_WPSF_Wizard_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 /**
  * Class ICWP_WPSF_Wizard_HackProtect
  */
-class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_Base {
+class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string
@@ -39,9 +39,8 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_Base {
 			case 'wcfconfig':
 				$oResponse = $this->process_WcfConfig();
 				break;
-
 			default:
-				$oResponse = null; // we don't process any steps we don't recognise.
+				$oResponse = parent::processWizardStep( $sStep );
 				break;
 		}
 		return $oResponse;

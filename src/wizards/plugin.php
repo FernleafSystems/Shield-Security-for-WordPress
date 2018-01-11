@@ -4,12 +4,12 @@ if ( class_exists( 'ICWP_WPSF_Wizard_Plugin', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
-class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
+class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string[]
@@ -31,11 +31,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 	 */
 	protected function processWizardStep( $sStep ) {
 		switch ( $sStep ) {
-
-			case 'admin_access_restriction_verify':
-				$oResponse = $this->wizardSecurityAdminVerify();
-				break;
-
 			case 'license':
 				$oResponse = $this->wizardLicense();
 				break;
@@ -69,7 +64,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 				break;
 
 			default:
-				$oResponse = null; // we don't process any steps we don't recognise.
+				$oResponse = parent::processWizardStep( $sStep );
 				break;
 		}
 		return $oResponse;
@@ -325,38 +320,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $nCode === 0 )
-						 ->setMessageText( $sMessage );
-	}
-
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function wizardSecurityAdminVerify() {
-		$sKey = $this->loadDP()->post( 'AccessKey' );
-
-		$oResponse = new \FernleafSystems\Utilities\Response();
-
-		$bSuccess = false;
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'admin_access_restriction' );
-
-		$sMessage = '';
-		if ( empty( $sKey ) ) {
-			$sMessage = 'Security access key was empty.';
-		}
-		else if ( !$oModule->verifyAccessKey( $sKey ) ) {
-			$sMessage = _wpsf__( 'Security Admin Key was not correct.' );
-		}
-		else {
-			$bSuccess = true;
-			$oModule->setPermissionToSubmit( true );
-			$aData = array(
-				'rerender' => true
-			);
-			$oResponse->setData( $aData );
-		}
-
-		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
 	}
 
