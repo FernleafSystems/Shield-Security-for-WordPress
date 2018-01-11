@@ -214,8 +214,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$aSteps = array();
 				break;
 		}
-
-		return $aSteps;
+		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
 	}
 
 	/**

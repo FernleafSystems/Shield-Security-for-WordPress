@@ -175,7 +175,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				'hrefs' => array(
 					'setting_page' => sprintf(
 						'<a href="%s" title="%s">%s</a>',
-						$oFO->getFeatureAdminPageUrl(),
+						$oFO->getUrl_AdminPage(),
 						_wpsf__( 'Admin Access Login' ),
 						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
 					)
@@ -210,7 +210,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				'hrefs' => array(
 					'setting_page' => sprintf(
 						'<a href="%s" title="%s">%s</a>',
-						$oFO->getFeatureAdminPageUrl(),
+						$oFO->getUrl_AdminPage(),
 						_wpsf__( 'Security Admin Login' ),
 						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
 					)

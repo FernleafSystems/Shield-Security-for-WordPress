@@ -358,7 +358,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getFeatureAdminPageUrl() {
+	public function getUrl_AdminPage() {
 		return $this->loadWp()
 					->getUrl_AdminPage(
 						$this->prefix( $this->getFeatureSlug() ),
@@ -1399,7 +1399,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'shield_action' => 'wizard',
 				'wizard'        => $sWizardSlug
 			),
-			$this->getFeatureAdminPageUrl()
+			$this->getUrl_AdminPage()
 		);
 	}
 

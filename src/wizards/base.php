@@ -33,23 +33,52 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 	}
 
-	public function onWpLoaded() {
-		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$sWizard = $this->loadDP()->query( 'wizard', '' );
-			if ( $this->isSupportedWizard( $sWizard ) ) {
-				$this->loadWizard( $sWizard );
+	/**
+	 * Ensure to only ever process supported wizards
+	 */
+	public function ajaxWizardRenderStep() {
+		$oDP = $this->loadDP();
+
+		try {
+			$this->setCurrentWizard( $oDP->post( 'wizard_slug' ) );
+			if ( $this->getCurrentUserCan() ) {
+				$aNextStep = $this->getNextStep( $oDP->post( 'wizard_steps' ), $oDP->post( 'current_index' ) );
+				$this->getModCon()
+					 ->sendAjaxResponse(
+						 true,
+						 array( 'next_step' => $aNextStep )
+					 );
 			}
+			else {
+				$this->loadWp()
+					 ->wpDie( 'Please login to run this wizard.' );
+			}
+		}
+		catch ( Exception $oE ) {
+		}
+	}
+
+	public function onWpLoaded() {
+		try {
+			$this->setCurrentWizard( $this->loadDP()->query( 'wizard' ) );
+			if ( $this->getCurrentUserCan() ) {
+				$this->loadWizard();
+			}
+			else {
+				$this->loadWp()
+					 ->wpDie( 'Please login to run this wizard.' );
+			}
+		}
+		catch ( Exception $oE ) {
 		}
 	}
 
 	/**
 	 * @uses echo()
-	 * @param string $sWizard
 	 */
-	protected function loadWizard( $sWizard ) {
+	protected function loadWizard() {
 		try {
-			$sContent = $this->setCurrentWizard( $sWizard )
-							 ->renderWizard();
+			$sContent = $this->renderWizard();
 		}
 		catch ( Exception $oE ) {
 			$sContent = $oE->getMessage();
@@ -59,30 +88,22 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Ensure to only ever process supported wizards
-	 */
-	public function ajaxWizardRenderStep() {
-		$oDP = $this->loadDP();
-
-		$sWizard = $oDP->post( 'wizard_slug' );
-		if ( $this->isSupportedWizard( $sWizard ) ) {
-
-			$this->setCurrentWizard( $sWizard );
-			$aNextStep = $this->getWizardNextStep( $oDP->post( 'wizard_steps' ), $oDP->post( 'current_index' ) );
-			$this->getModCon()
-				 ->sendAjaxResponse(
-					 true,
-					 array( 'next_step' => $aNextStep )
-				 );
-		}
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return bool
 	 */
 	protected function isSupportedWizard( $sSlug ) {
 		return in_array( $sSlug, $this->getSupportedWizards() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getCurrentUserCan() {
+		$sPerm = $this->getWizardProperty( 'min_user_permissions' );
+		if ( empty( $sPerm ) ) {
+			$sPerm = 'manage_options';
+		}
+		return $sPerm == 'none' || current_user_can( $sPerm );
 	}
 
 	/**
@@ -179,7 +200,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
 				'plugin_banner'    => $oCon->getPluginUrl_Image( 'pluginbanner_1500x500.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'dashboard'        => $oFO->getFeatureAdminPageUrl(),
+				'dashboard'        => $oFO->getUrl_AdminPage(),
 			),
 			'ajax'    => array(
 				'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
@@ -217,22 +238,23 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getWizardFirstStep() {
-		return $this->getWizardNextStep( $this->determineWizardSteps(), -1 );
+		return $this->getNextStep( $this->determineWizardSteps(), -1 );
 	}
 
 	/**
-	 * @param array $aAllSteps
+	 * @param array $aStepsInThisInstance
 	 * @param int   $nCurrentStep
 	 * @return array
 	 */
-	protected function getWizardNextStep( $aAllSteps, $nCurrentStep ) {
+	protected function getNextStep( $aStepsInThisInstance, $nCurrentStep ) {
 
 		// The assumption here is that the step data exists!
-		$aStepData = $this->getWizardStepsDefinition()[ $aAllSteps[ $nCurrentStep + 1 ] ];
+		$sNextStepKey = $aStepsInThisInstance[ $nCurrentStep + 1 ];
+		$aStepData = $this->getStepsDefinition()[ $sNextStepKey ];
 
 		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
 		try {
-			if ( !$bRestrictedAccess || $this->getModCon()->getController()->getHasPermissionToManage() ) {
+			if ( !$bRestrictedAccess || $this->getCurrentUserCan() ) {
 				$aData = $this->getRenderData( $aStepData[ 'slug' ] );
 				$aStepData[ 'content' ] = $this->renderWizardStep( $aStepData[ 'slug' ], $aData );
 			}
@@ -266,7 +288,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				'is_premium' => $oFO->isPremium()
 			),
 			'hrefs' => array(
-				'dashboard' => $oFO->getFeatureAdminPageUrl(),
+				'dashboard' => $oFO->getUrl_AdminPage(),
 				'gopro'     => 'http://icwp.io/ap',
 			),
 			'imgs'  => array(),
@@ -311,17 +333,16 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Overwrite to supply all the possible steps
 	 * @return array[]
 	 */
 	protected function getAllDefinedSteps() {
-		return $this->getModCon()->getWizardDefinitions()[ $this->getCurrentWizard() ][ 'steps' ];
+		return $this->getWizard()[ 'steps' ];
 	}
 
 	/**
 	 * @return array[]
 	 */
-	private function getWizardStepsDefinition() {
+	private function getStepsDefinition() {
 		$aNoAccess = array(
 			'no_access' => array(
 				'title'             => _wpsf__( 'No Access' ),
@@ -344,10 +365,30 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getWizard() {
+		return $this->getModCon()->getWizardDefinitions()[ $this->getCurrentWizard() ];
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return array
+	 */
+	public function getWizardProperty( $sKey ) {
+		$aW = $this->getWizard();
+		return isset( $aW[ $sKey ] ) ? $aW[ $sKey ] : null;
+	}
+
+	/**
 	 * @param string $sCurrentWizard
 	 * @return $this
+	 * @throws Exception
 	 */
 	public function setCurrentWizard( $sCurrentWizard ) {
+		if ( empty( $sCurrentWizard ) || !$this->isSupportedWizard( $sCurrentWizard ) ) {
+			throw new Exception( 'Not as supported wizard.' );
+		}
 		$this->sCurrentWizard = $sCurrentWizard;
 		return $this;
 	}

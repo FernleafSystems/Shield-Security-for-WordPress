@@ -467,7 +467,7 @@
           "license":                  {
             "title": "Go Pro"
           },
-          "import_options":           {
+          "import":                   {
             "title": "Import"
           },
           "admin_access_restriction": {
