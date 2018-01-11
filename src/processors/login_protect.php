@@ -43,19 +43,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Wizard
-	 */
-	public function getWizardProcessor() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->getCanRunWizards() && !isset( $this->oWizProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/loginprotect_wizard.php' );
-			$this->oWizProcessor = new ICWP_WPSF_Processor_LoginProtect_Wizard( $this->getFeature() );
-		}
-		return $this->oWizProcessor;
-	}
-
-	/**
 	 * Override the original collection to then add plugin statistics to the mix
 	 * @param $aData
 	 * @return array

@@ -1,16 +1,14 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Base_Wizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Wizard_Base', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
-
 /**
  * @uses php 5.4+
- * Class ICWP_WPSF_Processor_Base_SetupWizard
+ * Class ICWP_WPSF_Wizard_Base
  */
-abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseWpsf {
+abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @var string
@@ -18,16 +16,26 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	private $sCurrentWizard;
 
 	/**
+	 * @var ICWP_WPSF_FeatureHandler_Base
 	 */
-	public function run() {
-		if ( $this->hasYetToRun() ) {
-			add_action( 'init', array( $this, 'onWpInit' ), 0 );
-		}
+	protected $oModule;
+
+	/**
+	 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
+	 */
+	public function __construct( ICWP_WPSF_FeatureHandler_Base $oFeatureOptions ) {
+		$this->oModule = $oFeatureOptions;
 	}
 
-	public function onWpInit() {
+	/**
+	 */
+	public function run() {
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
+	}
+
+	public function onWpLoaded() {
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$sWizard = (string)$this->loadDP()->query( 'wizard', '' );
+			$sWizard = $this->loadDP()->query( 'wizard', '' );
 			if ( $this->isSupportedWizard( $sWizard ) ) {
 				$this->loadWizard( $sWizard );
 			}
@@ -61,7 +69,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 
 			$this->setCurrentWizard( $sWizard );
 			$aNextStep = $this->getWizardNextStep( $oDP->post( 'wizard_steps' ), $oDP->post( 'current_index' ) );
-			$this->getFeature()
+			$this->getModCon()
 				 ->sendAjaxResponse(
 					 true,
 					 array( 'next_step' => $aNextStep )
@@ -80,7 +88,9 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	/**
 	 * @return string[] the array of wizard slugs supported
 	 */
-	abstract protected function getSupportedWizards();
+	protected function getSupportedWizards() {
+		return array_keys( $this->getModCon()->getWizardDefinitions() );
+	}
 
 	public function ajaxWizardProcessStepSubmit() {
 		$this->loadAutoload(); // for Response
@@ -120,7 +130,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 		$aData[ 'message' ] = $sMessage;
 		$oResponse->setData( $aData );
 
-		$this->getFeature()
+		$this->getModCon()
 			 ->sendAjaxResponse( $oResponse->successful(), $aData );
 	}
 
@@ -129,7 +139,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @throws Exception
 	 */
 	protected function renderWizard() {
-		return $this->loadRenderer( $this->getController()->getPath_Templates() )
+		return $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
 					->setTemplate( 'pages/wizard.twig' )
 					->setRenderVars( $this->getDisplayData() )
 					->setTemplateEngineTwig()
@@ -141,8 +151,8 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 */
 	protected function getDisplayData() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-		$oCon = $this->getController();
+		$oFO = $this->getModCon();
+		$oCon = $this->getModCon()->getController();
 
 		return array(
 			'strings' => array(
@@ -183,7 +193,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Wizard' ), $this->getController()->getHumanName() );
+		return sprintf( _wpsf__( '%s Wizard' ), $this->getModCon()->getController()->getHumanName() );
 	}
 
 	/**
@@ -191,7 +201,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 */
 	protected function determineWizardSteps() {
 		// Special case: user doesn't meet even the basic plugin admin permissions
-		if ( !$this->getController()->getMeetsBasePermissions() ) {
+		if ( !$this->getModCon()->getController()->getMeetsBasePermissions() ) {
 			return array( 'no_access' );
 		}
 
@@ -222,8 +232,8 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 
 		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
 		try {
-			if ( !$bRestrictedAccess || $this->getController()->getHasPermissionToManage() ) {
-				$aData = $this->getRenderDataForStep( $aStepData[ 'slug' ] );
+			if ( !$bRestrictedAccess || $this->getModCon()->getController()->getHasPermissionToManage() ) {
+				$aData = $this->getRenderData( $aStepData[ 'slug' ] );
 				$aStepData[ 'content' ] = $this->renderWizardStep( $aStepData[ 'slug' ], $aData );
 			}
 			else {
@@ -247,14 +257,11 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
-	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sStep ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-
-		$aData = array(
+	protected function getBaseRenderData() {
+		$oFO = $this->getModCon();
+		return array(
 			'flags' => array(
 				'is_premium' => $oFO->isPremium()
 			),
@@ -265,17 +272,21 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 			'imgs'  => array(),
 			'data'  => array(),
 		);
-
-		$aAdd = array();
-		switch ( $sStep ) {
-			case 'no_access':
-				break;
-			default:
-				break;
-		}
-
-		return $this->loadDP()->mergeArraysRecursive( $aData, $aAdd );
 	}
+
+	/**
+	 * @param string $sStep
+	 * @return array
+	 */
+	protected function getRenderData( $sStep ) {
+		return $this->loadDP()->mergeArraysRecursive( $this->getBaseRenderData(), $this->getExtraRenderData( $sStep ) );
+	}
+
+	/**
+	 * @param string $sStep
+	 * @return array
+	 */
+	abstract protected function getExtraRenderData( $sStep );
 
 	/**
 	 * @param string $sSlug
@@ -292,7 +303,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $sCurrentWizard;
 			$sSlug = sprintf( '%s/%s', $sBase, $sSlug );
 		}
-		return $this->loadRenderer( $this->getController()->getPath_Templates() )
+		return $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
 					->setTemplate( sprintf( 'wizard/slides/%s.twig', $sSlug ) )
 					->setRenderVars( $aRenderData )
 					->setTemplateEngineTwig()
@@ -304,7 +315,7 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	 * @return array[]
 	 */
 	protected function getAllDefinedSteps() {
-		return $this->getFeature()->getWizardDefinitions()[ $this->getCurrentWizard() ];
+		return $this->getModCon()->getWizardDefinitions()[ $this->getCurrentWizard() ][ 'steps' ];
 	}
 
 	/**
@@ -339,5 +350,19 @@ abstract class ICWP_WPSF_Processor_Base_Wizard extends ICWP_WPSF_Processor_BaseW
 	public function setCurrentWizard( $sCurrentWizard ) {
 		$this->sCurrentWizard = $sCurrentWizard;
 		return $this;
+	}
+
+	/**
+	 * @return ICWP_WPSF_FeatureHandler_Base
+	 */
+	protected function getModCon() {
+		return $this->oModule;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Plugin_Controller
+	 */
+	protected function getPluginCon() {
+		return $this->getModCon()->getConn();
 	}
 }

@@ -71,6 +71,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected $oProcessor;
 
 	/**
+	 * @var ICWP_WPSF_Wizard_Base
+	 */
+	protected $oWizard;
+
+	/**
 	 * @var string
 	 */
 	protected static $sActivelyDisplayedModuleOptions = '';
@@ -242,6 +247,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
+		$this->runWizards();
 		$this->updateHandler();
 		$this->setupAjaxHandlers();
 	}
@@ -269,6 +275,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getProcessorClassName() {
 		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Processor_'.
+			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
+	}
+
+	/**
+	 * Override this and adapt per feature
+	 * @return string
+	 */
+	protected function getWizardClassName() {
+		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Wizard_'.
 			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
 	}
 
@@ -715,8 +730,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function adminAjaxHandlers() {
 		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
 
-		if ( $this->getCanRunWizards() ) {
-			$oWiz = $this->getWizardProcessor();
+		// TODO: move this to the wizard handler itself
+		if ( $this->getCanRunWizards() && $this->hasWizard() ) {
+			$oWiz = $this->getWizardHandler();
 			if ( !is_null( $oWiz ) ) {
 				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
 					$oWiz,
@@ -790,12 +806,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Base_Wizard|null
+	 * @return ICWP_WPSF_Wizard_Base|null
 	 */
-	protected function getWizardProcessor() {
-		/** @var ICWP_WPSF_Processor_BaseWpsf $oP */
-		$oP = $this->getProcessor();
-		return $oP->getWizardProcessor();
+	protected function getWizardHandler() {
+		if ( !isset( $this->oWizard ) ) {
+			include_once( self::getConn()->getPath_SourceFile( sprintf( 'wizards/%s.php', $this->getFeatureSlug() ) ) );
+			$sClassName = $this->getWizardClassName();
+			if ( !class_exists( $sClassName, false ) ) {
+				return null;
+			}
+			$this->oWizard = new $sClassName( $this );
+		}
+		return $this->oWizard;
 	}
 
 	/**
@@ -1161,6 +1183,33 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Should be over-ridden by each new class to handle upgrades.
+	 * Called upon construction and after plugin options are initialized.
+	 */
+	protected function runWizards() {
+		if ( $this->getCanRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
+			$oWiz = $this->getWizardHandler();
+			if ( $oWiz instanceof ICWP_WPSF_Wizard_Base ) {
+				$oWiz->run();
+			}
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isModulePage() {
+		return $this->loadDP()->query( 'page' ) == $this->prefix( $this->getFeatureSlug() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isWizardPage() {
+		return ( $this->loadDP()->query( 'shield_action' ) == 'wizard' && $this->isModulePage() );
+	}
+
+	/**
 	 * @return boolean
 	 */
 	public function hasEncryptOption() {
@@ -1346,6 +1395,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getUrl_Wizard( $sWizardSlug ) {
 		return add_query_arg(
 			array(
+				'page'          => $this->prefix( $this->getFeatureSlug() ),
 				'shield_action' => 'wizard',
 				'wizard'        => $sWizardSlug
 			),

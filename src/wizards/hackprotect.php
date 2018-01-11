@@ -1,28 +1,21 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Wizard_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
+require_once( dirname( __FILE__ ).'/base.php' );
 
 /**
- * Class ICWP_WPSF_Processor_LoginProtect_Wizard
+ * Class ICWP_WPSF_Wizard_HackProtect
  */
-class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
-
-	/**
-	 * @return string[]
-	 */
-	protected function getSupportedWizards() {
-		return array( 'wcf', 'ufc', 'wpvuln' );
-	}
+class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_Base {
 
 	/**
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Hack Protect Wizard' ), $this->getController()->getHumanName() );
+		return sprintf( _wpsf__( '%s Hack Protect Wizard' ), $this->getPluginCon()->getHumanName() );
 	}
 
 	/**
@@ -59,7 +52,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_Exclusions() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		$oFO->setUfcFileExclusions( explode( "\n", $this->loadDP()->post( 'exclusions' ) ) );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -72,7 +65,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_DeleteFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		if ( $this->loadDP()->post( 'DeleteFiles' ) === 'Y' ) {
 			// First get the current setting and if necessary, modify it and then reset it.
@@ -105,7 +98,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_RestoreFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		if ( $this->loadDP()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
@@ -128,7 +121,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_UfcConfig() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$sSetting = $this->loadDP()->post( 'enable_scan' );
 		$oFO->setUfcOption( $sSetting )
@@ -158,7 +151,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_WcfConfig() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$sSetting = $this->loadDP()->post( 'enable_scan' );
 
@@ -231,7 +224,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function determineWizardSteps_Wcf() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$aStepsSlugs = array(
 			'start',
@@ -249,7 +242,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function determineWizardSteps_Ufc() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$aStepsSlugs = array(
 			'start',
@@ -267,13 +260,13 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sStep ) {
+	protected function getExtraRenderData( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $oFO->getProcessor();
 
-		$aAdd = array();
+		$aAdditional = array();
 
 		$sCurrentWiz = $this->getCurrentWizard();
 
@@ -282,7 +275,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 
 				case 'exclusions':
 					$aFiles = $oFO->getUfcFileExclusions();
-					$aAdd[ 'data' ] = array(
+					$aAdditional[ 'data' ] = array(
 						'files' => array(
 							'count' => count( $aFiles ),
 							'has'   => !empty( $aFiles ),
@@ -294,7 +287,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 				case 'scanresult':
 					$aFiles = $this->cleanAbsPath( $oProc->getSubProcessorFileCleanerScan()->discoverFiles() );
 
-					$aAdd[ 'data' ] = array(
+					$aAdditional[ 'data' ] = array(
 						'files' => array(
 							'count' => count( $aFiles ),
 							'has'   => !empty( $aFiles ),
@@ -312,7 +305,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 					$aChecksum = $this->cleanAbsPath( $aFiles[ 'checksum_mismatch' ] );
 					$aMissing = $this->cleanAbsPath( $aFiles[ 'missing' ] );
 
-					$aAdd[ 'data' ] = array(
+					$aAdditional[ 'data' ] = array(
 						'files' => array(
 							'count'    => count( $aChecksum ) + count( $aMissing ),
 							'has'      => !empty( $aChecksum ) || !empty( $aMissing ),
@@ -332,7 +325,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 			}
 		}
 
-		return $this->loadDP()->mergeArraysRecursive( parent::getRenderDataForStep( $sStep ), $aAdd );
+		return $aAdditional;
 	}
 
 	/**

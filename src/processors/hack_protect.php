@@ -112,19 +112,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Wizard
-	 */
-	public function getWizardProcessor() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->getCanRunWizards() && !isset( $this->oWizProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_wizard.php' );
-			$this->oWizProcessor = new ICWP_WPSF_Processor_HackProtect_Wizard( $this->getFeature() );
-		}
-		return $this->oWizProcessor;
-	}
-
-	/**
 	 * Addresses this vulnerability: http://klikki.fi/adv/wordpress2.html
 	 * @param string $sCommentContent
 	 * @return string

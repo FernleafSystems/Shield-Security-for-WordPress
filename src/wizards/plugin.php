@@ -1,16 +1,15 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Wizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Wizard_Plugin', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
+require_once( dirname( __FILE__ ).'/base.php' );
 
 /**
- * @uses php 5.4+
- * Class ICWP_WPSF_Processor_Plugin_SetupWizard
+ * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
-class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
+class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 
 	/**
 	 * @return string[]
@@ -23,7 +22,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Welcome Wizard' ), $this->getController()->getHumanName() );
+		return sprintf( _wpsf__( '%s Welcome Wizard' ), $this->getPluginCon()->getHumanName() );
 	}
 
 	/**
@@ -41,7 +40,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 				$oResponse = $this->wizardLicense();
 				break;
 
-			case 'import_options':
+			case 'import':
 				$oResponse = $this->wizardImportOptions();
 				break;
 
@@ -101,9 +100,9 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 */
 	private function determineWizardSteps_Import() {
 		return array(
-			'import_start',
-			'import_options',
-			'import_finished',
+			'start',
+			'import',
+			'finished',
 		);
 	}
 
@@ -112,39 +111,40 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 */
 	private function determineWizardSteps_Welcome() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
+		$oConn = $this->getPluginCon();
 
 		$aStepsSlugs = array( 'welcome' );
-		if ( !$oFO->isPremium() ) {
+//		if ( !$oFO->isPremium() ) {
 //			$aStepsSlugs[] = 'license'; not showing it for now
-		}
+//		}
 
 		if ( $oFO->isPremium() ) {
-			$aStepsSlugs[] = 'import_options';
+			$aStepsSlugs[] = 'import';
 		}
 
-		if ( !$this->getController()->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
+		if ( !$oConn->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
-		$oModule = $this->getController()->getModule( 'audit_trail' );
+		$oModule = $oConn->getModule( 'audit_trail' );
 		if ( !$oModule->getIsMainFeatureEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$this->getController()->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
+		if ( !$oConn->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-		$oModule = $this->getController()->getModule( 'login_protect' );
+		$oModule = $oConn->getModule( 'login_protect' );
 		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $this->getController()->getModule( 'comments_filter' );
+		$oModule = $oConn->getModule( 'comments_filter' );
 		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';
 		}
@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		$aStepsSlugs[] = 'optin';
 
 		if ( !$oFO->isPremium() ) {
-			$aStepsSlugs[] = 'import_options';
+			$aStepsSlugs[] = 'import';
 		}
 
 		$aStepsSlugs[] = 'finish';
@@ -164,141 +164,98 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sStep ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-		$oConn = $this->getController();
+	protected function getExtraRenderData( $sStep ) {
+		$oConn = $this->getPluginCon();
 
-		$aData = array(
-			'flags' => array(
-				'is_premium' => $oFO->isPremium()
-			),
-			'hrefs' => array(
-				'dashboard' => $oFO->getFeatureAdminPageUrl(),
-				'gopro'     => 'http://icwp.io/ap',
-			),
-			'imgs'  => array(),
-		);
+		$aAdditional = array();
 
-		$aAdd = array();
+		$sCurrentWiz = $this->getCurrentWizard();
 
-		switch ( $sStep ) {
-			case 'license':
-				break;
-			case 'import_options':
-				$aAdd = array(
-					'hrefs' => array(
-						'blog_importexport' => 'http://icwp.io/av'
-					),
-					'imgs'  => array(
-						'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
-					)
-				);
-				break;
+		if ( $sCurrentWiz == 'welcome' ) {
 
-			case 'optin':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
-				$aAdd = array(
-					'data' => array(
-						'name'       => $oUser->first_name,
-						'user_email' => $oUser->user_email
-					)
-				);
-				break;
+			switch ( $sStep ) {
+				case 'license':
+					break;
+				case 'import':
+					$aAdditional = array(
+						'hrefs' => array(
+							'blog_importexport' => 'http://icwp.io/av'
+						),
+						'imgs'  => array(
+							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+						)
+					);
+					break;
 
-			case 'thankyou':
-				break;
+				case 'optin':
+					$oUser = $this->loadWpUsers()->getCurrentWpUser();
+					$aAdditional = array(
+						'data' => array(
+							'name'       => $oUser->first_name,
+							'user_email' => $oUser->user_email
+						)
+					);
+					break;
 
-			case 'how_shield_works':
-				$aAdd = array(
-					'imgs'     => array(
-						'how_shield_works' => $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' ),
-						'modules'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' ),
-						'options'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' ),
-						'help'             => $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' ),
-						'actions'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' ),
-						'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
-						'option_help'      => $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' ),
-					),
-					'headings' => array(
-						'how_shield_works' => _wpsf__( 'Where to find Shield' ),
-						'modules'          => _wpsf__( 'Accessing Each Module' ),
-						'options'          => _wpsf__( 'Accessing Options' ),
-						'help'             => _wpsf__( 'Finding Help' ),
-						'actions'          => _wpsf__( 'Actions (not Options)' ),
-						'module_onoff'     => _wpsf__( 'Module On/Off Switch' ),
-						'option_help'      => _wpsf__( 'Help For Each Option' ),
-					),
-					'captions' => array(
-						'how_shield_works' => _wpsf__( "You'll find the main Shield Security setting in the left-hand WordPress menu." ),
-						'modules'          => _wpsf__( 'Shield is split up into independent modules for accessing the options of each feature.' ),
-						'options'          => _wpsf__( 'When you load a module, you can access the options by clicking on the Options Panel link.' ),
-						'help'             => _wpsf__( 'Each module also has a brief overview help section - there is more in-depth help available.' ),
-						'actions'          => _wpsf__( 'Certain modules have extra actions and features, e.g. Audit Trail Viewer.' )
-											  .' '._wpsf__( 'Note: Not all modules have the actions section' ),
-						'module_onoff'     => _wpsf__( 'Each module has an Enable/Disable checkbox to turn on/off all processing for that module' ),
-						'option_help'      => _wpsf__( 'To help you understand each option, most of them have a more info link, and/or a blog link, to read more' ),
-					),
-				);
-				break;
-			default:
-				break;
+				case 'thankyou':
+					break;
+
+				case 'how_shield_works':
+					$aAdditional = array(
+						'imgs'     => array(
+							'how_shield_works' => $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' ),
+							'modules'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' ),
+							'options'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' ),
+							'help'             => $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' ),
+							'actions'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' ),
+							'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
+							'option_help'      => $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' ),
+						),
+						'headings' => array(
+							'how_shield_works' => _wpsf__( 'Where to find Shield' ),
+							'modules'          => _wpsf__( 'Accessing Each Module' ),
+							'options'          => _wpsf__( 'Accessing Options' ),
+							'help'             => _wpsf__( 'Finding Help' ),
+							'actions'          => _wpsf__( 'Actions (not Options)' ),
+							'module_onoff'     => _wpsf__( 'Module On/Off Switch' ),
+							'option_help'      => _wpsf__( 'Help For Each Option' ),
+						),
+						'captions' => array(
+							'how_shield_works' => _wpsf__( "You'll find the main Shield Security setting in the left-hand WordPress menu." ),
+							'modules'          => _wpsf__( 'Shield is split up into independent modules for accessing the options of each feature.' ),
+							'options'          => _wpsf__( 'When you load a module, you can access the options by clicking on the Options Panel link.' ),
+							'help'             => _wpsf__( 'Each module also has a brief overview help section - there is more in-depth help available.' ),
+							'actions'          => _wpsf__( 'Certain modules have extra actions and features, e.g. Audit Trail Viewer.' )
+												  .' '._wpsf__( 'Note: Not all modules have the actions section' ),
+							'module_onoff'     => _wpsf__( 'Each module has an Enable/Disable checkbox to turn on/off all processing for that module' ),
+							'option_help'      => _wpsf__( 'To help you understand each option, most of them have a more info link, and/or a blog link, to read more' ),
+						),
+					);
+					break;
+				default:
+					break;
+			}
+		}
+		else if ( $sCurrentWiz == 'import_export' ) {
+
+			switch ( $sStep ) {
+				case 'import':
+					$aAdditional = array(
+						'hrefs' => array(
+							'blog_importexport' => 'http://icwp.io/av'
+						),
+						'imgs'  => array(
+							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+						)
+					);
+					break;
+
+				default:
+					break;
+			}
 		}
 
-		return $this->loadDP()->mergeArraysRecursive( $aData, $aAdd );
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getAllDefinedSteps() {
-		return array(
-			'import_start'             => array(
-				'title'             => _wpsf__( 'Start Import' ),
-				'restricted_access' => false
-			),
-			'import_finished'          => array(
-				'title'             => _wpsf__( 'Import Finished' ),
-				'restricted_access' => false
-			),
-			'welcome'                  => array(
-				'title'             => _wpsf__( 'Welcome' ),
-				'restricted_access' => false,
-			),
-			'license'                  => array(
-				'title' => _wpsf__( 'Go Pro' ),
-			),
-			'import_options'           => array(
-				'title' => _wpsf__( 'Import' ),
-			),
-			'admin_access_restriction' => array(
-				'title' => _wpsf__( 'Security Admin' ),
-			),
-			'audit_trail'              => array(
-				'title' => _wpsf__( 'Audit Trail' ),
-			),
-			'ips'                      => array(
-				'title' => _wpsf__( 'IP Blacklist' ),
-			),
-			'login_protect'            => array(
-				'title' => _wpsf__( 'Login Protection' ),
-			),
-			'comments_filter'          => array(
-				'title' => _wpsf__( 'Comment SPAM' ),
-			),
-			'how_shield_works'         => array(
-				'title'             => _wpsf__( 'How Shield Works' ),
-				'restricted_access' => false,
-			),
-			'optin'                    => array(
-				'title'   => _wpsf__( 'Join Us!' ),
-				'content' => '',
-			),
-			'thankyou'                 => array(
-				'title'             => _wpsf__( 'Thank You' ),
-				'restricted_access' => false,
-			)
-		);
+		return $aAdditional;
 	}
 
 	/**
@@ -313,7 +270,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
-			$oModule = $this->getController()->getModule( 'license' );
+			$oModule = $this->getPluginCon()->getModule( 'license' );
 			try {
 				$oModule->activateOfficialLicense( $sKey, true );
 				if ( $oModule->hasValidWorkingLicense() ) {
@@ -339,7 +296,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 	 */
 	private function wizardImportOptions() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		$oDP = $this->loadDP();
 
 		$sMasterSiteUrl = $oDP->post( 'MasterSiteUrl' );
@@ -381,7 +338,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 
 		$bSuccess = false;
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-		$oModule = $this->getController()->getModule( 'admin_access_restriction' );
+		$oModule = $this->getPluginCon()->getModule( 'admin_access_restriction' );
 
 		$sMessage = '';
 		if ( empty( $sKey ) ) {
@@ -422,7 +379,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-			$oModule = $this->getController()->getModule( 'admin_access_restriction' );
+			$oModule = $this->getPluginCon()->getModule( 'admin_access_restriction' );
 			try {
 				$oModule->setNewAccessKeyManually( $sKey )
 						->setPermissionToSubmit( true );
@@ -445,7 +402,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		$bEnabled = $this->loadDP()->post( 'AuditTrailOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-		$oModule = $this->getController()->getModule( 'audit_trail' );
+		$oModule = $this->getPluginCon()->getModule( 'audit_trail' );
 		$oModule->setIsMainFeatureEnabled( $bEnabled )
 				->savePluginOptions();
 
@@ -472,7 +429,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		$bEnabled = $this->loadDP()->post( 'IpManagerOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
-		$oModule = $this->getController()->getModule( 'ips' );
+		$oModule = $this->getPluginCon()->getModule( 'ips' );
 		$oModule->setIsMainFeatureEnabled( $bEnabled )
 				->savePluginOptions();
 
@@ -499,7 +456,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		$bEnabled = $this->loadDP()->post( 'LoginProtectOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-		$oModule = $this->getController()->getModule( 'login_protect' );
+		$oModule = $this->getPluginCon()->getModule( 'login_protect' );
 		if ( $bEnabled ) { // we don't disable the whole module
 			$oModule->setIsMainFeatureEnabled( true );
 		}
@@ -531,7 +488,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		$bEnabledBadge = $oDP->post( 'BadgeOption', 'N', true ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
-		$oModule = $this->getController()->getModule( 'plugin' );
+		$oModule = $this->getPluginCon()->getModule( 'plugin' );
 		$oModule->setIsDisplayPluginBadge( $bEnabledBadge )
 				->setPluginTrackingPermission( $bEnabledTracking );
 
@@ -550,7 +507,7 @@ class ICWP_WPSF_Processor_Plugin_Wizard extends ICWP_WPSF_Processor_Base_Wizard 
 		$bEnabled = $this->loadDP()->post( 'CommentsFilterOption' ) === 'Y';
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $this->getController()->getModule( 'comments_filter' );
+		$oModule = $this->getPluginCon()->getModule( 'comments_filter' );
 		if ( $bEnabled ) { // we don't disable the whole module
 			$oModule->setIsMainFeatureEnabled( true );
 		}
