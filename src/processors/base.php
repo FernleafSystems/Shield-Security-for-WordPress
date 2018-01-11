@@ -22,16 +22,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected $aSubProcessors;
 
 	/**
-	 * @var ICWP_WPSF_Processor_Base_Wizard
-	 */
-	protected $oWizProcessor = null;
-
-	/**
-	 * @var bool
-	 */
-	protected $bRunOnce = false;
-
-	/**
 	 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
 	 */
 	public function __construct( $oFeatureOptions ) {
@@ -132,24 +122,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Base_Wizard|mixed|null
-	 */
-	public function getWizardProcessor() {
-		return null;
-	}
-
-	/**
-	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
-		$oFO = $this->getFeature();
-		if ( $oFO->getCanRunWizards() && $oFO->hasWizard()
-			 && (string)$this->loadDP()->query( 'shield_action', '' ) == 'wizard' ) {
-			$oWiz = $this->getWizardProcessor();
-			if ( $oWiz instanceof ICWP_WPSF_Processor_Base_Wizard ) {
-				$oWiz->run();
-			}
-		}
 	}
 
 	/**
@@ -254,28 +228,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			$this->aSubProcessors = array();
 		}
 		return $this->aSubProcessors;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function hasRunOnce() {
-		return (bool)$this->bRunOnce;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function hasYetToRun() {
-		return !$this->hasRunOnce();
-	}
-
-	/**
-	 *
-	 */
-	protected function setRunOnce() {
-		$this->bRunOnce = true;
-		return $this;
 	}
 
 	/**

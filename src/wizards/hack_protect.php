@@ -1,28 +1,21 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Wizard_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 /**
- * Class ICWP_WPSF_Processor_LoginProtect_Wizard
+ * Class ICWP_WPSF_Wizard_HackProtect
  */
-class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
-
-	/**
-	 * @return string[]
-	 */
-	protected function getSupportedWizards() {
-		return array( 'wcf', 'ufc', 'wpvuln' );
-	}
+class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Hack Protect Wizard' ), $this->getController()->getHumanName() );
+		return sprintf( _wpsf__( '%s Hack Protect Wizard' ), $this->getPluginCon()->getHumanName() );
 	}
 
 	/**
@@ -46,9 +39,8 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 			case 'wcfconfig':
 				$oResponse = $this->process_WcfConfig();
 				break;
-
 			default:
-				$oResponse = null; // we don't process any steps we don't recognise.
+				$oResponse = parent::processWizardStep( $sStep );
 				break;
 		}
 		return $oResponse;
@@ -59,7 +51,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_Exclusions() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		$oFO->setUfcFileExclusions( explode( "\n", $this->loadDP()->post( 'exclusions' ) ) );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -72,7 +64,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_DeleteFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		if ( $this->loadDP()->post( 'DeleteFiles' ) === 'Y' ) {
 			// First get the current setting and if necessary, modify it and then reset it.
@@ -105,7 +97,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_RestoreFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		if ( $this->loadDP()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
@@ -128,7 +120,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_UfcConfig() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$sSetting = $this->loadDP()->post( 'enable_scan' );
 		$oFO->setUfcOption( $sSetting )
@@ -158,7 +150,7 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function process_WcfConfig() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$sSetting = $this->loadDP()->post( 'enable_scan' );
 
@@ -208,10 +200,11 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 
 	/**
 	 * @return string[]
+	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
 
-		switch ( $this->getCurrentWizard() ) {
+		switch ( $this->getWizardSlug() ) {
 			case 'wcf':
 				$aSteps = $this->determineWizardSteps_Wcf();
 				break;
@@ -219,11 +212,10 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 				$aSteps = $this->determineWizardSteps_Ufc();
 				break;
 			default:
-				$aSteps = array();
+				parent::determineWizardSteps();
 				break;
 		}
-
-		return $aSteps;
+		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
 	}
 
 	/**
@@ -231,16 +223,16 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function determineWizardSteps_Wcf() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$aStepsSlugs = array(
-			'wcf_start',
-			'wcf_scanresult',
+			'start',
+			'scanresult',
 		);
 		if ( !$oFO->isWcfScanEnabled() ) {
-			$aStepsSlugs[] = 'wcf_config';
+			$aStepsSlugs[] = 'config';
 		}
-		$aStepsSlugs[] = 'wcf_finished';
+		$aStepsSlugs[] = 'finished';
 		return $aStepsSlugs;
 	}
 
@@ -249,17 +241,17 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 */
 	private function determineWizardSteps_Ufc() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$aStepsSlugs = array(
-			'ufc_start',
-			'ufc_exclusions',
-			'ufc_scanresult'
+			'start',
+			'exclusions',
+			'scanresult'
 		);
 		if ( !$oFO->isUfsEnabled() ) {
-			$aStepsSlugs[] = 'ufc_config';
+			$aStepsSlugs[] = 'config';
 		}
-		$aStepsSlugs[] = 'ufc_finished';
+		$aStepsSlugs[] = 'finished';
 		return $aStepsSlugs;
 	}
 
@@ -267,109 +259,72 @@ class ICWP_WPSF_Processor_HackProtect_Wizard extends ICWP_WPSF_Processor_Base_Wi
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sStep ) {
+	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $oFO->getProcessor();
 
-		$aAdd = array();
+		$aAdditional = array();
 
-		switch ( $sStep ) {
+		$sCurrentWiz = $this->getWizardSlug();
 
-			case 'ufc_exclusions':
-				$aFiles = $oFO->getUfcFileExclusions();
-				$aAdd[ 'data' ] = array(
-					'files' => array(
-						'count' => count( $aFiles ),
-						'has'   => !empty( $aFiles ),
-						'list'  => implode( "\n", $aFiles ),
-					)
-				);
-				break;
+		if ( $sCurrentWiz == 'ufc' ) {
+			switch ( $sStep ) {
 
-			case 'ufc_scanresult':
-				$aFiles = $this->cleanAbsPath( $oProc->getSubProcessorFileCleanerScan()->discoverFiles() );
-
-				$aAdd[ 'data' ] = array(
-					'files' => array(
-						'count' => count( $aFiles ),
-						'has'   => !empty( $aFiles ),
-						'list'  => $aFiles,
-					)
-				);
-				break;
-
-			case 'wcf_scanresult':
-				$aFiles = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
-				$aChecksum = $this->cleanAbsPath( $aFiles[ 'checksum_mismatch' ] );
-				$aMissing = $this->cleanAbsPath( $aFiles[ 'missing' ] );
-
-				$aAdd[ 'data' ] = array(
-					'files' => array(
-						'count'    => count( $aChecksum ) + count( $aMissing ),
-						'has'      => !empty( $aChecksum ) || !empty( $aMissing ),
-						'checksum' => array(
-							'count' => count( $aChecksum ),
-							'has'   => !empty( $aChecksum ),
-							'list'  => $aChecksum,
-						),
-						'missing'  => array(
-							'count' => count( $aMissing ),
-							'has'   => !empty( $aMissing ),
-							'list'  => $aMissing,
+				case 'exclusions':
+					$aFiles = $oFO->getUfcFileExclusions();
+					$aAdditional[ 'data' ] = array(
+						'files' => array(
+							'count' => count( $aFiles ),
+							'has'   => !empty( $aFiles ),
+							'list'  => implode( "\n", $aFiles ),
 						)
-					)
-				);
-				break;
+					);
+					break;
 
-			case 'wcf_start':
-				break;
+				case 'scanresult':
+					$aFiles = $this->cleanAbsPath( $oProc->getSubProcessorFileCleanerScan()->discoverFiles() );
 
-			default:
-				break;
+					$aAdditional[ 'data' ] = array(
+						'files' => array(
+							'count' => count( $aFiles ),
+							'has'   => !empty( $aFiles ),
+							'list'  => $aFiles,
+						)
+					);
+					break;
+			}
+		}
+		else if ( $sCurrentWiz == 'wcf' ) {
+
+			switch ( $sStep ) {
+				case 'scanresult':
+					$aFiles = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
+					$aChecksum = $this->cleanAbsPath( $aFiles[ 'checksum_mismatch' ] );
+					$aMissing = $this->cleanAbsPath( $aFiles[ 'missing' ] );
+
+					$aAdditional[ 'data' ] = array(
+						'files' => array(
+							'count'    => count( $aChecksum ) + count( $aMissing ),
+							'has'      => !empty( $aChecksum ) || !empty( $aMissing ),
+							'checksum' => array(
+								'count' => count( $aChecksum ),
+								'has'   => !empty( $aChecksum ),
+								'list'  => $aChecksum,
+							),
+							'missing'  => array(
+								'count' => count( $aMissing ),
+								'has'   => !empty( $aMissing ),
+								'list'  => $aMissing,
+							)
+						)
+					);
+					break;
+			}
 		}
 
-		return $this->loadDP()->mergeArraysRecursive( parent::getRenderDataForStep( $sStep ), $aAdd );
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getAllDefinedSteps() {
-		return array(
-			'ufc_start'      => array(
-				'title'             => sprintf( '%s: %s', _wpsf__( 'Start' ), _wpsf__( 'Unrecognised File Scanner' ) ),
-				'restricted_access' => false
-			),
-			'ufc_exclusions' => array(
-				'title' => _wpsf__( 'Exclude Files' ),
-			),
-			'ufc_scanresult' => array(
-				'title' => _wpsf__( 'Scan Results' ),
-			),
-			'ufc_config'     => array(
-				'title' => _wpsf__( 'Scan Automation' ),
-			),
-			'ufc_finished'   => array(
-				'title'             => sprintf( '%s: %s', _wpsf__( 'Finished' ), _wpsf__( 'Unrecognised File Scanner' ) ),
-				'restricted_access' => false
-			),
-			'wcf_start'      => array(
-				'title'             => sprintf( '%s: %s', _wpsf__( 'Start' ), _wpsf__( 'WordPress Core File Scanner' ) ),
-				'restricted_access' => false
-			),
-			'wcf_scanresult' => array(
-				'title' => _wpsf__( 'Scan Results' ),
-			),
-			'wcf_config'     => array(
-				'title' => _wpsf__( 'Scan Automation' ),
-			),
-			'wcf_finished'   => array(
-				'title'             => sprintf( '%s: %s', _wpsf__( 'Finished' ), _wpsf__( 'WordPress Core File Scanner' ) ),
-				'restricted_access' => false
-			),
-		);
+		return $aAdditional;
 	}
 
 	/**

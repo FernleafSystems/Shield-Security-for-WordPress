@@ -1,28 +1,21 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Wizard', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Wizard_LoginProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wizard.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
-class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_Wizard {
-
-	/**
-	 * @return string[]
-	 */
-	protected function getSupportedWizards() {
-		return array( 'mfa' );
-	}
+class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getController()->getHumanName() );
+		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getPluginCon()->getHumanName() );
 	}
 
 	/**
@@ -31,7 +24,6 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	protected function processWizardStep( $sStep ) {
 		switch ( $sStep ) {
-
 			case 'authemail':
 				$oResponse = $this->processAuthEmail();
 				break;
@@ -45,7 +37,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				break;
 
 			default:
-				$oResponse = null; // we don't process any steps we don't recognise.
+				$oResponse = parent::processWizardStep( $sStep );
 				break;
 		}
 		return $oResponse;
@@ -56,7 +48,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	private function processAuthEmail() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		$oDP = $this->loadDP();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -109,7 +101,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	private function processAuthGa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 		$oDP = $this->loadDP();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -160,7 +152,7 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	private function processMultiSelect() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
 		$bEnabledMulti = $this->loadDP()->post( 'multiselect' ) === 'Y';
 		$oFO->setIsChainedAuth( $bEnabledMulti );
@@ -175,19 +167,19 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 
 	/**
 	 * @return string[]
+	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
 
-		switch ( $this->getCurrentWizard() ) {
+		switch ( $this->getWizardSlug() ) {
 			case 'mfa':
 				$aSteps = $this->determineWizardSteps_Mfa();
 				break;
 			default:
-				$aSteps = array();
+				parent::determineWizardSteps();
 				break;
 		}
-
-		return $aSteps;
+		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
 	}
 
 	/**
@@ -195,20 +187,20 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 */
 	private function determineWizardSteps_Mfa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
-		$aStepsSlugs = array( 'mfa_start' );
+		$aStepsSlugs = array( 'start' );
 
 		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->getIsEmailAuthenticationEnabled() ) {
-			$aStepsSlugs[] = 'mfa_authemail';
+			$aStepsSlugs[] = 'authemail';
 		}
 
 		if ( !$oFO->getIsEnabledGoogleAuthenticator() ) {
-			$aStepsSlugs[] = 'mfa_authga';
+			$aStepsSlugs[] = 'authga';
 		}
 
-		$aStepsSlugs[] = 'mfa_multiselect';
-		$aStepsSlugs[] = 'mfa_finished';
+		$aStepsSlugs[] = 'multiselect';
+		$aStepsSlugs[] = 'finished';
 		return $aStepsSlugs;
 	}
 
@@ -216,28 +208,17 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderDataForStep( $sStep ) {
+	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getModCon();
 
-		$aData = array(
-			'flags' => array(
-				'is_premium' => $oFO->isPremium()
-			),
-			'hrefs' => array(
-				'dashboard' => $oFO->getFeatureAdminPageUrl(),
-				'gopro'     => 'http://icwp.io/ap',
-			),
-			'imgs'  => array(),
-		);
-
-		$aAdd = array();
+		$aAdditional = array();
 
 		switch ( $sStep ) {
 
-			case 'mfa_authemail':
+			case 'authemail':
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
-				$aAdd = array(
+				$aAdditional = array(
 					'data' => array(
 						'name'       => $oUser->first_name,
 						'user_email' => $oUser->user_email
@@ -245,14 +226,14 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				);
 				break;
 
-			case 'mfa_authga':
+			case 'authga':
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
 				$oProcGa = $oProc->getProcessorLoginIntent()
 								 ->getProcessorGoogleAuthenticator();
 				$sGaUrl = $oProcGa->getGaRegisterChartUrl( $oUser );
-				$aAdd = array(
+				$aAdditional = array(
 					'data'  => array(
 						'name'       => $oUser->first_name,
 						'user_email' => $oUser->user_email
@@ -266,8 +247,8 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				);
 				break;
 
-			case 'mfa_multiselect':
-				$aAdd = array(
+			case 'multiselect':
+				$aAdditional = array(
 					'flags' => array(
 						'has_multiselect' => $oFO->isChainedAuth(),
 					)
@@ -278,31 +259,6 @@ class ICWP_WPSF_Processor_LoginProtect_Wizard extends ICWP_WPSF_Processor_Base_W
 				break;
 		}
 
-		return $this->loadDP()->mergeArraysRecursive( $aData, $aAdd );
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getAllDefinedSteps() {
-		return array(
-			'mfa_start'       => array(
-				'title'             => _wpsf__( 'Start Multi-Factor Authentication Setup' ),
-				'restricted_access' => false
-			),
-			'mfa_authemail'   => array(
-				'title' => _wpsf__( 'Email Authentication' ),
-			),
-			'mfa_authga'      => array(
-				'title' => _wpsf__( 'Google Authenticator' ),
-			),
-			'mfa_multiselect' => array(
-				'title' => _wpsf__( 'Select Multifactor Auth' ),
-			),
-			'mfa_finished'    => array(
-				'title'             => _wpsf__( 'Finished: Multi-Factor Authentication Setup' ),
-				'restricted_access' => false
-			),
-		);
+		return $aAdditional;
 	}
 }

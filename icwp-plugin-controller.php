@@ -1192,7 +1192,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->loadCorePluginFeatureHandler()->getFeatureAdminPageUrl();
+		return $this->loadCorePluginFeatureHandler()->getUrl_AdminPage();
 	}
 
 	/**

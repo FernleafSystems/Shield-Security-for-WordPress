@@ -88,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'aar_must_supply_key_first'    => _wpsf__( 'At some point you entered a Security Admin Access Key - to manage this plugin, you must supply it here first.' ),
 				'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 				'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
-				'aar_submit_access_key'        => _wpsf__( 'Submit Access Key' )
+				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' )
 			)
 		);
 		$aData[ 'flags' ][ 'show_summary' ] = true;
@@ -101,27 +101,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'nonce_failed_supplied' => _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ),
 		);
 		return ( isset( $aStrings[ $sKey ] ) ? $aStrings[ $sKey ] : $sDefault );
-	}
-
-	/**
-	 * @param string $sWizardSlug
-	 * @return string
-	 */
-	public function getUrl_Wizard( $sWizardSlug ) {
-		return add_query_arg(
-			array(
-				'shield_action' => 'wizard',
-				'wizard'        => $sWizardSlug
-			),
-			$this->getFeatureAdminPageUrl()
-		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function getUrl_PrimaryWizard() {
-		return $this->getUrl_Wizard( $this->getOptionsVo()->getFeatureProperty( 'primary_wizard' ) );
 	}
 
 	/**

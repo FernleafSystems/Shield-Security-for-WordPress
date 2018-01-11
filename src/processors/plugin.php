@@ -72,19 +72,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Wizard
-	 */
-	public function getWizardProcessor() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->getCanRunWizards() && !isset( $this->oWizProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_wizard.php' );
-			$this->oWizProcessor = new ICWP_WPSF_Processor_Plugin_Wizard( $this->getFeature() );
-		}
-		return $this->oWizProcessor;
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_Plugin_Tracking
 	 */
 	protected function getTrackingProcessor() {
