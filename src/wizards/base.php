@@ -29,7 +29,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 */
-	public function run() {
+	public function init() {
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 	}
 
@@ -59,8 +59,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpLoaded() {
+		$sWizard = $this->loadDP()->query( 'wizard' );
 		try {
-			$this->setCurrentWizard( $this->loadDP()->query( 'wizard' ) );
+			$this->setCurrentWizard( $sWizard );
 			if ( $this->getCurrentUserCan() ) {
 				$this->loadWizard();
 			}
@@ -70,6 +71,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		catch ( Exception $oE ) {
+			if ( $sWizard == 'landing' ) {
+				$this->loadWizardLanding();
+			}
 		}
 	}
 
@@ -79,6 +83,24 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	protected function loadWizard() {
 		try {
 			$sContent = $this->renderWizard();
+		}
+		catch ( Exception $oE ) {
+			$sContent = $oE->getMessage();
+		}
+		echo $sContent;
+		die();
+	}
+
+	/**
+	 * @uses echo()
+	 */
+	protected function loadWizardLanding() {
+		try {
+			$sContent = $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
+							 ->setTemplate( 'wizard/pages/landing.twig' )
+							 ->setRenderVars( $this->getRenderData_PageWizardLanding() )
+							 ->setTemplateEngineTwig()
+							 ->render();
 		}
 		catch ( Exception $oE ) {
 			$sContent = $oE->getMessage();
@@ -162,30 +184,48 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	protected function renderWizard() {
 		return $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
 					->setTemplate( 'pages/wizard.twig' )
-					->setRenderVars( $this->getDisplayData() )
+					->setRenderVars( $this->getRenderData_PageWizard() )
 					->setTemplateEngineTwig()
 					->render();
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getDisplayData() {
+	protected function getRenderData_PageWizardLanding() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getModCon();
-		$oCon = $this->getModCon()->getController();
+		return $this->loadDP()->mergeArraysRecursive(
+			$this->getRenderData_TwigPageBase(),
+			array(
+				'strings' => array(
+					'page_title' => 'Select Your Wizard'
+				),
+				'data'    => array(
+					'wizards' => $oFO->getWizardDefinitions()
+				),
+				'hrefs'   => array(
+					'dashboard' => $oFO->getUrl_AdminPage(),
+				),
+				'ajax'    => array(
+					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
+					'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
+					'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
+				)
+			)
+		);
+	}
 
+	/**
+	 * TODO: Abstract and move elsewhere - it's here because Wizards on the only consumer of twig templates
+	 * @return array
+	 */
+	protected function getRenderData_TwigPageBase() {
+		$oCon = $this->getModCon()->getController();
 		return array(
 			'strings' => array(
-				'page_title' => $this->getPageTitle()
+				'page_title' => 'Twig Page'
 			),
-			'data'    => array(
-				'wizard_slug'       => $this->getCurrentWizard(),
-				'wizard_steps'      => json_encode( $this->determineWizardSteps() ),
-				'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
-			),
+			'data'    => array(),
 			'hrefs'   => array(
-				'form_action'      => $this->loadDataProcessor()->getRequestUri(),
+				'form_action'      => $this->loadDP()->getRequestUri(),
 				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
 				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
 				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
@@ -200,12 +240,36 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
 				'plugin_banner'    => $oCon->getPluginUrl_Image( 'pluginbanner_1500x500.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'dashboard'        => $oFO->getUrl_AdminPage(),
 			),
-			'ajax'    => array(
-				'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
-				'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
-				'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
+			'ajax'    => array()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getRenderData_PageWizard() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getModCon();
+		return $this->loadDP()->mergeArraysRecursive(
+			$this->getRenderData_TwigPageBase(),
+			array(
+				'strings' => array(
+					'page_title' => $this->getPageTitle()
+				),
+				'data'    => array(
+					'wizard_slug'       => $this->getCurrentWizard(),
+					'wizard_steps'      => json_encode( $this->buildSteps() ),
+					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
+				),
+				'hrefs'   => array(
+					'dashboard' => $oFO->getUrl_AdminPage(),
+				),
+				'ajax'    => array(
+					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
+					'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
+					'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
+				)
 			)
 		);
 	}
@@ -220,25 +284,20 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string[]
 	 */
-	protected function determineWizardSteps() {
-		// Special case: user doesn't meet even the basic plugin admin permissions
-		if ( !$this->getModCon()->getController()->getMeetsBasePermissions() ) {
-			return array( 'no_access' );
-		}
-
-		switch ( $this->getCurrentWizard() ) {
-			default:
-				$aSteps = array();
-				break;
-		}
-		return $aSteps;
+	protected function buildSteps() {
+		return $this->getCurrentUserCan() ? $this->determineWizardSteps() : array( 'no_access' );
 	}
+
+	/**
+	 * @return string[]
+	 */
+	abstract protected function determineWizardSteps();
 
 	/**
 	 * @return array
 	 */
 	protected function getWizardFirstStep() {
-		return $this->getNextStep( $this->determineWizardSteps(), -1 );
+		return $this->getNextStep( $this->buildSteps(), -1 );
 	}
 
 	/**
@@ -255,7 +314,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
 		try {
 			if ( !$bRestrictedAccess || $this->getCurrentUserCan() ) {
-				$aData = $this->getRenderData( $aStepData[ 'slug' ] );
+				$aData = $this->getRenderData_Slide( $aStepData[ 'slug' ] );
 				$aStepData[ 'content' ] = $this->renderWizardStep( $aStepData[ 'slug' ], $aData );
 			}
 			else {
@@ -279,9 +338,20 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getBaseRenderData() {
+	protected function getRenderData_Slide( $sStep ) {
+		return $this->loadDP()->mergeArraysRecursive(
+			$this->getRenderData_SlideBase(),
+			$this->getRenderData_SlideExtra( $sStep )
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getRenderData_SlideBase() {
 		$oFO = $this->getModCon();
 		return array(
 			'flags' => array(
@@ -300,15 +370,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getRenderData( $sStep ) {
-		return $this->loadDP()->mergeArraysRecursive( $this->getBaseRenderData(), $this->getExtraRenderData( $sStep ) );
-	}
-
-	/**
-	 * @param string $sStep
-	 * @return array
-	 */
-	abstract protected function getExtraRenderData( $sStep );
+	abstract protected function getRenderData_SlideExtra( $sStep );
 
 	/**
 	 * @param string $sSlug

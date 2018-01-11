@@ -698,16 +698,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDataProcessor();
 
 		$bValid = $this->loadWp()->isAjax()
-				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->FetchPost( 'icwp_action_module', '' ) );
+				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->post( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
 				if ( strpos( $sKey, 'icwp_' ) === 0 ) {
-					$bValid = $bValid && ( strlen( $oDp->FetchPost( $sKey, '' ) ) > 0 );
+					$bValid = $bValid && ( strlen( $oDp->post( $sKey, '' ) ) > 0 );
 				}
 			}
 		}
-		return $bValid && $this->checkNonceAction( $oDp->FetchPost( 'icwp_nonce' ), $oDp->FetchPost( 'icwp_nonce_action' ) );
+		return $bValid && $this->checkNonceAction( $oDp->post( 'icwp_nonce' ), $oDp->post( 'icwp_nonce_action' ) );
 	}
 
 	/**
@@ -1190,7 +1190,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( $this->getCanRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
 			if ( $oWiz instanceof ICWP_WPSF_Wizard_Base ) {
-				$oWiz->run();
+				$oWiz->init();
 			}
 		}
 	}
@@ -1340,7 +1340,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'hrefs'      => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
 				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
-				'primary_wizard'  => $this->getUrl_PrimaryWizard(),
+				'wizard_landing'  => $this->getUrl_WizardLanding(),
+				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
 			'content'    => array(
 				'alt'     => '',
@@ -1383,7 +1384,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	protected function getUrl_PrimaryWizard() {
+	protected function getUrl_WizardLanding() {
+		$sPrimary = $this->getPrimaryWizard();
+		return $this->getUrl_Wizard( $sPrimary );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUrl_WizardPrimary() {
 		$sPrimary = $this->getPrimaryWizard();
 		return $this->getUrl_Wizard( $sPrimary );
 	}

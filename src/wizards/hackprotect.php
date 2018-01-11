@@ -258,7 +258,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getExtraRenderData( $sStep ) {
+	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */

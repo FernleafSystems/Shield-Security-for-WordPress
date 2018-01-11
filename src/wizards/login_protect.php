@@ -207,7 +207,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getExtraRenderData( $sStep ) {
+	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getModCon();
 

@@ -458,6 +458,7 @@
     ],
     "wizards":                {
       "welcome":      {
+        "title": "Getting Started Security Setup Wizard",
         "min_user_permissions": "manage_options",
         "steps":                {
           "welcome":                  {
@@ -498,6 +499,7 @@
         }
       },
       "importexport": {
+        "title": "Options Import/Export Wizard",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":    {

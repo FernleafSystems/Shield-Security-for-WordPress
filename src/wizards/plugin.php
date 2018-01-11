@@ -158,7 +158,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @param string $sStep
 	 * @return array
 	 */
-	protected function getExtraRenderData( $sStep ) {
+	protected function getRenderData_SlideExtra( $sStep ) {
 		$oConn = $this->getPluginCon();
 
 		$aAdditional = array();
