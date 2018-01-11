@@ -458,7 +458,7 @@
     ],
     "wizards":                {
       "welcome":      {
-        "title": "Getting Started Security Setup Wizard",
+        "title": "Getting Started Setup Wizard",
         "min_user_permissions": "manage_options",
         "steps":                {
           "welcome":                  {

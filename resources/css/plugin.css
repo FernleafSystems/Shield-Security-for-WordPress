@@ -30,6 +30,17 @@
 	width: 32px;
 }
 
+.bootstrap-wpadmin .page-header {
+	margin: 5px 0 15px;
+	padding-bottom: 0;
+	border-bottom: 1px solid transparent;
+}
+.bootstrap-wpadmin .page-header h2 small.feature-tagline {
+	font-size: 14px;
+	line-height: 10px;
+	letter-spacing: -0.5px;
+}
+
 .icwp-options-page ul.nav-tabs {
 	margin: 0;
 }
@@ -94,13 +105,6 @@ table.table-audit_trail .cell-ip {
 	max-width: 240px;
 }
 
-
-
-.bootstrap-wpadmin .page-header {
-	padding-bottom: 17px;
-	margin: 18px 0 0;
-	border-bottom: 1px solid transparent;
-}
 /* Form elements */
 .bootstrap-wpadmin form fieldset {
 	width: 80%;
@@ -337,6 +341,7 @@ label input[type=checkbox] {
 	width: 100%;
 	margin-top: 20px;
 	box-shadow: 3px 3px 6px 0 rgba(0,0,0,0.3);
+	border-left: 1px solid #bbbbbb;
 }
 .feature-summary-blocks .feature-icon:before {
 	-webkit-font-smoothing: antialiased;

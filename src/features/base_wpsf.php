@@ -88,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'aar_must_supply_key_first'    => _wpsf__( 'At some point you entered a Security Admin Access Key - to manage this plugin, you must supply it here first.' ),
 				'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 				'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
-				'aar_submit_access_key'        => _wpsf__( 'Submit Access Key' )
+				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' )
 			)
 		);
 		$aData[ 'flags' ][ 'show_summary' ] = true;

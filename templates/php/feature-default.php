@@ -7,7 +7,7 @@
 	<div class="icwpTopLevelSpan <?php echo $flags[ 'show_ads' ] ? 'span11' : 'span11'; ?>" id="icwpOptionsTopPill">
 
 		<ul class="nav nav-pills">
-			<li>
+			<li class="active">
 				<a href="#icwpPillOptions" data-toggle="pill">
 					<span class="dashicons dashicons-admin-settings">&nbsp;</span>
 					<div class="title"><?php echo $strings[ 'options_title' ]; ?></div>
@@ -40,8 +40,7 @@
 			<?php endif; ?>
 		</ul>
 		<div class="tab-content">
-			<div class="tab-pane"
-				 id="icwpPillOptions">
+			<div class="tab-pane active" id="icwpPillOptions">
 				<?php echo $flags[ 'show_standard_options' ] ? $options_form : ''; ?>
 				<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
 			</div>
