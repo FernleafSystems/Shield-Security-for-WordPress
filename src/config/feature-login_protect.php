@@ -390,21 +390,21 @@
   	    "min_user_permissions": "manage_options",
   	    "steps": {
 		  "start": {
-		    "restricted_access" => false,
-		    "title" => "Start: Unrecognised File Scanner"
+		    "restricted_access": false,
+		    "title": "Start: Unrecognised File Scanner"
 		  },
 		  "authemail": {
-		    "title" => "Email Authentication"
+		    "title": "Email Authentication"
 		  },
 		  "authga": {,
-		    "title" => "Google Authenticator"
+		    "title": "Google Authenticator"
 		  },
 		  "multiselect": {,
-		    "title" => "Select Multifactor Auth"
+		    "title": "Select Multifactor Auth"
 		  },
 		  "finished": {
-		    "restricted_access" => false,
-		    "title" => "Finished: Unrecognised File Scanner"
+		    "restricted_access": false,
+		    "title": "Finished: Unrecognised File Scanner"
 		  }
   	    }
       }

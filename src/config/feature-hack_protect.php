@@ -248,18 +248,18 @@
   	    "min_user_permissions": "manage_options",
   	    "steps": {
 		  "start": {
-		    "restricted_access" => false,
-		    "title" => "Start: Unrecognised File Scanner"
+		    "restricted_access": false,
+		    "title": "Start: Unrecognised File Scanner"
 		  },
 		  "scanresult": {
-		    "title" => "Scan Results"
+		    "title": "Scan Results"
 		  },
 		  "config": {,
-		    "title" => "Setup Scan Automation"
+		    "title": "Setup Scan Automation"
 		  },
 		  "finished": {
-		    "restricted_access" => false,
-		    "title" => "Finished: Unrecognised File Scanner"
+		    "restricted_access": false,
+		    "title": "Finished: Unrecognised File Scanner"
 		  }
   	    }
       },
@@ -267,21 +267,21 @@
   	    "min_user_permissions": "manage_options",
   	    "steps": {
 		  "start": {
-		    "restricted_access" => false,
-		    "title" => "Start: WordPress Core File Scanner"
+		    "restricted_access": false,
+		    "title": "Start: WordPress Core File Scanner"
 		  },
 		  "exclusions": {
-		    "title" => "Exclude Files"
+		    "title": "Exclude Files"
 		  },
 		  "scanresult": {
-		    "title" => "Scan Results"
+		    "title": "Scan Results"
 		  },
 		  "config": {
-		    "title" => "Setup Scan Automation"
+		    "title": "Setup Scan Automation"
 		  },
 		  "finished": {
-		    "restricted_access" => false,
-		    "title" => "Finished: WordPress Core File Scanner"
+		    "restricted_access": false,
+		    "title": "Finished: WordPress Core File Scanner"
 		  }
   	    }
       }
