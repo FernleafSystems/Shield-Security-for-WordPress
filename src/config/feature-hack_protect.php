@@ -254,7 +254,7 @@
 		  "scanresult": {
 		    "title": "Scan Results"
 		  },
-		  "config": {,
+		  "config": {
 		    "title": "Setup Scan Automation"
 		  },
 		  "finished": {

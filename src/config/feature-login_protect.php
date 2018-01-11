@@ -396,10 +396,10 @@
 		  "authemail": {
 		    "title": "Email Authentication"
 		  },
-		  "authga": {,
+		  "authga": {
 		    "title": "Google Authenticator"
 		  },
-		  "multiselect": {,
+		  "multiselect": {
 		    "title": "Select Multifactor Auth"
 		  },
 		  "finished": {
