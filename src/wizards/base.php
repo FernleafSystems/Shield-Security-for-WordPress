@@ -118,10 +118,13 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sPerm
 	 * @return bool
 	 */
-	protected function getCurrentUserCan() {
-		$sPerm = $this->getWizardProperty( 'min_user_permissions' );
+	protected function getCurrentUserCan( $sPerm = null ) {
+		if ( empty( $sPerm ) ) {
+			$sPerm = $this->getWizardProperty( 'min_user_permissions' );
+		}
 		if ( empty( $sPerm ) ) {
 			$sPerm = 'manage_options';
 		}
@@ -190,8 +193,15 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function getRenderData_PageWizardLanding() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_Base $oFO */
 		$oFO = $this->getModCon();
+
+		$aWizards = $oFO->getWizardDefinitions();
+		foreach ( $aWizards as $sKey => &$aWizard ) {
+			$aWizard[ 'has_perm' ] = $this->getCurrentUserCan( $aWizard[ 'min_user_permissions' ] );
+			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
+		}
+
 		return $this->loadDP()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
 			array(
@@ -199,7 +209,8 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'page_title' => 'Select Your Wizard'
 				),
 				'data'    => array(
-					'wizards' => $oFO->getWizardDefinitions()
+					'wizard_count' => count( $aWizards ),
+					'wizards'      => $aWizards
 				),
 				'hrefs'   => array(
 					'dashboard' => $oFO->getUrl_AdminPage(),
@@ -258,7 +269,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'page_title' => $this->getPageTitle()
 				),
 				'data'    => array(
-					'wizard_slug'       => $this->getCurrentWizard(),
+					'wizard_slug'       => $this->getWizardSlug(),
 					'wizard_steps'      => json_encode( $this->buildSteps() ),
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				),
@@ -289,9 +300,11 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string[]
+	 * @throws Exception
 	 */
-	abstract protected function determineWizardSteps();
+	protected function determineWizardSteps() {
+		throw new Exception( sprintf( 'Could not determine wizard steps for current wizard: %s', $this->getWizardSlug() ) );
+	}
 
 	/**
 	 * @return array
@@ -381,7 +394,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
 		if ( strpos( $sSlug, '/' ) === false ) {
 			// first trim the prefixed wizard slug, e.g. ufc_
-			$sCurrentWizard = $this->getCurrentWizard();
+			$sCurrentWizard = $this->getWizardSlug();
 			$sSlug = preg_replace( sprintf( '#^%s_#', $sCurrentWizard ), '', $sSlug );
 
 			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $sCurrentWizard;
@@ -422,7 +435,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getCurrentWizard() {
+	public function getWizardSlug() {
 		return $this->sCurrentWizard;
 	}
 
@@ -430,7 +443,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getWizard() {
-		return $this->getModCon()->getWizardDefinitions()[ $this->getCurrentWizard() ];
+		return $this->getModCon()->getWizardDefinitions()[ $this->getWizardSlug() ];
 	}
 
 	/**

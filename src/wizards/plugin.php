@@ -72,18 +72,19 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string[]
+	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
 
-		switch ( $this->getCurrentWizard() ) {
+		switch ( $this->getWizardSlug() ) {
 			case 'welcome':
 				$aSteps = $this->determineWizardSteps_Welcome();
 				break;
-			case 'import':
+			case 'importexport':
 				$aSteps = $this->determineWizardSteps_Import();
 				break;
 			default:
-				$aSteps = array();
+				parent::determineWizardSteps();
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
@@ -163,7 +164,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$aAdditional = array();
 
-		$sCurrentWiz = $this->getCurrentWizard();
+		$sCurrentWiz = $this->getWizardSlug();
 
 		if ( $sCurrentWiz == 'welcome' ) {
 
@@ -230,8 +231,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
-		else if ( $sCurrentWiz == 'import_export' ) {
-
+		else if ( $sCurrentWiz == 'importexport' ) {
 			switch ( $sStep ) {
 				case 'import':
 					$aAdditional = array(

@@ -2,24 +2,20 @@
 
 {% block head_stylesheets %}
 	{{ parent() }}
-	<link rel="stylesheet" href="{{ hrefs.css_steps }}" />
-	<link rel="stylesheet" href="{{ hrefs.css_wizard }}" />
-	<link rel="stylesheet" href="{{ hrefs.css_fancybox }}" />
 {% endblock %}
 
 {% block head_scripts %}
 	{{ parent() }}
-	<script type="text/javascript" src="{{ hrefs.js_steps }}"></script>
-	<script type="text/javascript" src="{{ hrefs.js_wizard }}"></script>
-	<script type="text/javascript" src="{{ hrefs.js_fancybox }}"></script>
 {% endblock %}
 
 {% block body_content_main %}
 	<div class="row">
 		<div class="col-md-8 col-md-offset-2">
-			<div id="wizard">
+			<div id="wizards">
+				<p>This module comes with {{ data.wizard_count }} Wizard(s).</p>
+				<p>Please click the link below of the Guided Wizard you'd like to launch.</p>
 				{% for wizard in data.wizards %}
-					<li>{{ wizard.title }}</li>
+					<li><a href="{{ wizard.url }}">{{ wizard.title }}</a></li>
 				{% endfor %}
 			</div>
 		</div>

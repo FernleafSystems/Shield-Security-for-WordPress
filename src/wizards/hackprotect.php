@@ -200,10 +200,11 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string[]
+	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
 
-		switch ( $this->getCurrentWizard() ) {
+		switch ( $this->getWizardSlug() ) {
 			case 'wcf':
 				$aSteps = $this->determineWizardSteps_Wcf();
 				break;
@@ -211,7 +212,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$aSteps = $this->determineWizardSteps_Ufc();
 				break;
 			default:
-				$aSteps = array();
+				parent::determineWizardSteps();
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
@@ -266,7 +267,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$aAdditional = array();
 
-		$sCurrentWiz = $this->getCurrentWizard();
+		$sCurrentWiz = $this->getWizardSlug();
 
 		if ( $sCurrentWiz == 'ufc' ) {
 			switch ( $sStep ) {

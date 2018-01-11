@@ -167,15 +167,16 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
 	 * @return string[]
+	 * @throws Exception
 	 */
 	protected function determineWizardSteps() {
 
-		switch ( $this->getCurrentWizard() ) {
+		switch ( $this->getWizardSlug() ) {
 			case 'mfa':
 				$aSteps = $this->determineWizardSteps_Mfa();
 				break;
 			default:
-				$aSteps = array();
+				parent::determineWizardSteps();
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
