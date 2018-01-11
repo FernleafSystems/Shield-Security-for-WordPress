@@ -1340,6 +1340,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'hrefs'      => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
 				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
+				'wizard_link'     => ( count( $this->getWizardDefinitions() ) > 1 ) ? $this->getUrl_WizardLanding() : $this->getUrl_WizardPrimary(),
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
@@ -1382,22 +1383,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function getUrl_WizardLanding() {
-		$sPrimary = $this->getPrimaryWizard();
-		return $this->getUrl_Wizard( $sPrimary );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getUrl_WizardPrimary() {
-		$sPrimary = $this->getPrimaryWizard();
-		return $this->getUrl_Wizard( $sPrimary );
-	}
-
-	/**
 	 * @param string $sWizardSlug
 	 * @return string
 	 */
@@ -1410,6 +1395,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			$this->getUrl_AdminPage()
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUrl_WizardLanding() {
+		return $this->getUrl_Wizard( 'landing' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUrl_WizardPrimary() {
+		$sPrimary = $this->getPrimaryWizard();
+		return $this->getUrl_Wizard( $sPrimary );
 	}
 
 	/**

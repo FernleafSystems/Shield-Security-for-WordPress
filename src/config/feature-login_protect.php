@@ -387,6 +387,7 @@
     ],
     "wizards":                       {
       "mfa": {
+        "title": "Configure Multi-Factor Login Authentication",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":       {

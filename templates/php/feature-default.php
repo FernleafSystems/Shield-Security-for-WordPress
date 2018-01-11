@@ -34,7 +34,7 @@
 			<?php endif; ?>
 			<?php if ( $flags[ 'has_wizard' ] ) : ?>
 				<li id="icwpWizardPill">
-					<a href="<?php echo $hrefs['primary_wizard']; ?>"
+					<a href="<?php echo $hrefs['wizard_link']; ?>"
 					   title="Launch Guided Setup Wizard" target="_blank">&nbsp;</a>
 				</li>
 			<?php endif; ?>

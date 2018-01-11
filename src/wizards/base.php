@@ -249,7 +249,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
 				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
-				'plugin_banner'    => $oCon->getPluginUrl_Image( 'pluginbanner_1500x500.png' ),
+				'plugin_banner'    => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
 			'ajax'    => array()
@@ -462,7 +462,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function setCurrentWizard( $sCurrentWizard ) {
 		if ( empty( $sCurrentWizard ) || !$this->isSupportedWizard( $sCurrentWizard ) ) {
-			throw new Exception( 'Not as supported wizard.' );
+			throw new Exception( 'Not a supported wizard.' );
 		}
 		$this->sCurrentWizard = $sCurrentWizard;
 		return $this;

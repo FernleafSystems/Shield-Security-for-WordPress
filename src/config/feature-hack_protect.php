@@ -245,6 +245,7 @@
     ],
     "wizards":                              {
       "ufc": {
+        "title": "Manually Run Unrecognised File Scanner",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
@@ -264,6 +265,7 @@
         }
       },
       "wcf": {
+        "title": "Manually Run WordPress Core File Scanner",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
