@@ -62,16 +62,24 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$sWizard = $this->loadDP()->query( 'wizard' );
 		try {
 			$this->setCurrentWizard( $sWizard );
+
+			$sDieMessage = 'Not Permitted';
 			if ( $this->getCurrentUserCan() ) {
-				$this->loadWizard();
+				if ( $this->verifyNonce() ) {
+					$this->loadWizard();
+				}
+				else {
+					$sDieMessage = 'Sorry, this link has expired.';
+				}
 			}
 			else {
-				$this->loadWp()
-					 ->wpDie( 'Please login to run this wizard.' );
+				$sDieMessage = 'Please login to run this wizard';
 			}
+			$this->loadWp()
+				 ->wpDie( $sDieMessage );
 		}
 		catch ( Exception $oE ) {
-			if ( $sWizard == 'landing' ) {
+			if ( $sWizard == 'landing' && $this->verifyNonce( 'landing' ) ) {
 				$this->loadWizardLanding();
 			}
 		}
@@ -225,7 +233,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				),
 				'data'    => array(
 					'mod_wizards_count' => count( $aWizards ),
-					'mod_wizards'      => $aWizards
+					'mod_wizards'       => $aWizards
 				),
 				'hrefs'   => array(
 					'dashboard' => $oFO->getUrl_AdminPage(),
@@ -500,5 +508,15 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getPluginCon() {
 		return $this->getModCon()->getConn();
+	}
+
+	/**
+	 * @return false|int
+	 */
+	protected function verifyNonce( $sWizard = null ) {
+		if ( is_null( $sWizard ) ) {
+			$sWizard = $this->getWizardSlug();
+		}
+		return wp_verify_nonce( $this->loadDP()->query( 'nonwizard' ), 'wizard'.$sWizard );
 	}
 }

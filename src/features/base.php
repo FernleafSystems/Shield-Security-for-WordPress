@@ -1382,6 +1382,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @uses nonce
 	 * @param string $sWizardSlug
 	 * @return string
 	 */
@@ -1390,9 +1391,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			array(
 				'page'          => $this->prefix( $this->getFeatureSlug() ),
 				'shield_action' => 'wizard',
-				'wizard'        => $sWizardSlug
+				'wizard'        => $sWizardSlug,
+				'nonwizard'     => wp_create_nonce( 'wizard'.$sWizardSlug )
 			),
-			$this->getUrl_AdminPage()
+			$this->loadWp()->getHomeUrl()
 		);
 	}
 
