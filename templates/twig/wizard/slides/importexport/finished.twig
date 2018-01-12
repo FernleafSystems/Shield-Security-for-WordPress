@@ -4,14 +4,3 @@
 	<h3>Finished: Shield Options Import Wizard</h3>
 	<p>This is the end of the Shield Security Network/Import Wizard.</p>
 {% endblock %}
-
-{% block slide_body_middle %}
-	{% if data.mod_wizards_count > 1 %}
-		<h4>Other Wizards</h4>
-		<ul>
-		{% for wizard in data.mod_wizards %}
-			<a href="{{ wizard.url }}">{{ wizard.title }}</a>
-		{% endfor %}
-		</ul>
-	{% endif %}
-{% endblock %}

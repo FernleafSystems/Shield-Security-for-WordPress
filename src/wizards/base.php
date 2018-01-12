@@ -224,8 +224,8 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'premium_note' => 'Note: This uses features only available to Pro-licensed installations.'
 				),
 				'data'    => array(
-					'wizard_count' => count( $aWizards ),
-					'wizards'      => $aWizards
+					'mod_wizards_count' => count( $aWizards ),
+					'mod_wizards'      => $aWizards
 				),
 				'hrefs'   => array(
 					'dashboard' => $oFO->getUrl_AdminPage(),
