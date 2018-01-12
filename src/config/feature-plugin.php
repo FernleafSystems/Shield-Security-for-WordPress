@@ -270,6 +270,7 @@
       "key":          "importexport_secretkey",
       "section":      "section_importexport",
       "transferable": false,
+      "sensitive":    true,
       "default":      "",
       "type":         "noneditable_text",
       "link_info":    "",
