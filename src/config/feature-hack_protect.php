@@ -246,6 +246,7 @@
     "wizards":                              {
       "ufc": {
         "title": "Manually Run Unrecognised File Scanner",
+        "desc": "Walks you through the scanning for unrecognised files present in your WordPress core installation.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
@@ -266,6 +267,7 @@
       },
       "wcf": {
         "title": "Manually Run WordPress Core File Scanner",
+        "desc": "Walks you through the scanning for unintended changes to your official WordPress core files.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {

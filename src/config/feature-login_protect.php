@@ -388,6 +388,7 @@
     "wizards":                       {
       "mfa": {
         "title": "Configure Multi-Factor Login Authentication",
+        "desc": "Helps you get setup with multi-factor login authentication, using Email and Google Authenticator.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":       {

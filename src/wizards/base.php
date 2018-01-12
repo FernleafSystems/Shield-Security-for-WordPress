@@ -200,13 +200,15 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		foreach ( $aWizards as $sKey => &$aWizard ) {
 			$aWizard[ 'has_perm' ] = $this->getCurrentUserCan( $aWizard[ 'min_user_permissions' ] );
 			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
+			$aWizard[ 'has_premium' ] = isset( $aWizard[ 'has_premium' ] ) && $aWizard[ 'has_premium' ];
 		}
 
 		return $this->loadDP()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
 			array(
 				'strings' => array(
-					'page_title' => 'Select Your Wizard'
+					'page_title'   => 'Select Your Wizard',
+					'premium_note' => 'Note: This uses features only available to Pro-licensed installations.'
 				),
 				'data'    => array(
 					'wizard_count' => count( $aWizards ),
