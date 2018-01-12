@@ -44,8 +44,7 @@
         "plugin"
       ],
       "js": [
-        "bootstrap.min",
-        "icwp-options"
+        "bootstrap.min"
       ]
     },
     "frontend": {
