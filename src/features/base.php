@@ -1339,7 +1339,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'hrefs'      => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
 				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
-				'wizard_link'     => ( count( $this->getWizardDefinitions() ) > 1 ) ? $this->getUrl_WizardLanding() : $this->getUrl_WizardPrimary(),
+				'wizard_link'     => $this->getUrl_WizardLanding(),
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
