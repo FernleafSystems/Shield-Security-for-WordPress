@@ -178,7 +178,6 @@ p.code-description {
 .bootstrap-wpadmin .form-horizontal .form-actions {
 	padding-left: 200px;
 }
-
 /** Section summaries **/
 .row_section_summary {
 }
@@ -287,7 +286,7 @@ p.code-description {
 	border-radius: 4px;
 	padding: 8px 10px;
 }
-.option_section input[type=checkbox]{
+.option_section input[type=checkbox] {
 	margin-right: 5px;
 }
 .option_section label {
@@ -493,8 +492,17 @@ input[type="email"] {
 #icwpOptionsTopPill > .nav-pills li#icwpWizardPill {
 	width: 8%;
 }
+#icwpOptionsTopPill > .nav-pills li#icwpWizardPill .tooltip {
+	opacity: 1.0;
+}
+#icwpOptionsTopPill > .nav-pills li#icwpWizardPill .tooltip .tooltip-inner {
+	max-width: none;
+	font-size: 16px;
+	padding: 8px 12px;
+}
 #icwpOptionsTopPill > .nav-pills li#icwpWizardPill a {
 	background-size: 100%;
+	background-color: #1cbaf3;
 	background-repeat: no-repeat;
 	background-origin: content-box;
 	background-position: 0 4px;

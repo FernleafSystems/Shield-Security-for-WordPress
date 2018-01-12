@@ -19,11 +19,3 @@ if ( empty( $aSummaryData ) ) {
 	<?php endforeach; ?>
 	<div style="clear: both"></div>
 </div>
-<script type="text/javascript">
-	jQuery( 'a.feature-icon' ).popover( {
-		placement: 'left',
-		trigger: 'hover',
-		html: true
-	} );
-	// jQuery( '#feature-plugin a.feature-icon' ).popover( 'show' );
-</script>

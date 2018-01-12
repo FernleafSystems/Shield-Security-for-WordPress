@@ -393,7 +393,7 @@
         "steps":                {
           "start":       {
             "restricted_access": false,
-            "title":             "Start: Unrecognised File Scanner"
+            "title":             "Start: Multi-Factor Authentication"
           },
           "authemail":   {
             "title": "Email Authentication"
@@ -406,7 +406,7 @@
           },
           "finished":    {
             "restricted_access": false,
-            "title":             "Finished: Unrecognised File Scanner"
+            "title":             "Finished: Multi-Factor Authentication"
           }
         }
       }
