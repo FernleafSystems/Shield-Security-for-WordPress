@@ -192,25 +192,40 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					->render();
 	}
 
-	protected function getRenderData_PageWizardLanding() {
+	/**
+	 * @return array[]
+	 */
+	protected function getModuleWizardsForRender() {
 		/** @var ICWP_WPSF_FeatureHandler_Base $oFO */
 		$oFO = $this->getModCon();
-
 		$aWizards = $oFO->getWizardDefinitions();
 		foreach ( $aWizards as $sKey => &$aWizard ) {
 			$aWizard[ 'has_perm' ] = $this->getCurrentUserCan( $aWizard[ 'min_user_permissions' ] );
 			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
+			$aWizard[ 'has_premium' ] = isset( $aWizard[ 'has_premium' ] ) && $aWizard[ 'has_premium' ];
 		}
+		return $aWizards;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getRenderData_PageWizardLanding() {
+		/** @var ICWP_WPSF_FeatureHandler_Base $oFO */
+		$oFO = $this->getModCon();
+
+		$aWizards = $this->getModuleWizardsForRender();
 
 		return $this->loadDP()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
 			array(
 				'strings' => array(
-					'page_title' => 'Select Your Wizard'
+					'page_title'   => 'Select Your Wizard',
+					'premium_note' => 'Note: This uses features only available to Pro-licensed installations.'
 				),
 				'data'    => array(
-					'wizard_count' => count( $aWizards ),
-					'wizards'      => $aWizards
+					'mod_wizards_count' => count( $aWizards ),
+					'mod_wizards'      => $aWizards
 				),
 				'hrefs'   => array(
 					'dashboard' => $oFO->getUrl_AdminPage(),
@@ -366,16 +381,21 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRenderData_SlideBase() {
 		$oFO = $this->getModCon();
+		$aWizards = $this->getModuleWizardsForRender();
 		return array(
 			'flags' => array(
-				'is_premium' => $oFO->isPremium()
+				'is_premium'        => $oFO->isPremium(),
+				'has_other_wizards' => false
 			),
 			'hrefs' => array(
 				'dashboard' => $oFO->getUrl_AdminPage(),
 				'gopro'     => 'http://icwp.io/ap',
 			),
 			'imgs'  => array(),
-			'data'  => array(),
+			'data'  => array(
+				'mod_wizards_count' => count( $aWizards ),
+				'mod_wizards'       => $aWizards
+			),
 		);
 	}
 

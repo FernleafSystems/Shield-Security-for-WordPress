@@ -72,3 +72,19 @@ body.wait {
 .wizard .indent_slight {
 	margin-left: 26px;
 }
+
+.wizard_slot {
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+	margin-top: 30px;
+	padding: 0 20px 20px;
+}
+.wizard_slot:hover {
+	background-color: #ffffff;
+}
+
+#GoProBtn {
+	width: 128px;
+	display: block;
+	margin: 5px auto 20px;
+}

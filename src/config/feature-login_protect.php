@@ -388,11 +388,12 @@
     "wizards":                       {
       "mfa": {
         "title": "Configure Multi-Factor Login Authentication",
+        "desc": "Helps you get setup with multi-factor login authentication, using Email and Google Authenticator.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":       {
             "restricted_access": false,
-            "title":             "Start: Unrecognised File Scanner"
+            "title":             "Start: Multi-Factor Authentication"
           },
           "authemail":   {
             "title": "Email Authentication"
@@ -405,7 +406,7 @@
           },
           "finished":    {
             "restricted_access": false,
-            "title":             "Finished: Unrecognised File Scanner"
+            "title":             "Finished: Multi-Factor Authentication"
           }
         }
       }

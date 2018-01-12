@@ -21,7 +21,11 @@
 	{% endblock %}
 	</div>
 	<div class="slide-body">
-	{% block slide_body %} {% endblock %}
+	{% block slide_body %}
+		{% block slide_body_top %}{% endblock %}
+		{% block slide_body_middle %}{% endblock %}
+		{% block slide_body_bottom %}{% endblock %}
+	{% endblock %}
 	</div>
 	<div class="slide-footer">
 	{% block slide_footer %}

@@ -270,6 +270,7 @@
       "key":          "importexport_secretkey",
       "section":      "section_importexport",
       "transferable": false,
+      "sensitive":    true,
       "default":      "",
       "type":         "noneditable_text",
       "link_info":    "",
@@ -459,6 +460,7 @@
     "wizards":                {
       "welcome":      {
         "title": "Getting Started Setup Wizard",
+        "desc": "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "welcome":                  {
@@ -500,7 +502,9 @@
       },
       "importexport": {
         "title": "Options Import/Export Wizard",
+        "desc": "Walks you through the import and export of options, as well as configuring ongoing automated options-sync.",
         "min_user_permissions": "manage_options",
+        "has_premium": true,
         "steps":                {
           "start":    {
             "restricted_access": false,

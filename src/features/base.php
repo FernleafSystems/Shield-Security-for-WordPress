@@ -106,7 +106,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			$nRunPriority = isset( $aFeatureProperties[ 'load_priority' ] ) ? $aFeatureProperties[ 'load_priority' ] : 100;
 			// Handle any upgrades as necessary (only go near this if it's the admin area)
-			add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), $nRunPriority );
+			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
 			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
 			add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
@@ -190,9 +190,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Added to WordPress 'plugins_loaded' hook
 	 */
-	public function onWpPluginsLoaded() {
+	public function onRunProcessors() {
 		$this->getOptionsVo()
 			 ->setIsPremiumLicensed( $this->isPremium() );
 
