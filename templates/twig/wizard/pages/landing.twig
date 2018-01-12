@@ -12,13 +12,13 @@
 {% block body_content_main %}
 	<div class="row">
 		<div class="col-md-4 col-md-offset-4">
-			<p>This module comes with {{ data.wizard_count }} Wizard(s).</p>
+			<p>This module comes with {{ data.mod_wizards_count }} Wizard(s).</p>
 			<p>Please click the link below of the Guided Wizard you'd like to launch.</p>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-2"></div>
-		{% for wizard in data.wizards %}
+		{% for wizard in data.mod_wizards %}
 			<div class="col-md-4">
 				<div class="wizard_slot">
 					<div><h3>{{ wizard.title }}</h3></div>

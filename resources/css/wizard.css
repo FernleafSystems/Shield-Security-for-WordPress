@@ -82,3 +82,9 @@ body.wait {
 .wizard_slot:hover {
 	background-color: #ffffff;
 }
+
+#GoProBtn {
+	width: 128px;
+	display: block;
+	margin: 5px auto 20px;
+}

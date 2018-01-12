@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2018 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
