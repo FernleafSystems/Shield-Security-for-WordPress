@@ -467,6 +467,9 @@
             "restricted_access": false,
             "title":             "Welcome"
           },
+          "ip_detect":                {
+            "title": "IP Detection"
+          },
           "license":                  {
             "title": "Go Pro"
           },

@@ -31,6 +31,11 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	protected function processWizardStep( $sStep ) {
 		switch ( $sStep ) {
+
+			case 'ip_detect':
+				$oResponse = $this->wizardIpDetect();
+				break;
+
 			case 'license':
 				$oResponse = $this->wizardLicense();
 				break;
@@ -109,7 +114,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oFO = $this->getModCon();
 		$oConn = $this->getPluginCon();
 
-		$aStepsSlugs = array( 'welcome' );
+		$aStepsSlugs = array(
+			'welcome',
+			'ip_detect'
+		);
 //		if ( !$oFO->isPremium() ) {
 //			$aStepsSlugs[] = 'license'; not showing it for now
 //		}
@@ -169,6 +177,13 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $sCurrentWiz == 'welcome' ) {
 
 			switch ( $sStep ) {
+				case 'ip_detect':
+					$aAdditional = array(
+						'hrefs' => array(
+							'visitor_ip' => 'http://icwp.io/visitorip',
+						)
+					);
+					break;
 				case 'license':
 					break;
 				case 'import':
@@ -250,6 +265,43 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		return $aAdditional;
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardIpDetect() {
+		$oIps = $this->loadIpService();
+		$sIp = $this->loadDP()->post( 'ip' );
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		$oResponse->setSuccessful( false );
+		if ( empty( $sIp ) ) {
+			$sMessage = 'IP address was empty.';
+		}
+		else if ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
+			$sMessage = 'The IP address supplied was not a valid public IP address.';
+		}
+//		else if ( $oIps->getIpVersion( $sIp ) != 4 ) {
+//			$sMessage = 'The IP address supplied was not a valid IP address.';
+//		}
+		else {
+			$sSource = $oIps->determineSourceFromIp( $sIp );
+			if ( empty( $sSource ) ) {
+				$sMessage = 'Strange, the address source could not be found from this IP.';
+			}
+			else {
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
+				$oModule = $this->getPluginCon()->getModule( 'plugin' );
+				$oModule->setVisitorAddressSource( $sSource )
+						->savePluginOptions();
+				$oResponse->setSuccessful( true );
+				$sMessage = _wpsf__( 'Success!' ).' '
+							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
+			}
+		}
+
+		return $oResponse->setMessageText( $sMessage );
 	}
 
 	/**

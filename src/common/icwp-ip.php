@@ -9,14 +9,17 @@ if ( class_exists( 'ICWP_WPSF_Ip', false ) ) {
 class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 	const IpifyEndpoint = 'https://api.ipify.org';
+
 	/**
 	 * @var string
 	 */
 	private $sIp;
+
 	/**
 	 * @var string
 	 */
 	private $sMyIp;
+
 	/**
 	 * @var ICWP_WPSF_Ip
 	 */
@@ -245,6 +248,35 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sVisitorIp
+	 * @return string
+	 */
+	public function determineSourceFromIp( $sVisitorIp ) {
+		$oDp = $this->loadDP();
+
+		$sBestSource = null;
+		foreach ( $this->getIpSourceOptions() as $sSource ) {
+
+			$sIpToTest = $oDp->FetchServer( $sSource );
+			if ( empty( $sIpToTest ) ) {
+				continue;
+			}
+
+			// sometimes a comma-separated list is returned
+			$aIpAddresses = array_map( 'trim', explode( ',', $sIpToTest ) );
+			foreach ( $aIpAddresses as $sIp ) {
+
+				if ( $sVisitorIp == $sIp ) {
+					$sBestSource = $sSource;
+					break( 2 );
+				}
+			}
+		}
+
+		return $sBestSource;
+	}
+
+	/**
 	 * @return string|false
 	 */
 	public function discoverViableRequestIpSource() {
@@ -261,22 +293,10 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 		$sMyIp = $bRemoteVerify ? $this->whatIsMyIp() : null;
 
-		$aAddressSourceOptions = array(
-			'REMOTE_ADDR',
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_REAL_IP',
-			'HTTP_X_SUCURI_CLIENTIP',
-			'HTTP_INCAP_CLIENT_IP',
-			'HTTP_FORWARDED',
-			'HTTP_CLIENT_IP'
-		);
-
 		$sIpToReturn = false;
 		$sSource = false;
-		$oDp = $this->loadDataProcessor();
-		foreach ( $aAddressSourceOptions as $sSource ) {
+		$oDp = $this->loadDP();
+		foreach ( $this->getIpSourceOptions() as $sSource ) {
 
 			$sIpToTest = $oDp->FetchServer( $sSource );
 			if ( empty( $sIpToTest ) ) {
@@ -297,6 +317,23 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		return array(
 			'source' => $sSource,
 			'ip'     => $sIpToReturn
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getIpSourceOptions() {
+		return array(
+			'REMOTE_ADDR',
+			'HTTP_CF_CONNECTING_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_REAL_IP',
+			'HTTP_X_SUCURI_CLIENTIP',
+			'HTTP_INCAP_CLIENT_IP',
+			'HTTP_FORWARDED',
+			'HTTP_CLIENT_IP'
 		);
 	}
 

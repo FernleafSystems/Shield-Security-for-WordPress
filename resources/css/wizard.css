@@ -47,10 +47,13 @@ body.wait {
 .wizard p {
 	margin-bottom: 20px;
 }
+.wizard .body ol,
 .wizard .body ul {
-	list-style: square inside none;
 	margin-bottom: 20px;
 	padding-left: 20px;
+}
+.wizard .body ul {
+	list-style: square inside none;
 }
 .wizard p.wizard-response {
 	padding: 10px 15px;
