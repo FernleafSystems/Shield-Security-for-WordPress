@@ -313,6 +313,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
 					'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
 					'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
+				),
+				'flags'   => array(
+					'is_premium' => $oFO->isPremium(),
 				)
 			)
 		);
