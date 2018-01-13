@@ -1371,7 +1371,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-'.$this->getFeatureSlug().'.php', array() );
+		return $this->renderTemplate( 'snippets/module-help-template.php', array( 'slug' => $this->getFeatureSlug() ) );
 	}
 
 	/**
