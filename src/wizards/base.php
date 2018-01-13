@@ -194,7 +194,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function renderWizard() {
 		return $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
-					->setTemplate( 'pages/wizard.twig' )
+					->setTemplate( 'wizard/pages/wizard.twig' )
 					->setRenderVars( $this->getRenderData_PageWizard() )
 					->setTemplateEngineTwig()
 					->render();
@@ -236,7 +236,8 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'mod_wizards'       => $aWizards
 				),
 				'hrefs'   => array(
-					'dashboard' => $oFO->getUrl_AdminPage(),
+					'dashboard'   => $oFO->getUrl_AdminPage(),
+					'goprofooter' => 'http://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
 					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
@@ -297,7 +298,8 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				),
 				'hrefs'   => array(
-					'dashboard' => $oFO->getUrl_AdminPage(),
+					'dashboard'   => $oFO->getUrl_AdminPage(),
+					'goprofooter' => 'http://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
 					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),

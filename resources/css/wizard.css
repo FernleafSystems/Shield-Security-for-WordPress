@@ -91,3 +91,29 @@ body.wait {
 	display: block;
 	margin: 5px auto 20px;
 }
+
+#FooterWizardBanner {
+	position: fixed;
+	bottom: 0;
+	height: 100px;
+	width: 100%;
+}
+#WizardTop {
+	height: 40px;
+	background-color: #fafafa;
+	background: linear-gradient(to top, rgba(250,250,250,0.95), rgba(250,250,250,0.7));
+}
+#WizardBanner {
+	height: 100px;
+	background-color: #eaffea;
+	border-top: 1px solid #bbbbbb;
+	padding-top: 10px;
+	text-align: center;
+	word-break: keep-all;
+	white-space: nowrap;
+}
+#WizardBanner p {
+	margin: 0;
+	line-height: 20px;
+	text-align: left;
+}

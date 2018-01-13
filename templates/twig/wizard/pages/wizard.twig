@@ -1,4 +1,4 @@
-{% extends 'pages/base.twig' %}
+{% extends 'wizard/pages/base.twig' %}
 
 {% block head_stylesheets %}
 	{{ parent() }}
@@ -23,7 +23,7 @@
 	</div>
 {% endblock %}
 
-{% block body_footer %}
+{% block body_footer_scripts %}
 	<script type="text/javascript">
 
 		jQuery( document ).ready( function ( $ ) {
