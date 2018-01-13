@@ -219,23 +219,21 @@
 				name="submit"><?php _wpsf_e( 'Save All Settings' ); ?></button>
 	</div>
 </form>
-</div>
-
-
 <div class="pull-right well">
-<h5 style="margin-bottom: 10px;">Options Legend</h5>
-<label class="forcheckbox">
-	<span class="switch">
-		<input type="checkbox" name="legend" id="legend" value="Y" checked="checked" disabled="disabled">
-		<span class="slider round"></span>
-	</span>
-	<span class="summary">Option is turned on / enabled</span>
-</label>
-<label class="forcheckbox">
-	<span class="switch">
-		<input type="checkbox" name="legend" id="legend" value="Y" disabled="disabled">
-		<span class="slider round"></span>
-	</span>
-	<span class="summary">Option is turned off / disabled</span>
-</label>
+	<h5 style="margin-bottom: 10px;">Options Legend</h5>
+	<label class="forcheckbox">
+		<span class="switch">
+			<input type="checkbox" name="legend" id="legend" value="Y" checked="checked" disabled="disabled">
+			<span class="slider round"></span>
+		</span>
+		<span class="summary">Option is turned on / enabled</span>
+	</label>
+	<label class="forcheckbox">
+		<span class="switch">
+			<input type="checkbox" name="legend" id="legend" value="Y" disabled="disabled">
+			<span class="slider round"></span>
+		</span>
+		<span class="summary">Option is turned off / disabled</span>
+	</label>
+</div>
 </div>
