@@ -392,7 +392,7 @@
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":       {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Start: Multi-Factor Authentication"
           },
           "authemail":   {
@@ -405,7 +405,7 @@
             "title": "Select Multifactor Auth"
           },
           "finished":    {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Finished: Multi-Factor Authentication"
           }
         }

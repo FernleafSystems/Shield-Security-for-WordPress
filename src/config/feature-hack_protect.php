@@ -250,7 +250,7 @@
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Start: Unrecognised File Scanner"
           },
           "exclusions": {
@@ -263,7 +263,7 @@
             "title": "Setup Scan Automation"
           },
           "finished":   {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Finished: Unrecognised File Scanner"
           }
         }
@@ -274,7 +274,7 @@
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Start: WordPress Core File Scanner"
           },
           "scanresult": {
@@ -284,7 +284,7 @@
             "title": "Setup Scan Automation"
           },
           "finished":   {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Finished: WordPress Core File Scanner"
           }
         }

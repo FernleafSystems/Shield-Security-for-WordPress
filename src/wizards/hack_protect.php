@@ -324,6 +324,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
+		if ( empty( $aAdditional ) ) {
+			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+		}
 		return $aAdditional;
 	}
 

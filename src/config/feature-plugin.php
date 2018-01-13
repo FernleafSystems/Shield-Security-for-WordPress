@@ -464,7 +464,7 @@
         "min_user_permissions": "manage_options",
         "steps":                {
           "welcome":                  {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Welcome"
           },
           "ip_detect":                {
@@ -498,7 +498,7 @@
             "title": "Join Us!"
           },
           "thankyou":                 {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Thank You!"
           }
         }
@@ -510,14 +510,14 @@
         "has_premium": true,
         "steps":                {
           "start":    {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Start: Options Import"
           },
           "import":   {
             "title": "Run Options Import"
           },
           "finished": {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Finished: Options Import"
           }
         }

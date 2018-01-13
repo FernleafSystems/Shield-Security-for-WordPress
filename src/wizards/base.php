@@ -41,8 +41,11 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 		try {
 			$this->setCurrentWizard( $oDP->post( 'wizard_slug' ) );
-			if ( $this->getCurrentUserCan() ) {
-				$aNextStep = $this->getNextStep( $oDP->post( 'wizard_steps' ), $oDP->post( 'current_index' ) );
+			if ( $this->getUserCan() ) {
+				$aNextStep = $this->buildNextStep(
+					$oDP->post( 'wizard_steps' ),
+					(int)$oDP->post( 'current_index' )
+				);
 				$this->getModCon()
 					 ->sendAjaxResponse(
 						 true,
@@ -64,7 +67,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			$this->setCurrentWizard( $sWizard );
 
 			$sDieMessage = 'Not Permitted';
-			if ( $this->getCurrentUserCan() ) {
+			if ( $this->getUserCan() ) {
 				if ( $this->verifyNonce() ) {
 					$this->loadWizard();
 				}
@@ -129,14 +132,19 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sPerm
 	 * @return bool
 	 */
-	protected function getCurrentUserCan( $sPerm = null ) {
-		if ( empty( $sPerm ) ) {
-			$sPerm = $this->getWizardProperty( 'min_user_permissions' );
-		}
+	protected function getUserCan( $sPerm = null ) {
 		if ( empty( $sPerm ) ) {
 			$sPerm = 'manage_options';
 		}
 		return $sPerm == 'none' || current_user_can( $sPerm );
+	}
+
+	/**
+	 * @param string $sSlide
+	 * @return bool
+	 */
+	protected function getUserCanSlide( $sSlide ) {
+		return $this->getUserCan();
 	}
 
 	/**
@@ -208,7 +216,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$oFO = $this->getModCon();
 		$aWizards = $oFO->getWizardDefinitions();
 		foreach ( $aWizards as $sKey => &$aWizard ) {
-			$aWizard[ 'has_perm' ] = $this->getCurrentUserCan( $aWizard[ 'min_user_permissions' ] );
+			$aWizard[ 'has_perm' ] = $this->getUserCan( $aWizard[ 'min_user_permissions' ] );
 			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
 			$aWizard[ 'has_premium' ] = isset( $aWizard[ 'has_premium' ] ) && $aWizard[ 'has_premium' ];
 		}
@@ -321,7 +329,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	protected function buildSteps() {
-		return $this->getCurrentUserCan() ? $this->determineWizardSteps() : array( 'no_access' );
+		return $this->getUserCan() ? $this->determineWizardSteps() : array( 'no_access' );
 	}
 
 	/**
@@ -335,44 +343,39 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getWizardFirstStep() {
-		return $this->getNextStep( $this->buildSteps(), -1 );
+		return $this->buildNextStep( $this->buildSteps(), -1 );
+	}
+
+	protected function getNextStepDefinition( $aStepsInThisInstance, $nCurrentStep ) {
 	}
 
 	/**
 	 * @param array $aStepsInThisInstance
-	 * @param int   $nCurrentStep
+	 * @param int   $nCurrentPos
 	 * @return array
 	 */
-	protected function getNextStep( $aStepsInThisInstance, $nCurrentStep ) {
+	protected function buildNextStep( $aStepsInThisInstance, $nCurrentPos ) {
+		$aNextStepDef = $this->getNextStep( $aStepsInThisInstance, $nCurrentPos );
 
-		// The assumption here is that the step data exists!
-		$sNextStepKey = $aStepsInThisInstance[ $nCurrentStep + 1 ];
-		$aStepData = $this->getStepsDefinition()[ $sNextStepKey ];
-
-		$bRestrictedAccess = !isset( $aStepData[ 'restricted_access' ] ) || $aStepData[ 'restricted_access' ];
 		try {
-			if ( !$bRestrictedAccess || $this->getCurrentUserCan() ) {
-				$aData = $this->getRenderData_Slide( $aStepData[ 'slug' ] );
-				$aStepData[ 'content' ] = $this->renderWizardStep( $aStepData[ 'slug' ], $aData );
-			}
-			else {
-				$aStepData[ 'content' ] = $this->renderSecurityAdminVerifyWizardStep( $nCurrentStep );
-			}
+			$aNextStepDef[ 'content' ] = $this->renderWizardStep( $aNextStepDef[ 'slug' ] );
 		}
 		catch ( Exception $oE ) {
-			$aStepData[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
+			$aNextStepDef[ 'content' ] = 'Content could not be displayed due to error: '.$oE->getMessage();
 		}
 
-		return $aStepData;
+		return $aNextStepDef;
 	}
 
 	/**
-	 * @param int $nIndex
-	 * @return string
-	 * @throws Exception
+	 * @param array $aStepsInThisInstance
+	 * @param int   $nCurrentPos
+	 * @return array
 	 */
-	protected function renderSecurityAdminVerifyWizardStep( $nIndex ) {
-		return $this->renderWizardStep( 'common/admin_access_restriction_verify', array( 'current_index' => $nIndex ) );
+	protected function getNextStep( $aStepsInThisInstance, $nCurrentPos ) {
+		// The assumption here is that the step data exists!
+		$sNextStepKey = $aStepsInThisInstance[ $nCurrentPos + 1 ];
+		return $this->getStepsDefinition()[ $sNextStepKey ];
 	}
 
 	/**
@@ -413,28 +416,36 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sStep
 	 * @return array
 	 */
-	abstract protected function getRenderData_SlideExtra( $sStep );
+	protected function getRenderData_SlideExtra( $sStep ) {
+		return array();
+	}
 
 	/**
 	 * @param string $sSlug
-	 * @param array  $aRenderData
 	 * @return string
 	 * @throws Exception
 	 */
-	protected function renderWizardStep( $sSlug, $aRenderData = array() ) {
-		if ( strpos( $sSlug, '/' ) === false ) {
-			// first trim the prefixed wizard slug, e.g. ufc_
-			$sCurrentWizard = $this->getWizardSlug();
-			$sSlug = preg_replace( sprintf( '#^%s_#', $sCurrentWizard ), '', $sSlug );
+	protected function renderWizardStep( $sSlug ) {
 
-			$sBase = ( $sSlug == 'no_access' ) ? 'common' : $sCurrentWizard;
-			$sSlug = sprintf( '%s/%s', $sBase, $sSlug );
+		$sTemplateSlug = $sSlug;
+		if ( strpos( $sSlug, '/' ) === false ) {
+			$sBase = $this->isSlideCommon( $sSlug ) ? 'common' : $this->getWizardSlug();
+			$sTemplateSlug = sprintf( '%s/%s', $sBase, $sSlug );
 		}
+
 		return $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
-					->setTemplate( sprintf( 'wizard/slides/%s.twig', $sSlug ) )
-					->setRenderVars( $aRenderData )
+					->setTemplate( sprintf( 'wizard/slides/%s.twig', $sTemplateSlug ) )
+					->setRenderVars( $this->getRenderData_Slide( $sSlug ) )
 					->setTemplateEngineTwig()
 					->render();
+	}
+
+	/**
+	 * @param string $sSlideSlug
+	 * @return bool
+	 */
+	protected function isSlideCommon( $sSlideSlug ) {
+		return in_array( $sSlideSlug, [ 'no_access' ] );
 	}
 
 	/**
@@ -447,11 +458,10 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array[]
 	 */
-	private function getStepsDefinition() {
+	protected function getStepsDefinition() {
 		$aNoAccess = array(
 			'no_access' => array(
-				'title'             => _wpsf__( 'No Access' ),
-				'restricted_access' => false
+				'title' => _wpsf__( 'No Access' ),
 			)
 		);
 		$aSteps = array_merge( $this->getAllDefinedSteps(), $aNoAccess );
