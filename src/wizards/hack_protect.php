@@ -278,7 +278,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 						'files' => array(
 							'count' => count( $aFiles ),
 							'has'   => !empty( $aFiles ),
-							'list'  => implode( "\n", $aFiles ),
+							'list'  => implode( "\n", array_map( 'stripslashes', $aFiles ) ),
 						)
 					);
 					break;

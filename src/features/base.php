@@ -928,7 +928,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				}
 
 				$aOptParams[ 'rows' ] = count( $mCurrentVal ) + 2;
-				$mCurrentVal = implode( "\n", $mCurrentVal );
+				$mCurrentVal = stripslashes( implode( "\n", $mCurrentVal ) );
 
 				break;
 

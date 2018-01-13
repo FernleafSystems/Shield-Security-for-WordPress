@@ -148,7 +148,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			$sExclusion = $oFS->normalizeFilePathDS( $sExclusion );
 
 			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
-				$bExcluded = @preg_match( $sExclusion, $sFilePath );
+				$bExcluded = @preg_match( stripslashes( $sExclusion ), $sFilePath );
 			}
 			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$bExcluded = ( $sFileName == $sExclusion );

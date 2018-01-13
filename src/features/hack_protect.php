@@ -61,7 +61,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
 			$sExclusion = $oFS->normalizeFilePathDS( trim( $sExclusion ) );
 
-			if ( strpos( $sExclusion, '/' ) === false ) { // filename only
+			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
+				// ignore it
+			}
+			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$sExclusion = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
@@ -70,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		return $this->setOpt( 'ufc_exclusions', $aExclusions );
+		return $this->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
 	}
 
 	/**
