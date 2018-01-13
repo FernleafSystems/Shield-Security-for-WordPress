@@ -253,6 +253,9 @@
             "restricted_access": false,
             "title":             "Start: Unrecognised File Scanner"
           },
+          "exclusions": {
+            "title": "Exclude Files"
+          },
           "scanresult": {
             "title": "Scan Results"
           },
@@ -273,9 +276,6 @@
           "start":      {
             "restricted_access": false,
             "title":             "Start: WordPress Core File Scanner"
-          },
-          "exclusions": {
-            "title": "Exclude Files"
           },
           "scanresult": {
             "title": "Scan Results"
