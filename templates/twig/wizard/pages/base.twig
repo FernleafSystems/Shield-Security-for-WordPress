@@ -1,0 +1,19 @@
+{% extends 'pages/base.twig' %}
+
+{% block body_footer %}
+	{% if not flags.is_premium %}
+		<div id="FooterWizardBanner" class="container-fluid">
+			<div class="row"><div id="WizardTop" class="span12"></div></div>
+
+			<div id="WizardBanner" class="row">
+				<div class="col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-3 col-sm-7 col-sm-offset-1 col-xs-9">
+					<p>Support future development and get extra Shield features:
+					   <br />Vulnerability Scanner; Options Import; Email Support+more.</p>
+				</div>
+				<div class="col-lg-1 col-md-2 col-sm-2 col-xs-1">
+					<a href="{{ hrefs.goprofooter }}" target="_blank" class="btn btn-default">Go Pro Today &rarr;</a>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

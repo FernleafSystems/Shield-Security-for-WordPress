@@ -928,7 +928,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				}
 
 				$aOptParams[ 'rows' ] = count( $mCurrentVal ) + 2;
-				$mCurrentVal = implode( "\n", $mCurrentVal );
+				$mCurrentVal = stripslashes( implode( "\n", $mCurrentVal ) );
 
 				break;
 
@@ -1371,7 +1371,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-'.$this->getFeatureSlug().'.php', array() );
+		return $this->renderTemplate( 'snippets/module-help-template.php', array( 'slug' => $this->getFeatureSlug() ) );
 	}
 
 	/**
@@ -1382,6 +1382,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @uses nonce
 	 * @param string $sWizardSlug
 	 * @return string
 	 */
@@ -1390,9 +1391,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			array(
 				'page'          => $this->prefix( $this->getFeatureSlug() ),
 				'shield_action' => 'wizard',
-				'wizard'        => $sWizardSlug
+				'wizard'        => $sWizardSlug,
+				'nonwizard'     => wp_create_nonce( 'wizard'.$sWizardSlug )
 			),
-			$this->getUrl_AdminPage()
+			$this->loadWp()->getHomeUrl()
 		);
 	}
 

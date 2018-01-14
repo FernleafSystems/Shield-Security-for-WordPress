@@ -47,10 +47,13 @@ body.wait {
 .wizard p {
 	margin-bottom: 20px;
 }
+.wizard .body ol,
 .wizard .body ul {
-	list-style: square inside none;
 	margin-bottom: 20px;
 	padding-left: 20px;
+}
+.wizard .body ul {
+	list-style: square inside none;
 }
 .wizard p.wizard-response {
 	padding: 10px 15px;
@@ -87,4 +90,30 @@ body.wait {
 	width: 128px;
 	display: block;
 	margin: 5px auto 20px;
+}
+
+#FooterWizardBanner {
+	position: fixed;
+	bottom: 0;
+	height: 100px;
+	width: 100%;
+}
+#WizardTop {
+	height: 40px;
+	background-color: #fafafa;
+	background: linear-gradient(to top, rgba(250,250,250,0.95), rgba(250,250,250,0.7));
+}
+#WizardBanner {
+	height: 100px;
+	background-color: #eaffea;
+	border-top: 1px solid #bbbbbb;
+	padding-top: 10px;
+	text-align: center;
+	word-break: keep-all;
+	white-space: nowrap;
+}
+#WizardBanner p {
+	margin: 0;
+	line-height: 20px;
+	text-align: left;
 }

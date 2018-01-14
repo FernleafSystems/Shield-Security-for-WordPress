@@ -250,29 +250,8 @@
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
-            "restricted_access": false,
+            "security_admin": false,
             "title":             "Start: Unrecognised File Scanner"
-          },
-          "scanresult": {
-            "title": "Scan Results"
-          },
-          "config":     {
-            "title": "Setup Scan Automation"
-          },
-          "finished":   {
-            "restricted_access": false,
-            "title":             "Finished: Unrecognised File Scanner"
-          }
-        }
-      },
-      "wcf": {
-        "title": "Manually Run WordPress Core File Scanner",
-        "desc": "Walks you through the scanning for unintended changes to your official WordPress core files.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "start":      {
-            "restricted_access": false,
-            "title":             "Start: WordPress Core File Scanner"
           },
           "exclusions": {
             "title": "Exclude Files"
@@ -284,7 +263,28 @@
             "title": "Setup Scan Automation"
           },
           "finished":   {
-            "restricted_access": false,
+            "security_admin": false,
+            "title":             "Finished: Unrecognised File Scanner"
+          }
+        }
+      },
+      "wcf": {
+        "title": "Manually Run WordPress Core File Scanner",
+        "desc": "Walks you through the scanning for unintended changes to your official WordPress core files.",
+        "min_user_permissions": "manage_options",
+        "steps":                {
+          "start":      {
+            "security_admin": false,
+            "title":             "Start: WordPress Core File Scanner"
+          },
+          "scanresult": {
+            "title": "Scan Results"
+          },
+          "config":     {
+            "title": "Setup Scan Automation"
+          },
+          "finished":   {
+            "security_admin": false,
             "title":             "Finished: WordPress Core File Scanner"
           }
         }

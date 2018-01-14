@@ -66,6 +66,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 
+		$oResponse = new \FernleafSystems\Utilities\Response();
 		if ( $this->loadDP()->post( 'DeleteFiles' ) === 'Y' ) {
 			// First get the current setting and if necessary, modify it and then reset it.
 			$sDesiredOption = 'enabled_delete_only';
@@ -81,15 +82,15 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oFO->setUfcOption( $sCurrentOption )
 				->savePluginOptions();
 
-			$sMessage = 'The scanner will have deleted these files if your filesystem permissions allowed it.';
+			$oResponse->setSuccessful( true );
+			$sMessage = 'If your filesystem permissions allowed it, the scanner will have deleted these files.';
 		}
 		else {
-			$sMessage = 'No attempt was made to delete the files since the checkbox was not checked.';
+			$oResponse->setSuccessful( false );
+			$sMessage = 'No attempt was made to delete any files since the checkbox was not checked.';
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
-						 ->setMessageText( $sMessage );
+		return $oResponse->setMessageText( $sMessage );
 	}
 
 	/**
@@ -278,7 +279,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 						'files' => array(
 							'count' => count( $aFiles ),
 							'has'   => !empty( $aFiles ),
-							'list'  => implode( "\n", $aFiles ),
+							'list'  => implode( "\n", array_map( 'stripslashes', $aFiles ) ),
 						)
 					);
 					break;
@@ -324,6 +325,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
+		if ( empty( $aAdditional ) ) {
+			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+		}
 		return $aAdditional;
 	}
 

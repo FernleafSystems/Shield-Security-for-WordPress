@@ -121,7 +121,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function setVisitorIp() {
 		$sIp = null;
 		$oIpService = $this->loadIpService();
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
@@ -140,8 +140,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sSource = $oIpService->setServerIpAddress( $this->getMyServerIp() )
 								  ->discoverViableRequestIpSource();
 			if ( !empty( $sSource ) ) {
-				$oIpService->setRequestIpAddress( $this->loadDataProcessor()->FetchServer( $sSource ) );
-				$this->setOpt( 'visitor_address_source', $sSource );
+				$oIpService->setRequestIpAddress( $oDp->FetchServer( $sSource ) );
+				$this->setVisitorAddressSource( $sSource );
 			}
 		}
 	}
@@ -151,6 +151,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getVisitorAddressSource() {
 		return $this->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @param string $sSource
+	 * @return $this
+	 */
+	public function setVisitorAddressSource( $sSource ) {
+		return $this->setOpt( 'visitor_address_source', $sSource );
 	}
 
 	/**

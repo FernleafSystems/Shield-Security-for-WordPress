@@ -259,6 +259,9 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				break;
 		}
 
+		if ( empty( $aAdditional ) ) {
+			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
+		}
 		return $aAdditional;
 	}
 }
