@@ -1182,8 +1182,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Should be over-ridden by each new class to handle upgrades.
-	 * Called upon construction and after plugin options are initialized.
 	 */
 	protected function runWizards() {
 		if ( $this->getCanRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
@@ -1334,6 +1332,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_standard_options' => true,
 				'show_content_actions'  => $this->hasCustomActions(),
 				'show_alt_content'      => false,
+				'can_wizard'            => $this->getCanRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'      => array(

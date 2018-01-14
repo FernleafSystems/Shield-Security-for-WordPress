@@ -12,7 +12,8 @@
 		   because you're running your website on old, outdated, non-maintained software. And if you're PHP
 		   is this far out-of-date, you gotta wonder what else on your webhost needs some important upgrades.
 		</p>
-		<p>Website security is covered in many areas, and your webhost/server is a critical one of these.</p>
+		<p>Website security covers many areas, and running your webhost/server on up-to-date software is
+		   a critical one of these areas.</p>
 		<p>Note: As Shield Security is further developed, more and more features will require higher versions of PHP.</p>
 	</div>
 <?php endif; ?>

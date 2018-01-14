@@ -9,6 +9,6 @@
 	} );
 	jQuery( 'li#icwpWizardPill a' ).tooltip( {
 		placement: 'top',
-		trigger: 'hover'
+		trigger: 'hover focus'
 	} );
 </script>
