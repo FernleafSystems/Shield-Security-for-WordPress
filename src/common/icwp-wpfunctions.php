@@ -777,10 +777,10 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getTimeFormat( $bIncludeSeconds = false ) {
+	public function getTimeFormat() {
 		$sFormat = $this->getOption( 'time_format' );
 		if ( empty( $sFormat ) ) {
-			$sFormat = 'H:i:s';
+			$sFormat = 'H:i';
 		}
 		return $sFormat;
 	}
