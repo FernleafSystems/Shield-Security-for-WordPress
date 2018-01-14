@@ -92,7 +92,8 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 				'edd_action' => $sAction,
 				'license'    => $sKey,
 				'item_id'    => $sItemId,
-				'url'        => $this->loadWp()->getWpUrl()
+				'url'        => $this->loadWp()->getWpUrl(),
+				'home_url'   => $this->loadWp()->getHomeUrl()
 			)
 		);
 

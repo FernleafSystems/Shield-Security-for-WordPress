@@ -284,7 +284,10 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				'plugin_banner'    => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
-			'ajax'    => array()
+			'ajax'    => array(),
+			'flags'   => array(
+				'is_premium' => $this->getModCon()->isPremium(),
+			)
 		);
 	}
 
@@ -313,9 +316,6 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
 					'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
 					'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
-				),
-				'flags'   => array(
-					'is_premium' => $oFO->isPremium(),
 				)
 			)
 		);
