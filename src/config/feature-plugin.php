@@ -20,7 +20,7 @@
     },
     "plugin-update-available":    {
       "id":          "plugin-update-available",
-      "schedule":    "version",
+      "schedule":    "conditions",
       "valid_admin": true,
       "type":        "warning"
     },

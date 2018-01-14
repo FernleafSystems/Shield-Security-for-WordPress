@@ -85,27 +85,18 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected function getIfDisplayAdminNotice( $aAttrs ) {
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
-		if ( empty( $aAttrs[ 'schedule' ] ) || !in_array( $aAttrs[ 'schedule' ], array(
-				'once',
-				'conditions',
-				'version'
-			) ) ) {
-			$aAttrs[ 'schedule' ] = 'conditions';
-		}
-
 		if ( $aAttrs[ 'schedule' ] == 'never' ) {
 			return false;
 		}
 
-		if ( $aAttrs[ 'schedule' ] == 'once'
-			 && ( !$this->loadWpUsers()->getCanAddUpdateCurrentUserMeta()
-				  || $oWpNotices->getAdminNoticeIsDismissed( $aAttrs[ 'id' ] ) )
-		) {
-			return false;
+		if ( empty( $aAttrs[ 'schedule' ] )
+			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version' ) ) ) {
+			$aAttrs[ 'schedule' ] = 'conditions';
 		}
 
-		if ( $aAttrs[ 'schedule' ] == 'version'
-			 && ( $this->getFeature()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aAttrs[ 'id' ] ) ) ) {
+		if ( $aAttrs[ 'schedule' ] == 'once'
+			 && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) )
+		) {
 			return false;
 		}
 

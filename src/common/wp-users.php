@@ -67,7 +67,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getCanAddUpdateCurrentUserMeta() {
+	public function canSaveMeta() {
 		$bCanMeta = false;
 		try {
 			if ( $this->isUserLoggedIn() ) {

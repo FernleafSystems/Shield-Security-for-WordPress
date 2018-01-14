@@ -137,13 +137,14 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @throws Exception
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
-		$oFO = $this->getFeature();
-		$oWpUsers = $this->loadWpUsers();
+		$oPlugin = $this->getController();
+		$oNotices = $this->loadAdminNoticesProcessor();
 
-		$sAdminNoticeMetaKey = $oFO->prefix( 'plugin-update-available' );
-		if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
-			$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
-			return;
+		if ( $oNotices->isDismissed( 'plugin-update-available' ) ) {
+			$aMeta = $oNotices->getMeta( 'plugin-update-available' );
+			if ( $aMeta['time'] > $oPlugin->getReleaseTimestamp() ) {
+				return;
+			}
 		}
 
 		if ( !$this->getIfShowAdminNotices() ) {
@@ -152,7 +153,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$oWp = $this->loadWp();
 		$oWpPlugins = $this->loadWpPlugins();
-		$sBaseFile = $this->getController()->getPluginBaseFile();
+		$sBaseFile = $oPlugin->getPluginBaseFile();
 		if ( !$oWp->getIsPage_Updates() && $oWpPlugins->isUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
