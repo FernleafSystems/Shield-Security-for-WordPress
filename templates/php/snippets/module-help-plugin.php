@@ -15,7 +15,7 @@
 		<p>Basically you select the IP address from the list that represents your own, personal
 		   public IP address.
 		</p>
-		<p>Don't know your IP address? Go to Google and search: "What is my IP address"
+		<p>Don't know your IP address? Go here:
 			(<a href="http://icwp.io/an" target="_blank">We've done it for you</a> ;)
 		</p>
 		<p>With this result, you should be able to select the correct item from the list. The higher up the
