@@ -18,12 +18,6 @@
       "valid_admin": true,
       "type":        "error"
     },
-    "php54_version_warning":      {
-      "id":          "php54_version_warning",
-      "schedule":    "once",
-      "valid_admin": true,
-      "type":        "warning"
-    },
     "plugin-update-available":    {
       "id":          "plugin-update-available",
       "schedule":    "version",

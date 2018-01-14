@@ -102,6 +102,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * removed
 	 * @see autoAddToAdminNotices()
 	 * @param array $aAttr
 	 * @throws Exception
