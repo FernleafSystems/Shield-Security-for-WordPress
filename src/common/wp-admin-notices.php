@@ -97,7 +97,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 */
 	protected function checkAjaxNonce() {
 
-		$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+		$sNonce = $this->loadDP()->FetchRequest( '_ajax_nonce', '' );
 		if ( empty( $sNonce ) ) {
 			$sMessage = 'Nonce security checking failed - the nonce value was empty.';
 		}

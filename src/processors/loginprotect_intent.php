@@ -179,7 +179,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function isCurrentUserSubjectToLoginIntent() {
-		return apply_filters( $this->getFeature()->prefixOptionKey( 'user_subject_to_login_intent' ), false );
+		return apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false );
 	}
 
 	/**

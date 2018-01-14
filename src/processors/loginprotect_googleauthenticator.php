@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function run() {
 		parent::run();
-		if ( $this->loadDataProcessor()->FetchGet( 'wpsf-action' ) == 'garemovalconfirm' ) {
+		if ( $this->loadDP()->query( 'shield_action' ) == 'garemovalconfirm' ) {
 			add_action( 'init', array( $this, 'validateUserGaRemovalLink' ), 10 );
 		}
 	}
@@ -127,14 +127,14 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
-	 * @param WP_User $oSavingUser
+	 * @param WP_User $oUser
+	 * @return $this
 	 */
-	protected function processRemovalFromAccount( $oSavingUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$oWpUsers = $this->loadWpUsers();
-		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_validated' ), 'N', $oSavingUser->ID );
-		$oWpUsers->updateUserMeta( $oFO->prefixOptionKey( 'ga_secret' ), '', $oSavingUser->ID );
+	protected function processRemovalFromAccount( $oUser ) {
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta->ga_validated = 'N';
+		$oMeta->ga_secret = 'N';
+		return $this;
 	}
 
 	/**
@@ -368,7 +368,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function generateGaRemovalConfirmationLink() {
 		$aQueryArgs = array(
-			'wpsf-action'	=> 'garemovalconfirm',
+			'shield_action'	=> 'garemovalconfirm',
 			'sessionid'		=> $this->getController()->getSessionId()
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWp()->getUrl_WpAdmin() );
