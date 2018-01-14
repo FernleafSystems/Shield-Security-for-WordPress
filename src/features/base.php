@@ -541,11 +541,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sDefinitionKey
+	 * Get config 'definition'.
+	 * @param string $sKey
 	 * @return mixed|null
 	 */
-	public function getDefinition( $sDefinitionKey ) {
-		return $this->getOptionsVo()->getFeatureDefinition( $sDefinitionKey );
+	public function getDef( $sKey ) {
+		return $this->getOptionsVo()->getFeatureDefinition( $sKey );
+	}
+
+	/**
+	 * @deprecated
+	 * @param string $sKey
+	 * @return mixed|null
+	 */
+	public function getDefinition( $sKey ) {
+		return $this->getDef( $sKey );
 	}
 
 	/**

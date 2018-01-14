@@ -6,11 +6,17 @@ if ( class_exists( 'ICWP_WPSF_WpUsers', false ) ) {
 class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 
 	/**
+	 * @var ICWP_UserMeta[]
+	 */
+	private $aMetas;
+
+	/**
 	 * @var ICWP_WPSF_WpUsers
 	 */
 	protected static $oInstance = null;
 
-	private function __construct() {}
+	private function __construct() {
+	}
 
 	/**
 	 * @return ICWP_WPSF_WpUsers
@@ -166,6 +172,37 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 */
 	public function isUserLoggedIn() {
 		return function_exists( 'is_user_logged_in' ) && is_user_logged_in();
+	}
+
+	/**
+	 * @param string  $sPrefix
+	 * @param WP_User $oUser
+	 * @return ICWP_UserMeta
+	 */
+	public function metaVoForUser( $sPrefix, $oUser = null ) {
+		if ( !class_exists( 'ICWP_UserMeta' ) ) {
+			$this->requireCommonLib( 'icwp-usermeta.php' );
+		}
+		if ( is_null( $oUser ) ) {
+			$oUser = $this->getCurrentWpUser();
+		}
+		$nId = ( $oUser instanceof WP_User ) ? $oUser->ID : 0;
+		$aMetas = $this->getMetas();
+		if ( !isset( $aMetas[ $nId ] ) ) {
+			$aMetas[ $nId ] = new ICWP_UserMeta( $sPrefix, $nId );
+			$this->aMetas = $aMetas;
+		}
+		return $this->aMetas[ $nId ];
+	}
+
+	/**
+	 * @return ICWP_UserMeta[]
+	 */
+	protected function getMetas() {
+		if ( empty( $this->aMetas ) ) {
+			$this->aMetas = array();
+		}
+		return $this->aMetas;
 	}
 
 	/**

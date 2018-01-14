@@ -169,9 +169,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) { }
 
 	/**
-	 * @param WP_User $oSavingUser
+	 * @param WP_User $oUser
 	 */
-	protected function processRemovalFromAccount( $oSavingUser ) { }
+	protected function processRemovalFromAccount( $oUser ) { }
 
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
