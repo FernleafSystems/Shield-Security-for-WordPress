@@ -4,11 +4,12 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
 }
 
 /**
- * @property $ga_secret
- * @property $ga_validated
- * @property $login_intent_expires_at
- * @property $prefix
- * @property $user_id
+ * @property        $ga_secret
+ * @property        $ga_validated
+ * @property int    $last_login_at
+ * @property int    $login_intent_expires_at
+ * @property string $prefix
+ * @property int    $user_id
  * Class ICWP_UserMeta
  */
 class ICWP_UserMeta extends ICWP_WPSF_Foundation {

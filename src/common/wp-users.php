@@ -175,24 +175,24 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string  $sPrefix
-	 * @param WP_User $oUser
+	 * @param string $sPrefix
+	 * @param int    $nUserId
 	 * @return ICWP_UserMeta
 	 */
-	public function metaVoForUser( $sPrefix, $oUser = null ) {
+	public function metaVoForUser( $sPrefix, $nUserId = null ) {
 		if ( !class_exists( 'ICWP_UserMeta' ) ) {
 			$this->requireCommonLib( 'icwp-usermeta.php' );
 		}
-		if ( is_null( $oUser ) ) {
-			$oUser = $this->getCurrentWpUser();
+		if ( is_null( $nUserId ) ) {
+			$nUserId = $this->getCurrentWpUserId();
 		}
-		$nId = ( $oUser instanceof WP_User ) ? $oUser->ID : 0;
+
 		$aMetas = $this->getMetas();
-		if ( !isset( $aMetas[ $nId ] ) ) {
-			$aMetas[ $nId ] = new ICWP_UserMeta( $sPrefix, $nId );
+		if ( !isset( $aMetas[ $nUserId ] ) ) {
+			$aMetas[ $nUserId ] = new ICWP_UserMeta( $sPrefix, $nUserId );
 			$this->aMetas = $aMetas;
 		}
-		return $this->aMetas[ $nId ];
+		return $this->aMetas[ $nUserId ];
 	}
 
 	/**

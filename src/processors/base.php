@@ -231,6 +231,16 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Will prefix and return any string with the unique plugin prefix.
+	 * @param string $sSuffix
+	 * @param string $sGlue
+	 * @return string
+	 */
+	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
+		return $this->getFeature()->prefix( $sSuffix, $sGlue );
+	}
+
+	/**
 	 * @return bool|int|string
 	 */
 	protected function ip() {

@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return $this
 	 */
 	protected function removeLoginIntent() {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->getFeature()->prefix() );
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix() );
 		unset( $oMeta->login_intent_expires_at );
 		return $this;
 	}
@@ -171,7 +171,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime, $oUser ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->getFeature()->prefix(), $oUser );
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
 		$oMeta->login_intent_expires_at = max( 0, (int)$nExpirationTime );
 		return $this;
 	}
@@ -187,14 +187,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return int
 	 */
 	protected function getLoginIntentExpiresAt() {
-		return (int)$this->loadWpUsers()->metaVoForUser( $this->getFeature()->prefix() )->login_intent_expires_at;
+		return (int)$this->loadWpUsers()->metaVoForUser( $this->prefix() )->login_intent_expires_at;
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function hasLoginIntent() {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->getFeature()->prefix() );
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix() );
 		return isset( $oMeta->login_intent_expires_at );
 	}
 
