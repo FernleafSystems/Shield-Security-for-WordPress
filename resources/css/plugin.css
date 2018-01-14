@@ -342,8 +342,9 @@ label input[type=checkbox] {
 	text-align: center;
 	width: 100%;
 	margin-top: 20px;
-	box-shadow: 3px 3px 6px 0 rgba(0, 0, 0, 0.3);
-	border-left: 1px solid #bbbbbb;
+	box-shadow: 1px 1px 2px 0 rgba(0, 0, 0, 0.2) inset;
+	border: 1px solid #ccc;
+	background: #f9f9f9;
 }
 .feature-summary-blocks .feature-icon:before {
 	-webkit-font-smoothing: antialiased;
