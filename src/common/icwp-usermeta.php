@@ -6,6 +6,7 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
 /**
  * @property        $ga_secret
  * @property        $ga_validated
+ * @property string $code_tfaemail
  * @property int    $last_login_at
  * @property int    $login_intent_expires_at
  * @property string $prefix

@@ -231,6 +231,13 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_UserMeta
+	 */
+	protected function getUserMeta() {
+		return $this->getFeature()->getUserMeta();
+	}
+
+	/**
 	 * Will prefix and return any string with the unique plugin prefix.
 	 * @param string $sSuffix
 	 * @param string $sGlue
