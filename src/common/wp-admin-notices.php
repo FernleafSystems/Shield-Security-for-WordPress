@@ -40,7 +40,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		add_action( 'network_admin_notices', array( $this, 'onWpAdminNotices' ) );
 		add_action( 'wp_loaded', array( $this, 'flushFlashMessage' ) );
 		if ( $this->loadWp()->isAjax() ) {
-			add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
+			add_action( 'wp_ajax_icwp_wpsf_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
 		}
 	}
 

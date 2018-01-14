@@ -18,7 +18,7 @@
 	function icwp_dismiss_notice() {
 		var $oContainer = jQuery( '#<?php echo $unique_render_id; ?>' );
 		var requestData = {
-			'action': 'icwp_DismissAdminNotice',
+			'action': 'icwp_wpsf_DismissAdminNotice',
 			'_ajax_nonce': '<?php echo $icwp_ajax_nonce; ?>',
 			'hide': '1',
 			'notice_id': '<?php echo $notice_attributes['notice_id']; ?>'
