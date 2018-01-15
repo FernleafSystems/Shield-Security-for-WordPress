@@ -338,8 +338,8 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.1.0 Latest Release - [Release Notes](http://icwp.io/ay) =
-*Released: 15th January, 2018*
+= 6.1.0 Latest Release =
+*Released: 15th January, 2018* - [Release Notes](http://icwp.io/ay)
 
 * **(v.0)**  ADDED:			3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.
 * **(v.0)**  ADDED:			You can now use regular expressions for file exclusions in the 'Unrecognised File Scanner'.
