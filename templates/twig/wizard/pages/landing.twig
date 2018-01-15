@@ -1,0 +1,36 @@
+{% extends 'wizard/pages/base.twig' %}
+
+{% block head_stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ hrefs.css_wizard }}" />
+{% endblock %}
+
+{% block head_scripts %}
+	{{ parent() }}
+{% endblock %}
+
+{% block body_content_main %}
+	<div class="row">
+		<div class="col-md-4 col-md-offset-4">
+			<p>This module comes with {{ data.mod_wizards_count }} Wizard(s).</p>
+			<p>Please click the link below of the Guided Wizard you'd like to launch.</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2"></div>
+		{% for wizard in data.mod_wizards %}
+			<div class="col-md-4">
+				<div class="wizard_slot">
+					<div><h3>{{ wizard.title }}</h3></div>
+					<div>
+						<p>{{ wizard.desc }}</p>
+						{% if wizard.has_premium %}
+							<p>{{ strings.premium_note }}</p>
+						{% endif %}
+					</div>
+					<div><a class="btn btn-info" href="{{ wizard.url }}">Launch Wizard</a></div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}

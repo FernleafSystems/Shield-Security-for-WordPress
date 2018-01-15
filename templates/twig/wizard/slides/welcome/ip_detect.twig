@@ -1,0 +1,40 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>IP Detection</h3>
+	<p>All websites and webhosts are configured differently. This makes certain things a bit tricky
+	   to automate.</p>
+	<p>An important example of this is detecting the correct IP address of a website visitor.</p>
+	<p>We try to do this automatically for you, of course, but sometimes a server configuration
+	   can be... unexpected.  So, to ensure we use the method that works best on your server,
+	   we're going to ask you to help us.</p>
+	<p>It's easy, and works by you telling us what your IP address is, so we can match it against all the possibilities
+	that your webhost server presents to us. When we find a match, we'll have found the best way to detect visitor IPs
+	for your particular web hosting.</p>
+	<p>It involves 2 simple steps. Here goes ...</p>
+
+	<h4>Steps To Find Best Source For Visitor IP Address</h4>
+	<h5>Step 1: Find <em>your</em> current IP address</h5>
+	<p><a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
+		to open up a new page that will tell you your current IP Address.</p>
+	<h5>Step 2: Tell us your IP address</h5>
+	<p>Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
+
+	<form class="form-horizontal icwp-wizard-form">
+		<input name="wizard-step" value="ip_detect" type="hidden" />
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="ip">My IP Address:</label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" maxlength="32" size="32"
+					   name="ip" id="ip" placeholder="123.456.789.012">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Submit: This Is My IP</button>
+			</div>
+		</div>
+	</form>
+
+{% endblock %}

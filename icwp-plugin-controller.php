@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017 iControlWP <support@icontrolwp.com>
+ * Copyright (c) 2018 iControlWP <support@icontrolwp.com>
  * All rights reserved.
  *
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
@@ -127,9 +127,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
-		add_action( 'plugins_loaded', array( $this, 'onWpPluginsLoaded' ), 0 ); // this hook then registers everything
+		$this->doRegisterHooks();
 		$this->loadWpTrack();
 		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
+		$this->doLoadTextDomain();
 	}
 
 	/**
@@ -138,7 +139,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
-		$sContents = $this->loadDataProcessor()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
+		$sContents = $this->loadDP()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
 			$aSpec = json_decode( $sContents, true );
 			if ( empty( $aSpec ) ) {
@@ -254,13 +255,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpActivatePlugin() {
 		do_action( $this->doPluginPrefix( 'plugin_activate' ) );
 		$this->loadAllFeatures( true, true );
-	}
-
-	/**
-	 */
-	public function onWpPluginsLoaded() {
-		$this->doLoadTextDomain();
-		$this->doRegisterHooks();
 	}
 
 	/**
@@ -986,19 +980,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function getUserCanBasePerms() {
-		return current_user_can( $this->getBasePermissions() );
-	}
-
-	/**
 	 * @param bool $bCheckUserPerms - do we check the logged-in user permissions
 	 * @return bool
 	 */
 	public function getIsValidAdminArea( $bCheckUserPerms = true ) {
 		if ( $bCheckUserPerms && $this->loadWpTrack()->getWpActionHasFired( 'init' )
-			 && !$this->getUserCanBasePerms() ) {
+			 && !$this->getMeetsBasePermissions() ) {
 			return false;
 		}
 
@@ -1205,7 +1192,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->loadCorePluginFeatureHandler()->getFeatureAdminPageUrl();
+		return $this->loadCorePluginFeatureHandler()->getUrl_AdminPage();
 	}
 
 	/**
@@ -1551,6 +1538,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				}
 			}
 		}
+
+		do_action( $this->doPluginPrefix( 'run_processors' ) );
+
 		return $bSuccess;
 	}
 

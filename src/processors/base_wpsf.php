@@ -22,6 +22,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
+		parent::init();
 		$oFO = $this->getFeature();
 		add_filter( $oFO->prefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );

@@ -1,0 +1,43 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+<h3>Security Administrator</h3>
+<p>Shield offers you the unique ability to lock down access to the <em>Shield Security plugin itself</em>.
+</p>
+<p>This is important because it means that only admins with security access key will be able to:
+	<ul>
+		<li>View Shield Security settings</li>
+		<li>Change Shield Security settings</li>
+		<li>Deactivate the Shield Security plugin</li>
+	</ul>
+</p>
+<p>It's also a great layer of security in-case someone gets unauthorized access to your WordPress admin dashboard.</p>
+<p>To turn this option on, please supply a password below (aka 'Access Key').</p>
+
+<h4>Supply Your New Security Access Key</h4>
+<p><strong>Warning</strong>: You must remember this key to regain access to the Shield plugin.</p>
+<form class="form-horizontal icwp-wizard-form">
+	<input name="wizard-step" value="admin_access_restriction" type="hidden" />
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="AccessKey">Access Key</label>
+		<div class="col-md-8">
+			<input type="password" class="form-control"
+				   name="AccessKey" id="AccessKey" placeholder="Access Key">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="AccessKeyConfirm">Confirm Key</label>
+		<div class="col-md-8">
+			<input type="password" class="form-control"
+				   name="AccessKeyConfirm" id="AccessKeyConfirm" placeholder="Confirm Access Key">
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-4 col-md-8">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

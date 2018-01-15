@@ -1,0 +1,43 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+<h3>Brute Force Login Protection</h3>
+<p>The truth is that WordPress is not best suited to protect against <em>Brute Force</em> login attacks.</p>
+<p>That said though, we can definitely make it much harder for those bots.</p>
+<p>We also offer you the option to use Google reCAPTCHA for login bot protection, but you'll need to
+   setup some API keys for this first, so we'll leave you to do that later.</p>
+<p>Instead, you can turn on our Login Protection system which is highly effective and uses a similar
+   technique to that for Comments SPAM blocking.</p>
+<p>This option will add a simple checkbox to your login form that users have to check. It's easy, and super
+   simple to do - no annoying reCAPTCHAs. A checkbox might not sound like much, but it's no
+   ordinary checkbox ;)</p>
+
+<h4>Turn On/Off Login Protection</h4>
+<form class="form-horizontal icwp-wizard-form">
+	<input name="wizard-step" value="login_protect" type="hidden" />
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="LoginProtectOption">Bot Login Protection:</label>
+		<div class="col-md-8">
+			<div class="radio">
+				<label>
+					<input type="radio" name="LoginProtectOption" id="LoginProtectOptionOn" value="Y" checked>
+					Turn On - Protect my WordPress login from automated bots
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="CommentsFilterOption" id="LoginProtectOptionOff" value="N">
+					Turn Off - Do not protect my WordPress login from automated bots
+				</label>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-4 col-md-8">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

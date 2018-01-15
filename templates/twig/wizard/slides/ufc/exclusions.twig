@@ -1,0 +1,53 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Unrecognised File Scanner - File Exclusions</h3>
+	<p>Every website is different, so there are often many different types of files present on web hosts
+	that are perfectly legitimate.</p>
+	<p>Since we can't account for all these possibilities, we provide you with the option
+	   to add your own list of excluded files, that the scanner will then ignore.</p>
+	<p>In the box provided below, simply add each file name you want to ignore. If you
+	don't know what to put in here just now, or you don't want to add any further exclusions, simply move
+	to the next step to run the scanner.</p>
+	<p>Note: You can easily come back to this step and add files if the scanner picks anything up
+	that you then want to ignore. You can do this as often as you like.</p>
+	<p>Please use the list of files below to tell the file scanner which files it should completely ignore:</p>
+	<form class="form-horizontal icwp-wizard-form" id>
+		<input name="wizard-step" value="exclusions" type="hidden" />
+
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="email">Excluded Files List</label>
+			<div class="col-md-8">
+				<textarea class="form-control" name="exclusions" rows="{{ data.files.count + 2 }}"
+						  placeholder="{{ data.files.list }}">{{ data.files.list }}</textarea>
+				<span id="helpBlock" class="help-block">
+					Take a <strong>new line</strong> for each file name.
+					<br/>Note: You may also use regular expressions - if you don't know what this is,
+					that's no problem, then please use normal file names and ignore the following guidance.
+					<br/>Regular expressions must <strong>start and end</strong> with a "hash" character
+					i.e. <code>#</code>
+					<br />You must escape special characters.
+					<br />An example: <code>#\.log#</code>
+					<br />This will match the following files:
+					<code>test.log</code>, <code>text.log.txt</code>, <code>.log.ini</code>
+				</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Update File Exclusions</button>
+			</div>
+		</div>
+	</form>
+
+	<script type="text/javascript">
+		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, bSuccess ) {
+			if ( bSuccess ) {
+				var $oForm = jQuery( event.target );
+				jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );
+			}
+		} );
+	</script>
+{% endblock %}

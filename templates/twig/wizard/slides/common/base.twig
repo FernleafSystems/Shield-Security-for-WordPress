@@ -1,0 +1,38 @@
+<div class="wizard-slide">
+	<div class="slide-header">
+	{% block slide_header %}
+		{% block slide_header_nav %}
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 col-sm-6 col-xs-6">
+				{% block slide_header_previous %}
+					<button class="btn btn-default btn-block ButtonPreviousSlide">&larr; Previous Step </button>
+				{% endblock %}
+				</div>
+				<div class="col-md-6 col-sm-6 col-xs-6">
+				{% block slide_header_next %}
+					<button class="btn btn-info btn-block ButtonNextSlide">Next Step &rarr;</button>
+				{% endblock %}
+				</div>
+			</div>
+		</div>
+		<hr />
+		{% endblock %}
+	{% endblock %}
+	</div>
+	<div class="slide-body">
+	{% block slide_body %}
+		{% block slide_body_top %}{% endblock %}
+		{% block slide_body_middle %}{% endblock %}
+		{% block slide_body_bottom %}{% endblock %}
+	{% endblock %}
+	</div>
+	<div class="slide-footer">
+	{% block slide_footer %}
+		<hr />
+		<p>Click 'Next Step' at the top to continue.
+		   Or <a href="{{ hrefs.dashboard }}" style="color: inherit; text-decoration: underline;">go back</a>
+		   to Shield Dashboard</p>
+	{% endblock %}
+	</div>
+</div>

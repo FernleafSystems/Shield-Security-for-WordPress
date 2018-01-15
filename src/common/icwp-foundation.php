@@ -254,7 +254,7 @@ class ICWP_WPSF_Foundation {
 		if ( !empty( $sTemplatePath ) ) {
 			self::$oRender->setTemplateRoot( $sTemplatePath );
 		}
-		return self::$oRender;
+		return ( clone self::$oRender );
 	}
 
 	/**

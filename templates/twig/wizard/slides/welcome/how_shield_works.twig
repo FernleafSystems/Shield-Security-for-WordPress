@@ -1,0 +1,27 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>How Shield Works</h3>
+	<p>Now that you've set up the basic protection for your site, we'd like to show you a quick bit about how you can
+	adjust settings for all the other features.</p>
+
+	<p>Click on each image below to see a little screenshot to show you the basics of the Shield plugin UI.</p>
+	<p>You can use the navigation arrows to see the next picture, and the caption is at the bottom.</p>
+
+	{% for key,value in imgs %}
+		<div class="media">
+			<div class="media-left">
+				<a href="{{ attribute(imgs, key) }}"
+				   data-caption="{{ attribute(captions, key) }}" data-fancybox="howshieldworks">
+					<img class="media-object" src="{{ attribute(imgs, key) }}" alt="">
+				</a>
+			</div>
+			<div class="media-body">
+				<h4 class="media-heading">{{ attribute(headings, key) }}</h4>
+				{{ attribute(captions, key) }}.
+			</div>
+		</div>
+	{% endfor %}
+
+{% endblock %}

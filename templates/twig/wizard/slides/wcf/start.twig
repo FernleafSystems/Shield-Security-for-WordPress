@@ -1,0 +1,16 @@
+{% extends 'wizard/slides/common/base_start.twig' %}
+
+{% block slide_body %}
+	<h3>Start: WordPress Core File Scanner</h3>
+	<p>What is the WordPress Core File Scanner?</p>
+	<p>The purpose of this scanner is to detect potentially malicious or
+	   unintended changes to any of the Core WordPress files.
+	   This is quite different to the Unrecognised File Scanner, which aims to detect
+	   the presence of files that are not part of the official set of WordPress core files.</p>
+	<p>Why is this important?</p>
+	<p>Your site may already be compromised and you wouldn't know it by glancing at which core
+	   files are installed on your site. The only way to know if your core WordPress files
+	   have been modified in any way is to compare them against the official files.</p>
+	<p>This scanner will do exactly that and report to you any files it finds to be different.</p>
+	<p>If you're in doubt about the results, please discuss the findings with your hosting provider.</p>
+{% endblock %}

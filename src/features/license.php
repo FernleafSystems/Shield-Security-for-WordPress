@@ -442,7 +442,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isLastCheckExpired() {
-		return ( $this->loadDataProcessor()->time() - $this->getLicenseLastCheckedAt()
+		return ( $this->loadDP()->time() - $this->getLicenseLastCheckedAt()
 				 > $this->getDefinition( 'license_lack_check_expire_days' )*DAY_IN_SECONDS*( mt_rand( 20, 30 )/10 ) );
 	}
 

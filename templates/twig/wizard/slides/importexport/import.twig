@@ -1,0 +1,80 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	<h3>Build Your Shield Security Network</h3>
+
+	{% if flags.is_premium %}
+		<p>To setup this site quickly you may import the options directly from another site.</p>
+		<p>You will need the WordPress homepage URL, and the Shield Secret Key from the source <em>Master</em>
+		   WordPress site. This key renews itself every hour so you may need to recheck its current value
+		   before proceeding.</p>
+
+		<h4>Import Options</h4>
+		<p><strong>Warning</strong>: If successful, all options on this site will be overwritten by
+								   those from the source.</p>
+		<form class="form-horizontal icwp-wizard-form">
+			<input name="wizard-step" value="import" type="hidden" />
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="MasterSiteUrl">Master Site URL</label>
+				<div class="col-md-8">
+					<input type="url" class="form-control"
+						   name="MasterSiteUrl" id="MasterSiteUrl" placeholder="http://www....">
+					<span id="helpBlock"
+						  class="help-block">Remember to include <code>http://</code> or <code>https://</code>.</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="MasterSiteSecretKey">Master Site Secret Key</label>
+				<div class="col-md-8">
+					<input type="text" class="form-control" maxlength="40" minlength="40" autocomplete="off"
+						   name="MasterSiteSecretKey" id="MasterSiteSecretKey" placeholder="Secret Key">
+					<span id="helpBlock" class="help-block">
+						The secret key can be found under<br />
+						Shield Security > Dashboard > Import/Export > Secret Key</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="ShieldNetworkCheck">Create Shield Network</label>
+				<div class="col-md-8">
+					<label for="ShieldNetworkCheck">
+						<input type="checkbox" value="Y" name="ShieldNetworkCheck" id="ShieldNetworkCheck">
+						Check to turn on link (optional)
+					</label>
+					<span id="helpBlock" class="help-block">
+						Checking this option will link this site to Master site above, such that it will
+						automatically import options from the Master site each night. You then update the options
+						in the master site and they will be reflected in all your linked child sites (such as this one).
+					</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-md-offset-4 col-md-8">
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</div>
+
+		</form>
+	{% else %}
+		<h5>Automatic Options Import/Export</h5>
+		<p>With Shield Pro you have the ability to quickly import options directly from any remote site that's
+		   running Shield Pro.</p>
+		<p>Not only that, you can setup Shield to automatically (each day) import options from that site. This means
+		   you can create what we call a "Master options site". This is where you set your child sties to
+		   automatically copy the options from your master site - so you only need to manually update 1 site.</p>
+		<p>You can <a href="{{ hrefs.blog_importexport }}" target="_blank">learn a bit more about this here</a>.</p>
+		<p><img src="{{ imgs.shieldnetworkmini }}" class="img-responsive media-left" />
+			This goes far beyond normal import/export features and you start creating your own adaptive
+			<strong>Shield Security Network</strong>, with no extra work on your part.</p>
+		<p>Options import is just the beginning of what you'll be able to achieve with your Shield Network.</p>
+		<p>For now though, if you're not a Pro subscriber, you can just skip this
+		part and setup the plugin manually as normal.
+		   Or, you can purchase <a href="{{ hrefs.gopro }}" target="_blank">Shield Pro for your sites ($1/month)</a>
+		   and return to this wizard (or launch the Import Wizard) at any time.</p>
+		<div class="clearfix"></div>
+	{% endif %}
+
+{% endblock %}

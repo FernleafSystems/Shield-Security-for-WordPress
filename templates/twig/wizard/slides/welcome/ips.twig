@@ -1,0 +1,50 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+<h3>Automatic IP Blacklist</h3>
+<p>Many security plugins offer the option of blacklisting IP addresses.</p>
+<p>But the big secret they're not telling you is that this is complete waste of your time.</p>
+<p>Can you think of anything you'd rather be doing, than getting 100s of email notifications and then
+   having to go in and add IP addresses to some blacklist?</p>
+<p>We all have friends and family we'd rather be seeing, important work to be done, and bills to pay.
+   Life is waaay too short to be manually blocking IPs on every site we manage.</p>
+<p>That's why we built our <strong>F</strong>ully <strong>A</strong>utomatic <strong>B</strong>lack
+   <strong>L</strong>ist <strong>E</strong>ngine (FABLE).</p>
+<p>FABLE will track naughty behaviour, and if the same visitor/bot does one-too-many naughty things,
+   we block that IP. Simples. But not permanently, because that would make our IP list explode, and slow
+   down our website like it's running Wordfence. ;)</p>
+<p>And nobody wants that. So FABLE keeps your IP blacklist nice and lean.</p>
+
+<p>By default, nefarious visitors are blocked for 1 minute, after 10 naughty requests (aka 'transgressions').</p>
+<p>You can change these settings in the IP Manager, but for now, let's just turn it on. Also,
+if you turned on the Audit Trail in the previous step, you can use this to monitor IP blacklisting.</p>
+
+<h4>Turn On/Off FABLE - Automatic Blacklist Engine</h4>
+<form class="form-horizontal icwp-wizard-form">
+	<input name="wizard-step" value="ips" type="hidden" />
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="IpManagerOption">FABLE IP Manager:</label>
+		<div class="col-md-8">
+			<div class="radio">
+				<label>
+					<input type="radio" name="IpManagerOption" id="IpManagerOptionOn" value="Y" checked>
+					Turn On - Automatically block bad visitors and bots
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="IpManagerOption" id="IpManagerOptionOff" value="N">
+					Turn Off - Don't use FABLE to protect against bad visitors and bots
+				</label>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-4 col-md-8">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

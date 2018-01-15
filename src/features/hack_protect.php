@@ -16,6 +16,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sOption
+	 * @return $this
+	 */
+	public function setUfcOption( $sOption ) {
+		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {
@@ -24,6 +32,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aExclusions = array();
 		}
 		return $aExclusions;
+	}
+
+	/**
+	 * @param array $aExclusions
+	 * @return $this
+	 */
+	public function setUfcFileExclusions( $aExclusions ) {
+		if ( !is_array( $aExclusions ) ) {
+			$aExclusions = array();
+		}
+		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
 	}
 
 	/**
@@ -42,7 +61,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
 			$sExclusion = $oFS->normalizeFilePathDS( trim( $sExclusion ) );
 
-			if ( strpos( $sExclusion, '/' ) === false ) { // filename only
+			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
+				// ignore it
+			}
+			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$sExclusion = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
@@ -51,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		return $this->setOpt( 'ufc_exclusions', $aExclusions );
+		return $this->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
 	}
 
 	/**
@@ -86,6 +108,36 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'enabled_report_only',
 			'enabled_delete_report'
 		) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWcfScanAutoRepair() {
+		return $this->getOptIs( 'attempt_auto_file_repair', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWcfScanEnabled() {
+		return $this->getOptIs( 'enable_core_file_integrity_scan', 'Y' );
+	}
+
+	/**
+	 * @param bool $bEnabled
+	 * @return $this
+	 */
+	public function setWcfScanEnabled( $bEnabled ) {
+		return $this->setOpt( 'enable_core_file_integrity_scan', $bEnabled ? 'Y' : 'N' );
+	}
+
+	/**
+	 * @param bool $bEnabled
+	 * @return $this
+	 */
+	public function setWcfScanAutoRepair( $bEnabled ) {
+		return $this->setOpt( 'attempt_auto_file_repair', $bEnabled ? 'Y' : 'N' );
 	}
 
 	/**

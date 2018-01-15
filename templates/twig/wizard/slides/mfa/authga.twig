@@ -1,0 +1,76 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Setup Google Authenticator</h3>
+	<p>Google Authenticator is a popular choice for 2FA. It has 1 drawback, however - if you'll lose
+	   your phone or reset it, you lose all your 2FA login codes.</p>
+	<p>There is a solution to this and we <strong>strongly recommend</strong> that you do it: .</p>
+	<p>Once you're ready to proceed with Google Authenticator, please scan the barcode below, and enter
+	   code to confirm.</p>
+	<p>Note: Turning on Google Authenticator for your user account will make the option available
+	   to turn it on for all users on the site.</p>
+
+	<h4>Register Google Authenticator On Your Account</h4>
+
+	{% if flags.has_ga %}
+		<p>It looks like Google Authenticator is already configured for your WordPress account so
+		   no need to set that up again.</p>
+	{% else %}
+		<p>Scan the barcode below and enter the 6-digit code to register.</p>
+	{% endif %}
+
+	<form class="form-horizontal icwp-wizard-form" id>
+		<input name="wizard-step" value="authga" type="hidden" />
+
+		{% if flags.has_ga %}
+			<input name="code" value="ignore" type="hidden" />
+
+			<div class="form-group stage-verificationcode">
+				<label class="col-md-4 control-label" for="enablega">Turn On Google Authenticator</label>
+				<div class="col-md-8">
+					<div class="radio">
+						<label>
+							<input type="radio" name="enablega" id="enablegaOn" value="Y" checked>
+							Enable Google Authenticator
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="enablega" id="enablegaOff" value="N">
+							Disable Google Authenticator
+						</label>
+					</div>
+
+					<span id="helpBlock" class="help-block">
+						When enabled, this will allow any users of this site to configure and
+						use Google Authenticator on their WordPress accounts.
+					</span>
+				</div>
+			</div>
+		{% else %}
+			<input name="enablega" value="Y" type="hidden" />
+
+			<div class="form-group">
+				<label class="col-md-4 control-label">Scan your unique code</label>
+				<div class="col-md-8">
+					<img src="{{ hrefs.ga_chart }}" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="code">Authenticator Code</label>
+				<div class="col-md-8">
+					<input type="text" class="form-control" name="code"
+						   maxlength="6" minlength="6" placeholder="" value="">
+				</div>
+			</div>
+		{% endif %}
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Configure Google Authenticator</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}

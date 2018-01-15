@@ -47,9 +47,13 @@ body.wait {
 .wizard p {
 	margin-bottom: 20px;
 }
+.wizard .body ol,
+.wizard .body ul {
+	margin-bottom: 20px;
+	padding-left: 20px;
+}
 .wizard .body ul {
 	list-style: square inside none;
-	padding-left: 20px;
 }
 .wizard p.wizard-response {
 	padding: 10px 15px;
@@ -67,4 +71,49 @@ body.wait {
 	border: 1px solid #888;
 	height: 64px;
 	width: 64px;
+}
+.wizard .indent_slight {
+	margin-left: 26px;
+}
+
+.wizard_slot {
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+	margin-top: 30px;
+	padding: 0 20px 20px;
+}
+.wizard_slot:hover {
+	background-color: #ffffff;
+}
+
+#GoProBtn {
+	width: 128px;
+	display: block;
+	margin: 5px auto 20px;
+}
+
+#FooterWizardBanner {
+	position: fixed;
+	bottom: 0;
+	height: 100px;
+	width: 100%;
+}
+#WizardTop {
+	height: 40px;
+	background-color: #fafafa;
+	background: linear-gradient(to top, rgba(250,250,250,0.95), rgba(250,250,250,0.7));
+}
+#WizardBanner {
+	height: 100px;
+	background-color: #eaffea;
+	border-top: 1px solid #bbbbbb;
+	padding-top: 10px;
+	text-align: center;
+	word-break: keep-all;
+	white-space: nowrap;
+}
+#WizardBanner p {
+	margin: 0;
+	line-height: 20px;
+	text-align: left;
 }

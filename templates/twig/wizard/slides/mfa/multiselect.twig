@@ -1,0 +1,50 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Configure Multi-Factor or Two-Factor Authentication</h3>
+	<p>As we outlined on the first slide in this wizard, if you have a password and 1 extra factor,
+	   you have what is known as "Two-Factor Authentication".</p>
+	<p>But if you have more than 1 extra factor, you have what is called
+	   "Multi-Factor Authentication".</p>
+	<p>You have a choice between either of these, now that you've configured other login factors.</p>
+	<p>You can either set that <strong>all extra login factors</strong> are required when a user logs on.
+	   Or you can set that <strong>only 1 extra login factor</strong> is required.</p>
+	<p>The balance here of course is between an easier user experience, or harder site security.
+	   The choice is yours.</p>
+
+	<h4>Configure Factor Requirements</h4>
+
+	<form class="form-horizontal icwp-wizard-form" id>
+		<input name="wizard-step" value="multiselect" type="hidden" />
+
+			<div class="form-group stage-verificationcode">
+				<label class="col-md-4 control-label" for="multiselect">Configure Multi-Factor Authentication</label>
+				<div class="col-md-8">
+					<div class="radio">
+						<label>
+							<input type="radio" name="multiselect" id="multiselectOn" value="Y" checked>
+							Turn On Multi-Factor (all factors required)
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="multiselect" id="multiselectOff" value="N">
+							Turn Off Multi-Factor (only 1 extra factor)
+						</label>
+					</div>
+
+					<span id="helpBlock" class="help-block">
+						Think of turning multi-factor <em>on</em> as "requiring all configured factors".
+						<br/>And think of turning multi-factor <em>off</em> as "requiring just 1 of your extra factors".
+					</span>
+				</div>
+			</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Configure Multi-Factor</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'wizard/slides/common/base_start.twig' %}
+
+{% block slide_body %}
+
+	<h3>Welcome To Shield Options Import Wizard</h3>
+	<p>Shield options import is a powerful feature that can drastically reduce the time you need to spend managing
+	   your sites.</p>
+	<p>You can, of course, simply use this as an ad-hoc import tool, but much more powerful is to create a
+		<strong>Shield Network</strong>.</p>
+	<h4>What about simple options import?</h4>
+	<p>This is easily done. Move to the next step and enter the information for the site you want
+	to export from i.e. its URL and its secret key. Options will then be imported directly into this site.</p>
+	<p>If you want to keep your site options "synced" with the export site, read on...</p>
+	<h4>What is a Shield Network?</h4>
+	<p>A Shield Network is where all your Shield Security sites are connected to a Master Site, from which they will
+	derive their configuration. If you change settings on the Master Site, these will get propagated to the child sites.</p>
+	<p>In the following screen, if you select the checkbox to enable Master-Child syncing, then this site will
+	periodically (once a day) import settings from the Master site, overwriting any existing configuration here.</p>
+	<p>Currently this is limited to options configuration, but over time we will increase the scope to include
+	   IP address blocking and white lists. But you will have full control over this when the time comes.</p>
+	<p>A couple of points to note:</p>
+	<ul>
+		<li>The site from which you import (Master) must be running Shield Pro.</li>
+		<li>All options on this site will be overwritten to align with that of the Master site.</li>
+		<li>If you select to create the network, this site's URL will be added to the sync white list of the Master
+			site, to allow for automated syncing.</li>
+	</ul>
+	<p>Right, let's get to it. Click 'Next Step' above to start your import.
+{% endblock %}

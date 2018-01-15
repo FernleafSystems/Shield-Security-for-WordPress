@@ -1,0 +1,30 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Security Admin Verification</h3>
+	<p>Since you have previously turned-on the Security Admin system, we just need you to verify access before proceeding.</p>
+
+	<h4>Supply Security Admin Access Key</h4>
+	<form class="form-horizontal icwp-wizard-form">
+	<input name="wizard-step" value="security_admin_verify" type="hidden" />
+	<input name="current_index" value="{{ current_index }}" type="hidden" />
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="AccessKey">Access Key</label>
+		<div class="col-md-8">
+			<input type="password" class="form-control"
+				   name="AccessKey" id="AccessKey" placeholder="Access Key">
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-4 col-md-8">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}
+{% block slide_header %}
+{% endblock %}
+{% block slide_footer %}
+{% endblock %}

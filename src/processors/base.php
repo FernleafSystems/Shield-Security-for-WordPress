@@ -122,7 +122,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
 	}
@@ -171,8 +170,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sKey
-	 * @param mixed $mValueToTest
+	 * @param string  $sKey
+	 * @param mixed   $mValueToTest
 	 * @param boolean $bStrict
 	 * @return bool
 	 */

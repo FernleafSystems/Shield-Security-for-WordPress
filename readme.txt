@@ -3,10 +3,10 @@ Contributors: onedollarplugin, paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, firewall, spam, scan, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
+Tags: security, firewall, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.0.0
+Stable tag: 6.1.0
 
 Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
@@ -338,16 +338,31 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.0.0 Latest Point Release =
+= 6.1.0 Latest Release - [Release Notes](http://icwp.io/ay) =
+*Released: 15th January, 2018*
+
+* **(v.0)**  ADDED:			3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.
+* **(v.0)**  ADDED:			You can now use regular expressions for file exclusions in the 'Unrecognised File Scanner'.
+* **(v.0)**  CHANGED:		File Scanner email notifications now link to the appropriate scanner wizard directly.
+* **(v.0)**  IMPROVED:		Plugin options pages restyling.
+* **(v.0)**  IMPROVED:		Plugin refactoring and improvements.
+
+= 6.1.0 Series =
+*Released: 15th January, 2018*
+
+* **(v.0)**  ADDED:			3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.
+* **(v.0)**  ADDED:			You can now use regular expressions for file exclusions in the 'Unrecognised File Scanner'.
+* **(v.0)**  CHANGED:		File Scanner email notifications now link to the appropriate scanner wizard directly.
+* **(v.0)**  IMPROVED:		Plugin options pages restyling.
+* **(v.0)**  IMPROVED:		Plugin refactoring and improvements.
+
+= 6.0.0 Series =
 *Released: 18th December, 2017*
 
 * **(v.0)**  ADDED:			All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.
 * **(v.0)**  ADDED:			[**PRO**] [Shield options import and export](http://icwp.io/at)
 * **(v.0)**  ADDED:			[**PRO**] In conjunction with import/export - Shield Security Network: automated options syncing.
 * **(v.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](http://icwp.io/au). Existing features will remain unaffected.
-
-= 6.0.0 Series =
-*Released: 18th December, 2017*
 
 = 5.20.0 Series =
 *Released: 11th December, 2017*

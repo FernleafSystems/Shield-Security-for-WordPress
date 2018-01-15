@@ -1,0 +1,50 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_header_next %}{% endblock %}
+
+{% block slide_body_middle %}
+
+	<h3>Next Steps?</h3>
+
+	{% if data.mod_wizards_count > 1 %}
+		<h4>All Wizards In This Module</h4>
+		<ul>
+		{% for wizard in data.mod_wizards %}
+			<li><a href="{{ wizard.url }}">{{ wizard.title }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% block slide_body_middle_gopro %}
+		{% if not flags.is_premium %}
+			<h4>Go Further With Pro :)</h4>
+			<p>We've added many advantages to the Pro version, and we've made it available for every budget
+			   for just $1/month - the most affordable Security plugin available today!</p>
+			<p>With your support, we'll continue our work and bring you ever-more powerful security features.</p>
+			<p>This is what you get for going Pro:</p>
+			<ul>
+				<li>Simple (+automatic) options import/export between all your websites</li>
+				<li>Vulnerability Scanner - daily scans/alerts for security vulnerabilities</li>
+				<li>Exclusive customer support</li>
+				<li>3rd-Party Plugin integration including WooCommerce, BuddyPress etc.</li>
+				<li>Unlimited audit trail</li>
+				<li>Invisible Google reCAPTCHA</li>
+				<li>Customize visitor messages</li>
+				<li>(coming soon) Mobile Push Notifications</li>
+				<li>(coming soon) White Labelling</li>
+				<li>(coming soon) Refined options for 2-Factor Authentication</li>
+			</ul>
+			<a href="{{ hrefs.gopro }}" target="_blank" class="btn btn-success" id="GoProBtn">Go Pro Today!</a>
+		{% endif %}
+	{% endblock %}
+
+{% endblock %}
+
+{% block slide_body_bottom %}
+	<p>Click the button below to return to the main WordPress dashboard.</p>
+{% endblock %}
+
+{% block slide_footer %}
+	<hr />
+	<a href="{{ hrefs.dashboard }}" class="btn btn-default">&#x21d0; Return To The Shield WordPress Dashboard</a>
+{% endblock %}

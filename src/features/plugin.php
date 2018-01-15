@@ -28,22 +28,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->getImportExportSecretKey();
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-
-		$oWizProc = $this->getWizardProcessor();
-		if ( !is_null( $oWizProc ) ) {
-			add_action( $this->prefixWpAjax( 'SetupWizardContent' ), array(
-				$this->getWizardProcessor(),
-				'ajaxSetupWizardContent'
-			) );
-			add_action( $this->prefixWpAjax( 'SetupWizardSteps' ), array(
-				$this->getWizardProcessor(),
-				'ajaxSetupWizardSteps'
-			) );
-		}
-	}
-
 	/**
 	 * @return string
 	 */
@@ -59,8 +43,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aData = array(
 			'strings' => $this->getDisplayStrings(),
 			'hrefs'   => array(
-				'wizard_welcome' => $bCanWizardWelcome ? $this->getWizardUrl( 'welcome' ) : 'javascript:{event.preventDefault();}',
-				'wizard_import'  => $bCanWizardImport ? $this->getWizardUrl( 'import' ) : 'javascript:{event.preventDefault();}',
+				'wizard_welcome' => $bCanWizardWelcome ? $this->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
+				'wizard_import'  => $bCanWizardImport ? $this->getUrl_Wizard( 'import' ) : 'javascript:{event.preventDefault();}',
 			),
 			'flags'   => array(
 				'can_php54'   => $bCanWizard,
@@ -72,18 +56,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			)
 		);
 		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_Plugin_SetupWizard|null
-	 */
-	protected function getWizardProcessor() {
-		if ( $this->loadDP()->getPhpVersionIsAtLeast( 5.4 ) ) {
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $this->getProcessor();
-			return $oP->getWizardProcessor();
-		}
-		return null;
 	}
 
 	/**
@@ -149,7 +121,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function setVisitorIp() {
 		$sIp = null;
 		$oIpService = $this->loadIpService();
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
@@ -168,8 +140,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sSource = $oIpService->setServerIpAddress( $this->getMyServerIp() )
 								  ->discoverViableRequestIpSource();
 			if ( !empty( $sSource ) ) {
-				$oIpService->setRequestIpAddress( $this->loadDataProcessor()->FetchServer( $sSource ) );
-				$this->setOpt( 'visitor_address_source', $sSource );
+				$oIpService->setRequestIpAddress( $oDp->FetchServer( $sSource ) );
+				$this->setVisitorAddressSource( $sSource );
 			}
 		}
 	}
@@ -179,6 +151,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getVisitorAddressSource() {
 		return $this->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @param string $sSource
+	 * @return $this
+	 */
+	public function setVisitorAddressSource( $sSource ) {
+		return $this->setOpt( 'visitor_address_source', $sSource );
 	}
 
 	/**
@@ -643,7 +623,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			)
 		);
 		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
-		return sprintf( $sContents, $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ), $oCon->getHumanName(), $sBadgeText );
+		$bNoFollow = apply_filters( 'icwp_shield_badge_relnofollow', false );
+		return sprintf( $sContents,
+			$bNoFollow ? 'rel="nofollow"' : '',
+			$oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ),
+			$oCon->getHumanName(),
+			$sBadgeText
+		);
 	}
 
 	/**

@@ -161,38 +161,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * Given the necessary components, creates the 2-factor verification link for giving to the user.
-	 * @param string $sUser
-	 * @param string $sSessionId
-	 * @return string
-	 */
-	protected function generateTwoFactorVerifyLink( $sUser, $sSessionId ) {
-		$sUrl = $this->buildTwoFactorVerifyUrl( $sUser, $sSessionId );
-		return sprintf( '<a href="%s" target="_blank">%s</a>', $sUrl, $sUrl );
-	}
-
-	/**
-	 * @param string $sUser
-	 * @param string $sSessionId
-	 * @return string
-	 */
-	protected function buildTwoFactorVerifyUrl( $sUser, $sSessionId ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$aQueryArgs = array(
-			$this->getLoginFormParameter()    => $this->getSessionHashCode(),
-			$oFO->getLoginIntentRequestFlag() => 1,
-			'username'                        => rawurlencode( $sUser ),
-			'sessionid'                       => $sSessionId
-		);
-		$sRedirectTo = esc_url( $this->loadDataProcessor()->FetchPost( 'redirect_to' ) );
-		if ( !empty( $sRedirectTo ) ) {
-			$aQueryArgs[ 'redirect_to' ] = urlencode( $sRedirectTo );
-		}
-		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
-	}
-
-	/**
 	 * @param WP_User $oUser
 	 * @return boolean
 	 */
@@ -201,21 +169,23 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$sEmail = $oUser->get( 'user_email' );
 
 		$aMessage = array(
-			_wpsf__( 'You, or someone pretending to be you, just attempted to login into your WordPress site.' ),
-			_wpsf__( 'The IP Address / Cookie from which they tried to login is not currently verified.' ),
+			_wpsf__( 'Someone just attempted to login into your WordPress site.' ),
+			_wpsf__( 'Login for this user account requires verification.' ),
+			'',
+			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
 			sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
-			_wpsf__( 'Use the following code in the Login Verification page.' ),
 			'',
-			sprintf( _wpsf__( 'Authentication Code: %s' ), $this->getSessionHashCode() ),
+			_wpsf__( 'Use the following code on the Login Verification page.' ),
+			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSessionHashCode() ) ),
 			'',
-			sprintf( '<a href="%s" target="_blank">%s</a>', 'http://icwp.io/96', _wpsf__( 'Why no login link?' ) ),
+			sprintf( '(<a href="%s" target="_blank">%s</a>)', 'http://icwp.io/96', _wpsf__( 'Why no login link?' ) ),
 			''
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Two-Factor Login Verification for %s' ), $this->loadWp()
-																						  ->getHomeUrl() );
+		$sEmailSubject = sprintf( _wpsf__( '[%s] Two-Factor Login Verification' ), $this->loadWp()->getSiteName() );
 
-		$bResult = $this->getEmailProcessor()->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
+		$bResult = $this->getEmailProcessor()
+						->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 		if ( $bResult ) {
 			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->get( 'user_login' ), $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );

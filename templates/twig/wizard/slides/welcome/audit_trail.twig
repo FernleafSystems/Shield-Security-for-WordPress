@@ -1,0 +1,40 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+<h3>Security Audit Trail</h3>
+<p>One of the most difficult things to do is fix a problem where you don't know the cause.</p>
+<p>This is one of the problems that the Audit Trail feature will help you solve.</p>
+<p>It provides a log of major events and actions taken on your WordPress site. It lets you see who's
+   doing what, and when, and from where (IP address).</p>
+<p>Note: The Audit Trail is limited to 50 entries. You can increase this limit at any time when you support
+   development of the plugin by purchasing a Pro license.</p>
+
+<h4>Turn On/Off The Audit Trail Feature</h4>
+<form class="form-horizontal icwp-wizard-form">
+	<input name="wizard-step" value="audit_trail" type="hidden" />
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="AuditTrailOption">Audit Trail:</label>
+		<div class="col-md-8">
+			<div class="radio">
+				<label>
+					<input type="radio" name="AuditTrailOption" id="AuditTrailOn" value="Y" checked>
+					Turn On - Log important site events
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="AuditTrailOption" id="AuditTrailOff" value="N">
+					Turn Off - Do not log important site events
+				</label>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-offset-4 col-md-8">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

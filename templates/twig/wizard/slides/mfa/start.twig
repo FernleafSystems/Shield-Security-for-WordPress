@@ -1,0 +1,22 @@
+{% extends 'wizard/slides/common/base_start.twig' %}
+
+{% block slide_body %}
+
+	<h3>Multi-Factor Authentication Wizard</h3>
+	<p>What is Multi-Factor / Two-Factor Authentication?</p>
+	<p>Simply put, it is the addition of an extra piece of information (or "factor") during your login.
+	   It helps prevent anyone gaining access to your account with just your password.</p>
+	<p>This can take various forms, and you've probably seen it in other places. Some examples include:</p>
+	<ul>
+		<li>A memorable question, e.g. What is your favourite color</li>
+		<li>Google Authenticator - you supply a random 6-digit code</li>
+		<li>Email - you get an email with a link or a code to verify</li>
+		<li>SMS - you get text message with a code to verify</li>
+	</ul>
+	<p>Hopefully you see the pattern - there's a extra piece of information that you must
+	   supply along with your password. This is your extra "factor".</p>
+	<p>If you have a password + 1 other factor, this is called Two-Factor Authentication</p>
+	<p>If you have a password + 2 or more other factors, this is called Multi-Factor Authentication</p>
+	<p>The Shield Security plugin lets you setup multiple login factors, and the simplest
+	   of which is <strong>email</strong>. This wizard will walk you through setup of these extra factors.</p>
+{% endblock %}

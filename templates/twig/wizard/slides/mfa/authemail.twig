@@ -1,0 +1,69 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>Setup Email-Based Authentication</h3>
+	<p>Email-based authentication involves you receiving an email to the address attached to your WordPress
+	   user account. This email will contain a 6-digit code which you'll need to put into the
+	   login confirmation page.</p>
+	<p>The tricky thing with email is that WordPress sites are terrible for sending emails, as most domains
+	   and webhosting aren't configured properly for sending email reliably.</p>
+	<p>This means if you set this up and you don't get the email, you'll be locked out. So, before enabling
+	   email-based authentication, we'll send you a test email first and ask you to verify that you got it.</p>
+
+	<h4>Email Sending Confirmation</h4>
+	<p>Click the button below to confirm your email address, to which we'll send a confirmation email.</p>
+	<form class="form-horizontal icwp-wizard-form" id>
+		<input name="wizard-step" value="authemail" type="hidden" />
+
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="email">Your Email</label>
+			<div class="col-md-8">
+				<input type="email" class="form-control" name="email" placeholder="{{ data.user_email }}"
+					   value="{{ data.user_email }}">
+			</div>
+		</div>
+
+		<div class="form-group stage-verificationcode" style="display: none;">
+			<label class="col-md-4 control-label" for="code">Verification Code</label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" name="code"
+					   maxlength="6" minlength="6" placeholder="" value="">
+			</div>
+		</div>
+
+		<div class="form-group stage-verificationcode" style="display: none;">
+			<label class="col-md-4 control-label" for="Email2FAOption">Turn On Email 2FA</label>
+			<div class="col-md-8">
+				<label for="Email2FAOption">
+					<input type="checkbox" value="Y" name="Email2FAOption" id="Email2FAOption">
+					Check to turn on Email-based 2 Factor Authentication
+				</label>
+				<span id="helpBlock" class="help-block">
+					When enabled, each time you login you'll get an email with a 2-factor authentication code.
+					You will need this code to log into your WordPress site. If your site
+					has problems in the future with emails, this could present a problem.
+					Emails not being received are the responsibility
+					of your WordPress site and your email provider. Shield uses the standard WordPress email
+					functionality and if it doesn't work, you'll need to check with your host.
+				</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Send Info</button>
+			</div>
+		</div>
+	</form>
+
+	<script type="text/javascript">
+		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, bSuccess ) {
+			if ( bSuccess ) {
+				var $oForm = jQuery( event.target );
+				jQuery( '.stage-verificationcode', $oForm ).slideDown();
+				jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );
+			}
+		} );
+	</script>
+{% endblock %}

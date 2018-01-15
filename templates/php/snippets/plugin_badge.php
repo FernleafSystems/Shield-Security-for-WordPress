@@ -37,7 +37,7 @@
 		font-size: 12px;
 		line-height: 17px;
 		padding-left: 43px;
-
+		letter-spacing: 0;
         -webkit-transition: opacity 1s; /* Safari */
         transition: opacity 1s;
 	}
@@ -80,7 +80,9 @@
 </style>
 <div id="icwpWpsfSiteBadge">
 	<a id="icwpWpsfCloseButton">x</a>
-	<a href="http://icwp.io/wpsecurityfirewall" target="_blank" title="This site is protected by the Shield Security plugin.">
+	<a href="http://icwp.io/wpsecurityfirewall" target="_blank"
+	   title="This site is protected by the Shield Security plugin."
+	   %s>
 		<img src="%s" alt="%s Logo" />
         <div class="badge-text">%s</div>
 	</a>
