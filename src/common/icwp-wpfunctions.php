@@ -735,7 +735,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
-		$nTime = empty( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+		$nTime = empty( $nTime ) ? $this->loadDP()->time() : $nTime;
 
 		$sFullTimeString = $bShowTime ? $this->getTimeFormat() : '';
 		if ( empty( $sFullTimeString ) ) {
@@ -745,6 +745,15 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$sFullTimeString = $bShowDate ? ( $sFullTimeString.' '.$this->getDateFormat() ) : $sFullTimeString;
 		}
 		return date_i18n( $sFullTimeString, $this->getTimeAsGmtOffset( $nTime ) );
+	}
+
+	/**
+	 * @param int|null $nTime
+	 * @return string
+	 */
+	public function getTimeStampForDisplay( $nTime = null ) {
+		$nTime = empty( $nTime ) ? $this->loadDP()->time() : $nTime;
+		return date_i18n( DATE_RFC2822, $this->getTimeAsGmtOffset( $nTime ) );
 	}
 
 	/**
