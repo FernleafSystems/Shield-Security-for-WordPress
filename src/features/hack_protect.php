@@ -8,6 +8,44 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		$this->setCustomCronSchedules();
+	}
+
+	/**
+	 */
+	protected function doExtraSubmitProcessing() {
+		$this->clearCrons();
+		$this->cleanFileExclusions();
+	}
+
+	protected function clearCrons() {
+		$this->loadWpCronProcessor()
+			 ->deleteCronJob( $this->getUfcCronName() )
+			 ->deleteCronJob( $this->getWcfCronName() );
+	}
+
+	/**
+	 */
+	protected function setCustomCronSchedules() {
+		$aFreqs = array_unique(
+			array(
+				$this->getUfcScanFrequency(),
+				$this->getWcfScanFrequency(),
+			)
+		);
+		$oWpCron = $this->loadWpCronProcessor();
+		foreach ( $aFreqs as $nFreq ) {
+			$oWpCron->addNewSchedule(
+				$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+				array(
+					'interval' => DAY_IN_SECONDS/$nFreq,
+					'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
+				)
+			);
+		}
+	}
+
 	/**
 	 * @return string
 	 */
@@ -16,11 +54,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sOption
-	 * @return $this
+	 * @return string
 	 */
-	public function setUfcOption( $sOption ) {
-		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
+	public function getUfcCronName() {
+		return $this->prefixOptionKey( $this->getDefinition( 'unrecognisedscan_cron_name' ) );
 	}
 
 	/**
@@ -35,6 +72,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getUfcScanFrequency() {
+		return (int)$this->getOpt( 'ufc_frequency', 1 );
+	}
+
+	/**
+	 * @param string $sOption
+	 * @return $this
+	 */
+	public function setUfcOption( $sOption ) {
+		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
+	}
+
+	/**
 	 * @param array $aExclusions
 	 * @return $this
 	 */
@@ -43,12 +95,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aExclusions = array();
 		}
 		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
-	}
-
-	/**
-	 */
-	protected function doExtraSubmitProcessing() {
-		$this->cleanFileExclusions();
 	}
 
 	/**
@@ -79,7 +125,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return string
 	 */
-	public function isUfsDeleteFiles() {
+	public function isUfcDeleteFiles() {
 		return in_array( $this->getUnrecognisedFileScannerOption(), array(
 			'enabled_delete_only',
 			'enabled_delete_report'
@@ -89,7 +135,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isUfsEnabled() {
+	public function isUfcEnabled() {
 		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
 	}
 
@@ -108,6 +154,20 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'enabled_report_only',
 			'enabled_delete_report'
 		) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWcfCronName() {
+		return $this->prefixOptionKey( $this->getDefinition( 'corechecksum_cron_name' ) );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getWcfScanFrequency() {
+		return (int)$this->getOpt( 'wcf_frequency', 1 );
 	}
 
 	/**
@@ -323,6 +383,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = _wpsf__( 'Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing.' );
 				break;
 
+			case 'wcf_frequency' :
+				$sName = _wpsf__( 'Daily Scan Frequency' );
+				$sSummary = _wpsf__( 'Number Of Times To Automatically Scan Core Files In 24 Hours' );
+				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
+				break;
+
 			case 'enable_unrecognised_file_cleaner_scan' :
 				$sName = _wpsf__( 'Unrecognised Files Scanner' );
 				$sSummary = _wpsf__( 'Daily Scan For Unrecognised Files In Core Directories' );
@@ -343,6 +409,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
 								.'<br/><strong>'._wpsf__( 'No commas are necessary.' ).'</strong>'
 								.'<br/>'.sprintf( 'Default: %s', $sDefaults );
+				break;
+
+			case 'ufc_frequency' :
+				$sName = _wpsf__( 'Daily Scan Frequency' );
+				$sSummary = _wpsf__( 'Number Of Times To Automatically Scan For Unrecognised Files In 24 Hours' );
+				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
 				break;
 
 			default:

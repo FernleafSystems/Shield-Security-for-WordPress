@@ -9,7 +9,6 @@ class ICWP_WPSF_WpCron {
 	 * @var ICWP_WPSF_WpCron
 	 */
 	protected static $oInstance = null;
-	private function __construct() { }
 
 	/**
 	 * @var int
@@ -22,6 +21,11 @@ class ICWP_WPSF_WpCron {
 	protected $sRecurrence;
 
 	/**
+	 * @var array
+	 */
+	protected $aSchedules;
+
+	/**
 	 * @return ICWP_WPSF_WpCron
 	 */
 	public static function GetInstance() {
@@ -29,6 +33,42 @@ class ICWP_WPSF_WpCron {
 			self::$oInstance = new self();
 		}
 		return self::$oInstance;
+	}
+
+	private function __construct() {
+		add_filter( 'cron_schedules', array( $this, 'addSchedules' ) );
+	}
+
+	/**
+	 * @param array $aSchedules
+	 * @return array
+	 */
+	public function addSchedules( $aSchedules ) {
+		return array_merge( $aSchedules, $this->getSchedules() );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @param array  $aNewSchedule
+	 * @return $this
+	 */
+	public function addNewSchedule( $sSlug, $aNewSchedule ) {
+		if ( !empty( $aNewSchedule ) && is_array( $aNewSchedule ) ) {
+			$aSchedules = $this->getSchedules();
+			$aSchedules[ $sSlug ] = $aNewSchedule;
+			$this->aSchedules = $aSchedules;
+		}
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSchedules() {
+		if ( !is_array( $this->aSchedules ) ) {
+			$this->aSchedules = array();
+		}
+		return $this->aSchedules;
 	}
 
 	/**
@@ -53,7 +93,7 @@ class ICWP_WPSF_WpCron {
 	 * @return string
 	 */
 	public function getRecurrence() {
-		if ( empty( $this->sRecurrence ) || !in_array( $this->sRecurrence, $this->getPermittedRecurrences() ) ) {
+		if ( empty( $this->sRecurrence ) ) {
 			return 'daily';
 		}
 		return $this->sRecurrence;
@@ -102,9 +142,11 @@ class ICWP_WPSF_WpCron {
 
 	/**
 	 * @param string $sUniqueCronName
+	 * @return $this
 	 */
 	public function deleteCronJob( $sUniqueCronName ) {
 		wp_clear_scheduled_hook( $sUniqueCronName );
+		return $this;
 	}
 
 	/**
@@ -117,12 +159,5 @@ class ICWP_WPSF_WpCron {
 			$this->reset();
 		}
 		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	private function getPermittedRecurrences() {
-		return array( 'hourly', 'twicedaily', 'daily' );
 	}
 }
