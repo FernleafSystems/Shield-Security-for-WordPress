@@ -49,6 +49,15 @@
       ]
     },
     {
+      "slug": "section_integrity_checking",
+      "title": "Integrity Checks",
+      "title_short": "Integrity Checks",
+      "summary": [
+        "Purpose - Monitor for unrecognised changes to your system.",
+        "Recommendation - Enable these to automatically recover from unauthorized changes to your WordPress site."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
