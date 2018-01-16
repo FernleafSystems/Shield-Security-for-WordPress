@@ -32,6 +32,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isWpvulnEnabled() ) {
 			$this->runWpVulnScan();
 		}
+		if ( $oFO->isIcEnabled() ) {
+			$this->getSubProcessorIntegrity()->run();
+		}
 	}
 
 	/**
@@ -95,6 +98,15 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getFeature() );
 			$this->aSubProcessors[ 'cleaner' ] = $oProc;
 		}
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Integrity
+	 */
+	protected function getSubProcessorIntegrity() {
+		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_integrity.php' );
+		$oProc = new ICWP_WPSF_Processor_HackProtect_Integrity( $this->getFeature() );
 		return $oProc;
 	}
 

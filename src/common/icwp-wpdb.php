@@ -146,6 +146,13 @@ class ICWP_WPSF_WpDb {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getTable_Users() {
+		return $this->loadWpdb()->users;
+	}
+
+	/**
 	 * @param $sSql
 	 * @return null|mixed
 	 */
