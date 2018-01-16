@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_ScanBase' ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_CronBase' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
-abstract class ICWP_WPSF_Processor_HackProtect_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
+abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
@@ -15,8 +15,6 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanBase extends ICWP_WPSF_Proces
 	}
 
 	protected function setupCron() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
 		try {
 			$this->loadWpCronProcessor()
 				 ->setRecurrence( $this->getCronRecurrence() )
@@ -27,13 +25,14 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanBase extends ICWP_WPSF_Proces
 		}
 		catch ( Exception $oE ) {
 		}
-		add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function getCronRecurrence() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
-		return $oFO->prefix( sprintf( 'per-day-%s', $this->getCronFrequency() ) );
+		return $this->prefix( sprintf( 'per-day-%s', $this->getCronFrequency() ) );
 	}
 
 	/**

@@ -4,9 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Integrity' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_scanbase.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'cronbase.php' );
 
-class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_HackProtect_ScanBase {
+class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_CronBase {
 
 	/**
 	 */
