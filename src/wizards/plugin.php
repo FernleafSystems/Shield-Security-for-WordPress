@@ -64,7 +64,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oResponse = $this->wizardLoginProtect();
 				break;
 
-			case 'optin':
+			case 'optin_usage':
+			case 'optin_badge':
 				$oResponse = $this->wizardOptin();
 				break;
 
@@ -416,21 +417,28 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardAuditTrail() {
-		$bEnabled = $this->loadDP()->post( 'AuditTrailOption' ) === 'Y';
 
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'audit_trail' );
-		$oModule->setIsMainFeatureEnabled( $bEnabled )
-				->savePluginOptions();
+		$sInput = $this->loadDP()->post( 'AuditTrailOption' );
+		$bSuccess = false;
+		$sMessage = _wpsf__( 'No changes were made as no option was selected' );
 
-		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
-		if ( $bSuccess ) {
-			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Audit Trail' ),
-				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
-			);
-		}
-		else {
-			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Audit Trail' ) );
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
+
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
+			$oModule = $this->getPluginCon()->getModule( 'audit_trail' );
+			$oModule->setIsMainFeatureEnabled( $bEnabled )
+					->savePluginOptions();
+
+			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			if ( $bSuccess ) {
+				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Audit Trail' ),
+					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+				);
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Audit Trail' ) );
+			}
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -443,21 +451,27 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardIps() {
 
-		$bEnabled = $this->loadDP()->post( 'IpManagerOption' ) === 'Y';
+		$sInput = $this->loadDP()->post( 'IpManagerOption' );
+		$bSuccess = false;
+		$sMessage = _wpsf__( 'No changes were made as no option was selected' );
 
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'ips' );
-		$oModule->setIsMainFeatureEnabled( $bEnabled )
-				->savePluginOptions();
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
 
-		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
-		if ( $bSuccess ) {
-			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'IP Manager' ),
-				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
-			);
-		}
-		else {
-			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'IP Manager' ) );
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
+			$oModule = $this->getPluginCon()->getModule( 'ips' );
+			$oModule->setIsMainFeatureEnabled( $bEnabled )
+					->savePluginOptions();
+
+			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			if ( $bSuccess ) {
+				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'IP Manager' ),
+					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+				);
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'IP Manager' ) );
+			}
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -470,24 +484,30 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardLoginProtect() {
 
-		$bEnabled = $this->loadDP()->post( 'LoginProtectOption' ) === 'Y';
+		$sInput = $this->loadDP()->post( 'LoginProtectOption' );
+		$bSuccess = false;
+		$sMessage = _wpsf__( 'No changes were made as no option was selected' );
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'login_protect' );
-		if ( $bEnabled ) { // we don't disable the whole module
-			$oModule->setIsMainFeatureEnabled( true );
-		}
-		$oModule->setEnabledGaspCheck( $bEnabled )
-				->savePluginOptions();
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
 
-		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
-		if ( $bSuccess ) {
-			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Protection' ),
-				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
-			);
-		}
-		else {
-			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Protection' ) );
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
+			$oModule = $this->getPluginCon()->getModule( 'login_protect' );
+			if ( $bEnabled ) { // we don't disable the whole module
+				$oModule->setIsMainFeatureEnabled( true );
+			}
+			$oModule->setEnabledGaspCheck( $bEnabled )
+					->savePluginOptions();
+
+			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			if ( $bSuccess ) {
+				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Protection' ),
+					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+				);
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Protection' ) );
+			}
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -500,19 +520,36 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardOptin() {
 		$oDP = $this->loadDP();
-
-		$bEnabledTracking = $oDP->post( 'AnonymousOption', 'N', true ) === 'Y';
-		$bEnabledBadge = $oDP->post( 'BadgeOption', 'N', true ) === 'Y';
-
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
 		$oModule = $this->getPluginCon()->getModule( 'plugin' );
-		$oModule->setIsDisplayPluginBadge( $bEnabledBadge )
-				->setPluginTrackingPermission( $bEnabledTracking );
 
-		$sMessage = _wpsf__( 'Preferences have been saved.' );
+		$bSuccess = false;
+		$sMessage = _wpsf__( 'No changes were made as no option was selected' );
+
+		$sForm = $oDP->post( 'wizard-step' );
+		if ( $sForm == 'optin_badge' ) {
+			$sInput = $oDP->post( 'BadgeOption' );
+
+			if ( !empty( $sInput ) ) {
+				$bEnabled = $sInput === 'Y';
+				$oModule->setIsDisplayPluginBadge( $bEnabled );
+				$bSuccess = true;
+				$sMessage = _wpsf__( 'Preferences have been saved.' );
+			}
+		}
+		else if ( $sForm == 'optin_badge' ) {
+			$sInput = $oDP->post( 'AnonymousOption' );
+
+			if ( !empty( $sInput ) ) {
+				$bEnabled = $sInput === 'Y';
+				$oModule->setPluginTrackingPermission( $bEnabled );
+				$bSuccess = true;
+				$sMessage = _wpsf__( 'Preferences have been saved.' );
+			}
+		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
+		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
 	}
 
@@ -521,24 +558,30 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardCommentsFilter() {
 
-		$bEnabled = $this->loadDP()->post( 'CommentsFilterOption' ) === 'Y';
+		$sInput = $this->loadDP()->post( 'CommentsFilterOption' );
+		$bSuccess = false;
+		$sMessage = _wpsf__( 'No changes were made as no option was selected' );
 
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'comments_filter' );
-		if ( $bEnabled ) { // we don't disable the whole module
-			$oModule->setIsMainFeatureEnabled( true );
-		}
-		$oModule->setEnabledGasp( $bEnabled )
-				->savePluginOptions();
+		if ( !empty( $sInput ) ) {
+			$bEnabled = $sInput === 'Y';
 
-		$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
-		if ( $bSuccess ) {
-			$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comment SPAM Protection' ),
-				$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
-			);
-		}
-		else {
-			$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Comment SPAM Protection' ) );
+			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
+			$oModule = $this->getPluginCon()->getModule( 'comments_filter' );
+			if ( $bEnabled ) { // we don't disable the whole module
+				$oModule->setIsMainFeatureEnabled( true );
+			}
+			$oModule->setEnabledGasp( $bEnabled )
+					->savePluginOptions();
+
+			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			if ( $bSuccess ) {
+				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comment SPAM Protection' ),
+					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+				);
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Comment SPAM Protection' ) );
+			}
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();

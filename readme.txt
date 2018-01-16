@@ -347,6 +347,11 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 * **(v.0)**  IMPROVED:		Plugin options pages restyling.
 * **(v.0)**  IMPROVED:		Plugin refactoring and improvements.
 
+= 6.2.0 Series =
+*Released: 29th January, 2018*
+
+* **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
+
 = 6.1.0 Series =
 *Released: 15th January, 2018*
 

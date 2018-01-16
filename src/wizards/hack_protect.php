@@ -130,7 +130,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$bSuccess = ( $sSetting == $oFO->getUnrecognisedFileScannerOption() );
 
 		if ( $bSuccess ) {
-			if ( $oFO->isUfsEnabled() ) {
+			if ( $oFO->isUfcEnabled() ) {
 				$sMessage = 'Scanner automation has been enabled.';
 			}
 			else {
@@ -249,7 +249,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			'exclusions',
 			'scanresult'
 		);
-		if ( !$oFO->isUfsEnabled() ) {
+		if ( !$oFO->isUfcEnabled() ) {
 			$aStepsSlugs[] = 'config';
 		}
 		$aStepsSlugs[] = 'finished';
