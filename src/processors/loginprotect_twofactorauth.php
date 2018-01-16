@@ -24,12 +24,10 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 
 			// Now send email with authentication link for user.
 			$this->doStatIncrement( 'login.twofactor.started' );
-			$this->loadWpUsers()
-				 ->updateUserMeta(
-					 $this->get2FaCodeUserMetaKey(),
-					 $this->getSessionHashCode(),
-					 $oUser->ID
-				 );
+
+			$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+			$oMeta->code_tfaemail = $this->getSessionHashCode();
+
 			$this->sendEmailTwoFactorVerify( $oUser );
 		}
 		return $oUser;
@@ -67,9 +65,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
-		$bValid = $sOtpCode == $this->getStoredSessionHashCode();
+		$bValid = ( $sOtpCode == $this->getStoredSessionHashCode() );
 		if ( $bValid ) {
-			$this->loadWpUsers()->deleteUserMeta( $this->get2FaCodeUserMetaKey() );
+			unset( $this->loadWpUsers()->metaVoForUser( $this->prefix() )->code_tfaemail );
 		}
 		return $bValid;
 	}
@@ -157,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return string The unique 2FA 6-digit code
 	 */
 	protected function getStoredSessionHashCode() {
-		return $this->loadWpUsers()->getUserMeta( $this->get2FaCodeUserMetaKey() );
+		return $this->getUserMeta()->code_tfaemail;
 	}
 
 	/**

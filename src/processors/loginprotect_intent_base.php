@@ -29,7 +29,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		}
 
 		// Necessary so we don't show user intent to people without it
-		add_filter( $oFO->prefixOptionKey( 'user_subject_to_login_intent' ), array( $this, 'userSubjectToLoginIntent_Filter' ) );
+		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'userSubjectToLoginIntent_Filter' ) );
 
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
@@ -74,7 +74,26 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return bool
 	 */
 	protected function hasValidatedProfile( $oUser ) {
-		return ( $this->loadWpUsers()->getUserMeta( $this->getFeature()->prefixOptionKey( $this->getStub().'_validated' ), $oUser->ID ) == 'Y' );
+		$oWpUsers = $this->loadWpUsers();
+
+		$sKey = $this->getStub().'_validated';
+		$oMeta = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID );
+
+		$bValidated = (bool)$oMeta->{$sKey};
+
+		// fallback to old meta
+		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
+		if ( !$bValidated ) {
+			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
+			// look for the old style meta
+			$bValidated = ( $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID ) == 'Y' );
+			if ( $bValidated ) {
+				$this->setProfileValidated( $oUser, $bValidated );
+				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
+			}
+		}
+
+		return $bValidated;
 	}
 
 	/**
@@ -82,14 +101,29 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return string
 	 */
 	protected function getSecret( WP_User $oUser ) {
-		$oWpUser = $this->loadWpUsers();
-		$sSecret = $oWpUser->getUserMeta(
-			$this->getFeature()->prefixOptionKey( $this->getStub().'_secret' ),
-			$oUser->ID
-		);
+		$oWpUsers = $this->loadWpUsers();
+
+		$sKey = $this->getStub().'_secret';
+		$oMeta = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID );
+
+		$sSecret = $oMeta->{$sKey};
+
+		// fallback to old meta
+		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
+		if ( empty( $sSecret ) ) {
+			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
+			// look for the old style meta
+			$sSecret = $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID );
+			if ( !empty( $sSecret ) ) {
+				$this->setSecret( $oUser, $sSecret );
+				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
+			}
+		}
+
 		if ( empty( $sSecret ) ) {
 			$this->resetSecret( $oUser );
 		}
+
 		return $sSecret;
 	}
 
@@ -109,12 +143,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return $this
 	 */
 	public function setProfileValidated( $oUser, $bValidated = true ) {
-		$this->loadWpUsers()
-			 ->updateUserMeta(
-				 $this->getFeature()->prefixOptionKey( $this->getStub().'_validated' ),
-				 $bValidated ? 'Y' : 'N',
-				 $oUser->ID
-			 );
+		$sKey = $this->getStub().'_validated';
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta->{$sKey} = $bValidated;
 		return $this;
 	}
 
@@ -124,12 +155,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return $this
 	 */
 	protected function setSecret( $oUser, $sNewSecret ) {
-		$this->loadWpUsers()
-			 ->updateUserMeta(
-				 $this->getFeature()->prefixOptionKey( $this->getStub().'_secret' ),
-				 $sNewSecret,
-				 $oUser->ID
-			 );
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$sKey = $this->getStub().'_secret';
+		$oMeta->{$sKey} = $sNewSecret;
 		return $this;
 	}
 
@@ -158,28 +186,30 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @param WP_User $oUser
 	 */
-	public function addOptionsToUserProfile( $oUser ) {}
+	public function addOptionsToUserProfile( $oUser ) {
+	}
 
 	/**
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
-	 *
 	 * @param int $nSavingUserId
 	 */
-	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) { }
+	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
+	}
 
 	/**
-	 * @param WP_User $oSavingUser
+	 * @param WP_User $oUser
 	 */
-	protected function processRemovalFromAccount( $oSavingUser ) { }
+	protected function processRemovalFromAccount( $oUser ) {
+	}
 
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 *
 	 * @param int $nSavingUserId
 	 */
-	public function handleUserProfileSubmit( $nSavingUserId ) {}
+	public function handleUserProfileSubmit( $nSavingUserId ) {
+	}
 
 	/**
 	 * @param WP_Error|WP_User $oUser

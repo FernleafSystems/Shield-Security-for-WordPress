@@ -92,10 +92,12 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @param WP_User $oUser
-	 * @return bool
+	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		return $this->loadWpUsers()->updateUserMeta( $this->getUserLastLoginKey(), $this->time(), $oUser->ID );
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta->last_login_at = $this->time();
+		return $this;
 	}
 
 	/**
@@ -105,7 +107,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function fAddUserListLastLoginColumn( $aColumns ) {
 
-		$sLastLoginColumnName = $this->getUserLastLoginKey();
+		$sLastLoginColumnName = $this->prefix( 'last_login_at' );
 		if ( !isset( $aColumns[ $sLastLoginColumnName ] ) ) {
 			$aColumns[ $sLastLoginColumnName ] = _wpsf__( 'Last Login' );
 			add_filter( 'manage_users_custom_column', array( $this, 'aPrintUsersListLastLoginColumnContent' ), 10, 3 );
@@ -114,22 +116,23 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
+	 * Adds the column to the users listing table to stating last login time.
 	 * @param string $sContent
 	 * @param string $sColumnName
 	 * @param int    $nUserId
 	 * @return string
 	 */
 	public function aPrintUsersListLastLoginColumnContent( $sContent, $sColumnName, $nUserId ) {
-		$sLastLoginKey = $this->getUserLastLoginKey();
-		if ( $sColumnName != $sLastLoginKey ) {
+
+		if ( $sColumnName != $this->prefix( 'last_login_at' ) ) {
 			return $sContent;
 		}
+
 		$oWp = $this->loadWp();
-		$nLastLoginTime = $this->loadWpUsers()->getUserMeta( $sLastLoginKey, $nUserId );
+		$nLastLoginTime = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $nUserId )->last_login_at;
 
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
-		if ( !empty( $nLastLoginTime ) && is_numeric( $nLastLoginTime ) ) {
+		if ( is_numeric( $nLastLoginTime ) && $nLastLoginTime > 0 ) {
 			$sLastLoginText = $oWp->getTimeStringForDisplay( $nLastLoginTime );
 		}
 		return $sLastLoginText;
@@ -234,6 +237,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {
-		return $this->getController()->doPluginOptionPrefix( 'userlastlogin' );
+		return $this->getController()->doPluginOptionPrefix( 'last_login_at' );
 	}
 }

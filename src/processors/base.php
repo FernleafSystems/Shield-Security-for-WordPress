@@ -85,11 +85,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected function getIfDisplayAdminNotice( $aAttrs ) {
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
-		if ( empty( $aAttrs[ 'schedule' ] ) || !in_array( $aAttrs[ 'schedule' ], array(
-				'once',
-				'conditions',
-				'version'
-			) ) ) {
+		if ( empty( $aAttrs[ 'schedule' ] )
+			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version' ) ) ) {
 			$aAttrs[ 'schedule' ] = 'conditions';
 		}
 
@@ -98,14 +95,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( $aAttrs[ 'schedule' ] == 'once'
-			 && ( !$this->loadWpUsers()->getCanAddUpdateCurrentUserMeta()
-				  || $oWpNotices->getAdminNoticeIsDismissed( $aAttrs[ 'id' ] ) )
+			 && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) )
 		) {
-			return false;
-		}
-
-		if ( $aAttrs[ 'schedule' ] == 'version'
-			 && ( $this->getFeature()->getVersion() == $oWpNotices->getAdminNoticeMeta( $aAttrs[ 'id' ] ) ) ) {
 			return false;
 		}
 
@@ -228,6 +219,23 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			$this->aSubProcessors = array();
 		}
 		return $this->aSubProcessors;
+	}
+
+	/**
+	 * @return ICWP_UserMeta
+	 */
+	protected function getUserMeta() {
+		return $this->getFeature()->getUserMeta();
+	}
+
+	/**
+	 * Will prefix and return any string with the unique plugin prefix.
+	 * @param string $sSuffix
+	 * @param string $sGlue
+	 * @return string
+	 */
+	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
+		return $this->getFeature()->prefix( $sSuffix, $sGlue );
 	}
 
 	/**
