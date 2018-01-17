@@ -79,14 +79,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isIcUsersEnabled() {
-		return $this->getOptIs( 'integrity_checking_users', 'Y' );
+		return $this->getOptIs( 'ic_users', 'Y' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getIcCronName() {
-		return $this->prefix( $this->getDefinition( 'cron_name_integrity_check' ) );
+		return $this->prefix( $this->getDef( 'cron_name_integrity_check' ) );
 	}
 
 	/**
