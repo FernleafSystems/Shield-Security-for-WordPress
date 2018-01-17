@@ -351,6 +351,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 *Released: 29th January, 2018*
 
 * **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
+* **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
 = 6.1.0 Series =
 *Released: 15th January, 2018*
