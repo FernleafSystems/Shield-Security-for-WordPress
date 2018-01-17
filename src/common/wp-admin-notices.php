@@ -39,9 +39,8 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		add_action( 'admin_notices', array( $this, 'onWpAdminNotices' ) );
 		add_action( 'network_admin_notices', array( $this, 'onWpAdminNotices' ) );
 		add_action( 'wp_loaded', array( $this, 'flushFlashMessage' ) );
-
 		if ( $this->loadWp()->isAjax() ) {
-			add_action( 'wp_ajax_icwp_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
+			add_action( 'wp_ajax_icwp_wpsf_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
 		}
 	}
 
@@ -55,13 +54,12 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 	public function ajaxDismissAdminNotice() {
 
-		$bSuccess = $this->checkAjaxNonce();
-		if ( $bSuccess ) {
+		if ( $this->checkAjaxNonce() ) {
 			// Get all notices and if this notice exists, we set it to "hidden"
-			$sNoticeId = sanitize_key( $this->loadDataProcessor()->FetchGet( 'notice_id', '' ) );
+			$sNoticeId = sanitize_key( $this->loadDP()->query( 'notice_id', '' ) );
 			$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
 			if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
-				$this->setAdminNoticeAsDismissed( $aNotices[ $sNoticeId ] );
+				$this->setMeta( $aNotices[ $sNoticeId ][ 'id' ] );
 			}
 			$this->sendAjaxResponse( true );
 		}
@@ -71,24 +69,50 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @param string $sNoticeId
 	 * @return true
 	 */
-	public function getAdminNoticeIsDismissed( $sNoticeId ) {
-		$sCurrentMetaValue = $this->getAdminNoticeMeta( $sNoticeId );
-		return ( $sCurrentMetaValue == 'Y' );
+	public function isDismissed( $sNoticeId ) {
+		$aMeta = $this->getMeta( $sNoticeId );
+		return ( isset( $aMeta[ 'time' ] ) && $aMeta[ 'time' ] > 0 );
 	}
 
 	/**
 	 * @param string $sNoticeId
 	 * @return false|string
 	 */
-	public function getAdminNoticeMeta( $sNoticeId ) {
-		return $this->loadWpUsers()->getUserMeta( $this->getActionPrefix().$sNoticeId );
+	public function getMeta( $sNoticeId ) {
+		$mValue = array();
+
+		$oMeta = $this->loadWpUsers()->metaVoForUser( rtrim( $this->getActionPrefix(), '-' ) );
+
+		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
+		if ( isset( $oMeta->{$sCleanNotice} ) && is_array( $oMeta->{$sCleanNotice} ) ) {
+			$mValue = $oMeta->{$sCleanNotice};
+		}
+		else {
+			$oWp = $this->loadWpUsers();
+			$mOldValue = $oWp->getUserMeta( $this->getActionPrefix().$sNoticeId );
+			if ( !empty( $mOldValue ) ) {
+				$oWp->deleteUserMeta( $this->getActionPrefix().$sNoticeId );
+				$this->setMeta( $sNoticeId );
+				$mValue = $oMeta->{$sCleanNotice};
+			}
+		}
+
+		return $mValue;
 	}
 
 	/**
-	 * @param array $aNotice
+	 * @param string $sNoticeId
+	 * @param array  $aMeta
 	 */
-	public function setAdminNoticeAsDismissed( $aNotice ) {
-		$this->loadWpUsers()->updateUserMeta( $this->getActionPrefix().$aNotice[ 'id' ], 'Y' );
+	public function setMeta( $sNoticeId, $aMeta = array() ) {
+		if ( !is_array( $aMeta ) ) {
+			$aMeta = array();
+		}
+
+		$oMeta = $this->loadWpUsers()->metaVoForUser( rtrim( $this->getActionPrefix(), '-' ) );
+		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
+		$oMeta->{$sCleanNotice} = array_merge( array( 'time' => $this->loadDP()->time() ), $aMeta );
+		return;
 	}
 
 	/**
@@ -97,7 +121,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 */
 	protected function checkAjaxNonce() {
 
-		$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
+		$sNonce = $this->loadDP()->FetchRequest( '_ajax_nonce', '' );
 		if ( empty( $sNonce ) ) {
 			$sMessage = 'Nonce security checking failed - the nonce value was empty.';
 		}
@@ -215,7 +239,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @param string $sType
 	 */
 	public function addFlashMessage( $sMessage, $sType = 'updated' ) {
-		$this->loadDataProcessor()->setCookie(
+		$this->loadDP()->setCookie(
 			$this->getActionPrefix().'flash', $sType.'::'.esc_attr( $sMessage )
 		);
 	}

@@ -1338,6 +1338,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getReleaseTimestamp() {
+		return $this->getPluginSpec_Property( 'release_timestamp' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTextDomain() {
