@@ -269,11 +269,11 @@ p.code-description {
 	display: block;
 	color: #333333;
 	font-size: 24px;
-	margin: 25px auto auto auto;
-	padding: 0 20px;
+	margin: 15px auto auto auto;
+	padding: 0 10px;
 	width: auto;
 	background: rgba(255, 255, 255, 0.8);
-	line-height: 50px;
+	line-height: 40px;
 	text-align: center;
 	user-select: none;
 }

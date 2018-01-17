@@ -56,18 +56,8 @@
 							?>
 							<div class="row-fluid option_row row_number_<?php echo $nKeyRow; ?>">
 									<div class="item_group span12
-												<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>
 												<?php echo ( $mOptValue == 'Y' || $mOptValue != $aOption[ 'default' ] ) ? 'selected_item_group' : ''; ?>"
 										 id="span_<?php echo $sFullOptionKey; ?>">
-
-										<?php if ( !$bEnabled ) : ?>
-											<div class="option_overlay">
-												<div class="overlay_message">
-													<a href="<?php echo $hrefs[ 'go_pro' ]; ?>" target="_blank">
-														This is a premium feature</a>
-												</div>
-											</div>
-										<?php endif; ?>
 
 										<div class="control-group">
 											<label class="control-label" for="<?php echo $sFullOptionKey; ?>">
@@ -85,7 +75,17 @@
 												</span>
 												<?php endif; ?>
 											</label>
-											<div class="controls">
+											<div class="controls
+												<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>">
+
+										<?php if ( !$bEnabled ) : ?>
+											<div class="option_overlay">
+												<div class="overlay_message">
+													<a href="<?php echo $hrefs[ 'go_pro' ]; ?>" target="_blank">
+														This is a premium feature</a>
+												</div>
+											</div>
+										<?php endif; ?>
 												<div class="option_section <?php echo ( $mOptValue == 'Y' ) ? 'selected_item' : ''; ?>"
 													 id="option_section_<?php echo $sFullOptionKey; ?>">
 
