@@ -24,22 +24,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$this->setupLoginIntent();
 	}
 
-	/**
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	protected function canUserMfaSkip( $oUser ) {
-		$bCanSkip = false;
-
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->getMfaSkipEnabled() ) {
-			$nSkipTime = $oFO->getMfaSkip()*DAY_IN_SECONDS;
-			$bCanSkip = ( $oFO->getUserMeta( $oUser )->last_mfalogin_at + $nSkipTime ) > $this->time();
-		}
-		return $bCanSkip;
-	}
-
 	protected function setupLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
@@ -157,7 +141,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function initLoginIntent( $oUser ) {
 		if ( $oUser instanceof WP_User ) {
 
-			if ( !$this->canUserMfaSkip( $oUser ) ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeature();
+			if ( !$oFO->canUserMfaSkip( $oUser ) ) {
 				$oF = $this->getFeature();
 				$nTimeout = (int)apply_filters(
 					$oF->prefix( 'login_intent_timeout' ),
@@ -203,7 +189,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function isCurrentUserSubjectToLoginIntent() {
-		return !$this->canUserMfaSkip( $this->loadWpUsers()->getCurrentWpUser() )
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		return !$oFO->canUserMfaSkip( $this->loadWpUsers()->getCurrentWpUser() )
 			   && apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false );
 	}
 
