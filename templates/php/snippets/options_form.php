@@ -82,7 +82,7 @@
 											<div class="option_overlay">
 												<div class="overlay_message">
 													<a href="<?php echo $hrefs[ 'go_pro' ]; ?>" target="_blank">
-														This is a premium feature</a>
+														Go Pro!</a>
 												</div>
 											</div>
 										<?php endif; ?>
@@ -108,13 +108,13 @@
 																	  id="<?php echo $sFullOptionKey; ?>"
 																	  placeholder="<?php echo $mOptValue; ?>"
 																	  rows="<?php echo $aOption[ 'rows' ]; ?>"
-																	  class="span5" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
+																	  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
 
 														<?php elseif ( $sOptionType == 'noneditable_text' ) : ?>
 
 															<p><?php echo $aOption[ 'summary' ]; ?></p>
-															<input type="text" readonly
-																   value="<?php echo $mOptValue; ?>" class="span5" />
+															<input type="text" readonly class="span8"
+																   value="<?php echo $mOptValue; ?>" />
 
 														<?php elseif ( $sOptionType == 'password' ) : ?>
 
@@ -123,7 +123,7 @@
 																   id="<?php echo $sFullOptionKey; ?>"
 																   value="<?php echo $mOptValue; ?>"
 																   placeholder="<?php echo $mOptValue; ?>"
-																   class="span5" <?php echo $sDisabledText; ?> />
+																   class="span7" <?php echo $sDisabledText; ?> />
 
 														<?php elseif ( $sOptionType == 'email' ) : ?>
 
@@ -132,7 +132,7 @@
 																   id="<?php echo $sFullOptionKey; ?>"
 																   value="<?php echo $mOptValue; ?>"
 																   placeholder="<?php echo $mOptValue; ?>"
-																   class="span5" <?php echo $sDisabledText; ?> />
+																   class="span7" <?php echo $sDisabledText; ?> />
 
 														<?php elseif ( $sOptionType == 'select' ) : ?>
 
@@ -171,7 +171,7 @@
 																	  id="<?php echo $sFullOptionKey; ?>"
 																	  placeholder="<?php echo $mOptValue; ?>"
 																	  rows="<?php echo $aOption[ 'rows' ]; ?>"
-																	  class="span5" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
+																	  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
 
 														<?php elseif ( $sOptionType == 'comma_separated_lists' ) : ?>
 
@@ -180,7 +180,7 @@
 																	  id="<?php echo $sFullOptionKey; ?>"
 																	  placeholder="<?php echo $mOptValue; ?>"
 																	  rows="<?php echo $aOption[ 'rows' ]; ?>"
-																	  class="span5" <?php echo $sDisabledText; ?> ><?php echo $mOptValue; ?></textarea>
+																	  class="span7" <?php echo $sDisabledText; ?> ><?php echo $mOptValue; ?></textarea>
 
 														<?php elseif ( $sOptionType == 'integer' ) : ?>
 
@@ -189,7 +189,7 @@
 																   id="<?php echo $sFullOptionKey; ?>"
 																   value="<?php echo $mOptValue; ?>"
 																   placeholder="<?php echo $mOptValue; ?>"
-																   class="span5" <?php echo $sDisabledText; ?> />
+																   class="span7" <?php echo $sDisabledText; ?> />
 
 														<?php else : ?>
 															ERROR: Should never reach this point.
