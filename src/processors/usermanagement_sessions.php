@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 		else {
 			$oDP = $this->loadDP();
-			$oMeta = $this->getUserMeta();
+			$oMeta = $this->getCurrentUserMeta();
 			$aSession = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
 			$nSessTimeout = $this->getSessionTimeoutInterval();
 			$nSessIdleTimeout = $this->getOption( 'session_idle_timeout_interval', 0 )*HOUR_IN_SECONDS;
@@ -343,7 +343,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
 			return false;
 		}
-		$this->getUserMeta()->login_browser = '';
+		$this->getCurrentUserMeta()->login_browser = '';
 
 		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
 		$this->getController()->clearSession();

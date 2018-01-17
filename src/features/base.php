@@ -1255,9 +1255,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param $oUser WP_User
 	 * @return ICWP_UserMeta
 	 */
-	public function getUserMeta() {
+	public function getUserMeta( $oUser ) {
+		return $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+	}
+
+	/**
+	 * @return ICWP_UserMeta
+	 */
+	public function getCurrentUserMeta() {
 		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
 	}
 

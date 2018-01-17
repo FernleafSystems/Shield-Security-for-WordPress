@@ -65,9 +65,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	public function doPrePluginOptionsSave() {
-		// TODO: remove as it's a temporary transition for clashing options name
-		if ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) ) {
-			$this->setOpt( 'enable_google_recaptcha_login', 'Y' );
+		$nSkipDays = $this->getMfaSkip();
+		if ( !is_numeric( $nSkipDays ) || $nSkipDays < 0 ) {
+			$this->getOptionsVo()->resetOptToDefault( 'mfa_skip' );
 		}
 	}
 
@@ -196,6 +196,27 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getCanEmailVerifyCode() {
 		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCanMfaSkip() {
+		return;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getMfaSkipEnabled() {
+		return $this->getMfaSkip() > 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMfaSkip() {
+		return $this->getOpt( 'mfa_skip', 0 );
 	}
 
 	/**
@@ -473,6 +494,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Multi-Factor Authentication' ) );
 				$sSummary = _wpsf__( 'Require All Active Authentication Factors' );
 				$sDescription = _wpsf__( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.' );
+				break;
+
+			case 'mfa_skip' :
+				$sName = _wpsf__( 'Multi-Factor By-Pass' );
+				$sSummary = _wpsf__( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days' );
+				$sDescription = _wpsf__( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.' );
 				break;
 
 			case 'enable_google_authenticator' :

@@ -16,8 +16,34 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	/**
 	 */
 	public function run() {
+		add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
+	}
+
+	public function onWpInit() {
+		$this->setupLoginIntent();
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function canUserMfaSkip( $oUser ) {
+		$bCanSkip = false;
+
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
+		if ( $oFO->getMfaSkipEnabled() ) {
+			$nSkipTime = $oFO->getMfaSkip()*DAY_IN_SECONDS;
+			$bCanSkip = ( $oFO->getUserMeta( $oUser )->last_mfalogin_at + $nSkipTime ) > $this->time();
+		}
+		return $bCanSkip;
+	}
+
+	protected function setupLoginIntent() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		$oWpUsers = $this->loadWpUsers();
 
 		$oLoginTracker = $this->getLoginTrack();
 
@@ -41,24 +67,18 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
 				add_filter( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
 			}
-			add_action( 'init', array( $this, 'onWpInit' ), 0 );
-		}
 
-		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
-		return true;
-	}
+			// process the current login intent
+			if ( $oWpUsers->isUserLoggedIn() ) {
 
-	public function onWpInit() {
-
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-
-			if ( $this->isCurrentUserSubjectToLoginIntent() ) {
-				$this->processLoginIntent();
-			}
-			else if ( $this->hasLoginIntent() ) {
-				// This handles the case where an admin changes a setting while a user is logged-in
-				// So to prevent this, we remove any intent for a user that isn't subject to it right now
-				$this->removeLoginIntent();
+				if ( $this->isCurrentUserSubjectToLoginIntent() ) {
+					$this->processLoginIntent();
+				}
+				else if ( $this->hasLoginIntent() ) {
+					// This handles the case where an admin changes a setting while a user is logged-in
+					// So to prevent this, we remove any intent for a user that isn't subject to it right now
+					$this->removeLoginIntent();
+				}
 			}
 		}
 	}
@@ -97,6 +117,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 
 				if ( $bLoginIntentValidated ) {
+					$this->getCurrentUserMeta()->last_mfalogin_at = $this->time();
 					$this->removeLoginIntent();
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
@@ -135,12 +156,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function initLoginIntent( $oUser ) {
 		if ( $oUser instanceof WP_User ) {
-			$oF = $this->getFeature();
-			$nTimeout = (int)apply_filters(
-				$oF->prefix( 'login_intent_timeout' ),
-				$oF->getDef( 'login_intent_timeout' )
-			);
-			$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout, $oUser );
+
+			if ( !$this->canUserMfaSkip( $oUser ) ) {
+				$oF = $this->getFeature();
+				$nTimeout = (int)apply_filters(
+					$oF->prefix( 'login_intent_timeout' ),
+					$oF->getDef( 'login_intent_timeout' )
+				);
+				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout, $oUser );
+			}
 		}
 		return $oUser;
 	}
@@ -150,7 +174,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return $this
 	 */
 	protected function removeLoginIntent() {
-		unset( $this->getUserMeta()->login_intent_expires_at );
+		unset( $this->getCurrentUserMeta()->login_intent_expires_at );
 		return $this;
 	}
 
@@ -179,21 +203,22 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function isCurrentUserSubjectToLoginIntent() {
-		return apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false );
+		return !$this->canUserMfaSkip( $this->loadWpUsers()->getCurrentWpUser() )
+			   && apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false );
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function getLoginIntentExpiresAt() {
-		return (int)$this->getUserMeta()->login_intent_expires_at;
+		return (int)$this->getCurrentUserMeta()->login_intent_expires_at;
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function hasLoginIntent() {
-		return isset( $this->getUserMeta()->login_intent_expires_at );
+		return isset( $this->getCurrentUserMeta()->login_intent_expires_at );
 	}
 
 	/**

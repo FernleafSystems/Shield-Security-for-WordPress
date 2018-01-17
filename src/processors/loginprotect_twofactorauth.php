@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return string The unique 2FA 6-digit code
 	 */
 	protected function getStoredSessionHashCode() {
-		return $this->getUserMeta()->code_tfaemail;
+		return $this->getCurrentUserMeta()->code_tfaemail;
 	}
 
 	/**

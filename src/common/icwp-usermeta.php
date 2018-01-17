@@ -13,6 +13,7 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
  * @property bool   $yubi_validated
  * @property string $code_tfaemail
  * @property int    $last_login_at
+ * @property int	$last_mfalogin_at
  * @property int    $login_intent_expires_at
  * @property string $prefix
  * @property int    $user_id
