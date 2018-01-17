@@ -188,7 +188,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			else if ( $this->isLockToIp() && $this->ip() != $aSession[ 'ip' ] ) {
 				$nForceLogOutCode = 3;
 			}
-			else if ( $this->isLockToBrowser() && ( $oMeta->hash_loginbrowser != md5( $oDP->getUserAgent() ) ) ) {
+			else if ( $this->isLockToBrowser() && ( $aSession[ 'browser' ] != md5( $oDP->getUserAgent() ) ) ) {
 				$nForceLogOutCode = 7;
 			}
 		}
@@ -295,9 +295,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		$aNewData = array();
 		$aNewData[ 'session_id' ] = $this->getSessionId();
 		$aNewData[ 'ip' ] = $this->ip();
+		$aNewData[ 'browser' ] = md5( $this->loadDP()->getUserAgent() );
 		$aNewData[ 'wp_username' ] = $sUsername;
-		$aNewData[ 'login_attempts' ] = 0;
-		$aNewData[ 'pending' ] = 0;
 		$aNewData[ 'logged_in_at' ] = $nTimeStamp;
 		$aNewData[ 'last_activity_at' ] = $nTimeStamp;
 		$aNewData[ 'last_activity_uri' ] = $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' );
@@ -380,8 +379,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			SELECT *
 			FROM `%s`
 			WHERE
-				`pending`			= '0'
-				AND `deleted_at`	= '0'
+				`deleted_at`	= '0'
 				%s
 			ORDER BY `last_activity_at` ASC
 		";
@@ -452,12 +450,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			session_id varchar(32) NOT NULL DEFAULT '',
 			wp_username varchar(255) NOT NULL DEFAULT '',
 			ip varchar(40) NOT NULL DEFAULT '0',
+			browser varchar(32) NOT NULL DEFAULT '',
 			logged_in_at int(15) NOT NULL DEFAULT 0,
 			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			last_activity_uri text NOT NULL DEFAULT '',
-			used_mfa int(1) NOT NULL DEFAULT 0,
-			pending tinyint(1) NOT NULL DEFAULT 0,
-			login_attempts int(1) NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
@@ -471,30 +467,5 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getFeature()->getDef( 'user_sessions_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
-	}
-
-	/**
-	 * @param integer $nTime - number of seconds back from now to look
-	 * @return array|boolean
-	 */
-	public function getPendingOrFailedUserSessionRecordsSince( $nTime = 0 ) {
-
-		$nTime = ( $nTime <= 0 ) ? 2*DAY_IN_SECONDS : $nTime;
-
-		$sQuery = "
-			SELECT *
-			FROM `%s`
-			WHERE
-				`pending`			= '1'
-				AND `deleted_at`	= '0'
-				AND `created_at`	> '%s'
-		";
-		$sQuery = sprintf(
-			$sQuery,
-			$this->getTableName(),
-			( $this->time() - $nTime )
-		);
-
-		return $this->selectCustom( $sQuery );
 	}
 }

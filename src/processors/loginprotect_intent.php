@@ -102,8 +102,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 				if ( $bLoginIntentValidated ) {
 
-					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) {
-						$this->getCurrentUserMeta()->last_mfalogin_at = $this->time();
+					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
+						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
 					}
 
 					$this->removeLoginIntent();

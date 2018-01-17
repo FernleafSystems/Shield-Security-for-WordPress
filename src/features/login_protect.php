@@ -213,12 +213,40 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$bCanSkip = false;
 
 		if ( $this->getMfaSkipEnabled() ) {
-			$oMeta = $this->getUserMeta( $oUser );
+			$aHashes = $this->getMfaLoginHashes( $oUser );
 			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
-			$bCanSkip = ( $oMeta->last_mfalogin_at + $nSkipTime ) > $this->loadDP()->time()
-						&& ( $oMeta->hash_loginbrowser == md5( $this->loadDP()->getUserAgent() ) );
+
+			$sHash = md5( $this->loadDP()->getUserAgent() );
+			$bCanSkip = isset( $aHashes[ $sHash ] )
+						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadDP()->time();
 		}
 		return $bCanSkip;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return $this
+	 */
+	public function addMfaLoginHash( $oUser ) {
+		$oDp = $this->loadDP();
+		$aHashes = $this->getMfaLoginHashes( $oUser );
+		$aHashes[ md5( $oDp->getUserAgent() ) ] = $oDp->time();
+		$this->getCurrentUserMeta()->hash_loginmfa = $aHashes;
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return array
+	 */
+	public function getMfaLoginHashes( $oUser ) {
+		$oMeta = $this->getUserMeta( $oUser );
+		$aHashes = $oMeta->hash_loginmfa;
+		if ( !is_array( $aHashes ) ) {
+			$aHashes = array();
+			$oMeta->hash_loginmfa = $aHashes;
+		}
+		return $aHashes;
 	}
 
 	/**

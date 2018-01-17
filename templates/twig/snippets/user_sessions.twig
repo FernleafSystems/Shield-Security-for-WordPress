@@ -12,7 +12,6 @@
 					<th>{{ strings.um_last_activity_at }}</th>
 					<th>{{ strings.um_last_activity_uri }}</th>
 					<th>{{ strings.um_login_ip }}</th>
-					<th>{{ strings.um_login_attempts }}</th>
 				</tr>
 				{% for aSessionData in aActiveSessions %}
 					<tr>
@@ -23,7 +22,6 @@
 						<td>
 							<a href="http://whois.domaintools.com/{{ aSessionData.ip }}" target="_blank">{{ aSessionData.ip }}</a>
 						</td>
-						<td>{{ aSessionData.login_attempts }}</td>
 					</tr>
 				{% endfor %}
 			</table>

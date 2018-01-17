@@ -226,14 +226,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param integer $nTime - number of seconds back from now to look
-	 * @return array|boolean
-	 */
-	public function getPendingOrFailedUserSessionRecordsSince( $nTime = 0 ) {
-		return $this->getProcessorSessions()->getPendingOrFailedUserSessionRecordsSince( $nTime );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {

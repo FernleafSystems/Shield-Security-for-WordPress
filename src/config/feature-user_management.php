@@ -143,12 +143,10 @@
       "session_id",
       "wp_username",
       "ip",
+      "browser",
       "logged_in_at",
       "last_activity_at",
       "last_activity_uri",
-      "used_mfa",
-      "pending",
-      "login_attempts",
       "created_at",
       "deleted_at"
     ]

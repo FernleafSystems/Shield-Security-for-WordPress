@@ -112,7 +112,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			'um_last_activity_at'               => _wpsf__( 'Last Activity At' ),
 			'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
 			'um_login_ip'                       => _wpsf__( 'Login IP' ),
-			'um_login_attempts'                 => _wpsf__( 'Login Attempts' ),
 			'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
 		);
 	}
