@@ -81,7 +81,7 @@
 
             <p class="message bg-<?php echo $data['message_type']; ?>"> <?php echo $strings['message']; ?></p>
 
-            <form action="<?php echo $hrefs['form_action']; ?>" method="post">
+            <form action="<?php echo $hrefs['form_action']; ?>" method="post" class="form-horizontal">
                 <input type="hidden" name="<?php echo $data['login_intent_flag']; ?>" value="1" />
                 <input type="hidden" name="redirect_to" value="<?php echo $hrefs['redirect_to']; ?>" />
 
@@ -111,6 +111,18 @@
                         </div>
                     </div>
 				<?php endforeach; ?>
+
+				<?php if ( $flags['can_skip_mfa']) : ?>
+                    <div class="form-group">
+                        <label for="skip_mfa" class="control-label"></label>
+						<div class="input-group" style="padding: 5px;">
+							<label for="skip_mfa">
+								<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa">
+								<?php echo $strings['skip_mfa']; ?>
+							</label>
+						</div>
+                    </div>
+				<?php endif; ?>
 
                 <div class="form-group submit">
                     <div class="row">

@@ -101,7 +101,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 
 				if ( $bLoginIntentValidated ) {
-					$this->getCurrentUserMeta()->last_mfalogin_at = $this->time();
+
+					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) {
+						$this->getCurrentUserMeta()->last_mfalogin_at = $this->time();
+					}
+
 					$this->removeLoginIntent();
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
@@ -259,7 +263,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'more_info'       => _wpsf__( 'More Info' ),
 				'what_is_this'    => _wpsf__( 'What is this?' ),
 				'message'         => $sMessage,
-				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() )
+				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() ),
+				'skip_mfa'        => sprintf( _wpsf__( "Don't ask again on this browser for %s day(s)" ), $oFO->getMfaSkip() )
 			),
 			'data'    => array(
 				'login_fields'      => $aLoginIntentFields,
@@ -275,6 +280,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+			),
+			'flags'   => array(
+				'can_skip_mfa' => $oFO->getMfaSkipEnabled()
 			)
 		);
 

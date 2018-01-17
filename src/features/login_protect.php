@@ -213,9 +213,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$bCanSkip = false;
 
 		if ( $this->getMfaSkipEnabled() ) {
+			$oMeta = $this->getUserMeta( $oUser );
 			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
-			$bCanSkip = ( $this->getUserMeta( $oUser )->last_mfalogin_at + $nSkipTime )
-						> $this->loadDP()->time();
+			$bCanSkip = ( $oMeta->last_mfalogin_at + $nSkipTime ) > $this->loadDP()->time()
+						&& ( $oMeta->hash_loginbrowser == md5( $this->loadDP()->getUserAgent() ) );
 		}
 		return $bCanSkip;
 	}
@@ -231,7 +232,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return int
 	 */
 	public function getMfaSkip() {
-		return $this->getOpt( 'mfa_skip', 0 );
+		return (int)$this->getOpt( 'mfa_skip', 0 );
 	}
 
 	/**

@@ -14,6 +14,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
 
+		add_action( 'wp_login', array( $this, 'onWpLogin' ), 100, 2 );
+
 		if ( !$this->isTrackingPermissionSet() ) {
 			add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
 		}
@@ -26,6 +28,17 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function onWpInit() {
 		parent::onWpInit();
 		$this->getImportExportSecretKey();
+	}
+
+	/**
+	 * A action added to WordPress 'wp_login' hook
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		if ( !empty( $oUser ) && $oUser instanceof WP_User ) { // since we can't guarantee other plugins can code
+			$this->getUserMeta( $oUser )->hash_loginbrowser = md5( $this->loadDP()->getUserAgent() );
+		}
 	}
 
 	/**

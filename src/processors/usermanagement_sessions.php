@@ -62,9 +62,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			$this->doTerminateUserSession( $sUsername, $this->getSessionId() );
 		}
 
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
-		$oMeta->hash_loginbrowser = md5( $this->loadDP()->getUserAgent() );
-
 		$this->doAddNewActiveUserSessionRecord( $sUsername );
 		$this->doLimitUserSession( $sUsername );
 		return true;
