@@ -169,7 +169,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 		else {
 			$oDP = $this->loadDP();
-			$oMeta = $this->getCurrentUserMeta();
+			$nTime = $this->time();
 			$aSession = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
 			$nSessTimeout = $this->getSessionTimeoutInterval();
 			$nSessIdleTimeout = $this->getOption( 'session_idle_timeout_interval', 0 )*HOUR_IN_SECONDS;
@@ -179,10 +179,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			if ( !$aSession ) {
 				$nForceLogOutCode = 4;
 			} // timeout interval
-			else if ( $nSessTimeout > 0 && ( $this->time() - $aSession[ 'logged_in_at' ] > $nSessTimeout ) ) {
+			else if ( $nSessTimeout > 0 && ( $nTime - $aSession[ 'logged_in_at' ] > $nSessTimeout ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $nSessIdleTimeout > 0 && ( ( $this->time() - $aSession[ 'last_activity_at' ] ) > $nSessIdleTimeout ) ) {
+			else if ( $nSessIdleTimeout > 0 && ( ( $nTime - $aSession[ 'last_activity_at' ] ) > $nSessIdleTimeout ) ) {
 				$nForceLogOutCode = 2;
 			} // login ip address lock
 			else if ( $this->isLockToIp() && $this->ip() != $aSession[ 'ip' ] ) {
