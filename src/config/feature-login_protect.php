@@ -155,7 +155,7 @@
       "premium":     true,
       "default":     0,
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "http://icwp.io/b1",
       "link_blog":   "",
       "name":        "Multi-Factor By-Pass",
       "summary":     "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days",
