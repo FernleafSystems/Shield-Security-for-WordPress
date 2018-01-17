@@ -8,6 +8,7 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
  * @property bool   $email_validated
  * @property string $ga_secret
  * @property bool   $ga_validated
+ * @property string $hash_loginbrowser
  * @property string $yubi_secret
  * @property bool   $yubi_validated
  * @property string $code_tfaemail

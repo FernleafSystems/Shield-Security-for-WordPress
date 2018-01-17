@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'basedb.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
@@ -12,11 +12,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @var string
 	 */
 	protected $nDaysToKeepLog = 30;
-
-	/**
-	 * @var string
-	 */
-	protected $sSessionId;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_UserManagement $oFeatureOptions
@@ -30,7 +25,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function init() {
 		parent::init();
-		$this->setAutoExpirePeriod( DAY_IN_SECONDS * $this->nDaysToKeepLog );
+		$this->setAutoExpirePeriod( DAY_IN_SECONDS*$this->nDaysToKeepLog );
 	}
 
 	public function run() {
@@ -67,6 +62,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			$this->doTerminateUserSession( $sUsername, $this->getSessionId() );
 		}
 
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta->hash_loginbrowser = md5( $this->loadDP()->getUserAgent() );
+
 		$this->doAddNewActiveUserSessionRecord( $sUsername );
 		$this->doLimitUserSession( $sUsername );
 		return true;
@@ -94,7 +92,16 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 
 				if ( $nCode > 0 ) {
 
-					if ( $nCode == 3 ) { // a session was used from the wrong IP. We just block it.
+					if ( $nCode == 7 ) {
+						$this->loadWpUsers()->logoutUser( true );
+						$this->addToAuditEntry(
+							sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
+							2,
+							'um_session_browser_lock_redirect'
+						);
+						$oWp->redirectToLogin();
+					}
+					else if ( $nCode == 3 ) { // a session was used from the wrong IP. We just block it.
 //						$this->loadWpUsers()->logoutUser( true ); // so as not to destroy the original, legitimate session
 						$this->addToAuditEntry(
 							sprintf( 'Access to an established user session from a new IP address "%s". Redirecting request.', $this->ip() ),
@@ -115,14 +122,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			}
 			else if ( $nCode > 0 && !$oWp->isRestUrl() ) { // it's not admin, but the user looks logged into WordPress and not to Shield
 				wp_set_current_user( 0 ); // ensures that is_user_logged_in() is false going forward.
-			}
-
-			// Auto-redirect to admin: UNUSED
-			if ( $oWp->isRequestLoginUrl() && $this->loadWpUsers()->isUserAdmin() ) {
-				$sLoginAction = $this->loadDataProcessor()->FetchGet( 'action' );
-				if ( !in_array( $sLoginAction, array( 'logout', 'postpass' ) ) ) {
-					// $oWp->redirectToAdmin();
-				}
 			}
 
 			// always track last activity
@@ -172,33 +171,28 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			$nForceLogOutCode = 6;
 		}
 		else {
-
-			$aLoginSessionData = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
-			$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-			$nSessionIdleTimeoutInterval = $this->getOption( 'session_idle_timeout_interval', 0 ) * HOUR_IN_SECONDS;
-			$bLockToIp = $this->getIsOption( 'session_lock_location', 'Y' );
-			$sVisitorIp = $this->ip();
+			$oDP = $this->loadDP();
+			$oMeta = $this->getUserMeta();
+			$aSession = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
+			$nSessTimeout = $this->getSessionTimeoutInterval();
+			$nSessIdleTimeout = $this->getOption( 'session_idle_timeout_interval', 0 )*HOUR_IN_SECONDS;
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
-			if ( !is_object( $oUser ) || !( $oUser instanceof WP_User ) ) {
-				$nForceLogOutCode = 6;
-
-			} // session?
-			else if ( !$aLoginSessionData ) {
+			if ( !$aSession ) {
 				$nForceLogOutCode = 4;
-
 			} // timeout interval
-			else if ( $nSessionTimeoutInterval > 0 && ( $this->time() - $aLoginSessionData[ 'logged_in_at' ] > $nSessionTimeoutInterval ) ) {
+			else if ( $nSessTimeout > 0 && ( $this->time() - $aSession[ 'logged_in_at' ] > $nSessTimeout ) ) {
 				$nForceLogOutCode = 1;
-
 			} // idle timeout interval
-			else if ( $nSessionIdleTimeoutInterval > 0 && ( ( $this->time() - $aLoginSessionData[ 'last_activity_at' ] ) > $nSessionIdleTimeoutInterval ) ) {
+			else if ( $nSessIdleTimeout > 0 && ( ( $this->time() - $aSession[ 'last_activity_at' ] ) > $nSessIdleTimeout ) ) {
 				$nForceLogOutCode = 2;
-
 			} // login ip address lock
-			else if ( $bLockToIp && $sVisitorIp != $aLoginSessionData[ 'ip' ] ) {
+			else if ( $this->isLockToIp() && $this->ip() != $aSession[ 'ip' ] ) {
 				$nForceLogOutCode = 3;
+			}
+			else if ( $this->isLockToBrowser() && ( $oMeta->hash_loginbrowser != md5( $oDP->getUserAgent() ) ) ) {
+				$nForceLogOutCode = 7;
 			}
 		}
 
@@ -209,10 +203,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return string
 	 */
 	public function getSessionId() {
-		if ( empty( $this->sSessionId ) ) {
-			$this->sSessionId = $this->getController()->getSessionId();
-		}
-		return $this->sSessionId;
+		return $this->getController()->getSessionId();
 	}
 
 	/**
@@ -228,7 +219,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return integer
 	 */
 	protected function getSessionTimeoutInterval() {
-		return $this->getOption( 'session_timeout_interval' ) * DAY_IN_SECONDS;
+		return $this->getOption( 'session_timeout_interval' )*DAY_IN_SECONDS;
 	}
 
 	/**
@@ -238,6 +229,20 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getActiveSessionRecordsForUsername( $sWpUsername ) {
 		return $this->getActiveUserSessionRecords( $sWpUsername );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLockToIp() {
+		return $this->getFeature()->getOptIs( 'session_lock_location', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLockToBrowser() {
+		return $this->getFeature()->getOptIs( 'session_lock_browser', 'Y' );
 	}
 
 	/**
@@ -324,7 +329,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		}
 
 		$mResult = true;
-		for ( $nCount = 0; $nCount < $nSessionsToKill; $nCount++ ) {
+		for ( $nCount = 0 ; $nCount < $nSessionsToKill ; $nCount++ ) {
 			$mResult = $this->doTerminateUserSession( $aSessions[ $nCount ][ 'wp_username' ], $aSessions[ $nCount ][ 'session_id' ] );
 		}
 		return $mResult;
@@ -338,6 +343,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
 			return false;
 		}
+		$this->getUserMeta()->login_browser = '';
+
 		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
 		$this->getController()->clearSession();
 		return $mResult;
@@ -384,7 +391,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 		$sQuery = sprintf(
 			$sQuery,
 			$this->getTableName(),
-			empty( $sWpUsername ) ? '' : "AND `wp_username` = '" . esc_sql( $sWpUsername ) . "'"
+			empty( $sWpUsername ) ? '' : "AND `wp_username` = '".esc_sql( $sWpUsername )."'"
 		);
 		return $this->selectCustom( $sQuery );
 	}
@@ -433,7 +440,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 					break;
 			}
 
-			$sMessage .= '<br />' . _wpsf__( 'Please login again.' );
+			$sMessage .= '<br />'._wpsf__( 'Please login again.' );
 			$oError->add( 'wpsf-forcelogout', $sMessage );
 		}
 		return $oError;
@@ -465,7 +472,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDefinition( 'user_sessions_table_columns' );
+		$aDef = $this->getFeature()->getDef( 'user_sessions_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -475,7 +482,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	 */
 	public function getPendingOrFailedUserSessionRecordsSince( $nTime = 0 ) {
 
-		$nTime = ( $nTime <= 0 ) ? 2 * DAY_IN_SECONDS : $nTime;
+		$nTime = ( $nTime <= 0 ) ? 2*DAY_IN_SECONDS : $nTime;
 
 		$sQuery = "
 			SELECT *

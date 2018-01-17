@@ -240,6 +240,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 								.' '._wpsf__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress." );
 				break;
 
+			case 'session_lock_browser' :
+				$sName = _wpsf__( 'Lock To Browser' );
+				$sSummary = _wpsf__( 'Locks A User Session To Browser' );
+				$sDescription = _wpsf__( 'Session are restricted to the same browser that was used to login.' );
+				break;
+
 			case 'session_username_concurrent_limit' :
 				$sName = _wpsf__( 'Max Simultaneous Sessions' );
 				$sSummary = _wpsf__( 'Limit Simultaneous Sessions For The Same Username' );
