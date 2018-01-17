@@ -16,11 +16,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$oDp = $this->loadDP();
 		// User has clicked a link in their email to verify they can send email.
-		if ( $oDp->query( 'wpsf-action' ) == 'emailsendverify' ) {
+		if ( $oDp->query( 'shield_action' ) == 'emailsendverify' ) {
 			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
-				$this->loadWp()->redirectToLogin();
+				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
 			}
 		}
 	}
@@ -76,8 +76,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	protected function generateCanSendEmailVerifyLink() {
 		$aQueryArgs = array(
-			'authkey'     => $this->getTwoAuthSecretKey(),
-			'wpsf-action' => 'emailsendverify'
+			'authkey'       => $this->getCanEmailVerifyCode(),
+			'shield_action' => 'emailsendverify'
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
 	}
@@ -110,7 +110,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$aMessage = array(
 			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
-			sprintf( _wpsf__( 'Verify Code: %s' ), $sVerify ),
+
+			sprintf( _wpsf__( "Using the guided wizard? Here's your code: %s" ), $sVerify ),
+			sprintf( _wpsf__( 'Or click the verify link: %s' ), $this->generateCanSendEmailVerifyLink() ),
 		);
 		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
 
@@ -222,7 +224,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function getIsEmailAuthenticationEnabled() {
-		return $this->getIfCanSendEmail() && $this->getIsEmailAuthenticationOptionOn();
+		return $this->getIfCanSendEmailVerified() && $this->getIsEmailAuthenticationOptionOn();
 	}
 
 	/**
@@ -244,13 +246,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getCanSendEmailVerifiedAt() {
 		return $this->getOpt( 'email_can_send_verified_at' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIfCanSendEmail() {
-		return $this->getCanSendEmailVerifiedAt() != 0;
 	}
 
 	/**
