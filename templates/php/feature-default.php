@@ -50,19 +50,18 @@
 				<?php echo $flags[ 'show_standard_options' ] ? $options_form : ''; ?>
 				<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
 			</div>
+
 			<?php if ( $flags[ 'show_content_actions' ] ) : ?>
 				<div class="tab-pane" id="icwpPillActions">
 					<?php echo $content[ 'actions' ]; ?>
 				</div>
 			<?php endif; ?>
+
 			<?php if ( $flags[ 'show_content_help' ] ) : ?>
 				<div class="tab-pane" id="icwpPillHelp">
 					<div class="content-help"><?php echo $content[ 'help' ]; ?></div>
 				</div>
 			<?php endif; ?>
-			<div class="tab-pane" id="icwpPillSelect">
-				<h3 style="text-align: center">&uarr; <?php echo 'Select Desired Section Above'; ?> &uarr;</h3>
-			</div>
 		</div>
 
 		<?php if ( $flags[ 'show_ads' ] ) : ?>

@@ -176,8 +176,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLocale() {
-		$aLocaleParts = explode( '_', $this->loadWp()->getLocale(), 2 );
-		return $aLocaleParts[ 0 ];
+		return str_replace( '_', '-', $this->loadWp()->getLocale() );
 	}
 
 	/**
