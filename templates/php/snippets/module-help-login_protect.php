@@ -1,6 +1,7 @@
 <h2>What is Login Protection?</h2>
 <p>The goal of login protection is to harden-up the WordPress user login process.</p>
-<p>It protects again brute force and bots, while also providing added layers of multi-factor authentication.</p>
+<p>It protects you against brute force and bots,
+   while also providing added layers of multi-factor authentication.</p>
 <dl>
 	<dt>What is multi-factor authentication (MFA)?</dt>
 	<dd>

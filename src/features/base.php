@@ -740,7 +740,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
 
 		// TODO: move this to the wizard handler itself
-		if ( $this->getCanRunWizards() && $this->hasWizard() ) {
+		if ( $this->canRunWizards() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
 			if ( !is_null( $oWiz ) ) {
 				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
@@ -1194,7 +1194,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function runWizards() {
-		if ( $this->getCanRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
+		if ( $this->canRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
 			if ( $oWiz instanceof ICWP_WPSF_Wizard_Base ) {
 				$oWiz->init();
@@ -1356,8 +1356,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
 				'show_content_actions'  => $this->hasCustomActions(),
+				'show_content_help'     => true,
 				'show_alt_content'      => false,
-				'can_wizard'            => $this->getCanRunWizards(),
+				'can_wizard'            => $this->canRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'      => array(
@@ -1368,9 +1369,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
 			'content'    => array(
-				'alt'     => '',
-				'actions' => $this->getContentCustomActions(),
-				'help'    => $this->getContentHelp()
+				'options_form' => 'no form',
+				'alt'          => '',
+				'actions'      => $this->getContentCustomActions(),
+				'help'         => $this->getContentHelp()
 			)
 		);
 		$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
@@ -1382,13 +1384,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getContentCustomActions() {
 		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getCanRunWizards() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
 	}
 
 	/**
@@ -1441,7 +1436,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getWizardDefinitions() {
-		$aW = $this->getDefinition( 'wizards' );
+		$aW = $this->getDef( 'wizards' );
 		return is_array( $aW ) ? $aW : array();
 	}
 
@@ -1497,6 +1492,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function canRunWizards() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
+	}
+
+	/**
 	 * @param array  $aData
 	 * @param string $sSubView
 	 */
@@ -1511,9 +1513,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
 		}
 
-		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+		$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
-		$aData[ 'options_form' ] = $this->renderOptionsForm();
+		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
 				->setTemplate( 'index.php' )

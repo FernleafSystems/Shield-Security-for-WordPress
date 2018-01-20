@@ -36,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			return parent::getContentCustomActions();
 		}
 
-		$bCanWizard = $this->getCanRunWizards();
+		$bCanWizard = $this->canRunWizards();
 		$bCanWizardWelcome = $bCanWizard;
 		$bCanWizardImport = $bCanWizard && $this->isPremium();
 

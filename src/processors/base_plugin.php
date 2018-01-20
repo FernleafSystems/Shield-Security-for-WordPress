@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
-		$bCanWizardWelcome = $oFO->getCanRunWizards();
+		$bCanWizardWelcome = $oFO->canRunWizards();
 
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,

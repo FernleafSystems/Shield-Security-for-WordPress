@@ -282,7 +282,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		if ( $oFO->getCanRunWizards() ) {
+		if ( $oFO->canRunWizards() ) {
 			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
 				$oFO->getUrl_Wizard( 'wcf' ),
 				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',

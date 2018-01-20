@@ -47,7 +47,7 @@
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="icwpPillOptions">
-				<?php echo $flags[ 'show_standard_options' ] ? $options_form : ''; ?>
+				<?php echo $flags[ 'show_standard_options' ] ? $content['options_form'] : ''; ?>
 				<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
 			</div>
 
