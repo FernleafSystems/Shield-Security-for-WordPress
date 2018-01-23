@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_Statistics_Reporting', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'statistics_base.php' );
+require_once( dirname( __FILE__ ).'/statistics_base.php' );
 
 class ICWP_WPSF_Query_Statistics_Reporting extends ICWP_WPSF_Query_Statistics_Base {
 

@@ -1439,7 +1439,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		$this->loadDP()->setDeleteCookie( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
