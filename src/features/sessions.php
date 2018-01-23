@@ -8,32 +8,24 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function renderUserSessions() {
-
-		$aActiveSessions = $this->getActiveSessionsData();
-
-		$oWp = $this->loadWp();
-		$sTimeFormat = $oWp->getTimeFormat();
-		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as &$aSession ) {
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'logged_in_at' ] );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
+	/**
+	 * @return SessionVO
+	 */
+	protected function getUserSession() {
+		if ( did_action( 'init' ) && !isset( self::$oSession ) && $this->loadWpUsers()->isUserLoggedIn() ) {
+			/** @var ICWP_WPSF_Processor_Sessions $oP */
+			$oP = $this->getProcessor();
+			self::$oSession = $oP->getCurrentSession();
 		}
+		return parent::getUserSession();
+	}
 
-		$oTable = $this->getTableRendererForSessions()
-					   ->setItemEntries( $aActiveSessions )
-					   ->setPerPage( 5 )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		$sUserSessionsTable = ob_get_clean();
-
-		$aData = array(
-			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
-			'sUserSessionsTable' => $sUserSessionsTable
-		);
-		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
+	/**
+	 * A action added to WordPress 'init' hook
+	 */
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getUserSession();
 	}
 
 	/**
