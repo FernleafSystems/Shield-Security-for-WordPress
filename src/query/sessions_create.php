@@ -22,7 +22,7 @@ class ICWP_WPSF_Query_Sessions_Create extends ICWP_WPSF_Query_Base {
 		// First set any other entries for the given user to be deleted.
 		$aNewData = array(
 			'session_id'        => $sSessionId,
-			'ip'                => sha1( $this->loadIpService()->getRequestIp() ),
+			'ip'                => $this->loadIpService()->getRequestIp(), // TODO: SHA1
 			'browser'           => md5( $oDP->getUserAgent() ),
 			'wp_username'       => $sUsername,
 			'logged_in_at'      => $nTimeStamp,

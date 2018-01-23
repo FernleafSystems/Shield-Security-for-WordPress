@@ -67,7 +67,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 							);
 							$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
 							break;
-
 					}
 				}
 				else {
@@ -111,7 +110,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 			else if ( $nSessIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nSessIdleTimeout ) ) {
 				$nForceLogOutCode = 2;
 			} // login ip address lock
-			else if ( $this->isLockToIp() && ( sha1( $this->ip() ) != $oSess->getIp() ) ) {
+			else if ( $this->isLockToIp() && ( $this->ip() != $oSess->getIp() ) ) { //TODO: sha1
 				$nForceLogOutCode = 3;
 			}
 			else if ( $this->isLockToBrowser() && ( $oSess->getBrowser() != md5( $oDP->getUserAgent() ) ) ) {
