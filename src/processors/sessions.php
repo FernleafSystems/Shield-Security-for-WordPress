@@ -191,15 +191,18 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return SessionVO[]
+	 */
+	public function queryGetActiveSessions() {
+		return $this->getSessionsRetriever()->all();
+	}
+
+	/**
 	 * @param string $sWpUsername
 	 * @return SessionVO[]
 	 */
 	public function queryGetActiveSessionsForUsername( $sWpUsername ) {
-		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_retrieve.php' );
-
-		$oRetrieve = new ICWP_WPSF_Query_Sessions_Retrieve();
-		return $oRetrieve->setTable( $this->getTableName() )
-						 ->retrieveForUsername( $sWpUsername );
+		return $this->getSessionsRetriever()->retrieveForUsername( $sWpUsername );
 	}
 
 	/**
@@ -250,6 +253,15 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
 		return $oUpdate->setTable( $this->getTableName() )
 					   ->update( $oSession );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Sessions_Retrieve
+	 */
+	public function getSessionsRetriever() {
+		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_retrieve.php' );
+		$oRetrieve = new ICWP_WPSF_Query_Sessions_Retrieve();
+		return $oRetrieve->setTable( $this->getTableName() );
 	}
 
 	/**

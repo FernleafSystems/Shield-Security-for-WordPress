@@ -13,11 +13,18 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
+	 * @return SessionVO[]
+	 */
+	public function all() {
+		return $this->query_retrieveForUserSession();
+	}
+
+	/**
 	 * @param string $sWpUsername
 	 * @return SessionVO[]
 	 */
 	public function retrieveForUsername( $sWpUsername ) {
-		return $this->query_retrieveForUserSession( $sWpUsername, '' );
+		return $this->query_retrieveForUserSession( $sWpUsername );
 	}
 
 	/**
@@ -35,20 +42,20 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 	 * @param string $sSessionId
 	 * @return SessionVO[]
 	 */
-	protected function query_retrieveForUserSession( $sWpUsername, $sSessionId = '' ) {
+	protected function query_retrieveForUserSession( $sWpUsername = '', $sSessionId = '' ) {
 		$sQuery = "
 			SELECT *
 			FROM `%s`
 			WHERE
-				`wp_username`		= '%s'
-				AND `deleted_at`	= 0
+				`deleted_at` = 0
+				%s
 				%s
 			ORDER BY `last_activity_at` ASC
 		";
 		$sQuery = sprintf(
 			$sQuery,
 			$this->getTable(),
-			esc_sql( $sWpUsername ),
+			empty( $sWpUsername ) ? '' : "AND `wp_username` = '".esc_sql( $sWpUsername )."'",
 			empty( $sSessionId ) ? '' : "AND `session_id` = '".esc_sql( $sSessionId )."'"
 		);
 
