@@ -1053,10 +1053,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return false;
 		}
 
-		$aFormSubmitOptions = array(
-			$this->doPluginOptionPrefix( 'plugin_form_submit' ),
-			'icwp_link_action'
-		);
+		$aFormSubmitOptions = array( 'plugin_form_submit', 'icwp_link_action' );
 
 		$oDp = $this->loadDataProcessor();
 		foreach ( $aFormSubmitOptions as $sOption ) {

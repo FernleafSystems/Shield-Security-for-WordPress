@@ -176,8 +176,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLocale() {
-		$aLocaleParts = explode( '_', $this->loadWp()->getLocale(), 2 );
-		return $aLocaleParts[ 0 ];
+		return str_replace( '_', '-', $this->loadWp()->getLocale() );
 	}
 
 	/**
@@ -224,8 +223,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_UserMeta
 	 */
-	protected function getUserMeta() {
-		return $this->getFeature()->getUserMeta();
+	protected function getCurrentUserMeta() {
+		return $this->getFeature()->getCurrentUserMeta();
 	}
 
 	/**
@@ -249,6 +248,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return int
 	 */
 	protected function time() {
-		return $this->loadDataProcessor()->GetRequestTime();
+		return $this->loadDP()->time();
 	}
 }

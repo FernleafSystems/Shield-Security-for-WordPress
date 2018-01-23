@@ -150,6 +150,18 @@
       "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
     },
     {
+      "key":         "mfa_skip",
+      "section":     "section_multifactor_authentication",
+      "premium":     true,
+      "default":     0,
+      "type":        "integer",
+      "link_info":   "http://icwp.io/b1",
+      "link_blog":   "",
+      "name":        "Multi-Factor By-Pass",
+      "summary":     "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days",
+      "description": "Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable."
+    },
+    {
       "key":         "enable_google_authenticator",
       "section":     "section_multifactor_authentication",
       "default":     "N",

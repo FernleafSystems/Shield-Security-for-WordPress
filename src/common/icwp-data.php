@@ -113,6 +113,13 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getUserAgent() {
+		return $this->FetchServer( 'HTTP_USER_AGENT' );
+	}
+
+	/**
 	 * @param bool $bIncludeCookie
 	 * @return array
 	 */

@@ -112,7 +112,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			'um_last_activity_at'               => _wpsf__( 'Last Activity At' ),
 			'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
 			'um_login_ip'                       => _wpsf__( 'Login IP' ),
-			'um_login_attempts'                 => _wpsf__( 'Login Attempts' ),
 			'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
 		);
 	}
@@ -238,6 +237,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'Locks A User Session To IP address' );
 				$sDescription = _wpsf__( 'When selected, a session is restricted to the same IP address as when the user logged in.' )
 								.' '._wpsf__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress." );
+				break;
+
+			case 'session_lock_browser' :
+				$sName = _wpsf__( 'Lock To Browser' );
+				$sSummary = _wpsf__( 'Locks A User Session To Browser' );
+				$sDescription = _wpsf__( 'Session are restricted to the same browser that was used to login.' );
 				break;
 
 			case 'session_username_concurrent_limit' :

@@ -241,7 +241,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		$aContent[] = '';
-		if ( $oFO->getCanRunWizards() ) {
+		if ( $oFO->canRunWizards() ) {
 			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
 				$oFO->getUrl_Wizard( 'ufc' ),
 				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',

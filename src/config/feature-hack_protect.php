@@ -199,8 +199,8 @@
           "text":      "24 Times (scan every hour)"
         }
       ],
-      "link_info":   "http://icwp.io/wpsf36",
-      "link_blog":   "http://icwp.io/wpsf37",
+      "link_info":   "http://icwp.io/b2",
+      "link_blog":   "",
       "name":        "Daily Frequency",
       "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
       "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
@@ -285,8 +285,8 @@
           "text":      "24 Times (scan every hour)"
         }
       ],
-      "link_info":   "http://icwp.io/wpsf36",
-      "link_blog":   "http://icwp.io/wpsf37",
+      "link_info":   "http://icwp.io/b2",
+      "link_blog":   "",
       "name":        "Daily Scan Frequency",
       "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
       "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."

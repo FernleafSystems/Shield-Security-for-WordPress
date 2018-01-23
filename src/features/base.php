@@ -464,7 +464,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aItems[ $sMenuPageTitle ] = array(
 				$sMenuTitleName,
 				$this->prefix( $this->getFeatureSlug() ),
-				array( $this, 'displayFeatureConfigPage' )
+				array( $this, 'displayModuleAdminPage' )
 			);
 
 			$aAdditionalItems = $this->getOptionsVo()->getAdditionalMenuItems();
@@ -740,7 +740,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
 
 		// TODO: move this to the wizard handler itself
-		if ( $this->getCanRunWizards() && $this->hasWizard() ) {
+		if ( $this->canRunWizards() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
 			if ( !is_null( $oWiz ) ) {
 				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
@@ -889,10 +889,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			if ( !empty( $aSection[ 'options' ] ) ) {
 
-				foreach ( $aSection[ 'options' ] as $nKey => $aOptionParams ) {
-					$bIsPrem = isset( $aOptionParams[ 'premium' ] ) && $aOptionParams[ 'premium' ];
+				foreach ( $aSection[ 'options' ] as $nKey => $aOption ) {
+					$aOption[ 'is_value_default' ] = ( $aOption[ 'value' ] === $aOption[ 'default' ] );
+					$bIsPrem = isset( $aOption[ 'premium' ] ) && $aOption[ 'premium' ];
 					if ( !$bIsPrem || $bPremiumEnabled ) {
-						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOptionParams );
+						$aSection[ 'options' ][ $nKey ] = $this->buildOptionForUi( $aOption );
 					}
 					else {
 						unset( $aSection[ 'options' ][ $nKey ] );
@@ -921,53 +922,53 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function buildOptionForUi( $aOptParams ) {
 
-		$mCurrentVal = $aOptParams[ 'value' ];
+		$mCurrent = $aOptParams[ 'value' ];
 
 		switch ( $aOptParams[ 'type' ] ) {
 
 			case 'password':
-				if ( !empty( $mCurrentVal ) ) {
-					$mCurrentVal = '';
+				if ( !empty( $mCurrent ) ) {
+					$mCurrent = '';
 				}
 				break;
 
 			case 'array':
 
-				if ( empty( $mCurrentVal ) || !is_array( $mCurrentVal ) ) {
-					$mCurrentVal = array();
+				if ( empty( $mCurrent ) || !is_array( $mCurrent ) ) {
+					$mCurrent = array();
 				}
 
-				$aOptParams[ 'rows' ] = count( $mCurrentVal ) + 2;
-				$mCurrentVal = stripslashes( implode( "\n", $mCurrentVal ) );
+				$aOptParams[ 'rows' ] = count( $mCurrent ) + 2;
+				$mCurrent = stripslashes( implode( "\n", $mCurrent ) );
 
 				break;
 
 			case 'comma_separated_lists':
 
 				$aNewValues = array();
-				if ( !empty( $mCurrentVal ) && is_array( $mCurrentVal ) ) {
+				if ( !empty( $mCurrent ) && is_array( $mCurrent ) ) {
 
-					foreach ( $mCurrentVal as $sPage => $aParams ) {
+					foreach ( $mCurrent as $sPage => $aParams ) {
 						$aNewValues[] = $sPage.', '.implode( ", ", $aParams );
 					}
 				}
 				$aOptParams[ 'rows' ] = count( $aNewValues ) + 1;
-				$mCurrentVal = implode( "\n", $aNewValues );
+				$mCurrent = implode( "\n", $aNewValues );
 
 				break;
 
 			case 'multiple_select':
-				if ( !is_array( $mCurrentVal ) ) {
-					$mCurrentVal = array();
+				if ( !is_array( $mCurrent ) ) {
+					$mCurrent = array();
 				}
 				break;
 
 			case 'text':
-				$mCurrentVal = stripslashes( $this->getTextOpt( $aOptParams[ 'key' ] ) );
+				$mCurrent = stripslashes( $this->getTextOpt( $aOptParams[ 'key' ] ) );
 				break;
 		}
 
-		$aOptParams[ 'value' ] = is_scalar( $mCurrentVal ) ? esc_attr( $mCurrentVal ) : $mCurrentVal;
+		$aOptParams[ 'value' ] = is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent;
 		$aOptParams[ 'disabled' ] = !$this->isPremium() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] );
 		$aOptParams[ 'enabled' ] = !$aOptParams[ 'disabled' ];
 		// add strings
@@ -1028,8 +1029,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	public function ajaxOptionsFormSave() {
 
-		$sProcessingModule = $this->loadDataProcessor()->FetchPost( $this->prefixOptionKey( 'feature_slug' ) );
-		if ( $this->getFeatureSlug() != $sProcessingModule ) {
+		if ( $this->prefix( $this->getFeatureSlug() ) != $this->loadDP()->post( 'mod_slug' ) ) {
 			return;
 		}
 
@@ -1083,9 +1083,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return void
 	 */
 	protected function doSaveStandardOptions() {
-		$sAllOptions = $this->loadDataProcessor()
-							->FetchPost( $this->prefixOptionKey( 'all_options_input' ) );
-
+		$sAllOptions = $this->loadDP()->post( 'all_options_input' );
 		if ( !empty( $sAllOptions ) ) {
 			$this->updatePluginOptionsFromSubmit( $sAllOptions );
 		}
@@ -1124,7 +1122,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sAllOptionsInput - comma separated list of all the input keys to be processed from the $_POST
 	 * @return void
 	 */
-	public function updatePluginOptionsFromSubmit( $sAllOptionsInput ) {
+	protected function updatePluginOptionsFromSubmit( $sAllOptionsInput ) {
 		if ( empty( $sAllOptionsInput ) ) {
 			return;
 		}
@@ -1135,7 +1133,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aInput = explode( ':', $sInputKey );
 			list( $sOptionType, $sOptionKey ) = $aInput;
 
-			$sOptionValue = $oDp->FetchPost( $this->prefixOptionKey( $sOptionKey ) );
+			$sOptionValue = $oDp->post( $sOptionKey );
 			if ( is_null( $sOptionValue ) ) {
 
 				if ( $sOptionType == 'text' || $sOptionType == 'email' ) { //if it was a text box, and it's null, don't update anything
@@ -1194,7 +1192,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function runWizards() {
-		if ( $this->getCanRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
+		if ( $this->canRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
 			if ( $oWiz instanceof ICWP_WPSF_Wizard_Base ) {
 				$oWiz->init();
@@ -1255,9 +1253,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param $oUser WP_User
 	 * @return ICWP_UserMeta
 	 */
-	public function getUserMeta() {
+	public function getUserMeta( $oUser ) {
+		return $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+	}
+
+	/**
+	 * @return ICWP_UserMeta
+	 */
+	public function getCurrentUserMeta() {
 		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
 	}
 
@@ -1271,7 +1277,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 */
-	public function displayFeatureConfigPage() {
+	public function displayModuleAdminPage() {
 		if ( $this->canDisplayOptionsForm() ) {
 			$this->displayModulePage();
 		}
@@ -1302,14 +1308,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
 		$aData = array(
-			'var_prefix'      => $oCon->getOptionStoragePrefix(),
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
 			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
-			'feature_slug'    => self::$sActivelyDisplayedModuleOptions,
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
 			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
-			'sFeatureSlug'    => $this->prefix( $this->getFeatureSlug() ),
 			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
 			'nOptionsPerRow'  => 1,
 			'aPluginLabels'   => $oCon->getPluginLabels(),
@@ -1327,11 +1330,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
-			'aAllOptions'       => $this->buildOptions(),
-			'aHiddenOptions'    => $this->getOptionsVo()->getHiddenOptions(),
-			'all_options_input' => $this->collateAllFormInputsForAllOptions(),
-
 			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+			'data'       => array(
+				'form_nonce'        => $this->genNonce( '' ),
+				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
+				'all_options'       => $this->buildOptions(),
+				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
+				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
+			),
 			'strings'    => array(
 				'go_to_settings'                    => __( 'Settings' ),
 				'on'                                => __( 'On' ),
@@ -1348,8 +1354,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
 				'show_content_actions'  => $this->hasCustomActions(),
+				'show_content_help'     => true,
 				'show_alt_content'      => false,
-				'can_wizard'            => $this->getCanRunWizards(),
+				'can_wizard'            => $this->canRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'      => array(
@@ -1360,9 +1367,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
 			'content'    => array(
-				'alt'     => '',
-				'actions' => $this->getContentCustomActions(),
-				'help'    => $this->getContentHelp()
+				'options_form' => 'no form',
+				'alt'          => '',
+				'actions'      => $this->getContentCustomActions(),
+				'help'         => $this->getContentHelp()
 			)
 		);
 		$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
@@ -1374,13 +1382,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getContentCustomActions() {
 		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getCanRunWizards() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
 	}
 
 	/**
@@ -1433,7 +1434,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getWizardDefinitions() {
-		$aW = $this->getDefinition( 'wizards' );
+		$aW = $this->getDef( 'wizards' );
 		return is_array( $aW ) ? $aW : array();
 	}
 
@@ -1472,7 +1473,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		// Get the same Base Data as normal display
-		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), $this->getBaseDisplayData() );
+		$aData = $this->getBaseDisplayData();
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		return $this->loadRenderer( self::getConn()->getPath_Templates() )
 					->setTemplate( $sTemplate )
@@ -1486,6 +1487,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function canDisplayOptionsForm() {
 		return $this->getOptionsVo()->isAccessRestricted() ? self::getConn()
 																 ->getHasPermissionToView() : true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function canRunWizards() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
 	}
 
 	/**
@@ -1503,9 +1511,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
 		}
 
-		$aData[ 'sFeatureInclude' ] = $this->loadDataProcessor()->addExtensionToFilePath( $sSubView, '.php' );
+		$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
-		$aData[ 'options_form' ] = $this->renderOptionsForm();
+		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
 				->setTemplate( 'index.php' )
@@ -1515,38 +1523,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		catch ( Exception $oE ) {
 			echo $oE->getMessage();
 		}
-	}
-
-	/**
-	 * @param array  $aData
-	 * @param string $sSubView
-	 */
-	protected function displayByTemplate( $aData = array(), $sSubView = '' ) {
-
-		$oCon = self::getConn();
-		// Get Base Data
-		$aData = apply_filters( $this->prefix( $this->getFeatureSlug().'display_data' ), array_merge( $this->getBaseDisplayData(), $aData ) );
-		$bPermissionToView = $oCon->getHasPermissionToView();
-
-		if ( !$bPermissionToView ) {
-			$sSubView = 'subfeature-access_restricted';
-		}
-
-		if ( empty( $sSubView ) ) {
-			$oWpFs = $this->loadFS();
-			$sFeatureInclude = 'feature-'.$this->getFeatureSlug();
-			if ( $oWpFs->exists( $oCon->getPath_TemplatesFile( $sFeatureInclude ) ) ) {
-				$sSubView = $sFeatureInclude;
-			}
-			else {
-				$sSubView = 'feature-default';
-			}
-		}
-
-		$aData[ 'sFeatureInclude' ] = $sSubView;
-		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
-
-		echo $this->renderTemplate( 'features/'.$sSubView, $aData );
 	}
 
 	/**

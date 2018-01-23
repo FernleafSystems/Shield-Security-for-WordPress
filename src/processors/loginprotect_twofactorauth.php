@@ -18,9 +18,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 *                                  not successful but IP is valid. WP_Error otherwise.
 	 */
 	public function processLoginAttempt_Filter( $oUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
 
-		$bUserLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		if ( $bUserLoginSuccess && $this->hasValidatedProfile( $oUser ) ) {
+		$bLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
+		if ( $bLoginSuccess && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
 
 			// Now send email with authentication link for user.
 			$this->doStatIncrement( 'login.twofactor.started' );
@@ -155,7 +157,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return string The unique 2FA 6-digit code
 	 */
 	protected function getStoredSessionHashCode() {
-		return $this->getUserMeta()->code_tfaemail;
+		return $this->getCurrentUserMeta()->code_tfaemail;
 	}
 
 	/**

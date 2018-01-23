@@ -16,11 +16,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$oDp = $this->loadDP();
 		// User has clicked a link in their email to verify they can send email.
-		if ( $oDp->query( 'wpsf-action' ) == 'emailsendverify' ) {
+		if ( $oDp->query( 'shield_action' ) == 'emailsendverify' ) {
 			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
-				$this->loadWp()->redirectToLogin();
+				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
 			}
 		}
 	}
@@ -65,9 +65,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	public function doPrePluginOptionsSave() {
-		// TODO: remove as it's a temporary transition for clashing options name
-		if ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) ) {
-			$this->setOpt( 'enable_google_recaptcha_login', 'Y' );
+		$nSkipDays = $this->getMfaSkip();
+		if ( !is_numeric( $nSkipDays ) || $nSkipDays < 0 ) {
+			$this->getOptionsVo()->resetOptToDefault( 'mfa_skip' );
 		}
 	}
 
@@ -76,8 +76,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	protected function generateCanSendEmailVerifyLink() {
 		$aQueryArgs = array(
-			'authkey'     => $this->getTwoAuthSecretKey(),
-			'wpsf-action' => 'emailsendverify'
+			'authkey'       => $this->getCanEmailVerifyCode(),
+			'shield_action' => 'emailsendverify'
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
 	}
@@ -110,7 +110,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$aMessage = array(
 			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
-			sprintf( _wpsf__( 'Verify Code: %s' ), $sVerify ),
+
+			sprintf( _wpsf__( "Using the guided wizard? Here's your code: %s" ), $sVerify ),
+			sprintf( _wpsf__( 'Or click the verify link: %s' ), $this->generateCanSendEmailVerifyLink() ),
 		);
 		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
 
@@ -201,6 +203,71 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return string
 	 */
+	public function getCanMfaSkip() {
+		return;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	public function canUserMfaSkip( $oUser ) {
+		$bCanSkip = false;
+
+		if ( $this->getMfaSkipEnabled() ) {
+			$aHashes = $this->getMfaLoginHashes( $oUser );
+			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
+
+			$sHash = md5( $this->loadDP()->getUserAgent() );
+			$bCanSkip = isset( $aHashes[ $sHash ] )
+						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadDP()->time();
+		}
+		return $bCanSkip;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return $this
+	 */
+	public function addMfaLoginHash( $oUser ) {
+		$oDp = $this->loadDP();
+		$aHashes = $this->getMfaLoginHashes( $oUser );
+		$aHashes[ md5( $oDp->getUserAgent() ) ] = $oDp->time();
+		$this->getCurrentUserMeta()->hash_loginmfa = $aHashes;
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return array
+	 */
+	public function getMfaLoginHashes( $oUser ) {
+		$oMeta = $this->getUserMeta( $oUser );
+		$aHashes = $oMeta->hash_loginmfa;
+		if ( !is_array( $aHashes ) ) {
+			$aHashes = array();
+			$oMeta->hash_loginmfa = $aHashes;
+		}
+		return $aHashes;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getMfaSkipEnabled() {
+		return $this->getMfaSkip() > 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMfaSkip() {
+		return (int)$this->getOpt( 'mfa_skip', 0 );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getTwoAuthSecretKey() {
 		$sKey = $this->getOpt( 'two_factor_secret_key' );
 		if ( empty( $sKey ) ) {
@@ -222,7 +289,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function getIsEmailAuthenticationEnabled() {
-		return $this->getIfCanSendEmail() && $this->getIsEmailAuthenticationOptionOn();
+		return $this->getIfCanSendEmailVerified() && $this->getIsEmailAuthenticationOptionOn();
 	}
 
 	/**
@@ -244,13 +311,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getCanSendEmailVerifiedAt() {
 		return $this->getOpt( 'email_can_send_verified_at' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIfCanSendEmail() {
-		return $this->getCanSendEmailVerifiedAt() != 0;
 	}
 
 	/**
@@ -473,6 +533,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Multi-Factor Authentication' ) );
 				$sSummary = _wpsf__( 'Require All Active Authentication Factors' );
 				$sDescription = _wpsf__( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.' );
+				break;
+
+			case 'mfa_skip' :
+				$sName = _wpsf__( 'Multi-Factor By-Pass' );
+				$sSummary = _wpsf__( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days' );
+				$sDescription = _wpsf__( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.' );
 				break;
 
 			case 'enable_google_authenticator' :
