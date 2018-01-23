@@ -4,74 +4,23 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProcessor {
-
-	/**
-	 * @var string
-	 */
-	protected $nDaysToKeepLog = 30;
-
-	/**
-	 * @param ICWP_WPSF_FeatureHandler_UserManagement $oFeatureOptions
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_UserManagement $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getUserSessionsTableName() );
-	}
-
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$this->setAutoExpirePeriod( DAY_IN_SECONDS*$this->nDaysToKeepLog );
-	}
+class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
-		if ( !$this->readyToRun() ) {
-			return;
-		}
-
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-
-		// When we know user has successfully authenticated and we activate the session entry in the database
-		add_action( 'wp_login', array( $this, 'activateUserSession' ), 10, 2 );
-
-		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
-
 		add_filter( 'auth_cookie_expiration', array( $this, 'setWordpressTimeoutCookieExpiration_Filter' ), 100, 1 );
-
-		// Check the current logged-in user every page load.
-		add_action( 'wp_loaded', array( $this, 'checkCurrentUser_Action' ), 1 );
+		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+		add_action( 'wp_loaded', array( $this, 'checkCurrentUser_Action' ), 1 ); // Check the current every page load.
 	}
 
 	/**
 	 * @param string  $sUsername
 	 * @param WP_User $oUser
-	 * @return boolean
 	 */
-	public function activateUserSession( $sUsername, $oUser ) {
-		if ( !is_a( $oUser, 'WP_User' ) ) {
-			return false;
-		}
-
-		// If they have a currently active session, terminate it (i.e. we replace it)
-		$aSession = $this->getUserSessionRecord( $sUsername, $this->getSessionId() );
-		if ( !empty( $aSession ) ) {
-			$this->doTerminateUserSession( $sUsername, $this->getSessionId() );
-		}
-
-		$this->doAddNewActiveUserSessionRecord( $sUsername );
-		$this->doLimitUserSession( $sUsername );
-		return true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getCurrentUserHasValidSession() {
-		return ( $this->doVerifyCurrentSession() == 0 );
+	public function onWpLogin( $sUsername, $oUser ) {
+		$this->enforceSessionLimits( $sUsername, $oUser );
 	}
 
 	/**
@@ -90,7 +39,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 				if ( $nCode > 0 ) {
 
 					if ( $nCode == 7 ) {
-						$this->loadWpUsers()->logoutUser( true );
+						$oWpUsers->logoutUser( true );
 						$this->addToAuditEntry(
 							sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
 							2,
@@ -120,42 +69,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			else if ( $nCode > 0 && !$oWp->isRestUrl() ) { // it's not admin, but the user looks logged into WordPress and not to Shield
 				wp_set_current_user( 0 ); // ensures that is_user_logged_in() is false going forward.
 			}
-
-			// always track last activity
-			$this->updateSessionLastActivity( $oWpUsers->getCurrentWpUser() );
 		}
-	}
-
-	/**
-	 * @param WP_User $oUser
-	 * @return boolean
-	 */
-	protected function updateSessionLastActivity( $oUser ) {
-		if ( !is_object( $oUser ) || !( $oUser instanceof WP_User ) ) {
-			return false;
-		}
-
-		$aNewData = array(
-			'last_activity_at'  => $this->time(),
-			'last_activity_uri' => $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' )
-		);
-		return $this->updateSession( $this->getSessionId(), $oUser->get( 'user_login' ), $aNewData );
-	}
-
-	/**
-	 * @param string $sSessionId
-	 * @param string $sUsername
-	 * @param array  $aUpdateData
-	 * @return boolean
-	 */
-	protected function updateSession( $sSessionId, $sUsername, $aUpdateData ) {
-		$aWhere = array(
-			'session_id'  => $sSessionId,
-			'wp_username' => $sUsername,
-			'deleted_at'  => 0
-		);
-		$mResult = $this->updateRowsWhere( $aUpdateData, $aWhere );
-		return $mResult;
 	}
 
 	/**
@@ -168,39 +82,35 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			$nForceLogOutCode = 6;
 		}
 		else {
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getFeature();
 			$oDP = $this->loadDP();
 			$nTime = $this->time();
-			$aSession = $this->getUserSessionRecord( $oUser->get( 'user_login' ), $this->getSessionId() );
+
+			$oSess = $oFO->getSession();
 			$nSessTimeout = $this->getSessionTimeoutInterval();
 			$nSessIdleTimeout = $this->getOption( 'session_idle_timeout_interval', 0 )*HOUR_IN_SECONDS;
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
-			if ( !$aSession ) {
+			if ( !$oSess ) {
 				$nForceLogOutCode = 4;
 			} // timeout interval
-			else if ( $nSessTimeout > 0 && ( $nTime - $aSession[ 'logged_in_at' ] > $nSessTimeout ) ) {
+			else if ( $nSessTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nSessTimeout ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $nSessIdleTimeout > 0 && ( ( $nTime - $aSession[ 'last_activity_at' ] ) > $nSessIdleTimeout ) ) {
+			else if ( $nSessIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nSessIdleTimeout ) ) {
 				$nForceLogOutCode = 2;
 			} // login ip address lock
-			else if ( $this->isLockToIp() && $this->ip() != $aSession[ 'ip' ] ) {
+			else if ( $this->isLockToIp() && ( md5( $this->ip() ) != $oSess->getIp() ) ) {
 				$nForceLogOutCode = 3;
 			}
-			else if ( $this->isLockToBrowser() && ( $aSession[ 'browser' ] != md5( $oDP->getUserAgent() ) ) ) {
+			else if ( $this->isLockToBrowser() && ( $oSess->getBrowser() != md5( $oDP->getUserAgent() ) ) ) {
 				$nForceLogOutCode = 7;
 			}
 		}
 
 		return $nForceLogOutCode;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSessionId() {
-		return $this->getController()->getSessionId();
 	}
 
 	/**
@@ -243,75 +153,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	}
 
 	/**
-	 * Checks for and gets a user session.
-	 * @param string $sUsername
-	 * @param string $sSessionId
-	 * @return array|false
-	 */
-	protected function getUserSessionRecord( $sUsername, $sSessionId ) {
-
-		$sQuery = "
-			SELECT *
-			FROM `%s`
-			WHERE
-				`wp_username`		= '%s'
-				AND `session_id`	= '%s'
-				AND `deleted_at`	= '0'
-		";
-		$sQuery = sprintf(
-			$sQuery,
-			$this->getTableName(),
-			esc_sql( $sUsername ),
-			esc_sql( $sSessionId )
-		);
-
-		$mResult = $this->selectCustom( $sQuery );
-		if ( is_array( $mResult ) && count( $mResult ) == 1 ) {
-			return $mResult[ 0 ];
-		}
-		return false;
-	}
-
-	/**
-	 */
-	public function onWpLogout() {
-		$this->doTerminateCurrentUserSession();
-	}
-
-	/**
-	 * @param string $sUsername
-	 * @return bool|int
-	 */
-	protected function doAddNewActiveUserSessionRecord( $sUsername ) {
-		if ( empty( $sUsername ) ) {
-			return false;
-		}
-
-		$nTimeStamp = $this->time();
-
-		// Add new session entry
-		// set attempts = 1 and then when we know it's a valid login, we zero it.
-		// First set any other entries for the given user to be deleted.
-		$aNewData = array();
-		$aNewData[ 'session_id' ] = $this->getSessionId();
-		$aNewData[ 'ip' ] = $this->ip();
-		$aNewData[ 'browser' ] = md5( $this->loadDP()->getUserAgent() );
-		$aNewData[ 'wp_username' ] = $sUsername;
-		$aNewData[ 'logged_in_at' ] = $nTimeStamp;
-		$aNewData[ 'last_activity_at' ] = $nTimeStamp;
-		$aNewData[ 'last_activity_uri' ] = $this->loadDataProcessor()->FetchServer( 'REQUEST_URI' );
-		$aNewData[ 'created_at' ] = $nTimeStamp;
-		$mResult = $this->insertData( $aNewData );
-
-		$this->doStatIncrement( 'user.session.start' );
-		return $mResult;
-	}
-
-	/**
 	 * @param string $sUsername
 	 * @return boolean
 	 */
-	protected function doLimitUserSession( $sUsername ) {
+	protected function enforceSessionLimits( $sUsername ) {
 
 		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
 		if ( $nSessionLimit <= 0 ) {
@@ -334,40 +179,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 	/**
 	 * @return boolean
 	 */
-	protected function doTerminateCurrentUserSession() {
-		$oUser = $this->loadWpUsers()->getCurrentWpUser();
-		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
-			return false;
-		}
-		$this->getCurrentUserMeta()->login_browser = '';
-
-		$mResult = $this->doTerminateUserSession( $oUser->get( 'user_login' ), $this->getSessionId() );
-		$this->getController()->clearSession();
-		return $mResult;
-	}
-
-	/**
-	 * @param string $sUsername
-	 * @param string $sSessionId
-	 * @param bool   $bHardDelete
-	 * @return bool|int
-	 */
-	protected function doTerminateUserSession( $sUsername, $sSessionId, $bHardDelete = true ) {
-		$this->doStatIncrement( 'user.session.terminate' );
-
-		$aWhere = array(
-			'session_id'  => $sSessionId,
-			'wp_username' => $sUsername,
-			'deleted_at'  => 0
-		);
-
-		if ( $bHardDelete ) {
-			return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
-		}
-
-		$aNewData = array( 'deleted_at' => $this->time() );
-		return $this->updateRowsWhere( $aNewData, $aWhere );
-	}
 
 	/**
 	 * @param string $sWpUsername
@@ -439,33 +250,5 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_BaseDbProces
 			$oError->add( 'wpsf-forcelogout', $sMessage );
 		}
 		return $oError;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
-			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			session_id varchar(32) NOT NULL DEFAULT '',
-			wp_username varchar(255) NOT NULL DEFAULT '',
-			ip varchar(40) NOT NULL DEFAULT '0',
-			browser varchar(32) NOT NULL DEFAULT '',
-			logged_in_at int(15) NOT NULL DEFAULT 0,
-			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			last_activity_uri text NOT NULL DEFAULT '',
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
- 			PRIMARY KEY  (id)
-		) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'user_sessions_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 }

@@ -11,13 +11,13 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return SessionVO
 	 */
-	protected function getUserSession() {
+	public function getSession() {
 		if ( did_action( 'init' ) && !isset( self::$oSession ) && $this->loadWpUsers()->isUserLoggedIn() ) {
 			/** @var ICWP_WPSF_Processor_Sessions $oP */
 			$oP = $this->getProcessor();
-			self::$oSession = $oP->getCurrentSession();
+			self::$oSession = $oP->loadCurrentSession();
 		}
-		return parent::getUserSession();
+		return parent::getSession();
 	}
 
 	/**
@@ -25,7 +25,7 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	public function onWpInit() {
 		parent::onWpInit();
-		$this->getUserSession();
+		$this->getSession();
 	}
 
 	/**

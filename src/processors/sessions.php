@@ -32,6 +32,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( $this->readyToRun() ) {
 			add_action( 'wp_login', array( $this, 'onWpLogin' ), 5, 2 );
 			add_action( 'wp_logout', array( $this, 'onWpLogout' ), 0 );
+			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 );
+			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
 		}
 	}
 
@@ -47,6 +49,39 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function onWpLogout() {
 		$this->terminateCurrentSession();
+	}
+
+	/**
+	 */
+	public function onWpLoaded() {
+		$this->queryUpdateSessionLastActivity();
+	}
+
+	/**
+	 * Only show Go To Admin link for Authors and above.
+	 * @param string $sMessage
+	 * @return string
+	 * @throws Exception
+	 */
+	public function printLinkToAdmin( $sMessage = '' ) {
+		$oWpUsers = $this->loadWpUsers();
+		if ( $oWpUsers->isUserLoggedIn() ) {
+			$oUser = $oWpUsers->getCurrentWpUser();
+			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+			$oFO = $this->getFeature();
+			if ( $oFO->hasSession() ) {
+				$sMessage = sprintf(
+								'<p class="message">%s<br />%s</p>',
+								_wpsf__( "You're already logged-in." ).sprintf(
+									' <span style="white-space: nowrap">(%s)</span>',
+									$oUser->get( 'user_login' ) ),
+								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
+									$this->loadWp()->getUrl_WpAdmin(),
+									_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
+							.$sMessage;
+			}
+		}
+		return $sMessage;
 	}
 
 	/**
@@ -115,6 +150,15 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return SessionVO|null
 	 */
 	public function getCurrentSession() {
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->getSession();
+	}
+
+	/**
+	 * @return SessionVO|null
+	 */
+	public function loadCurrentSession() {
 		$oSession = null;
 		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 		if ( $oUser instanceof WP_User ) {

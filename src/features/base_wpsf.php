@@ -16,8 +16,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return SessionVO
 	 */
-	protected function getUserSession() {
+	public function getSession() {
 		return self::$oSession;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasSession() {
+		return is_null( $this->getSession() );
 	}
 
 	/**
