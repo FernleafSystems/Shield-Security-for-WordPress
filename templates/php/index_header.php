@@ -2,7 +2,7 @@
 $sBaseDirName = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
 include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 <div class="wrap">
-	<div class="bootstrap-wpadmin <?php echo isset( $sFeatureSlug ) ? $sFeatureSlug : ''; ?> icwp-options-page">
+	<div class="bootstrap-wpadmin <?php echo $data[ 'mod_slug' ]; ?> icwp-options-page">
 
 		<div class="row">
 			<div class="span11">
@@ -23,7 +23,7 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 				if ( empty( $sFeatureInclude ) ) {
 					$sFeatureInclude = 'feature-default';
 				}
-				include( $sBaseDirName.$sFeatureInclude );?>
+				include( $sBaseDirName.$sFeatureInclude ); ?>
 			</div>
 			<div class="span1">
 				<?php if ( isset( $flags[ 'show_summary' ] ) && $flags[ 'show_summary' ] ) : ?>

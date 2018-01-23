@@ -206,8 +206,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function checkAdminAccessKeySubmission() {
-		$sAccessKeyRequest = $this->loadDP()
-								  ->FetchPost( $this->prefix( 'admin_access_key_request', '_' ) );
+		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
 			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );

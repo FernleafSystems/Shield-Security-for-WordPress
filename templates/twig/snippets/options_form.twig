@@ -2,7 +2,7 @@
 	{{ nonce_field|raw }}
 
 	<ul class="nav nav-tabs">
-		{% for sOptionSection in aAllOptions %}
+		{% for sOptionSection in data.all_options %}
 			<li class="{{ sOptionSection.primary ? 'active' : '' }}">
 				<a href="#{{ sOptionSection.slug }}" data-toggle="tab" >{{ sOptionSection.title_short }}</a>
 			</li>
@@ -10,7 +10,7 @@
 	</ul>
 
 	<div class="tab-content">
-		{% for sOptionSection in aAllOptions %}
+		{% for sOptionSection in data.all_options %}
 			<div class="tab-pane fade {{ sOptionSection.primary ? 'active in primary_section' : 'non_primary_section' }}"
 				 id="{{ sOptionSection.slug }}">
 
@@ -148,8 +148,8 @@
 		{% endfor %}
 	</div>
 	<div class="form-actions">
-		<input type="hidden" name="{{ var_prefix }}all_options_input" value="{{ all_options_input }}" />
-		<input type="hidden" name="{{ var_prefix }}plugin_form_submit" value="Y" />
+		<input type="hidden" name="all_options_input" value="{{ data.all_options }}" />
+		<input type="hidden" name="plugin_form_submit" value="Y" />
 		<button type="submit" class="btn btn-success btn-large" name="submit">{{ strings.save_all_settings }}</button>
 	</div>
 </form>

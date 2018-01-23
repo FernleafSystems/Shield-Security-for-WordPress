@@ -80,6 +80,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
+				var sMessage;
 				if ( oResponse.data.message === undefined ) {
 					sMessage = oResponse.success ? 'Success' : 'Failure';
 				}

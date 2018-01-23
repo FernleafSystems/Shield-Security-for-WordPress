@@ -153,7 +153,7 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text": "Ingore 404s"
+          "text": "Ignore 404s"
         },
         {
           "value_key": "log-only",
