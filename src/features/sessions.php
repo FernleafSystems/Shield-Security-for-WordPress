@@ -9,23 +9,13 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return SessionVO
+	 * Override this and adapt per feature
+	 * @return ICWP_WPSF_Processor_Base
 	 */
-	public function getSession() {
-		if ( did_action( 'init' ) && !isset( self::$oSession ) && $this->loadWpUsers()->isUserLoggedIn() ) {
-			/** @var ICWP_WPSF_Processor_Sessions $oP */
-			$oP = $this->getProcessor();
-			self::$oSession = $oP->loadCurrentSession();
-		}
-		return parent::getSession();
-	}
-
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
-	public function onWpInit() {
-		parent::onWpInit();
-		$this->getSession();
+	protected function loadFeatureProcessor() {
+		$oP = parent::loadFeatureProcessor();
+		self::$oSessProcessor = $oP;
+		return $oP;
 	}
 
 	/**

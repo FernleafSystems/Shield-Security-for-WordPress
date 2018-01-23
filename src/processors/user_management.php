@@ -22,9 +22,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		// Various stuff.
-		add_action( 'init', array( $this, 'onInit' ), 1 );
-
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
@@ -35,12 +32,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
-
-		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
-//			$this->getProcessorSessions()->run();
-		}
+		$this->getProcessorSessions()->run();
 
 		return true;
 	}
@@ -52,9 +44,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
-
-			if ( $this->loadDataProcessor()
-					  ->validEmail( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
+			$sEmail = $this->getOption( 'enable_admin_login_email_notification' );
+			if ( $this->loadDP()->validEmail( $sEmail ) ) {
 				$this->sendLoginEmailNotification( $oUser );
 			}
 			$this->setUserLastLoginTime( $oUser );
@@ -193,7 +184,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|bool
 	 */
 	public function getActiveUserSessionRecords( $sWpUsername = '' ) {
-		return $this->getProcessorSessions()->getActiveUserSessionRecords( $sWpUsername );
+		return $this->getProcessorSessions()->getActiveSessionRecordsForUsername( $sWpUsername );
 	}
 
 	/**

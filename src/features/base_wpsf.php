@@ -9,22 +9,29 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
-	 * @var SessionVO
+	 * @var ICWP_WPSF_Processor_Sessions
 	 */
-	static protected $oSession;
+	static protected $oSessProcessor;
+
+	/**
+	 * @return ICWP_WPSF_Processor_Sessions
+	 */
+	public function getSessionsProcessor() {
+		return self::$oSessProcessor;
+	}
 
 	/**
 	 * @return SessionVO
 	 */
 	public function getSession() {
-		return self::$oSession;
+		return $this->getSessionsProcessor()->getCurrentSession();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function hasSession() {
-		return is_null( $this->getSession() );
+		return !is_null( $this->getSession() );
 	}
 
 	/**

@@ -11,7 +11,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @var string
 	 */
-	protected $nDaysToKeepLog = 30;
+	protected $nDaysToKeep = 30;
+
+	/**
+	 * @var SessionVO
+	 */
+	private $oCurrent;
 
 	/**
 	 * @param ICWP_WPSF_Processor_Sessions $oFeatureOptions
@@ -25,7 +30,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function init() {
 		parent::init();
-		$this->setAutoExpirePeriod( DAY_IN_SECONDS*$this->nDaysToKeepLog );
+		$this->setAutoExpirePeriod( DAY_IN_SECONDS*$this->nDaysToKeep );
 	}
 
 	public function run() {
@@ -134,7 +139,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			session_id varchar(32) NOT NULL DEFAULT '',
 			wp_username varchar(255) NOT NULL DEFAULT '',
-			ip varchar(32) NOT NULL DEFAULT '0',
+			ip varchar(40) NOT NULL DEFAULT '0',
 			browser varchar(32) NOT NULL DEFAULT '',
 			logged_in_at int(15) NOT NULL DEFAULT 0,
 			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
@@ -150,9 +155,10 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return SessionVO|null
 	 */
 	public function getCurrentSession() {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getFeature();
-		return $oFO->getSession();
+		if ( is_null( $this->oCurrent ) ) {
+			$this->oCurrent = $this->loadCurrentSession();
+		}
+		return $this->oCurrent;
 	}
 
 	/**
@@ -160,9 +166,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function loadCurrentSession() {
 		$oSession = null;
-		$oUser = $this->loadWpUsers()->getCurrentWpUser();
-		if ( $oUser instanceof WP_User ) {
-			$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
+		$oWpUsers = $this->loadWpUsers();
+		if ( did_action( 'init' ) && $oWpUsers->isUserLoggedIn() ) {
+			$oUser = $oWpUsers->getCurrentWpUser();
+			if ( $oUser instanceof WP_User ) {
+				$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
+			}
 		}
 		return $oSession;
 	}
@@ -217,7 +226,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param SessionVO $oSession
 	 * @return bool|int
 	 */
-	protected function queryTerminateSession( $oSession ) {
+	public function queryTerminateSession( $oSession ) {
 		if ( empty( $oSession ) ) {
 			return true;
 		}
