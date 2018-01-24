@@ -9,6 +9,17 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * TODO: remove on next release
+	 */
+	protected function updateHandler() {
+		$oDb = $this->loadDbProcessor();
+		$sDbName = $oDb->getPrefix().$this->prefix( 'user_management', '_' );
+		if ( $oDb->getIfTableExists( $sDbName ) ) {
+			$oDb->doDropTable( $sDbName );
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getContentCustomActions() {
@@ -118,13 +129,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			'um_login_ip'                       => _wpsf__( 'Login IP' ),
 			'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUserSessionsTableName() {
-		return $this->prefix( $this->getDef( 'user_sessions_table_name' ), '_' );
 	}
 
 	/**

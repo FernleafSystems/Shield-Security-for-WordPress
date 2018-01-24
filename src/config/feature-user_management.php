@@ -137,6 +137,5 @@
     }
   ],
   "definitions": {
-    "user_sessions_table_name": "user_management"
   }
 }
