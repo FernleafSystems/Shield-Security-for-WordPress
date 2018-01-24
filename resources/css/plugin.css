@@ -8,7 +8,7 @@ body {
 	padding: 0;
 }
 #wpcontent .wrap {
-	margin-left: 0;
+	margin: 0;
 }
 
 
@@ -568,19 +568,18 @@ label.forcheckbox .summary {
 	line-height: 20px;
 	margin-left: 7px;
 }
-.switch {
+.icwp-switch {
 	position: relative;
 	display: inline-block;
 	width: 40px;
 	height: 20px;
 }
-.bootstrap-wpadmin .switch .summary {
+.icwp-switch .summary {
 	display: block;
 }
 /* Hide default HTML checkbox */
-.bootstrap-wpadmin .switch input {
+.icwp-switch input {
 	display: none;
-!important;
 }
 /* The slider */
 .icwp-slider {

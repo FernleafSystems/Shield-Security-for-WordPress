@@ -16,7 +16,7 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 		background-position: 48%;
 	}
 	#ColumnOptions {
-		background-color: #f6f6f6;
+		background-color: #eeeeee;
 		box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 		min-width: 590px; /** prevents col breaking **/
 	}
@@ -35,11 +35,11 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	}
 	.modules a.module:hover,
 	.modules a.module:focus {
-		background-color: #f6f6f6;
+		background-color: #eeeeee; /** == #ColumnOptions */
 		box-shadow: none;
 	}
 	.modules a.module.active {
-		background-color: #f6f6f6;
+		background-color: #eeeeee;
 		box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 	}
 	.icwp-options-page .tab-content {
