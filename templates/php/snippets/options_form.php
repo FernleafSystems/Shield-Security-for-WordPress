@@ -20,7 +20,7 @@
 		</div>
 	</div>
 	<div class="row no-gutters" >
-		<div class="col-2">
+		<div class="col-2 smoothwidth">
 
 			<ul id="ModuleOptionsNav" class="nav flex-column" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
@@ -62,12 +62,10 @@
 
 						<?php if ( !empty( $aOptSection[ 'summary' ] ) ) : ?>
 							<div class="row_section_summary">
-									<div class="span12">
-										<?php foreach ( $aOptSection[ 'summary' ] as $sItem ) : ?>
-											<p class="noselect"><?php echo $sItem; ?></p>
-										<?php endforeach; ?>
-									</div>
-								</div>
+								<?php foreach ( $aOptSection[ 'summary' ] as $sItem ) : ?>
+									<p class="noselect"><?php echo $sItem; ?></p>
+								<?php endforeach; ?>
+							</div>
 						<?php endif; ?>
 
 						<?php foreach ( $aOptSection[ 'options' ] as $nKeyRow => $aOption ) :
@@ -78,7 +76,7 @@
 							$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 							?>
 							<div class="option_row row_number_<?php echo $nKeyRow; ?>">
-									<div class="item_group span12
+									<div class="item_group
 												<?php echo ( $mOptValue == 'Y' || $mOptValue != $aOption[ 'default' ] ) ? 'selected_item_group' : ''; ?>"
 										 id="span_<?php echo $sOptKey; ?>">
 
