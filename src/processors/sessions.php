@@ -144,6 +144,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			logged_in_at int(15) NOT NULL DEFAULT 0,
 			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			last_activity_uri text NOT NULL DEFAULT '',
+			secadmin_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)

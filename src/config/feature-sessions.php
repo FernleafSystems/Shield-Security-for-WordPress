@@ -50,6 +50,7 @@
       "logged_in_at",
       "last_activity_at",
       "last_activity_uri",
+      "secadmin_at",
       "created_at",
       "deleted_at"
     ]
