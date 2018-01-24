@@ -44,10 +44,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
-			$sEmail = $this->getOption( 'enable_admin_login_email_notification' );
-			if ( $this->loadDP()->validEmail( $sEmail ) ) {
-				$this->sendLoginEmailNotification( $oUser );
-			}
+			$this->sendLoginEmailNotification( $oUser );
 			$this->setUserLastLoginTime( $oUser );
 		}
 	}
@@ -118,7 +115,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'subscriber'    => 'read',
 		);
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()
+														->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
 		}

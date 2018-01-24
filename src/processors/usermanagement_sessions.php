@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 	public function run() {
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-		add_filter( 'auth_cookie_expiration', array( $this, 'setWordpressTimeoutCookieExpiration_Filter' ), 100, 1 );
+		add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
 		add_action( 'wp_loaded', array( $this, 'checkCurrentUser_Action' ), 1 ); // Check the current every page load.
 	}
@@ -92,29 +92,24 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 			$nForceLogOutCode = 6;
 		}
 		else {
-			$oDP = $this->loadDP();
-			$nTime = $this->time();
-
 			$oSess = $oFO->getSession();
-			$nSessTimeout = $this->getSessionTimeoutInterval();
-			$nSessIdleTimeout = $this->getOption( 'session_idle_timeout_interval', 0 )*HOUR_IN_SECONDS;
+			$nTime = $this->time();
+			$nTimeout = $this->getSessionTimeoutInterval();
+			$nIdleTimeout = $this->getSessionIdleTimeoutInterval();
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
 			if ( empty( $oSess ) ) {
 				$nForceLogOutCode = 4;
 			} // timeout interval
-			else if ( $nSessTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nSessTimeout ) ) {
+			else if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $nSessIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nSessIdleTimeout ) ) {
+			else if ( $nIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nIdleTimeout ) ) {
 				$nForceLogOutCode = 2;
 			} // login ip address lock
 			else if ( $this->isLockToIp() && ( $this->ip() != $oSess->getIp() ) ) { //TODO: sha1
 				$nForceLogOutCode = 3;
-			}
-			else if ( $this->isLockToBrowser() && ( $oSess->getBrowser() != md5( $oDP->getUserAgent() ) ) ) {
-				$nForceLogOutCode = 7;
 			}
 		}
 
@@ -125,9 +120,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @param integer $nTimeout
 	 * @return integer
 	 */
-	public function setWordpressTimeoutCookieExpiration_Filter( $nTimeout ) {
+	public function setTimeoutCookieExpiration_Filter( $nTimeout ) {
 		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		return ( ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout );
+		return ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout;
 	}
 
 	/**
@@ -135,6 +130,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 */
 	protected function getSessionTimeoutInterval() {
 		return $this->getOption( 'session_timeout_interval' )*DAY_IN_SECONDS;
+	}
+
+	/**
+	 * @return integer
+	 */
+	protected function getSessionIdleTimeoutInterval() {
+		return $this->getOption( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
 	}
 
 	/**
@@ -153,13 +155,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 */
 	protected function isLockToIp() {
 		return $this->getFeature()->getOptIs( 'session_lock_location', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isLockToBrowser() {
-		return $this->getFeature()->getOptIs( 'session_lock_browser', 'Y' );
 	}
 
 	/**
