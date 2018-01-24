@@ -6,8 +6,11 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	#wpbody {
 		background-color: #eeeeee;
 	}
+	#wpbody-content {
+	}
 	#ColumnOptions {
 		background-color: #ffffff;
+		box-shadow: 2px 2px 3px rgba(0,0,0,0.2);
 	}
 	.module-headline {
 		font-size: 14px;
@@ -24,15 +27,22 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	}
 	.modules a.module.active {
 		background-color: #ffffff;
+		box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 	}
 	.icwp-options-page .tab-content {
 		background-color: #f8fbf8;
 		border: 1px solid #dddddd;
+
+	}
+
+	#ModuleOptionsNav {
+		margin-top: 20px;
 	}
 
 	#ModuleOptionsNav li a {
 		font-size: 14px;
 		height: 60px;
+		border-radius: 2px 0 0 2px;
 	}
 	#ModuleOptionsNav li a.active {
 		background-color: #f8fbf8;
