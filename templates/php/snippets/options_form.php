@@ -1,25 +1,49 @@
-<div id="icwpOptionsFormContainer">
+
 <form action="<?php echo $form_action; ?>" method="post" class="form-horizontal icwpOptionsForm">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
+    <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
+    <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
+    <input type="hidden" name="plugin_form_submit" value="Y" />
 
-	<ul class="nav nav-tabs">
-		<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
-			<li class="<?php echo $aOptSection[ 'primary' ] ? 'active' : '' ?>">
-				<a href="#<?php echo $aOptSection[ 'slug' ] ?>" data-toggle="tab">
-					<?php echo $aOptSection[ 'title_short' ]; ?>
-				</a>
-			</li>
-		<?php endforeach; ?>
-	</ul>
 
-	<div class="tab-content">
-		<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
+<div class="">
+	<div class="row">
+		<div class="col">
+			<div class="module-headline">
+				<h4><a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
+					<?php echo $sPageTitle; ?>
+					<button type="submit" class="float-right btn btn-primary icwp-form-button"
+							name="submit"><?php _wpsf_e( 'Save Settings' ); ?></button>
+					<small class="module-tagline"><?php echo $sTagline; ?></small>
+				</h4>
+			</div>
+		</div>
+	</div>
+	<div class="row no-gutters" >
+		<div class="col-2">
 
-			<div class="tab-pane fade <?php echo $aOptSection[ 'primary' ] ? 'active in primary_section' : 'non_primary_section'; ?>"
-				 id="<?php echo $aOptSection[ 'slug' ] ?>">
-				<div class="row-fluid option_section_row <?php echo $aOptSection[ 'primary' ] ? 'primary_section' : 'non_primary_section'; ?>"
-					 id="row-<?php echo $aOptSection[ 'slug' ]; ?>">
-					<div class="span12 options-body">
+			<ul id="ModuleOptionsNav" class="nav flex-column" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
+				<li class="nav-item">
+					<a class="nav-link" id="pills-tab-<?php echo $aOptSection[ 'slug' ]; ?>"
+					   data-toggle="pill" href="#pills-<?php echo $aOptSection[ 'slug' ]; ?>"
+					   role="tab" aria-controls="pills-<?php echo $aOptSection[ 'slug' ]; ?>"
+					   <?php echo $aOptSection[ 'primary' ] ? 'aria-selected="true"' : '' ?>>
+						<?php echo $aOptSection[ 'title_short' ]; ?>
+					</a>
+				</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		<div class="col">
+			<div class="tab-content" id="pills-tabContent">
+				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
+				<div class="tab-pane show" id="pills-<?php echo $aOptSection[ 'slug' ]; ?>" role="tabpanel"
+					 aria-labelledby="pills-tab-<?php echo $aOptSection[ 'slug' ]; ?>">
+
+<div class="option_section_row <?php echo $aOptSection[ 'primary' ] ? 'primary_section' : 'non_primary_section'; ?>"
+	 id="row-<?php echo $aOptSection[ 'slug' ]; ?>">
+					<div class="options-body">
 							<legend>
                                 <?php echo $aOptSection[ 'title' ]; ?>
 								<?php if ( !empty( $aOptSection[ 'help_video_url' ] ) ) : ?>
@@ -37,7 +61,7 @@
                             </legend>
 
 						<?php if ( !empty( $aOptSection[ 'summary' ] ) ) : ?>
-							<div class="row-fluid row_section_summary">
+							<div class="row_section_summary">
 									<div class="span12">
 										<?php foreach ( $aOptSection[ 'summary' ] as $sItem ) : ?>
 											<p class="noselect"><?php echo $sItem; ?></p>
@@ -53,7 +77,7 @@
 							$bEnabled = $aOption[ 'enabled' ];
 							$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 							?>
-							<div class="row-fluid option_row row_number_<?php echo $nKeyRow; ?>">
+							<div class="option_row row_number_<?php echo $nKeyRow; ?>">
 									<div class="item_group span12
 												<?php echo ( $mOptValue == 'Y' || $mOptValue != $aOption[ 'default' ] ) ? 'selected_item_group' : ''; ?>"
 										 id="span_<?php echo $sOptKey; ?>">
@@ -205,33 +229,37 @@
 						<?php endforeach; ?>
 					</div>
 				</div>
-			</div>
-		<?php endforeach; ?>
-	</div>
 
-	<div class="form-actions">
-		<input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
-		<input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
-		<input type="hidden" name="plugin_form_submit" value="Y" />
-		<button type="submit" class="btn btn-success btn-large icwp-form-button"
-				name="submit"><?php _wpsf_e( 'Save All Settings' ); ?></button>
+
+
+
+
+				</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
 	</div>
+</div>
 </form>
-<div class="pull-right well">
-	<h5 style="margin-bottom: 10px;">Options Legend</h5>
-	<label class="forcheckbox">
-		<span class="switch">
-			<input type="checkbox" name="legend" id="legend" value="Y" checked="checked" disabled="disabled">
-			<span class="icwp-slider round"></span>
-		</span>
-		<span class="summary">Option is turned on / enabled</span>
-	</label>
-	<label class="forcheckbox">
-		<span class="switch">
-			<input type="checkbox" name="legend" id="legend" value="Y" disabled="disabled">
-			<span class="icwp-slider round"></span>
-		</span>
-		<span class="summary">Option is turned off / disabled</span>
-	</label>
-</div>
-</div>
+
+
+
+
+
+<!--<div class="pull-right well">-->
+<!--	<h5 style="margin-bottom: 10px;">Options Legend</h5>-->
+<!--	<label class="forcheckbox">-->
+<!--		<span class="switch">-->
+<!--			<input type="checkbox" name="legend" id="legend" value="Y" checked="checked" disabled="disabled">-->
+<!--			<span class="icwp-slider round"></span>-->
+<!--		</span>-->
+<!--		<span class="summary">Option is turned on / enabled</span>-->
+<!--	</label>-->
+<!--	<label class="forcheckbox">-->
+<!--		<span class="switch">-->
+<!--			<input type="checkbox" name="legend" id="legend" value="Y" disabled="disabled">-->
+<!--			<span class="icwp-slider round"></span>-->
+<!--		</span>-->
+<!--		<span class="summary">Option is turned off / disabled</span>-->
+<!--	</label>-->
+<!--</div>-->

@@ -1,33 +1,93 @@
 <?php
 $sBaseDirName = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
 include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
-<div class="wrap">
-	<div class="bootstrap-wpadmin <?php echo $data[ 'mod_slug' ]; ?> icwp-options-page">
 
-		<div class="row">
-			<div class="span11">
-				<div class="page-header">
-					<h2>
-						<a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
-						<span class="feature-headline"><?php echo $sPageTitle; ?></span>
-						<?php if ( $help_video[ 'show' ] ) : ?>
-							<a href="#" class="btn btn-success"
-							   data-featherlight="#<?php echo $help_video[ 'display_id' ]; ?>">Help Video</a>
-						<?php endif; ?>
-						<?php if ( !empty( $sTagline ) ) : ?>
-							<small class="feature-tagline">- <?php echo $sTagline; ?></small>
-						<?php endif; ?>
-					</h2>
-				</div>
-				<?php
-				if ( empty( $sFeatureInclude ) ) {
-					$sFeatureInclude = 'feature-default';
-				}
-				include( $sBaseDirName.$sFeatureInclude ); ?>
-			</div>
-			<div class="span1">
-				<?php if ( isset( $flags[ 'show_summary' ] ) && $flags[ 'show_summary' ] ) : ?>
-					<?php include_once( $sBaseDirName.'snippets/state_summary.php' ); ?>
-				<?php endif; ?>
-			</div>
+<style>
+	#wpbody {
+		background-color: #eeeeee;
+	}
+	#ColumnOptions {
+		background-color: #ffffff;
+	}
+	.module-headline {
+		font-size: 14px;
+		padding-left: 16px;
+	}
+	.module-tagline {
+		font-size: 14px;
+		display: inline-block;
+	}
+	.modules a.module {
+		font-size: 14px;
+		padding: 1.1rem 0.5rem;
+		color: #666666;
+	}
+	.modules a.module.active {
+		background-color: #ffffff;
+	}
+	.icwp-options-page .tab-content {
+		background-color: #f8fbf8;
+		border: 1px solid #dddddd;
+	}
+
+	#ModuleOptionsNav li a {
+		font-size: 14px;
+		height: 60px;
+	}
+	#ModuleOptionsNav li a.active {
+		background-color: #f8fbf8;
+		margin-left: 1rem;
+		border: 1px solid #dddddd;
+		border-right-color: transparent;
+		margin-right: -1px;
+		z-index: 2;
+		position: relative;
+	}
+	#ModuleOptionsNav li a:active,
+	#ModuleOptionsNav li a:focus {
+		box-shadow: none;
+	}
+</style>
+
+<div class="wrap">
+	<div class="bootstrap-wpadmin1 <?php echo $data[ 'mod_slug' ]; ?> icwp-options-page">
+
+<div class="">
+
+  <div class="row no-gutters" id="ModulePageTopRow">
+    <div class="col-2 col-xs-6 modules" id="ColumnModules">
+		<div class="nav flex-column">
+		<?php foreach ( $aSummaryData as $nKey => $aSummary ) : ?>
+			<a class="nav-link module <?php echo $aSummary[ 'active' ] ? 'active' : ''; ?>"
+			   id="tab-<?php echo $aSummary[ 'slug' ]; ?>"
+			   href="<?php echo $aSummary[ 'href' ]; ?>" role="tab">
+				<?php echo $aSummary[ 'name' ]; ?>
+			</a>
+		<?php endforeach; ?>
 		</div>
+	</div>
+    <div class="col" id="ColumnOptions">
+		<div class="page-header">
+			<h2>
+				<?php if ( $help_video[ 'show' ] ) : ?>
+					<a href="#" class="btn btn-success"
+					   data-featherlight="#<?php echo $help_video[ 'display_id' ]; ?>">Help Video</a>
+				<?php endif; ?>
+				<?php if ( !empty( $sTagline ) ) : ?>
+
+				<?php endif; ?>
+			</h2>
+		</div>
+		<?php
+		if ( empty( $sFeatureInclude ) ) {
+			$sFeatureInclude = 'feature-default';
+		}
+		include( $sBaseDirName.$sFeatureInclude ); ?>
+	</div>
+  </div>
+
+
+
+
+
+</div>

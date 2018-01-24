@@ -40,12 +40,11 @@
     },
     "plugin_admin": {
       "css": [
-        "bootstrap-wpadmin-legacy",
-        "bootstrap-wpadmin-fixes",
+        "bootstrap4",
         "plugin"
       ],
       "js": [
-        "bootstrap.min"
+        "bootstrap4.min"
       ]
     },
     "frontend": {

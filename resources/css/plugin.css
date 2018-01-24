@@ -2,14 +2,14 @@
 
 /* GENERAL STYLES */
 
-.bootstrap-wpadmin {
+#wpcontent {
+	padding: 0;
 }
-.bootstrap-wpadmin .row {
+#wpcontent .wrap {
 	margin-left: 0;
 }
-.bootstrap-wpadmin > .row > div[class*=span]:first-child {
-	margin-left: 0;
-}
+
+
 #pluginlogo_32 {
 	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -54,11 +54,6 @@
 .icwp-options-page ul.nav-tabs li a:hover {
 	background-color: #dddddd;
 	border-color: #999999;
-}
-.icwp-options-page .tab-content {
-	background-color: #ffffff;
-	border: 1px solid #dddddd;
-	border-top: 0 none;
 }
 .icwp-options-page .form-actions {
 	background-color: #d8d8d8;
@@ -343,7 +338,7 @@ label input[type=checkbox] {
 	width: 100%;
 	margin-top: 20px;
 	box-shadow: 1px 1px 2px 0 rgba(0, 0, 0, 0.2) inset;
-	border: 1px solid #ccc;
+	border: 1px solid #cccccc;
 	background: #f9f9f9;
 }
 .feature-summary-blocks .feature-icon:before {
@@ -545,7 +540,6 @@ input[type="email"] {
 }
 #icwpOptionsTopPill > .tab-content {
 	background-color: transparent;
-	border: 1px solid transparent;
 }
 #icwpOptionsTopPill > .tab-content .content-help {
 	background-color: #fafafa;
@@ -575,7 +569,6 @@ input[type="email"] {
 .bootstrap-wpadmin .option_row .item_group {
 	margin-left: 0;
 }
-
 /* The switch - the box around the slider */
 label.forcheckbox .summary {
 	vertical-align: top;
@@ -592,8 +585,10 @@ label.forcheckbox .summary {
 	display: block;
 }
 /* Hide default HTML checkbox */
-.bootstrap-wpadmin .switch input {display:none; !important;}
-
+.bootstrap-wpadmin .switch input {
+	display: none;
+!important;
+}
 /* The slider */
 .icwp-slider {
 	position: absolute;
@@ -602,7 +597,7 @@ label.forcheckbox .summary {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #ccc;
+	background-color: #cccccc;
 	-webkit-transition: .1s;
 	transition: .1s;
 }

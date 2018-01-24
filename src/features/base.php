@@ -1330,7 +1330,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
-			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+			'sPageTitle' => $this->getMainFeatureName(),
 			'data'       => array(
 				'form_nonce'        => $this->genNonce( '' ),
 				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
