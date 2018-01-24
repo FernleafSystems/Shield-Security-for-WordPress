@@ -189,13 +189,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return string
 	 */
-	public function getTwoFactorAuthTableName() {
-		return $this->prefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getCanEmailVerifyCode() {
 		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
 	}
