@@ -343,6 +343,9 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 
 * **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
 * **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
+* **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
+* **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
+* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to 1 single DB entry for all data.
 
 = 6.1.1 Latest Release =
 *Released: 17th January, 2018*

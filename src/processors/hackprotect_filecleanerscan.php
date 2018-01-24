@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 		$this->loadWpCronProcessor()
-			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getUfcScanFrequency() ) ) )
+			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getScanFrequency() ) ) )
 			 ->createCronJob(
 				 $oFO->getUfcCronName(),
 				 array( $this, 'cron_dailyFileCleanerScan' )

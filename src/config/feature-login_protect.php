@@ -386,17 +386,6 @@
   ],
   "definitions":   {
     "login_intent_timeout":          5,
-    "two_factor_auth_table_name":    "login_auth",
-    "two_factor_auth_table_columns": [
-      "id",
-      "session_id",
-      "wp_username",
-      "ip",
-      "pending",
-      "expired_at",
-      "created_at",
-      "deleted_at"
-    ],
     "wizards":                       {
       "mfa": {
         "title": "Configure Multi-Factor Login Authentication",

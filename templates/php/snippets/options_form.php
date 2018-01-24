@@ -96,7 +96,7 @@
 																	   id="<?php echo $sOptKey; ?>"
 																	   value="Y" <?php echo ( $mOptValue == 'Y' ) ? 'checked="checked"' : ''; ?>
 																	<?php echo $sDisabledText; ?> />
-																<span class="slider round"></span>
+																<span class="icwp-slider round"></span>
 															</span>
 															<span class="summary"><?php echo $aOption[ 'summary' ]; ?></span>
 
@@ -222,14 +222,14 @@
 	<label class="forcheckbox">
 		<span class="switch">
 			<input type="checkbox" name="legend" id="legend" value="Y" checked="checked" disabled="disabled">
-			<span class="slider round"></span>
+			<span class="icwp-slider round"></span>
 		</span>
 		<span class="summary">Option is turned on / enabled</span>
 	</label>
 	<label class="forcheckbox">
 		<span class="switch">
 			<input type="checkbox" name="legend" id="legend" value="Y" disabled="disabled">
-			<span class="slider round"></span>
+			<span class="icwp-slider round"></span>
 		</span>
 		<span class="summary">Option is turned off / disabled</span>
 	</label>

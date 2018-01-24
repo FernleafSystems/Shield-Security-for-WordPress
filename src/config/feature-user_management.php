@@ -114,17 +114,6 @@
       "description": "When selected, a session is restricted to the same IP address as when the user logged in. If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress."
     },
     {
-      "key": "session_lock_browser",
-      "section": "section_user_session_management",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Lock To Browser",
-      "summary": "Locks A User Session To IP address",
-      "description": "When selected, a session is restricted to the same IP address as when the user logged in. If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress."
-    },
-    {
       "key": "session_username_concurrent_limit",
       "section": "section_user_session_management",
       "default": 0,

@@ -1456,7 +1456,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	protected function getIsShowMarketing() {
-		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
+		return false && apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
 	/**
