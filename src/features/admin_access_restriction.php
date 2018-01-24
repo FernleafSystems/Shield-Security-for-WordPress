@@ -140,7 +140,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getRestrictedOptions() {
-		$aOptions = $this->getDefinition( 'admin_access_options_to_restrict' );
+		$aOptions = $this->getDef( 'admin_access_options_to_restrict' );
 		return is_array( $aOptions ) ? $aOptions : array();
 	}
 
