@@ -156,7 +156,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 	protected function getCronFrequency() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		return $oFO->getIcScanFrequency();
+		return $oFO->getScanFrequency();
 	}
 
 	/**

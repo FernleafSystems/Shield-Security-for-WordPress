@@ -63,13 +63,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getIcScanFrequency() {
-		return (int)$this->getOpt( 'ic_frequency', 1 );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isIcEnabled() {
