@@ -74,6 +74,10 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	.smoothwidth {
 		transition: width 4.5s;
 	}
+
+	.form-label {
+		margin-left: 20px;
+	}
 </style>
 
 <div class="wrap">

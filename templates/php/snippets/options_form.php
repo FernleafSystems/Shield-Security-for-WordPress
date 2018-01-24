@@ -1,5 +1,5 @@
 
-<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal icwpOptionsForm">
+<form action="<?php echo $form_action; ?>" method="post" class=" icwpOptionsForm">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
     <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
@@ -78,29 +78,26 @@
 				$bEnabled = $aOption[ 'enabled' ];
 				$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 				?>
-				<div class="option_row row_number_<?php echo $nKeyRow; ?>">
-					<div class="item_group
-								<?php echo ( $mOptValue == 'Y' || $mOptValue != $aOption[ 'default' ] ) ? 'selected_item_group' : ''; ?>"
-						 id="span_<?php echo $sOptKey; ?>">
+				<div class="form-group row no-gutters row_number_<?php echo $nKeyRow; ?>">
 
-						<div class="control-group">
-							<label class="control-label" for="<?php echo $sOptKey; ?>">
-								<span class="optname"><?php echo $aOption[ 'name' ]; ?></span>
-								<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
-									<span class="optlinks">
-									[
-									<a href="<?php echo $aOption[ 'link_info' ]; ?>"
-									   target="_blank"><?php echo $strings[ 'more_info' ]; ?></a>
-										<?php if ( !empty( $aOption[ 'link_blog' ] ) ) : ?>
-											| <a href="<?php echo $aOption[ 'link_blog' ]; ?>"
-												 target="_blank"><?php echo $strings[ 'blog' ]; ?></a>
-										<?php endif; ?>
-									]
-								</span>
+					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
+						<span class="optname"><?php echo $aOption[ 'name' ]; ?></span>
+						<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
+							<br/><span class="optlinks">
+							[
+							<a href="<?php echo $aOption[ 'link_info' ]; ?>"
+							   target="_blank"><?php echo $strings[ 'more_info' ]; ?></a>
+								<?php if ( !empty( $aOption[ 'link_blog' ] ) ) : ?>
+									| <a href="<?php echo $aOption[ 'link_blog' ]; ?>"
+										 target="_blank"><?php echo $strings[ 'blog' ]; ?></a>
 								<?php endif; ?>
-							</label>
-							<div class="controls
-								<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>">
+							]
+						</span>
+						<?php endif; ?>
+					</label>
+
+					<div class="col-8 col-xs-offset-1
+						<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>">
 
 						<?php if ( !$bEnabled ) : ?>
 							<div class="option_overlay">
@@ -110,122 +107,122 @@
 								</div>
 							</div>
 						<?php endif; ?>
-							<div class="option_section <?php echo ( $mOptValue == 'Y' ) ? 'selected_item' : ''; ?>"
-								 id="option_section_<?php echo $sOptKey; ?>">
 
-								<label class="for<?php echo $sOptType; ?>">
-									<?php if ( $sOptType == 'checkbox' ) : ?>
-										<span class="icwp-switch">
-											<input type="checkbox"
-												   name="<?php echo $sOptKey; ?>"
-												   id="<?php echo $sOptKey; ?>"
-												   value="Y" <?php echo ( $mOptValue == 'Y' ) ? 'checked="checked"' : ''; ?>
-												<?php echo $sDisabledText; ?> />
-											<span class="icwp-slider round"></span>
-										</span>
-										<span class="summary"><?php echo $aOption[ 'summary' ]; ?></span>
+						<div class="option_section <?php echo ( $mOptValue == 'Y' ) ? 'selected_item' : ''; ?>"
+							 id="option_section_<?php echo $sOptKey; ?>">
 
-									<?php elseif ( $sOptType == 'text' ) : ?>
+							<label class="for<?php echo $sOptType; ?>">
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<textarea name="<?php echo $sOptKey; ?>"
-												  id="<?php echo $sOptKey; ?>"
-												  placeholder="<?php echo $mOptValue; ?>"
-												  rows="<?php echo $aOption[ 'rows' ]; ?>"
-												  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
-
-									<?php elseif ( $sOptType == 'noneditable_text' ) : ?>
-
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<input type="text" readonly class="span8"
-											   value="<?php echo $mOptValue; ?>" />
-
-									<?php elseif ( $sOptType == 'password' ) : ?>
-
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<input type="password" name="<?php echo $sOptKey; ?>"
+								<?php if ( $sOptType == 'checkbox' ) : ?>
+									<span class="icwp-switch">
+										<input type="checkbox"
+											   name="<?php echo $sOptKey; ?>"
 											   id="<?php echo $sOptKey; ?>"
-											   value="<?php echo $mOptValue; ?>"
-											   placeholder="<?php echo $mOptValue; ?>"
-											   class="span7" <?php echo $sDisabledText; ?> />
+											   value="Y" <?php echo ( $mOptValue == 'Y' ) ? 'checked="checked"' : ''; ?>
+											<?php echo $sDisabledText; ?> />
+										<span class="icwp-slider round"></span>
+									</span>
+									<span class="summary"><?php echo $aOption[ 'summary' ]; ?></span>
 
-									<?php elseif ( $sOptType == 'email' ) : ?>
+								<?php elseif ( $sOptType == 'text' ) : ?>
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<input type="email" name="<?php echo $sOptKey; ?>"
-											   id="<?php echo $sOptKey; ?>"
-											   value="<?php echo $mOptValue; ?>"
-											   placeholder="<?php echo $mOptValue; ?>"
-											   class="span7" <?php echo $sDisabledText; ?> />
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<textarea name="<?php echo $sOptKey; ?>"
+											  id="<?php echo $sOptKey; ?>"
+											  placeholder="<?php echo $mOptValue; ?>"
+											  rows="<?php echo $aOption[ 'rows' ]; ?>"
+											  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
 
-									<?php elseif ( $sOptType == 'select' ) : ?>
+								<?php elseif ( $sOptType == 'noneditable_text' ) : ?>
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<select name="<?php echo $sOptKey; ?>"
-												id="<?php echo $sOptKey; ?>"
-											<?php echo $sDisabledText; ?> >
-											<?php foreach ( $aOption[ 'value_options' ] as $sOptionValue => $sOptionValueName ) : ?>
-												<option value="<?php echo $sOptionValue; ?>"
-														id="<?php echo $sOptKey; ?>_<?php echo $sOptionValue; ?>"
-													<?php echo ( $sOptionValue == $mOptValue ) ? 'selected="selected"' : ''; ?>
-												><?php echo $sOptionValueName; ?></option>
-											<?php endforeach; ?>
-										</select>
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<input type="text" readonly class="span8"
+										   value="<?php echo $mOptValue; ?>" />
 
-									<?php elseif ( $sOptType == 'multiple_select' ) : ?>
+								<?php elseif ( $sOptType == 'password' ) : ?>
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<select name="<?php echo $sOptKey; ?>[]"
-												id="<?php echo $sOptKey; ?>"
-												multiple="multiple" multiple
-												size="<?php echo count( $aOption[ 'value_options' ] ); ?>"
-											<?php echo $sDisabledText; ?> >
-											<?php foreach ( $aOption[ 'value_options' ] as $sOptionValue => $sOptionValueName ) : ?>
-												<option value="<?php echo $sOptionValue; ?>"
-														id="<?php echo $sOptKey; ?>_<?php echo $sOptionValue; ?>"
-													<?php echo in_array( $sOptionValue, $mOptValue ) ? 'selected="selected"' : ''; ?>
-												><?php echo $sOptionValueName; ?></option>
-											<?php endforeach; ?>
-										</select>
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<input type="password" name="<?php echo $sOptKey; ?>"
+										   id="<?php echo $sOptKey; ?>"
+										   value="<?php echo $mOptValue; ?>"
+										   placeholder="<?php echo $mOptValue; ?>"
+										   class="span7" <?php echo $sDisabledText; ?> />
 
-									<?php elseif ( $sOptType == 'array' ) : ?>
+								<?php elseif ( $sOptType == 'email' ) : ?>
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<textarea name="<?php echo $sOptKey; ?>"
-												  id="<?php echo $sOptKey; ?>"
-												  placeholder="<?php echo $mOptValue; ?>"
-												  rows="<?php echo $aOption[ 'rows' ]; ?>"
-												  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<input type="email" name="<?php echo $sOptKey; ?>"
+										   id="<?php echo $sOptKey; ?>"
+										   value="<?php echo $mOptValue; ?>"
+										   placeholder="<?php echo $mOptValue; ?>"
+										   class="span7" <?php echo $sDisabledText; ?> />
 
-									<?php elseif ( $sOptType == 'comma_separated_lists' ) : ?>
+								<?php elseif ( $sOptType == 'select' ) : ?>
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<textarea name="<?php echo $sOptKey; ?>"
-												  id="<?php echo $sOptKey; ?>"
-												  placeholder="<?php echo $mOptValue; ?>"
-												  rows="<?php echo $aOption[ 'rows' ]; ?>"
-												  class="span7" <?php echo $sDisabledText; ?> ><?php echo $mOptValue; ?></textarea>
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<select name="<?php echo $sOptKey; ?>"
+											id="<?php echo $sOptKey; ?>"
+										<?php echo $sDisabledText; ?> >
+										<?php foreach ( $aOption[ 'value_options' ] as $sOptionValue => $sOptionValueName ) : ?>
+											<option value="<?php echo $sOptionValue; ?>"
+													id="<?php echo $sOptKey; ?>_<?php echo $sOptionValue; ?>"
+												<?php echo ( $sOptionValue == $mOptValue ) ? 'selected="selected"' : ''; ?>
+											><?php echo $sOptionValueName; ?></option>
+										<?php endforeach; ?>
+									</select>
 
-									<?php elseif ( $sOptType == 'integer' ) : ?>
+								<?php elseif ( $sOptType == 'multiple_select' ) : ?>
 
-										<p><?php echo $aOption[ 'summary' ]; ?></p>
-										<input type="text" name="<?php echo $sOptKey; ?>"
-											   id="<?php echo $sOptKey; ?>"
-											   value="<?php echo $mOptValue; ?>"
-											   placeholder="<?php echo $mOptValue; ?>"
-											   class="span7" <?php echo $sDisabledText; ?> />
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<select name="<?php echo $sOptKey; ?>[]"
+											id="<?php echo $sOptKey; ?>"
+											multiple="multiple" multiple
+											size="<?php echo count( $aOption[ 'value_options' ] ); ?>"
+										<?php echo $sDisabledText; ?> >
+										<?php foreach ( $aOption[ 'value_options' ] as $sOptionValue => $sOptionValueName ) : ?>
+											<option value="<?php echo $sOptionValue; ?>"
+													id="<?php echo $sOptKey; ?>_<?php echo $sOptionValue; ?>"
+												<?php echo in_array( $sOptionValue, $mOptValue ) ? 'selected="selected"' : ''; ?>
+											><?php echo $sOptionValueName; ?></option>
+										<?php endforeach; ?>
+									</select>
 
-									<?php else : ?>
-										ERROR: Should never reach this point.
-									<?php endif; ?>
+								<?php elseif ( $sOptType == 'array' ) : ?>
 
-								</label>
-								<p class="help-block"><?php echo $aOption[ 'description' ]; ?></p>
-								<div style="clear:both"></div>
-							</div>
-							</div><!-- controls -->
-						</div><!-- control-group -->
-					</div>
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<textarea name="<?php echo $sOptKey; ?>"
+											  id="<?php echo $sOptKey; ?>"
+											  placeholder="<?php echo $mOptValue; ?>"
+											  rows="<?php echo $aOption[ 'rows' ]; ?>"
+											  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
+
+								<?php elseif ( $sOptType == 'comma_separated_lists' ) : ?>
+
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<textarea name="<?php echo $sOptKey; ?>"
+											  id="<?php echo $sOptKey; ?>"
+											  placeholder="<?php echo $mOptValue; ?>"
+											  rows="<?php echo $aOption[ 'rows' ]; ?>"
+											  class="span7" <?php echo $sDisabledText; ?> ><?php echo $mOptValue; ?></textarea>
+
+								<?php elseif ( $sOptType == 'integer' ) : ?>
+
+									<p><?php echo $aOption[ 'summary' ]; ?></p>
+									<input type="text" name="<?php echo $sOptKey; ?>"
+										   id="<?php echo $sOptKey; ?>"
+										   value="<?php echo $mOptValue; ?>"
+										   placeholder="<?php echo $mOptValue; ?>"
+										   class="span7" <?php echo $sDisabledText; ?> />
+
+								<?php else : ?>
+									ERROR: Should never reach this point.
+								<?php endif; ?>
+
+							</label>
+							<p class="help-block"><?php echo $aOption[ 'description' ]; ?></p>
+							<div style="clear:both"></div>
+						</div>
+					</div><!-- controls -->
 				</div>
 			<?php endforeach; ?>
 		</div>
