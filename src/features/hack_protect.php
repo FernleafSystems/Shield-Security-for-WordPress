@@ -26,24 +26,26 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getScanFrequency() {
+		return (int)$this->getOpt( 'scan_frequency', 1 );
+	}
+
+	/**
+	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		$aFreqs = array_unique(
-			array(
-				$this->getUfcScanFrequency(),
-				$this->getWcfScanFrequency(),
-			)
-		);
-		$oWpCron = $this->loadWpCronProcessor();
-		foreach ( $aFreqs as $nFreq ) {
-			$oWpCron->addNewSchedule(
-				$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
-				array(
-					'interval' => DAY_IN_SECONDS/$nFreq,
-					'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
-				)
-			);
-		}
+		$nFreq = $this->getScanFrequency();
+		$this->loadWpCronProcessor()
+			 ->addNewSchedule(
+				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+				 array(
+					 'interval' => DAY_IN_SECONDS/$nFreq,
+					 'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
+				 )
+			 );
+		return $this;
 	}
 
 	/**
@@ -69,13 +71,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aExclusions = array();
 		}
 		return $aExclusions;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getUfcScanFrequency() {
-		return (int)$this->getOpt( 'ufc_frequency', 1 );
 	}
 
 	/**
@@ -160,14 +155,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function getWcfCronName() {
-		return $this->prefixOptionKey( $this->getDefinition( 'corechecksum_cron_name' ) );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getWcfScanFrequency() {
-		return (int)$this->getOpt( 'wcf_frequency', 1 );
+		return $this->prefixOptionKey( $this->getDef( 'corechecksum_cron_name' ) );
 	}
 
 	/**
@@ -346,6 +334,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
 				break;
 
+			case 'scan_frequency' :
+				$sName = _wpsf__( 'Daily Scan Frequency' );
+				$sSummary = _wpsf__( 'Number Of Times To Automatically Run File Scan In 24hrs' );
+				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
+				break;
+
 			case 'enable_plugin_vulnerabilities_scan' :
 				$sName = _wpsf__( 'Plugin Vulnerabilities Scanner' );
 				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
@@ -383,12 +377,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = _wpsf__( 'Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing.' );
 				break;
 
-			case 'wcf_frequency' :
-				$sName = _wpsf__( 'Daily Scan Frequency' );
-				$sSummary = _wpsf__( 'Number Of Times To Automatically Scan Core Files In 24 Hours' );
-				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
-				break;
-
 			case 'enable_unrecognised_file_cleaner_scan' :
 				$sName = _wpsf__( 'Unrecognised Files Scanner' );
 				$sSummary = _wpsf__( 'Daily Scan For Unrecognised Files In Core Directories' );
@@ -409,12 +397,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
 								.'<br/><strong>'._wpsf__( 'No commas are necessary.' ).'</strong>'
 								.'<br/>'.sprintf( 'Default: %s', $sDefaults );
-				break;
-
-			case 'ufc_frequency' :
-				$sName = _wpsf__( 'Daily Scan Frequency' );
-				$sSummary = _wpsf__( 'Number Of Times To Automatically Scan For Unrecognised Files In 24 Hours' );
-				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
 				break;
 
 			default:

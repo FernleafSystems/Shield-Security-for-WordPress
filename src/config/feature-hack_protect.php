@@ -151,8 +151,8 @@
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
     },
     {
-      "key":         "wcf_frequency",
-      "section":     "section_core_file_integrity_scan",
+      "key":         "scan_frequency",
+      "section":     "section_enable_plugin_feature_hack_protection_tools",
       "premium":       true,
       "default":       1,
       "type":          "select",
@@ -235,52 +235,6 @@
       "name":        "Scan Uploads",
       "summary":     "Scan Uploads Folder For PHP and Javascript",
       "description": "The Uploads folder is primarily for media, but could be used to store nefarious files."
-    },
-    {
-      "key":         "ufc_frequency",
-      "section":     "section_unrecognised_file_scan",
-      "premium":       true,
-      "default":       1,
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "1",
-          "text":      "Once"
-        },
-        {
-          "value_key": "2",
-          "text":      "Twice (scan every 12hrs)"
-        },
-        {
-          "value_key": "3",
-          "text":      "3 Times (scan every 8hrs)"
-        },
-        {
-          "value_key": "4",
-          "text":      "4 Times (scan every 6hrs)"
-        },
-        {
-          "value_key": "6",
-          "text":      "6 Times (scan every 4hrs)"
-        },
-        {
-          "value_key": "8",
-          "text":      "8 Times (scan every 3hrs)"
-        },
-        {
-          "value_key": "12",
-          "text":      "12 Times (scan every 2hrs)"
-        },
-        {
-          "value_key": "24",
-          "text":      "24 Times (scan every hour)"
-        }
-      ],
-      "link_info":   "http://icwp.io/b2",
-      "link_blog":   "",
-      "name":        "Daily Scan Frequency",
-      "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
-      "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
       "key":         "ufc_exclusions",
