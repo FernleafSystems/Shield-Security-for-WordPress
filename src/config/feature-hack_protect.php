@@ -22,15 +22,6 @@
       ]
     },
     {
-      "slug":        "section_wpvuln_scan",
-      "title":       "Vulnerability Scanner",
-      "title_short": "Vulnerability Scanner",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
-        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
       "slug":        "section_core_file_integrity_scan",
       "title":       "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
@@ -46,6 +37,15 @@
       "summary":     [
         "Purpose - Scan your WordPress core folders for unrecognised files that don't belong.",
         "Recommendation - Keep the Unrecognised Files Scanner feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_wpvuln_scan",
+      "title":       "Vulnerability Scanner",
+      "title_short": "Vulnerability Scanner",
+      "summary":     [
+        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
       ]
     },
     {
