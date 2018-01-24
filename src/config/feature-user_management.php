@@ -137,18 +137,6 @@
     }
   ],
   "definitions": {
-    "user_sessions_table_name": "user_management",
-    "user_sessions_table_columns": [
-      "id",
-      "session_id",
-      "wp_username",
-      "ip",
-      "browser",
-      "logged_in_at",
-      "last_activity_at",
-      "last_activity_uri",
-      "created_at",
-      "deleted_at"
-    ]
+    "user_sessions_table_name": "user_management"
   }
 }

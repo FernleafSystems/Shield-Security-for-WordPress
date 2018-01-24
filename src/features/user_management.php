@@ -19,19 +19,23 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function renderUserSessions() {
-
 		$aActiveSessions = $this->getActiveSessionsData();
+
+		$aFormatted = array();
 
 		$oWp = $this->loadWp();
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as &$aSession ) {
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'logged_in_at' ] );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
+		foreach ( $aActiveSessions as $oSession ) {
+			$aSession = (array)$oSession->getRowData();
+			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLoggedInAt() );
+			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLastActivityAt() );
+			$aSession[ 'is_secadmin' ] = ( $oSession->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+			$aFormatted[] = $aSession;
 		}
 
 		$oTable = $this->getTableRendererForSessions()
-					   ->setItemEntries( $aActiveSessions )
+					   ->setItemEntries( $aFormatted )
 					   ->setPerPage( 5 )
 					   ->prepare_items();
 		ob_start();
@@ -40,7 +44,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$aData = array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
+																												  ->time() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
@@ -60,12 +65,11 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return array[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	protected function getActiveSessionsData() {
-		/** @var ICWP_WPSF_Processor_UserManagement $oProcessor */
-		$oProcessor = $this->getProcessor();
-		return $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
+		return $this->getSessionsProcessor()
+					->queryGetActiveSessions();
 	}
 
 	/**
@@ -120,7 +124,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return string
 	 */
 	public function getUserSessionsTableName() {
-		return $this->prefix( $this->getDefinition( 'user_sessions_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'user_sessions_table_name' ), '_' );
 	}
 
 	/**

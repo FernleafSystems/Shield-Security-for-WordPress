@@ -436,6 +436,11 @@
         "hidden":        false
       },
       {
+        "slug":          "sessions",
+        "storage_key":   "sessions",
+        "load_priority": 12
+      },
+      {
         "slug":          "audit_trail",
         "storage_key":   "audit_trail",
         "load_priority": 11,
