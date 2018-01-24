@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function all() {
 		return $this->query_retrieveForUserSession();
@@ -21,7 +21,7 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @param string $sWpUsername
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function retrieveForUsername( $sWpUsername ) {
 		return $this->query_retrieveForUserSession( $sWpUsername );
@@ -30,7 +30,7 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 	/**
 	 * @param string $sWpUsername
 	 * @param string $sSessionId
-	 * @return SessionVO|null
+	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	public function retrieveUserSession( $sWpUsername, $sSessionId ) {
 		$aData = $this->query_retrieveForUserSession( $sWpUsername, $sSessionId );
@@ -40,7 +40,7 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 	/**
 	 * @param string $sWpUsername
 	 * @param string $sSessionId
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	protected function query_retrieveForUserSession( $sWpUsername = '', $sSessionId = '' ) {
 		$sQuery = "
@@ -62,12 +62,12 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 		$aData = $this->loadDbProcessor()
 					  ->selectCustom( $sQuery, OBJECT_K );
 		foreach ( $aData as $nKey => $oSess ) {
-			$aData[ $nKey ] = new SessionVO( $oSess );
+			$aData[ $nKey ] = new ICWP_WPSF_SessionVO( $oSess );
 		}
 		return $aData;
 	}
 
 	protected function init() {
-		require_once( dirname( __FILE__ ).'/SessionVO.php' );
+		require_once( dirname( __FILE__ ).'/ICWP_WPSF_SessionVO.php' );
 	}
 }

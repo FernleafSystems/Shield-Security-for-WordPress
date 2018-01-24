@@ -64,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	protected function getActiveSessionsData() {
 		return $this->getSessionsProcessor()
@@ -123,7 +123,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return string
 	 */
 	public function getUserSessionsTableName() {
-		return $this->prefix( $this->getDefinition( 'user_sessions_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'user_sessions_table_name' ), '_' );
 	}
 
 	/**

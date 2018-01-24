@@ -139,7 +139,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 	/**
 	 * @param string $sWpUsername
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function getActiveSessionRecordsForUsername( $sWpUsername ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */

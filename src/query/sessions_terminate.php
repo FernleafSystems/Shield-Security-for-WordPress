@@ -17,7 +17,7 @@ class ICWP_WPSF_Query_Sessions_Terminate extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @param SessionVO $oSession
+	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @return false|int
 	 */
 	public function forUserSession( $oSession ) {

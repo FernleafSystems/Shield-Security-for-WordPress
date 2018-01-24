@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	protected $nDaysToKeep = 30;
 
 	/**
-	 * @var SessionVO
+	 * @var ICWP_WPSF_SessionVO
 	 */
 	private $oCurrent;
 
@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return SessionVO|null
+	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	public function getCurrentSession() {
 		if ( is_null( $this->oCurrent ) ) {
@@ -163,7 +163,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return SessionVO|null
+	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	public function loadCurrentSession() {
 		$oSession = null;
@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * Checks for and gets a user session.
 	 * @param string $sUsername
 	 * @param string $sSessionId
-	 * @return SessionVO|null
+	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	protected function queryGetSession( $sUsername, $sSessionId ) {
 		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_retrieve.php' );
@@ -192,24 +192,24 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function queryGetActiveSessions() {
-		return $this->getSessionsRetriever()->all();
+		return $this->getSessionRetriever()->all();
 	}
 
 	/**
 	 * @param string $sWpUsername
-	 * @return SessionVO[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function queryGetActiveSessionsForUsername( $sWpUsername ) {
-		return $this->getSessionsRetriever()->retrieveForUsername( $sWpUsername );
+		return $this->getSessionRetriever()->retrieveForUsername( $sWpUsername );
 	}
 
 	/**
 	 * @param string $sUsername
 	 * @param string $sSessionId
-	 * @return null|SessionVO
+	 * @return null|ICWP_WPSF_SessionVO
 	 */
 	protected function queryCreateSession( $sUsername, $sSessionId ) {
 		if ( empty( $sUsername ) ) {
@@ -227,7 +227,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param SessionVO $oSession
+	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @return bool|int
 	 */
 	public function queryTerminateSession( $oSession ) {
@@ -250,19 +250,25 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( empty( $oSession ) ) {
 			return false;
 		}
-		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_update.php' );
-		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
-		return $oUpdate->setTable( $this->getTableName() )
-					   ->update( $oSession );
+		return $this->getSessionUpdater()->updateLastActivity( $oSession );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_Sessions_Retrieve
 	 */
-	public function getSessionsRetriever() {
+	public function getSessionRetriever() {
 		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_retrieve.php' );
 		$oRetrieve = new ICWP_WPSF_Query_Sessions_Retrieve();
 		return $oRetrieve->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Sessions_Update
+	 */
+	public function getSessionUpdater() {
+		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_update.php' );
+		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
+		return $oUpdate->setTable( $this->getTableName() );
 	}
 
 	/**

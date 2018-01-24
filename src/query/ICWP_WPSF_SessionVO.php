@@ -1,6 +1,6 @@
 <?php
 
-class SessionVO {
+class ICWP_WPSF_SessionVO {
 
 	/**
 	 * @var stdClass
@@ -29,6 +29,13 @@ class SessionVO {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getId() {
+		return $this->getRowData()->session_id;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getIp() {
@@ -52,13 +59,6 @@ class SessionVO {
 	/**
 	 * @return int
 	 */
-	public function getId() {
-		return $this->getRowData()->session_id;
-	}
-
-	/**
-	 * @return int
-	 */
 	public function getUsername() {
 		return $this->getRowData()->wp_username;
 	}
@@ -66,8 +66,8 @@ class SessionVO {
 	/**
 	 * @return int
 	 */
-	public function getTally() {
-		return $this->getRowData()->tally;
+	public function getSecAdminAt() {
+		return $this->getRowData()->secadmin_at;
 	}
 
 	/**

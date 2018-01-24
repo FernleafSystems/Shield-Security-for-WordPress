@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return SessionVO
+	 * @return ICWP_WPSF_SessionVO
 	 */
 	public function getSession() {
 		return $this->getSessionsProcessor()->getCurrentSession();
