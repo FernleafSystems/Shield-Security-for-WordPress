@@ -9,6 +9,17 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * TODO: remove on next release
+	 */
+	protected function updateHandler() {
+		$oDb = $this->loadDbProcessor();
+		$sDbName = $oDb->getPrefix().$this->prefix( 'user_management', '_' );
+		if ( $oDb->getIfTableExists( $sDbName ) ) {
+			$oDb->doDropTable( $sDbName );
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getContentCustomActions() {
@@ -19,19 +30,23 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function renderUserSessions() {
-
 		$aActiveSessions = $this->getActiveSessionsData();
+
+		$aFormatted = array();
 
 		$oWp = $this->loadWp();
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as &$aSession ) {
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'logged_in_at' ] );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $aSession[ 'last_activity_at' ] );
+		foreach ( $aActiveSessions as $oSession ) {
+			$aSession = (array)$oSession->getRowData();
+			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLoggedInAt() );
+			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLastActivityAt() );
+			$aSession[ 'is_secadmin' ] = ( $oSession->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+			$aFormatted[] = $aSession;
 		}
 
 		$oTable = $this->getTableRendererForSessions()
-					   ->setItemEntries( $aActiveSessions )
+					   ->setItemEntries( $aFormatted )
 					   ->setPerPage( 5 )
 					   ->prepare_items();
 		ob_start();
@@ -40,7 +55,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$aData = array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
+																												  ->time() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
@@ -60,12 +76,11 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return array[]
+	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	protected function getActiveSessionsData() {
-		/** @var ICWP_WPSF_Processor_UserManagement $oProcessor */
-		$oProcessor = $this->getProcessor();
-		return $this->getIsMainFeatureEnabled() ? $oProcessor->getActiveUserSessionRecords() : array();
+		return $this->getSessionsProcessor()
+					->queryGetActiveSessions();
 	}
 
 	/**
@@ -114,13 +129,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			'um_login_ip'                       => _wpsf__( 'Login IP' ),
 			'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUserSessionsTableName() {
-		return $this->prefix( $this->getDefinition( 'user_sessions_table_name' ), '_' );
 	}
 
 	/**

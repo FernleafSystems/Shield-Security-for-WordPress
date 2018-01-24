@@ -22,9 +22,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		// Various stuff.
-		add_action( 'init', array( $this, 'onInit' ), 1 );
-
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
@@ -35,43 +32,9 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
-
-		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
-			$this->getProcessorSessions()->run();
-		}
+		$this->getProcessorSessions()->run();
 
 		return true;
-	}
-
-	public function onInit() {
-		add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
-	}
-
-	/**
-	 * Only show Go To Admin link for Authors and above.
-	 * @param string $sMessage
-	 * @return string
-	 * @throws Exception
-	 */
-	public function printLinkToAdmin( $sMessage = '' ) {
-		$oWpUsers = $this->loadWpUsers();
-		if ( $oWpUsers->isUserLoggedIn() ) {
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
-			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()
-																	->getCurrentUserHasValidSession() ) {
-				$sMessage = sprintf(
-								'<p class="message">%s<br />%s</p>',
-								_wpsf__( "It appears you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()
-																																					  ->get( 'user_login' ) ),
-								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWp()
-																												 ->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ).' &rarr;' ) : ''
-							).$sMessage;
-			}
-		}
-		return $sMessage;
 	}
 
 	/**
@@ -81,9 +44,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
-
-			if ( $this->loadDataProcessor()
-					  ->validEmail( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
+			$sEmail = $this->getOption( 'enable_admin_login_email_notification' );
+			if ( $this->loadDP()->validEmail( $sEmail ) ) {
 				$this->sendLoginEmailNotification( $oUser );
 			}
 			$this->setUserLastLoginTime( $oUser );
@@ -222,7 +184,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|bool
 	 */
 	public function getActiveUserSessionRecords( $sWpUsername = '' ) {
-		return $this->getProcessorSessions()->getActiveUserSessionRecords( $sWpUsername );
+		return $this->getProcessorSessions()->getActiveSessionRecordsForUsername( $sWpUsername );
 	}
 
 	/**

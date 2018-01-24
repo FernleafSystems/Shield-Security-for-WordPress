@@ -77,14 +77,19 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$this->bHasPermissionToSubmit = $fHasPermission;
 		if ( $this->getIsMainFeatureEnabled() ) {
 
-			$sAccessKey = $this->getOpt( 'admin_access_key' );
+			$sAccessKey = $this->getAccessKeyHash();
 			if ( !empty( $sAccessKey ) ) {
-				$oDp = $this->loadDP();
-				$sCookieValue = $oDp->cookie( $this->getSecurityAdminCookieName() );
-				$this->bHasPermissionToSubmit = ( $sCookieValue === md5( $sAccessKey ) );
+				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid();
 			}
 		}
 		return $this->bHasPermissionToSubmit;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getAccessKeyHash() {
+		return $this->getOpt( 'admin_access_key' );
 	}
 
 	/** TODO
@@ -125,10 +130,17 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getIsMainFeatureEnabled() {
+		return parent::getIsMainFeatureEnabled() && $this->hasAccessKey();
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getRestrictedOptions() {
-		$aOptions = $this->getDefinition( 'admin_access_options_to_restrict' );
+		$aOptions = $this->getDef( 'admin_access_options_to_restrict' );
 		return is_array( $aOptions ) ? $aOptions : array();
 	}
 
@@ -154,23 +166,30 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
 	 */
-	protected function setAdminAccessCookie() {
-		$sAccessKey = $this->getOpt( 'admin_access_key' );
-		if ( !empty( $sAccessKey ) ) {
-			$this->loadDP()
-				 ->setCookie(
-					 $this->getSecurityAdminCookieName(),
-					 md5( $sAccessKey ),
-					 $this->getOpt( 'admin_access_timeout' )*60
-				 );
-		}
+	protected function hasAccessKey() {
+		$sKey = $this->getAccessKeyHash();
+		return !empty( $sKey ) && strlen( $sKey ) == 32;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function startSecurityAdmin() {
+		$this->getSessionsProcessor()
+			 ->getSessionUpdater()
+			 ->startSecurityAdmin( $this->getSession() );
+		return $this;
 	}
 
 	/**
 	 */
-	protected function clearAdminAccessCookie() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getSecurityAdminCookieName() );
+	protected function terminateSecurityAdmin() {
+		$this->getSessionsProcessor()
+			 ->getSessionUpdater()
+			 ->terminateSecurityAdmin( $this->getSession() );
+		return $this;
 	}
 
 	/**
@@ -179,15 +198,19 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// We should only use setPermissionToSubmit() here, before any headers elsewhere are sent out.
 		if ( $this->checkAdminAccessKeySubmission() ) {
 			$this->setPermissionToSubmit( true );
-//			wp_safe_redirect( network_admin_url() );
 		}
 	}
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	public function getSecurityAdminCookieName() {
-		return $this->getDefinition( 'security_admin_cookie_name' );
+	protected function isSecAdminSessionValid() {
+		$bValid = false;
+		if ( $this->hasSession() ) {
+			$nStartedAt = $this->getSession()->getSecAdminAt();
+			$bValid = ( $this->loadDP()->time() - $nStartedAt ) < $this->getOpt( 'admin_access_timeout' )*60;
+		}
+		return $bValid;
 	}
 
 	/**
@@ -195,10 +218,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function setPermissionToSubmit( $fPermission = false ) {
 		if ( $fPermission ) {
-			$this->setAdminAccessCookie();
+			$this->startSecurityAdmin();
 		}
 		else {
-			$this->clearAdminAccessCookie();
+			$this->terminateSecurityAdmin();
 		}
 	}
 

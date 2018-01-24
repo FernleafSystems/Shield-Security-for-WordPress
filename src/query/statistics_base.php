@@ -4,9 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Query_Statistics_Base', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'statistics_base.php' );
+require_once( dirname( __FILE__ ).'/base.php' );
 
-class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Foundation {
+class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Statistics
@@ -48,7 +48,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Foundation {
 
 		// TODO: NOT PHP 5.2!
 		if ( is_array( $mResult ) ) {
-			include_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'StatisticsReportingVO.php' );
+			include_once( dirname( __FILE__ ).'/StatisticsReportingVO.php' );
 			$mResult = array_map(
 				function ( $oData ) {
 					return new StatisticsReportingVO( $oData );
@@ -84,7 +84,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Foundation {
 			$this->getDateFrom(),
 			$this->getDateTo(),
 			$this->isSelectDeleted() ? '>' : '=',
-			empty( $sStatPart ) ? $sStatPart : 'AND ' . $sStatPart,
+			empty( $sStatPart ) ? $sStatPart : 'AND '.$sStatPart,
 			$this->getQueryLimit()
 		);
 	}

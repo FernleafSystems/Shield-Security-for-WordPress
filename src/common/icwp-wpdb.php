@@ -163,7 +163,7 @@ class ICWP_WPSF_WpDb {
 	/**
 	 * @param string $sTable
 	 * @param array  $aData
-	 * @return int|boolean
+	 * @return int|false
 	 */
 	public function insertDataIntoTable( $sTable, $aData ) {
 		return $this->loadWpdb()->insert( $sTable, $aData );

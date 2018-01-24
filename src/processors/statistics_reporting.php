@@ -83,7 +83,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	protected function getConsolidation() {
 		if ( !isset( $this->oConsolidation ) ) {
-			include( dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'query'.DIRECTORY_SEPARATOR.'statistics_consolidation.php' );
+			include( dirname( dirname( __FILE__ ) ).'/query/statistics_consolidation.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getFeature();
 			$this->oConsolidation = new ICWP_WPSF_Query_Statistics_Consolidation();
