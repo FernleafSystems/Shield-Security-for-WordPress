@@ -45,8 +45,6 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	.icwp-options-page .tab-content {
 		background-color: #FCFFFC;
 		border: 1px solid #dddddd;
-		border-right-color: transparent;
-
 	}
 	#ModuleOptionsNav {
 		margin-top: 20px;

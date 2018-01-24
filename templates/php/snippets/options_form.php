@@ -6,7 +6,7 @@
     <input type="hidden" name="plugin_form_submit" value="Y" />
 
 
-<div class="">
+<div style="margin-bottom: -1px; margin-right: -1px">
 	<div class="row">
 		<div class="col">
 			<div class="module-headline">
