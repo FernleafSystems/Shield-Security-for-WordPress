@@ -96,7 +96,7 @@
 						<?php endif; ?>
 					</label>
 
-					<div class="col-8 col-xs-offset-1
+					<div class="col-8 col-xs-offset-1 option_container
 						<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>">
 
 						<?php if ( !$bEnabled ) : ?>

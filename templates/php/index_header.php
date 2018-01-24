@@ -76,8 +76,13 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	}
 
 	.form-label {
+		font-size: 14px;
 		margin-left: 20px;
 	}
+	.option_container {
+		margin-left: 10px;
+	}
+
 </style>
 
 <div class="wrap">
