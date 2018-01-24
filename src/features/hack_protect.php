@@ -366,7 +366,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'enable_core_file_integrity_scan' :
 				$sName = _wpsf__( 'Core File Scanner' );
-				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans WordPress Core Files For Alterations' ) );
+				$sSummary = _wpsf__( 'Scans WordPress Core Files For Alterations' );
 				$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
 								.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
 				break;

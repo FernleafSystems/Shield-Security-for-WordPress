@@ -167,7 +167,7 @@ tr.icwp-plugin-vulnerability dd {
 .icwp-toggle-switch {
 	cursor: pointer;
 }
-.icwp-toggle-switch .slider {
+.icwp-toggle-switch .icwp-slider {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -177,7 +177,7 @@ tr.icwp-plugin-vulnerability dd {
 	-webkit-transition: .4s;
 	transition: .4s;
 }
-.icwp-toggle-switch .slider:before {
+.icwp-toggle-switch .icwp-slider:before {
 	position: absolute;
 	content: "";
 	height: 26px;
@@ -188,16 +188,16 @@ tr.icwp-plugin-vulnerability dd {
 	-webkit-transition: .4s;
 	transition: .4s;
 }
-.icwp-toggle-switch input:checked + .slider {
+.icwp-toggle-switch input:checked + .icwp-slider {
 	background-color: #65bd84;
 }
-.icwp-toggle-switch.disabled input + .slider {
+.icwp-toggle-switch.disabled input + .icwp-slider {
 	background-color: #bd7429;
 }
-.icwp-toggle-switch input:focus + .slider {
+.icwp-toggle-switch input:focus + .icwp-slider {
 	box-shadow: 0 0 1px #65bd84;
 }
-.icwp-toggle-switch input:checked + .slider:before {
+.icwp-toggle-switch input:checked + .icwp-slider:before {
 	-webkit-transform: translateX(26px);
 	-ms-transform: translateX(26px);
 	transform: translateX(26px);

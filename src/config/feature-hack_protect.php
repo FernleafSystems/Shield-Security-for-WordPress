@@ -136,7 +136,7 @@
       "link_info":   "http://icwp.io/wpsf36",
       "link_blog":   "http://icwp.io/wpsf37",
       "name":        "Core File Scanner",
-      "summary":     "Daily Cron - Scans WordPress Core Files For Alterations",
+      "summary":     "Scans WordPress Core Files For Alterations",
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
