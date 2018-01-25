@@ -93,8 +93,8 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	.carousel-item {
 
 		transition: -webkit-transform 0.3s ease;
-		transition: transform 0.3s ease;
-		transition: transform 0.3s ease, -webkit-transform 0.3s ease;
+		transition: transform 0.2s ease;
+		transition: transform 0.2s ease, -webkit-transform 0.2s ease;
 	}
 
 </style>

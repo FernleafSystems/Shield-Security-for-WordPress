@@ -1310,9 +1310,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData() {
+	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
 		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
@@ -1344,19 +1345,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'data'         => array(
 				'form_nonce'        => $this->genNonce( '' ),
 				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
+				'mod_slug_short'    => $this->getFeatureSlug(),
 				'all_options'       => $this->buildOptions(),
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
 			'strings'      => array(
-				'go_to_settings'                    => __( 'Settings' ),
-				'on'                                => __( 'On' ),
-				'off'                               => __( 'Off' ),
-				'more_info'                         => __( 'More Info' ),
-				'blog'                              => __( 'Blog' ),
-				'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
-				'save_all_settings'                 => __( 'Save All Settings' ),
-				'see_help_video'                    => __( 'Watch Help Video' ),
+				'go_to_settings'    => __( 'Settings' ),
+				'on'                => __( 'On' ),
+				'off'               => __( 'Off' ),
+				'more_info'         => __( 'More Info' ),
+				'blog'              => __( 'Blog' ),
+				'save_all_settings' => __( 'Save All Settings' ),
+				'see_help_video'    => __( 'Watch Help Video' ),
+				'btn_options'       => __( 'Options' ),
+				'btn_help'          => __( 'Help' ),
+				'btn_actions'       => __( 'Actions' ),
 			),
 			'flags'        => array(
 				'show_ads'              => $this->getIsShowMarketing(),
@@ -1376,14 +1380,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
-			'content'      => array(
+			'content'      => array()
+		);
+
+		if ( $bRenderEmbeddedContent ) { // prevents recursive loops
+			$aData[ 'content' ] = array(
 				'options_form' => 'no form',
 				'alt'          => '',
 				'actions'      => $this->getContentCustomActions(),
 				'help'         => $this->getContentHelp()
-			)
-		);
-		$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
+			);
+			$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
+		}
 		return $aData;
 	}
 
@@ -1391,14 +1399,25 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getContentCustomActions() {
-		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
+		return $this->renderTemplate( 'snippets/module-actions-template.php',
+			$this->loadDP()->mergeArraysRecursive(
+				$this->getContentCustomActionsDisplayData(),
+				$this->getBaseDisplayData( false )
+			) );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getContentCustomActionsDisplayData() {
+		return $this->getBaseDisplayData( false );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-template.php', array( 'slug' => $this->getFeatureSlug() ) );
+		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData( false ) );
 	}
 
 	/**

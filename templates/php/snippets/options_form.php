@@ -12,16 +12,19 @@
 				<h4><a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
 					<?php echo $sPageTitle; ?>
 					<div class="float-right">
-						<div class="btn-group" role="group" aria-label="Basic example">
-							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
-							   class="btn btn-info">Go To Help</a>
-							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-							   class="btn btn-secondary">Go To Actions</a>
-						</div>
-						<button type="submit" class="float-right btn btn-primary icwp-form-button"
-								name="submit" style="margin-left: 8px">
+						<button type="submit" class="btn btn-primary icwp-form-button"
+								name="submit" style="margin-right: 12px">
 							<?php _wpsf_e( 'Save Settings' ); ?>
 						</button>
+
+						<div class="btn-group" role="group" aria-label="Basic example">
+							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}" aria-disabled="true"
+							   class="btn btn-outline-success disabled"><?php echo $strings['btn_options'];?></a>
+							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
+							   class="btn btn-info"><?php echo $strings['btn_help'];?></a>
+							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
+							   class="btn btn-secondary"><?php echo $strings['btn_actions'];?></a>
+						</div>
 					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>
 				</h4>
