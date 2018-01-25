@@ -37,7 +37,7 @@
 				<?php endforeach; ?>
 			</ul>
 		</div>
-		<div class="col">
+		<div class="col" style="margin: 0 4px 5px 0;">
 			<div class="tab-content" id="pills-tabContent">
 				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
 				<div class="tab-pane <?php echo $aOptSection[ 'primary' ] ? 'active' : '' ?>"
