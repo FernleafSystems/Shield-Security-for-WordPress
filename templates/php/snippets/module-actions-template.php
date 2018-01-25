@@ -2,11 +2,11 @@
 	<div class="col">
 		<div class="btn-group float-right icwp-top-buttons" role="group" aria-label="Basic example">
 			<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}"
-			   class="btn btn-success"><?php echo $strings['btn_options'];?></a>
+			   class="btn btn-outline-success"><?php echo $strings['btn_options'];?></a>
 			<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
-			   class="btn btn-info"><?php echo $strings['btn_help'];?></a>
+			   class="btn btn-outline-info"><?php echo $strings['btn_help'];?></a>
 			<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}" aria-disabled="true"
-			   class="btn btn-outline-secondary disabled"><?php echo $strings[ 'btn_actions' ]; ?></a>
+			   class="btn btn-secondary disabled"><?php echo $strings[ 'btn_actions' ]; ?></a>
 		</div>
 	</div>
 </div>

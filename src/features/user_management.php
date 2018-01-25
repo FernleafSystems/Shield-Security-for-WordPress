@@ -20,16 +20,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function getContentCustomActions() {
-		if ( $this->canDisplayOptionsForm() ) {
-			return $this->renderUserSessions();
-		}
-		return parent::getContentCustomActions();
+	protected function getContentCustomActionsData() {
+		return $this->getUserSessionsData();
 	}
 
-	protected function renderUserSessions() {
+	protected function getUserSessionsData() {
 		$aActiveSessions = $this->getActiveSessionsData();
 
 		$aFormatted = array();
@@ -53,13 +50,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oTable->display();
 		$sUserSessionsTable = ob_get_clean();
 
-		$aData = array(
+		return array(
 			'strings'            => $this->getDisplayStrings(),
 			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
 																												  ->time() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
-		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
 	}
 
 	/**

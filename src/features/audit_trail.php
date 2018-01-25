@@ -141,7 +141,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return array
 	 */
-	protected function getContentCustomActionsDisplayData() {
+	protected function getContentCustomActionsData() {
 		$aContexts = array(
 			'all'       => 'All', //special
 			'wpsf'      => 'Shield',
@@ -166,13 +166,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			),
 			$this->getBaseAjaxActionRenderData( 'AuditTable' )
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function displayAuditTrailViewer() {
-		return $this->renderTemplate( 'snippets/module-audit_trail-viewer', $aDisplayData );
 	}
 
 	/**

@@ -29,18 +29,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function getContentCustomActions() {
-		if ( !$this->canDisplayOptionsForm() ) {
-			return parent::getContentCustomActions();
-		}
-
+	protected function getContentCustomActionsData() {
 		$bCanWizard = $this->canRunWizards();
 		$bCanWizardWelcome = $bCanWizard;
 		$bCanWizardImport = $bCanWizard && $this->isPremium();
 
-		$aData = array(
+		return array(
 			'strings' => $this->getDisplayStrings(),
 			'hrefs'   => array(
 				'wizard_welcome' => $bCanWizardWelcome ? $this->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
@@ -55,7 +51,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'phpversion' => $this->loadDP()->getPhpVersion(),
 			)
 		);
-		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
 	}
 
 	/**

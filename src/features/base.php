@@ -1401,7 +1401,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function getContentCustomActions() {
 		return $this->renderTemplate( 'snippets/module-actions-template.php',
 			$this->loadDP()->mergeArraysRecursive(
-				$this->getContentCustomActionsDisplayData(),
+				$this->getContentCustomActionsData(),
 				$this->getBaseDisplayData( false )
 			) );
 	}
@@ -1409,7 +1409,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-	protected function getContentCustomActionsDisplayData() {
+	protected function getContentCustomActionsData() {
 		return $this->getBaseDisplayData( false );
 	}
 

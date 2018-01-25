@@ -19,11 +19,11 @@
 
 						<div class="btn-group" role="group" aria-label="Basic example">
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}" aria-disabled="true"
-							   class="btn btn-outline-success disabled"><?php echo $strings['btn_options'];?></a>
+							   class="btn btn-success disabled"><?php echo $strings['btn_options'];?></a>
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
-							   class="btn btn-info"><?php echo $strings['btn_help'];?></a>
+							   class="btn btn-outline-info"><?php echo $strings['btn_help'];?></a>
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-							   class="btn btn-secondary"><?php echo $strings['btn_actions'];?></a>
+							   class="btn btn-outline-secondary"><?php echo $strings['btn_actions'];?></a>
 						</div>
 					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>
