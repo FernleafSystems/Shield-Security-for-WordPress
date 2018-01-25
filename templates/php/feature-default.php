@@ -4,7 +4,36 @@
 	}
 </style>
 
+<div id="IcwpCarouselOptions" class="icwp-carousel slide">
+	<div class="carousel-inner">
 
+    <div class="carousel-item active">
+		<div class="d-block w-100 content-options">
+		<?php echo $flags[ 'show_standard_options' ] ? $content[ 'options_form' ] : ''; ?>
+		<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
+		</div>
+    </div>
+
+    <div class="carousel-item carousel-help">
+		<div class="d-block w-100 content-help"><?php echo $content[ 'help' ]; ?></div>
+    </div>
+
+    <div class="carousel-item carousel-actions">
+		<div class="d-block w-100 content-help"><?php echo $content[ 'actions' ]; ?></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+	jQuery( document ).ready( function () {
+			jQuery( '.icwp-carousel' ).carousel( {
+				interval: false,
+				keyboard: false
+			} );
+		}
+	);
+</script>
 
 <!---->
 <!---->
@@ -51,7 +80,7 @@
 <!--		</ul>-->
 <!--		<div class="tab-content">-->
 <!--			<div class="tab-pane active" id="icwpPillOptions">-->
-<!--				--><?php //echo $flags[ 'show_standard_options' ] ? $content['options_form'] : ''; ?>
+<!--				--><?php //echo $flags[ 'show_standard_options' ] ? $content[ 'options_form' ] : ''; ?>
 <!--				--><?php //echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
 <!--			</div>-->
 <!---->
@@ -68,15 +97,15 @@
 <!--			--><?php //endif; ?>
 <!--		</div>-->
 <!---->
-<!--		--><?php //if ( $flags[ 'show_ads' ] ) : ?>
-<!--			<div class="row-fluid">-->
+<!--	--><?php //if ( $flags[ 'show_ads' ] ) : ?>
+<!--		<div class="row-fluid">-->
 <!--				<div class="span12">-->
 <!--					--><?php //echo getWidgetIframeHtml( 'dashboard-widget-worpit-wtb' ); ?>
 <!--				</div>-->
 <!--			</div>-->
-<!--		--><?php //endif; ?>
+<!--	--><?php //endif; ?>
 <!---->
-<!--		<div class="span1" id="side_widgets">-->
+<!--	<div class="span1" id="side_widgets">-->
 <!--		</div>-->
 <!--</div>-->
-					<div class="content-help"><?php echo $content[ 'options_form' ]; ?></div>
+<!--					<div class="content-help">--><?php //echo $content[ 'options_form' ]; ?><!--</div>-->

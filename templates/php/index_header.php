@@ -90,6 +90,13 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 		margin-left: 10px;
 	}
 
+	.carousel-item {
+
+		transition: -webkit-transform 0.3s ease;
+		transition: transform 0.3s ease;
+		transition: transform 0.3s ease, -webkit-transform 0.3s ease;
+	}
+
 </style>
 
 <div class="wrap">

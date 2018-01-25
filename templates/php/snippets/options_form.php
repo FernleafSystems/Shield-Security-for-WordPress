@@ -1,4 +1,3 @@
-
 <form action="<?php echo $form_action; ?>" method="post" class=" icwpOptionsForm">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
@@ -12,25 +11,35 @@
 			<div class="module-headline">
 				<h4><a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
 					<?php echo $sPageTitle; ?>
-					<button type="submit" class="float-right btn btn-primary icwp-form-button"
-							name="submit"><?php _wpsf_e( 'Save Settings' ); ?></button>
+					<div class="float-right">
+						<div class="btn-group" role="group" aria-label="Basic example">
+							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
+							   class="btn btn-info">Go To Help</a>
+							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
+							   class="btn btn-secondary">Go To Actions</a>
+						</div>
+						<button type="submit" class="float-right btn btn-primary icwp-form-button"
+								name="submit" style="margin-left: 8px">
+							<?php _wpsf_e( 'Save Settings' ); ?>
+						</button>
+					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>
 				</h4>
 			</div>
 		</div>
 	</div>
-	<div class="row no-gutters" >
+	<div class="row no-gutters">
 		<div class="col-2 smoothwidth">
 
 			<ul id="ModuleOptionsNav" class="nav flex-column" id="v-pills-tab"
 				role="tablist" aria-orientation="vertical">
 				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
-				<li class="nav-item">
+					<li class="nav-item">
 					<a class="nav-link <?php echo $aOptSection[ 'primary' ] ? 'active' : '' ?>"
 					   id="pills-tab-<?php echo $aOptSection[ 'slug' ]; ?>"
 					   data-toggle="pill" href="#pills-<?php echo $aOptSection[ 'slug' ]; ?>"
 					   role="tab" aria-controls="pills-<?php echo $aOptSection[ 'slug' ]; ?>"
-					   <?php echo $aOptSection[ 'primary' ] ? 'aria-selected="true"' : '' ?>>
+						<?php echo $aOptSection[ 'primary' ] ? 'aria-selected="true"' : '' ?>>
 						<?php echo $aOptSection[ 'title_short' ]; ?>
 					</a>
 				</li>
@@ -40,9 +49,9 @@
 		<div class="col" style="margin: 0 4px 5px 0;">
 			<div class="tab-content" id="pills-tabContent">
 				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
-				<div class="tab-pane <?php echo $aOptSection[ 'primary' ] ? 'active' : '' ?>"
-					 id="pills-<?php echo $aOptSection[ 'slug' ]; ?>"
-					 role="tabpanel" aria-labelledby="pills-tab-<?php echo $aOptSection[ 'slug' ]; ?>">
+					<div class="tab-pane <?php echo $aOptSection[ 'primary' ] ? 'active' : '' ?>"
+						 id="pills-<?php echo $aOptSection[ 'slug' ]; ?>"
+						 role="tabpanel" aria-labelledby="pills-tab-<?php echo $aOptSection[ 'slug' ]; ?>">
 
 <div class="option_section_row <?php echo $aOptSection[ 'primary' ] ? 'primary_section' : 'non_primary_section'; ?>"
 	 id="row-<?php echo $aOptSection[ 'slug' ]; ?>">
@@ -83,7 +92,7 @@
 					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
 						<span class="optname"><?php echo $aOption[ 'name' ]; ?></span>
 						<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
-							<br/><span class="optlinks">
+							<br /><span class="optlinks">
 							[
 							<a href="<?php echo $aOption[ 'link_info' ]; ?>"
 							   target="_blank"><?php echo $strings[ 'more_info' ]; ?></a>
