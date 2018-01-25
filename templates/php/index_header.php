@@ -15,9 +15,12 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 		height: 62px;
 		background-position: 48%;
 	}
+	#ColumnModules {
+		max-width: 120px;
+	}
+
 	#ColumnOptions {
 		background-color: #dddddd;
-		box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 		min-width: 590px; /** prevents col breaking **/
 	}
 	.module-headline {
@@ -30,7 +33,7 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	}
 	.modules a.module {
 		font-size: 14px;
-		padding: 1.1rem 0.5rem;
+		padding: 0.7rem 1.1rem;
 		color: #666666;
 	}
 	.modules a.module:hover,
