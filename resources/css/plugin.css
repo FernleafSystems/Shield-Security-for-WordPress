@@ -537,9 +537,8 @@ input[type="email"] {
 }
 .content-help {
 	background-color: #fafafa;
-	padding: 10px 20px;
+	padding: 10px 20px 20px;
 	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-	margin: 5px;
 }
 .content-help h2 {
 	margin-bottom: 8px;

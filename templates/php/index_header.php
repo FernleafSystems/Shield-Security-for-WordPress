@@ -106,7 +106,10 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 		transition: transform 0.2s ease;
 		transition: transform 0.2s ease, -webkit-transform 0.2s ease;
 	}
-
+	#AuditTrailTabs .tab-content {
+		border: 0 none;
+		box-shadow: none;
+	}
 </style>
 
 <div class="wrap">
