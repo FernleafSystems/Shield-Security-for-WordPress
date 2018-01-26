@@ -3,10 +3,19 @@ $sBaseDirName = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
 include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 
 <style>
-	#wpbody {
-		background-color: #ffffff;
+	#wpwrap {
+		background-color: #666;
 	}
+	#wpcontent,
 	#wpbody-content {
+		background-color: #666;
+	}
+	#wpfooter {
+		color: #dddddd;
+	}
+	.icwp-options-page {
+		margin-top: 7px;
+		margin-right: 7px;
 	}
 	#ModulePageTopRow {
 		min-width: 760px; /** prevents col breaking **/
@@ -18,7 +27,6 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	#ColumnModules {
 		max-width: 120px;
 	}
-
 	#ColumnOptions {
 		background-color: #dddddd;
 		min-width: 590px; /** prevents col breaking **/
@@ -34,21 +42,23 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	.modules a.module {
 		font-size: 14px;
 		padding: 0.7rem 1.1rem;
-		color: #666666;
+		color: #eeeeee;
 	}
 	.modules a.module:hover,
 	.modules a.module:focus {
 		background-color: #eeeeee;
+		color: #222222;
 		box-shadow: none;
 	}
 	.modules a.module.active {
 		background-color: #dddddd; /** == #ColumnOptions */
+		color: #222222;
 		box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 	}
 	.icwp-options-page .tab-content {
 		background-color: #FCFFFC;
 		border: 1px solid #dddddd;
-		box-shadow: -1px 2px 3px rgba(0,0,0,0.2);
+		box-shadow: -1px 2px 3px rgba(0, 0, 0, 0.2);
 	}
 	#ModuleOptionsNav {
 		margin-top: 20px;
@@ -65,7 +75,7 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 		letter-spacing: -0.5px;
 	}
 	#ModuleOptionsNav li a:hover {
-		background-color: rgba(0,0,0,0.07);
+		background-color: rgba(0, 0, 0, 0.07);
 	}
 	#ModuleOptionsNav li a.active {
 		background-color: #FCFFFC;
@@ -80,11 +90,9 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	#ModuleOptionsNav li a:focus {
 		box-shadow: none;
 	}
-
 	.smoothwidth {
 		transition: width 4.5s;
 	}
-
 	.form-label {
 		font-size: 14px;
 		margin-left: 20px;
@@ -92,7 +100,6 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 	.option_container {
 		margin-left: 10px;
 	}
-
 	.carousel-item {
 
 		transition: -webkit-transform 0.3s ease;

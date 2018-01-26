@@ -15,11 +15,11 @@
     </div>
 
     <div class="carousel-item carousel-help">
-		<div class="d-block w-100 content-help"><?php echo $content[ 'help' ]; ?></div>
+		<div class="d-block w-100"><?php echo $content[ 'help' ]; ?></div>
     </div>
 
     <div class="carousel-item carousel-actions">
-		<div class="d-block w-100 content-help"><?php echo $content[ 'actions' ]; ?></div>
+		<div class="d-block w-100"><?php echo $content[ 'actions' ]; ?></div>
     </div>
 
   </div>
