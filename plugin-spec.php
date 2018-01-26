@@ -44,7 +44,8 @@
         "plugin"
       ],
       "js": [
-        "bootstrap4.min"
+        "bootstrap4.min",
+        "plugin"
       ]
     },
     "frontend": {
