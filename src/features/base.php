@@ -1372,6 +1372,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'btn_actions'       => __( 'Actions' ),
 			),
 			'flags'        => array(
+				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
 				'show_summary'          => false,
 				'wrap_page_content'     => true,
@@ -1560,6 +1561,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		catch ( Exception $oE ) {
 			echo $oE->getMessage();
+			error_log( $oE->getMessage() );
 		}
 	}
 
