@@ -59,10 +59,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param bool $fHasPermission
+	 * @param bool $bHasPermission
 	 * @return bool
 	 */
-	public function doCheckHasPermissionToSubmit( $fHasPermission = true ) {
+	public function doCheckHasPermissionToSubmit( $bHasPermission = true ) {
 
 		// We don't use setPermissionToSubmit() here because of timing with headers - we just for now manually
 		// checking POST for the submission of the key and if it fits, we say "yes"
@@ -74,14 +74,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			return $this->bHasPermissionToSubmit;
 		}
 
-		$this->bHasPermissionToSubmit = $fHasPermission;
-		if ( $this->getIsMainFeatureEnabled() ) {
-
-			$sAccessKey = $this->getAccessKeyHash();
-			if ( !empty( $sAccessKey ) ) {
-				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid();
-			}
-		}
+		$this->bHasPermissionToSubmit = $this->isModuleEnabled() ? $this->isSecAdminSessionValid() : $bHasPermission;
 		return $this->bHasPermissionToSubmit;
 	}
 
@@ -132,8 +125,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
-	public function getIsMainFeatureEnabled() {
-		return parent::getIsMainFeatureEnabled() && $this->hasAccessKey();
+	public function isModuleEnabled() {
+		return parent::isModuleEnabled() && $this->hasAccessKey();
 	}
 
 	/**
@@ -242,7 +235,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function verifyAccessKey( $sKey ) {
-		return !empty( $sKey ) && ( $this->getOpt( 'admin_access_key' ) === md5( $sKey ) );
+		return !empty( $sKey ) && ( $this->getAccessKeyHash() === md5( $sKey ) );
 	}
 
 	/**
@@ -287,7 +280,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'section_admin_access_restriction_settings' :
 				$sTitle = _wpsf__( 'Security Admin Restriction Settings' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restrict access using a simple Access Key.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restricts access to this plugin preventing unauthorized changes to your security settings.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 				);
 				$sTitleShort = _wpsf__( 'Security Admin Settings' );
@@ -330,14 +323,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'admin_access_key' :
 				$sName = _wpsf__( 'Security Admin Access Key' );
 				$sSummary = _wpsf__( 'Provide/Update Security Admin Access Key' );
-				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
+								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Set' ) : _wpsf__( 'Security Key NOT Set' ) ).'</strong>';
 				break;
 
 			case 'admin_access_timeout' :
 				$sName = _wpsf__( 'Security Admin Timeout' );
 				$sSummary = _wpsf__( 'Specify An Automatic Timeout Interval For Security Admin Access' );
 				$sDescription = _wpsf__( 'This will automatically expire your Security Admin Session.' )
-								.' '._wpsf__( 'Does not apply until you enter the access key again.' )
 								.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()
 																						   ->getOptDefault( 'admin_access_timeout' ) );
 				break;
@@ -405,7 +398,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$this->getOptionsVo()->resetOptToDefault( 'admin_access_timeout' );
 		}
 
-		$sAccessKey = $this->getOpt( 'admin_access_key' );
+		$sAccessKey = $this->getAccessKeyHash();
 		if ( empty( $sAccessKey ) ) {
 			$this->setOpt( 'enable_admin_access_restriction', 'N' );
 		}

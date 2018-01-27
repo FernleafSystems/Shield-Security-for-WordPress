@@ -255,7 +255,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return mixed
 	 */
-	public function getIsMainFeatureEnabled() {
+	public function isModuleEnabled() {
 		return true;
 	}
 

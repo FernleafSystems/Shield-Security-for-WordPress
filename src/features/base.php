@@ -197,7 +197,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->getOptionsVo()
 			 ->setIsPremiumLicensed( $this->isPremium() );
 
-		if ( $this->getIsMainFeatureEnabled() && $this->isReadyToExecute() ) {
+		if ( $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
 		}
 	}
@@ -396,7 +396,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return mixed
 	 */
-	public function getIsMainFeatureEnabled() {
+	public function isModuleEnabled() {
 		if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 			return false;
 		}
@@ -510,7 +510,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
 		$aSummary = array(
-			'enabled'    => $this->getIsMainFeatureEnabled(),
+			'enabled'    => $this->isModuleEnabled(),
 			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
 			'slug'       => $this->getFeatureSlug(),
 			'name'       => $this->getMainFeatureName(),
@@ -1329,7 +1329,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aData = array(
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
-			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
+			'bFeatureEnabled' => $this->isModuleEnabled(),
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
 			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),

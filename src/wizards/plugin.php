@@ -127,29 +127,29 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'import';
 		}
 
-		if ( !$oConn->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
+		if ( !$oConn->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
 		$oModule = $oConn->getModule( 'audit_trail' );
-		if ( !$oModule->getIsMainFeatureEnabled() ) {
+		if ( !$oModule->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$oConn->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
+		if ( !$oConn->getModule( 'ips' )->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
 		$oModule = $oConn->getModule( 'login_protect' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
 		$oModule = $oConn->getModule( 'comments_filter' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';
 		}
 
@@ -430,10 +430,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Audit Trail' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
@@ -463,10 +463,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'IP Manager' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
@@ -499,10 +499,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setEnabledGaspCheck( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Protection' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
@@ -573,10 +573,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setEnabledGasp( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comment SPAM Protection' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {

@@ -404,7 +404,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function ensureFeatureEnabled() {
 		// we prevent disabling of this feature if the white list isn't empty
-		if ( !$this->getIsMainFeatureEnabled() ) {
+		if ( !$this->isModuleEnabled() ) {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
 			if ( count( $oProcessor->getWhitelistData() ) > 0 ) {
