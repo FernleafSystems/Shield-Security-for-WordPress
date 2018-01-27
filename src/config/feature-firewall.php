@@ -3,7 +3,7 @@
   "properties": {
     "slug": "firewall",
     "name": "Firewall",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "firewall",
     "tagline": "Automatically block malicious URLs and data sent to your site",
     "show_central": true,
@@ -74,8 +74,8 @@
       "link_info": "http://icwp.io/43",
       "link_blog": "http://icwp.io/wpsf01",
       "name": "Enable Firewall",
-      "summary": "Enable (or Disable) The Firewall Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Firewall feature"
+      "summary": "Enable (or Disable) The Firewall module",
+      "description": "Un-Checking this option will completely disable the Firewall module"
     },
     {
       "key": "include_cookie_checks",

@@ -3,7 +3,7 @@
   "properties": {
     "slug": "autoupdates",
     "name": "Automatic Updates",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "autoupdates",
     "tagline": "Take back full control of WordPress automatic updates",
     "show_central": true,
@@ -51,8 +51,8 @@
       "link_info": "http://icwp.io/3w",
       "link_blog": "",
       "name": "Enable Automatic Updates",
-      "summary": "Enable (or Disable) The Automatic Updates Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Automatic Updates feature"
+      "summary": "Enable (or Disable) The Automatic Updates module",
+      "description": "Un-Checking this option will completely disable the Automatic Updates module"
     },
     {
       "key": "enable_autoupdate_disable_all",

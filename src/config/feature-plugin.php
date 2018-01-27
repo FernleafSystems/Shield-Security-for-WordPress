@@ -2,7 +2,7 @@
   "properties":    {
     "slug":                   "plugin",
     "name":                   "Dashboard",
-    "show_feature_menu_item": true,
+    "show_module_menu_item":  true,
     "storage_key":            "plugin",
     "tagline":                "Overview of the plugin settings",
     "show_central":           true,

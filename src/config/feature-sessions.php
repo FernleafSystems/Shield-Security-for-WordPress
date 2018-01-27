@@ -2,7 +2,7 @@
   "properties": {
     "slug": "sessions",
     "name": "Sessions",
-    "show_feature_menu_item": false,
+    "show_module_menu_item": false,
     "storage_key": "sessions",
     "tagline": "User Sessions",
     "auto_enabled": true,
@@ -35,8 +35,8 @@
       "link_info": "",
       "link_blog": "",
       "name": "Enable Sessions",
-      "summary": "Enable (or Disable) The Sessions Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Sessions feature"
+      "summary": "Enable (or Disable) The Sessions module",
+      "description": "Un-Checking this option will completely disable the Sessions module"
     }
   ],
   "definitions": {

@@ -3,7 +3,7 @@
   "properties":    {
     "slug":                   "login_protect",
     "name":                   "Login Protection",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central":           true,
@@ -100,8 +100,8 @@
       "link_info":   "http://icwp.io/51",
       "link_blog":   "http://icwp.io/wpsf03",
       "name":        "Enable Login Protection",
-      "summary":     "Enable (or Disable) The Login Protection Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Login Protection feature"
+      "summary":     "Enable (or Disable) The Login Protection module",
+      "description": "Un-Checking this option will completely disable the Login Protection module"
     },
     {
       "key":         "login_protect_3pty",

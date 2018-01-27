@@ -3,7 +3,7 @@
   "properties": {
     "slug": "headers",
     "name": "HTTP Headers",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "headers",
     "tagline": "Control HTTP Security Headers",
     "show_central": true,
@@ -54,8 +54,8 @@
       "link_info": "http://icwp.io/7c",
       "link_blog": "http://icwp.io/7c",
       "name": "Enable HTTP Headers",
-      "summary": "Enable (or Disable) The HTTP Headers Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole HTTP Headers feature"
+      "summary": "Enable (or Disable) The HTTP Headers module",
+      "description": "Un-Checking this option will completely disable the HTTP Headers module"
     },
     {
       "key": "x_frame",
@@ -166,7 +166,7 @@
       "link_info": "http://icwp.io/7d",
       "link_blog": "http://icwp.io/7c",
       "name": "Enable Content Security Policy",
-      "summary": "Enable (or Disable) The Content Security Policy Feature",
+      "summary": "Enable (or Disable) The Content Security Policy module",
       "description": "Allows for permission and restriction of all resources loaded on your site."
     },
     {

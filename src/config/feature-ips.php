@@ -3,7 +3,7 @@
   "properties": {
     "slug": "ips",
     "name": "IP Manager",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "ips",
     "tagline": "Manage Visitor IP Address",
     "show_central": true,
@@ -88,8 +88,8 @@
       "link_info": "http://icwp.io/wpsf26",
       "link_blog": "",
       "name": "Enable IP Manager",
-      "summary": "Enable (or Disable) The IP Manager Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole IP Manager feature"
+      "summary": "Enable (or Disable) The IP Manager module",
+      "description": "Un-Checking this option will completely disable the IP Manager module"
     },
     {
       "key": "transgression_limit",

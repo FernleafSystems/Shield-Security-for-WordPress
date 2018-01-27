@@ -713,7 +713,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			case 'enable_tracking' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Information Gathering' ) );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), _wpsf__( 'Information Gathering' ) );
 				$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
 				$sDescription = _wpsf__( 'Allows us to gather information on statistics and features in-use across our client installations.' )
 								.' '._wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' )

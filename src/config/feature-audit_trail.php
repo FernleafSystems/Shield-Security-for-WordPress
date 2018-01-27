@@ -3,7 +3,7 @@
   "properties": {
     "slug": "audit_trail",
     "name": "Audit Trail",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "audit_trail",
     "tagline": "Get a view on what happens on your site, when it happens",
     "show_central": true,
@@ -56,8 +56,8 @@
       "link_info": "http://icwp.io/5p",
       "link_blog": "http://icwp.io/a1",
       "name": "Enable Audit Trail",
-      "summary": "Enable (or Disable) The Audit Trail Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Audit Trail feature"
+      "summary": "Enable (or Disable) The Audit Trail module",
+      "description": "Un-Checking this option will completely disable the Audit Trail module"
 
     },
     {

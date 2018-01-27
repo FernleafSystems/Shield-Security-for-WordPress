@@ -192,9 +192,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sKey ) {
 
 			case 'enable_comments_filter' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = _wpsf__( 'Enable (or Disable) The Comment SPAM Protection Feature' );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), _wpsf__( 'Comment SPAM Protection' ) );
+				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), _wpsf__( 'Comment SPAM Protection' ) );
 				break;
 
 			case 'enable_comments_human_spam_filter' :

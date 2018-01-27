@@ -2,7 +2,7 @@
   "slug": "user_management",
   "properties": {
     "name": "User Management",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "user_management",
     "tagline": "Control user sessions, duration, timeouts and account sharing",
     "show_central": true,
@@ -55,8 +55,8 @@
       "link_info": "",
       "link_blog": "",
       "name": "Enable User Management",
-      "summary": "Enable (or Disable) The User Management Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole User Management feature"
+      "summary": "Enable (or Disable) The User Management module",
+      "description": "Un-Checking this option will completely disable the User Management module"
     },
     {
       "key": "enable_xmlrpc_compatibility",

@@ -3,7 +3,7 @@
   "properties": {
     "slug": "comments_filter",
     "name": "Comments SPAM",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "commentsfilter",
     "tagline": "Block comment SPAM and retain your privacy",
     "use_sessions": true,
@@ -87,8 +87,8 @@
       "link_info": "http://icwp.io/3z",
       "link_blog": "http://icwp.io/wpsf04",
       "name": "Enable SPAM Protection",
-      "summary": "Enable (or Disable) The Comments SPAM Protection Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Comments SPAM Protection feature"
+      "summary": "Enable (or Disable) The Comments SPAM Protection module",
+      "description": "Un-Checking this option will completely disable the Comments SPAM Protection module"
     },
     {
       "key": "comments_cooldown_interval",
@@ -109,7 +109,7 @@
       "link_info": "http://icwp.io/57",
       "link_blog": "http://icwp.io/9w",
       "name": "Human SPAM Filter",
-      "summary": "Enable (or Disable) The Human SPAM Filter Feature",
+      "summary": "Enable (or Disable) The Human SPAM Filter module",
       "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
     },
     {
