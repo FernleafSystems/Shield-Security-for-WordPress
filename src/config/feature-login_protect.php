@@ -104,18 +104,6 @@
       "description": "Un-Checking this option will completely disable the Login Protection module"
     },
     {
-      "key":         "login_protect_3pty",
-      "section":     "section_enable_plugin_feature_login_protection",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "3rd-Party Support",
-      "summary":     "Support For 3rd-Party Plugins, e.g. WooCommerce",
-      "description": "Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads."
-    },
-    {
       "key":         "enable_xmlrpc_compatibility",
       "section":     "section_enable_plugin_feature_login_protection",
       "default":     "Y",
@@ -269,8 +257,8 @@
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3r",
       "link_blog":   "http://icwp.io/9n",
-      "name":        "G.A.S.P Protection",
-      "summary":     "Use G.A.S.P. Protection To Prevent Login Attempts By Bots",
+      "name":        "Bot Protection",
+      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {

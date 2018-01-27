@@ -36,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function getIfSupport3rdParty() {
-		return $this->getOptIs( 'login_protect_3pty', 'Y' );
+		return $this->isPremium();
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -566,10 +566,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				break;
 
 			case 'enable_login_gasp_check' :
-				$sName = _wpsf__( 'G.A.S.P Protection' );
-				$sSummary = _wpsf__( 'Use G.A.S.P. Protection To Prevent Login Attempts By Bots' );
+				$sName = _wpsf__( 'Bot Protection' );
+				$sSummary = _wpsf__( 'Protect WP Login From Automated Login Attempts By Bots' );
 				$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.' )
-								.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__( 'ON' ) );
+								.'<br />'.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__( 'ON' ) );
 				break;
 
 			case 'login_limit_interval' :
@@ -614,12 +614,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 								.'<br />- '._wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
 								.'<br />- '._wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
 								.'<br />- '._wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
-				break;
-
-			case 'login_protect_3pty' :
-				$sName = _wpsf__( '3rd-Party Support' );
-				$sSummary = _wpsf__( 'Support For 3rd-Party Plugins, e.g. WooCommerce' );
-				$sDescription = _wpsf__( 'Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads.' );
 				break;
 
 			case 'text_imahuman' :
