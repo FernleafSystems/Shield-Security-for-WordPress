@@ -9,19 +9,6 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return string
-	 */
-	protected function getContentCustomActions() {
-		if ( $this->canDisplayOptionsForm() ) {
-			return $this->renderIpListsButtons();
-		}
-		return parent::getContentCustomActions();
-	}
-
-	protected function renderIpListsButtons() {
-		return $this->renderTemplate( 'snippets/module-ip-lists', $this->getIpTableDisplayData() );
-	}
-	/**
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
@@ -64,6 +51,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function displayModulePage() {
 		add_thickbox();
 		$this->display( $this->getIpTableDisplayData() );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getContentCustomActionsData() {
+		return $this->getIpTableDisplayData();
 	}
 
 	/**

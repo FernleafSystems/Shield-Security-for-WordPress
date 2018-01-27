@@ -1,9 +1,9 @@
 <h2 style="margin: 0 0 20px"><?php echo $sTitle;?></h2>
 <div id="AuditTrailTabs">
-
 	<ul class="nav nav-tabs">
 	<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
-		<li><a href="#Context<?php echo $sContext; ?>" data-toggle="tab">
+		<li class="nav-item">
+			<a href="#Context<?php echo $sContext; ?>" class="nav-link" role="tab" data-toggle="tab">
 				<?php echo $aContexts[ $sContext ]; ?>
 			</a>
 		</li>
@@ -12,13 +12,14 @@
 	<div class="tab-content">
 		<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
 			<div class="tab-pane <?php echo !$sContext ? 'active' : '' ?>" id="Context<?php echo $sContext; ?>">
-				<div class="icwpAjaxTableContainer"
-					 data-auditcontext="<?php echo $sContext; ?>"><?php echo $aAuditDataContext; ?></div>
+				<div class="icwpAjaxTableContainer" data-auditcontext="<?php echo $sContext; ?>">
+					<?php echo $aAuditDataContext; ?>
+				</div>
 			</div>
 		<?php endforeach; ?>
 	</div>
 
-</div><!-- / span9 -->
+</div>
 
 <script>
 

@@ -1,15 +1,18 @@
 @CHARSET "ISO-8859-1";
 
 /* GENERAL STYLES */
+body {
+	overflow-y: scroll;
+}
+#wpcontent {
+	padding: 0;
+}
+#wpcontent .wrap {
+	margin: 0;
+}
 
-.bootstrap-wpadmin {
-}
-.bootstrap-wpadmin .row {
-	margin-left: 0;
-}
-.bootstrap-wpadmin > .row > div[class*=span]:first-child {
-	margin-left: 0;
-}
+
+.pluginlogo_32,
 #pluginlogo_32 {
 	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -54,11 +57,6 @@
 .icwp-options-page ul.nav-tabs li a:hover {
 	background-color: #dddddd;
 	border-color: #999999;
-}
-.icwp-options-page .tab-content {
-	background-color: #ffffff;
-	border: 1px solid #dddddd;
-	border-top: 0 none;
 }
 .icwp-options-page .form-actions {
 	background-color: #d8d8d8;
@@ -180,11 +178,11 @@ p.code-description {
 }
 /** Section summaries **/
 .row_section_summary {
+	background-color: rgba(0,0,0,0.02);
+	border: 1px solid rgb(240,240,240);
+	margin: 10px 20px 20px;
 }
 .row_section_summary div {
-	background-color: #f5f4f4;
-	border: 1px solid rgb(230, 226, 226);
-	border-width: 1px 0;
 	margin: 0;
 	padding: 0 20px 0 2px;
 }
@@ -210,16 +208,9 @@ p.code-description {
 .options-body legend {
 	border-bottom: 1px dashed transparent;
 	margin-bottom: 0;
-	padding: 16px 22px 12px;
-	width: 80%;
+	padding: 16px 20px 0;
 }
 .option_row .item_group {
-	border-style: solid;
-	border-width: 1px 0;
-	border-color: rgb(230, 226, 226);
-	box-sizing: border-box;
-	padding: 0;
-	margin-top: -1px;
 }
 .option_row .item_group .control-group {
 	margin: 22px 20px;
@@ -241,8 +232,6 @@ p.code-description {
 	margin-top: 5px;
 }
 .option_row .item_group.selected_item_group {
-	background-color: rgba(135, 232, 38, 0.03);
-	border-color: rgb(203, 232, 174);
 }
 .row.option_row {
 	margin-bottom: 15px;
@@ -343,7 +332,7 @@ label input[type=checkbox] {
 	width: 100%;
 	margin-top: 20px;
 	box-shadow: 1px 1px 2px 0 rgba(0, 0, 0, 0.2) inset;
-	border: 1px solid #ccc;
+	border: 1px solid #cccccc;
 	background: #f9f9f9;
 }
 .feature-summary-blocks .feature-icon:before {
@@ -545,55 +534,52 @@ input[type="email"] {
 }
 #icwpOptionsTopPill > .tab-content {
 	background-color: transparent;
-	border: 1px solid transparent;
 }
-#icwpOptionsTopPill > .tab-content .content-help {
+.content-help {
 	background-color: #fafafa;
-	padding: 10px 20px;
+	padding: 10px 20px 20px;
 	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-	margin: 5px;
 }
-#icwpOptionsTopPill .content-help h2 {
+.content-help h2 {
 	margin-bottom: 8px;
 }
-#icwpOptionsTopPill .content-help p,
-#icwpOptionsTopPill .content-help li {
+.content-help p,
+.content-help li {
 	font-size: 14px;
 }
-#icwpOptionsTopPill .content-help dt {
+.content-help dt {
 	border-bottom: 1px dotted rgba(0, 0, 0, 0.2);
 	font-size: 16px;
 	margin-bottom: 7px;
 	padding-bottom: 3px;
 }
-#icwpOptionsTopPill .content-help dd {
+.content-help dd {
 	margin-bottom: 15px;
 	margin-left: 12px;
 }
 .bootstrap-wpadmin .option_section_row .options-body {
 }
 .bootstrap-wpadmin .option_row .item_group {
-	margin-left: 0;
 }
-
 /* The switch - the box around the slider */
 label.forcheckbox .summary {
 	vertical-align: top;
 	line-height: 20px;
 	margin-left: 7px;
 }
-.switch {
+.icwp-switch {
 	position: relative;
 	display: inline-block;
 	width: 40px;
 	height: 20px;
 }
-.bootstrap-wpadmin .switch .summary {
+.icwp-switch .summary {
 	display: block;
 }
 /* Hide default HTML checkbox */
-.bootstrap-wpadmin .switch input {display:none; !important;}
-
+.icwp-switch input {
+	display: none;
+}
 /* The slider */
 .icwp-slider {
 	position: absolute;
@@ -602,7 +588,7 @@ label.forcheckbox .summary {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #ccc;
+	background-color: #cccccc;
 	-webkit-transition: .1s;
 	transition: .1s;
 }

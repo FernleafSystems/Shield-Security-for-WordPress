@@ -109,7 +109,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
 			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
-			add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
+			if ( $this->isThisModuleRequest() ) {
+				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
+			}
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
@@ -1038,7 +1040,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$sName = $oCon->getHumanName();
 		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
 
-		if ( $oCon->getIsValidAdminArea() ) {
+		if ( $oCon->getIsValidAdminArea() && $this->isThisModuleRequest() ) {
 			$bSuccess = $this->handleFormSubmit();
 			if ( $bSuccess ) {
 				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
@@ -1067,6 +1069,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$this->doExtraSubmitProcessing();
 		}
 		return $bVerified;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isThisModuleRequest() {
+		return ( $this->loadDP()->FetchRequest( 'mod_slug' ) == $this->prefix( $this->getFeatureSlug() ) );
 	}
 
 	protected function verifyFormSubmit() {
@@ -1126,7 +1135,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( empty( $sAllOptionsInput ) ) {
 			return;
 		}
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$aAllInputOptions = explode( self::CollateSeparator, $sAllOptionsInput );
 		foreach ( $aAllInputOptions as $sInputKey ) {
@@ -1301,9 +1310,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData() {
+	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
 		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
@@ -1330,25 +1340,29 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
-			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-			'data'       => array(
+			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
+			'sPageTitle'   => $this->getMainFeatureName(),
+			'data'         => array(
 				'form_nonce'        => $this->genNonce( '' ),
 				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
+				'mod_slug_short'    => $this->getFeatureSlug(),
 				'all_options'       => $this->buildOptions(),
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'strings'    => array(
-				'go_to_settings'                    => __( 'Settings' ),
-				'on'                                => __( 'On' ),
-				'off'                               => __( 'Off' ),
-				'more_info'                         => __( 'More Info' ),
-				'blog'                              => __( 'Blog' ),
-				'plugin_activated_features_summary' => __( 'Plugin Activated Features Summary:' ),
-				'save_all_settings'                 => __( 'Save All Settings' ),
-				'see_help_video'                    => __( 'Watch Help Video' ),
+			'strings'      => array(
+				'go_to_settings'    => __( 'Settings' ),
+				'on'                => __( 'On' ),
+				'off'               => __( 'Off' ),
+				'more_info'         => __( 'More Info' ),
+				'blog'              => __( 'Blog' ),
+				'save_all_settings' => __( 'Save All Settings' ),
+				'see_help_video'    => __( 'Watch Help Video' ),
+				'btn_options'       => __( 'Options' ),
+				'btn_help'          => __( 'Help' ),
+				'btn_actions'       => __( 'Actions' ),
 			),
-			'flags'      => array(
+			'flags'        => array(
 				'show_ads'              => $this->getIsShowMarketing(),
 				'show_summary'          => false,
 				'wrap_page_content'     => true,
@@ -1359,21 +1373,25 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'can_wizard'            => $this->canRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
-			'hrefs'      => array(
+			'hrefs'        => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
 				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
 				'wizard_link'     => $this->getUrl_WizardLanding(),
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
-			'content'    => array(
+			'content'      => array()
+		);
+
+		if ( $bRenderEmbeddedContent ) { // prevents recursive loops
+			$aData[ 'content' ] = array(
 				'options_form' => 'no form',
 				'alt'          => '',
 				'actions'      => $this->getContentCustomActions(),
 				'help'         => $this->getContentHelp()
-			)
-		);
-		$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
+			);
+			$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
+		}
 		return $aData;
 	}
 
@@ -1381,14 +1399,25 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getContentCustomActions() {
-		return '<h3 style="margin: 10px 0 100px">'._wpsf__( 'No Actions For This Module' ).'</h3>';
+		return $this->renderTemplate( 'snippets/module-actions-template.php',
+			$this->loadDP()->mergeArraysRecursive(
+				$this->getContentCustomActionsData(),
+				$this->getBaseDisplayData( false )
+			) );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getContentCustomActionsData() {
+		return $this->getBaseDisplayData( false );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-template.php', array( 'slug' => $this->getFeatureSlug() ) );
+		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData( false ) );
 	}
 
 	/**

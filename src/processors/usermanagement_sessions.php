@@ -89,7 +89,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		$oFO = $this->getFeature();
 
 		if ( !$oFO->hasSession() ) {
-			$nForceLogOutCode = 6;
+			$nForceLogOutCode = 4;
 		}
 		else {
 			$oSess = $oFO->getSession();
