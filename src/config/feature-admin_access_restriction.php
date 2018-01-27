@@ -3,7 +3,7 @@
   "properties": {
     "slug": "admin_access_restriction",
     "name": "Security Admin",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "admin_access_restriction",
     "tagline": "Protect your Security Plugin, not just your WordPress site",
     "menu_title": "Security Admin",

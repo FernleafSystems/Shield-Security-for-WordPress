@@ -454,7 +454,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( is_null( $sMenuTitleName ) ) {
 			$sMenuTitleName = $this->getMainFeatureName();
 		}
-		if ( $this->getIfShowFeatureMenuItem() && !empty( $sMenuTitleName ) ) {
+		if ( !empty( $sMenuTitleName ) ) {
 
 			$sHumanName = self::getConn()->getHumanName();
 
@@ -462,11 +462,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			if ( $bMenuHighlighted ) {
 				$sMenuTitleName = sprintf( '<span class="icwp_highlighted">%s</span>', $sMenuTitleName );
 			}
+
 			$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
 			$aItems[ $sMenuPageTitle ] = array(
 				$sMenuTitleName,
 				$this->prefix( $this->getFeatureSlug() ),
-				array( $this, 'displayModuleAdminPage' )
+				array( $this, 'displayModuleAdminPage' ),
+				$this->getIfShowModuleMenuItem()
 			);
 
 			$aAdditionalItems = $this->getOptionsVo()->getAdditionalMenuItems();
@@ -524,15 +526,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return boolean
 	 */
-	public function getIfShowFeatureMenuItem() {
-		return $this->getOptionsVo()->getFeatureProperty( 'show_feature_menu_item' );
+	public function getIfShowModuleMenuItem() {
+		return $this->getOptionsVo()->getFeatureProperty( 'show_module_menu_item' );
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIfShowModuleLink() {
+		return $this->getOptionsVo()->getFeatureProperty( 'show_central' );
 	}
 
 	/**
 	 * @return boolean
 	 */
 	public function getIfShowSummaryItem() {
-		return $this->getIfShowFeatureMenuItem() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
+		return $this->getIfShowModuleLink() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
 	}
 
 	/**
