@@ -123,6 +123,11 @@
       "name": "Max Simultaneous Sessions",
       "summary": "Limit Simultaneous Sessions For The Same Username",
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
+    },
+    {
+      "key":          "autoadd_sessions_started_at",
+      "transferable": false,
+      "section":      "section_non_ui"
     }
   ],
   "definitions": {

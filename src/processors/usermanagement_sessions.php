@@ -11,8 +11,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	public function run() {
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
-		add_action( 'wp_loaded', array( $this, 'checkCurrentUser_Action' ), 1 ); // Check the current every page load.
 	}
 
 	/**
@@ -23,60 +23,88 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
-	public function checkCurrentUser_Action() {
+	public function onWpLoaded() {
 		$oWp = $this->loadWp();
 		$oWpUsers = $this->loadWpUsers();
 
 		if ( $oWpUsers->isUserLoggedIn() && !$oWp->isRestUrl() ) {
 
-			$nCode = $this->assessCurrentSession();
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getFeature();
+			if ( $oFO->isAutoAddSessions() ) {
+				$this->autoAddSession();
+			}
+			else {
+				$this->checkCurrentSession();
+			}
+		}
+	}
 
-			if ( $nCode > 0 ) { // it's not admin, but the user looks logged into WordPress and not to Shield
+	private function autoAddSession() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		if ( !$oFO->hasSession() ) {
+			$oFO->getSessionsProcessor()
+				->queryCreateSession(
+					$oWpUsers = $this->loadWpUsers()->getCurrentWpUser()->user_login,
+					$oFO->getConn()->getSessionId( true )
+				);
+		}
+	}
 
-				if ( is_admin() ) { // prevent any admin access on invalid Shield sessions.
+	/**
+	 * Should be hooked to 'init' so we have is_user_logged_in()
+	 */
+	private function checkCurrentSession() {
+		$oWp = $this->loadWp();
+		$oWpUsers = $this->loadWpUsers();
 
-					switch ( $nCode ) {
+		$nCode = $this->assessCurrentSession();
 
-						case 7:
-							$oWpUsers->logoutUser( true );
-							$this->addToAuditEntry(
-								sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
-								2,
-								'um_session_browser_lock_redirect'
-							);
-							$oWp->redirectToLogin();
-							break;
+		if ( $nCode > 0 ) { // it's not admin, but the user looks logged into WordPress and not to Shield
 
-						case 3:
-							// $this->loadWpUsers()->logoutUser( true ); // so as not to destroy the original, legitimate session
-							$this->addToAuditEntry(
-								sprintf( 'Access to an established user session from a new IP address "%s". Redirecting request.', $this->ip() ),
-								2,
-								'um_session_ip_lock_redirect'
-							);
-							$oWp->redirectToHome();
-							break;
+			if ( is_admin() ) { // prevent any admin access on invalid Shield sessions.
 
-						default:
-							$this->addToAuditEntry(
-								'Unable to verify the current User Session. Forcefully logging out session and redirecting to login.',
-								2,
-								'um_session_not_found_redirect'
-							);
-							$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
-							break;
-					}
+				switch ( $nCode ) {
+
+					case 7:
+						$oWpUsers->logoutUser( true );
+						$this->addToAuditEntry(
+							sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
+							2,
+							'um_session_browser_lock_redirect'
+						);
+						$oWp->redirectToLogin();
+						break;
+
+					case 3:
+						// $this->loadWpUsers()->logoutUser( true ); // so as not to destroy the original, legitimate session
+						$this->addToAuditEntry(
+							sprintf( 'Access to an established user session from a new IP address "%s". Redirecting request.', $this->ip() ),
+							2,
+							'um_session_ip_lock_redirect'
+						);
+						$oWp->redirectToHome();
+						break;
+
+					default:
+						$this->addToAuditEntry(
+							'Unable to verify the current User Session. Forcefully logging out session and redirecting to login.',
+							2,
+							'um_session_not_found_redirect'
+						);
+						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
+						break;
 				}
-				else {
-					$this->addToAuditEntry(
-						'Unable to verify the current User Session. Forcefully logging out session.',
-						2,
-						'um_session_not_found'
-					);
-					$oWpUsers->logoutUser();
-				}
+			}
+			else {
+				$this->addToAuditEntry(
+					'Unable to verify the current User Session. Forcefully logging out session.',
+					2,
+					'um_session_not_found'
+				);
+				$oWpUsers->logoutUser();
 			}
 		}
 	}
