@@ -13,17 +13,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_wordpress_lockdown",
-      "primary": true,
-      "title": "Enable Plugin Feature: Lockdown",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
-        "Recommendation - Keep the Lockdown feature turned on."
-      ]
-    },
-    {
       "slug": "section_system_lockdown",
+      "primary": true,
       "title": "WordPress System Lockdown",
       "title_short": "System",
       "summary": [
@@ -47,6 +38,15 @@
       "summary": [
         "Purpose - Obscures certain WordPress settings from public view.",
         "Recommendation - Obscurity is not true security and so these settings are down to your personal tastes."
+      ]
+    },
+    {
+      "slug": "section_enable_plugin_feature_wordpress_lockdown",
+      "title": "Enable Plugin Feature: Lockdown",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
+        "Recommendation - Keep the Lockdown feature turned on."
       ]
     },
     {

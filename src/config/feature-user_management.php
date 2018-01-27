@@ -13,17 +13,9 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_user_accounts_management",
-      "primary": true,
-      "title": "Enable Plugin Feature: User Management",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
-        "Recommendation - Keep the User Management feature turned on."
-      ]
-    },
-    {
       "slug": "section_user_session_management",
+      "primary": true,
+      "primary": true,
       "title": "User Session Management",
       "title_short": "Session Options",
       "summary": [
@@ -41,6 +33,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_user_accounts_management",
+      "title": "Enable Plugin Feature: User Management",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
+        "Recommendation - Keep the User Management feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -49,7 +50,7 @@
     {
       "key": "enable_user_management",
       "section": "section_enable_plugin_feature_user_accounts_management",
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",

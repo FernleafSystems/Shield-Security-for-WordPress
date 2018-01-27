@@ -59,6 +59,7 @@ include_once( $sBaseDirName.'widgets/icwp_widgets.php' ); ?>
 		background-color: #FCFFFC;
 		border: 1px solid #dddddd;
 		box-shadow: -1px 2px 3px rgba(0, 0, 0, 0.2);
+		min-height: 400px;
 	}
 	#ModuleOptionsNav {
 		margin-top: 20px;

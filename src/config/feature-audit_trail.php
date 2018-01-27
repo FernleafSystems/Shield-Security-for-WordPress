@@ -14,18 +14,8 @@
   },
   "sections": [
     {
-
-      "slug": "section_enable_plugin_feature_audit_trail",
-      "primary": true,
-      "title": "Enable Plugin Feature: Audit Trail",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",
-        "Recommendation - Keep the Audit Trail feature turned on."
-      ]
-    },
-    {
       "slug": "section_audit_trail_options",
+      "primary": true,
       "title": "Audit Trail Options",
       "title_short": "Options",
       "summary": [
@@ -44,6 +34,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_audit_trail",
+      "title": "Enable Plugin Feature: Audit Trail",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",
+        "Recommendation - Keep the Audit Trail feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -52,7 +51,7 @@
     {
       "key": "enable_audit_trail",
       "section": "section_enable_plugin_feature_audit_trail",
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/5p",
       "link_blog": "http://icwp.io/a1",

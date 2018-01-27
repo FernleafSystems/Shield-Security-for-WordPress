@@ -20,17 +20,8 @@
   },
   "sections":      [
     {
-      "slug":        "section_enable_plugin_feature_login_protection",
-      "primary":     true,
-      "title":       "Enable Plugin Feature: Login Protection",
-      "title_short": "Enable / Disable",
-      "summary":     [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
-      ]
-    },
-    {
       "slug":        "section_brute_force_login_protection",
+      "primary":     true,
       "title":       "Brute Force Login Protection",
       "title_short": "Brute Force",
       "summary":     [
@@ -87,6 +78,15 @@
       ]
     },
     {
+      "slug":        "section_enable_plugin_feature_login_protection",
+      "title":       "Disable Login Protection Module",
+      "title_short": "Disable",
+      "summary":     [
+        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Protection feature turned on."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -95,7 +95,7 @@
     {
       "key":         "enable_login_protect",
       "section":     "section_enable_plugin_feature_login_protection",
-      "default":     "N",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/51",
       "link_blog":   "http://icwp.io/wpsf03",
@@ -265,7 +265,7 @@
     {
       "key":         "enable_login_gasp_check",
       "section":     "section_brute_force_login_protection",
-      "default":     "Y",
+      "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3r",
       "link_blog":   "http://icwp.io/9n",

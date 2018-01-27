@@ -62,13 +62,8 @@
   },
   "sections":      [
     {
-      "slug":        "section_global_security_options",
-      "primary":     true,
-      "title":       "Global Plugin Security Options",
-      "title_short": "Global Options"
-    },
-    {
       "slug":        "section_defaults",
+      "primary":     true,
       "title":       "Plugin Defaults",
       "title_short": "Plugin Defaults"
     },
@@ -86,6 +81,11 @@
       "slug":        "section_third_party_google",
       "title":       "Google",
       "title_short": "Google"
+    },
+    {
+      "slug":        "section_global_security_options",
+      "title":       "Global Plugin Security Options",
+      "title_short": "Global Options"
     },
     {
       "slug":   "section_non_ui",

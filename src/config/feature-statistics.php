@@ -14,7 +14,7 @@
       "slug": "section_enable_plugin_feature_statistics",
       "primary": true,
       "title": "Enable Plugin Feature: Statistics",
-      "title_short": "Enable / Disable",
+      "title_short": "Disable Module",
       "summary": [
         "Purpose - Helps you see at a glance how effective the plugin has been.",
         "Recommendation - Keep the Statistics feature turned on."
@@ -24,7 +24,7 @@
       "slug": "section_enable_plugin_feature_reporting",
       "primary": true,
       "title": "Enable Plugin Feature: Reporting",
-      "title_short": "Enable / Disable",
+      "title_short": "Disable Module",
       "summary": [
         "Purpose - To track stats and issue reports.",
         "Recommendation - Keep the Reporting feature turned on."

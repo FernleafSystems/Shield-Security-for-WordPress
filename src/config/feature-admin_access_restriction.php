@@ -28,18 +28,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_admin_access_restriction",
-      "primary": true,
-      "title": "Enable Plugin Feature: WordPress Security Admin",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
-        "Recommendation - Keep the Security Admin feature turned on.",
-        "You need to also enter a new Access Key to enable this feature."
-      ]
-    },
-    {
       "slug": "section_admin_access_restriction_settings",
+      "primary": true,
       "title": "Security Admin Restriction Settings",
       "title_short": "Security Admin Settings",
       "summary": [
@@ -57,6 +47,16 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_admin_access_restriction",
+      "title": "Enable Plugin Feature: WordPress Security Admin",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
+        "Recommendation - Keep the Security Admin feature turned on.",
+        "You need to also enter a new Access Key to enable this feature."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -65,7 +65,7 @@
     {
       "key": "enable_admin_access_restriction",
       "section": "section_enable_plugin_feature_admin_access_restriction",
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/40",
       "link_blog": "http://icwp.io/wpsf02",
@@ -75,7 +75,7 @@
     },
     {
       "key": "admin_access_key",
-      "section": "section_enable_plugin_feature_admin_access_restriction",
+      "section": "section_admin_access_restriction_settings",
       "sensitive": true,
       "default": "",
       "type": "password",

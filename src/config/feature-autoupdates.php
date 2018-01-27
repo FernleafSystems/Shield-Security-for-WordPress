@@ -13,26 +13,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_automatic_updates_control",
-      "primary": true,
-      "title": "Enable Plugin Feature: Automatic Updates",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.",
-        "Recommendation - Keep the Automatic Updates feature turned on."
-      ]
-    },
-    {
-      "slug": "section_disable_all_wordpress_automatic_updates",
-      "title": "Disable ALL WordPress Automatic Updates",
-      "title_short": "Turn Off",
-      "summary": [
-        "Purpose - If you never want WordPress to automatically update anything on your site, turn on this option.",
-        "Recommendation - Do not turn on this option unless you really need to block updates."
-      ]
-    },
-    {
       "slug": "section_automatic_updates_for_wordpress_components",
+      "primary": true,
       "title": "Automatic Updates For WordPress Components",
       "title_short": "WordPress Components",
       "summary": [
@@ -45,6 +27,15 @@
       "title": "Automatic Update Email Notifications",
       "title_short": "Notifications",
       "summary": "Purpose - Control how you are notified of automatic updates that have occurred."
+    },
+    {
+      "slug": "section_enable_plugin_feature_automatic_updates_control",
+      "title": "Enable Plugin Feature: Automatic Updates",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.",
+        "Recommendation - Keep the Automatic Updates feature turned on."
+      ]
     },
     {
       "slug": "section_non_ui",
@@ -65,7 +56,7 @@
     },
     {
       "key": "enable_autoupdate_disable_all",
-      "section": "section_disable_all_wordpress_automatic_updates",
+      "section": "section_automatic_updates_for_wordpress_components",
       "default": "N",
       "type": "checkbox",
       "link_info": "http://icwp.io/3v",

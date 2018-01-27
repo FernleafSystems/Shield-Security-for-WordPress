@@ -13,17 +13,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_headers",
-      "primary": true,
-      "title": "Enable Plugin Feature: HTTP Headers",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - Protect visitors to your site by implementing increased security response headers.",
-        "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
-      ]
-    },
-    {
       "slug": "section_security_headers",
+      "primary": true,
       "title": "Advanced Security Headers",
       "title_short": "Security Headers",
       "summary": [
@@ -37,6 +28,15 @@
       "title_short": "Content Security Policy",
       "summary": [
         "Purpose - Restrict the sources and types of content that may be loaded and processed by visitor browsers.",
+        "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
+      ]
+    },
+    {
+      "slug": "section_enable_plugin_feature_headers",
+      "title": "Enable Plugin Feature: HTTP Headers",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - Protect visitors to your site by implementing increased security response headers.",
         "Recommendation - Enabling these features are advised, but you must test them on your site thoroughly."
       ]
     },

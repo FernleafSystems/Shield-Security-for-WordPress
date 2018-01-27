@@ -13,17 +13,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_wordpress_firewall",
-      "primary": true,
-      "title": "Enable Plugin Feature: Firewall",
-      "title_short": "Enable / Disable",
-      "summary": [
-         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
-         "Recommendation - Keep the Firewall feature turned on."
-                 ]
-    },
-    {
       "slug": "section_firewall_blocking_options",
+      "primary": true,
       "title": "Firewall Blocking Options",
       "title_short": "Firewall Blocking",
       "summary": [
@@ -59,6 +50,15 @@
         "Recommendation - Be sure to change the messages to suit your audience.",
         "Hint - To reset any message to its default, enter the text exactly: default"
       ]
+    },
+    {
+      "slug": "section_enable_plugin_feature_wordpress_firewall",
+      "title": "Enable Plugin Feature: Firewall",
+      "title_short": "Disable Module",
+      "summary": [
+         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
+         "Recommendation - Keep the Firewall feature turned on."
+                 ]
     },
     {
       "slug": "section_non_ui",

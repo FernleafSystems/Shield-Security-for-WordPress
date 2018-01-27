@@ -12,7 +12,7 @@
 	<dd>
 		<p>Currently the security admin is authenticated with the 'Security Admin Key'.</p>
 		<p>You can't turn on the security admin feature without first supplying the key.</p>
-		<p>On the main Enable / Disable section, you must check on the checkbox and supply a key. You must
+		<p>On the main 'Disable Module' section, you must check on the checkbox and supply a key. You must
 		   remember this key, because you'll be asked for it later.
 		</p>
 	</dd>

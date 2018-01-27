@@ -15,7 +15,7 @@
       "slug": "section_enable_plugin_feature_sessions",
       "primary": true,
       "title": "Enable Plugin Feature: Sessions",
-      "title_short": "Enable / Disable",
+      "title_short": "Disable Module",
       "summary": [
         "Purpose - Creates and Manages User Sessions.",
         "Recommendation - Keep the Sessions feature turned on."
