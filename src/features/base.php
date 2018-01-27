@@ -1314,7 +1314,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function displayRestrictedPage() {
 		$this->display(
 			array( 'flags' => array( 'show_summary' => false ) ),
-			'subfeature-access_restricted.php'
+			'access_restricted.php'
 		);
 	}
 
