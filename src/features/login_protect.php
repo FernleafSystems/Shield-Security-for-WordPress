@@ -36,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function getIfSupport3rdParty() {
-		return $this->getOptIs( 'login_protect_3pty', 'Y' );
+		return $this->isPremium();
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -426,7 +426,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_enable_plugin_feature_login_protection' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( '%s Module', _wpsf__( 'Disable' ) );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Login Protection blocks all automated and brute force attempts to log in to your site.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Login Protection' ) ) )
@@ -501,9 +501,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		switch ( $sKey ) {
 
 			case 'enable_login_protect' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
 			case 'enable_xmlrpc_compatibility' :
@@ -566,10 +566,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				break;
 
 			case 'enable_login_gasp_check' :
-				$sName = _wpsf__( 'G.A.S.P Protection' );
-				$sSummary = _wpsf__( 'Use G.A.S.P. Protection To Prevent Login Attempts By Bots' );
+				$sName = _wpsf__( 'Bot Protection' );
+				$sSummary = _wpsf__( 'Protect WP Login From Automated Login Attempts By Bots' );
 				$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.' )
-								.' '.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__( 'ON' ) );
+								.'<br />'.sprintf( _wpsf__( 'Recommended: %s' ), _wpsf__( 'ON' ) );
 				break;
 
 			case 'login_limit_interval' :
@@ -614,12 +614,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 								.'<br />- '._wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
 								.'<br />- '._wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
 								.'<br />- '._wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
-				break;
-
-			case 'login_protect_3pty' :
-				$sName = _wpsf__( '3rd-Party Support' );
-				$sSummary = _wpsf__( 'Support For 3rd-Party Plugins, e.g. WooCommerce' );
-				$sDescription = _wpsf__( 'Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads.' );
 				break;
 
 			case 'text_imahuman' :

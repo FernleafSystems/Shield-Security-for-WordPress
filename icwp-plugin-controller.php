@@ -452,9 +452,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$aPluginMenuItems = apply_filters( $this->doPluginPrefix( 'filter_plugin_submenu_items' ), array() );
 				if ( !empty( $aPluginMenuItems ) ) {
 					foreach ( $aPluginMenuItems as $sMenuTitle => $aMenu ) {
-						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack ) = $aMenu;
+						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack, $bShowItem ) = $aMenu;
 						add_submenu_page(
-							$sFullParentMenuId,
+							$bShowItem ? $sFullParentMenuId : null,
 							$sMenuTitle,
 							$sMenuItemText,
 							$this->getBasePermissions(),
@@ -1459,7 +1459,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
+			self::$sSessionId = $this->loadDP()->FetchCookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();

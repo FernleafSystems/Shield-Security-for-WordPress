@@ -3,7 +3,7 @@
   "properties":  {
     "slug":                   "hack_protect",
     "name":                   "Hack Protection",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":            "hack_protect",
     "tagline": "Automatically detect and repair vulnerable and suspicious items",
     "show_central":           true,
@@ -13,17 +13,8 @@
   },
   "sections":    [
     {
-      "slug":        "section_enable_plugin_feature_hack_protection_tools",
-      "primary":     true,
-      "title":       "Enable Plugin Feature: Hack Protection",
-      "title_short": "Enable / Disable",
-      "summary":     [
-        "Purpose - The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.",
-        "Recommendation - Keep the Hack Protection feature turned on."
-      ]
-    },
-    {
       "slug":        "section_core_file_integrity_scan",
+      "primary":     true,
       "title":       "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
       "summary":     [
@@ -59,6 +50,15 @@
       ]
     },
     {
+      "slug":        "section_enable_plugin_feature_hack_protection_tools",
+      "title":       "Enable Plugin Feature: Hack Protection",
+      "title_short": "Disable Module",
+      "summary":     [
+        "Purpose - The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.",
+        "Recommendation - Keep the Hack Protection feature turned on."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -72,8 +72,8 @@
       "link_info":   "http://icwp.io/wpsf38",
       "link_blog":   "http://icwp.io/9x",
       "name":        "Enable Hack Protection",
-      "summary":     "Enable (or Disable) The Hack Protection Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Hack Protection feature"
+      "summary":     "Enable (or Disable) The Hack Protection module",
+      "description": "Un-Checking this option will completely disable the Hack Protection module"
     },
     {
       "key":           "enable_wpvuln_scan",

@@ -2,7 +2,7 @@
   "slug": "user_management",
   "properties": {
     "name": "User Management",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "user_management",
     "tagline": "Control user sessions, duration, timeouts and account sharing",
     "show_central": true,
@@ -13,17 +13,9 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_user_accounts_management",
-      "primary": true,
-      "title": "Enable Plugin Feature: User Management",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
-        "Recommendation - Keep the User Management feature turned on."
-      ]
-    },
-    {
       "slug": "section_user_session_management",
+      "primary": true,
+      "primary": true,
       "title": "User Session Management",
       "title_short": "Session Options",
       "summary": [
@@ -41,6 +33,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_user_accounts_management",
+      "title": "Enable Plugin Feature: User Management",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
+        "Recommendation - Keep the User Management feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -49,13 +50,13 @@
     {
       "key": "enable_user_management",
       "section": "section_enable_plugin_feature_user_accounts_management",
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
       "name": "Enable User Management",
-      "summary": "Enable (or Disable) The User Management Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole User Management feature"
+      "summary": "Enable (or Disable) The User Management module",
+      "description": "Un-Checking this option will completely disable the User Management module"
     },
     {
       "key": "enable_xmlrpc_compatibility",
@@ -123,6 +124,11 @@
       "name": "Max Simultaneous Sessions",
       "summary": "Limit Simultaneous Sessions For The Same Username",
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
+    },
+    {
+      "key":          "autoadd_sessions_started_at",
+      "transferable": false,
+      "section":      "section_non_ui"
     }
   ],
   "definitions": {

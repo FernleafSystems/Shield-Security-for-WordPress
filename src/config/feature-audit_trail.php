@@ -3,7 +3,7 @@
   "properties": {
     "slug": "audit_trail",
     "name": "Audit Trail",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "audit_trail",
     "tagline": "Get a view on what happens on your site, when it happens",
     "show_central": true,
@@ -14,18 +14,8 @@
   },
   "sections": [
     {
-
-      "slug": "section_enable_plugin_feature_audit_trail",
-      "primary": true,
-      "title": "Enable Plugin Feature: Audit Trail",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",
-        "Recommendation - Keep the Audit Trail feature turned on."
-      ]
-    },
-    {
       "slug": "section_audit_trail_options",
+      "primary": true,
       "title": "Audit Trail Options",
       "title_short": "Options",
       "summary": [
@@ -44,6 +34,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_audit_trail",
+      "title": "Enable Plugin Feature: Audit Trail",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",
+        "Recommendation - Keep the Audit Trail feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -52,13 +51,13 @@
     {
       "key": "enable_audit_trail",
       "section": "section_enable_plugin_feature_audit_trail",
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/5p",
       "link_blog": "http://icwp.io/a1",
       "name": "Enable Audit Trail",
-      "summary": "Enable (or Disable) The Audit Trail Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Audit Trail feature"
+      "summary": "Enable (or Disable) The Audit Trail module",
+      "description": "Un-Checking this option will completely disable the Audit Trail module"
 
     },
     {

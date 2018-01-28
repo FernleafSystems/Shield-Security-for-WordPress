@@ -3,7 +3,7 @@
   "properties": {
     "slug": "lockdown",
     "name": "Lockdown",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "lockdown",
     "tagline": "Harden the more loosely controlled settings of your site",
     "show_central": true,
@@ -13,17 +13,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_wordpress_lockdown",
-      "primary": true,
-      "title": "Enable Plugin Feature: Lockdown",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
-        "Recommendation - Keep the Lockdown feature turned on."
-      ]
-    },
-    {
       "slug": "section_system_lockdown",
+      "primary": true,
       "title": "WordPress System Lockdown",
       "title_short": "System",
       "summary": [
@@ -50,6 +41,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_wordpress_lockdown",
+      "title": "Enable Plugin Feature: Lockdown",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",
+        "Recommendation - Keep the Lockdown feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -63,8 +63,8 @@
       "link_info": "http://icwp.io/4r",
       "link_blog": "",
       "name": "Enable Lockdown",
-      "summary": "Enable (or Disable) The Lockdown Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Lockdown feature"
+      "summary": "Enable (or Disable) The Lockdown module",
+      "description": "Un-Checking this option will completely disable the Lockdown module"
     },
     {
       "key": "disable_xmlrpc",

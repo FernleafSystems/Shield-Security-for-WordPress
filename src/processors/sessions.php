@@ -211,7 +211,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sSessionId
 	 * @return null|ICWP_WPSF_SessionVO
 	 */
-	protected function queryCreateSession( $sUsername, $sSessionId ) {
+	public function queryCreateSession( $sUsername, $sSessionId ) {
 		if ( empty( $sUsername ) ) {
 			return null;
 		}

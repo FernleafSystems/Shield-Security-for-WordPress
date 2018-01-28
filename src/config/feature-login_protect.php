@@ -3,7 +3,7 @@
   "properties":    {
     "slug":                   "login_protect",
     "name":                   "Login Protection",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central":           true,
@@ -20,17 +20,8 @@
   },
   "sections":      [
     {
-      "slug":        "section_enable_plugin_feature_login_protection",
-      "primary":     true,
-      "title":       "Enable Plugin Feature: Login Protection",
-      "title_short": "Enable / Disable",
-      "summary":     [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
-      ]
-    },
-    {
       "slug":        "section_brute_force_login_protection",
+      "primary":     true,
       "title":       "Brute Force Login Protection",
       "title_short": "Brute Force",
       "summary":     [
@@ -87,6 +78,15 @@
       ]
     },
     {
+      "slug":        "section_enable_plugin_feature_login_protection",
+      "title":       "Disable Login Protection Module",
+      "title_short": "Disable",
+      "summary":     [
+        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Protection feature turned on."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -95,25 +95,13 @@
     {
       "key":         "enable_login_protect",
       "section":     "section_enable_plugin_feature_login_protection",
-      "default":     "N",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/51",
       "link_blog":   "http://icwp.io/wpsf03",
       "name":        "Enable Login Protection",
-      "summary":     "Enable (or Disable) The Login Protection Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Login Protection feature"
-    },
-    {
-      "key":         "login_protect_3pty",
-      "section":     "section_enable_plugin_feature_login_protection",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "3rd-Party Support",
-      "summary":     "Support For 3rd-Party Plugins, e.g. WooCommerce",
-      "description": "Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads."
+      "summary":     "Enable (or Disable) The Login Protection module",
+      "description": "Un-Checking this option will completely disable the Login Protection module"
     },
     {
       "key":         "enable_xmlrpc_compatibility",
@@ -265,12 +253,12 @@
     {
       "key":         "enable_login_gasp_check",
       "section":     "section_brute_force_login_protection",
-      "default":     "Y",
+      "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3r",
       "link_blog":   "http://icwp.io/9n",
-      "name":        "G.A.S.P Protection",
-      "summary":     "Use G.A.S.P. Protection To Prevent Login Attempts By Bots",
+      "name":        "Bot Protection",
+      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {

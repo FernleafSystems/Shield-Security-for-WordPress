@@ -1,3 +1,33 @@
+var iCWP_WPSF_SecurityAdmin = new function () {
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			jQuery( document ).on( "submit", jQuery( '#SecurityAdminForm' ), submit_admin_access );
+		} );
+	};
+
+	var submit_admin_access = function ( event ) {
+		iCWP_WPSF_BodyOverlay.show();
+		event.preventDefault();
+
+		var $oForm = jQuery( event.target );
+
+		jQuery.post( ajaxurl, $oForm.serialize(), function ( oResponse ) {
+			if ( oResponse.success ) {
+				location.reload( true );
+			}
+			else {
+				alert( 'Security Access Key was not recognised.' );
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		} ).always( function () {
+			}
+		);
+
+		return false;
+	};
+}();
+
 var iCWP_WPSF_Autoupdates = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -87,7 +117,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				else {
 					sMessage = oResponse.data.message;
 				}
-				jQuery('div#icwpOptionsFormContainer').html( oResponse.data.options_form )
+				jQuery( 'div#icwpOptionsFormContainer' ).html( oResponse.data.options_form )
 				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 			}
 		).always( function () {
@@ -156,3 +186,4 @@ var iCWP_WPSF_BodyOverlay = new function () {
 iCWP_WPSF_Autoupdates.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
 iCWP_WPSF_BodyOverlay.initialise();
+iCWP_WPSF_SecurityAdmin.initialise();
