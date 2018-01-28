@@ -1,5 +1,4 @@
-<h2>What is the Comments SPAM module?</h2>
-<h2>What is the Comments SPAM module?</h2>
+<h2>What is the Comments SPAM Protection module?</h2>
 <p>Shield will completely block 100% of automated spam-bot comments.</p>
 <p>Unlike Akismet, it does not send your site comments offsite for processing with a 3rd party.</p>
 <p>There is just no need for that - we respect our own, and your own, privacy too much to tolerate that sort
