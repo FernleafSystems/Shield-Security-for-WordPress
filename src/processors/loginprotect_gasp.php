@@ -78,7 +78,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			return $oUser;
 		}
 		//This doesn't actually ever get returned because we die() within doGaspChecks()
-		return new WP_Error( 'wpsf_gaspfail', _wpsf__( 'G.A.S.P. Checking Failed.' ) );
+		return new WP_Error( 'wpsf_gaspfail', _wpsf__( 'Bot Checking Failed.' ) );
 	}
 
 	/**

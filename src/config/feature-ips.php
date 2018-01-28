@@ -3,7 +3,7 @@
   "properties": {
     "slug": "ips",
     "name": "IP Manager",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "ips",
     "tagline": "Manage Visitor IP Address",
     "show_central": true,
@@ -36,17 +36,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_ips",
-      "primary": true,
-      "title": "Enable Plugin Feature: IP Manager",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",
-        "Recommendation - Keep the IP Manager feature turned on. You should also carefully review the automatic black list settings."
-      ]
-    },
-    {
       "slug": "section_auto_black_list",
+      "primary": true,
       "title": "Automatic IP Black List",
       "title_short": "Auto Black List",
       "summary": [
@@ -75,6 +66,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_ips",
+      "title": "Enable Plugin Feature: IP Manager",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",
+        "Recommendation - Keep the IP Manager feature turned on. You should also carefully review the automatic black list settings."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -83,13 +83,13 @@
     {
       "key": "enable_ips",
       "section": "section_enable_plugin_feature_ips",
-      "default": "N",
+      "default": "Y",
       "type": "checkbox",
       "link_info": "http://icwp.io/wpsf26",
       "link_blog": "",
       "name": "Enable IP Manager",
-      "summary": "Enable (or Disable) The IP Manager Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole IP Manager feature"
+      "summary": "Enable (or Disable) The IP Manager module",
+      "description": "Un-Checking this option will completely disable the IP Manager module"
     },
     {
       "key": "transgression_limit",

@@ -3,7 +3,7 @@
   "properties": {
     "slug": "firewall",
     "name": "Firewall",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key": "firewall",
     "tagline": "Automatically block malicious URLs and data sent to your site",
     "show_central": true,
@@ -13,17 +13,8 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_wordpress_firewall",
-      "primary": true,
-      "title": "Enable Plugin Feature: Firewall",
-      "title_short": "Enable / Disable",
-      "summary": [
-         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
-         "Recommendation - Keep the Firewall feature turned on."
-                 ]
-    },
-    {
       "slug": "section_firewall_blocking_options",
+      "primary": true,
       "title": "Firewall Blocking Options",
       "title_short": "Firewall Blocking",
       "summary": [
@@ -61,6 +52,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_wordpress_firewall",
+      "title": "Enable Plugin Feature: Firewall",
+      "title_short": "Disable Module",
+      "summary": [
+         "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",
+         "Recommendation - Keep the Firewall feature turned on."
+                 ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -74,8 +74,8 @@
       "link_info": "http://icwp.io/43",
       "link_blog": "http://icwp.io/wpsf01",
       "name": "Enable Firewall",
-      "summary": "Enable (or Disable) The Firewall Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Firewall feature"
+      "summary": "Enable (or Disable) The Firewall module",
+      "description": "Un-Checking this option will completely disable the Firewall module"
     },
     {
       "key": "include_cookie_checks",

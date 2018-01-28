@@ -15,7 +15,7 @@ if ( !class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ):
 		/**
 		 * @return mixed
 		 */
-		public function getIsMainFeatureEnabled() {
+		public function isModuleEnabled() {
 			return true;
 		}
 

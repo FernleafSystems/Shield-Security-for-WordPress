@@ -2,7 +2,7 @@
   "properties": {
     "slug": "statistics",
     "name": "Statistics",
-    "show_feature_menu_item": false,
+    "show_module_menu_item": false,
     "storage_key": "statistics",
     "tagline": "Summary of the main security actions taken by this plugin",
     "show_central": false,
@@ -14,7 +14,7 @@
       "slug": "section_enable_plugin_feature_statistics",
       "primary": true,
       "title": "Enable Plugin Feature: Statistics",
-      "title_short": "Enable / Disable",
+      "title_short": "Disable Module",
       "summary": [
         "Purpose - Helps you see at a glance how effective the plugin has been.",
         "Recommendation - Keep the Statistics feature turned on."
@@ -24,7 +24,7 @@
       "slug": "section_enable_plugin_feature_reporting",
       "primary": true,
       "title": "Enable Plugin Feature: Reporting",
-      "title_short": "Enable / Disable",
+      "title_short": "Disable Module",
       "summary": [
         "Purpose - To track stats and issue reports.",
         "Recommendation - Keep the Reporting feature turned on."
@@ -53,8 +53,8 @@
       "link_info": "",
       "link_blog": "",
       "name": "Enable Statistics",
-      "summary": "Enable (or Disable) The Statistics Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Statistics feature"
+      "summary": "Enable (or Disable) The Statistics module",
+      "description": "Un-Checking this option will completely disable the Statistics module"
     },
     {
       "key": "enable_reporting",
@@ -64,8 +64,8 @@
       "link_info": "",
       "link_blog": "",
       "name": "Enable Reporting",
-      "summary": "Enable (or Disable) The Reporting Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Reporting feature"
+      "summary": "Enable (or Disable) The Reporting module",
+      "description": "Un-Checking this option will completely disable the Reporting module"
     }
   ],
   "definitions": {
