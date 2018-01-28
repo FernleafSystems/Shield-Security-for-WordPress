@@ -1,16 +1,12 @@
 @CHARSET "ISO-8859-1";
 
-#wpbody-content .icwp-admin-notice {
-	margin: 25px 5px 20px;
-	padding: 10px 20px 8px;
-	border: 1px solid rgba(51, 240, 4, 0.56);
-	background-color: rgba(175, 230, 152, 0.5);
-	border-right-width: 5px;
-	border-left-width: 5px;
-}
 #wpbody-content .icwp-admin-notice,
 #wpbody-content .icwp-admin-notice p {
+	margin: 10px 20px;
 	text-shadow: -1px -1px 0 rgba(255, 255, 255, 0.4);
+}
+#wpbody-content .icwp-admin-notice .notice-title {
+	margin-left: 20px;
 }
 #wpbody-content .icwp-admin-notice.updated,
 #wpbody-content .icwp-admin-notice.updated p {
@@ -30,24 +26,6 @@
 	font-size: 24px;
 	line-height: 21px;
 	padding-right: 4px;
-}
-#wpbody-content .info.icwp-admin-notice,
-#wpbody-content .promo.icwp-admin-notice {
-	background-color: rgba(199, 226, 239, 0.25);
-	border-color: rgba(108, 138, 150, 0.99);
-}
-#wpbody-content .info.icwp-admin-notice,
-#wpbody-content .info.icwp-admin-notice p,
-#wpbody-content .promo.icwp-admin-notice,
-#wpbody-content .promo.icwp-admin-notice p {
-	color: rgba(21, 77, 111, 0.99);
-}
-#wpbody-content .error.icwp-admin-notice {
-	border-color: rgba(240, 51, 4, 0.56);
-	background-color: rgba(255, 185, 167, 0.25);
-}
-#wpbody-content .error.icwp-admin-notice h3 {
-	color: rgba(199, 41, 0, 1);
 }
 #wpbody-content .icwp-admin-notice .dismiss-p {
 	float: right;
