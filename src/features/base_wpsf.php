@@ -115,9 +115,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'aar_must_supply_key_first'    => _wpsf__( 'Please provide the Security Access Key to manage this plugin.' ),
 				'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 				'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
-				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' )
+				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
+				'aar_forget_key'               => _wpsf__( "Forgotten Key" )
 			)
 		);
+		$aData[ 'hrefs' ][ 'aar_forget_key' ] = 'http://icwp.io/b5';
 		$aData[ 'flags' ][ 'show_summary' ] = true;
 		return $aData;
 	}

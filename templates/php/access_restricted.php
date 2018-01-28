@@ -5,9 +5,13 @@
 
 		<h3><?php echo $strings[ 'aar_title' ]; ?></h3>
 		<p><?php echo $strings[ 'aar_what_should_you_enter' ]; ?>
-		<br/><?php echo $strings[ 'aar_must_supply_key_first' ]; ?></p>
+			<br /><?php echo $strings[ 'aar_must_supply_key_first' ]; ?></p>
 
-		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal">
+		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal" id="SecurityAdminForm">
+			<input type="hidden" name="plugin_form_submit" value="Y" />
+			<?php foreach ( $data[ 'ajax' ] as $sName => $sVal ) : ?>
+				<input type="hidden" value="<?php echo $sVal; ?>" name="<?php echo $sName; ?>" />
+			<?php endforeach; ?>
 			<div class="form-group row no-gutters">
 
 				<label class="form-label col-3 col-form-label" for="admin_access_key_request">
@@ -25,11 +29,18 @@
 					</div>
 				</div>
 			</div>
-			<?php echo $nonce_field; ?>
-			<input type="hidden" name="plugin_form_submit" value="Y" />
-				<button type="submit" class="btn btn-primary"
-						name="submit"><?php echo $strings[ 'aar_submit_access_key' ]; ?></button>
+			<div class="form-group row no-gutters">
+				<div class="col-6">
+					<button type="submit" class="btn btn-primary" name="submit">
+						<?php echo $strings[ 'aar_submit_access_key' ]; ?></button>
+				</div>
+				<div class="col-6 text-right">
+					<a class="btn btn-link "
+					   href="<?php echo $hrefs[ 'aar_forget_key' ]; ?>" target="_blank">
+						<?php echo $strings[ 'aar_forget_key' ]; ?></a>
+				</div>
 
+			</div>
 		</form>
 	</div>
 	</div>

@@ -715,7 +715,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isValidAjaxRequestForModule() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$bValid = $this->loadWp()->isAjax()
 				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->post( 'icwp_action_module', '' ) );
@@ -1313,7 +1313,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	protected function displayRestrictedPage() {
 		$this->display(
-			array( 'flags' => array( 'show_summary' => false ) ),
+			array(
+				'data' => array( 'ajax' => $this->getBaseAjaxActionRenderData( 'RestrictedAccessKey' ) )
+			),
 			'access_restricted.php'
 		);
 	}

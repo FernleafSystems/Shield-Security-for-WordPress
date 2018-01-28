@@ -216,9 +216,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				break;
 
 			case 'enable_comments_gasp_protection' :
-				$sName = _wpsf__( 'GASP Protection' );
-				$sSummary = _wpsf__( 'Add Growmap Anti Spambot Protection to your comments' );
-				$sDescription = _wpsf__( 'Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection.' );
+				$sName = _wpsf__( 'SPAM Bot Protection' );
+				$sSummary = _wpsf__( 'Block Automatic Comment SPAM By Bots' );
+				$sDescription = _wpsf__( 'Simple, yet highly effective SPAM Bot protection for your WordPress comments.' );
 				break;
 
 			case 'comments_default_action_spam_bot' :

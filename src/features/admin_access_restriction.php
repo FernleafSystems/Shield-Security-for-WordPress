@@ -21,6 +21,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		parent::adminAjaxHandlers();
 		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
 		add_action( $this->prefixWpAjax( 'AdminAccessLogin' ), array( $this, 'ajaxAdminAccessLogin' ) );
+		add_action( $this->prefixWpAjax( 'RestrictedAccessKey' ), array( $this, 'ajaxRestrictedAccessKey' ) );
 	}
 
 	public function ajaxLoadAdminAccessForm() {
@@ -56,6 +57,19 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 			$this->sendAjaxResponse( $bSuccess, $sResponseData );
 		}
+	}
+
+	public function ajaxRestrictedAccessKey() {
+		$sResponseData = array();
+		$bSuccess = $this->checkAdminAccessKeySubmission();
+		if ( $bSuccess ) {
+			$this->setPermissionToSubmit( true );
+			$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
+		}
+		else {
+			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+		}
+		$this->sendAjaxResponse( $bSuccess, $sResponseData );
 	}
 
 	/**
@@ -324,7 +338,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Security Admin Access Key' );
 				$sSummary = _wpsf__( 'Provide/Update Security Admin Access Key' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
-								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Set' ) : _wpsf__( 'Security Key NOT Set' ) ).'</strong>';
+								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>';
 				break;
 
 			case 'admin_access_timeout' :
