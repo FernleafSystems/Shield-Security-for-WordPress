@@ -4,6 +4,7 @@ $sBaseDirName = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
 if ( $flags[ 'wrap_page_content' ] ) : ?>
 <div class="wrap">
 	<div class="bootstrap-wpadmin1 <?php echo $data[ 'mod_slug' ]; ?> icwp-options-page">
+	<h1 style="height: 0; display: none"></h1>
 <?php endif;?>
 
 <?php if ( $flags[ 'access_restricted' ] ) : ?>
