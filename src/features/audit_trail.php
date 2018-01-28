@@ -22,16 +22,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getContentCustomActions() {
-		if ( $this->canDisplayOptionsForm() ) {
-			return $this->displayAuditTrailViewer();
-		}
-		return parent::getContentCustomActions();
-	}
-
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
 		add_action( $this->prefixWpAjax( 'AuditTable' ), array( $this, 'ajaxAuditTable' ) );
@@ -149,9 +139,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function displayAuditTrailViewer() {
+	protected function getContentCustomActionsData() {
 		$aContexts = array(
 			'all'       => 'All', //special
 			'wpsf'      => 'Shield',
@@ -168,7 +158,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
 		}
 
-		$aDisplayData = array_merge(
+		return array_merge(
 			array(
 				'aAuditTables' => $aAuditTables,
 				'aContexts'    => $aContexts,
@@ -176,8 +166,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			),
 			$this->getBaseAjaxActionRenderData( 'AuditTable' )
 		);
-
-		return $this->renderTemplate( 'snippets/module-audit_trail-viewer', $aDisplayData );
 	}
 
 	/**

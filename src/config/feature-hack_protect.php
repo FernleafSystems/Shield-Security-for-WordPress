@@ -5,6 +5,7 @@
     "name":                   "Hack Protection",
     "show_feature_menu_item": true,
     "storage_key":            "hack_protect",
+    "tagline": "Automatically detect and repair vulnerable and suspicious items",
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
