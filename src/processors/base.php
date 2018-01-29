@@ -41,7 +41,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return int
 	 */
 	protected function getPromoNoticesCount() {
-		return self::$nPromoNoticesCount++;
+		return self::$nPromoNoticesCount;
 	}
 
 	/**
@@ -62,18 +62,18 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function autoAddToAdminNotices() {
 		$oCon = $this->getController();
 
-		foreach ( $this->getFeature()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
+		foreach ( $this->getFeature()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
-			if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
+			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;
 			}
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
-			if ( method_exists( $this, $sMethodName ) && isset( $aNoticeAttributes[ 'valid_admin' ] )
-				 && $aNoticeAttributes[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
+			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
+				 && $aAttrs[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
 
-				$aNoticeAttributes[ 'notice_id' ] = $sNoticeId;
-				call_user_func( array( $this, $sMethodName ), $aNoticeAttributes );
+				$aAttrs[ 'notice_id' ] = $sNoticeId;
+				call_user_func( array( $this, $sMethodName ), $aAttrs );
 			}
 		}
 	}

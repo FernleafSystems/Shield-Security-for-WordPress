@@ -63,6 +63,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$aRenderData = array(
 			'notice_attributes' => $aAttr,
 			'strings'           => array(
+				'title'   => 'Will you help us out with a quick WordPress.org review?',
 				'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
 				'forums'  => __( 'Support Forums' )
 			),
@@ -142,7 +143,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $oNotices->isDismissed( 'plugin-update-available' ) ) {
 			$aMeta = $oNotices->getMeta( 'plugin-update-available' );
-			if ( $aMeta['time'] > $oPlugin->getReleaseTimestamp() ) {
+			if ( $aMeta[ 'time' ] > $oPlugin->getReleaseTimestamp() ) {
 				return;
 			}
 		}
@@ -177,7 +178,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_translate_plugin( $aNoticeAttributes ) {
-
 		if ( $this->getIfShowAdminNotices() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
