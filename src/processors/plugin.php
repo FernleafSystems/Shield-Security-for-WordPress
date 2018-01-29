@@ -151,13 +151,17 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function addNotice_override_forceoff( $aNoticeAttributes ) {
 
-		if ( $this->getController()->getIfForceOffActive() ) {
+		$oCon = $this->getController();
+		if ( $oCon->getIfForceOffActive() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'message'   => sprintf( _wpsf__( 'Warning - %s' ), sprintf( _wpsf__( '%s is not currently running' ), $this->getController()
-																															   ->getHumanName() ) ),
-					'force_off' => sprintf( _wpsf__( 'Please delete the "%s" file to reactivate the Firewall processing' ), 'forceOff' )
+					'title'   => sprintf( _wpsf__( 'Warning - %s' ), sprintf( _wpsf__( '%s plugin is not currently processing requests' ), $oCon->getHumanName() ) ),
+					'message' => sprintf(
+						_wpsf__( 'Please delete the "%s" file to reactivate the %s protection' ),
+						'forceOff',
+						$oCon->getHumanName()
+					)
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );

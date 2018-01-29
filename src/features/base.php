@@ -1546,10 +1546,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'notice_classes' ] = array();
 		}
 		if ( is_array( $aData[ 'notice_classes' ] ) ) {
-			if ( empty( $aData[ 'notice_classes' ] ) ) {
+			$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
+			if ( empty( $aData[ 'notice_classes' ] )
+				 || ( !in_array( 'error', $aData[ 'notice_classes' ] ) && !in_array( 'updated', $aData[ 'notice_classes' ] ) ) ) {
 				$aData[ 'notice_classes' ][] = 'updated';
 			}
-			$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
 		}
 		$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
 

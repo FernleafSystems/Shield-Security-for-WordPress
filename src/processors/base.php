@@ -72,6 +72,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
 				 && $aAttrs[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
 
+				$aAttrs[ 'id' ] = $sNoticeId;
 				$aAttrs[ 'notice_id' ] = $sNoticeId;
 				call_user_func( array( $this, $sMethodName ), $aAttrs );
 			}
