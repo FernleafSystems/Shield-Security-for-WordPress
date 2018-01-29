@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'help_us'         => sprintf( _wpsf__( "Can you help make %s even better by sharing usage info?" ), $oCon->getHumanName() ),
+					'title'           => sprintf( _wpsf__( "Make %s even better by sharing usage info?" ), $oCon->getHumanName() ),
 					'want_to_track'   => sprintf( _wpsf__( "We're hoping to understand how %s is configured and used." ), $oCon->getHumanName() ),
 					'what_we_collect' => _wpsf__( "We'd like to understand how effective it is on a global scale." ),
 					'data_anon'       => _wpsf__( 'The data sent is always completely anonymous and we can never track you or your site.' ),

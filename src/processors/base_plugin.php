@@ -87,9 +87,9 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => array(
 				'dismiss'  => _wpsf__( "I don't need the setup wizard just now" ),
-				'title'    => _wpsf__( 'Try the all-new Welcome Wizard for the Shield Security plugin' ),
+				'title'    => _wpsf__( 'Get started quickly with the Shield Security Setup Wizard' ),
 				'setup'    => _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core Shield Security features.' ),
-				'no_setup' => _wpsf__( 'Unfortunately your site is running a PHP version that is too low to run the Setup Wizard. It needs to be PHP 5.4+' )
+				'no_setup' => _wpsf__( "Shield Security has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+ " )
 			),
 			'hrefs'             => array(
 				'wizard' => $bCanWizardWelcome ? $oFO->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
