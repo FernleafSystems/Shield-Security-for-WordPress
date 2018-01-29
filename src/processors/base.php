@@ -86,7 +86,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
 		if ( empty( $aAttrs[ 'schedule' ] )
-			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version' ) ) ) {
+			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version', 'never' ) ) ) {
 			$aAttrs[ 'schedule' ] = 'conditions';
 		}
 
@@ -134,19 +134,24 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	protected function insertAdminNotice( $aNoticeData ) {
-		$bIsPromo = isset( $aNoticeData[ 'notice_attributes' ][ 'type' ] ) && $aNoticeData[ 'notice_attributes' ][ 'type' ] == 'promo';
+		$aAttrs = $aNoticeData[ 'notice_attributes' ];
+		$bIsPromo = isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo';
 		if ( $bIsPromo && $this->getPromoNoticesCount() > 0 ) {
 			return;
 		}
 
-		$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
-		if ( !empty( $sRenderedNotice ) ) {
-			$this->loadAdminNoticesProcessor()->addAdminNotice(
-				$sRenderedNotice,
-				$aNoticeData[ 'notice_attributes' ][ 'notice_id' ]
-			);
-			if ( $bIsPromo ) {
-				$this->incrementPromoNoticesCount();
+		$oNotices = $this->loadAdminNoticesProcessor();
+		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
+
+			$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
+			if ( !empty( $sRenderedNotice ) ) {
+				$oNotices->addAdminNotice(
+					$sRenderedNotice,
+					$aNoticeData[ 'notice_attributes' ][ 'notice_id' ]
+				);
+				if ( $bIsPromo ) {
+					$this->incrementPromoNoticesCount();
+				}
 			}
 		}
 	}
