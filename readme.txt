@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, firewall, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.1.0
+Stable tag: 6.2.0
 
 Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
 
@@ -339,13 +339,13 @@ Technical support, and some newer options and features will not be available to 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
 = 6.2.0 Series =
-*Released: 29th January, 2018*
+*Released: 30th January, 2018*
 
-* **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
-* **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
 * **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to 1 single DB entry for all data.
+* **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
+* **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
 = 6.1.1 Latest Release =
 *Released: 17th January, 2018*

@@ -29,11 +29,11 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'help_us'         => sprintf( _wpsf__( "Will you help us to make %s even better?" ), $oCon->getHumanName() ),
-					'want_to_track'   => _wpsf__( "We're working to understand how people, just like you, use this plugin every day." ),
-					'what_we_collect' => _wpsf__( "We'd like to better understand the features used most and how effective we are on a global scale." ),
-					'data_anon'       => _wpsf__( 'The data sent will be always completely anonymous and we will never be able to track you or your website.' ),
-					'can_turn_off'    => _wpsf__( 'You can easily turn it off at any time within the plugin options if you change your mind.' ),
+					'title'           => sprintf( _wpsf__( "Make %s even better by sharing usage info?" ), $oCon->getHumanName() ),
+					'want_to_track'   => sprintf( _wpsf__( "We're hoping to understand how %s is configured and used." ), $oCon->getHumanName() ),
+					'what_we_collect' => _wpsf__( "We'd like to understand how effective it is on a global scale." ),
+					'data_anon'       => _wpsf__( 'The data sent is always completely anonymous and we can never track you or your site.' ),
+					'can_turn_off'    => _wpsf__( 'It can be turned-off at any time within the plugin options.' ),
 					'click_to_see'    => _wpsf__( 'Click to see the RAW data that would be sent' ),
 					'learn_more'      => _wpsf__( 'Learn More.' ),
 					'site_url'        => 'translate.icontrolwp.com',

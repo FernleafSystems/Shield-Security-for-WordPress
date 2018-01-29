@@ -1,13 +1,5 @@
 @CHARSET "ISO-8859-1";
 
-#wpbody-content .icwp-admin-notice {
-	margin: 25px 5px 20px;
-	padding: 10px 20px 8px;
-	border: 1px solid rgba(51, 240, 4, 0.56);
-	background-color: rgba(175, 230, 152, 0.5);
-	border-right-width: 5px;
-	border-left-width: 5px;
-}
 #wpbody-content .icwp-admin-notice,
 #wpbody-content .icwp-admin-notice p {
 	text-shadow: -1px -1px 0 rgba(255, 255, 255, 0.4);
@@ -19,9 +11,6 @@
 #wpbody-content .icwp-admin-notice form {
 	margin: 0;
 }
-#wpbody-content .icwp-admin-notice p.dismiss-p {
-	margin: 10px 4px 0 0;
-}
 #wpbody-content .icwp-admin-notice .button:hover {
 	text-decoration: none;
 }
@@ -31,35 +20,62 @@
 	line-height: 21px;
 	padding-right: 4px;
 }
-#wpbody-content .info.icwp-admin-notice,
-#wpbody-content .promo.icwp-admin-notice {
-	background-color: rgba(199, 226, 239, 0.25);
-	border-color: rgba(108, 138, 150, 0.99);
-}
-#wpbody-content .info.icwp-admin-notice,
-#wpbody-content .info.icwp-admin-notice p,
-#wpbody-content .promo.icwp-admin-notice,
-#wpbody-content .promo.icwp-admin-notice p {
-	color: rgba(21, 77, 111, 0.99);
-}
-#wpbody-content .error.icwp-admin-notice {
-	border-color: rgba(240, 51, 4, 0.56);
-	background-color: rgba(255, 185, 167, 0.25);
-}
-#wpbody-content .error.icwp-admin-notice h3 {
-	color: rgba(199, 41, 0, 1);
-}
 #wpbody-content .icwp-admin-notice .dismiss-p {
-	float: right;
-	position: relative;
-	bottom: 24px;
-	margin: 0;
+	margin: 10px;
 }
 #wpbody-content .icwp-admin-notice .dismiss-p,
 #wpbody-content .icwp-admin-notice .dismiss-p a {
 	color: rgb(103, 21, 0);
 	text-align: right;
 }
+
+.notice-icon {
+	display: none;
+	float: left;
+	height: 43px;
+	line-height: 176px;
+	min-width: 64px;
+	padding: 10px 0;
+}
+.notice-title {
+	padding: 0;
+}
+.notice-content {
+	margin: 10px;
+}
+.notice-content p {
+	margin-left: 0;
+}
+
+@media (min-width: 884px) {
+	.notice-icon {
+		display: block;
+	}
+	.notice-content {
+		margin-left: 62px;
+	}
+}
+
+.notice-icon-right {
+	float: right;
+	width: 74px;
+}
+.notice-content p {
+	margin-left: 62px;
+}
+.notice-icon .dashicons {
+	display: inline-block;
+	font-size: 48px;
+}
+.notice-content p a {
+	text-shadow: none;
+	font-weight: bold;
+}
+
+
+
+
+
 ul.nav-tabs li a {
 	color: rgba(69, 119, 0, 1);
 }
