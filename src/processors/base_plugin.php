@@ -118,7 +118,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$aRenderData = array(
 			'notice_attributes' => $aAttr,
 			'strings'           => array(
-				'your_version'  => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
+				'title'         => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
 				'not_supported' => sprintf( _wpsf__( 'Newer features of %s do not support your PHP version.' ), $oCon->getHumanName() ),
 				'ask_host'      => _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ),
 				'questions'     => _wpsf__( 'Please read here for further information:' ),
@@ -160,10 +160,10 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',
 				'strings'           => array(
-					'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()
-																															   ->getHumanName() ),
-					'click_update'            => _wpsf__( 'Please click to update immediately' ),
-					'dismiss'                 => _wpsf__( 'Dismiss this notice' )
+					'title'        => sprintf( _wpsf__( 'Update available for the %s plugin.' ), $this->getController()
+																									  ->getHumanName() ),
+					'click_update' => _wpsf__( 'Please click to update immediately' ),
+					'dismiss'      => _wpsf__( 'Dismiss this notice' )
 				),
 				'hrefs'             => array(
 					'upgrade_link' => $oWpPlugins->getLinkPluginUpgrade( $sBaseFile )
@@ -182,8 +182,9 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()
-																																	 ->getHumanName() ),
+					'title'        => 'Você não fala Inglês? No hablas Inglés? Heeft u geen Engels spreekt?',
+					'like_to_help' => sprintf( _wpsf__( "Can you help translate the %s plugin?" ), $this->getController()
+																										->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
 					'site_url'     => 'translate.icontrolwp.com',
 					'dismiss'      => _wpsf__( 'Dismiss this notice' )
