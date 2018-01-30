@@ -438,7 +438,7 @@
       {
         "slug":          "sessions",
         "storage_key":   "sessions",
-        "load_priority": 12
+        "load_priority": 5
       },
       {
         "slug":          "audit_trail",
