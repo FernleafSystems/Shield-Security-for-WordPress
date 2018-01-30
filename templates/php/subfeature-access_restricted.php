@@ -1,8 +1,9 @@
 <div class="row">
 	<div class="span9">
 		<?php if ( !$flags[ 'has_session' ] ) : ?>
-			<p>You don't appear to have a Shield Session - to use the Security Admin feature,
-			   please log out of WordPress and re-login again.</p>
+			<p>This plugin has been locked-down by a Security Administrator.
+			   To authenticate with the Security Admin system you need a valid user session
+			   (which you don't have at the moment). Please log out of WordPress and re-login again.</p>
 		<?php else : ?>
 		<div class="well admin_access_restriction_form">
 			<h3><?php echo $strings[ 'aar_what_should_you_enter' ]; ?></h3>
