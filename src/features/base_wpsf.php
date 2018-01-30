@@ -92,9 +92,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData() {
+	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
 		return $this->loadDP()->mergeArraysRecursive(
-			parent::getBaseDisplayData(),
+			parent::getBaseDisplayData( false ),
 			array(
 				'strings' => array(
 					'go_to_settings'                    => _wpsf__( 'Settings' ),
