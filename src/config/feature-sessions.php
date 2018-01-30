@@ -37,6 +37,11 @@
       "name": "Enable Sessions",
       "summary": "Enable (or Disable) The Sessions Feature",
       "description": "Checking/Un-Checking this option will completely turn on/off the whole Sessions feature"
+    },
+    {
+      "key":          "autoadd_sessions_started_at",
+      "transferable": false,
+      "section":      "section_non_ui"
     }
   ],
   "definitions": {
