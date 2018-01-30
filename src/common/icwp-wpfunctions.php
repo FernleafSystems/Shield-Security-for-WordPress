@@ -484,7 +484,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 
 		//special case for plugin admin pages.
 		if ( $sPage == 'admin.php' ) {
-			$sSubPage = $this->loadDataProcessor()->FetchGet( 'page' );
+			$sSubPage = $this->loadDP()->query( 'page' );
 			if ( !empty( $sSubPage ) ) {
 				$aQueryArgs = array(
 					'page' => $sSubPage,

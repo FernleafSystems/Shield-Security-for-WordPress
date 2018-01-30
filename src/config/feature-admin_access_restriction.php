@@ -225,6 +225,18 @@
       "description": "Use this option to turn on/off the whole White Label feature."
     },
     {
+      "key": "wl_hide_updates",
+      "section": "section_whitelabel",
+      "premium": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Hide Updates",
+      "summary": "Hide Available Updates From Non Security Admins",
+      "description": "Hides the availability of Shield updates from non-security admins."
+    },
+    {
       "key": "wl_name",
       "section": "section_whitelabel",
       "default": "Shield Security",

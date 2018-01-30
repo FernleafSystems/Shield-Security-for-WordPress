@@ -289,8 +289,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
-	public function isEnabledWhiteLabel() {
+	public function isWlEnabled() {
 		return $this->getOptIs( 'whitelabel_enable', 'Y' ) && $this->isPremium();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWlHideUpdates() {
+		return $this->isWlEnabled() && $this->getOptIs( 'wl_hide_updates', 'Y' );
 	}
 
 	/**
@@ -446,6 +453,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = sprintf( '%s: %s', _wpsf__( 'Enable' ), _wpsf__( 'White Label' ) );
 				$sSummary = _wpsf__( 'Activate Your White Label Settings' );
 				$sDescription = _wpsf__( 'Turn on/off the application of your White Label settings.' );
+				break;
+			case 'wl_hide_updates' :
+				$sName = _wpsf__( 'Hide Updates' );
+				$sSummary = _wpsf__( 'Hide Plugin Updates From Non-Security Admins' );
+				$sDescription = _wpsf__( 'Do not show the availability of updates to non-security administrators.' );
 				break;
 			case 'wl_name' :
 				$sName = _wpsf__( 'Name' );

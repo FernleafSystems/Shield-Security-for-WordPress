@@ -45,7 +45,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
 
-			if ( $oFO->isEnabledWhiteLabel() ) {
+			if ( $oFO->isWlEnabled() ) {
 				$this->runWhiteLabel();
 			}
 		}

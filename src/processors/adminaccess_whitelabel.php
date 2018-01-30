@@ -11,8 +11,13 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	/**
 	 */
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getFeature();
 		add_filter( $this->getController()->doPluginPrefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
+		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates() ) {
+			add_filter( 'site_transient_update_plugins', array( $this, 'hidePluginUpdatesFromUI' ) );
+		}
 	}
 
 	/**
@@ -69,5 +74,30 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 			unset( $aPluginMeta[ 3 ] ); // Rate 5*
 		}
 		return $aPluginMeta;
+	}
+
+	/**
+	 * @param stdClass $oPlugins
+	 * @return stdClass
+	 */
+	public function hidePluginUpdatesFromUI( $oPlugins ) {
+		$oCon = $this->getController();
+
+		if ( !$oCon->getHasPermissionToManage() ) {
+			$sFile = $oCon->getPluginBaseFile();
+			if ( isset( $oPlugins->response[ $sFile ] ) ) {
+				unset( $oPlugins->response[ $sFile ] );
+			}
+		}
+		return $oPlugins;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isNeedToHideUpdates() {
+		$oWp = $this->loadWp();
+		return is_admin() && !$oWp->isCron()
+			   && ( in_array( $oWp->getCurrentPage(), array( 'plugins.php', 'update-core.php' ) ) );
 	}
 }
