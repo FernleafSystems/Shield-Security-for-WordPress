@@ -37,7 +37,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( $this->readyToRun() ) {
 			add_action( 'wp_login', array( $this, 'onWpLogin' ), 5, 2 );
 			add_action( 'wp_logout', array( $this, 'onWpLogout' ), 0 );
-			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 );
+			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
 		}
 	}
@@ -59,7 +59,21 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	public function onWpLoaded() {
-		$this->queryUpdateSessionLastActivity();
+		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRestUrl() ) {
+			$this->autoAddSession();
+			$this->queryUpdateSessionLastActivity();
+		}
+	}
+
+	private function autoAddSession() {
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+		$oFO = $this->getFeature();
+		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
+			$this->queryCreateSession(
+				$oWpUsers = $this->loadWpUsers()->getCurrentWpUser()->user_login,
+				$oFO->getConn()->getSessionId( true )
+			);
+		}
 	}
 
 	/**
@@ -243,14 +257,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return boolean
 	 */
 	protected function queryUpdateSessionLastActivity() {
-		$oSession = $this->getCurrentSession();
-		if ( empty( $oSession ) ) {
-			return false;
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->hasSession() ) {
+			$this->getSessionUpdater()->updateLastActivity( $this->getCurrentSession() );
 		}
-		return $this->getSessionUpdater()->updateLastActivity( $oSession );
 	}
 
 	/**

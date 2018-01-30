@@ -37,6 +37,11 @@
       "name": "Enable Sessions",
       "summary": "Enable (or Disable) The Sessions module",
       "description": "Un-Checking this option will completely disable the Sessions module"
+    },
+    {
+      "key":          "autoadd_sessions_started_at",
+      "transferable": false,
+      "section":      "section_non_ui"
     }
   ],
   "definitions": {

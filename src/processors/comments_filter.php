@@ -60,6 +60,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(
+						'title' => 'Akismet is Running',
 						'appears_running_akismet' => _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the our human Anti-SPAM filter.' ),
 						'not_recommended' => _wpsf__('This is not recommended and you should disable Akismet.'),
 						'click_to_deactivate' => _wpsf__('Click to deactivate Akismet now.'),

@@ -26,6 +26,18 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isAutoAddSessions() {
+		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
+		if ( $nStartedAt < 1 ) {
+			$nStartedAt = $this->loadDP()->time();
+			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
+		}
+		return ( $this->loadDP()->time() - $nStartedAt ) < 20;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

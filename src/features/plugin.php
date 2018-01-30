@@ -225,14 +225,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $bGloballyDisabled || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
 	}
 
-	public function doExtraSubmitProcessing() {
-		if ( !$this->loadWp()->isAjax() ) {
-			$this->loadAdminNoticesProcessor()
-				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
-																									   ->getHumanName() ) );
-		}
-	}
-
 	/**
 	 * @return array
 	 */
