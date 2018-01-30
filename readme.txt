@@ -3,14 +3,30 @@ Contributors: onedollarplugin, paultgoodchild
 Donate link: http://icwp.io/q
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, firewall, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
+Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
 Stable tag: 6.2.0
 
-Protect your reputation, your customers' reputation, and your WordPress sites for free with Shield - the most powerful security system for WordPress
+Free All-In-One Protection for your data, reputation, and users on your WordPress sites - the Highest-Rated Security Plugin for WordPress
 
 == Description ==
+
+Shield handles it all for you:
+
+* Login Protection against bots (including Limit Login Attempts)
+* Automatic IP Black List
+* 2-Factor Authentication
+* Comments SPAM
+* Audit Trail & Logging
+* reCAPTCHA
+* Firewall
+* Security Admin Users
+* Core file scanners
+* Block REST API / XML-RPC
+* HTTP Headers
+* Automatic Updates Control
+* ... and much, much more.
 
 > <strong>Don't Leave Your Site At Risk</strong><br />
 > If your site is vulnerable to attack, you're putting your business and your reputation at serious risk. Getting hacked can mean you're locked out of your site, client data stolen, your website defaced or offline, and Google *will* penalise you.
@@ -24,18 +40,18 @@ Protect your reputation, your customers' reputation, and your WordPress sites fo
 
 = The New Shield Pro =
 
-As of 23rd November 2017, Shield Security now has a Pro version. But, it's important to know that anything we consider standard website security *will always be free* - no upgrade necessary.
+From November 2017, Shield Security now has a Pro version.
 
-For the equivalent of just $1/month:
+For just $1/month:
 
 1. Exclusive Pro customer email support.
-1. Support for working with 3rd party plugins e.g. Woocommerce and Easy Digital Downloads, BuddyPress.
+1. Plugin Vulnerability Scanner.
+1. Import/Export of options across sites.
+1. Protect WooCommerce login and user registration, along with other 3rd party plugins e.g. Easy Digital Downloads, BuddyPress.
+1. Improved Audit Trail logging
 1. Exclusive early access to new security features
 1. Text customisations for visitors.
 1. No manual Pro plugin downloads - we handle this all for you automatically.
-1. Plugin Vulnerability Scanner.
-1. (coming soon) Import/Export of options across sites.
-1. (coming soon) Improved Audit Trail logging
 1. (coming soon) Improved performance 
 1. (coming soon) Statistics and Reporting
 1. (coming soon) Select individual automatic plugin updates
@@ -44,7 +60,7 @@ Learn more and go Pro at [our One Dollar Plugin store](http://icwp.io/ab).
 
 = Our Mission =
 
-All the wonderful features of how we protect you and your site are set out below in detail, but there are a few things about us, that you should know first:
+All the great features of how Shield protects your sites and your customers data are set out below in detail, but there are a few things about us, that you should know first:
 
 * We're on a mission to liberate people who manage websites from unnecessarily repetitive work, and by 2022 we want to
 be saving our clients over 62.5 million hours per year (and we'd love you to join us in our quest)
