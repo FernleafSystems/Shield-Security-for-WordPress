@@ -14,6 +14,7 @@ Free All-In-One Protection for your data, reputation, and users on your WordPres
 
 Shield handles it all for you:
 
+* Easy-To-Use Guided Setup Wizards
 * Login Protection against bots (including Limit Login Attempts)
 * Automatic IP Black List
 * 2-Factor Authentication
@@ -26,7 +27,7 @@ Shield handles it all for you:
 * Block REST API / XML-RPC
 * HTTP Headers
 * Automatic Updates Control
-* ... and much, much more.
+* and much, much more...
 
 > <strong>Don't Leave Your Site At Risk</strong><br />
 > If your site is vulnerable to attack, you're putting your business and your reputation at serious risk. Getting hacked can mean you're locked out of your site, client data stolen, your website defaced or offline, and Google *will* penalise you.
@@ -354,8 +355,17 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.2.0 Series =
-*Released: 30th January, 2018*
+= 6.2.0 - Current Release =
+*Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
+
+* **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
+* **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
+* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to 1 single DB entry for all data.
+* **(v.0)**  ADDED:			[**PRO**] Ability to [increase frequency](http://icwp.io/b7) of file system scans up to once every hour.
+* **(v.0)**  ADDED:			[**PRO**] Add a [remember me option](http://icwp.io/b8), allowing users to skip Multi-factor authentication for a set number of days.
+
+= 6.2 Series =
+*Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
 
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
@@ -363,21 +373,17 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 * **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
 * **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
-= 6.1.1 Latest Release =
-*Released: 17th January, 2018*
-
-* **(v.1)**  FIXED:			Verify link missing from the two-factor authentication verification email.
-
-= 6.1.0 Series =
+= 6.1 Series =
 *Released: 15th January, 2018* - [Release Notes](http://icwp.io/ay)
 
+* **(v.1)**  FIXED:			Verify link missing from the two-factor authentication verification email.
 * **(v.0)**  ADDED:			3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.
 * **(v.0)**  ADDED:			You can now use regular expressions for file exclusions in the 'Unrecognised File Scanner'.
 * **(v.0)**  CHANGED:		File Scanner email notifications now link to the appropriate scanner wizard directly.
 * **(v.0)**  IMPROVED:		Plugin options pages restyling.
 * **(v.0)**  IMPROVED:		Plugin refactoring and improvements.
 
-= 6.0.0 Series =
+= 6.0 Series =
 *Released: 18th December, 2017*
 
 * **(v.0)**  ADDED:			All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.
@@ -385,7 +391,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 * **(v.0)**  ADDED:			[**PRO**] In conjunction with import/export - Shield Security Network: automated options syncing.
 * **(v.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](http://icwp.io/au). Existing features will remain unaffected.
 
-= 5.20.0 Series =
+= 5.20 Series =
 *Released: 11th December, 2017*
 
 * **(v.0)**  IMPROVED:		[**PRO**] Audit Trail length are configurable. Length for free is 50 entries (the original unpaginated limit)
@@ -395,7 +401,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 * **(v.0)**  IMPROVED:		Audit Trails are now ajax-paginated. You can browse through all your audit trail entries
 * **(v.0)**  IMPROVED:		User session tables are also ajax-paginated.
 
-= 5.19.0 Series =
+= 5.19 Series =
 *Released: 4th December, 2017*
 
 * **(v.1)**  FIXED:			Plugin Vulnerabilities scan for premium plugins.
@@ -404,14 +410,14 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 * **(v.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
 * **(v.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
 
-= 5.18.0 Series =
+= 5.18 Series =
 *Released: 27th November, 2017*
 
 * **(v.0)**  ADDED:			[**PRO**] Invisible Google reCAPTCHA option.
 * **(v.0)**  ADDED:			[**PRO**] Support for Google reCAPTCHA themes - light and dark.
 * **(v.0)**  IMPROVEMENT:	Google reCAPTCHA is more reliable and configurable.
 
-= 5.17.0 Series =
+= 5.17 Series =
 *Released: 23rd November, 2017*
 
 * **(v.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
