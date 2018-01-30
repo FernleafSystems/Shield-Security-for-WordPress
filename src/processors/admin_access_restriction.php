@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
-	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+	require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 	class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -23,7 +23,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 			}
 
-			if ( $oFO->getOptIs( 'admin_access_restrict_admin_users', 'Y') ) {
+			if ( $oFO->getOptIs( 'admin_access_restrict_admin_users', 'Y' ) ) {
 				add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 0, 3 );
 				add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 0, 1 );
 			}
@@ -61,8 +61,8 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				'admin_access_restrict_posts'
 			);
 			foreach ( $aKeysToBoolean as $sKeyToBoolean ) {
-				$aData[$sSlug][ 'options' ][ $sKeyToBoolean ]
-					= empty( $aData[$sSlug][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
+				$aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ]
+					= empty( $aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
 			}
 			return $aData;
 		}
@@ -90,7 +90,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 		/**
 		 * @param array $aAllCaps
-		 * @param $cap
+		 * @param       $cap
 		 * @param array $aArgs
 		 * @return array
 		 */
@@ -104,7 +104,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oDp = $this->loadDataProcessor();
 
 			/** @var string $sRequestedCapability */
-			$sRequestedCapability = $aArgs[0];
+			$sRequestedCapability = $aArgs[ 0 ];
 			$aUserCapabilities = array( 'edit_users', 'create_users' );
 
 			$bBlockCapability = false;
@@ -161,23 +161,25 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			$sCurrentPage = $this->loadWp()->getCurrentPage();
-			$sCurrentGetPage = $this->loadDataProcessor()->FetchGet( 'page' );
+			$sCurrentGetPage = $this->loadDP()->query( 'page' );
 			if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 				return;
 			}
 
+			$sName = $this->getController()->getHumanName();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
-				'strings' => array(
+				'strings'           => array(
+					'title'          => sprintf( _wpsf__( '%s Security Restrictions Applied' ), $sName ),
 					'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' )
-						.' '._wpsf__( 'Repeated failed attempts to authenticate will probably lock you out of this site.' )
+										.' '._wpsf__( 'Repeated failed attempts to authenticate will probably lock you out of this site.' )
 				),
-				'hrefs' => array(
+				'hrefs'             => array(
 					'setting_page' => sprintf(
 						'<a href="%s" title="%s">%s</a>',
 						$oFO->getUrl_AdminPage(),
 						_wpsf__( 'Admin Access Login' ),
-						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
+						sprintf( _wpsf__( 'Go here to manage settings and authenticate with the %s plugin.' ), $sName )
 					)
 				)
 			);
@@ -200,19 +202,21 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 				return;
 			}
 
+			$sName = $this->getController()->getHumanName();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
-				'strings' => array(
+				'strings'           => array(
+					'title'          => sprintf( _wpsf__( '%s Security Restrictions Applied' ), $sName ),
 					'notice_message' => _wpsf__( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.' )
-						. ' ' . _wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' ),
-					'unlock_link' => $this->getUnlockLinkHtml( _wpsf__( 'Unlock Now' ) ),
+										.' '._wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' ),
+					'unlock_link'    => $this->getUnlockLinkHtml( _wpsf__( 'Unlock Now' ) ),
 				),
-				'hrefs' => array(
+				'hrefs'             => array(
 					'setting_page' => sprintf(
 						'<a href="%s" title="%s">%s</a>',
 						$oFO->getUrl_AdminPage(),
 						_wpsf__( 'Security Admin Login' ),
-						sprintf( _wpsf__('Go here to manage settings and authenticate with the %s plugin.'), $this->getController()->getHumanName() )
+						sprintf( _wpsf__( 'Go here to manage settings and authenticate with the %s plugin.' ), $sName )
 					)
 				)
 			);
@@ -224,7 +228,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		 */
 		protected function getUserPagesToRestrict() {
 			return array(
-//				'user-new.php',
+				/* 'user-new.php', */
 				'user-edit.php',
 				'users.php',
 			);
@@ -233,10 +237,9 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 		/**
 		 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
 		 * revert the option to save to the previous one.
-		 *
-		 * @param mixed $mNewOptionValue
+		 * @param mixed  $mNewOptionValue
 		 * @param string $sOptionKey
-		 * @param mixed $mOldValue
+		 * @param mixed  $mOldValue
 		 * @return mixed
 		 */
 		public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
@@ -281,7 +284,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 		/**
 		 * @param array $aAllCaps
-		 * @param $cap
+		 * @param       $cap
 		 * @param array $aArgs
 		 * @return array
 		 */
@@ -295,7 +298,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oFO = $this->getFeature();
 
 			/** @var string $sRequestedCapability */
-			$sRequestedCapability = $aArgs[0];
+			$sRequestedCapability = $aArgs[ 0 ];
 			$aEditCapabilities = array( 'activate_plugins', 'delete_plugins', 'install_plugins', 'update_plugins' );
 
 			if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
@@ -310,7 +313,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 		/**
 		 * @param array $aAllCaps
-		 * @param $cap
+		 * @param       $cap
 		 * @param array $aArgs
 		 * @return array
 		 */
@@ -325,8 +328,14 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oFO = $this->getFeature();
 
 			/** @var string $sRequestedCapability */
-			$sRequestedCapability = $aArgs[0];
-			$aEditCapabilities = array( 'switch_themes', 'edit_theme_options', 'install_themes', 'update_themes', 'delete_themes' );
+			$sRequestedCapability = $aArgs[ 0 ];
+			$aEditCapabilities = array(
+				'switch_themes',
+				'edit_theme_options',
+				'install_themes',
+				'update_themes',
+				'delete_themes'
+			);
 
 			if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
 				$aAreaRestrictions = $oFO->getAdminAccessArea_Themes();
@@ -340,7 +349,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 
 		/**
 		 * @param array $aAllCaps
-		 * @param $cap
+		 * @param       $cap
 		 * @param array $aArgs
 		 * @return array
 		 */
@@ -355,15 +364,28 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			$oFO = $this->getFeature();
 
 			/** @var string $sRequestedCapability */
-			$sRequestedCapability = $aArgs[0];
+			$sRequestedCapability = $aArgs[ 0 ];
 			$aEditCapabilities = array(
-				'edit_post', 'publish_post', 'delete_post',
-				'edit_posts', 'publish_posts', 'delete_posts',
-				'edit_page', 'publish_page', 'delete_page',
-				'edit_pages', 'publish_pages', 'delete_pages'
+				'edit_post',
+				'publish_post',
+				'delete_post',
+				'edit_posts',
+				'publish_posts',
+				'delete_posts',
+				'edit_page',
+				'publish_page',
+				'delete_page',
+				'edit_pages',
+				'publish_pages',
+				'delete_pages'
 			);
 			if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
-				$sRequestedCapabilityTrimmed = str_replace( array( '_posts', '_pages', '_post', '_page' ), '', $sRequestedCapability ); //Order of items in this array is important!
+				$sRequestedCapabilityTrimmed = str_replace( array(
+					'_posts',
+					'_pages',
+					'_post',
+					'_page'
+				), '', $sRequestedCapability ); //Order of items in this array is important!
 				$aAreaRestrictions = $oFO->getAdminAccessArea_Posts();
 				if ( in_array( $sRequestedCapabilityTrimmed, $aAreaRestrictions ) ) {
 					$aAllCaps[ $sRequestedCapability ] = false;
@@ -393,11 +415,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			$aRenderData = array(
-				'strings' => array(
+				'strings'     => array(
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
-					'unlock_link' => $this->getUnlockLinkHtml(),
+					'unlock_link'        => $this->getUnlockLinkHtml(),
 				),
-				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
+				'sAjaxNonce'  => wp_create_nonce( 'icwp_ajax' ),
 				'js_snippets' => array(
 					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 				)

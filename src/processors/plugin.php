@@ -179,6 +179,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
+					'title'        => 'Join Us!',
 					'yes'          => "Yes please! I'd love to join in and learn more",
 					'no'           => "No thanks, I'm not interested in such groups",
 					'we_dont_spam' => "( Fear not! SPAM is for losers. And we're not losers! )",
