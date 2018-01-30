@@ -57,6 +57,14 @@
       ]
     },
     {
+      "slug": "section_whitelabel",
+      "title": "Shield White Label",
+      "title_short": "White Label",
+      "summary": [
+        "Purpose - Rename and re-brand the Shield Security plugin for your client site installations.",
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -203,6 +211,61 @@
       "link_blog": "http://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion."
+    },
+    {
+      "key": "enable_whitelabel",
+      "section": "section_whitelabel",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable White Label",
+      "summary": "Activate Your White Label Settings",
+      "description": "Use this option to turn on/off the whole White Label feature."
+    },
+    {
+      "key": "whitelabel_name",
+      "section": "section_whitelabel",
+      "default": "Shield Security",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Plugin name",
+      "summary": "The Name Of Your Plugin",
+      "description": "The Name Of Your Plugin."
+    },
+    {
+      "key": "whitelabel_tagline",
+      "section": "section_whitelabel",
+      "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Plugin Tag Line",
+      "summary": "The Tag Line Of The Plugin",
+      "description": "The Tag Line Of The Plugin."
+    },
+    {
+      "key": "whitelabel_home_url",
+      "section": "section_whitelabel",
+      "default": "http://icwp.io/home",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Home URL",
+      "summary": "Plugin Home Page URL",
+      "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
+    },
+    {
+      "key": "whitelabel_iconurl",
+      "section": "section_whitelabel",
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Icon URL",
+      "summary": "Plugin Icon URL",
+      "description": "The URL of the icon displayed in the menu and in the admin pages."
     }
   ],
   "definitions": {

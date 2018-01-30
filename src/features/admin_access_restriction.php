@@ -331,6 +331,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sTitleShort = _wpsf__( 'Access Restriction Zones' );
 				break;
 
+			case 'section_whitelabel' :
+				$sTitle = _wpsf__( 'Shield White Label' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Rename and re-brand the Shield Security plugin for your client site installations.' ) ),
+				);
+				$sTitleShort = _wpsf__( 'White Label' );
+				break;
+
 			default:
 				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
@@ -413,6 +421,32 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 										)
 									)
 								);
+				break;
+
+			case 'enable_whitelabel' :
+				$sName = sprintf( '%s: %s', _wpsf__( 'Enable' ), _wpsf__( 'White Label' ) );
+				$sSummary = _wpsf__( 'Activate Your White Label Settings' );
+				$sDescription = _wpsf__( 'Use this option to turn on/off the whole White Label feature.' );
+				break;
+			case 'whitelabel_name' :
+				$sName = _wpsf__( 'Name' );
+				$sSummary = _wpsf__( 'The Name Of The Plugin' );
+				$sDescription = _wpsf__( 'The name of the plugin that will be displayed to your site users.' );
+				break;
+			case 'whitelabel_tagline' :
+				$sName = _wpsf__( 'Tag Line' );
+				$sSummary = _wpsf__( 'The Tag Line Of The Plugin' );
+				$sDescription = _wpsf__( 'The tag line of the plugin displayed on the plugins page.' );
+				break;
+			case 'whitelabel_home_url' :
+				$sName = _wpsf__( 'Home URL' );
+				$sSummary = _wpsf__( 'Plugin Home Page URL' );
+				$sDescription = _wpsf__( "When a user clicks the home link for this plugin, this is where they'll be directed." );
+				break;
+			case 'whitelabel_iconurl' :
+				$sName = _wpsf__( 'Icon URL' );
+				$sSummary = _wpsf__( 'Plugin Icon URL' );
+				$sDescription = _wpsf__( 'The URL of the icon displayed in the menu and in the admin pages.' );
 				break;
 
 			default:
