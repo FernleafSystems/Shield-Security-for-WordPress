@@ -360,7 +360,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getUrl_AdminPage() {
 		return $this->loadWp()
 					->getUrl_AdminPage(
-						$this->prefix( $this->getFeatureSlug() ),
+						$this->getModSlug(),
 						self::getConn()->getIsWpmsNetworkAdminOnly()
 					);
 	}
@@ -427,6 +427,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bWithPrefix
+	 * @return string
+	 */
+	public function getModSlug( $bWithPrefix = true ) {
+		return $bWithPrefix ? $this->prefix( $this->getFeatureSlug() ) : $this->getFeatureSlug();
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getPluginInstallationTime() {
@@ -463,7 +471,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
 			$aItems[ $sMenuPageTitle ] = array(
 				$sMenuTitleName,
-				$this->prefix( $this->getFeatureSlug() ),
+				$this->getModSlug(),
 				array( $this, 'displayModuleAdminPage' )
 			);
 
@@ -511,7 +519,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'slug'       => $this->getFeatureSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
-			'href'       => network_admin_url( 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ) ),
+			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
 		);
 		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
 
@@ -704,10 +712,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isValidAjaxRequestForModule() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$bValid = $this->loadWp()->isAjax()
-				  && ( $this->prefix( $this->getFeatureSlug() ) == $oDp->post( 'icwp_action_module', '' ) );
+				  && ( $this->getModSlug() == $oDp->post( 'icwp_action_module', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -730,7 +738,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'icwp_ajax_action'   => $this->prefix( $sAction ),
 			'icwp_nonce'         => $this->genNonce( $sAction ),
 			'icwp_nonce_action'  => $sAction,
-			'icwp_action_module' => $this->prefix( $this->getFeatureSlug() ),
+			'icwp_action_module' => $this->getModSlug(),
 			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
 		);
 		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
@@ -1029,7 +1037,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	public function ajaxOptionsFormSave() {
 
-		if ( $this->prefix( $this->getFeatureSlug() ) != $this->loadDP()->post( 'mod_slug' ) ) {
+		if ( $this->getModSlug() != $this->loadDP()->post( 'mod_slug' ) ) {
 			return;
 		}
 
@@ -1204,7 +1212,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isModulePage() {
-		return $this->loadDP()->query( 'page' ) == $this->prefix( $this->getFeatureSlug() );
+		return $this->loadDP()->query( 'page' ) == $this->getModSlug();
 	}
 
 	/**
@@ -1313,7 +1321,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'bFeatureEnabled' => $this->getIsMainFeatureEnabled(),
 			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
 			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
-			'form_action'     => 'admin.php?page='.$this->prefix( $this->getFeatureSlug() ),
+			'form_action'     => 'admin.php?page='.$this->getModSlug(),
 			'nOptionsPerRow'  => 1,
 			'aPluginLabels'   => $oCon->getPluginLabels(),
 			'help_video'      => array(
@@ -1333,7 +1341,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'data'       => array(
 				'form_nonce'        => $this->genNonce( '' ),
-				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
+				'mod_slug'          => $this->getModSlug(),
 				'all_options'       => $this->buildOptions(),
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
@@ -1406,7 +1414,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getUrl_Wizard( $sWizardSlug ) {
 		return add_query_arg(
 			array(
-				'page'          => $this->prefix( $this->getFeatureSlug() ),
+				'page'          => $this->getModSlug(),
 				'shield_action' => 'wizard',
 				'wizard'        => $sWizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$sWizardSlug )

@@ -215,26 +215,29 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @param bool $fPermission
+	 * @return bool
 	 */
 	public function setPermissionToSubmit( $fPermission = false ) {
-		if ( $fPermission ) {
-			$this->startSecurityAdmin();
-		}
-		else {
-			$this->terminateSecurityAdmin();
-		}
+		return $fPermission ? $this->startSecurityAdmin() : $this->terminateSecurityAdmin();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function checkAdminAccessKeySubmission() {
-		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request' );
+		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
 			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 		return $bSuccess;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAccessKeyRequest() {
+		return strlen( $this->loadDP()->post( 'admin_access_key_request', '' ) ) > 0;
 	}
 
 	/**
