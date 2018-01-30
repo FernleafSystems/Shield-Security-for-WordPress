@@ -17,7 +17,7 @@ Shield handles it all for you:
 * Login Protection against bots (including Limit Login Attempts)
 * Automatic IP Black List
 * 2-Factor Authentication
-* Comments SPAM
+* Comments SPAM - block 100% of bot spam.
 * Audit Trail & Logging
 * reCAPTCHA
 * Firewall
