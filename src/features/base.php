@@ -1073,6 +1073,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( $bVerified ) {
 			$this->doSaveStandardOptions();
 			$this->doExtraSubmitProcessing();
+			$this->setSaveUserResponse();
 		}
 		return $bVerified;
 	}
@@ -1098,6 +1099,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function doExtraSubmitProcessing() {
+	}
+
+	protected function setSaveUserResponse() {
+		if ( !$this->loadWp()->isAjax() && $this->isModulePage() ) {
+			$this->loadAdminNoticesProcessor()
+				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
+																									   ->getHumanName() ) );
+		}
 	}
 
 	/**
