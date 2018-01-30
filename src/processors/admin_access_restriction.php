@@ -44,6 +44,30 @@ if ( !class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ):
 			}
 
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+
+			if ( $oFO->isEnabledWhiteLabel() ) {
+				$this->runWhiteLabel();
+			}
+		}
+
+		/**
+		 */
+		protected function runWhiteLabel() {
+			$this->getSubProcessorWhitelabel()
+				 ->run();
+		}
+
+		/**
+		 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel
+		 */
+		protected function getSubProcessorWhitelabel() {
+			$oProc = $this->getSubProcessor( 'checksum' );
+			if ( is_null( $oProc ) ) {
+				require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'adminaccess_whitelabel.php' );
+				$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getFeature() );
+				$this->aSubProcessors[ 'wl' ] = $oProc;
+			}
+			return $oProc;
 		}
 
 		/**

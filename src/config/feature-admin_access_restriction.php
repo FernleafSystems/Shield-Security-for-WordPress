@@ -47,6 +47,14 @@
       ]
     },
     {
+      "slug": "section_whitelabel",
+      "title": "Shield White Label",
+      "title_short": "White Label",
+      "summary": [
+        "Purpose - Rename and re-brand the Shield Security plugin for your client site installations."
+      ]
+    },
+    {
       "slug": "section_enable_plugin_feature_admin_access_restriction",
       "title": "Enable Plugin Feature: WordPress Security Admin",
       "title_short": "Disable Module",
@@ -54,14 +62,6 @@
         "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
         "Recommendation - Keep the Security Admin feature turned on.",
         "You need to also enter a new Access Key to enable this feature."
-      ]
-    },
-    {
-      "slug": "section_whitelabel",
-      "title": "Shield White Label",
-      "title_short": "White Label",
-      "summary": [
-        "Purpose - Rename and re-brand the Shield Security plugin for your client site installations.",
       ]
     },
     {
@@ -215,6 +215,7 @@
     {
       "key": "whitelabel_enable",
       "section": "section_whitelabel",
+      "premium": true,
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -224,7 +225,7 @@
       "description": "Use this option to turn on/off the whole White Label feature."
     },
     {
-      "key": "whitelabel_name",
+      "key": "wl_name",
       "section": "section_whitelabel",
       "default": "Shield Security",
       "type": "text",
@@ -235,7 +236,7 @@
       "description": "The Name Of Your Plugin."
     },
     {
-      "key": "whitelabel_tagline",
+      "key": "wl_description",
       "section": "section_whitelabel",
       "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
       "type": "text",
@@ -246,7 +247,7 @@
       "description": "The Tag Line Of The Plugin."
     },
     {
-      "key": "whitelabel_home_url",
+      "key": "wl_homeurl",
       "section": "section_whitelabel",
       "default": "http://icwp.io/home",
       "type": "text",
@@ -257,7 +258,7 @@
       "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
     },
     {
-      "key": "whitelabel_iconurl",
+      "key": "wl_iconurl",
       "section": "section_whitelabel",
       "default": "",
       "type": "text",

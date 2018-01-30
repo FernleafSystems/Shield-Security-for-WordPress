@@ -275,6 +275,25 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getWhitelabelOptions() {
+		return array(
+			'name'        => $this->getOpt( 'wl_name' ),
+			'description' => $this->getOpt( 'wl_description' ),
+			'url_home'    => $this->getOpt( 'wl_homeurl' ),
+			'url_icon'    => $this->getOpt( 'wl_iconurl' ),
+		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledWhiteLabel() {
+		return $this->getOptIs( 'whitelabel_enable', 'Y' ) && $this->isPremium();
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return $this
 	 * @throws Exception
@@ -426,24 +445,24 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'whitelabel_enable' :
 				$sName = sprintf( '%s: %s', _wpsf__( 'Enable' ), _wpsf__( 'White Label' ) );
 				$sSummary = _wpsf__( 'Activate Your White Label Settings' );
-				$sDescription = _wpsf__( 'Use this option to turn on/off the whole White Label feature.' );
+				$sDescription = _wpsf__( 'Turn on/off the application of your White Label settings.' );
 				break;
-			case 'whitelabel_name' :
+			case 'wl_name' :
 				$sName = _wpsf__( 'Name' );
 				$sSummary = _wpsf__( 'The Name Of The Plugin' );
 				$sDescription = _wpsf__( 'The name of the plugin that will be displayed to your site users.' );
 				break;
-			case 'whitelabel_tagline' :
-				$sName = _wpsf__( 'Tag Line' );
-				$sSummary = _wpsf__( 'The Tag Line Of The Plugin' );
-				$sDescription = _wpsf__( 'The tag line of the plugin displayed on the plugins page.' );
+			case 'wl_description' :
+				$sName = _wpsf__( 'Description' );
+				$sSummary = _wpsf__( 'The Description Of The Plugin' );
+				$sDescription = _wpsf__( 'The description of the plugin displayed on the plugins page.' );
 				break;
-			case 'whitelabel_home_url' :
+			case 'wl_homeurl' :
 				$sName = _wpsf__( 'Home URL' );
 				$sSummary = _wpsf__( 'Plugin Home Page URL' );
 				$sDescription = _wpsf__( "When a user clicks the home link for this plugin, this is where they'll be directed." );
 				break;
-			case 'whitelabel_iconurl' :
+			case 'wl_iconurl' :
 				$sName = _wpsf__( 'Icon URL' );
 				$sSummary = _wpsf__( 'Plugin Icon URL' );
 				$sDescription = _wpsf__( 'The URL of the icon displayed in the menu and in the admin pages.' );
