@@ -423,7 +423,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 								);
 				break;
 
-			case 'enable_whitelabel' :
+			case 'whitelabel_enable' :
 				$sName = sprintf( '%s: %s', _wpsf__( 'Enable' ), _wpsf__( 'White Label' ) );
 				$sSummary = _wpsf__( 'Activate Your White Label Settings' );
 				$sDescription = _wpsf__( 'Use this option to turn on/off the whole White Label feature.' );

@@ -213,7 +213,7 @@
       "description": "Careful: This will restrict access to page/post creation, editing and deletion."
     },
     {
-      "key": "enable_whitelabel",
+      "key": "whitelabel_enable",
       "section": "section_whitelabel",
       "default": "N",
       "type": "checkbox",
