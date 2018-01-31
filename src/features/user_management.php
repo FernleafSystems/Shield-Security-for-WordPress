@@ -110,7 +110,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function getIsUserSessionsManagementEnabled() {
-		return $this->getOptIs( 'enable_user_management', 'Y' );
+		return $this->getOptIs( 'enable_user_management', 'Y' )
+			   && $this->getSessionsProcessor()->getTableExists();
 	}
 
 	/**
