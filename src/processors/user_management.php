@@ -16,6 +16,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
 
 		// Adds last login indicator column to all plugins in plugin listing.
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
@@ -30,8 +32,9 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
-
-		$this->getProcessorSessions()->run();
+		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
+			$this->getProcessorSessions()->run();
+		}
 	}
 
 	/**
