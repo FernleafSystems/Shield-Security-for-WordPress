@@ -219,7 +219,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function importOptions() {
 		// So we don't poll for the file every page load.
-		if ( $this->loadDataProcessor()->FetchGet( 'icwp_shield_import' ) == 1 ) {
+		if ( $this->loadDP()->query( 'icwp_shield_import' ) == 1 ) {
 			$aOptions = self::getConn()->getOptionsImportFromFile();
 			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
@@ -260,7 +260,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function loadFeatureProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			include_once( self::getConn()
-							  ->getPath_SourceFile( sprintf( 'processors%s%s.php', DIRECTORY_SEPARATOR, $this->getFeatureSlug() ) ) );
+							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;

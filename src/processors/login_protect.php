@@ -104,7 +104,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
 	public function getProcessorLoginIntent() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_intent.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_intent.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getFeature() );
 		return $oProc;
 	}
@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_cooldown.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_cooldown.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeature() );
 		return $oProc;
 	}
@@ -122,7 +122,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
 	protected function getProcessorGasp() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_gasp.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_gasp.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getFeature() );
 		return $oProc;
 	}
@@ -131,7 +131,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
 	 */
 	protected function getProcessorWpLogin() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_wplogin.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_wplogin.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getFeature() );
 		return $oProc;
 	}
@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
 	 */
 	protected function getProcessorGoogleRecaptcha() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_googlerecaptcha.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeature() );
 		return $oProc;
 	}
