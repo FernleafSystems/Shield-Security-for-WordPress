@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		$oFO = $this->getFeature();
 
 		if ( !$oFO->hasSession() ) {
-			$nForceLogOutCode = 6;
+			$nForceLogOutCode = 4;
 		}
 		else {
 			$oSess = $oFO->getSession();
@@ -104,10 +104,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
-			if ( empty( $oSess ) ) {
-				$nForceLogOutCode = 4;
-			} // timeout interval
-			else if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
+			// timeout interval
+			if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
 			else if ( $nIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nIdleTimeout ) ) {
