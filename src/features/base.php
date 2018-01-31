@@ -516,7 +516,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			return $aSummaryData;
 		}
 
-		$sMenuTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
+		$oOptions = $this->getOptionsVo();
+		$sMenuTitle = $oOptions->getFeatureProperty( 'menu_title' );
+
+		$aSections = $oOptions->getSections();
+		foreach ( $aSections as $sSlug => $aSection ) {
+			$aSections[ $sSlug ] = $this->loadStrings_SectionTitles( $aSection );
+		}
+
 		$aSummary = array(
 			'enabled'    => $this->isModuleEnabled(),
 			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
@@ -524,6 +531,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
+			'sections'   => $aSections
 		);
 		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
 
