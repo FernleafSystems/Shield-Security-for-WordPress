@@ -94,6 +94,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @var boolean
 	 */
 	protected $bMeetsBasePermissions = false;
+
 	/**
 	 * @var string
 	 */
@@ -271,10 +272,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		add_filter( 'all_plugins', array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins', array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_' . $this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'plugin_row_meta', array( $this, 'onPluginRowMeta' ), 50, 2 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-' . $this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
+		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
 
 		add_filter( 'auto_update_plugin', array( $this, 'onWpAutoUpdate' ), 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', array( $this, 'setUpdateFirstDetectedAt' ) );
@@ -376,8 +377,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$oDp->downloadStringAsFile(
 					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
-					. $this->loadWp()->getHomeUrl( true )
-					. '-' . date( 'y-m-d__H-i-s' ) . '.txt'
+					.$this->loadWp()->getHomeUrl( true )
+					.'-'.date( 'y-m-d__H-i-s' ).'.txt'
 				);
 			}
 		}
@@ -545,7 +546,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( isset( $aFrontendIncludes[ 'css' ] ) && !empty( $aFrontendIncludes[ 'css' ] ) && is_array( $aFrontendIncludes[ 'css' ] ) ) {
 			foreach ( $aFrontendIncludes[ 'css' ] as $sCssAsset ) {
 				$sUnique = $this->doPluginPrefix( $sCssAsset );
-				wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset . '.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
+				wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
 				wp_enqueue_style( $sUnique );
 				$sDependent = $sUnique;
 			}
@@ -559,10 +560,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sAsset . '.js' );
+					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() . rand() );
+						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_script( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -575,7 +576,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminJs[ 'js' ] as $sJsAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sJsAsset . '.js' );
+					$sUrl = $this->getPluginUrl_Js( $sJsAsset.'.js' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sJsAsset );
 						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() );
@@ -594,10 +595,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
+					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() . rand() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -610,10 +611,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset . '.css' );
+					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->doPluginPrefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() . rand() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -650,7 +651,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function setUpdateFirstDetectedAt( $oPluginUpdateData ) {
 
 		if ( !empty( $oPluginUpdateData ) && !empty( $oPluginUpdateData->response )
-			&& isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
+			 && isset( $oPluginUpdateData->response[ $this->getPluginBaseFile() ] ) ) {
 			// i.e. there's an update available
 
 			$sNewVersion = $this->loadWpPlugins()->getUpdateNewVersion( $this->getPluginBaseFile() );
@@ -715,7 +716,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
 						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
-						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS * $nAutoupdateDays ) );
+						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS*$nAutoupdateDays ) );
 					}
 					break;
 
@@ -872,7 +873,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function doPluginPrefix( $sSuffix = '', $sGlue = '-' ) {
 		$sPrefix = $this->getPluginPrefix( $sGlue );
 
-		if ( $sSuffix == $sPrefix || strpos( $sSuffix, $sPrefix . $sGlue ) === 0 ) { //it already has the full prefix
+		if ( $sSuffix == $sPrefix || strpos( $sSuffix, $sPrefix.$sGlue ) === 0 ) { //it already has the full prefix
 			return $sSuffix;
 		}
 
@@ -1003,7 +1004,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getOptionStoragePrefix() {
-		return $this->getPluginPrefix( '_' ) . '_';
+		return $this->getPluginPrefix( '_' ).'_';
 	}
 
 	/**
@@ -1143,7 +1144,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( empty( $this->sPluginUrl ) ) {
 			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
 		}
-		return add_query_arg( array( 'ver' => $this->getVersion() ), $this->sPluginUrl . $sPath );
+		return add_query_arg( array( 'ver' => $this->getVersion() ), $this->sPluginUrl.$sPath );
 	}
 
 	/**
@@ -1154,7 +1155,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sUrl = '';
 		$sAssetPath = $this->getPath_Assets( $sAsset );
 		if ( $this->loadFS()->exists( $sAssetPath ) ) {
-			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ) . '/' . $sAsset );
+			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
 			return $this->loadWpIncludes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
 		return $sUrl;
@@ -1165,7 +1166,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Css( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'css/' . $sAsset );
+		return $this->getPluginUrl_Asset( 'css/'.$sAsset );
 	}
 
 	/**
@@ -1173,7 +1174,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Image( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'images/' . $sAsset );
+		return $this->getPluginUrl_Asset( 'images/'.$sAsset );
 	}
 
 	/**
@@ -1181,7 +1182,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Js( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'js/' . $sAsset );
+		return $this->getPluginUrl_Asset( 'js/'.$sAsset );
 	}
 
 	/**
@@ -1196,7 +1197,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'assets' ) . DIRECTORY_SEPARATOR . $sAsset;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
 	}
 
 	/**
@@ -1204,7 +1205,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Flags( $sFlag = '' ) {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'flags' ) . DIRECTORY_SEPARATOR . $sFlag;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).DIRECTORY_SEPARATOR.$sFlag;
 	}
 
 	/**
@@ -1213,9 +1214,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
 		$oFs = $this->loadFS();
-		$sTempPath = $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . DIRECTORY_SEPARATOR;
+		$sTempPath = $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR;
 		if ( $oFs->mkdir( $sTempPath ) ) {
-			return $this->getRootDir() . $this->getPluginSpec_Path( 'temp' ) . DIRECTORY_SEPARATOR . $sTmpFile;
+			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR.$sTmpFile;
 		}
 		return null;
 	}
@@ -1225,7 +1226,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetCss( $sAsset = '' ) {
-		return $this->getPath_Assets( 'css' . DIRECTORY_SEPARATOR . $sAsset );
+		return $this->getPath_Assets( 'css/'.$sAsset );
 	}
 
 	/**
@@ -1233,7 +1234,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetJs( $sAsset = '' ) {
-		return $this->getPath_Assets( 'js' . DIRECTORY_SEPARATOR . $sAsset );
+		return $this->getPath_Assets( 'js/'.$sAsset );
 	}
 
 	/**
@@ -1241,7 +1242,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_AssetImage( $sAsset = '' ) {
-		return $this->getPath_Assets( 'images' . DIRECTORY_SEPARATOR . $sAsset );
+		return $this->getPath_Assets( 'images/'.$sAsset );
 	}
 
 	/**
@@ -1264,7 +1265,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'languages' ) . DIRECTORY_SEPARATOR;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1272,7 +1273,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Source() {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'source' ) . DIRECTORY_SEPARATOR;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1281,7 +1282,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_SourceFile( $sSourceFile = '' ) {
-		return $this->getPath_Source() . $sSourceFile;
+		return $this->getPath_Source().$sSourceFile;
 	}
 
 	/**
@@ -1290,14 +1291,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_LibFile( $sLibFile = '' ) {
-		return $this->getPath_Source() . 'lib' . DIRECTORY_SEPARATOR . $sLibFile;
+		return $this->getPath_Source().'lib/'.$sLibFile;
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir() . $this->getPluginSpec_Path( 'templates' ) . DIRECTORY_SEPARATOR;
+		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1305,14 +1306,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates() . $sTemplate;
+		return $this->getPath_Templates().$sTemplate;
 	}
 
 	/**
 	 * @return string
 	 */
 	private function getPathPluginSpec() {
-		return $this->getRootDir() . 'plugin-spec.php';
+		return $this->getRootDir().'plugin-spec.php';
 	}
 
 	/**
@@ -1320,7 +1321,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getRootDir() {
-		return dirname( $this->getRootFile() ) . DIRECTORY_SEPARATOR;
+		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -1474,7 +1475,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getUniqueRequestId( $bSetSessionIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDataProcessor();
-			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->loadIpService()->getRequestIp().$oDp->time() );
+			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->loadIpService()
+																					 ->getRequestIp().$oDp->time() );
 		}
 		return self::$sRequestId;
 	}
@@ -1494,7 +1496,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->loadDataProcessor()->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$this->loadDataProcessor()->time() + DAY_IN_SECONDS * 30,
+			$this->loadDP()->time() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false
