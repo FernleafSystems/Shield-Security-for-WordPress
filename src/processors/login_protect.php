@@ -66,11 +66,16 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'need_you_confirm'  => _wpsf__( "Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails." ),
+					'title'             => $this->getController()->getHumanName()
+										   .': '._wpsf__( 'Please verify email has been received' ),
+					'need_you_confirm'  => _wpsf__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails." ),
 					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
-					'email_sent_to'     => sprintf( _wpsf__( "The email has been sent to you at blog admin address: %s" ), get_bloginfo( 'admin_email' ) ),
-					'how_resend_email'  => _wpsf__( "To have this email resent, re-save your Login Protection settings." ),
-					'how_turn_off'      => _wpsf__( "To turn this notice off, disable Two Factor authentication." ),
+					'email_sent_to'     => sprintf(
+						_wpsf__( "The email has been sent to you at blog admin address: %s" ),
+						'<strong>'.get_bloginfo( 'admin_email' ).'</strong>'
+					),
+					'how_resend_email'  => _wpsf__( "To resend the email, re-save your Login Protection settings." ),
+					'how_turn_off'      => _wpsf__( "To turn this notice off, disable 2-Factor Authentication." ),
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );

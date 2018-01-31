@@ -20,7 +20,7 @@
     },
     "plugin-update-available":    {
       "id":          "plugin-update-available",
-      "schedule":    "version",
+      "schedule":    "conditions",
       "valid_admin": true,
       "type":        "warning"
     },
@@ -33,9 +33,9 @@
     },
     "allow-tracking":             {
       "id":          "allow-tracking",
-      "schedule":    "never",
+      "schedule":    "conditions",
       "valid_admin": true,
-      "delay_days":  0,
+      "delay_days":  1,
       "type":        "promo"
     },
     "plugin-mailing-list-signup": {
@@ -434,6 +434,11 @@
         "storage_key":   "statistics",
         "load_priority": 11,
         "hidden":        false
+      },
+      {
+        "slug":          "sessions",
+        "storage_key":   "sessions",
+        "load_priority": 5
       },
       {
         "slug":          "audit_trail",

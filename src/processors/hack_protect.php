@@ -26,7 +26,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isWcfScanEnabled() ) {
 			$this->runChecksumScan();
 		}
-		if ( $oFO->isUfsEnabled() ) {
+		if ( $oFO->isUfcEnabled() ) {
 			$this->runFileCleanerScan();
 		}
 		if ( $oFO->isWpvulnEnabled() ) {

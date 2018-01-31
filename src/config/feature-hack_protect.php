@@ -22,15 +22,6 @@
       ]
     },
     {
-      "slug":        "section_wpvuln_scan",
-      "title":       "Vulnerability Scanner",
-      "title_short": "Vulnerability Scanner",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
-        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
       "slug":        "section_core_file_integrity_scan",
       "title":       "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
@@ -46,6 +37,15 @@
       "summary":     [
         "Purpose - Scan your WordPress core folders for unrecognised files that don't belong.",
         "Recommendation - Keep the Unrecognised Files Scanner feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_wpvuln_scan",
+      "title":       "Vulnerability Scanner",
+      "title_short": "Vulnerability Scanner",
+      "summary":     [
+        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
       ]
     },
     {
@@ -136,7 +136,7 @@
       "link_info":   "http://icwp.io/wpsf36",
       "link_blog":   "http://icwp.io/wpsf37",
       "name":        "Core File Scanner",
-      "summary":     "Daily Cron - Scans WordPress Core Files For Alterations",
+      "summary":     "Scans WordPress Core Files For Alterations",
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
@@ -149,6 +149,52 @@
       "name":        "Auto Repair",
       "summary":     "Automatically Repair WordPress Core Files That Have Been Altered",
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
+    },
+    {
+      "key":         "scan_frequency",
+      "section":     "section_enable_plugin_feature_hack_protection_tools",
+      "premium":       true,
+      "default":       1,
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "1",
+          "text":      "Once"
+        },
+        {
+          "value_key": "2",
+          "text":      "Twice (scan every 12hrs)"
+        },
+        {
+          "value_key": "3",
+          "text":      "3 Times (scan every 8hrs)"
+        },
+        {
+          "value_key": "4",
+          "text":      "4 Times (scan every 6hrs)"
+        },
+        {
+          "value_key": "6",
+          "text":      "6 Times (scan every 4hrs)"
+        },
+        {
+          "value_key": "8",
+          "text":      "8 Times (scan every 3hrs)"
+        },
+        {
+          "value_key": "12",
+          "text":      "12 Times (scan every 2hrs)"
+        },
+        {
+          "value_key": "24",
+          "text":      "24 Times (scan every hour)"
+        }
+      ],
+      "link_info":   "http://icwp.io/b2",
+      "link_blog":   "",
+      "name":        "Daily Frequency",
+      "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
+      "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",

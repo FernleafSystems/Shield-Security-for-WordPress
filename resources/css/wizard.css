@@ -11,6 +11,9 @@ body.wait {
 	background: #ffffff;
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }
+.wizard > .steps .current a {
+	text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+}
 .wizard.vertical > .steps {
 	width: 20%; /** from 30 **/
 }
@@ -84,6 +87,13 @@ body.wait {
 }
 .wizard_slot:hover {
 	background-color: #ffffff;
+}
+
+.wizard form label {
+}
+.wizard form input[type="radio"]:checked + span {
+	font-weight: bolder;
+	letter-spacing: -0.4px;
 }
 
 #GoProBtn {

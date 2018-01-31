@@ -3,24 +3,20 @@
 {% block slide_body %}
 
 <h3>Automatic IP Blacklist</h3>
-<p>Many security plugins offer the option of blacklisting IP addresses.</p>
-<p>But the big secret they're not telling you is that this is complete waste of your time.</p>
+<h4>Quick Summary:</h4>
+<p>Turn on the IP Manager below so Shield can automatically limit login attempts and block automated attacks.</p>
+<h4>The Details:</h4>
+<p>Many security plugins offer the option of blacklisting IP addresses. But the big secret they're not telling you is
+   that this is complete waste of your time.</p>
 <p>Can you think of anything you'd rather be doing, than getting 100s of email notifications and then
-   having to go in and add IP addresses to some blacklist?</p>
-<p>We all have friends and family we'd rather be seeing, important work to be done, and bills to pay.
-   Life is waaay too short to be manually blocking IPs on every site we manage.</p>
-<p>That's why we built our <strong>F</strong>ully <strong>A</strong>utomatic <strong>B</strong>lack
-   <strong>L</strong>ist <strong>E</strong>ngine (FABLE).</p>
-<p>FABLE will track naughty behaviour, and if the same visitor/bot does one-too-many naughty things,
-   we block that IP. Simples. But not permanently, because that would make our IP list explode, and slow
-   down our website like it's running Wordfence. ;)</p>
-<p>And nobody wants that. So FABLE keeps your IP blacklist nice and lean.</p>
+   having to add IP addresses to some blacklist?</p>
+<p>The automatic IP Manager will track bad behaviour, and automatically block repeat offenders.
+   But not permanently, because that would make your IP list explode, slowing down your site for normal visitors.</p>
+<p>And nobody wants that.</p>
 
-<p>By default, nefarious visitors are blocked for 1 minute, after 10 naughty requests (aka 'transgressions').</p>
-<p>You can change these settings in the IP Manager, but for now, let's just turn it on. Also,
-if you turned on the Audit Trail in the previous step, you can use this to monitor IP blacklisting.</p>
+<p>By default, bad visitors are blocked for 1 minute after 10 bad requests.</p>
 
-<h4>Turn On/Off FABLE - Automatic Blacklist Engine</h4>
+<h4>Turn On/Off Automatic Blacklist Engine</h4>
 <form class="form-horizontal icwp-wizard-form">
 	<input name="wizard-step" value="ips" type="hidden" />
 	<div class="form-group">
@@ -28,14 +24,14 @@ if you turned on the Audit Trail in the previous step, you can use this to monit
 		<div class="col-md-8">
 			<div class="radio">
 				<label>
-					<input type="radio" name="IpManagerOption" id="IpManagerOptionOn" value="Y" checked>
-					Turn On - Automatically block bad visitors and bots
+					<input type="radio" name="IpManagerOption" id="IpManagerOptionOn" value="Y">
+					<span>Turn On</span> - Automatically block bad visitors and bots
 				</label>
 			</div>
 			<div class="radio">
 				<label>
 					<input type="radio" name="IpManagerOption" id="IpManagerOptionOff" value="N">
-					Turn Off - Don't use FABLE to protect against bad visitors and bots
+					<span>Turn Off</span> - Don't use black lists to protect against bad visitors and bots
 				</label>
 			</div>
 		</div>

@@ -1053,10 +1053,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return false;
 		}
 
-		$aFormSubmitOptions = array(
-			$this->doPluginOptionPrefix( 'plugin_form_submit' ),
-			'icwp_link_action'
-		);
+		$aFormSubmitOptions = array( 'plugin_form_submit', 'icwp_link_action' );
 
 		$oDp = $this->loadDataProcessor();
 		foreach ( $aFormSubmitOptions as $sOption ) {
@@ -1338,6 +1335,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getReleaseTimestamp() {
+		return $this->getPluginSpec_Property( 'release_timestamp' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTextDomain() {
@@ -1435,7 +1439,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getPluginPrefix() );
+		$this->loadDP()->setDeleteCookie( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1455,7 +1459,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = $this->loadDataProcessor()->FetchCookie( $this->getPluginPrefix(), '' );
+			self::$sSessionId = $this->loadDP()->FetchCookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();

@@ -35,19 +35,23 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	protected function setupChecksumCron() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
 		$this->loadWpCronProcessor()
-			 ->setRecurrence( 'daily' )
+			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getScanFrequency() ) ) )
 			 ->createCronJob(
-				 $this->getCronName(),
+				 $oFO->getUfcCronName(),
 				 array( $this, 'cron_dailyFileCleanerScan' )
 			 );
-		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
 	 */
 	public function deleteCron() {
-		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$this->loadWpCronProcessor()->deleteCronJob( $oFO->getUfcCronName() );
 	}
 
 	/**
@@ -170,7 +174,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		if ( $oFO->isUfsEnabled() ) {
+		if ( $oFO->isUfcEnabled() ) {
 			try {
 				$this->runScan(); // The file scanning part can exception with permission & exists
 			}
@@ -187,7 +191,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$oFO = $this->getFeature();
 		$aDiscoveredFiles = $this->discoverFiles();
 		if ( !empty( $aDiscoveredFiles ) ) {
-			if ( $oFO->isUfsDeleteFiles() ) {
+			if ( $oFO->isUfcDeleteFiles() ) {
 				$this->deleteFiles( $aDiscoveredFiles );
 			}
 			if ( $oFO->isUfsSendReport() ) {
@@ -237,7 +241,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		$aContent[] = '';
-		if ( $oFO->getCanRunWizards() ) {
+		if ( $oFO->canRunWizards() ) {
 			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
 				$oFO->getUrl_Wizard( 'ufc' ),
 				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
@@ -246,7 +250,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			$aContent[] = '';
 		}
 
-		if ( $oFO->isUfsDeleteFiles() ) {
+		if ( $oFO->isUfcDeleteFiles() ) {
 			$aContent[] = _wpsf__( 'We have already attempted to delete these files based on your current settings.' )
 						  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
 		}
@@ -299,14 +303,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 																					   ->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		$oFO = $this->getFeature();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'unrecognisedscan_cron_name' ) );
 	}
 }
 

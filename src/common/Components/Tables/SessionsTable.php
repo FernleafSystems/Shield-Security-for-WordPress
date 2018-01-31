@@ -14,7 +14,7 @@ class SessionsTable extends ICWP_BaseTable {
 			'wp_username'      => 'Username',
 			'logged_in_at'     => 'Logged In',
 			'last_activity_at' => 'Last Activity',
-			'used_mfa'         => 'MFA',
+			'is_secadmin'      => 'Sec. Admin',
 			'ip'               => 'IP Address',
 		);
 	}

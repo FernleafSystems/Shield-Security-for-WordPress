@@ -65,9 +65,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	public function doPrePluginOptionsSave() {
-		// TODO: remove as it's a temporary transition for clashing options name
-		if ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) ) {
-			$this->setOpt( 'enable_google_recaptcha_login', 'Y' );
+		$nSkipDays = $this->getMfaSkip();
+		if ( !is_numeric( $nSkipDays ) || $nSkipDays < 0 ) {
+			$this->getOptionsVo()->resetOptToDefault( 'mfa_skip' );
 		}
 	}
 
@@ -189,15 +189,73 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return string
 	 */
-	public function getTwoFactorAuthTableName() {
-		return $this->prefix( $this->getDefinition( 'two_factor_auth_table_name' ), '_' );
+	public function getCanEmailVerifyCode() {
+		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getCanEmailVerifyCode() {
-		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
+	public function getCanMfaSkip() {
+		return;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	public function canUserMfaSkip( $oUser ) {
+		$bCanSkip = false;
+
+		if ( $this->getMfaSkipEnabled() ) {
+			$aHashes = $this->getMfaLoginHashes( $oUser );
+			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
+
+			$sHash = md5( $this->loadDP()->getUserAgent() );
+			$bCanSkip = isset( $aHashes[ $sHash ] )
+						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadDP()->time();
+		}
+		return $bCanSkip;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return $this
+	 */
+	public function addMfaLoginHash( $oUser ) {
+		$oDp = $this->loadDP();
+		$aHashes = $this->getMfaLoginHashes( $oUser );
+		$aHashes[ md5( $oDp->getUserAgent() ) ] = $oDp->time();
+		$this->getCurrentUserMeta()->hash_loginmfa = $aHashes;
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return array
+	 */
+	public function getMfaLoginHashes( $oUser ) {
+		$oMeta = $this->getUserMeta( $oUser );
+		$aHashes = $oMeta->hash_loginmfa;
+		if ( !is_array( $aHashes ) ) {
+			$aHashes = array();
+			$oMeta->hash_loginmfa = $aHashes;
+		}
+		return $aHashes;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getMfaSkipEnabled() {
+		return $this->getMfaSkip() > 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMfaSkip() {
+		return (int)$this->getOpt( 'mfa_skip', 0 );
 	}
 
 	/**
@@ -468,6 +526,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Multi-Factor Authentication' ) );
 				$sSummary = _wpsf__( 'Require All Active Authentication Factors' );
 				$sDescription = _wpsf__( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.' );
+				break;
+
+			case 'mfa_skip' :
+				$sName = _wpsf__( 'Multi-Factor By-Pass' );
+				$sSummary = _wpsf__( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days' );
+				$sDescription = _wpsf__( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.' );
 				break;
 
 			case 'enable_google_authenticator' :

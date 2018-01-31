@@ -1,1 +1,1 @@
-<h3><?php echo $strings['message']; ?></h3>
+<p><?php echo $strings[ 'message' ]; ?></p>

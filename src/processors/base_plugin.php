@@ -63,6 +63,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$aRenderData = array(
 			'notice_attributes' => $aAttr,
 			'strings'           => array(
+				'title'   => 'Will you help us out with a quick WordPress.org review?',
 				'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
 				'forums'  => __( 'Support Forums' )
 			),
@@ -81,15 +82,15 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
-		$bCanWizardWelcome = $oFO->getCanRunWizards();
+		$bCanWizardWelcome = $oFO->canRunWizards();
 
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => array(
 				'dismiss'  => _wpsf__( "I don't need the setup wizard just now" ),
-				'title'    => _wpsf__( 'Try the all-new Welcome Wizard for the Shield Security plugin' ),
+				'title'    => _wpsf__( 'Get started quickly with the Shield Security Setup Wizard' ),
 				'setup'    => _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core Shield Security features.' ),
-				'no_setup' => _wpsf__( 'Unfortunately your site is running a PHP version that is too low to run the Setup Wizard. It needs to be PHP 5.4+' )
+				'no_setup' => _wpsf__( "Shield Security has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+ " )
 			),
 			'hrefs'             => array(
 				'wizard' => $bCanWizardWelcome ? $oFO->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
@@ -117,7 +118,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$aRenderData = array(
 			'notice_attributes' => $aAttr,
 			'strings'           => array(
-				'your_version'  => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
+				'title'         => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
 				'not_supported' => sprintf( _wpsf__( 'Newer features of %s do not support your PHP version.' ), $oCon->getHumanName() ),
 				'ask_host'      => _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ),
 				'questions'     => _wpsf__( 'Please read here for further information:' ),
@@ -137,13 +138,14 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @throws Exception
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
-		$oFO = $this->getFeature();
-		$oWpUsers = $this->loadWpUsers();
+		$oPlugin = $this->getController();
+		$oNotices = $this->loadAdminNoticesProcessor();
 
-		$sAdminNoticeMetaKey = $oFO->prefix( 'plugin-update-available' );
-		if ( $this->loadAdminNoticesProcessor()->getAdminNoticeIsDismissed( 'plugin-update-available' ) ) {
-			$oWpUsers->updateUserMeta( $sAdminNoticeMetaKey, $oFO->getVersion() ); // so they've hidden it. Now we set the current version so it doesn't display below
-			return;
+		if ( $oNotices->isDismissed( 'plugin-update-available' ) ) {
+			$aMeta = $oNotices->getMeta( 'plugin-update-available' );
+			if ( $aMeta[ 'time' ] > $oPlugin->getReleaseTimestamp() ) {
+				return;
+			}
 		}
 
 		if ( !$this->getIfShowAdminNotices() ) {
@@ -152,16 +154,16 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$oWp = $this->loadWp();
 		$oWpPlugins = $this->loadWpPlugins();
-		$sBaseFile = $this->getController()->getPluginBaseFile();
+		$sBaseFile = $oPlugin->getPluginBaseFile();
 		if ( !$oWp->getIsPage_Updates() && $oWpPlugins->isUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',
 				'strings'           => array(
-					'plugin_update_available' => sprintf( _wpsf__( 'There is an update available for the "%s" plugin.' ), $this->getController()
-																															   ->getHumanName() ),
-					'click_update'            => _wpsf__( 'Please click to update immediately' ),
-					'dismiss'                 => _wpsf__( 'Dismiss this notice' )
+					'title'        => sprintf( _wpsf__( 'Update available for the %s plugin.' ), $this->getController()
+																									  ->getHumanName() ),
+					'click_update' => _wpsf__( 'Please click to update immediately' ),
+					'dismiss'      => _wpsf__( 'Dismiss this notice' )
 				),
 				'hrefs'             => array(
 					'upgrade_link' => $oWpPlugins->getLinkPluginUpgrade( $sBaseFile )
@@ -176,13 +178,13 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_translate_plugin( $aNoticeAttributes ) {
-
 		if ( $this->getIfShowAdminNotices() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'like_to_help' => sprintf( _wpsf__( "Would you like to help translate the %s plugin into your language?" ), $this->getController()
-																																	 ->getHumanName() ),
+					'title'        => 'Você não fala Inglês? No hablas Inglés? Heeft u geen Engels spreekt?',
+					'like_to_help' => sprintf( _wpsf__( "Can you help translate the %s plugin?" ), $this->getController()
+																										->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
 					'site_url'     => 'translate.icontrolwp.com',
 					'dismiss'      => _wpsf__( 'Dismiss this notice' )

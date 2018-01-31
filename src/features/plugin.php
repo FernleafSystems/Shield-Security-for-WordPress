@@ -36,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			return parent::getContentCustomActions();
 		}
 
-		$bCanWizard = $this->getCanRunWizards();
+		$bCanWizard = $this->canRunWizards();
 		$bCanWizardWelcome = $bCanWizard;
 		$bCanWizardImport = $bCanWizard && $this->isPremium();
 
@@ -228,14 +228,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
 		return $bGloballyDisabled || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
-	}
-
-	public function doExtraSubmitProcessing() {
-		if ( !$this->loadWp()->isAjax() ) {
-			$this->loadAdminNoticesProcessor()
-				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
-																									   ->getHumanName() ) );
-		}
 	}
 
 	/**

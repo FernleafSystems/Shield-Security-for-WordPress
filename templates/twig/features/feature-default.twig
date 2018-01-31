@@ -4,7 +4,7 @@
 	<div class="row">
 		<div class="{{ fShowAds ? 'span10' : 'span12' }}">
 
-			{% if aAllOptions|length %}
+			{% if data.all_options|length %}
 			<div id="icwp-options-form">
 				{% include '/snippets/options_form.twig' %}
 			</div>

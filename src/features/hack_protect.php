@@ -8,6 +8,46 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		$this->setCustomCronSchedules();
+	}
+
+	/**
+	 */
+	protected function doExtraSubmitProcessing() {
+		$this->clearCrons();
+		$this->cleanFileExclusions();
+	}
+
+	protected function clearCrons() {
+		$this->loadWpCronProcessor()
+			 ->deleteCronJob( $this->getUfcCronName() )
+			 ->deleteCronJob( $this->getWcfCronName() );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getScanFrequency() {
+		return (int)$this->getOpt( 'scan_frequency', 1 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function setCustomCronSchedules() {
+		$nFreq = $this->getScanFrequency();
+		$this->loadWpCronProcessor()
+			 ->addNewSchedule(
+				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+				 array(
+					 'interval' => DAY_IN_SECONDS/$nFreq,
+					 'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
+				 )
+			 );
+		return $this;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -16,11 +56,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sOption
-	 * @return $this
+	 * @return string
 	 */
-	public function setUfcOption( $sOption ) {
-		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
+	public function getUfcCronName() {
+		return $this->prefixOptionKey( $this->getDefinition( 'unrecognisedscan_cron_name' ) );
 	}
 
 	/**
@@ -35,6 +74,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sOption
+	 * @return $this
+	 */
+	public function setUfcOption( $sOption ) {
+		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
+	}
+
+	/**
 	 * @param array $aExclusions
 	 * @return $this
 	 */
@@ -43,12 +90,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aExclusions = array();
 		}
 		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
-	}
-
-	/**
-	 */
-	protected function doExtraSubmitProcessing() {
-		$this->cleanFileExclusions();
 	}
 
 	/**
@@ -79,7 +120,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return string
 	 */
-	public function isUfsDeleteFiles() {
+	public function isUfcDeleteFiles() {
 		return in_array( $this->getUnrecognisedFileScannerOption(), array(
 			'enabled_delete_only',
 			'enabled_delete_report'
@@ -89,7 +130,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isUfsEnabled() {
+	public function isUfcEnabled() {
 		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
 	}
 
@@ -108,6 +149,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'enabled_report_only',
 			'enabled_delete_report'
 		) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWcfCronName() {
+		return $this->prefixOptionKey( $this->getDef( 'corechecksum_cron_name' ) );
 	}
 
 	/**
@@ -286,6 +334,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
 				break;
 
+			case 'scan_frequency' :
+				$sName = _wpsf__( 'Daily Scan Frequency' );
+				$sSummary = _wpsf__( 'Number Of Times To Automatically Run File Scan In 24hrs' );
+				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
+				break;
+
 			case 'enable_plugin_vulnerabilities_scan' :
 				$sName = _wpsf__( 'Plugin Vulnerabilities Scanner' );
 				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
@@ -312,7 +366,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'enable_core_file_integrity_scan' :
 				$sName = _wpsf__( 'Core File Scanner' );
-				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans WordPress Core Files For Alterations' ) );
+				$sSummary = _wpsf__( 'Scans WordPress Core Files For Alterations' );
 				$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
 								.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
 				break;

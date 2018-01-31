@@ -22,9 +22,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		// Various stuff.
-		add_action( 'init', array( $this, 'onInit' ), 1 );
-
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
@@ -35,43 +32,9 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
-
-		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
-			$this->getProcessorSessions()->run();
-		}
+		$this->getProcessorSessions()->run();
 
 		return true;
-	}
-
-	public function onInit() {
-		add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
-	}
-
-	/**
-	 * Only show Go To Admin link for Authors and above.
-	 * @param string $sMessage
-	 * @return string
-	 * @throws Exception
-	 */
-	public function printLinkToAdmin( $sMessage = '' ) {
-		$oWpUsers = $this->loadWpUsers();
-		if ( $oWpUsers->isUserLoggedIn() ) {
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
-			if ( $oFO->getIsUserSessionsManagementEnabled() && $this->getProcessorSessions()
-																	->getCurrentUserHasValidSession() ) {
-				$sMessage = sprintf(
-								'<p class="message">%s<br />%s</p>',
-								_wpsf__( "It appears you're already logged-in." ).sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oWpUsers->getCurrentWpUser()
-																																					  ->get( 'user_login' ) ),
-								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>', $this->loadWp()
-																												 ->getUrl_WpAdmin(), _wpsf__( "Go To Admin" ).' &rarr;' ) : ''
-							).$sMessage;
-			}
-		}
-		return $sMessage;
 	}
 
 	/**
@@ -81,21 +44,19 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
-
-			if ( $this->loadDataProcessor()
-					  ->validEmail( $this->getOption( 'enable_admin_login_email_notification' ) ) ) {
-				$this->sendLoginEmailNotification( $oUser );
-			}
+			$this->sendLoginEmailNotification( $oUser );
 			$this->setUserLastLoginTime( $oUser );
 		}
 	}
 
 	/**
 	 * @param WP_User $oUser
-	 * @return bool
+	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		return $this->loadWpUsers()->updateUserMeta( $this->getUserLastLoginKey(), $this->time(), $oUser->ID );
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta->last_login_at = $this->time();
+		return $this;
 	}
 
 	/**
@@ -105,7 +66,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function fAddUserListLastLoginColumn( $aColumns ) {
 
-		$sLastLoginColumnName = $this->getUserLastLoginKey();
+		$sLastLoginColumnName = $this->prefix( 'last_login_at' );
 		if ( !isset( $aColumns[ $sLastLoginColumnName ] ) ) {
 			$aColumns[ $sLastLoginColumnName ] = _wpsf__( 'Last Login' );
 			add_filter( 'manage_users_custom_column', array( $this, 'aPrintUsersListLastLoginColumnContent' ), 10, 3 );
@@ -114,22 +75,23 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
+	 * Adds the column to the users listing table to stating last login time.
 	 * @param string $sContent
 	 * @param string $sColumnName
 	 * @param int    $nUserId
 	 * @return string
 	 */
 	public function aPrintUsersListLastLoginColumnContent( $sContent, $sColumnName, $nUserId ) {
-		$sLastLoginKey = $this->getUserLastLoginKey();
-		if ( $sColumnName != $sLastLoginKey ) {
+
+		if ( $sColumnName != $this->prefix( 'last_login_at' ) ) {
 			return $sContent;
 		}
+
 		$oWp = $this->loadWp();
-		$nLastLoginTime = $this->loadWpUsers()->getUserMeta( $sLastLoginKey, $nUserId );
+		$nLastLoginTime = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $nUserId )->last_login_at;
 
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
-		if ( !empty( $nLastLoginTime ) && is_numeric( $nLastLoginTime ) ) {
+		if ( is_numeric( $nLastLoginTime ) && $nLastLoginTime > 0 ) {
 			$sLastLoginText = $oWp->getTimeStringForDisplay( $nLastLoginTime );
 		}
 		return $sLastLoginText;
@@ -153,7 +115,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'subscriber'    => 'read',
 		);
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()
+														->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
 		}
@@ -219,21 +182,13 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|bool
 	 */
 	public function getActiveUserSessionRecords( $sWpUsername = '' ) {
-		return $this->getProcessorSessions()->getActiveUserSessionRecords( $sWpUsername );
-	}
-
-	/**
-	 * @param integer $nTime - number of seconds back from now to look
-	 * @return array|boolean
-	 */
-	public function getPendingOrFailedUserSessionRecordsSince( $nTime = 0 ) {
-		return $this->getProcessorSessions()->getPendingOrFailedUserSessionRecordsSince( $nTime );
+		return $this->getProcessorSessions()->getActiveSessionRecordsForUsername( $sWpUsername );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {
-		return $this->getController()->doPluginOptionPrefix( 'userlastlogin' );
+		return $this->getController()->doPluginOptionPrefix( 'last_login_at' );
 	}
 }

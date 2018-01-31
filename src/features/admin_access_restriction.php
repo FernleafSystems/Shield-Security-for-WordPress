@@ -48,8 +48,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sResponseData = array();
 			$bSuccess = $this->checkAdminAccessKeySubmission();
 			if ( $bSuccess ) {
-				$this->setPermissionToSubmit( true );
-				$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
+				$bSuccess = $this->setPermissionToSubmit( true );
+				if ( $bSuccess ) {
+					$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
+				}
+				else {
+					$sResponseData[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+				}
 			}
 			else {
 				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
@@ -64,27 +69,21 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function doCheckHasPermissionToSubmit( $fHasPermission = true ) {
 
-		// We don't use setPermissionToSubmit() here because of timing with headers - we just for now manually
-		// checking POST for the submission of the key and if it fits, we say "yes"
-		if ( $this->checkAdminAccessKeySubmission() ) {
-			$this->bHasPermissionToSubmit = true;
-		}
-
-		if ( isset( $this->bHasPermissionToSubmit ) ) {
-			return $this->bHasPermissionToSubmit;
-		}
-
 		$this->bHasPermissionToSubmit = $fHasPermission;
 		if ( $this->getIsMainFeatureEnabled() ) {
-
-			$sAccessKey = $this->getOpt( 'admin_access_key' );
+				$sAccessKey = $this->getAccessKeyHash();
 			if ( !empty( $sAccessKey ) ) {
-				$oDp = $this->loadDP();
-				$sCookieValue = $oDp->cookie( $this->getSecurityAdminCookieName() );
-				$this->bHasPermissionToSubmit = ( $sCookieValue === md5( $sAccessKey ) );
+				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid() || $this->checkAdminAccessKeySubmission();
 			}
 		}
 		return $this->bHasPermissionToSubmit;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getAccessKeyHash() {
+		return $this->getOpt( 'admin_access_key' );
 	}
 
 	/** TODO
@@ -125,10 +124,17 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getIsMainFeatureEnabled() {
+		return parent::getIsMainFeatureEnabled() && $this->hasAccessKey();
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getRestrictedOptions() {
-		$aOptions = $this->getDefinition( 'admin_access_options_to_restrict' );
+		$aOptions = $this->getDef( 'admin_access_options_to_restrict' );
 		return is_array( $aOptions ) ? $aOptions : array();
 	}
 
@@ -154,65 +160,96 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
 	 */
-	protected function setAdminAccessCookie() {
-		$sAccessKey = $this->getOpt( 'admin_access_key' );
-		if ( !empty( $sAccessKey ) ) {
-			$this->loadDP()
-				 ->setCookie(
-					 $this->getSecurityAdminCookieName(),
-					 md5( $sAccessKey ),
-					 $this->getOpt( 'admin_access_timeout' )*60
-				 );
-		}
+	protected function hasAccessKey() {
+		$sKey = $this->getAccessKeyHash();
+		return !empty( $sKey ) && strlen( $sKey ) == 32;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function startSecurityAdmin() {
+		return $this->getSessionsProcessor()
+					->getSessionUpdater()
+					->startSecurityAdmin( $this->getSession() );
 	}
 
 	/**
 	 */
-	protected function clearAdminAccessCookie() {
-		$this->loadDataProcessor()->setDeleteCookie( $this->getSecurityAdminCookieName() );
+	protected function terminateSecurityAdmin() {
+		return $this->getSessionsProcessor()
+					->getSessionUpdater()
+					->terminateSecurityAdmin( $this->getSession() );
 	}
 
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
 		// We should only use setPermissionToSubmit() here, before any headers elsewhere are sent out.
-		if ( $this->checkAdminAccessKeySubmission() ) {
-			$this->setPermissionToSubmit( true );
-//			wp_safe_redirect( network_admin_url() );
+		if ( $this->isAccessKeyRequest() ) {
+			if ( $this->checkAdminAccessKeySubmission() ) {
+				$this->setPermissionToSubmit( true );
+			}
 		}
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSecurityAdminCookieName() {
-		return $this->getDefinition( 'security_admin_cookie_name' );
-	}
-
-	/**
-	 * @param bool $fPermission
-	 */
-	public function setPermissionToSubmit( $fPermission = false ) {
-		if ( $fPermission ) {
-			$this->setAdminAccessCookie();
+	protected function setSaveUserResponse() {
+		if ( $this->isAccessKeyRequest() ) {
+			$bSuccess = $this->doCheckHasPermissionToSubmit();
+			if ( $bSuccess ) {
+				$sMessage = sprintf( _wpsf__( '%s Security Admin key accepted.' ), self::getConn()->getHumanName() );
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( '%s Security Admin key not accepted.' ), self::getConn()
+																						   ->getHumanName() );
+			}
+			$this->loadAdminNoticesProcessor()
+				 ->addFlashMessage( $sMessage, $bSuccess ? 'updated' : 'error' );
 		}
 		else {
-			$this->clearAdminAccessCookie();
+			parent::setSaveUserResponse();
 		}
 	}
 
 	/**
 	 * @return bool
 	 */
+	protected function isSecAdminSessionValid() {
+		$bValid = false;
+		if ( $this->hasSession() ) {
+			$nStartedAt = $this->getSession()->getSecAdminAt();
+			$bValid = ( $this->loadDP()->time() - $nStartedAt ) < $this->getOpt( 'admin_access_timeout' )*60;
+		}
+		return $bValid;
+	}
+
+	/**
+	 * @param bool $fPermission
+	 * @return bool
+	 */
+	public function setPermissionToSubmit( $fPermission = false ) {
+		return $fPermission ? $this->startSecurityAdmin() : $this->terminateSecurityAdmin();
+	}
+
+	/**
+	 * @return bool
+	 */
 	protected function checkAdminAccessKeySubmission() {
-		$sAccessKeyRequest = $this->loadDP()
-								  ->FetchPost( $this->prefix( 'admin_access_key_request', '_' ) );
+		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
 			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 		return $bSuccess;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAccessKeyRequest() {
+		return strlen( $this->loadDP()->post( 'admin_access_key_request', '' ) ) > 0;
 	}
 
 	/**
