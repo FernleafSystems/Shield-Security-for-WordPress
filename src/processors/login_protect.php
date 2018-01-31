@@ -38,8 +38,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		$this->getProcessorLoginIntent()->run();
-
-		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 	}
 
 	/**
@@ -80,24 +78,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			);
 			$this->insertAdminNotice( $aRenderData );
 		}
-	}
-
-	/**
-	 * @param WP_Error $oError
-	 * @return WP_Error
-	 */
-	public function addLoginMessage( $oError ) {
-
-		if ( !$oError instanceof WP_Error ) {
-			$oError = new WP_Error();
-		}
-
-		$oDp = $this->loadDataProcessor();
-		$sForceLogout = $oDp->FetchGet( 'wpsf-forcelogout' );
-		if ( $sForceLogout == 6 ) {
-			$oError->add( 'wpsf-forcelogout', _wpsf__( 'Your Two-Factor Authentication was un-verified or invalidated by a login from another location or browser.' ).'<br />'._wpsf__( 'Please login again.' ) );
-		}
-		return $oError;
 	}
 
 	/**
