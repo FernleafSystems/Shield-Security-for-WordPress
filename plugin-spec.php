@@ -1,7 +1,7 @@
 {
   "properties": {
-    "version": "6.2.0",
-    "release_timestamp": 1517390273,
+    "version": "6.2.1",
+    "release_timestamp": 1517486400,
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "human_name": "Shield",

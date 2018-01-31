@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.2.0
+Stable tag: 6.2.1
 
 Free All-In-One Protection for your data, reputation, and users on your WordPress sites - the Highest-Rated Security Plugin for WordPress
 
@@ -356,9 +356,10 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.2.0 - Current Release =
-*Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
+= 6.2.1 - Current Release =
+*Released: 1st February January, 2018* - [Release Notes](http://icwp.io/b6)
 
+* **(v.1)**  FIXED:			Bug where administrator login email notification setting is not being honoured.
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
 * **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
@@ -368,6 +369,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 = 6.2 Series =
 *Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
 
+* **(v.1)**  FIXED:			Bug where administrator login email notification setting is not being honoured.
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
 * **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
