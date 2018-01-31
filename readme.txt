@@ -53,7 +53,8 @@ For just $1/month:
 1. Exclusive early access to new security features
 1. Text customisations for visitors.
 1. No manual Pro plugin downloads - we handle this all for you automatically.
-1. (coming soon) Improved performance 
+1. (coming soon) White Labelling
+1. (coming soon) Improved performance
 1. (coming soon) Statistics and Reporting
 1. (coming soon) Select individual automatic plugin updates
 
@@ -360,7 +361,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
-* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to 1 single DB entry for all data.
+* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
 * **(v.0)**  ADDED:			[**PRO**] Ability to [increase frequency](http://icwp.io/b7) of file system scans up to once every hour.
 * **(v.0)**  ADDED:			[**PRO**] Add a [remember me option](http://icwp.io/b8), allowing users to skip Multi-factor authentication for a set number of days.
 
@@ -369,7 +370,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
-* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to 1 single DB entry for all data.
+* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
 * **(v.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
 * **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
