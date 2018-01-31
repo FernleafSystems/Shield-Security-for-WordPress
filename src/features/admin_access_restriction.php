@@ -278,8 +278,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getWhitelabelOptions() {
+		$sMain = $this->getOpt( 'wl_namemain' );
+		$sMenu = $this->getOpt( 'wl_namemenu' );
+		if ( empty( $sMenu ) ) {
+			$sMenu = $sMain;
+		}
+
 		return array(
-			'name'        => $this->getOpt( 'wl_name' ),
+			'name_main'   => $sMain,
+			'name_menu'   => $sMenu,
 			'description' => $this->getOpt( 'wl_description' ),
 			'url_home'    => $this->getOpt( 'wl_homeurl' ),
 			'url_icon'    => $this->getOpt( 'wl_iconurl' ),
@@ -459,10 +466,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sSummary = _wpsf__( 'Hide Plugin Updates From Non-Security Admins' );
 				$sDescription = _wpsf__( 'Do not show the availability of updates to non-security administrators.' );
 				break;
-			case 'wl_name' :
-				$sName = _wpsf__( 'Name' );
+			case 'wl_namemain' :
+				$sName = _wpsf__( 'Plugin Name' );
 				$sSummary = _wpsf__( 'The Name Of The Plugin' );
 				$sDescription = _wpsf__( 'The name of the plugin that will be displayed to your site users.' );
+				break;
+			case 'wl_namemenu' :
+				$sName = _wpsf__( 'Menu Title' );
+				$sSummary = _wpsf__( 'The Main Menu Title Of The Plugin' );
+				$sDescription = sprintf( _wpsf__( 'The Main Menu Title Of The Plugin. If left empty, the "%s" will be used.' ), _wpsf__( 'Plugin Name' ) );
 				break;
 			case 'wl_description' :
 				$sName = _wpsf__( 'Description' );

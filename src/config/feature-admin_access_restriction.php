@@ -237,15 +237,26 @@
       "description": "Hides the availability of Shield updates from non-security admins."
     },
     {
-      "key": "wl_name",
+      "key": "wl_namemain",
       "section": "section_whitelabel",
       "default": "Shield Security",
       "type": "text",
       "link_info": "",
       "link_blog": "",
-      "name": "Plugin name",
-      "summary": "The Name Of Your Plugin",
-      "description": "The Name Of Your Plugin."
+      "name": "Plugin Name",
+      "summary": "The Name Of The Plugin",
+      "description": "The Name Of The Plugin."
+    },
+    {
+      "key": "wl_namemenu",
+      "section": "section_whitelabel",
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Menu Title",
+      "summary": "The Main Menu Title Of The Plugin",
+      "description": "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
     },
     {
       "key": "wl_description",
