@@ -21,10 +21,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return ICWP_WPSF_SessionVO
+	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	public function getSession() {
-		return $this->getSessionsProcessor()->getCurrentSession();
+		$oP = $this->getSessionsProcessor();
+		return is_null( $oP ) ? null : $oP->getCurrentSession();
 	}
 
 	/**
