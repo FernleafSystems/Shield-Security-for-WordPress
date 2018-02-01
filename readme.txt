@@ -360,6 +360,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 *Released: 1st February January, 2018* - [Release Notes](http://icwp.io/b6)
 
 * **(v.1)**  FIXED:			Bug where administrator login email notification setting is not being honoured.
+* **(v.1)**  IMPROVED:		If a site is having trouble with database creation, User Sessions wont lock you out.
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
 * **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
@@ -370,6 +371,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 *Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
 
 * **(v.1)**  FIXED:			Bug where administrator login email notification setting is not being honoured.
+* **(v.1)**  IMPROVED:		If a site is having trouble with database creation, User Sessions wont lock you out.
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
 * **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
