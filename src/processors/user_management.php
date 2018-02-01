@@ -14,9 +14,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $oProcessorSessions;
 
 	/**
-	 * @return bool
 	 */
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
 
 		// Adds last login indicator column to all plugins in plugin listing.
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
@@ -27,14 +28,13 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// XML-RPC Compatibility
 		if ( $this->loadWp()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
-			return true;
+			return;
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
-
-		$this->getProcessorSessions()->run();
-
-		return true;
+		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
+			$this->getProcessorSessions()->run();
+		}
 	}
 
 	/**
@@ -44,7 +44,11 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
-			$this->sendLoginEmailNotification( $oUser );
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getFeature();
+			if ( $oFO->isSendEmailLoginNotification() ) {
+				$this->sendLoginEmailNotification( $oUser );
+			}
 			$this->setUserLastLoginTime( $oUser );
 		}
 	}
@@ -169,7 +173,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'usermanagement_sessions.php' );
+			require_once( dirname( __FILE__ ).'/usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeature();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );

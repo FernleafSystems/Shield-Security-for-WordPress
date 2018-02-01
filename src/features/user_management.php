@@ -110,7 +110,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function getIsUserSessionsManagementEnabled() {
-		return $this->getOptIs( 'enable_user_management', 'Y' );
+		return $this->getOptIs( 'enable_user_management', 'Y' )
+			   && $this->getSessionsProcessor()->getTableExists();
 	}
 
 	/**
@@ -141,6 +142,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
 		}
 		return ( $this->loadDP()->time() - $nStartedAt ) < 20;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSendEmailLoginNotification() {
+		return $this->loadDP()->validEmail( $this->getOpt( 'enable_admin_login_email_notification' ) );
 	}
 
 	/**
