@@ -41,7 +41,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return int
 	 */
 	protected function getPromoNoticesCount() {
-		return self::$nPromoNoticesCount++;
+		return self::$nPromoNoticesCount;
 	}
 
 	/**
@@ -62,18 +62,19 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function autoAddToAdminNotices() {
 		$oCon = $this->getController();
 
-		foreach ( $this->getFeature()->getAdminNotices() as $sNoticeId => $aNoticeAttributes ) {
+		foreach ( $this->getFeature()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
-			if ( !$this->getIfDisplayAdminNotice( $aNoticeAttributes ) ) {
+			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;
 			}
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
-			if ( method_exists( $this, $sMethodName ) && isset( $aNoticeAttributes[ 'valid_admin' ] )
-				 && $aNoticeAttributes[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
+			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
+				 && $aAttrs[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
 
-				$aNoticeAttributes[ 'notice_id' ] = $sNoticeId;
-				call_user_func( array( $this, $sMethodName ), $aNoticeAttributes );
+				$aAttrs[ 'id' ] = $sNoticeId;
+				$aAttrs[ 'notice_id' ] = $sNoticeId;
+				call_user_func( array( $this, $sMethodName ), $aAttrs );
 			}
 		}
 	}
@@ -86,7 +87,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$oWpNotices = $this->loadAdminNoticesProcessor();
 
 		if ( empty( $aAttrs[ 'schedule' ] )
-			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version' ) ) ) {
+			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version', 'never' ) ) ) {
 			$aAttrs[ 'schedule' ] = 'conditions';
 		}
 
@@ -134,19 +135,24 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	protected function insertAdminNotice( $aNoticeData ) {
-		$bIsPromo = isset( $aNoticeData[ 'notice_attributes' ][ 'type' ] ) && $aNoticeData[ 'notice_attributes' ][ 'type' ] == 'promo';
+		$aAttrs = $aNoticeData[ 'notice_attributes' ];
+		$bIsPromo = isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo';
 		if ( $bIsPromo && $this->getPromoNoticesCount() > 0 ) {
 			return;
 		}
 
-		$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
-		if ( !empty( $sRenderedNotice ) ) {
-			$this->loadAdminNoticesProcessor()->addAdminNotice(
-				$sRenderedNotice,
-				$aNoticeData[ 'notice_attributes' ][ 'notice_id' ]
-			);
-			if ( $bIsPromo ) {
-				$this->incrementPromoNoticesCount();
+		$oNotices = $this->loadAdminNoticesProcessor();
+		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
+
+			$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
+			if ( !empty( $sRenderedNotice ) ) {
+				$oNotices->addAdminNotice(
+					$sRenderedNotice,
+					$aNoticeData[ 'notice_attributes' ][ 'notice_id' ]
+				);
+				if ( $bIsPromo ) {
+					$this->incrementPromoNoticesCount();
+				}
 			}
 		}
 	}

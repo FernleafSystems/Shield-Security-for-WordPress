@@ -49,8 +49,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sResponseData = array();
 			$bSuccess = $this->checkAdminAccessKeySubmission();
 			if ( $bSuccess ) {
-				$this->setPermissionToSubmit( true );
-				$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
+				$bSuccess = $this->setPermissionToSubmit( true );
+				if ( $bSuccess ) {
+					$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
+				}
+				else {
+					$sResponseData[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+				}
 			}
 			else {
 				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
@@ -78,17 +83,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function doCheckHasPermissionToSubmit( $bHasPermission = true ) {
 
-		// We don't use setPermissionToSubmit() here because of timing with headers - we just for now manually
-		// checking POST for the submission of the key and if it fits, we say "yes"
-		if ( $this->checkAdminAccessKeySubmission() ) {
-			$this->bHasPermissionToSubmit = true;
+		$this->bHasPermissionToSubmit = $bHasPermission;
+		if ( $this->isModuleEnabled() ) {
+			$sAccessKey = $this->getAccessKeyHash();
+			if ( !empty( $sAccessKey ) ) {
+				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid() || $this->checkAdminAccessKeySubmission();
+			}
 		}
-
-		if ( isset( $this->bHasPermissionToSubmit ) ) {
-			return $this->bHasPermissionToSubmit;
-		}
-
-		$this->bHasPermissionToSubmit = $this->isModuleEnabled() ? $this->isSecAdminSessionValid() : $bHasPermission;
 		return $this->bHasPermissionToSubmit;
 	}
 
@@ -181,30 +182,48 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @return $this
+	 * @return bool
 	 */
 	protected function startSecurityAdmin() {
-		$this->getSessionsProcessor()
-			 ->getSessionUpdater()
-			 ->startSecurityAdmin( $this->getSession() );
-		return $this;
+		return $this->getSessionsProcessor()
+					->getSessionUpdater()
+					->startSecurityAdmin( $this->getSession() );
 	}
 
 	/**
 	 */
 	protected function terminateSecurityAdmin() {
-		$this->getSessionsProcessor()
-			 ->getSessionUpdater()
-			 ->terminateSecurityAdmin( $this->getSession() );
-		return $this;
+		return $this->getSessionsProcessor()
+					->getSessionUpdater()
+					->terminateSecurityAdmin( $this->getSession() );
 	}
 
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
 		// We should only use setPermissionToSubmit() here, before any headers elsewhere are sent out.
-		if ( $this->checkAdminAccessKeySubmission() ) {
-			$this->setPermissionToSubmit( true );
+		if ( $this->isAccessKeyRequest() ) {
+			if ( $this->checkAdminAccessKeySubmission() ) {
+				$this->setPermissionToSubmit( true );
+			}
+		}
+	}
+
+	protected function setSaveUserResponse() {
+		if ( $this->isAccessKeyRequest() ) {
+			$bSuccess = $this->doCheckHasPermissionToSubmit();
+			if ( $bSuccess ) {
+				$sMessage = sprintf( _wpsf__( '%s Security Admin key accepted.' ), self::getConn()->getHumanName() );
+			}
+			else {
+				$sMessage = sprintf( _wpsf__( '%s Security Admin key not accepted.' ), self::getConn()
+																						   ->getHumanName() );
+			}
+			$this->loadAdminNoticesProcessor()
+				 ->addFlashMessage( $sMessage, $bSuccess ? 'updated' : 'error' );
+		}
+		else {
+			parent::setSaveUserResponse();
 		}
 	}
 
@@ -222,26 +241,29 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @param bool $fPermission
+	 * @return bool
 	 */
 	public function setPermissionToSubmit( $fPermission = false ) {
-		if ( $fPermission ) {
-			$this->startSecurityAdmin();
-		}
-		else {
-			$this->terminateSecurityAdmin();
-		}
+		return $fPermission ? $this->startSecurityAdmin() : $this->terminateSecurityAdmin();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function checkAdminAccessKeySubmission() {
-		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request' );
+		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
 			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
 		}
 		return $bSuccess;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAccessKeyRequest() {
+		return strlen( $this->loadDP()->post( 'admin_access_key_request', '' ) ) > 0;
 	}
 
 	/**

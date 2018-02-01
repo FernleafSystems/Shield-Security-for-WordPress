@@ -25,36 +25,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	/**
 	 */
 	public function onWpLoaded() {
-		$oWp = $this->loadWp();
-		$oWpUsers = $this->loadWpUsers();
-
-		if ( $oWpUsers->isUserLoggedIn() && !$oWp->isRestUrl() ) {
-
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
-			if ( $oFO->isAutoAddSessions() ) {
-				$this->autoAddSession();
-			}
-			else {
-				$this->checkCurrentSession();
-			}
-		}
-	}
-
-	private function autoAddSession() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
-		if ( !$oFO->hasSession() ) {
-			$oFO->getSessionsProcessor()
-				->queryCreateSession(
-					$oWpUsers = $this->loadWpUsers()->getCurrentWpUser()->user_login,
-					$oFO->getConn()->getSessionId( true )
-				);
+		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRestUrl() ) {
+			$this->checkCurrentSession();
 		}
 	}
 
 	/**
-	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
 	private function checkCurrentSession() {
 		$oWp = $this->loadWp();
@@ -127,10 +103,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
-			if ( empty( $oSess ) ) {
-				$nForceLogOutCode = 4;
-			} // timeout interval
-			else if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
+			// timeout interval
+			if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
 			else if ( $nIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nIdleTimeout ) ) {

@@ -38,8 +38,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		$this->getProcessorLoginIntent()->run();
-
-		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 	}
 
 	/**
@@ -66,11 +64,16 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'need_you_confirm'  => _wpsf__( "Before completing activation of email-based two-factor authentication we need you to confirm your site can send emails." ),
+					'title'             => $this->getController()->getHumanName()
+										   .': '._wpsf__( 'Please verify email has been received' ),
+					'need_you_confirm'  => _wpsf__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails." ),
 					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
-					'email_sent_to'     => sprintf( _wpsf__( "The email has been sent to you at blog admin address: %s" ), get_bloginfo( 'admin_email' ) ),
-					'how_resend_email'  => _wpsf__( "To have this email resent, re-save your Login Protection settings." ),
-					'how_turn_off'      => _wpsf__( "To turn this notice off, disable Two Factor authentication." ),
+					'email_sent_to'     => sprintf(
+						_wpsf__( "The email has been sent to you at blog admin address: %s" ),
+						'<strong>'.get_bloginfo( 'admin_email' ).'</strong>'
+					),
+					'how_resend_email'  => _wpsf__( "To resend the email, re-save your Login Protection settings." ),
+					'how_turn_off'      => _wpsf__( "To turn this notice off, disable 2-Factor Authentication." ),
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );
@@ -78,28 +81,10 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_Error $oError
-	 * @return WP_Error
-	 */
-	public function addLoginMessage( $oError ) {
-
-		if ( !$oError instanceof WP_Error ) {
-			$oError = new WP_Error();
-		}
-
-		$oDp = $this->loadDataProcessor();
-		$sForceLogout = $oDp->FetchGet( 'wpsf-forcelogout' );
-		if ( $sForceLogout == 6 ) {
-			$oError->add( 'wpsf-forcelogout', _wpsf__( 'Your Two-Factor Authentication was un-verified or invalidated by a login from another location or browser.' ).'<br />'._wpsf__( 'Please login again.' ) );
-		}
-		return $oError;
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
 	public function getProcessorLoginIntent() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_intent.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_intent.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getFeature() );
 		return $oProc;
 	}
@@ -108,7 +93,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_cooldown.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_cooldown.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getFeature() );
 		return $oProc;
 	}
@@ -117,7 +102,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
 	protected function getProcessorGasp() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_gasp.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_gasp.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getFeature() );
 		return $oProc;
 	}
@@ -126,7 +111,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
 	 */
 	protected function getProcessorWpLogin() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_wplogin.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_wplogin.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getFeature() );
 		return $oProc;
 	}
@@ -135,7 +120,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
 	 */
 	protected function getProcessorGoogleRecaptcha() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_googlerecaptcha.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getFeature() );
 		return $oProc;
 	}

@@ -10,7 +10,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @return bool|int
+	 * @return bool
 	 */
 	public function startSecurityAdmin( $oSession ) {
 		return $this->querySecurityAdmin( $oSession, true );
@@ -18,7 +18,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @return bool|int
+	 * @return bool
 	 */
 	public function terminateSecurityAdmin( $oSession ) {
 		return $this->querySecurityAdmin( $oSession, false );
@@ -49,18 +49,22 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_Base {
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @param bool                $bStart - true to start, false to terminate
-	 * @return bool|int
+	 * @return bool
 	 */
 	private function querySecurityAdmin( $oSession, $bStart ) {
-		return $this->loadDbProcessor()
-					->updateRowsFromTableWhere(
-						$this->getTable(),
-						array( 'secadmin_at' => $bStart ? $this->loadDP()->time() : 0 ),
-						array(
-							'session_id'  => $oSession->getId(),
-							'wp_username' => $oSession->getUsername(),
-							'deleted_at'  => 0
-						)
-					);
+		$mResult = false;
+		if ( $oSession instanceof ICWP_WPSF_SessionVO ) {
+			$mResult = $this->loadDbProcessor()
+							->updateRowsFromTableWhere(
+								$this->getTable(),
+								array( 'secadmin_at' => $bStart ? $this->loadDP()->time() : 0 ),
+								array(
+									'session_id'  => $oSession->getId(),
+									'wp_username' => $oSession->getUsername(),
+									'deleted_at'  => 0
+								)
+							);
+		}
+		return ( is_numeric( $mResult ) ) && $mResult == 1;
 	}
 }

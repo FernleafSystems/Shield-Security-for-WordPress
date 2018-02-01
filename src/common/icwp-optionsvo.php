@@ -9,39 +9,48 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @var array
 	 */
 	protected $aOptionsValues;
+
 	/**
 	 * @var array
 	 */
 	protected $aRawOptionsConfigData;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bNeedSave;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bIsPremium;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bRebuildFromFile = false;
+
 	/**
 	 * @var string
 	 */
 	protected $aOptionsKeys;
+
 	/**
 	 * @var string
 	 */
 	protected $sOptionsStorageKey;
+
 	/**
 	 *  by default we load from saved
 	 * @var string
 	 */
 	protected $bLoadFromSaved = true;
+
 	/**
 	 * @var string
 	 */
 	protected $sOptionsEncoding;
+
 	/**
 	 * @var string
 	 */
@@ -216,6 +225,19 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aOptionsData;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSections() {
+		$aSections = array();
+		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
+			if ( !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
+				$aSections[ $aRawSection[ 'slug' ] ] = $aRawSection;
+			}
+		}
+		return $aSections;
 	}
 
 	/**

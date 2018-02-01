@@ -11,6 +11,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	const LIST_MANUAL_WHITE = 'MW';
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
+
 	/**
 	 * @var bool
 	 */
@@ -102,15 +103,14 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
 
-		if ( $this->getController()->getIsPage_PluginAdmin() && $this->getIsVisitorWhitelisted() ) {
+		if ( $this->getController()->getIsPage_PluginAdmin() && $this->getIsVisitorWhitelisted() ) {#
+			$oCon = $this->getController();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
+					'title'             => sprintf( _wpsf__( '%s is ignoring you' ), $oCon->getHumanName() ),
 					'your_ip'           => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
-					'notice_message'    => sprintf(
-						_wpsf__( 'Notice - %s' ),
-						_wpsf__( 'You should know that your IP address is whitelisted and features you activate do not apply to you.' )
-					),
+					'notice_message'    => _wpsf__( 'Your IP address is whitelisted and NO features you activate apply to you.' ),
 					'including_message' => _wpsf__( 'Including the Rename WP Login feature.' )
 				)
 			);

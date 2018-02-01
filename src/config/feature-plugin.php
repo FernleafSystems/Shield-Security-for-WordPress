@@ -33,9 +33,9 @@
     },
     "allow-tracking":             {
       "id":          "allow-tracking",
-      "schedule":    "never",
+      "schedule":    "conditions",
       "valid_admin": true,
-      "delay_days":  0,
+      "delay_days":  1,
       "type":        "promo"
     },
     "plugin-mailing-list-signup": {
@@ -438,7 +438,7 @@
       {
         "slug":          "sessions",
         "storage_key":   "sessions",
-        "load_priority": 12
+        "load_priority": 5
       },
       {
         "slug":          "audit_trail",
