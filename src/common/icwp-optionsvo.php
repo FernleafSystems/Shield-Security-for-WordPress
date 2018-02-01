@@ -411,6 +411,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
+	protected function getConfigModTime() {
+		return $this->loadFS()->getModifiedTime( $this->getPathToConfig() );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getOptionsStorageKey() {
 		return $this->sOptionsStorageKey;
 	}
@@ -707,7 +714,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$sTransientKey = $this->getSpecTransientStorageKey();
 		$aConfig = $oWp->getTransient( $sTransientKey );
 
-		if ( $this->getRebuildFromFile() || empty( $aConfig ) ) {
+		$bRebuild = $this->getRebuildFromFile() || empty( $aConfig );
+		if ( !$bRebuild && !empty( $aConfig ) && is_array( $aConfig ) ) {
+
+			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
+				$aConfig[ 'meta_modts' ] = 0;
+			}
+			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
+		}
+
+		if ( $bRebuild ) {
 
 			try {
 				$aConfig = $this->readConfigurationJson();
@@ -718,6 +734,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				}
 				$aConfig = array();
 			}
+			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
 			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 		}
 		return $aConfig;
