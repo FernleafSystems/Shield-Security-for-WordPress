@@ -20,6 +20,19 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
+
+				$oNoticer = $this->loadAdminNoticesProcessor();
+				if ( $this->getIfCanSendEmailVerified() ) {
+					$oNoticer->addFlashMessage(
+						_wpsf__( 'Email verification completed successfully.' )
+					);
+				}
+				else {
+					$oNoticer->addFlashErrorMessage(
+						_wpsf__( 'Email verification could not be completed.' )
+					);
+				}
+
 				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
 			}
 		}
@@ -47,7 +60,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		 * $oWp->resavePermalinks();
 		 * }
 		 */
-		if ( $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
+		if ( $this->isModuleOptionsRequest() && $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}

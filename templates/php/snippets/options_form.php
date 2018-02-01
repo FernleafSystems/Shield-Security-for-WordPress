@@ -93,25 +93,25 @@
 				$bEnabled = $aOption[ 'enabled' ];
 				$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 				?>
-				<div class="form-group row no-gutters row_number_<?php echo $nKeyRow; ?>">
+				<div class="form-group row  row_number_<?php echo $nKeyRow; ?>">
 
 					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
-						<span class="optname"><?php echo $aOption[ 'name' ]; ?></span>
-						<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
-							<br /><span class="optlinks">
-							[
-							<a href="<?php echo $aOption[ 'link_info' ]; ?>"
-							   target="_blank"><?php echo $strings[ 'more_info' ]; ?></a>
-								<?php if ( !empty( $aOption[ 'link_blog' ] ) ) : ?>
-									| <a href="<?php echo $aOption[ 'link_blog' ]; ?>"
-										 target="_blank"><?php echo $strings[ 'blog' ]; ?></a>
-								<?php endif; ?>
-							]
-						</span>
-						<?php endif; ?>
+						<div class="form-label-inner text-right">
+							<div class="optname"><?php echo $aOption[ 'name' ]; ?></div>
+								<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
+									<span class="optlinks">[
+										<a href="<?php echo $aOption[ 'link_info' ]; ?>"
+										   target="_blank"><?php echo $strings[ 'more_info' ]; ?></a>
+										<?php if ( !empty( $aOption[ 'link_blog' ] ) ) : ?>
+											| <a href="<?php echo $aOption[ 'link_blog' ]; ?>"
+												 target="_blank"><?php echo $strings[ 'blog' ]; ?></a>
+										<?php endif; ?>
+														   ]</span>
+							<?php endif; ?>
+						</div>
 					</label>
 
-					<div class="col-8 col-xs-offset-1 option_container
+					<div class="col-8  option_container
 						<?php echo $bEnabled ? 'enabled' : 'disabled overlay_container' ?>">
 
 						<?php if ( !$bEnabled ) : ?>
