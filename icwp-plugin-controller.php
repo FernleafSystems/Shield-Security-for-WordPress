@@ -761,7 +761,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getPluginLabels() {
-		return apply_filters( $this->doPluginPrefix( 'plugin_labels' ), $this->getPluginSpec_Labels() );
+		return array_map( 'stripslashes', apply_filters( $this->doPluginPrefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
 	}
 
 	/**
