@@ -224,10 +224,7 @@ p.code-description {
 	margin-top: 2px;
 	text-align: right;
 }
-.control-label .optname {
-	display: block;
-}
-.control-label .optlinks {
+.optlinks {
 	display: block;
 	margin-top: 5px;
 }
@@ -275,11 +272,17 @@ p.code-description {
 	border-radius: 4px;
 	padding: 8px 10px;
 }
+.option_section input,
+.option_section select,
+.option_section textarea {
+	width: 100%;
+}
 .option_section input[type=checkbox] {
 	margin-right: 5px;
 }
 .option_section label {
 	background-color: transparent;
+	width: 100%;
 }
 .selected_item label {
 	font-weight: bold;
@@ -717,10 +720,11 @@ input:checked + .icwp-slider:before {
 }
 .form-label {
 	font-size: 14px;
-	margin-left: 20px;
+}
+.form-label-inner {
+padding-left: 10px;
 }
 .option_container {
-	margin-left: 10px;
 }
 .carousel-item {
 
