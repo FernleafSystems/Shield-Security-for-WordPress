@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.2.1
+Stable tag: 6.2.2
 
 Free All-In-One Protection for your data, reputation, and users on your WordPress sites - the Highest-Rated Security Plugin for WordPress
 
@@ -356,20 +356,17 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.2.1 - Current Release =
-*Released: 1st February January, 2018* - [Release Notes](http://icwp.io/b6)
+= 6.2.2 - Current Release =
+*Released: 2nd February January, 2018* - [Release Notes](http://icwp.io/b6)
 
-* **(v.1)**  FIXED:			Bug where administrator login email notification setting is not being honoured.
-* **(v.1)**  IMPROVED:		If a site is having trouble with database creation, User Sessions wont lock you out.
-* **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
-* **(v.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
-* **(v.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
-* **(v.0)**  ADDED:			[**PRO**] Ability to [increase frequency](http://icwp.io/b7) of file system scans up to once every hour.
-* **(v.0)**  ADDED:			[**PRO**] Add a [remember me option](http://icwp.io/b8), allowing users to skip Multi-factor authentication for a set number of days.
+* **(v.2)**  FIXED:			Fix for IP Manager PHP error.
+* **(v.2)**  IMPROVED:		Two-factor verification email.
 
 = 6.2 Series =
 *Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
 
+* **(v.2)**  FIXED:			Fix for IP Manager PHP error.
+* **(v.2)**  IMPROVED:		Two-factor verification email.
 * **(v.1)**  FIXED:			Bug where administrator login email notification setting is not being honoured.
 * **(v.1)**  IMPROVED:		If a site is having trouble with database creation, User Sessions wont lock you out.
 * **(v.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.

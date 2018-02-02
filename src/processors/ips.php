@@ -8,6 +8,7 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
+	/* Unused */
 	const LIST_MANUAL_WHITE = 'MW';
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
@@ -122,7 +123,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	public function getAllValidLists() {
-		return array( self::LIST_AUTO_BLACK, self::LIST_MANUAL_WHITE, self::LIST_MANUAL_BLACK );
+		return array(
+			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE,
+			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+		);
 	}
 
 	/**
@@ -335,7 +340,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getIsIpOnWhiteList( $sIp, $bReturnListData = false ) {
 
-		$aIpData = $this->getIpListData( $sIp, array( self::LIST_MANUAL_WHITE ) );
+		$aIpData = $this->getIpListData( $sIp, array( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE ) );
 		$bOnList = count( $aIpData ) > 0;
 
 		return ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList;
@@ -348,7 +353,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getIsIpOnBlackLists( $sIp, $bReturnListData = false ) {
 
-		$aIpData = $this->getIpListData( $sIp, array( self::LIST_AUTO_BLACK, self::LIST_MANUAL_BLACK ) );
+		$aIpData = $this->getIpListData( $sIp, array(
+			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+		) );
 		$bOnList = count( $aIpData ) > 0;
 
 		return ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList;
@@ -361,7 +369,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getIsIpOnManualBlackList( $sIp, $bReturnListData = false ) {
 
-		$aIpData = $this->getIpListData( $sIp, array( self::LIST_MANUAL_BLACK ) );
+		$aIpData = $this->getIpListData( $sIp, array( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK ) );
 		$bOnList = count( $aIpData ) > 0;
 
 		return ( ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList );
@@ -404,7 +412,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	public function getWhitelistData() {
-		$aData = $this->query_getListData( array( self::LIST_MANUAL_WHITE ) );
+		$aData = $this->query_getListData( array( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE ) );
 		return $aData;
 	}
 
@@ -412,7 +420,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	public function getAutoBlacklistData() {
-		$aData = $this->query_getListData( array( self::LIST_AUTO_BLACK ) );
+		$aData = $this->query_getListData( array( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK ) );
 		return $aData;
 	}
 
@@ -476,7 +484,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$aNewData = array();
 		$aNewData[ 'ip' ] = $sIp;
 		$aNewData[ 'label' ] = empty( $sLabel ) ? _wpsf__( 'No Label' ) : $sLabel;
-		$aNewData[ 'list' ] = self::LIST_MANUAL_WHITE;
+		$aNewData[ 'list' ] = ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE;
 		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpVersion( $sIp ) == 6;
 		$aNewData[ 'transgressions' ] = 0;
 		$aNewData[ 'is_range' ] = strpos( $sIp, '/' ) !== false;
@@ -494,13 +502,13 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	protected function query_addNewAutoBlackListIp( $sIp ) {
 
 		// Ensure we delete any previous old entries as we go.
-		$this->query_deleteIpFromList( $sIp, self::LIST_AUTO_BLACK );
+		$this->query_deleteIpFromList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
 
 		// Now add new entry
 		$aNewData = array();
 		$aNewData[ 'ip' ] = $sIp;
 		$aNewData[ 'label' ] = 'auto';
-		$aNewData[ 'list' ] = self::LIST_AUTO_BLACK;
+		$aNewData[ 'list' ] = ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK;
 		$aNewData[ 'ip6' ] = $this->loadIpService()->getIpVersion( $sIp ) == 6;
 		$aNewData[ 'transgressions' ] = 1;
 		$aNewData[ 'is_range' ] = 0;
@@ -540,7 +548,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	protected function query_updateLastAccessForAutoBlackListIp( $sIp ) {
 		$aCurrentData = array(
 			'ip'   => $sIp,
-			'list' => self::LIST_AUTO_BLACK
+			'list' => ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK
 		);
 		$aUpdated = array( 'last_access_at' => $this->time() );
 		return $this->updateRowsWhere( $aUpdated, $aCurrentData );
@@ -586,7 +594,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$sQuery = sprintf( $sQuery,
 			$this->getTableName(),
 			esc_sql( $sIp ),
-			self::LIST_MANUAL_WHITE
+			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE
 		);
 		$mResult = $this->selectCustom( $sQuery );
 		return ( is_array( $mResult ) && isset( $mResult[ 0 ] ) ) ? $mResult[ 0 ] : array();
@@ -615,7 +623,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$sQuery = sprintf( $sQuery,
 			$this->getTableName(),
 			esc_sql( $sIp ),
-			self::LIST_AUTO_BLACK,
+			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
 			esc_sql( $nTransgressionLimit ),
 			esc_sql( $nSince )
 		);
@@ -691,7 +699,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$sQuery = sprintf( $sQuery,
 			$this->getTableName(),
 			esc_sql( $nTimeStamp ),
-			self::LIST_AUTO_BLACK
+			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK
 		);
 		return $this->loadDbProcessor()->doSql( $sQuery );
 	}

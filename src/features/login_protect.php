@@ -20,6 +20,19 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
+
+				$oNoticer = $this->loadAdminNoticesProcessor();
+				if ( $this->getIfCanSendEmailVerified() ) {
+					$oNoticer->addFlashMessage(
+						_wpsf__( 'Email verification completed successfully.' )
+					);
+				}
+				else {
+					$oNoticer->addFlashErrorMessage(
+						_wpsf__( 'Email verification could not be completed.' )
+					);
+				}
+
 				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
 			}
 		}
@@ -47,7 +60,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		 * $oWp->resavePermalinks();
 		 * }
 		 */
-		if ( $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
+		if ( $this->isModuleOptionsRequest() && $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}
@@ -100,25 +113,22 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sEmail = get_bloginfo( 'admin_email' );
 		}
 
-		if ( $bSendAsLink ) {
-			$sVerify = $this->generateCanSendEmailVerifyLink();
-		}
-		else {
-			$sVerify = $this->getCanEmailVerifyCode();
-		}
-
 		$aMessage = array(
 			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
-
-			sprintf( _wpsf__( "Using the guided wizard? Here's your code: %s" ), $sVerify ),
-			sprintf( _wpsf__( 'Or click the verify link: %s' ), $this->generateCanSendEmailVerifyLink() ),
+			''
 		);
-		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
 
-		$bResult = $this->getEmailProcessor()
-						->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
-		return $bResult;
+		if ( $bSendAsLink ) {
+			$aMessage[] = sprintf( _wpsf__( 'Click the verify link: %s' ), $this->generateCanSendEmailVerifyLink() );
+		}
+		else {
+			$aMessage[] = sprintf( _wpsf__( "Here's your code for the guided wizard: %s" ), $this->getCanEmailVerifyCode() );
+		}
+
+		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
+		return $this->getEmailProcessor()
+					->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 	}
 
 	/**

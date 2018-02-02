@@ -1050,7 +1050,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function getIsPluginFormSubmit() {
-		if ( empty( $_POST ) && empty( $_GET ) ) {
+		if ( $this->loadWp()->isAjax() || ( empty( $_POST ) && empty( $_GET ) ) ) {
 			return false;
 		}
 

@@ -8,6 +8,10 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	const LIST_MANUAL_WHITE = 'MW';
+	const LIST_MANUAL_BLACK = 'MB';
+	const LIST_AUTO_BLACK = 'AB';
+
 	/**
 	 * @return array
 	 */
@@ -209,7 +213,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$oWp = $this->loadWp();
 		$aRenderData = array(
 			'list_id'      => $sListToRender,
-			'bIsWhiteList' => $sListToRender == ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE,
+			'bIsWhiteList' => $sListToRender == self::LIST_MANUAL_WHITE,
 			'time_now'     => sprintf( _wpsf__( 'now: %s' ), $oWp->getTimeStringForDisplay() ),
 			'sAjaxNonce'   => wp_create_nonce( 'fable_ip_list_action' ),
 			'sTableId'     => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
@@ -218,11 +222,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $sListToRender ) {
 
 			// this is a hard-coded class... need to change this.  It was $oProcessor:: but 5.2 doesn't supprt.
-			case ICWP_WPSF_Processor_Ips::LIST_MANUAL_WHITE :
+			case self::LIST_MANUAL_WHITE :
 				$aRenderData[ 'list_data' ] = $this->getFormatedData_WhiteList();
 				break;
 
-			case ICWP_WPSF_Processor_Ips::LIST_AUTO_BLACK :
+			case self::LIST_AUTO_BLACK :
 				$aRenderData[ 'list_data' ] = $this->getFormatedData_AutoBlackList();
 				break;
 
