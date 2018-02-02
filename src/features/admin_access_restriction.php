@@ -367,7 +367,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'section_whitelabel' :
 				$sTitle = _wpsf__( 'Shield White Label' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Rename and re-brand the Shield Security plugin for your client site installations.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ),
+						sprintf( _wpsf__( 'Rename and re-brand the %s plugin for your client site installations.' ),
+							$this->getConn()->getHumanName() ) ),
 				);
 				$sTitleShort = _wpsf__( 'White Label' );
 				break;
