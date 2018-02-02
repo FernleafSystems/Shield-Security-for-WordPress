@@ -12,6 +12,10 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	public function run() {
 		parent::run();
+		$aR = $this->scanPlugins();
+
+		var_dump( $aR );
+		die();
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 	}
@@ -248,7 +252,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 
 			// 3rd: Identify files in the cache but have disappeared from live
 			$aMiss = array_diff_key( $aSnap[ 'hashes' ], $aLiveHashes );
-			if ( !empty( $aUnrecog ) ) {
+			if ( !empty( $aMiss ) ) {
 				$aMissing[ $sBaseName ] = array_keys( $aMiss ); // just filenames
 			}
 		}
