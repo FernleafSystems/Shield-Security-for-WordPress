@@ -12,11 +12,34 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	public function run() {
 		parent::run();
-//		$this->setupSnapshots();
-
-		die();
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+	}
+
+	/**
+	 * @param string $sSlug - the basename for plugin, or stylesheet for theme.
+	 * @param string $sContext
+	 * @return $this
+	 */
+	public function deleteItemFromSnapshot( $sSlug, $sContext = 'plugins' ) {
+		$aSnapshot = $this->loadSnapshot( $sContext );
+		if ( isset( $aSnapshot[ $sSlug ] ) ) {
+			unset( $aSnapshot[ $sSlug ] );
+			$this->storeSnapshot( $aSnapshot, $sContext );
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sSlug - the basename for plugin, or stylesheet for theme.
+	 * @param array  $aData
+	 * @param string $sContext
+	 * @return $this
+	 */
+	public function updateItemInSnapshot( $sSlug, $aData, $sContext = 'plugins' ) {
+		$aSnapshot = $this->loadSnapshot( $sContext );
+		$aSnapshot[ $sSlug ] = $aData;
+		return $this->storeSnapshot( $aSnapshot, $sContext );
 	}
 
 	protected function setupSnapshots() {
@@ -25,36 +48,39 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	}
 
 	/**
-	 * Guarded: Only ever snapshots when option is enabled.
+	 * @param string $sBaseName
+	 * @return array
+	 */
+	private function snapshotPlugin( $sBaseName ) {
+		$aPlugin = $this->loadWpPlugins()
+						->getPlugin( $sBaseName );
+
+		return array(
+			'version' => $aPlugin[ 'Version' ],
+			'ts'      => $this->loadDP()->time(),
+			'hashes'  => $this->hashPluginFiles( $sBaseName )
+		);
+	}
+
+	/**
 	 * @return $this
 	 */
 	private function snapshotPlugins() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
-
 		$oWpPl = $this->loadWpPlugins();
-		$aPlugins = $oWpPl->getPlugins();
 
 		$aSnapshot = array();
-		foreach ( $aPlugins as $sBaseName => $aData ) {
-			$aSnapshot[ $sBaseName ] = array(
-				'version' => $aData[ 'Version' ],
-				'ts'      => $this->loadDP()->time(),
-				'hashes'  => $this->snapshotPlugin( $sBaseName )
-			);
+		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
+			$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
 		}
-
 		$this->storeSnapshot( $aSnapshot, 'plugins' );
+
 		return $this;
 	}
 
 	/**
-	 * Guarded: Only ever snapshots when option is enabled.
 	 * @return $this
 	 */
 	private function snapshotThemes() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
 		$oWpThemes = $this->loadWpThemes();
 
 		$oActiveTheme = $oWpThemes->getCurrent();
@@ -73,17 +99,18 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 			$aSnapshot[ $sSlug ] = array(
 				'version' => $oTheme->get( 'Version' ),
 				'ts'      => $this->loadDP()->time(),
-				'hashes'  => $this->snapshotTheme( $oTheme )
+				'hashes'  => $this->hashThemeFiles( $oTheme )
 			);
 		}
-
 		$this->storeSnapshot( $aSnapshot, 'themes' );
+
 		return $this;
 	}
 
 	/**
 	 * @param array  $aSnapshot
 	 * @param string $sContext
+	 * @return $this
 	 */
 	private function storeSnapshot( $aSnapshot, $sContext = 'plugins' ) {
 		$oWpFs = $this->loadFS();
@@ -91,6 +118,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		$sSnap = path_join( $sDir, $sContext.'.txt' );
 		$oWpFs->mkdir( $sDir );
 		$oWpFs->putFileContent( $sSnap, base64_encode( json_encode( $aSnapshot ) ) );
+		return $this;
 	}
 
 	/**
@@ -102,7 +130,8 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 
 		$sSnap = path_join( $this->getSnapsBaseDir(), $sContext.'.txt' );
 
-		$sRaw = $this->loadFS()->getFileContent( $sSnap );
+		$sRaw = $this->loadFS()
+					 ->getFileContent( $sSnap );
 		if ( !empty( $sRaw ) ) {
 			$aDecoded = json_decode( base64_decode( $sRaw ), true );
 		}
@@ -113,33 +142,33 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 * @param string $sBaseName
 	 * @return string[]
 	 */
-	protected function snapshotPlugin( $sBaseName ) {
+	protected function hashPluginFiles( $sBaseName ) {
 
 		$sDir = dirname( path_join( WP_PLUGIN_DIR, $sBaseName ) );
 
-		$aSnaps = array();
-		foreach ( $this->loadFS()->getFilesInDir( $sDir ) as $oFile ) {
-			if ( $oFile->getExtension() == 'php' ) {
-				$aSnaps[ $oFile->getFilename() ] = md5_file( $oFile->getPathname() );
-			}
-		}
-
-		return $aSnaps;
+		return $this->hashFiles( $sDir );
 	}
 
 	/**
 	 * @param WP_Theme $oTheme
 	 * @return string[]
 	 */
-	protected function snapshotTheme( $oTheme ) {
+	protected function hashThemeFiles( $oTheme ) {
+		$sDir = $oTheme->get_stylesheet_directory();
+		return $this->hashFiles( $sDir );
+	}
 
+	/**
+	 * @param string $sDir
+	 * @return string[]
+	 */
+	private function hashFiles( $sDir ) {
 		$aSnaps = array();
-		foreach ( $this->loadFS()->getFilesInDir( $oTheme->get_stylesheet_directory() ) as $oFile ) {
+		foreach ( $this->loadFS()->getFilesInDir( $sDir ) as $oFile ) {
 			if ( $oFile->getExtension() == 'php' ) {
 				$aSnaps[ $oFile->getFilename() ] = md5_file( $oFile->getPathname() );
 			}
 		}
-
 		return $aSnaps;
 	}
 
