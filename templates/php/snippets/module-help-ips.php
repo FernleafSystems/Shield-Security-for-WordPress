@@ -33,7 +33,7 @@
 	<dt>What does it really mean if an IP Address is on the White List?</dt>
 	<dd>
 		<p>Any visitor accessing this site while their IP address is on the white list will not be subject to ANY
-		   processing by the Shield Security plugin.</p>
+		   processing by the <?php echo $sPluginName; ?> plugin.</p>
 		<p>That includes absolutely everything. Shield will completely ignore that visitor.</p>
 		<p>Note: This also includes renaming of the login page URL. Remember: absolutely everything.</p>
 	</dd>

@@ -232,7 +232,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'option_help'      => _wpsf__( 'Help For Each Option' ),
 						),
 						'captions' => array(
-							'how_shield_works' => _wpsf__( "You'll find the main Shield Security setting in the left-hand WordPress menu." ),
+							'how_shield_works' => sprintf( _wpsf__( "You'll find the main %s settings in the left-hand WordPress menu." ), $oConn->getHumanName() ),
 							'modules'          => _wpsf__( 'Shield is split up into independent modules for accessing the options of each feature.' ),
 							'options'          => _wpsf__( 'When you load a module, you can access the options by clicking on the Options Panel link.' ),
 							'help'             => _wpsf__( 'Each module also has a brief overview help section - there is more in-depth help available.' ),
