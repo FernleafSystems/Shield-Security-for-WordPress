@@ -243,13 +243,13 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 			// 2nd: Identify live files that exist but not in the cache.
 			$aUnrecog = array_diff_key( $aLiveHashes, $aSnap[ 'hashes' ] );
 			if ( !empty( $aUnrecog ) ) {
-				$aUnrecognised[ $sBaseName ] = $aUnrecog;
+				$aUnrecognised[ $sBaseName ] = array_keys( $aUnrecog ); // just filenames
 			}
 
 			// 3rd: Identify files in the cache but have disappeared from live
 			$aMiss = array_diff_key( $aSnap[ 'hashes' ], $aLiveHashes );
 			if ( !empty( $aUnrecog ) ) {
-				$aMissing[ $sBaseName ] = $aMiss;
+				$aMissing[ $sBaseName ] = array_keys( $aMiss ); // just filenames
 			}
 		}
 
