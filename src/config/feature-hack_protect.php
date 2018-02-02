@@ -41,6 +41,15 @@
       ]
     },
     {
+      "slug": "section_integrity_checking",
+      "title": "Integrity Checks",
+      "title_short": "Integrity Checks",
+      "summary": [
+        "Purpose - Monitor for unrecognised changes to your system.",
+        "Recommendation - Enable these to automatically recover from unauthorized changes to your WordPress site."
+      ]
+    },
+    {
       "slug":        "section_enable_plugin_feature_hack_protection_tools",
       "title":       "Enable Plugin Feature: Hack Protection",
       "title_short": "Disable Module",
@@ -256,6 +265,35 @@
       "name":        "File Exclusions",
       "summary":     "Provide A List Of Files To Be Excluded From The Scan",
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
+    },
+    {
+      "key": "ic_enabled",
+      "section": "section_integrity_checking",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable Integrity Checking Scan",
+      "summary": "Scans For Critical Changes Made To Your WordPress Site",
+      "description": "Detects changes made to your WordPress site outside of WordPress."
+    },
+    {
+      "key": "ic_users",
+      "section": "section_integrity_checking",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Monitor User Accounts",
+      "summary": "Scans For Critical Changes Made To User Accounts",
+      "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
+    },
+    {
+      "key": "snapshot_users",
+      "transferable": false,
+      "sensitive": true,
+      "section": "section_non_ui",
+      "value": []
     },
     {
       "key":          "wpvuln_notified_ids",
