@@ -143,9 +143,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 * @return string[]
 	 */
 	protected function hashPluginFiles( $sBaseName ) {
-
 		$sDir = dirname( path_join( WP_PLUGIN_DIR, $sBaseName ) );
-
 		return $this->hashFiles( $sDir );
 	}
 
@@ -176,6 +174,48 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 * Cron callback
 	 */
 	public function cron_runLockerScan() {
+		$this->scanPlugins();
+	}
+
+	protected function scanPlugins() {
+
+		$aDifferences = array();
+		$aUnrecognised = array();
+		$aMissing = array();
+
+		$aSnaps = $this->loadSnapshot( 'plugins' );
+		foreach ( $aSnaps as $sBaseName => $aSnap ) {
+
+			// First find the difference between live hashes and cached.
+			$aLiveHashes = $this->hashPluginFiles( $sBaseName );
+			$aDifferent = array();
+			foreach ( $aSnap[ 'hashes' ] as $sFile => $sHash ) {
+				if ( $aLiveHashes[ $sFile ] != $sHash ) {
+					$aDifferent[] = $sFile;
+				}
+			}
+			if ( !empty( $aDifferent ) ) {
+				$aDifferences[ $sBaseName ] = $aDifferent;
+			}
+
+			// 2nd: Identify live files that exist but not in the cache.
+			$aUnrecog = array_diff_key( $aLiveHashes, $aSnap[ 'hashes' ] );
+			if ( !empty( $aUnrecog ) ) {
+				$aUnrecognised[ $sBaseName ] = $aUnrecog;
+			}
+
+			// 3rd: Identify files in the cache but have disappeared from live
+			$aMiss = array_diff_key( $aSnap[ 'hashes' ], $aLiveHashes );
+			if ( !empty( $aUnrecog ) ) {
+				$aMissing[ $sBaseName ] = $aMiss;
+			}
+		}
+
+		return array(
+			'different'    => $aDifferences,
+			'unrecognised' => $aUnrecognised,
+			'missing'      => $aMissing,
+		);
 	}
 
 	/**
