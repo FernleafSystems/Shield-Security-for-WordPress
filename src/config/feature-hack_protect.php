@@ -268,7 +268,7 @@
     },
     {
       "key": "ic_enabled",
-      "section": "section_integrity_checking",
+      "section": "section_non_ui",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -279,7 +279,7 @@
     },
     {
       "key": "ic_users",
-      "section": "section_integrity_checking",
+      "section": "section_non_ui",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
