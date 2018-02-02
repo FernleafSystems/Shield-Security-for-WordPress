@@ -21,6 +21,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 
 	protected function setupSnapshots() {
 		$this->snapshotPlugins();
+		$this->snapshotThemes();
 	}
 
 	/**
@@ -43,7 +44,40 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 			);
 		}
 
-		$this->storeSnapshot( $aSnapshot );
+		$this->storeSnapshot( $aSnapshot, 'plugins' );
+		return $this;
+	}
+
+	/**
+	 * Guarded: Only ever snapshots when option is enabled.
+	 * @return $this
+	 */
+	private function snapshotThemes() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oWpThemes = $this->loadWpThemes();
+
+		$oActiveTheme = $oWpThemes->getCurrent();
+		$aThemes = array(
+			$oActiveTheme->get_stylesheet() => $oActiveTheme
+		);
+
+		if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
+			$oParent = $oWpThemes->getCurrentParent();
+			$aThemes[ $oActiveTheme->get_template() ] = $oParent;
+		}
+
+		$aSnapshot = array();
+		/** @var $oTheme WP_Theme */
+		foreach ( $aThemes as $sSlug => $oTheme ) {
+			$aSnapshot[ $sSlug ] = array(
+				'version' => $oTheme->get( 'Version' ),
+				'ts'      => $this->loadDP()->time(),
+				'hashes'  => $this->snapshotTheme( $oTheme )
+			);
+		}
+
+		$this->storeSnapshot( $aSnapshot, 'themes' );
 		return $this;
 	}
 
@@ -85,6 +119,22 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 
 		$aSnaps = array();
 		foreach ( $this->loadFS()->getFilesInDir( $sDir ) as $oFile ) {
+			if ( $oFile->getExtension() == 'php' ) {
+				$aSnaps[ $oFile->getFilename() ] = md5_file( $oFile->getPathname() );
+			}
+		}
+
+		return $aSnaps;
+	}
+
+	/**
+	 * @param WP_Theme $oTheme
+	 * @return string[]
+	 */
+	protected function snapshotTheme( $oTheme ) {
+
+		$aSnaps = array();
+		foreach ( $this->loadFS()->getFilesInDir( $oTheme->get_stylesheet_directory() ) as $oFile ) {
 			if ( $oFile->getExtension() == 'php' ) {
 				$aSnaps[ $oFile->getFilename() ] = md5_file( $oFile->getPathname() );
 			}

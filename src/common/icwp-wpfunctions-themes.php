@@ -181,6 +181,22 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return null|WP_Theme
+	 */
+	public function getCurrentParent() {
+		$oTheme = $this->getCurrent();
+		return $this->isActiveThemeAChild() ? $this->getTheme( $oTheme->get_template() ) : null;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isActiveThemeAChild() {
+		$oTheme = $this->getCurrent();
+		return ( $oTheme->get_stylesheet() != $oTheme->get_template() );
+	}
+
+	/**
 	 * @return boolean|null
 	 */
 	protected function checkForUpdates() {
