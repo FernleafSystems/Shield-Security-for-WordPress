@@ -99,7 +99,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 			$aSnapshot[ $sSlug ] = array(
 				'version' => $oTheme->get( 'Version' ),
 				'ts'      => $this->loadDP()->time(),
-				'hashes'  => $this->hashThemeFiles( $oTheme )
+				'hashes'  => $this->hashThemeFiles( $sSlug )
 			);
 		}
 		$this->storeSnapshot( $aSnapshot, 'themes' );
@@ -139,28 +139,51 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	}
 
 	/**
-	 * @param string $sBaseName
+	 * @param string $sSlugBaseName
 	 * @return string[]
 	 */
-	protected function hashPluginFiles( $sBaseName ) {
-		$sDir = dirname( path_join( WP_PLUGIN_DIR, $sBaseName ) );
-		return $this->hashFiles( $sDir );
+	protected function hashPluginFiles( $sSlugBaseName ) {
+		$sDir = dirname( path_join( WP_PLUGIN_DIR, $sSlugBaseName ) );
+		return $this->hashFilesInDir( $sDir );
 	}
 
 	/**
-	 * @param WP_Theme $oTheme
+	 * @param string $sSlugStylesheet
 	 * @return string[]
 	 */
-	protected function hashThemeFiles( $oTheme ) {
-		$sDir = $oTheme->get_stylesheet_directory();
-		return $this->hashFiles( $sDir );
+	protected function hashThemeFiles( $sSlugStylesheet ) {
+		$sDir = $this->loadWpThemes()
+					 ->getTheme( $sSlugStylesheet )
+					 ->get_stylesheet_directory();
+		return $this->hashFilesInDir( $sDir );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @param string $sContext
+	 * @return string[]
+	 */
+	protected function hashFiles( $sSlug, $sContext = 'plugins' ) {
+		switch ( $sContext ) {
+			case 'plugins':
+				return $this->hashPluginFiles( $sSlug );
+				break;
+
+			case 'themes':
+				return $this->hashThemeFiles( $sSlug );
+				break;
+
+			default:
+				return array();
+				break;
+		}
 	}
 
 	/**
 	 * @param string $sDir
 	 * @return string[]
 	 */
-	private function hashFiles( $sDir ) {
+	private function hashFilesInDir( $sDir ) {
 		$aSnaps = array();
 		foreach ( $this->loadFS()->getFilesInDir( $sDir ) as $oFile ) {
 			if ( $oFile->getExtension() == 'php' ) {
@@ -175,19 +198,38 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	public function cron_runLockerScan() {
 		$this->scanPlugins();
+		$this->scanThemes();
 	}
 
+	/**
+	 * @return array[]
+	 */
 	protected function scanPlugins() {
+		return $this->runSnapshotScan( 'plugins' );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function scanThemes() {
+		return $this->runSnapshotScan( 'plugins' );
+	}
+
+	/**
+	 * @param string $sContext
+	 * @return array[]
+	 */
+	protected function runSnapshotScan( $sContext = 'plugins' ) {
 
 		$aDifferences = array();
 		$aUnrecognised = array();
 		$aMissing = array();
 
-		$aSnaps = $this->loadSnapshot( 'plugins' );
+		$aSnaps = $this->loadSnapshot( $sContext );
 		foreach ( $aSnaps as $sBaseName => $aSnap ) {
 
 			// First find the difference between live hashes and cached.
-			$aLiveHashes = $this->hashPluginFiles( $sBaseName );
+			$aLiveHashes = $this->hashFiles( $sBaseName, $sContext );
 			$aDifferent = array();
 			foreach ( $aSnap[ 'hashes' ] as $sFile => $sHash ) {
 				if ( $aLiveHashes[ $sFile ] != $sHash ) {
