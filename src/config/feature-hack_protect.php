@@ -32,6 +32,15 @@
       ]
     },
     {
+      "slug":        "section_pluginthemes_locker",
+      "title":       "Plugins/Themes Locker",
+      "title_short": "Plugins/Themes Locker",
+      "summary":     [
+        "Purpose - Detect malicious changes to your themes and plugins.",
+        "Recommendation - Keep the Plugins/Theme Locker feature turned on."
+      ]
+    },
+    {
       "slug":        "section_wpvuln_scan",
       "title":       "Vulnerability Scanner",
       "title_short": "Vulnerability Scanner",
@@ -289,6 +298,17 @@
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
+      "key": "ptl_enable",
+      "section": "section_pluginthemes_locker",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable/Disable Locker",
+      "summary": "Enable The Locker For Plugin And Theme Files",
+      "description": "When enabled the Locker will automatically scan for changes to your Plugin and Theme files."
+    },
+    {
       "key": "snapshot_users",
       "transferable": false,
       "sensitive": true,
@@ -308,6 +328,7 @@
     "wpvulnscan_cron_name":                 "wpvulnscan-notification",
     "corechecksum_cron_name":               "core-checksum-notification",
     "unrecognisedscan_cron_name":           "unrecognised-scan-notification",
+    "ptl_cronname":          				"cron-pluginthemeslocker",
     "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",

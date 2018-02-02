@@ -298,6 +298,20 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getPtlCronName() {
+		return $this->prefixOptionKey( $this->getDef( 'ptl_cronname' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtlEnabled() {
+		return $this->getOptIs( 'ptl_enable', 'Y' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -351,6 +365,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Unrecognised Files Scanner' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
+				break;
+
+			case 'section_pluginthemes_locker' :
+				$sTitle = _wpsf__( 'Plugins/Themes Locker' );
+				$sTitleShort = _wpsf__( 'Plugins/Themes Locker' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep the Plugins/Theme Locker feature turned on.' ) )
+				);
 				break;
 
 			case 'section_integrity_checking' :
@@ -464,6 +487,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'This option may cause critial problem with 3rd party plugins that manage user accounts.' ) );
+				break;
+
+			case 'ptl_enable' :
+				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Locker' ) );
+				$sSummary = _wpsf__( 'Enable The Locker For Plugin And Theme Files' );
+				$sDescription = _wpsf__( 'When enabled the Locker will automatically scan for changes to your Plugin and Theme files.' );
 				break;
 
 			default:

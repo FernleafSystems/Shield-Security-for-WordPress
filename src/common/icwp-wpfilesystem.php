@@ -67,69 +67,60 @@ class ICWP_WPSF_WpFilesystem {
 			$sNeedle = strtolower( $sNeedle );
 		}
 
+		//if the file you're searching for doesn't have an extension, then we don't include extensions in search
+		$nDotPosition = strpos( $sNeedle, '.' );
+		$bHasExtension = $nDotPosition !== false;
+		$bIncludeExtension = $bIncludeExtension && $bHasExtension;
+
+		$sNeedlePreExtension = $bHasExtension ? substr( $sNeedle, 0, $nDotPosition ) : $sNeedle;
+
+		$bFound = false;
+		foreach ( $this->getFilesInDir( $sDir ) as $oFileItem ) {
+
+			$sFilename = $oFileItem->getFilename();
+			if ( !$bCaseSensitive ) {
+				$sFilename = strtolower( $sFilename );
+			}
+
+			if ( $bIncludeExtension ) {
+				$bFound = ( $sFilename == $sNeedle );
+			}
+			else {
+				// This is not entirely accurate as it only finds whether a file "starts" with needle, ignoring subsequent characters
+				$bFound = ( strpos( $sFilename, $sNeedlePreExtension ) === 0 );
+			}
+
+			if ( $bFound ) {
+				break;
+			}
+		}
+
+		return $bFound;
+	}
+
+	/**
+	 * Not recursive; return only files (no folders); ignores dots;
+	 * @param string $sDir
+	 * @return DirectoryIterator[]
+	 */
+	public function getFilesInDir( $sDir ) {
+		$aList = array();
 		$oDirIt = null;
-		$bUseDirectoryIterator = class_exists( 'DirectoryIterator', false );
-		if ( $bUseDirectoryIterator ) {
+
+		if ( class_exists( 'DirectoryIterator', false ) ) {
 			try {
 				$oDirIt = new DirectoryIterator( $sDir );
+				foreach ( $oDirIt as $oFile ) {
+					if ( $oFile->isFile() && !$oFile->isDot() ) {
+						$aList[] = clone $oFile;
+					}
+				}
 			}
 			catch ( Exception $oE ) { //  UnexpectedValueException, RuntimeException, Exception
-				$bUseDirectoryIterator = false; // Path doesn't exist or don't have access to open
 			}
 		}
 
-		if ( $bUseDirectoryIterator && $oDirIt ) {
-
-			//if the file you're searching for doesn't have an extension, then we don't include extensions in search
-			$nDotPosition = strpos( $sNeedle, '.' );
-			$bHasExtension = $nDotPosition !== false;
-			$bIncludeExtension = $bIncludeExtension && $bHasExtension;
-
-			$sNeedlePreExtension = $bHasExtension ? substr( $sNeedle, 0, $nDotPosition ) : $sNeedle;
-
-			$bFound = false;
-			foreach ( $oDirIt as $oFileItem ) {
-				if ( !$oFileItem->isFile() ) {
-					continue;
-				}
-				$sFilename = $oFileItem->getFilename();
-				if ( !$bCaseSensitive ) {
-					$sFilename = strtolower( $sFilename );
-				}
-
-				if ( $bIncludeExtension ) {
-					$bFound = ( $sFilename == $sNeedle );
-				}
-				else {
-					// This is not entirely accurate as it only finds whether a file "starts" with needle, ignoring subsequent characters
-					$bFound = ( strpos( $sFilename, $sNeedlePreExtension ) === 0 );
-				}
-
-				if ( $bFound ) {
-					break;
-				}
-			}
-
-			return $bFound;
-		}
-
-		if ( $bCaseSensitive ) {
-			return $this->exists( $this->pathJoin( $sDir, $sNeedle ) );
-		}
-		$sNeedle = strtolower( $sNeedle );
-		if ( $oHandle = opendir( $sDir ) ) {
-
-			while ( false !== ( $sFileEntry = readdir( $oHandle ) ) ) {
-				if ( !$this->isFile( $this->pathJoin( $sDir, $sFileEntry ) ) ) {
-					continue;
-				}
-				if ( $sNeedle == strtolower( $sFileEntry ) ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return $aList;
 	}
 
 	/**
