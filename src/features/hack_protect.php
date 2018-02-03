@@ -315,7 +315,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getPtgDepth() {
-		return 2;// $this->getOpt( 'ptg_depth' );
+		return $this->getOpt( 'ptg_depth' );
 	}
 
 	/**
