@@ -13,7 +13,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var array
 	 */
-	protected $aOldValues;
+	protected $aOld;
 
 	/**
 	 * @var array
@@ -335,7 +335,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	public function getOldValue( $sKey ) {
-		return is_array( $this->aOldValues ) && isset( $this->aOldValues[ $sKey ] ) ? $sKey : null;
+		return $this->isOptChanged( $sKey ) ? $this->aOld[ $sKey ] : null;
 	}
 
 	/**
@@ -540,6 +540,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function isOptChanged( $sKey ) {
+		return is_array( $this->aOld ) && isset( $this->aOld[ $sKey ] );
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @return bool true if premium is set and true, false otherwise.
 	 */
@@ -657,7 +665,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 					return $this->resetOptToDefault( $sOptionKey );
 				}
 			}
-			$this->setOldValue( $sOptionKey, $mCurrent );
+			$this->setOldOptValue( $sOptionKey, $mCurrent );
 			$this->aOptionsValues[ $sOptionKey ] = $mValue;
 		}
 		return true;
@@ -668,12 +676,12 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @param mixed  $mValue
 	 * @return $this
 	 */
-	private function setOldValue( $sOptionKey, $mValue ) {
-		if ( !is_array( $this->aOldValues ) ) {
-			$this->aOldValues = array();
+	private function setOldOptValue( $sOptionKey, $mValue ) {
+		if ( !is_array( $this->aOld ) ) {
+			$this->aOld = array();
 		}
-		if ( !isset( $this->aOldValues[ $sOptionKey ] ) ) {
-			$this->aOldValues[ $sOptionKey ] = $mValue;
+		if ( !isset( $this->aOld[ $sOptionKey ] ) ) {
+			$this->aOld[ $sOptionKey ] = $mValue;
 		}
 		return $this;
 	}
