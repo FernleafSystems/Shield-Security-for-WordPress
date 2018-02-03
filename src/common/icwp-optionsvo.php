@@ -13,6 +13,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var array
 	 */
+	protected $aOldValues;
+
+	/**
+	 * @var array
+	 */
 	protected $aRawOptionsConfigData;
 
 	/**
@@ -323,6 +328,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getNeedSave() {
 		return $this->bNeedSave;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return mixed|null
+	 */
+	public function getOldValue( $sKey ) {
+		return is_array( $this->aOldValues ) && isset( $this->aOldValues[ $sKey ] ) ? $sKey : null;
 	}
 
 	/**
@@ -644,9 +657,25 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 					return $this->resetOptToDefault( $sOptionKey );
 				}
 			}
+			$this->setOldValue( $sOptionKey, $mCurrent );
 			$this->aOptionsValues[ $sOptionKey ] = $mValue;
 		}
 		return true;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	private function setOldValue( $sOptionKey, $mValue ) {
+		if ( !is_array( $this->aOldValues ) ) {
+			$this->aOldValues = array();
+		}
+		if ( !isset( $this->aOldValues[ $sOptionKey ] ) ) {
+			$this->aOldValues[ $sOptionKey ] = $mValue;
+		}
+		return $this;
 	}
 
 	/**
