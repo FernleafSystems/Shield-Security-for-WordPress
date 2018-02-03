@@ -12,10 +12,9 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	public function run() {
 		parent::run();
-		$aR = $this->scanPlugins();
-
-		var_dump( $aR );
+		$this->snapshotPlugins();
 		die();
+
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 	}
@@ -76,6 +75,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
 			$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
 		}
+		var_dump( $aSnapshot );
 		$this->storeSnapshot( $aSnapshot, 'plugins' );
 
 		return $this;
@@ -189,12 +189,22 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	private function hashFilesInDir( $sDir ) {
 		$aSnaps = array();
-		foreach ( $this->loadFS()->getFilesInDir( $sDir ) as $oFile ) {
-			if ( $oFile->getExtension() == 'php' ) {
-				$aSnaps[ $oFile->getFilename() ] = md5_file( $oFile->getPathname() );
-			}
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$nDepth = $oFO->getPtgDepth();
+		foreach ( $this->loadFS()->getFilesInDir( $sDir, $nDepth, $this->getIterator( $sDir ) ) as $oFile ) {
+			$aSnaps[ $oFile->getRealPath() ] = md5_file( $oFile->getPathname() );
 		}
 		return $aSnaps;
+	}
+
+	/**
+	 * @param string $sDir
+	 * @return GuardRecursiveFilterIterator
+	 */
+	private function getIterator( $sDir ) {
+		return new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
 	}
 
 	/**
@@ -208,14 +218,14 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	/**
 	 * @return array[]
 	 */
-	protected function scanPlugins() {
+	public function scanPlugins() {
 		return $this->runSnapshotScan( 'plugins' );
 	}
 
 	/**
 	 * @return array[]
 	 */
-	protected function scanThemes() {
+	public function scanThemes() {
 		return $this->runSnapshotScan( 'plugins' );
 	}
 
@@ -294,5 +304,20 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	private function getSnapsBaseDir() {
 		return path_join( WP_CONTENT_DIR, 'shield/locker' );
+	}
+}
+
+class GuardRecursiveFilterIterator extends RecursiveFilterIterator {
+
+	public function accept() {
+		/** @var SplFileInfo $oCurrent */
+		$oCurrent = $this->current();
+
+		$bConsumeFile = !in_array( $oCurrent->getFilename(), array( '.', '..' ) );
+		if ( $bConsumeFile && $oCurrent->isFile() ) {
+			$bConsumeFile = in_array( $oCurrent->getExtension(), array( 'php' ) );
+		}
+
+		return $bConsumeFile;
 	}
 }

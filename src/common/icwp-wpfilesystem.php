@@ -99,25 +99,29 @@ class ICWP_WPSF_WpFilesystem {
 	}
 
 	/**
-	 * Not recursive; return only files (no folders); ignores dots;
-	 * @param string $sDir
-	 * @return DirectoryIterator[]
+	 * @param string                     $sDir
+	 * @param int                        $nMaxDepth - set to zero for no max
+	 * @param RecursiveDirectoryIterator $oDirIterator
+	 * @return SplFileInfo[]
 	 */
-	public function getFilesInDir( $sDir ) {
+	public function getFilesInDir( $sDir, $nMaxDepth = 1, $oDirIterator = null ) {
 		$aList = array();
-		$oDirIt = null;
 
-		if ( class_exists( 'DirectoryIterator', false ) ) {
-			try {
-				$oDirIt = new DirectoryIterator( $sDir );
-				foreach ( $oDirIt as $oFile ) {
-					if ( $oFile->isFile() && !$oFile->isDot() ) {
-						$aList[] = clone $oFile;
-					}
-				}
+		try {
+			if ( empty( $oDirIterator ) ) {
+				$oDirIterator = new RecursiveDirectoryIterator( $sDir );
+				$oDirIterator->setFlags( RecursiveDirectoryIterator::SKIP_DOTS );
 			}
-			catch ( Exception $oE ) { //  UnexpectedValueException, RuntimeException, Exception
+
+			$oRecurIter = new RecursiveIteratorIterator( $oDirIterator );
+			$oRecurIter->setMaxDepth( $nMaxDepth - 1 ); //since they start at zero.
+
+			/** @var SplFileInfo $oFile */
+			foreach ( $oRecurIter as $oFile ) {
+				$aList[] = clone $oFile;
 			}
+		}
+		catch ( Exception $oE ) { //  UnexpectedValueException, RuntimeException, Exception
 		}
 
 		return $aList;

@@ -32,7 +32,7 @@
       ]
     },
     {
-      "slug":        "section_pluginthemes_locker",
+      "slug":        "section_pluginthemes_guard",
       "title":       "Plugins/Themes Locker",
       "title_short": "Plugins/Themes Locker",
       "summary":     [
@@ -298,8 +298,8 @@
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
-      "key": "ptl_enable",
-      "section": "section_pluginthemes_locker",
+      "key": "ptg_enable",
+      "section": "section_pluginthemes_guard",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -307,6 +307,17 @@
       "name": "Enable/Disable Locker",
       "summary": "Enable The Locker For Plugin And Theme Files",
       "description": "When enabled the Locker will automatically scan for changes to your Plugin and Theme files."
+    },
+    {
+      "key": "ptg_depth",
+      "section": "section_pluginthemes_guard",
+      "default": 1,
+      "type": "integer",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Guard/Scan Depth",
+      "summary": "How Deep Into The Plugin Directories To Scan And Guard",
+      "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
     },
     {
       "key": "snapshot_users",

@@ -307,8 +307,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isPtlEnabled() {
-		return $this->getOptIs( 'ptl_enable', 'Y' );
+	public function isPtgEnabled() {
+		return $this->getOptIs( 'ptg_enable', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getPtgDepth() {
+		return 2;// $this->getOpt( 'ptg_depth' );
 	}
 
 	/**
@@ -367,7 +374,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
 				break;
 
-			case 'section_pluginthemes_locker' :
+			case 'section_pluginthemes_guard' :
 				$sTitle = _wpsf__( 'Plugins/Themes Locker' );
 				$sTitleShort = _wpsf__( 'Plugins/Themes Locker' );
 				$aSummary = array(
@@ -489,10 +496,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'This option may cause critial problem with 3rd party plugins that manage user accounts.' ) );
 				break;
 
-			case 'ptl_enable' :
+			case 'ptg_enable' :
 				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Locker' ) );
 				$sSummary = _wpsf__( 'Enable The Locker For Plugin And Theme Files' );
 				$sDescription = _wpsf__( 'When enabled the Locker will automatically scan for changes to your Plugin and Theme files.' );
+				break;
+
+			case 'ptg_depth' :
+				$sName = _wpsf__( 'Guard/Scan Depth' );
+				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
+				$sDescription = _wpsf__( 'The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times..' );
 				break;
 
 			default:

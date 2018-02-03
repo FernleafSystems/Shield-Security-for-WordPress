@@ -35,7 +35,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isIcEnabled() ) {
 			$this->getSubProcessorIntegrity()->run();
 		}
-		if ( $oFO->isPtlEnabled() ) {
+		if ( $oFO->isPtgEnabled() ) {
 			$this->runLocker();
 		}
 	}
