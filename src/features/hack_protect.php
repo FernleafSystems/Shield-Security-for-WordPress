@@ -15,16 +15,32 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-		$this->clearIcSnapshots();
-		$this->clearCrons();
-		$this->cleanFileExclusions();
+
+		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+
+			$this->clearIcSnapshots();
+			$this->clearCrons();
+			$this->cleanFileExclusions();
+
+			/** @var ICWP_WPSF_Processor_HackProtect $oP */
+			$oP = $this->getProcessor();
+			$oGuardLocker = $oP->getSubProcessorGuardLocker();
+			$oOpts = $this->getOptionsVo();
+			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) ) {
+				$oGuardLocker->deleteStores();
+				$oP->getSubProcessorGuardLocker()
+				   ->deleteStores();
+				$this->setPtgLastBuildAt( 0 );
+			}
+		}
 	}
 
 	protected function clearCrons() {
 		$aCrons = array(
 			$this->getIcCronName(),
 			$this->getUfcCronName(),
-			$this->getWcfCronName()
+			$this->getWcfCronName(),
+			$this->getPtgCronName()
 		);
 		$oCron = $this->loadWpCronProcessor();
 		foreach ( $aCrons as $sCron ) {
@@ -300,8 +316,29 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function getPtlCronName() {
+	public function getPtgCronName() {
 		return $this->prefixOptionKey( $this->getDef( 'ptl_cronname' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getPtgDepth() {
+		return $this->getOpt( 'ptg_depth' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgBuildRequired() {
+		return $this->isPtgEnabled() && ( $this->getPtgLastBuildAt() == 0 );
 	}
 
 	/**
@@ -314,8 +351,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function getPtgDepth() {
-		return $this->getOpt( 'ptg_depth' );
+	public function isPtgReadyToScan() {
+		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
+	}
+
+	/**
+	 * @param int $nTime
+	 * @return $this
+	 */
+	public function setPtgLastBuildAt( $nTime = null ) {
+		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
 	}
 
 	/**
@@ -505,7 +550,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			case 'ptg_depth' :
 				$sName = _wpsf__( 'Guard/Scan Depth' );
 				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
-				$sDescription = _wpsf__( 'The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times..' );
+				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' );
 				break;
 
 			default:

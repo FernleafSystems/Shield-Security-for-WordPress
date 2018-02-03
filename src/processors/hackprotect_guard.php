@@ -1,22 +1,53 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Locker' ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_GuardLocker' ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/cronbase.php' );
 
-class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBase {
+class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_CronBase {
 
 	/**
 	 */
 	public function run() {
 		parent::run();
-
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
+		if ( $oFO->isPtgReadyToScan() ) {
+			add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
+			add_action( 'activated_plugin', array( $this, 'onActivatePlugin' ), 10 );
+			add_action( 'deactivated_plugin', array( $this, 'onDeactivatePlugin' ), 10 );
+			add_action( 'switch_theme', array( $this, 'onActivateTheme' ), 10, 0 );
+		}
+		else if ( $oFO->isPtgBuildRequired() ) {
+			$this->rebuildSnapshots(); // TODO: Consider if we can't write to disk - we do this forever.
+			if ( $this->storeExists( 'plugins' ) && $this->storeExists( 'themes' ) ) {
+				$oFO->setPtgLastBuildAt();
+			}
+		}
+	}
+
+	/**
+	 * @param string $sBaseName
+	 */
+	public function onActivatePlugin( $sBaseName ) {
+		$this->updateItemInSnapshot( $sBaseName, 'plugins' );
+	}
+
+	/**
+	 */
+	public function onActivateTheme() {
+		$this->deleteStore( 'themes' );
+		$this->snapshotThemes();
+	}
+
+	/**
+	 * @param string $sBaseName
+	 */
+	public function onDeactivatePlugin( $sBaseName ) {
+		$this->deleteItemFromSnapshot( $sBaseName, 'plugins' );
 	}
 
 	/**
@@ -64,9 +95,21 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		return $this->storeSnapshot( $aSnapshot, $sContext );
 	}
 
+	/**
+	 * @return $this
+	 */
+	public function rebuildSnapshots() {
+		return $this->deleteStores()
+					->setupSnapshots();
+	}
+
+	/**
+	 * @return $this
+	 */
 	protected function setupSnapshots() {
 		$this->snapshotPlugins();
 		$this->snapshotThemes();
+		return $this;
 	}
 
 	/**
@@ -136,6 +179,33 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		}
 		$this->storeSnapshot( $aSnapshot, 'themes' );
 
+		return $this;
+	}
+
+	/**
+	 * @param string $sContext
+	 * @return bool
+	 */
+	protected function storeExists( $sContext = 'plugins' ) {
+		return $this->loadFS()
+					->isFile( path_join( $this->getSnapsBaseDir(), $sContext.'.txt' ) );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function deleteStores() {
+		return $this->deleteStore( 'plugins' )
+					->deleteStore( 'themes' );
+	}
+
+	/**
+	 * @param string $sContext
+	 * @return $this
+	 */
+	public function deleteStore( $sContext = 'plugins' ) {
+		$this->loadFS()
+			 ->deleteDir( path_join( $this->getSnapsBaseDir(), $sContext.'.txt' ) );
 		return $this;
 	}
 
@@ -324,7 +394,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	protected function getCronName() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		return $oFO->getPtlCronName();
+		return $oFO->getPtgCronName();
 	}
 
 	/**

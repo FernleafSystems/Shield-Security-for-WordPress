@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	protected function runLocker() {
-		$this->getSubProcessorLocker()->run();
+		$this->getSubProcessorGuardLocker()->run();
 	}
 
 	/**
@@ -120,13 +120,13 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Locker
+	 * @return ICWP_WPSF_Processor_HackProtect_GuardLocker
 	 */
-	protected function getSubProcessorLocker() {
+	public function getSubProcessorGuardLocker() {
 		$oProc = $this->getSubProcessor( 'locker' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_guard.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_Locker( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_GuardLocker( $this->getFeature() );
 			$this->aSubProcessors[ 'locker' ] = $oProc;
 		}
 		return $oProc;

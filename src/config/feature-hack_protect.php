@@ -320,6 +320,12 @@
       "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
     },
     {
+      "key": "ptg_last_build_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
+    },
+    {
       "key": "snapshot_users",
       "transferable": false,
       "sensitive": true,
