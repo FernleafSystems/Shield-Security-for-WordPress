@@ -125,7 +125,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getSubProcessorLocker() {
 		$oProc = $this->getSubProcessor( 'locker' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_locker.php' );
+			require_once( dirname( __FILE__ ).'/hackprotect_guard.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_Locker( $this->getFeature() );
 			$this->aSubProcessors[ 'locker' ] = $oProc;
 		}

@@ -12,11 +12,25 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 */
 	public function run() {
 		parent::run();
-		$this->snapshotPlugins();
-		die();
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+
+		add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
+	}
+
+	/**
+	 * @param WP_Upgrader $oUpgrader
+	 * @param array       $aUpgradeInfo
+	 */
+	public function updateSnapshotAfterUpgrade( $oUpgrader, $aUpgradeInfo ) {
+
+		if ( !empty( $aUpgradeInfo[ 'plugin' ] ) ) {
+			$this->updateItemInSnapshot( $aUpgradeInfo[ 'plugin' ], 'plugins' );
+		}
+		else if ( !empty( $aUpgradeInfo[ 'theme' ] ) ) {
+			$this->updateItemInSnapshot( $aUpgradeInfo[ 'theme' ], 'themes' );
+		}
 	}
 
 	/**
@@ -25,7 +39,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 * @return $this
 	 */
 	public function deleteItemFromSnapshot( $sSlug, $sContext = 'plugins' ) {
-		$aSnapshot = $this->loadSnapshot( $sContext );
+		$aSnapshot = $this->loadSnapshotData( $sContext );
 		if ( isset( $aSnapshot[ $sSlug ] ) ) {
 			unset( $aSnapshot[ $sSlug ] );
 			$this->storeSnapshot( $aSnapshot, $sContext );
@@ -35,13 +49,18 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 
 	/**
 	 * @param string $sSlug - the basename for plugin, or stylesheet for theme.
-	 * @param array  $aData
 	 * @param string $sContext
 	 * @return $this
 	 */
-	public function updateItemInSnapshot( $sSlug, $aData, $sContext = 'plugins' ) {
-		$aSnapshot = $this->loadSnapshot( $sContext );
-		$aSnapshot[ $sSlug ] = $aData;
+	public function updateItemInSnapshot( $sSlug, $sContext = 'plugins' ) {
+		$aSnapshot = $this->loadSnapshotData( $sContext );
+		if ( $sContext == 'plugins' ) {
+			$aNewData = $this->snapshotPlugin( $sSlug );
+		}
+		else {
+			$aNewData = $this->snapshotTheme( $sSlug );
+		}
+		$aSnapshot[ $sSlug ] = $aNewData;
 		return $this->storeSnapshot( $aSnapshot, $sContext );
 	}
 
@@ -66,6 +85,20 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return array
+	 */
+	private function snapshotTheme( $sSlug ) {
+		$oTheme = $this->loadWpThemes()
+					   ->getTheme( $sSlug );
+		return array(
+			'version' => $oTheme->get( 'Version' ),
+			'ts'      => $this->loadDP()->time(),
+			'hashes'  => $this->hashThemeFiles( $sSlug )
+		);
+	}
+
+	/**
 	 * @return $this
 	 */
 	private function snapshotPlugins() {
@@ -75,7 +108,6 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
 			$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
 		}
-		var_dump( $aSnapshot );
 		$this->storeSnapshot( $aSnapshot, 'plugins' );
 
 		return $this;
@@ -100,11 +132,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		$aSnapshot = array();
 		/** @var $oTheme WP_Theme */
 		foreach ( $aThemes as $sSlug => $oTheme ) {
-			$aSnapshot[ $sSlug ] = array(
-				'version' => $oTheme->get( 'Version' ),
-				'ts'      => $this->loadDP()->time(),
-				'hashes'  => $this->hashThemeFiles( $sSlug )
-			);
+			$aSnapshot[ $sSlug ] = $this->snapshotTheme( $sSlug );
 		}
 		$this->storeSnapshot( $aSnapshot, 'themes' );
 
@@ -129,7 +157,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 	 * @param string $sContext
 	 * @return array
 	 */
-	private function loadSnapshot( $sContext = 'plugins' ) {
+	private function loadSnapshotData( $sContext = 'plugins' ) {
 		$aDecoded = array();
 
 		$sSnap = path_join( $this->getSnapsBaseDir(), $sContext.'.txt' );
@@ -239,7 +267,7 @@ class ICWP_WPSF_Processor_HackProtect_Locker extends ICWP_WPSF_Processor_CronBas
 		$aUnrecognised = array();
 		$aMissing = array();
 
-		$aSnaps = $this->loadSnapshot( $sContext );
+		$aSnaps = $this->loadSnapshotData( $sContext );
 		foreach ( $aSnaps as $sBaseName => $aSnap ) {
 
 			// First find the difference between live hashes and cached.
