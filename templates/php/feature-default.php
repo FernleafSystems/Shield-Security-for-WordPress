@@ -7,20 +7,20 @@
 <div id="IcwpCarouselOptions" class="icwp-carousel slide">
 	<div class="carousel-inner">
 
-    <div class="carousel-item active">
-		<div class="d-block w-100 content-options">
-		<?php echo $flags[ 'show_standard_options' ] ? $content[ 'options_form' ] : ''; ?>
-		<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
+		<div class="carousel-item active">
+			<div class="d-block w-100 content-options">
+			<?php echo $flags[ 'show_standard_options' ] ? $content[ 'options_form' ] : ''; ?>
+			<?php echo $flags[ 'show_alt_content' ] ? $content[ 'alt' ] : ''; ?>
+			</div>
 		</div>
-    </div>
 
-    <div class="carousel-item carousel-help">
-		<div class="d-block w-100"><?php echo $content[ 'help' ]; ?></div>
-    </div>
+		<div class="carousel-item carousel-help">
+			<div class="d-block w-100"><?php echo $content[ 'help' ]; ?></div>
+		</div>
 
-    <div class="carousel-item carousel-actions">
-		<div class="d-block w-100"><?php echo $content[ 'actions' ]; ?></div>
-    </div>
+		<div class="carousel-item carousel-actions">
+			<div class="d-block w-100"><?php echo $content[ 'actions' ]; ?></div>
+		</div>
 
   </div>
 </div>
@@ -65,18 +65,18 @@
 <!--					</a>-->
 <!--				</li>-->
 <!--			--><?php //endif; ?>
-<!--			--><?php //if ( $flags[ 'has_wizard' ] ) : ?>
-<!--				--><?php //if ( $flags[ 'can_wizard' ] ) : ?>
-<!--					<li id="icwpWizardPill">-->
-<!--						<a href="--><?php //echo $hrefs[ 'wizard_link' ]; ?><!--"-->
-<!--						   title="Launch Guided Walk-Through Wizards" target="_blank">&nbsp;</a>-->
-<!--					</li>-->
-<!--				--><?php //else: ?>
-<!--					<li id="icwpWizardPill">-->
-<!--						<a href="#" title="Wizards are not available as your PHP version is too old.">&nbsp;</a>-->
-<!--					</li>-->
-<!--				--><?php //endif; ?>
-<!--			--><?php //endif; ?>
+			<?php if ( $flags[ 'has_wizard' ] ) : ?>
+				<?php if ( $flags[ 'can_wizard' ] ) : ?>
+					<li id="icwpWizardPill">
+						<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>"
+						   title="Launch Guided Walk-Through Wizards" target="_blank">&nbsp;</a>
+					</li>
+				<?php else: ?>
+					<li id="icwpWizardPill">
+						<a href="#" title="Wizards are not available as your PHP version is too old.">&nbsp;</a>
+					</li>
+				<?php endif; ?>
+			<?php endif; ?>
 <!--		</ul>-->
 <!--		<div class="tab-content">-->
 <!--			<div class="tab-pane active" id="icwpPillOptions">-->
