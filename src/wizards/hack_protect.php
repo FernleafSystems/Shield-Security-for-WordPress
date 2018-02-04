@@ -322,8 +322,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		else if ( $sCurrentWiz == 'wcf' ) {
 
 			switch ( $sStep ) {
-				case 'scanresult_themes':
-				case 'scanresult_plugins':
+				case 'scanresult':
 					$aFiles = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
 					$aChecksum = $this->cleanAbsPath( $aFiles[ 'checksum_mismatch' ] );
 					$aMissing = $this->cleanAbsPath( $aFiles[ 'missing' ] );
@@ -350,6 +349,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		else if ( $sCurrentWiz == 'ptg' ) {
 
 			switch ( $sStep ) {
+				case 'scanresult_themes':
+					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'themes' );
+					break;
 				case 'scanresult_plugins':
 					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'plugins' );
 					break;
@@ -393,7 +395,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$aMissing = $aResults[ 'missing' ];
 
 		return array(
-			'result' => array(
+			'context_sing' => rtrim( ucfirst( $sContext ), 's' ),
+			'context'      => ucfirst( $sContext ),
+			'result'       => array(
 				'count'        => count( $aDifferent ) + count( $aUnrecog ) + count( $aMissing ),
 				'has'          => !empty( $aDifferent ) || !empty( $aUnrecog ) || !empty( $aMissing ),
 				'different'    => array(

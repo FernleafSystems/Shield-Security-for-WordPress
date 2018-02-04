@@ -2,15 +2,15 @@
 
 {% block slide_body %}
 
-	<h3>Plugin Guard Scan Results</h3>
-	<p>There are {{ data.result.count }} plugin(s) that need your attention.</p>
+	<h3>{{ data.context_sing }} Guard Scan Results</h3>
+	<p>There are {{ data.result.count }} {{ data.context }}(s) that need your attention.</p>
 
 	<h4>Modified Files</h4>
 	{% if data.result.different.has %}
 		<p>A total of {{ data.result.different.count }} file(s) were discovered.</p>
 		<div class="indent_slight">
 			{% for slug,filelist in data.result.different.list %}
-				<h4>Modified Files for Plugin: {{ slug }}</h4>
+				<h4>{{ data.context_sing }}: {{ slug }}</h4>
 				<ul>
 				{% for file in filelist %}
 					<li><code class="filepath">{{ file }}</code></li>
@@ -27,7 +27,7 @@
 		<p>A total of {{ data.result.missing.count }} file(s) were discovered to be be missing.</p>
 		<div class="indent_slight">
 			{% for slug,filelist in data.result.missing.list %}
-				<h4>Missing Files for Plugin: {{ slug }}</h4>
+				<h4>{{ data.context_sing }}: {{ slug }}</h4>
 				<ul>
 				{% for file in filelist %}
 					<li><code class="filepath">{{ file }}</code></li>
@@ -44,7 +44,7 @@
 		<p>A total of {{ data.result.missing.count }} unrecognised file(s) were discovered.</p>
 		<div class="indent_slight">
 			{% for slug,filelist in data.result.unrecognised.list %}
-				<h4>Unrecognised Files for Plugin: {{ slug }}</h4>
+				<h4>{{ data.context_sing }}: {{ slug }}</h4>
 				<ul>
 				{% for file in filelist %}
 					<li><code class="filepath">{{ file }}</code></li>
