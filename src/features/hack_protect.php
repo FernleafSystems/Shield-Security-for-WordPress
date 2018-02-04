@@ -550,7 +550,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			case 'ptg_depth' :
 				$sName = _wpsf__( 'Guard/Scan Depth' );
 				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
-				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' );
+				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
+								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit - not recommended' ), 0 );
 				break;
 
 			default:
