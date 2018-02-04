@@ -377,45 +377,21 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$oWpPlugins = $this->loadWpPlugins();
 		$oWpThemes = $this->loadWpThemes();
-		foreach ( $aResults as &$aResultSet ) {
-			foreach ( $aResultSet as $sSlug => $aItemResults ) {
-				if ( $sContext == 'plugins' ) {
-					$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
-				}
-				else {
-					$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
-				}
-				$aResultSet[ $sName ] = $aItemResults;
-				unset( $aResultSet[ $sSlug ] );
+		foreach ( $aResults as $sSlug => $aItemResultSet ) {
+			if ( $sContext == 'plugins' ) {
+				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
 			}
+			else {
+				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+			}
+			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );
+			unset( $aResults[ $sSlug ] );
 		}
-
-		$aDifferent = $aResults[ 'different' ];
-		$aUnrecog = $aResults[ 'unrecognised' ];
-		$aMissing = $aResults[ 'missing' ];
 
 		return array(
 			'context_sing' => rtrim( ucfirst( $sContext ), 's' ),
 			'context'      => ucfirst( $sContext ),
-			'result'       => array(
-				'count'        => count( $aDifferent ) + count( $aUnrecog ) + count( $aMissing ),
-				'has'          => !empty( $aDifferent ) || !empty( $aUnrecog ) || !empty( $aMissing ),
-				'different'    => array(
-					'count' => $this->count( $aDifferent ),
-					'has'   => !empty( $aDifferent ),
-					'list'  => $this->stripPaths( $aDifferent ),
-				),
-				'unrecognised' => array(
-					'count' => $this->count( $aUnrecog ),
-					'has'   => !empty( $aUnrecog ),
-					'list'  => $this->stripPaths( $aUnrecog ),
-				),
-				'missing'      => array(
-					'count' => $this->count( $aMissing ),
-					'has'   => !empty( $aMissing ),
-					'list'  => $this->stripPaths( $aMissing ),
-				),
-			)
+			'result'       => $aResults,
 		);
 	}
 

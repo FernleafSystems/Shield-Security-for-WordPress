@@ -3,61 +3,43 @@
 {% block slide_body %}
 
 	<h3>{{ data.context_sing }} Guard Scan Results</h3>
-	{% if not data.result.has %}
+	{% if data.result|length == 0 %}
 		<p>There were no files discovered that need your attention.</p>
 	{% else %}
-		<p>There are {{ data.result.count }} {{ data.context }}(s) that need your attention.</p>
+		<p>There are {{ data.result|length }} {{ data.context }}(s) that need your attention.</p>
 
-		<h4>Modified Files</h4>
-		{% if data.result.different.has %}
-			<p>A total of {{ data.result.different.count }} file(s) were discovered.</p>
-			<div class="indent_slight">
-			{% for slug,filelist in data.result.different.list %}
-				<h4>{{ data.context_sing }}: {{ slug }}</h4>
-				<ul>
-				{% for file in filelist %}
-					<li><code class="filepath">{{ file }}</code></li>
-				{% endfor %}
-				</ul>
-			{% endfor %}
-		</div>
-		{% else %}
-			<p>There were no modified files found.</p>
-		{% endif %}
+		{% for item_name,item_results in data.result %}
+			<h4>{{ data.context_sing }}: {{ item_name }}</h4>
 
-		<h4>Missing Files</h4>
-		{% if data.result.missing.has %}
-			<p>A total of {{ data.result.missing.count }} file(s) were discovered to be be missing.</p>
-			<div class="indent_slight">
-			{% for slug,filelist in data.result.missing.list %}
-				<h4>{{ data.context_sing }}: {{ slug }}</h4>
-				<ul>
-				{% for file in filelist %}
-					<li><code class="filepath">{{ file }}</code></li>
-				{% endfor %}
-				</ul>
-			{% endfor %}
-		</div>
-		{% else %}
-			<p>There were no files discovered to be missing.</p>
-		{% endif %}
+			{% if item_results.different is defined %}
+				<div class="indent_slight">
+					<h5>Modified Files: {{ item_results.different|length }}</h5>
+					{% for file in item_results.different %}
+						<li><code class="filepath">{{ file }}</code></li>
+					{% endfor %}
+				</div>
+			{% endif %}
 
-		<h4>Unrecognised Files</h4>
-		{% if data.result.unrecognised.has %}
-			<p>A total of {{ data.result.missing.count }} unrecognised file(s) were discovered.</p>
-			<div class="indent_slight">
-			{% for slug,filelist in data.result.unrecognised.list %}
-				<h4>{{ data.context_sing }}: {{ slug }}</h4>
-				<ul>
-				{% for file in filelist %}
-					<li><code class="filepath">{{ file }}</code></li>
-				{% endfor %}
-				</ul>
-			{% endfor %}
-		</div>
-		{% else %}
-			<p>There were no unrecognised files discovered.</p>
-		{% endif %}
+			{% if item_results.missing is defined %}
+				<div class="indent_slight">
+					<h5>Missing Files: {{ data.result.missing|length }}</h5>
+					{% for file in item_results.missing %}
+						<li><code class="filepath">{{ file }}</code></li>
+					{% endfor %}
+				</div>
+			{% endif %}
+
+			{% if item_results.unrecognised is defined %}
+				<div class="indent_slight">
+					<h5>Unrecognised Files: {{ data.result.unrecognised|length }}</h5>
+					{% for file in item_results.unrecognised %}
+						<li><code class="filepath">{{ file }}</code></li>
+					{% endfor %}
+				</div>
+			{% endif %}
+
+		{% endfor %}
+
 	{% endif %}
 
 {% endblock %}

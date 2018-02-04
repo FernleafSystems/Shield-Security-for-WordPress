@@ -324,14 +324,14 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
-	 * @return array[]
+	 * @return array[][]
 	 */
 	public function scanPlugins() {
 		return $this->runSnapshotScan( self::CONTEXT_PLUGINS );
 	}
 
 	/**
-	 * @return array[]
+	 * @return array[][]
 	 */
 	public function scanThemes() {
 		return $this->runSnapshotScan( self::CONTEXT_THEMES );
@@ -339,16 +339,15 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 
 	/**
 	 * @param string $sContext
-	 * @return array[]
+	 * @return array[][] - keys are slugs
 	 */
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 
-		$aDifferences = array();
-		$aUnrecognised = array();
-		$aMissing = array();
+		$aResults = array();
 
-		$aSnaps = $this->loadSnapshotData( $sContext );
-		foreach ( $aSnaps as $sBaseName => $aSnap ) {
+		foreach ( $this->loadSnapshotData( $sContext ) as $sBaseName => $aSnap ) {
+
+			$aItemResults = array();
 
 			// First find the difference between live hashes and cached.
 			$aLiveHashes = $this->hashFiles( $sBaseName, $sContext );
@@ -359,27 +358,27 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 				}
 			}
 			if ( !empty( $aDifferent ) ) {
-				$aDifferences[ $sBaseName ] = $aDifferent;
+				$aItemResults[ 'different' ] = $aDifferent;
 			}
 
 			// 2nd: Identify live files that exist but not in the cache.
 			$aUnrecog = array_diff_key( $aLiveHashes, $aSnap[ 'hashes' ] );
 			if ( !empty( $aUnrecog ) ) {
-				$aUnrecognised[ $sBaseName ] = array_keys( $aUnrecog ); // just filenames
+				$aItemResults[ 'unrecognised' ] = array_keys( $aUnrecog );
 			}
 
 			// 3rd: Identify files in the cache but have disappeared from live
 			$aMiss = array_diff_key( $aSnap[ 'hashes' ], $aLiveHashes );
 			if ( !empty( $aMiss ) ) {
-				$aMissing[ $sBaseName ] = array_keys( $aMiss ); // just filenames
+				$aItemResults[ 'missing' ] = array_keys( $aMiss );
+			}
+
+			if ( !empty( $aItemResults ) ) {
+				$aResults[ $sBaseName ] = $aItemResults;
 			}
 		}
 
-		return array(
-			'different'    => $aDifferences,
-			'unrecognised' => $aUnrecognised,
-			'missing'      => $aMissing,
-		);
+		return $aResults;
 	}
 
 	/**
