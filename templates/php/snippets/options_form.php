@@ -16,6 +16,14 @@
 								name="submit" style="margin-right: 12px">
 							<?php _wpsf_e( 'Save Settings' ); ?>
 						</button>
+						<?php if ( $flags[ 'has_wizard' ] ) : ?>
+							<?php if ( $flags[ 'can_wizard' ] ) : ?>
+								<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>" class="btn btn-outline-info"
+								   title="Launch Guided Walk-Through Wizards" target="_blank">Wizards</a>
+							<?php else: ?>
+								<a href="#" title="Wizards are not available as your PHP version is too old.">&nbsp;</a>
+							<?php endif; ?>
+						<?php endif; ?>
 
 						<div class="btn-group" role="group" aria-label="Basic example">
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}" aria-disabled="true"
