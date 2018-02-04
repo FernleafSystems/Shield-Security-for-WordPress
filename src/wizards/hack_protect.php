@@ -403,17 +403,17 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				'different'    => array(
 					'count' => $this->count( $aDifferent ),
 					'has'   => !empty( $aDifferent ),
-					'list'  => $aDifferent,
+					'list'  => $this->stripPaths( $aDifferent ),
 				),
 				'unrecognised' => array(
 					'count' => $this->count( $aUnrecog ),
 					'has'   => !empty( $aUnrecog ),
-					'list'  => $aUnrecog,
+					'list'  => $this->stripPaths( $aUnrecog ),
 				),
 				'missing'      => array(
 					'count' => $this->count( $aMissing ),
 					'has'   => !empty( $aMissing ),
-					'list'  => $aMissing,
+					'list'  => $this->stripPaths( $aMissing ),
 				),
 			)
 		);
@@ -429,6 +429,22 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$nCount += count( $aList );
 		}
 		return $nCount;
+	}
+
+	/**
+	 * @param array[] $aLists
+	 * @return array[]
+	 */
+	private function stripPaths( $aLists ) {
+		foreach ( $aLists as $sKey => $aList ) {
+			$aLists[ $sKey ] = array_map(
+				function ( $sPath ) {
+					return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+				},
+				$aList
+			);
+		}
+		return $aLists;
 	}
 
 	/**
