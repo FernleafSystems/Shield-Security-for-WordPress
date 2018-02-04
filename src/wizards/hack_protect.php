@@ -379,12 +379,15 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oWpThemes = $this->loadWpThemes();
 		foreach ( $aResults as $sSlug => $aItemResultSet ) {
 			if ( $sContext == 'plugins' ) {
+				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
 				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
 			}
 			else {
+				$bIsWpOrg = false;
 				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
 			}
 			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );
+			$aResults[ $sName ][ 'is_wporg' ] = $bIsWpOrg;
 			unset( $aResults[ $sSlug ] );
 		}
 

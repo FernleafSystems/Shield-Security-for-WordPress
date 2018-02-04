@@ -15,7 +15,6 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 */
 	public function run() {
 		parent::run();
-
 //		var_dump( $this->scanThemes() );
 //		die();
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
