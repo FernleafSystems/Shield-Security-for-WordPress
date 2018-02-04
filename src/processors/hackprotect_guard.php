@@ -59,11 +59,18 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 */
 	public function updateSnapshotAfterUpgrade( $oUpgrader, $aUpgradeInfo ) {
 
-		if ( !empty( $aUpgradeInfo[ 'plugin' ] ) ) {
-			$this->updateItemInSnapshot( $aUpgradeInfo[ 'plugin' ], 'plugins' );
+		$sContext = '';
+		if ( !empty( $aUpgradeInfo[ 'plugins' ] ) ) {
+			$sContext = 'plugins';
 		}
-		else if ( !empty( $aUpgradeInfo[ 'theme' ] ) ) {
-			$this->updateItemInSnapshot( $aUpgradeInfo[ 'theme' ], 'themes' );
+		else if ( !empty( $aUpgradeInfo[ 'themes' ] ) ) {
+			$sContext = 'themes';
+		}
+
+		if ( !empty( $sContext ) ) {
+			foreach ( $aUpgradeInfo[ $sContext ] as $sSlug ) {
+				$this->updateItemInSnapshot( $sSlug, $sContext );
+			}
 		}
 	}
 
