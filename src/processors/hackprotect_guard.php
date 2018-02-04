@@ -8,6 +8,9 @@ require_once( dirname( __FILE__ ).'/cronbase.php' );
 
 class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_CronBase {
 
+	const CONTEXT_PLUGINS = 'plugins';
+	const CONTEXT_THEMES = 'themes';
+
 	/**
 	 */
 	public function run() {
@@ -26,7 +29,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		}
 		else if ( $oFO->isPtgBuildRequired() ) {
 			$this->rebuildSnapshots(); // TODO: Consider if we can't write to disk - we do this forever.
-			if ( $this->storeExists( 'plugins' ) && $this->storeExists( 'themes' ) ) {
+			if ( $this->storeExists( self::CONTEXT_PLUGINS ) && $this->storeExists( self::CONTEXT_THEMES ) ) {
 				$oFO->setPtgLastBuildAt();
 			}
 		}
@@ -36,21 +39,21 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param string $sBaseName
 	 */
 	public function onActivatePlugin( $sBaseName ) {
-		$this->updateItemInSnapshot( $sBaseName, 'plugins' );
+		$this->updateItemInSnapshot( $sBaseName, self::CONTEXT_PLUGINS );
 	}
 
 	/**
 	 */
 	public function onActivateTheme() {
-		$this->deleteStore( 'themes' );
-		$this->snapshotThemes();
+		$this->deleteStore( self::CONTEXT_THEMES )
+			 ->snapshotThemes();
 	}
 
 	/**
 	 * @param string $sBaseName
 	 */
 	public function onDeactivatePlugin( $sBaseName ) {
-		$this->deleteItemFromSnapshot( $sBaseName, 'plugins' );
+		$this->deleteItemFromSnapshot( $sBaseName, self::CONTEXT_PLUGINS );
 	}
 
 	/**
@@ -60,11 +63,11 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	public function updateSnapshotAfterUpgrade( $oUpgrader, $aUpgradeInfo ) {
 
 		$sContext = '';
-		if ( !empty( $aUpgradeInfo[ 'plugins' ] ) ) {
-			$sContext = 'plugins';
+		if ( !empty( $aUpgradeInfo[ self::CONTEXT_PLUGINS ] ) ) {
+			$sContext = self::CONTEXT_PLUGINS;
 		}
-		else if ( !empty( $aUpgradeInfo[ 'themes' ] ) ) {
-			$sContext = 'themes';
+		else if ( !empty( $aUpgradeInfo[ self::CONTEXT_PLUGINS ] ) ) {
+			$sContext = self::CONTEXT_PLUGINS;
 		}
 
 		if ( !empty( $sContext ) ) {
@@ -79,7 +82,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param string $sContext
 	 * @return $this
 	 */
-	public function deleteItemFromSnapshot( $sSlug, $sContext = 'plugins' ) {
+	public function deleteItemFromSnapshot( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
 		$aSnapshot = $this->loadSnapshotData( $sContext );
 		if ( isset( $aSnapshot[ $sSlug ] ) ) {
 			unset( $aSnapshot[ $sSlug ] );
@@ -93,9 +96,9 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param string $sContext
 	 * @return $this
 	 */
-	public function updateItemInSnapshot( $sSlug, $sContext = 'plugins' ) {
+	public function updateItemInSnapshot( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
 		$aSnapshot = $this->loadSnapshotData( $sContext );
-		if ( $sContext == 'plugins' ) {
+		if ( $sContext == self::CONTEXT_PLUGINS ) {
 			$aNewData = $this->snapshotPlugin( $sSlug );
 		}
 		else {
@@ -161,9 +164,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
 			$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
 		}
-		$this->storeSnapshot( $aSnapshot, 'plugins' );
-
-		return $this;
+		return $this->storeSnapshot( $aSnapshot, self::CONTEXT_PLUGINS );
 	}
 
 	/**
@@ -187,16 +188,14 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		foreach ( $aThemes as $sSlug => $oTheme ) {
 			$aSnapshot[ $sSlug ] = $this->snapshotTheme( $sSlug );
 		}
-		$this->storeSnapshot( $aSnapshot, 'themes' );
-
-		return $this;
+		return $this->storeSnapshot( $aSnapshot, self::CONTEXT_THEMES );
 	}
 
 	/**
 	 * @param string $sContext
 	 * @return bool
 	 */
-	protected function storeExists( $sContext = 'plugins' ) {
+	protected function storeExists( $sContext = self::CONTEXT_PLUGINS ) {
 		return $this->loadFS()
 					->isFile( path_join( $this->getSnapsBaseDir(), $sContext.'.txt' ) );
 	}
@@ -205,15 +204,15 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return $this
 	 */
 	public function deleteStores() {
-		return $this->deleteStore( 'plugins' )
-					->deleteStore( 'themes' );
+		return $this->deleteStore( self::CONTEXT_PLUGINS )
+					->deleteStore( self::CONTEXT_THEMES );
 	}
 
 	/**
 	 * @param string $sContext
 	 * @return $this
 	 */
-	public function deleteStore( $sContext = 'plugins' ) {
+	public function deleteStore( $sContext = self::CONTEXT_PLUGINS ) {
 		$this->loadFS()
 			 ->deleteDir( path_join( $this->getSnapsBaseDir(), $sContext.'.txt' ) );
 		return $this;
@@ -224,7 +223,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param string $sContext
 	 * @return $this
 	 */
-	private function storeSnapshot( $aSnapshot, $sContext = 'plugins' ) {
+	private function storeSnapshot( $aSnapshot, $sContext = self::CONTEXT_PLUGINS ) {
 		$oWpFs = $this->loadFS();
 		$sDir = $this->getSnapsBaseDir();
 		$sSnap = path_join( $sDir, $sContext.'.txt' );
@@ -237,7 +236,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param string $sContext
 	 * @return array
 	 */
-	private function loadSnapshotData( $sContext = 'plugins' ) {
+	private function loadSnapshotData( $sContext = self::CONTEXT_PLUGINS ) {
 		$aDecoded = array();
 
 		$sSnap = path_join( $this->getSnapsBaseDir(), $sContext.'.txt' );
@@ -275,13 +274,14 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param string $sContext
 	 * @return string[]
 	 */
-	protected function hashFiles( $sSlug, $sContext = 'plugins' ) {
+	protected function hashFiles( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
 		switch ( $sContext ) {
-			case 'plugins':
+
+			case self::CONTEXT_PLUGINS:
 				return $this->hashPluginFiles( $sSlug );
 				break;
 
-			case 'themes':
+			case self::CONTEXT_THEMES:
 				return $this->hashThemeFiles( $sSlug );
 				break;
 
@@ -327,21 +327,21 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return array[]
 	 */
 	public function scanPlugins() {
-		return $this->runSnapshotScan( 'plugins' );
+		return $this->runSnapshotScan( self::CONTEXT_PLUGINS );
 	}
 
 	/**
 	 * @return array[]
 	 */
 	public function scanThemes() {
-		return $this->runSnapshotScan( 'themes' );
+		return $this->runSnapshotScan( self::CONTEXT_THEMES );
 	}
 
 	/**
 	 * @param string $sContext
 	 * @return array[]
 	 */
-	protected function runSnapshotScan( $sContext = 'plugins' ) {
+	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 
 		$aDifferences = array();
 		$aUnrecognised = array();
