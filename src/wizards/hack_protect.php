@@ -212,11 +212,33 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'ufc':
 				$aSteps = $this->determineWizardSteps_Ufc();
 				break;
+			case 'ptg':
+				$aSteps = $this->determineWizardSteps_Ptg();
+				break;
 			default:
 				parent::determineWizardSteps();
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Ptg() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getModCon();
+
+		$aStepsSlugs = array(
+			'start',
+			'scanresult_plugins',
+			'scanresult_themes',
+		);
+		if ( !$oFO->isPtgEnabled() ) {
+			$aStepsSlugs[] = 'config';
+		}
+		$aStepsSlugs[] = 'finished';
+		return $aStepsSlugs;
 	}
 
 	/**
@@ -300,7 +322,8 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		else if ( $sCurrentWiz == 'wcf' ) {
 
 			switch ( $sStep ) {
-				case 'scanresult':
+				case 'scanresult_themes':
+				case 'scanresult_plugins':
 					$aFiles = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
 					$aChecksum = $this->cleanAbsPath( $aFiles[ 'checksum_mismatch' ] );
 					$aMissing = $this->cleanAbsPath( $aFiles[ 'missing' ] );
@@ -324,11 +347,84 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
+		else if ( $sCurrentWiz == 'ptg' ) {
+
+			switch ( $sStep ) {
+				case 'scanresult_plugins':
+					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'plugins' );
+					break;
+			}
+		}
 
 		if ( empty( $aAdditional ) ) {
 			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
 		}
 		return $aAdditional;
+	}
+
+	private function getPtgScanResults( $sContext ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+		$oProc = $this->getModCon()->getProcessor();
+		$oP = $oProc->getSubProcessorGuardLocker();
+		if ( $sContext == 'plugins' ) {
+			$aResults = $oP->scanPlugins();
+		}
+		else {
+			$aResults = $oP->scanThemes();
+		}
+
+		$oWpPlugins = $this->loadWpPlugins();
+		$oWpThemes = $this->loadWpThemes();
+		foreach ( $aResults as &$aResultSet ) {
+			foreach ( $aResultSet as $sSlug => $aItemResults ) {
+				if ( $sContext == 'plugins' ) {
+					$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
+				}
+				else {
+					$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+				}
+				$aResultSet[ $sName ] = $aItemResults;
+				unset( $aResultSet[ $sSlug ] );
+			}
+		}
+
+		$aDifferent = $aResults[ 'different' ];
+		$aUnrecog = $aResults[ 'unrecognised' ];
+		$aMissing = $aResults[ 'missing' ];
+
+		return array(
+			'result' => array(
+				'count'        => count( $aDifferent ) + count( $aUnrecog ) + count( $aMissing ),
+				'has'          => !empty( $aDifferent ) || !empty( $aUnrecog ) || !empty( $aMissing ),
+				'different'    => array(
+					'count' => $this->count( $aDifferent ),
+					'has'   => !empty( $aDifferent ),
+					'list'  => $aDifferent,
+				),
+				'unrecognised' => array(
+					'count' => $this->count( $aUnrecog ),
+					'has'   => !empty( $aUnrecog ),
+					'list'  => $aUnrecog,
+				),
+				'missing'      => array(
+					'count' => $this->count( $aMissing ),
+					'has'   => !empty( $aMissing ),
+					'list'  => $aMissing,
+				),
+			)
+		);
+	}
+
+	/**
+	 * @param array[] $aLists
+	 * @return int
+	 */
+	private function count( $aLists ) {
+		$nCount = 0;
+		foreach ( $aLists as $aList ) {
+			$nCount += count( $aList );
+		}
+		return $nCount;
 	}
 
 	/**

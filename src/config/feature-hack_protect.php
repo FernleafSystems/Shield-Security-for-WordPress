@@ -367,6 +367,30 @@
       "wp-content/themes/index.php"
     ],
     "wizards":                              {
+      "ptg": {
+        "title": "Manually Run Plugin/Theme Guard Scanner",
+        "desc": "Walks you through the scanning for any changes to your plugins and themes.",
+        "min_user_permissions": "manage_options",
+        "steps":                {
+          "start":      {
+            "security_admin": false,
+            "title":             "Start: Plugin/Theme Guard"
+          },
+          "scanresult_plugins": {
+            "title": "Scan Results - Plugins"
+          },
+          "scanresult_themes": {
+            "title": "Scan Results - Themes"
+          },
+          "config":     {
+            "title": "Setup Scan Automation"
+          },
+          "finished":   {
+            "security_admin": false,
+            "title":             "Finished: Plugin/Theme Guard Scanner"
+          }
+        }
+      },
       "ufc": {
         "title": "Manually Run Unrecognised File Scanner",
         "desc": "Walks you through the scanning for unrecognised files present in your WordPress core installation.",

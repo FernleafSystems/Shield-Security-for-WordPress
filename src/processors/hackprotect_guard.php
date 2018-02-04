@@ -12,6 +12,9 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 */
 	public function run() {
 		parent::run();
+
+//		var_dump( $this->scanThemes() );
+//		die();
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
@@ -324,7 +327,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return array[]
 	 */
 	public function scanThemes() {
-		return $this->runSnapshotScan( 'plugins' );
+		return $this->runSnapshotScan( 'themes' );
 	}
 
 	/**

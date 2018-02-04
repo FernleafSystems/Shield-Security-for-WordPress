@@ -1,0 +1,35 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	<h3>Turn On Plugin and Theme Guard Scanner</h3>
+	<p>It looks like the Plugin and Theme Guard scanner isn't set to run automatically.</p>
+	<p>You can adjust this using the settings below.</p>
+
+	<form class="form-horizontal icwp-wizard-form">
+		<input name="wizard-step" value="wcfconfig" type="hidden" />
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="enable_scan">Enable Automatic Scanning</label>
+			<div class="col-md-8">
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanReport" value="enabled_report_only">
+						<span>Report Only</span> - send email reports only.
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="enable_scan" id="EnableScanDeleteReport" value="enabled_restore_report">
+						<span>Repair &amp; Report</span> - automatically restore any discovered files; send email report
+						<br/>(<em>recommended</em>)
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-md-offset-4 col-md-8">
+				<button type="submit" class="btn btn-primary">Set Automatic Scan</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}
