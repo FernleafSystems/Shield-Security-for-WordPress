@@ -4,5 +4,9 @@
 			placement: 'top',
 			trigger: 'hover focus'
 		} );
+		jQuery( 'a.module .dashicons' ).tooltip( {
+			placement: 'right',
+			trigger: 'hover focus'
+		} );
 	} );
 </script>
