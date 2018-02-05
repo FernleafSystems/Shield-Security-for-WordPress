@@ -51,8 +51,8 @@
     },
     {
       "slug":        "section_rename_wplogin",
-      "title":       "Rename WP Login Page",
-      "title_short": "Rename wp-login.php",
+      "title":       "Hide WP Login Page",
+      "title_short": "Hide Login Page",
       "summary":     [
         "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
         "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
@@ -122,7 +122,7 @@
       "type":        "text",
       "link_info":   "http://icwp.io/5q",
       "link_blog":   "http://icwp.io/5r",
-      "name":        "Rename WP Login",
+      "name":        "Hide Login Page",
       "summary":     "Rename The WordPress Login Page",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
