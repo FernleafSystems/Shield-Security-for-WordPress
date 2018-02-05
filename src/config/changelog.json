@@ -489,7 +489,7 @@
 	},
 	{
 	  "type": "improved",
-	  "summary": "Better handling of file exclusions in the hack protection module.",
+	  "summary": "Better handling of file exclusions in the hack guard module.",
 	  "version": "5.15.1"
 	},
 	{

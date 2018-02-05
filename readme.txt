@@ -447,7 +447,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 *Released: 21st September, 2017*
 
 * **(v.1)**  FIX:			Processing AJAX requests from the Network Admin side of WordPress.
-* **(v.1)**  IMPROVEMENTS:	Better handling of file exclusions in the hack protection module.
+* **(v.1)**  IMPROVEMENTS:	Better handling of file exclusions in the Hack Guard module.
 * **(v.1)**  IMPROVEMENTS:	Better handling of fatal errors in loading Shield where some core files are missing.
 * **(v.0)**  ADDED:			New HTTP Security Header: Referrer Policy.
 * **(v.0)**  ADDED:			Supports paths for file exclusions in the Unrecognised File Scanner.

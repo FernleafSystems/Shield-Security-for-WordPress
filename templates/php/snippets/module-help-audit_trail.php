@@ -1,4 +1,4 @@
-<h2>What is the Audit Trail?</h2>
+<h5>What is the Audit Trail?</h5>
 <p>You can think of the audit trail as an ongoing log of important events that happen on your site.</p>
 <dl>
 	<dt>Why would I need an audit trail?</dt>

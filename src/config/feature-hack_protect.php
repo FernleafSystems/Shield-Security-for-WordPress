@@ -2,7 +2,7 @@
   "slug":        "hack_protect",
   "properties":  {
     "slug":                   "hack_protect",
-    "name":                   "Hack Protection",
+    "name":                   "Hack Guard",
     "show_module_menu_item": false,
     "storage_key":            "hack_protect",
     "tagline": "Automatically detect and repair vulnerable and suspicious items",
@@ -59,11 +59,11 @@
     },
     {
       "slug":        "section_enable_plugin_feature_hack_protection_tools",
-      "title":       "Enable Plugin Feature: Hack Protection",
+      "title":       "Enable Module: Hack Guard",
       "title_short": "Disable Module",
       "summary":     [
-        "Purpose - The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.",
-        "Recommendation - Keep the Hack Protection feature turned on."
+        "Purpose - Hack Guard is a set of tools to warn you and protect you against hacks on your site.",
+        "Recommendation - Keep the Hack Guard module turned on."
       ]
     },
     {
@@ -79,9 +79,9 @@
       "type":        "checkbox",
       "link_info":   "http://icwp.io/wpsf38",
       "link_blog":   "http://icwp.io/9x",
-      "name":        "Enable Hack Protection",
-      "summary":     "Enable (or Disable) The Hack Protection module",
-      "description": "Un-Checking this option will completely disable the Hack Protection module"
+      "name":        "Enable Hack Guard",
+      "summary":     "Enable (or Disable) The Hack Guard Module",
+      "description": "Un-Checking this option will completely disable the Hack Guard module"
     },
     {
       "key":           "enable_wpvuln_scan",
