@@ -83,7 +83,7 @@ var iCWP_WPSF_Growl = new function () {
 		$oDiv.show().addClass( 'shown' );
 		setTimeout( function () {
 			$oDiv.html( sMessage );
-		}, 300 );
+		}, 380 );
 		setTimeout( function () {
 			$oDiv.css( 'width', 0 );
 		}, 4000 );
