@@ -1553,11 +1553,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		// Get the same Base Data as normal display
-		$aData = $this->getBaseDisplayData();
-		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		return $this->loadRenderer( self::getConn()->getPath_Templates() )
 					->setTemplate( $sTemplate )
-					->setRenderVars( $aData )
+					->setRenderVars( $this->getBaseDisplayData() )
 					->render();
 	}
 
@@ -1592,7 +1590,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
-		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
