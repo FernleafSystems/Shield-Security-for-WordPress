@@ -226,8 +226,6 @@ tr.icwp-plugin-vulnerability dd {
 
 	visibility: hidden;
 
-	height: 20px;
-	max-height: 20px;
 	width: 0;
 	font-size: 18px;
 	color: #ffffff;
@@ -240,7 +238,7 @@ tr.icwp-plugin-vulnerability dd {
 	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 }
 .icwp-growl-notice.shown {
-	padding: 23px 20px;
+	padding: 23px 20px 15px;
 	width: 100%;
 	visibility: visible;
 }
