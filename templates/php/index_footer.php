@@ -1,11 +1,8 @@
 <script type="text/javascript">
-	jQuery( 'a.feature-icon' ).popover( {
-		placement: 'left',
-		trigger: 'hover',
-		html: true
-	} );
-	jQuery( 'li#icwpWizardPill a' ).tooltip( {
-		placement: 'top',
-		trigger: 'hover focus'
+	jQuery( document ).ready( function () {
+		jQuery( 'a#icwpWizard' ).tooltip( {
+			placement: 'top',
+			trigger: 'hover focus'
+		} );
 	} );
 </script>
