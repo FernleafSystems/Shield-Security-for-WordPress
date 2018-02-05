@@ -626,14 +626,13 @@ input:checked + .icwp-slider:before {
 /** NEW FORMS **/
 
 #wpwrap {
-	background-color: #666666;
+	background-color: #BBBBBB;
 }
 #wpcontent,
 #wpbody-content {
-	background-color: #666666;
+	background-color: #BBBBBB;
 }
 #wpfooter {
-	color: #dddddd;
 }
 .icwp-options-page {
 	margin-top: 7px;
@@ -664,7 +663,7 @@ input:checked + .icwp-slider:before {
 .modules a.module {
 	font-size: 14px;
 	padding: 0.7rem 1.1rem 0.7rem 1.2rem;
-	color: #eeeeee;
+	color: #222222;
 	position: relative;
 }
 .modules a.module .dashicons-warning {
