@@ -282,6 +282,44 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAllSlugs() {
+		$aSlugs = array();
+
+		$oData = $this->loadWp()->getTransient( 'update_plugins' );
+		$aPlugins = array_merge(
+			isset( $oData->no_update ) ? $oData->no_update : array(),
+			isset( $oData->response ) ? $oData->response : array()
+		);
+
+		foreach ( $aPlugins as $sBaseName => $oPlugData ) {
+			if ( isset( $oPlugData->slug ) ) {
+				$aSlugs[ $sBaseName ] = $oPlugData->slug;
+			}
+		}
+
+		return $aSlugs;
+	}
+
+	/**
+	 * @param $sBaseName
+	 * @return string|null
+	 */
+	public function getSlug( $sBaseName ) {
+		$aSlugs = $this->getAllSlugs();
+		return array_key_exists( $sBaseName, $aSlugs ) ? $aSlugs[ $sBaseName ] : null;
+	}
+
+	/**
+	 * @param string $sBaseName
+	 * @return bool
+	 */
+	public function isWpOrg( $sBaseName ) {
+		return !is_null( $this->getSlug( $sBaseName ) );
+	}
+
+	/**
 	 * @param string $sPluginFile
 	 * @return stdClass|null
 	 */

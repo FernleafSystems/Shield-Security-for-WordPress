@@ -1387,23 +1387,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'sPageTitle'   => $this->getMainFeatureName(),
 			'data'         => array(
 				'form_nonce'        => $this->genNonce( '' ),
-				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
+				'mod_slug'          => $this->getModSlug( true ),
+				'mod_slug_short'    => $this->getModSlug( false ),
 				'all_options'       => $this->buildOptions(),
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'strings'      => array(
-				'go_to_settings'    => __( 'Settings' ),
-				'on'                => __( 'On' ),
-				'off'               => __( 'Off' ),
-				'more_info'         => __( 'More Info' ),
-				'blog'              => __( 'Blog' ),
-				'save_all_settings' => __( 'Save All Settings' ),
-				'see_help_video'    => __( 'Watch Help Video' ),
-				'btn_options'       => __( 'Options' ),
-				'btn_help'          => __( 'Help' ),
-				'btn_actions'       => __( 'Actions' ),
-			),
+			'strings'      => $this->getDisplayStrings(),
 			'flags'        => array(
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
@@ -1436,6 +1426,24 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
 		}
 		return $aData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return array(
+			'go_to_settings'    => __( 'Settings' ),
+			'on'                => __( 'On' ),
+			'off'               => __( 'Off' ),
+			'more_info'         => __( 'More Info' ),
+			'blog'              => __( 'Blog' ),
+			'save_all_settings' => __( 'Save All Settings' ),
+			'see_help_video'    => __( 'Watch Help Video' ),
+			'btn_options'       => __( 'Options' ),
+			'btn_help'          => __( 'Help' ),
+			'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
+		);
 	}
 
 	/**
@@ -1545,11 +1553,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		// Get the same Base Data as normal display
-		$aData = $this->getBaseDisplayData();
-		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		return $this->loadRenderer( self::getConn()->getPath_Templates() )
 					->setTemplate( $sTemplate )
-					->setRenderVars( $aData )
+					->setRenderVars( $this->getBaseDisplayData() )
 					->render();
 	}
 
@@ -1584,7 +1590,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
-		$aData[ 'strings' ] = array_merge( $aData[ 'strings' ], $this->getDisplayStrings() );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
@@ -1651,13 +1656,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		return $sOutput;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return array();
 	}
 
 	/**

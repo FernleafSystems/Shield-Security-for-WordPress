@@ -2,7 +2,7 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", jQuery( '#SecurityAdminForm' ), submit_admin_access );
+			jQuery( document ).on( "submit", '#SecurityAdminForm', submit_admin_access );
 		} );
 	};
 
@@ -141,7 +141,7 @@ var iCWP_WPSF_Growl = new function () {
 		$oDiv.show().addClass( 'shown' );
 		setTimeout( function () {
 			$oDiv.html( sMessage );
-		}, 300 );
+		}, 380 );
 		setTimeout( function () {
 			$oDiv.css( 'width', 0 );
 		}, 4000 );

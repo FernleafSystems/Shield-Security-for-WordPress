@@ -1,4 +1,4 @@
-<h2>What is the IP Manager?</h2>
+<h5>What is the IP Manager?</h5>
 <p>The IP Manager is dedicated to ensuring that bad actors get blocked, and good actors have no trouble accessing your site.</p>
 <dl>
 	<dt>How does the automatic black list work?</dt>
@@ -25,15 +25,17 @@
 		<p>These can include posting spam comments, failed login attempts, firewall triggers etc.</p>
 		<p>1 of these events in isolation doesn't make a visitor malicious, but more than a few tell us they're not
 		   friendly. You decide how many of these sorts of events should be triggered before Shield considers
-		   them malicious. Once they're labelled as such, they will be added to the black list and blocked from accessing
-		   the site. This block will last according to 'Auto Block Expiration'.
+		   them malicious.</p>
+		<p>They will be added to the black list with any single transgression. But only after they've reached
+		   your transgression limit, will they be blocked from accessing the site.
+		   This block period will last according to 'Auto Block Expiration'.
 		</p>
 	</dd>
 
 	<dt>What does it really mean if an IP Address is on the White List?</dt>
 	<dd>
 		<p>Any visitor accessing this site while their IP address is on the white list will not be subject to ANY
-		   processing by the Shield Security plugin.</p>
+		   processing by the <?php echo $sPluginName; ?> plugin.</p>
 		<p>That includes absolutely everything. Shield will completely ignore that visitor.</p>
 		<p>Note: This also includes renaming of the login page URL. Remember: absolutely everything.</p>
 	</dd>

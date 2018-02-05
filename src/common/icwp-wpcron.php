@@ -128,7 +128,7 @@ class ICWP_WPSF_WpCron {
 
 	/**
 	 * @param string   $sUniqueCronName
-	 * @param callback $cCallback
+	 * @param callable $cCallback
 	 * @return $this
 	 * @throws Exception
 	 */

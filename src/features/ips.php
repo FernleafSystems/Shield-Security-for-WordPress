@@ -16,9 +16,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'       => _wpsf__( 'Manage IP Lists' ),
-			'actions_summary'     => _wpsf__( 'Add/Remove IPs' )
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'btn_actions'         => _wpsf__( 'Manage IP Lists' ),
+				'btn_actions_summary' => _wpsf__( 'Add/Remove IPs' )
+			)
 		);
 	}
 

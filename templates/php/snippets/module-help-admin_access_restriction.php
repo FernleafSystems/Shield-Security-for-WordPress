@@ -1,4 +1,4 @@
-<h2>What is the Security Admin?</h2>
+<h5>What is the Security Admin?</h5>
 <p>Imagine someone somehow gets access to your WordPress admin dashboard.</p>
 <p>If it was me, the first thing I'd do is fiddle with and disable any security plugins.</p>
 <p>But with Shield's Security Admin module, this isn't a problem. When active this feature will prevent

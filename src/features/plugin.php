@@ -623,9 +623,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'   => _wpsf__( 'Plugin Actions' ),
-			'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'actions_title'   => _wpsf__( 'Plugin Actions' ),
+				'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+			)
 		);
 	}
 
@@ -852,7 +855,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Email' );
 		_wpsf__( 'Firewall' );
 		_wpsf__( 'Automatically block malicious URLs and data sent to your site' );
-		_wpsf__( 'Hack Protection' );
+		_wpsf__( 'Hack Guard' );
 		_wpsf__( 'HTTP Headers' );
 		_wpsf__( 'Control HTTP Security Headers' );
 		_wpsf__( 'IP Manager' );

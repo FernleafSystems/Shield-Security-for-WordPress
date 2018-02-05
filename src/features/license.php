@@ -74,15 +74,21 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'product_name'    => _wpsf__( 'Product Name' ),
-			'license_active'  => _wpsf__( 'License Active State' ),
-			'license_status'  => _wpsf__( 'License Official Status' ),
-			'license_key'     => _wpsf__( 'License Key' ),
-			'license_expires' => _wpsf__( 'License Expires' ),
-			'license_email'   => _wpsf__( 'License Owner Email' ),
-			'last_checked'    => _wpsf__( 'Last Checked' ),
-			'last_errors'     => _wpsf__( 'Last Errors' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
+				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
+
+				'product_name'    => _wpsf__( 'Product Name' ),
+				'license_active'  => _wpsf__( 'License Active State' ),
+				'license_status'  => _wpsf__( 'License Official Status' ),
+				'license_key'     => _wpsf__( 'License Key' ),
+				'license_expires' => _wpsf__( 'License Expires' ),
+				'license_email'   => _wpsf__( 'License Owner Email' ),
+				'last_checked'    => _wpsf__( 'Last Checked' ),
+				'last_errors'     => _wpsf__( 'Last Errors' ),
+			)
 		);
 	}
 
