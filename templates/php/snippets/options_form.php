@@ -14,27 +14,39 @@
 					<div class="float-right">
 						<button type="submit" class="btn btn-primary icwp-form-button"
 								name="submit" style="margin-right: 12px">
-							<?php _wpsf_e( 'Save Settings' ); ?>
+							<?php _wpsf_e( 'Save Options' ); ?>
 						</button>
+
 						<?php if ( $flags[ 'has_wizard' ] ) : ?>
 							<?php if ( $flags[ 'can_wizard' ] ) : ?>
-								<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>" class="btn btn-outline-info"
-								   title="Launch Guided Walk-Through Wizards" target="_blank">Wizards</a>
+								<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>" class="btn btn-light"
+								   id="icwpWizard" title="Launch Guided Walk-Through Wizards"
+								   target="_blank">Wizards</a>
 							<?php else: ?>
-								<a href="#" title="Wizards are not available as your PHP version is too old.">&nbsp;</a>
+								<a href="#" id="icwpWizard" class="btn btn-light"
+								   title="Wizards are not available as your PHP version is too old.">Wizards</a>
 							<?php endif; ?>
 						<?php endif; ?>
 
 						<div class="btn-group" role="group" aria-label="Basic example">
+
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}" aria-disabled="true"
 							   class="btn btn-success disabled">
 								<?php echo $strings[ 'btn_options' ]; ?></a>
+
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
 							   class="btn btn-outline-info">
 								<?php echo $strings[ 'btn_help' ]; ?> &rarr;</a>
-							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-							   class="btn btn-outline-secondary">
+
+							<?php if ( $flags[ 'show_content_actions' ] ) : ?>
+								<a class="btn btn-outline-secondary"
+								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}">
 								<?php echo $strings[ 'btn_actions' ]; ?> &rarr;</a>
+							<?php else : ?>
+								<a class="btn btn-outline-secondary disabled"
+								   href="javascript:{}">
+								<?php echo $strings[ 'btn_actions' ]; ?></a>
+							<?php endif; ?>
 						</div>
 					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>
@@ -106,15 +118,15 @@
 					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
 						<div class="form-label-inner text-right">
 							<div class="optname"><?php echo $aOption[ 'name' ]; ?></div>
-								<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
-									<span class="optlinks">[
+							<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
+								<span class="optlinks">[
 										<a href="<?php echo $aOption[ 'link_info' ]; ?>"
 										   target="_blank"><?php echo $strings[ 'more_info' ]; ?></a>
-										<?php if ( !empty( $aOption[ 'link_blog' ] ) ) : ?>
-											| <a href="<?php echo $aOption[ 'link_blog' ]; ?>"
-												 target="_blank"><?php echo $strings[ 'blog' ]; ?></a>
-										<?php endif; ?>
-														   ]</span>
+									<?php if ( !empty( $aOption[ 'link_blog' ] ) ) : ?>
+										| <a href="<?php echo $aOption[ 'link_blog' ]; ?>"
+											 target="_blank"><?php echo $strings[ 'blog' ]; ?></a>
+									<?php endif; ?>
+													   ]</span>
 							<?php endif; ?>
 						</div>
 					</label>

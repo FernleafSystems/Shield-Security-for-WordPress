@@ -1387,7 +1387,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'sPageTitle'   => $this->getMainFeatureName(),
 			'data'         => array(
 				'form_nonce'        => $this->genNonce( '' ),
-				'mod_slug'          => $this->prefix( $this->getFeatureSlug() ),
+				'mod_slug'          => $this->getModSlug( true ),
+				'mod_slug_short'    => $this->getModSlug( false ),
 				'all_options'       => $this->buildOptions(),
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
@@ -1402,7 +1403,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'see_help_video'    => __( 'Watch Help Video' ),
 				'btn_options'       => __( 'Options' ),
 				'btn_help'          => __( 'Help' ),
-				'btn_actions'       => __( 'Actions' ),
+				'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
 			),
 			'flags'        => array(
 				'access_restricted'     => !$this->canDisplayOptionsForm(),

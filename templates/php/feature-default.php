@@ -1,9 +1,3 @@
-<style>
-	#icwpOptionsTopPill > .nav-pills li#icwpWizardPill a {
-		background-image: url("<?php echo $hrefs['img_wizard_wand'];?>");
-	}
-</style>
-
 <div id="IcwpCarouselOptions" class="icwp-carousel slide">
 	<div class="carousel-inner">
 
@@ -65,18 +59,6 @@
 <!--					</a>-->
 <!--				</li>-->
 <!--			--><?php //endif; ?>
-			<?php if ( $flags[ 'has_wizard' ] ) : ?>
-				<?php if ( $flags[ 'can_wizard' ] ) : ?>
-					<li id="icwpWizardPill">
-						<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>"
-						   title="Launch Guided Walk-Through Wizards" target="_blank">&nbsp;</a>
-					</li>
-				<?php else: ?>
-					<li id="icwpWizardPill">
-						<a href="#" title="Wizards are not available as your PHP version is too old.">&nbsp;</a>
-					</li>
-				<?php endif; ?>
-			<?php endif; ?>
 <!--		</ul>-->
 <!--		<div class="tab-content">-->
 <!--			<div class="tab-pane active" id="icwpPillOptions">-->

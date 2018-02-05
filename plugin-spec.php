@@ -44,7 +44,7 @@
         "plugin"
       ],
       "js": [
-        "bootstrap4.min",
+        "bootstrap4.bundle.min",
         "plugin"
       ]
     },

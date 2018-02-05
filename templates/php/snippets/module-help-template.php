@@ -1,18 +1,42 @@
-<div class="row no-gutters">
-	<div class="col">
+<div class="row">
+	<div class="col-6">
 		<div class="module-headline">
-			<h4>
-				<?php echo $sPageTitle; ?>
-				<div class="btn-group float-right icwp-top-buttons" role="group" aria-label="Basic example">
+			<h4><?php echo $sPageTitle; ?>
+				<small class="module-tagline"><?php echo $sTagline; ?></small>
+			</h4>
+		</div>
+	</div>
+	<div class="col-6">
+		<div class="module-headline">
+			<div class="float-right">
+
+				<?php if ( $flags[ 'has_wizard' ] ) : ?>
+					<?php if ( $flags[ 'can_wizard' ] ) : ?>
+						<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>" class="btn btn-light"
+						   id="icwpWizard" title="Launch Guided Walk-Through Wizards"
+						   target="_blank">Wizards</a>
+					<?php else: ?>
+						<a href="#" id="icwpWizard" class="btn btn-light"
+						   title="Wizards are not available as your PHP version is too old.">Wizards</a>
+					<?php endif; ?>
+				<?php endif; ?>
+
+					<div class="btn-group icwp-top-buttons" role="group" aria-label="Basic example">
 					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}"
 					   class="btn btn-outline-success">&larr; <?php echo $strings[ 'btn_options' ]; ?></a>
 					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}" aria-disabled="true"
 					   class="btn btn-info disabled"><?php echo $strings[ 'btn_help' ]; ?></a>
-					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-					   class="btn btn-outline-secondary"><?php echo $strings[ 'btn_actions' ]; ?> &rarr;</a>
+
+					<?php if ( $flags[ 'show_content_actions' ] ) : ?>
+						<a class="btn btn-outline-secondary"
+						   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}">
+							<?php echo $strings[ 'btn_actions' ]; ?> &rarr;</a>
+					<?php else : ?>
+						<a class="btn btn-outline-secondary disabled"
+						   href="javascript:{}"><?php echo $strings[ 'btn_actions' ]; ?></a>
+					<?php endif; ?>
 				</div>
-				<small class="module-tagline"><?php echo $sTagline; ?></small>
-			</h4>
+			</div>
 		</div>
 	</div>
 </div>
