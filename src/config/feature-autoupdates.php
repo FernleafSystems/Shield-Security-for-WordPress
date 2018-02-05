@@ -30,7 +30,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_automatic_updates_control",
-      "title": "Enable Plugin Feature: Automatic Updates",
+      "title": "Enable Module: Automatic Updates",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.",

@@ -9,8 +9,8 @@
 	<div class="row no-gutters">
 		<div class="col">
 			<div class="module-headline">
-				<h4><a id="pluginlogo_32" class="header-icon32" href="http://icwp.io/2k" target="_blank"></a>
-					<?php echo $sPageTitle; ?>
+				<h4>
+					<span class="headline-title"><?php echo $sPageTitle; ?></span>
 					<div class="float-right">
 						<button type="submit" class="btn btn-primary icwp-form-button"
 								name="submit" style="margin-right: 12px">

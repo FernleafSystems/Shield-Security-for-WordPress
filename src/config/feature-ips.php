@@ -67,7 +67,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_ips",
-      "title": "Enable Plugin Feature: IP Manager",
+      "title": "Enable Module: IP Manager",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.",

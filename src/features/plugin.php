@@ -711,8 +711,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		switch ( $sKey ) {
 
 			case 'global_enable_plugin_features' :
-				$sName = _wpsf__( 'Enable Plugin Features' );
-				$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
+				$sName = _wpsf__( 'Disable Plugin Modules' );
+				$sSummary = _wpsf__( 'Enable/Disable All Plugin Modules' );
 				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getConn()
 																										   ->getHumanName() );
 				break;

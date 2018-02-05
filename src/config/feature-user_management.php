@@ -34,7 +34,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_user_accounts_management",
-      "title": "Enable Plugin Feature: User Management",
+      "title": "Enable Module: User Management",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
