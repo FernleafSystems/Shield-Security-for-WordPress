@@ -1,4 +1,4 @@
-<h2>What is Lockdown module?</h2>
+<h5>What is Lockdown module?</h5>
 <p>The Lockdown module is dedicated to hardening the softer areas of a WordPress installation.</p>
 <dl>
 	<dt>Can I disable the Rest API and XML-RPC Systems?</dt>

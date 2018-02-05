@@ -852,7 +852,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Email' );
 		_wpsf__( 'Firewall' );
 		_wpsf__( 'Automatically block malicious URLs and data sent to your site' );
-		_wpsf__( 'Hack Protection' );
+		_wpsf__( 'Hack Guard' );
 		_wpsf__( 'HTTP Headers' );
 		_wpsf__( 'Control HTTP Security Headers' );
 		_wpsf__( 'IP Manager' );

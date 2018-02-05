@@ -228,7 +228,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$aContent = array(
 			sprintf( _wpsf__( '%s detected files on your site which are not recognised.' ), $this->getController()
 																								 ->getHumanName() ),
-			_wpsf__( 'This is part of the Hack Protection module for the WordPress Unrecognised File Scanner.' )
+			_wpsf__( 'This is sent from the WordPress Unrecognised File Scanner, part of the Hack Guard module.' )
 			.' [<a href="http://icwp.io/shieldmoreinfounrecognised">'._wpsf__( 'More Info' ).']</a>',
 			'',
 			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
