@@ -13,8 +13,16 @@
   },
   "sections":    [
     {
-      "slug":        "section_core_file_integrity_scan",
+      "slug":        "section_scan_schedule",
       "primary":     true,
+      "title":       "Scan Schedule",
+      "title_short": "Schedule",
+      "summary":     [
+        "Purpose - Set how often the Hack Guard scans will run."
+      ]
+    },
+    {
+      "slug":        "section_core_file_integrity_scan",
       "title":       "Core File Integrity Scanner",
       "title_short": "Core File Scanner",
       "summary":     [
@@ -162,7 +170,7 @@
     },
     {
       "key":         "scan_frequency",
-      "section":     "section_enable_plugin_feature_hack_protection_tools",
+      "section":     "section_scan_schedule",
       "premium":       true,
       "default":       1,
       "type":          "select",
@@ -202,7 +210,7 @@
       ],
       "link_info":   "http://icwp.io/b2",
       "link_blog":   "",
-      "name":        "Daily Frequency",
+      "name":        "Scan Frequency",
       "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
       "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },

@@ -307,6 +307,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
 		switch ( $sSectionSlug ) {
 
+			case 'section_scan_schedule' :
+				$sTitle = _wpsf__( 'Scan Schedule' );
+				$sTitleShort = _wpsf__( 'Scan Schedule' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Set how frequently the Hack Guard scans will run.' ) )
+				);
+				break;
+
 			case 'section_enable_plugin_feature_hack_protection_tools' :
 				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
