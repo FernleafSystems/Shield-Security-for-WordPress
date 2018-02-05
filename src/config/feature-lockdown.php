@@ -42,7 +42,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_wordpress_lockdown",
-      "title": "Enable Plugin Feature: Lockdown",
+      "title": "Enable Module: Lockdown",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.",

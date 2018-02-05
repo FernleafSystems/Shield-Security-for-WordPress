@@ -124,12 +124,12 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_headers' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
 				);
-				$sTitleShort = sprintf( '%s Module', _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_security_headers' :

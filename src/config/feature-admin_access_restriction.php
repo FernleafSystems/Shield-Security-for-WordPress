@@ -48,7 +48,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_admin_access_restriction",
-      "title": "Enable Plugin Feature: WordPress Security Admin",
+      "title": "Enable Module: WordPress Security Admin",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",

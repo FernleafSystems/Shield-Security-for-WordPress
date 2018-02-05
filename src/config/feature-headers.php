@@ -33,7 +33,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_headers",
-      "title": "Enable Plugin Feature: HTTP Headers",
+      "title": "Enable Module: HTTP Headers",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - Protect visitors to your site by implementing increased security response headers.",
