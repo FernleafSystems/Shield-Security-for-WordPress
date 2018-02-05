@@ -865,7 +865,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Login Protection' );
 		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' );
 		_wpsf__( 'Dashboard' );
-		_wpsf__( 'Overview of the plugin settings' );
+		_wpsf__( 'General Plugin Settings' );
 		_wpsf__( 'Statistics' );
 		_wpsf__( 'Summary of the main security actions taken by this plugin' );
 		_wpsf__( 'Stats Viewer' );

@@ -4,7 +4,7 @@
     "name":                   "Dashboard",
     "show_module_menu_item":  true,
     "storage_key":            "plugin",
-    "tagline":                "Overview of the plugin settings",
+    "tagline":                "General Plugin Settings",
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
@@ -68,14 +68,14 @@
       "title_short": "Plugin Defaults"
     },
     {
-      "slug":        "section_importexport",
-      "title":       "Import / Export",
-      "title_short": "Import / Export"
-    },
-    {
       "slug":        "section_general_plugin_options",
       "title":       "General Plugin Options",
       "title_short": "General Options"
+    },
+    {
+      "slug":        "section_importexport",
+      "title":       "Import / Export",
+      "title_short": "Import / Export"
     },
     {
       "slug":        "section_third_party_google",

@@ -646,7 +646,7 @@ input:checked + .icwp-slider:before {
 	background-position: 48%;
 }
 #ColumnModules {
-	max-width: 120px;
+	max-width: 126px;
 }
 #ColumnOptions {
 	background-color: #dddddd;
@@ -661,16 +661,18 @@ input:checked + .icwp-slider:before {
 	display: block;
 }
 .modules a.module {
-	font-size: 14px;
+	font-size: 15px;
 	padding: 0.7rem 1.1rem 0.7rem 1.2rem;
 	color: #222222;
 	position: relative;
+	font-weight: bolder;
+	text-shadow: 0 0 0 rgba(255,255,255,0.5);
 }
 .modules a.module .dashicons-warning {
 	position: absolute;
 	left: 0;
 	top: 25%;
-	color: #ce953e;
+	color: #a56300;
 }
 .modules a.module .dashicons-warning:before {
 	font-size: 16px !important;
