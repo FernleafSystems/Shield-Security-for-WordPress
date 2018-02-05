@@ -104,17 +104,6 @@
       "description": "Un-Checking this option will completely disable the Login Protection module"
     },
     {
-      "key":         "enable_xmlrpc_compatibility",
-      "section":     "section_enable_plugin_feature_login_protection",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "http://icwp.io/9u",
-      "link_blog":   "",
-      "name":        "XML-RPC Compatibility",
-      "summary":     "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
-    },
-    {
       "key":         "rename_wplogin_path",
       "section":     "section_rename_wplogin",
       "sensitive":   true,

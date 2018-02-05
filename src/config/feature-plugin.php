@@ -204,15 +204,15 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
-      "key":         "delete_on_deactivate",
-      "section":     "section_defaults",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Delete Plugin Settings",
-      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-      "description": "Careful: Removes all plugin options when you deactivate the plugin."
+      "key": "enable_xmlrpc_compatibility",
+      "section": "section_defaults",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "XML-RPC Compatibility",
+      "summary": "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
+      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
     },
     {
       "key":         "importexport_enable",
@@ -274,16 +274,15 @@
       "description":  "Keep this Secret Key private as it will allow the import and export of options."
     },
     {
-      "key":          "unique_installation_id",
-      "section":      "section_general_plugin_options",
-      "transferable": false,
-      "default":      "",
-      "type":         "noneditable_text",
-      "link_info":    "",
-      "link_blog":    "",
-      "name":         "Installation ID",
-      "summary":      "Unique Plugin Installation ID",
-      "description":  "Keep this ID private."
+      "key":         "delete_on_deactivate",
+      "section":     "section_general_plugin_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Delete Plugin Settings",
+      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
       "key":           "google_recaptcha_style",
@@ -340,6 +339,12 @@
       "transferable": false,
       "default":      0,
       "section":      "section_non_ui"
+    },
+    {
+      "key":          "unique_installation_id",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "default":      ""
     },
     {
       "key":     "tracking_permission_set_at",

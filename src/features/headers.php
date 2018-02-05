@@ -201,8 +201,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				break;
 
 			case 'enable_x_content_security_policy' :
+				$sName = sprintf( _wpsf__( 'Enable %s' ), 'CSP' );
 				$sSummary = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Content Security Policy' ) );
-				$sName = sprintf( '%s Module', _wpsf__( 'Disable' ) );
 				$sDescription = _wpsf__( 'Allows for permission and restriction of all resources loaded on your site.' );
 				break;
 

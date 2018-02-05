@@ -59,17 +59,6 @@
       "description": "Un-Checking this option will completely disable the User Management module"
     },
     {
-      "key": "enable_xmlrpc_compatibility",
-      "section": "section_enable_plugin_feature_user_accounts_management",
-      "default": "Y",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "XML-RPC Compatibility",
-      "summary": "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
-    },
-    {
       "key": "enable_admin_login_email_notification",
       "section": "section_admin_login_notification",
       "sensitive": true,

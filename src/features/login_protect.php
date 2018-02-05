@@ -516,12 +516,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
-			case 'enable_xmlrpc_compatibility' :
-				$sName = _wpsf__( 'XML-RPC Compatibility' );
-				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Login Protection Rules' );
-				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
-				break;
-
 			case 'rename_wplogin_path' :
 				$sName = _wpsf__( 'Hide WP Login Page' );
 				$sSummary = _wpsf__( 'Hide The WordPress Login Page' );
