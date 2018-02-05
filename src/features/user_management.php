@@ -114,17 +114,20 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'   => _wpsf__( 'User Sessions' ),
-			'actions_summary' => _wpsf__( 'Review user sessions' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'btn_actions'         => _wpsf__( 'User Sessions' ),
+				'btn_actions_summary' => _wpsf__( 'Review user sessions' ),
 
-			'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
-			'um_username'                       => _wpsf__( 'Username' ),
-			'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),
-			'um_last_activity_at'               => _wpsf__( 'Last Activity At' ),
-			'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
-			'um_login_ip'                       => _wpsf__( 'Login IP' ),
-			'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
+				'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
+				'um_username'                       => _wpsf__( 'Username' ),
+				'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),
+				'um_last_activity_at'               => _wpsf__( 'Last Activity At' ),
+				'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
+				'um_login_ip'                       => _wpsf__( 'Login IP' ),
+				'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
+			)
 		);
 	}
 

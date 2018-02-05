@@ -623,9 +623,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'   => _wpsf__( 'Plugin Actions' ),
-			'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'actions_title'   => _wpsf__( 'Plugin Actions' ),
+				'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+			)
 		);
 	}
 

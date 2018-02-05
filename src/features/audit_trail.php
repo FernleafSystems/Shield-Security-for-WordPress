@@ -172,24 +172,27 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'       => _wpsf__( 'Audit Trail Viewer' ),
-			'actions_summary'     => _wpsf__( 'Review audit trail logs ' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
+				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
 
-			'at_users'            => _wpsf__( 'Users' ),
-			'at_plugins'          => _wpsf__( 'Plugins' ),
-			'at_themes'           => _wpsf__( 'Themes' ),
-			'at_wordpress'        => _wpsf__( 'WordPress' ),
-			'at_posts'            => _wpsf__( 'Posts' ),
-			'at_emails'           => _wpsf__( 'Emails' ),
-			'at_time'             => _wpsf__( 'Time' ),
-			'at_event'            => _wpsf__( 'Event' ),
-			'at_message'          => _wpsf__( 'Message' ),
-			'at_username'         => _wpsf__( 'Username' ),
-			'at_category'         => _wpsf__( 'Category' ),
-			'at_ipaddress'        => _wpsf__( 'IP Address' ),
-			'at_you'              => _wpsf__( 'You' ),
-			'at_no_audit_entries' => _wpsf__( 'There are currently no audit entries this is section.' ),
+				'at_users'            => _wpsf__( 'Users' ),
+				'at_plugins'          => _wpsf__( 'Plugins' ),
+				'at_themes'           => _wpsf__( 'Themes' ),
+				'at_wordpress'        => _wpsf__( 'WordPress' ),
+				'at_posts'            => _wpsf__( 'Posts' ),
+				'at_emails'           => _wpsf__( 'Emails' ),
+				'at_time'             => _wpsf__( 'Time' ),
+				'at_event'            => _wpsf__( 'Event' ),
+				'at_message'          => _wpsf__( 'Message' ),
+				'at_username'         => _wpsf__( 'Username' ),
+				'at_category'         => _wpsf__( 'Category' ),
+				'at_ipaddress'        => _wpsf__( 'IP Address' ),
+				'at_you'              => _wpsf__( 'You' ),
+				'at_no_audit_entries' => _wpsf__( 'There are currently no audit entries this is section.' ),
+			)
 		);
 	}
 

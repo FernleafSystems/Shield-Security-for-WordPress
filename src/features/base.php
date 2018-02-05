@@ -1393,18 +1393,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'strings'      => array(
-				'go_to_settings'    => __( 'Settings' ),
-				'on'                => __( 'On' ),
-				'off'               => __( 'Off' ),
-				'more_info'         => __( 'More Info' ),
-				'blog'              => __( 'Blog' ),
-				'save_all_settings' => __( 'Save All Settings' ),
-				'see_help_video'    => __( 'Watch Help Video' ),
-				'btn_options'       => __( 'Options' ),
-				'btn_help'          => __( 'Help' ),
-				'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
-			),
+			'strings'      => $this->getDisplayStrings(),
 			'flags'        => array(
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
@@ -1437,6 +1426,24 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
 		}
 		return $aData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return array(
+			'go_to_settings'    => __( 'Settings' ),
+			'on'                => __( 'On' ),
+			'off'               => __( 'Off' ),
+			'more_info'         => __( 'More Info' ),
+			'blog'              => __( 'Blog' ),
+			'save_all_settings' => __( 'Save All Settings' ),
+			'see_help_video'    => __( 'Watch Help Video' ),
+			'btn_options'       => __( 'Options' ),
+			'btn_help'          => __( 'Help' ),
+			'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
+		);
 	}
 
 	/**
@@ -1652,13 +1659,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		return $sOutput;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return array();
 	}
 
 	/**
