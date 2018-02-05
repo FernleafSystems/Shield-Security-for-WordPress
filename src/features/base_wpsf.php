@@ -177,6 +177,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isXmlrpcBypass() {
+		return $this->getConn()
+					->getModule( 'plugin' )
+					->isXmlrpcBypass();
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

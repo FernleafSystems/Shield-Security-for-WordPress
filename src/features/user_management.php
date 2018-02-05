@@ -169,15 +169,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = sprintf( '%s Module', _wpsf__( 'Disable' ) );
 				break;
 
-			case 'section_bypass_user_accounts_management' :
-				$sTitle = _wpsf__( 'By-Pass User Accounts Management' );
-				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned off unless you know you need it.' ) )
-				);
-				$sTitleShort = _wpsf__( 'By-Pass' );
-				break;
-
 			case 'section_admin_login_notification' :
 				$sTitle = _wpsf__( 'Admin Login Notification' );
 				$aSummary = array(
@@ -228,12 +219,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
-				break;
-
-			case 'enable_xmlrpc_compatibility' :
-				$sName = _wpsf__( 'XML-RPC Compatibility' );
-				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules' );
-				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
 				break;
 
 			case 'enable_admin_login_email_notification' :

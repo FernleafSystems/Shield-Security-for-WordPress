@@ -454,9 +454,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				break;
 
 			case 'section_rename_wplogin' :
-				$sTitle = _wpsf__( 'Rename WP Login Page' );
+				$sTitle = _wpsf__( 'Hide WordPress Login Page' );
 				$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
-				$sTitleShort = _wpsf__( 'Login URL' );
+				$sTitleShort = _wpsf__( 'Hide Login Page' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )
@@ -516,15 +516,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
-			case 'enable_xmlrpc_compatibility' :
-				$sName = _wpsf__( 'XML-RPC Compatibility' );
-				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Login Protection Rules' );
-				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
-				break;
-
 			case 'rename_wplogin_path' :
-				$sName = _wpsf__( 'Rename WP Login' );
-				$sSummary = _wpsf__( 'Rename The WordPress Login Page' );
+				$sName = _wpsf__( 'Hide WP Login Page' );
+				$sSummary = _wpsf__( 'Hide The WordPress Login Page' );
 				$sDescription = _wpsf__( 'Creating a path here will disable your wp-login.php' )
 								.'<br />'
 								.sprintf( _wpsf__( 'Only letters and numbers are permitted: %s' ), '<strong>abc123</strong>' )

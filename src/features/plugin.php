@@ -633,6 +633,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isXmlrpcBypass() {
+		return $this->getOptIs( 'enable_xmlrpc_compatibility', 'Y' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -650,6 +657,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'section_defaults' :
 				$sTitle = _wpsf__( 'Plugin Defaults' );
 				$sTitleShort = _wpsf__( 'Plugin Defaults' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Important default settings used throughout the plugin.' ) ),
+				);
 				break;
 
 			case 'section_importexport' :
@@ -748,6 +758,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'Delete Plugin Settings' );
 				$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
 				$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
+				break;
+
+			case 'enable_xmlrpc_compatibility' :
+				$sName = _wpsf__( 'XML-RPC Compatibility' );
+				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules' );
+				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
 				break;
 
 			case 'importexport_enable' :
@@ -865,7 +881,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Login Protection' );
 		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' );
 		_wpsf__( 'Dashboard' );
-		_wpsf__( 'Overview of the plugin settings' );
+		_wpsf__( 'General Plugin Settings' );
 		_wpsf__( 'Statistics' );
 		_wpsf__( 'Summary of the main security actions taken by this plugin' );
 		_wpsf__( 'Stats Viewer' );
