@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWp = $this->loadWp();
 
 		// XML-RPC Compatibility
-		if ( $oWp->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
+		if ( $oWp->getIsXmlrpc() && $oFO->isXmlrpcBypass() ) {
 			return;
 		}
 

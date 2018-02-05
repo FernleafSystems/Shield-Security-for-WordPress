@@ -51,8 +51,8 @@
     },
     {
       "slug":        "section_rename_wplogin",
-      "title":       "Rename WP Login Page",
-      "title_short": "Rename wp-login.php",
+      "title":       "Hide WP Login Page",
+      "title_short": "Hide Login Page",
       "summary":     [
         "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
         "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
@@ -104,17 +104,6 @@
       "description": "Un-Checking this option will completely disable the Login Protection module"
     },
     {
-      "key":         "enable_xmlrpc_compatibility",
-      "section":     "section_enable_plugin_feature_login_protection",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "http://icwp.io/9u",
-      "link_blog":   "",
-      "name":        "XML-RPC Compatibility",
-      "summary":     "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
-    },
-    {
       "key":         "rename_wplogin_path",
       "section":     "section_rename_wplogin",
       "sensitive":   true,
@@ -122,7 +111,7 @@
       "type":        "text",
       "link_info":   "http://icwp.io/5q",
       "link_blog":   "http://icwp.io/5r",
-      "name":        "Rename WP Login",
+      "name":        "Hide Login Page",
       "summary":     "Rename The WordPress Login Page",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
