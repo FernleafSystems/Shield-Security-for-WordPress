@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Unrecognised File Scanner - File Exclusions' ) }}
+	{{ slideMacros.slideTitle( 'Unrecognised File Scanner - Exclusions' ) }}
 
 	<p>Every website is different, so there are often many different types of files present on web hosts
 	that are perfectly legitimate.</p>
@@ -13,33 +13,31 @@
 	<p>Note: You can easily come back to this step and add files if the scanner picks anything up
 	that you then want to ignore. You can do this as often as you like.</p>
 	<p>Please use the list of files below to tell the file scanner which files it should completely ignore:</p>
+
 	<form class="form-horizontal icwp-wizard-form" id>
-		<input name="wizard-step" value="exclusions" type="hidden" />
 
-		<div class="form-group">
-			<label class="col-md-4 control-label" for="email">Excluded Files List</label>
-			<div class="col-md-8">
+		<div class="form-group row">
+			<label class="col-4 col-form-label" for="_exclusions">Excluded Files List</label>
+			<div class="col-8">
 				<textarea class="form-control" name="exclusions" rows="{{ data.files.count + 2 }}"
-						  placeholder="{{ data.files.list }}">{{ data.files.list }}</textarea>
-				<span id="helpBlock" class="help-block">
-					Take a <strong>new line</strong> for each file name.
-					<br/>Note: You may also use regular expressions - if you don't know what this is,
-					that's no problem, then please use normal file names and ignore the following guidance.
-					<br/>Regular expressions must <strong>start and end</strong> with a "hash" character
-					i.e. <code>#</code>
-					<br />You must escape special characters.
-					<br />An example: <code>#\.log#</code>
-					<br />This will match the following files:
-					<code>test.log</code>, <code>text.log.txt</code>, <code>.log.ini</code>
-				</span>
+						  placeholder="{{ data.files.list }}" id="_exclusions">{{ data.files.list }}</textarea>
+			</div>
+		</div>
+		<div class="form-group row">
+			<div class="col-11">
+				Take a <strong>new line</strong> for each file name.
+				<br />Note: You may also use regular expressions.
+				<br />Regular expressions must <strong>start and end</strong> with a "hash" character
+				i.e. <code>#</code>
+				<br />You must escape special characters.
+				<br />An example: <code>#\.log#</code>
+				<br />This will match the following files:
+				<code>test.log</code>, <code>text.log.txt</code>, <code>.log.ini</code>
 			</div>
 		</div>
 
-		<div class="form-group">
-			<div class="col-md-offset-4 col-md-8">
-				<button type="submit" class="btn btn-primary">Update File Exclusions</button>
-			</div>
-		</div>
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'exclusions' ) }}
+		{{ slideMacros.formInput_Submit( 'Update File Exclusions' ) }}
 	</form>
 
 	<script type="text/javascript">

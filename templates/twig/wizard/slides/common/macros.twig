@@ -6,9 +6,28 @@
 	<input name="{{ name }}" value="{{ value }}" type="hidden" />
 {% endmacro %}
 
-{% macro formInput_Checkbox(name,value,label,placeholder,help,id) %}
-	{% import _self as slideMacros %}
-	{{ slideMacros.formInput_Base('email',name,value,label,placeholder,help,id) }}
+{% macro formInput_Checkbox(name,value,toplabel,label,help,id) %}
+
+	{% if id is not defined or id|length < 1 %}
+		{% set id='_'~name %}
+	{% endif %}
+
+	<div class="form-group row">
+		<label class="col-4 col-form-label" for="{{ id }}">{{ toplabel }}</label>
+		<div class="col-8">
+			<div class="form-check">
+				<input type="checkbox" name="{{ name }}"
+					   class="form-check-input"
+					   id="{{ id }}" value="{{ value }}" />
+				<label class="form-check-label" for="{{ id }}">
+					{{ label|raw }}
+				</label>
+			</div>
+			{% if help is defined and help|length > 0 %}
+				<small class="form-text text-muted">{{ help|raw }}</small>
+			{% endif %}
+		</div>
+	</div>
 {% endmacro %}
 
 {% macro formInput_Email(name,value,label,placeholder,help,id) %}
@@ -65,7 +84,7 @@
 			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
 				   class="form-control" id="{{ id }}" placeholder="{{ placeholder|default('') }}">
 			{% if help is defined and help|length > 0 %}
-				<small class="form-text text-muted">{{ help }}</small>
+				<small class="form-text text-muted">{{ help|raw }}</small>
 			{% endif %}
 		</div>
 	</div>

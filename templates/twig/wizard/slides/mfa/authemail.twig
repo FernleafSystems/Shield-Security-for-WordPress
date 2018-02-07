@@ -14,11 +14,12 @@
 	<h4>Email Sending Confirmation</h4>
 	<p>Click the button below to confirm your email address, to which we'll send a confirmation email.</p>
 	<form class="form-horizontal icwp-wizard-form" id>
+
 		{{ slideMacros.formInput_Email( 'email', data.user_email, 'Your Email', data.user_email ) }}
 		<div class="stage-verificationcode" style="display: none;">
 			{{ slideMacros.formInput_Text( 'code', '', 'Verification Code' ) }}
 			{{ slideMacros.formInput_Checkbox(
-				'Email2FAOption', 'Y', 'Check to turn on Email-based 2 Factor Authentication', '',
+				'Email2FAOption', 'Y', 'Turn On Email 2FA', 'Check to turn on Email-based 2 Factor Authentication',
 				"When enabled, each time you login you'll get an email with a 2-factor authentication code.
 					You will need this code to log into your WordPress site. If your site
 					has problems in the future with emails, this could present a problem.
@@ -27,7 +28,6 @@
 					functionality and if it doesn't work, you'll need to check with your host."
 			) }}
 		</div>
-
 		{{ slideMacros.formInput_Hidden( 'wizard-step', 'authemail' ) }}
 		{{ slideMacros.formInput_Submit( 'Send Info' ) }}
 	</form>

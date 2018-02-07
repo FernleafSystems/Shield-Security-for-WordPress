@@ -48,7 +48,6 @@ body.wait {
 	margin-bottom: 20px;
 }
 .wizard p {
-	margin-bottom: 20px;
 }
 .wizard .body ol,
 .wizard .body ul {
@@ -94,6 +93,9 @@ body.wait {
 .wizard form input[type="radio"]:checked + span {
 	font-weight: bolder;
 	letter-spacing: -0.4px;
+}
+.wizard form .form-check-label {
+	margin-bottom: 10px;
 }
 
 #GoProBtn {

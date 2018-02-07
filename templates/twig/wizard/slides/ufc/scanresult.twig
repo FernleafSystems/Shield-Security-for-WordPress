@@ -19,28 +19,16 @@
 			this with your web hosting provider.
 		</p>
 		<form class="form-horizontal icwp-wizard-form">
-			<input name="wizard-step" value="deletefiles" type="hidden" />
-			<div class="form-group">
-				<label class="col-md-4 control-label" for="DeleteFiles">Delete Detected Files</label>
-				<div class="col-md-8">
-					<label for="DeleteFiles">
-						<input type="checkbox" value="Y" name="DeleteFiles" id="DeleteFiles">
-						Check to delete the unrecognised files.
-					</label>
-					<span id="helpBlock" class="help-block">
-						If there are files on this list that you do not want to delete, please go back
+
+			{{ slideMacros.formInput_Checkbox(
+				'DeleteFiles', 'Y', 'Delete Detected Files', 'Check to delete the unrecognised files',
+				"If there are files on this list that you do not want to delete, please go back
 						a step in the wizard and add them to your exclusions list.
 						<br />For security reasons, the scanner <strong>does not</strong>
-						currently support individual selection of files to delete.
-					</span>
-				</div>
-			</div>
-
-			<div class="form-group">
-				<div class="col-md-offset-4 col-md-8">
-					<button type="submit" class="btn btn-warning">Delete Unrecognised Files</button>
-				</div>
-			</div>
+						currently support individual selection of files to delete."
+			) }}
+			{{ slideMacros.formInput_Hidden( 'wizard-step', 'deletefiles' ) }}
+			{{ slideMacros.formInput_Submit( 'Delete Unrecognised Files' ) }}
 		</form>
 
 	{% else %}
