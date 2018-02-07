@@ -9,7 +9,7 @@
 		</div>
 
 		<div class="carousel-item carousel-wizards">
-			<div class="d-block w-100"><?php echo $content[ 'wizards' ]; ?></div>
+			<div class="d-block w-100"><?php echo $content[ 'wizard_landing' ]; ?></div>
 		</div>
 
 		<div class="carousel-item carousel-help">
