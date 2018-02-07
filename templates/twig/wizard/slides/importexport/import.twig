@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	<h3>Build Your Shield Security Network</h3>
+	{{ slideMacros.slideTitle( 'Build Your Shield Security Network' ) }}
 
 	{% if flags.is_premium %}
 		<p>To setup this site quickly you may import the options directly from another site.</p>

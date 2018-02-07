@@ -4,10 +4,10 @@
 
 {% block slide_body_middle %}
 
-	<h3>Next Steps?</h3>
+	{{ slideMacros.slideTitle( 'Next Steps?' ) }}
 
 	{% if data.mod_wizards_count > 1 %}
-		<h4>All Wizards In This Module</h4>
+		<h5>All Wizards In This Module</h5>
 		<ul>
 		{% for wizard in data.mod_wizards %}
 			<li><a href="{{ wizard.url }}">{{ wizard.title }}</a></li>
@@ -17,7 +17,7 @@
 
 	{% block slide_body_middle_gopro %}
 		{% if not flags.is_premium %}
-			<h4>Go Further With Pro :)</h4>
+			<h5>Go Further With Pro :)</h5>
 			<p>We've added many advantages to the Pro version, and we've made it available for every budget
 			   for just $1/month - the most affordable Security plugin available today!</p>
 			<p>With your support, we'll continue our work and bring you ever-more powerful security features.</p>
@@ -46,5 +46,6 @@
 
 {% block slide_footer %}
 	<hr />
-	<a href="{{ hrefs.dashboard }}" class="btn btn-default">&#x21d0; Return To The Shield WordPress Dashboard</a>
+	<a href="{{ hrefs.dashboard }}" class="btn btn-outline-secondary">
+		&#x21d0; Return To The Shield WordPress Dashboard</a>
 {% endblock %}

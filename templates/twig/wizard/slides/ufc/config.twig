@@ -1,43 +1,24 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	<h3>Turn On Automatic Unrecognised File Scanner</h3>
+	{{ slideMacros.slideTitle( 'Turn On Automatic Unrecognised File Scanner' ) }}
+
 	<p>It looks like the unrecognised file scanner isn't set to run automatically.</p>
-	<p>Now that you've setup your file exclusions, we recommend the final option
-	   - automatically delete discovered files and send an email report.</p>
-	<p>You can adjust this using the settings below.</p>
+	<p>You can adjust this setting using the form below.</p>
+	<p>We recommend the final option - Delete & Report
+	   (automatically delete discovered files and send an email report).</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		<input name="wizard-step" value="ufcconfig" type="hidden" />
-		<div class="form-group">
-			<label class="col-md-4 control-label" for="enable_scan">Enable Automatic Scanning</label>
-			<div class="col-md-8">
-				<div class="radio">
-					<label>
-						<input type="radio" name="enable_scan" id="EnableScanReport" value="enabled_report_only">
-						<span>Report Only</span> - send email reports only
-					</label>
-				</div>
-				<div class="radio">
-					<label>
-						<input type="radio" name="enable_scan" id="EnableScanDelete" value="enabled_delete_only">
-						<span>Delete Only</span> - automatically delete discovered files; don't send email report.
-					</label>
-				</div>
-				<div class="radio">
-					<label>
-						<input type="radio" name="enable_scan" id="EnableScanDeleteReport" value="enabled_delete_report">
-						<span>Delete &amp; Report</span> - automatically delete discovered files; send email report
-						<br/>(<em>recommended</em>)
-					</label>
-				</div>
-			</div>
-		</div>
+		{% set radiovalues =
+			{
+				'enabled_report_only': '<span>Report Only</span> - send email reports only.',
+				'enabled_delete_only': "<span>Delete Only</span> - automatically delete discovered files; don't send email report.",
+				'enabled_delete_report': "<span>Delete &amp; Report</span> - automatically delete discovered files; send email report. (<em>recommended</em>)"
+			}
+		%}
+		{{ slideMacros.formInput_Radio( 'enable_scan', radiovalues, 'Enable Automatic Scanning' ) }}
 
-		<div class="form-group">
-			<div class="col-md-offset-4 col-md-8">
-				<button type="submit" class="btn btn-primary">Set Automatic Scan</button>
-			</div>
-		</div>
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ufcconfig' ) }}
+		{{ slideMacros.formInput_Submit( 'Set Automatic Scan' ) }}
 	</form>
 {% endblock %}
