@@ -40,21 +40,21 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_statistics' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Helps you see at a glance how effective the plugin has been.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $this->getMainFeatureName() ) )
 				);
-				$sTitleShort = sprintf( '%s Module', _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_enable_plugin_feature_reporting' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'To track stats and issue reports.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $this->getMainFeatureName() ) )
 				);
-				$sTitleShort = sprintf( '%s Module', _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_stats_sharing' :

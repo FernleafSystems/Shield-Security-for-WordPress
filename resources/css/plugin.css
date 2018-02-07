@@ -537,6 +537,22 @@ input[type="email"] {
 #icwpOptionsTopPill > .tab-content {
 	background-color: transparent;
 }
+
+.content-wizards .wizard_slot {
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+	margin-top: 30px;
+	padding: 20px;
+}
+.content-wizards .wizard_slot:hover {
+	background-color: #ffffff;
+}
+
+.btn.btn-icwp-wizard.disabled {
+	pointer-events: auto;
+}
+
+.content-wizards,
 .content-help {
 	background-color: #fafafa;
 	padding: 10px 20px 20px;
@@ -626,11 +642,11 @@ input:checked + .icwp-slider:before {
 /** NEW FORMS **/
 
 #wpwrap {
-	background-color: #BBBBBB;
+	background-color: #e4e4e4;
 }
 #wpcontent,
 #wpbody-content {
-	background-color: #BBBBBB;
+	background-color: #e4e4e4;
 }
 #wpfooter {
 }
@@ -649,12 +665,15 @@ input:checked + .icwp-slider:before {
 	max-width: 126px;
 }
 #ColumnOptions {
-	background-color: #dddddd;
+	background-color: #f1f1f1;
 	min-width: 590px; /** prevents col breaking **/
 }
 .module-headline {
 	font-size: 14px;
 	padding: 14px 16px 10px;
+}
+.headline-title {
+	font-variant: small-caps;
 }
 .module-tagline {
 	font-size: 14px;
@@ -666,7 +685,7 @@ input:checked + .icwp-slider:before {
 	color: #222222;
 	position: relative;
 	font-weight: bolder;
-	text-shadow: 0 0 0 rgba(255,255,255,0.5);
+	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
 }
 .modules a.module .dashicons-warning {
 	position: absolute;
@@ -684,15 +703,15 @@ input:checked + .icwp-slider:before {
 	box-shadow: none;
 }
 .modules a.module.active {
-	background-color: #dddddd; /** == #ColumnOptions */
+	background-color: #f1f1f1; /** == #ColumnOptions */
 	color: #222222;
-	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 .icwp-options-page .tab-content {
 	background-color: #fcfffc;
 	border: 1px solid #dddddd;
-	box-shadow: -1px 2px 3px rgba(0, 0, 0, 0.2);
-	min-height: 400px;
+	box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.05);
+	min-height: 450px;
 }
 #ModuleOptionsNav {
 	margin-top: 20px;

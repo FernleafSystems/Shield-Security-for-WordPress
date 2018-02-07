@@ -107,7 +107,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 
-		$sCode = $oDP->post( 'code' );
+		$sCode = $oDP->post( 'gacode' );
 		$bEnableGa = $oDP->post( 'enablega' ) === 'Y';
 
 		$sMessage = '';

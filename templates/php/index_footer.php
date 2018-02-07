@@ -1,6 +1,6 @@
 <script type="text/javascript">
 	jQuery( document ).ready( function () {
-		jQuery( 'a#icwpWizard' ).tooltip( {
+		jQuery( 'a.btn-icwp-wizard' ).tooltip( {
 			placement: 'bottom',
 			trigger: 'hover focus'
 		} );

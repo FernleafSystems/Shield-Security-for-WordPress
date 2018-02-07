@@ -13,7 +13,7 @@
     {
       "slug": "section_enable_plugin_feature_statistics",
       "primary": true,
-      "title": "Enable Plugin Feature: Statistics",
+      "title": "Enable Module: Statistics",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - Helps you see at a glance how effective the plugin has been.",
@@ -23,7 +23,7 @@
     {
       "slug": "section_enable_plugin_feature_reporting",
       "primary": true,
-      "title": "Enable Plugin Feature: Reporting",
+      "title": "Enable Module: Reporting",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - To track stats and issue reports.",

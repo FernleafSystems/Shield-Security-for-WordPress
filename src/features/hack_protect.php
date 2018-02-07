@@ -316,12 +316,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_enable_plugin_feature_hack_protection_tools' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Guard' ) ) )
 				);
-				$sTitleShort = sprintf( '%s Module', _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_wpvuln_scan' :

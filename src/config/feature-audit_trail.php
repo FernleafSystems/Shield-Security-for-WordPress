@@ -35,7 +35,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_audit_trail",
-      "title": "Enable Plugin Feature: Audit Trail",
+      "title": "Enable Module: Audit Trail",
       "title_short": "Disable Module",
       "summary": [
         "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",

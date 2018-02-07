@@ -537,7 +537,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = _wpsf__( 'Preferences have been saved.' );
 			}
 		}
-		else if ( $sForm == 'optin_badge' ) {
+		else if ( $sForm == 'optin_usage' ) {
 			$sInput = $oDP->post( 'AnonymousOption' );
 
 			if ( !empty( $sInput ) ) {

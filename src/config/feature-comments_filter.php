@@ -65,7 +65,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_spam_comments_protection_filter",
-      "title": "Enable Plugin Feature: Comments SPAM Protection",
+      "title": "Enable Module: Comments SPAM Protection",
       "title_short": "Disable Module",
       "summary":
       [

@@ -1,0 +1,22 @@
+<div class="row">
+	<div class="col-6 offset-3 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+		<p>This module comes with {{ data.mod_wizards_count }} Wizard(s).</p>
+		<p>Please click the link below of the Guided Wizard you'd like to launch.</p>
+	</div>
+</div>
+{% for wizard in data.mod_wizards %}
+<div class="row">
+	<div class="col-6 offset-3 col-sm-10 offset-sm-1 col-lg-6 offset-lg-3">
+		<div class="wizard_slot">
+			<div><h5>{{ wizard.title }}</h5></div>
+			<div>
+				<p>{{ wizard.desc }}</p>
+				{% if wizard.has_premium %}
+					<p>{{ strings.premium_note }}</p>
+				{% endif %}
+			</div>
+			<div><a class="btn btn-info" href="{{ wizard.url }}">Launch Wizard</a></div>
+		</div>
+	</div>
+</div>
+{% endfor %}

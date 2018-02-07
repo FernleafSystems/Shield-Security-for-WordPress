@@ -1413,15 +1413,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
 				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
-			'content'      => array()
+			'content'      => array(
+				'options_form'   => '',
+				'alt'            => '',
+				'actions'        => '',
+				'help'           => '',
+				'wizard_landing' => ''
+			)
 		);
 
 		if ( $bRenderEmbeddedContent ) { // prevents recursive loops
+
 			$aData[ 'content' ] = array(
-				'options_form' => 'no form',
-				'alt'          => '',
-				'actions'      => $this->getContentCustomActions(),
-				'help'         => $this->getContentHelp()
+				'options_form'   => 'no form',
+				'alt'            => '',
+				'actions'        => $this->getContentCustomActions(),
+				'help'           => $this->getContentHelp(),
+				'wizard_landing' => $this->getContentWizardLanding()
 			);
 			$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
 		}
@@ -1443,6 +1451,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'btn_options'       => __( 'Options' ),
 			'btn_help'          => __( 'Help' ),
 			'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
+			'btn_wizards'       => $this->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
 		);
 	}
 
@@ -1469,6 +1478,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getContentHelp() {
 		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData( false ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContentWizardLanding() {
+		$aData = $this->getBaseDisplayData( false );
+		if ( $this->hasWizard() && $this->canRunWizards() ) {
+			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
+		}
+		return $this->renderTemplate( 'snippets/module-wizard-template.php', $aData );
 	}
 
 	/**

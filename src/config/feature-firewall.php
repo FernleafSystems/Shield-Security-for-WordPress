@@ -53,7 +53,7 @@
     },
     {
       "slug": "section_enable_plugin_feature_wordpress_firewall",
-      "title": "Enable Plugin Feature: Firewall",
+      "title": "Enable Module: Firewall",
       "title_short": "Disable Module",
       "summary": [
          "Purpose - The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.",

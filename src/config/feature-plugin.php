@@ -100,7 +100,7 @@
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Enable Plugin Features",
+      "name":        "Enable/Disable All Plugin Modules",
       "summary":     "Global Plugin On/Off Switch",
       "description": "Uncheck this option to disable all Shield features"
     },
