@@ -8,7 +8,7 @@
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
-    "has_custom_actions":     true,
+    "has_custom_actions":     false,
     "order":                  10
   },
   "admin_notices": {
