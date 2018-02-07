@@ -59,7 +59,7 @@ body.wait {
 	list-style: square inside none;
 }
 .wizard p.wizard-response {
-	padding: 10px 15px;
+	/*padding: 10px 15px;*/
 }
 
 .wizard .slide-body img {

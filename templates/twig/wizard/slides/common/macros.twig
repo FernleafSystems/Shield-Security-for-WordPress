@@ -1,0 +1,40 @@
+{% macro slideTitle(content) %}
+	<h4>{{ content }}</h4>
+{% endmacro %}
+
+{% macro formInput_Hidden(name,value) %}
+	<input name="{{ name }}" value="{{ value }}" type="hidden" />
+{% endmacro %}
+
+{% macro formInput_Text(name,value,label,placeholder,id) %}
+	{% import _self as slideMacros %}
+	{{ slideMacros.formInput_Base('text',name,value,label,placeholder,id) }}
+{% endmacro %}
+
+{% macro formInput_Password(name,value,label,placeholder,id,help) %}
+	{% import _self as slideMacros %}
+	{{ slideMacros.formInput_Base('password',name,value,label,placeholder,id,help) }}
+{% endmacro %}
+
+{% macro formInput_Submit(label,name) %}
+	<div class="form-group row">
+		<div class="col-8 offset-4">
+			<button type="submit"
+					{% if name is defined %} name="{{ name }}" {% endif %}
+					class="btn btn-primary">{{ label|default('Submit') }}</button>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro formInput_Base(type,name,value,label,placeholder,id,help) %}
+	<div class="form-group row">
+		<label class="col-4 col-form-label" for="{{ id|default( '_'~name) }}">{{ label }}</label>
+		<div class="col-8">
+			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
+				   class="form-control" id="{{ id|default( '_'~name) }}" placeholder="{{ placeholder|default('') }}">
+			{% if help is defined and help|length > 0 %}
+				<small id="passwordHelpBlock" class="form-text text-muted">{{ help }}</small>
+			{% endif %}
+		</div>
+	</div>
+{% endmacro %}

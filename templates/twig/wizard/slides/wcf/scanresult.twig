@@ -1,8 +1,8 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
+	{{ slideMacros.slideTitle( 'Core File Scanner Results' ) }}
 
-	<h3>WordPress Core File Scanner Results</h3>
 	{% if data.files.has %}
 		<p>A total of {{ data.files.count }} file(s) were discovered.</p>
 		<div class="indent_slight">

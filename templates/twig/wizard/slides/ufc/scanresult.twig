@@ -1,8 +1,8 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
+	{{ slideMacros.slideTitle( 'Unrecognised File Scanner Results' ) }}
 
-	<h3>Unrecognised File Scanner Results</h3>
 	{% if data.files.has %}
 		<div class="indent_slight">
 			<p>A total of {{ data.files.count }} file(s) were discovered.</p>
