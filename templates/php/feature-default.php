@@ -8,6 +8,10 @@
 			</div>
 		</div>
 
+		<div class="carousel-item carousel-wizards">
+			<div class="d-block w-100"><?php echo $content[ 'wizards' ]; ?></div>
+		</div>
+
 		<div class="carousel-item carousel-help">
 			<div class="d-block w-100"><?php echo $content[ 'help' ]; ?></div>
 		</div>

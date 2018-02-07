@@ -23,8 +23,7 @@
 								   id="icwpWizard" title="Launch Guided Walk-Through Wizards"
 								   target="_blank">Wizards</a>
 							<?php else: ?>
-								<a href="#" id="icwpWizard" class="btn btn-light"
-								   title="Wizards are not available as your PHP version is too old.">Wizards</a>
+								<a href="#" id="icwpWizard" class="btn btn-light">Wizards</a>
 							<?php endif; ?>
 						<?php endif; ?>
 
@@ -34,19 +33,36 @@
 							   class="btn btn-success disabled">
 								<?php echo $strings[ 'btn_options' ]; ?></a>
 
-							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}"
+							<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>
+								<a class="btn btn-outline-dark btn-icwp-wizard"
+								   title="Launch Guided Walk-Through Wizards"
+								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}">
+								<?php echo $strings[ 'btn_wizards' ]; ?></a>
+							<?php else : ?>
+								<a class="btn btn-outline-dark btn-icwp-wizard"
+								   href="javascript:{}"
+									<?php if ( $flags[ 'can_wizard' ] ) : ?>
+								   title="No Wizards for this module."
+									<?php else : ?>
+								   title="Wizards are not available as your PHP version is too old."
+									<?php endif; ?>>
+								<?php echo $strings[ 'btn_wizards' ]; ?></a>
+							<?php endif; ?>
+
+							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
 							   class="btn btn-outline-info">
-								<?php echo $strings[ 'btn_help' ]; ?> &rarr;</a>
+								<?php echo $strings[ 'btn_help' ]; ?></a>
 
 							<?php if ( $flags[ 'show_content_actions' ] ) : ?>
 								<a class="btn btn-outline-secondary"
-								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}">
-								<?php echo $strings[ 'btn_actions' ]; ?> &rarr;</a>
+								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 3 );}">
+								<?php echo $strings[ 'btn_actions' ]; ?></a>
 							<?php else : ?>
 								<a class="btn btn-outline-secondary disabled"
 								   href="javascript:{}">
 								<?php echo $strings[ 'btn_actions' ]; ?></a>
 							<?php endif; ?>
+
 						</div>
 					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>
