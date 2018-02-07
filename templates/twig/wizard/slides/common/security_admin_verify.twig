@@ -6,9 +6,9 @@
 	<p>Since you have previously turned-on the Security Admin system, we just need you to verify access before proceeding.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'security_admin_verify' ) }}
 		{{ slideMacros.formInput_Hidden( 'current_index', current_index ) }}
-		{{ slideMacros.formInput_Password( 'AccessKey', '', 'Access Key', '', '' ) }}
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'security_admin_verify' ) }}
+		{{ slideMacros.formInput_Password( 'AccessKey', '', 'Access Key' ) }}
 		{{ slideMacros.formInput_Submit( 'Submit Key' ) }}
 	</form>
 

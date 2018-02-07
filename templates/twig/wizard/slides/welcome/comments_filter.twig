@@ -3,9 +3,10 @@
 {% block slide_body %}
 	{{ slideMacros.slideTitle( 'Comment SPAM' ) }}
 
-<h4>Quick Summary:</h4>
+<h5>Quick Summary:</h5>
 <p>Shield can block 100% of automated Comment SPAM sent by "bots". You can turn it on below.</p>
-<h4>The Details:</h4>
+
+<h5>The Details:</h5>
 <p>99%+ of comments spam is by automated bots. You get some human SPAM too, of course.</p>
 <p>Shield Security offers a couple of highly effective techniques to block bot spam.
    Also, and unlike Akismet, we never send your private comment data to 3rd parties for
@@ -18,29 +19,17 @@
 
 <h4>Turn On/Off Comment SPAM Protection Feature</h4>
 <form class="form-horizontal icwp-wizard-form">
-	<input name="wizard-step" value="comments_filter" type="hidden" />
-	<div class="form-group">
-		<label class="col-md-4 control-label" for="CommentsFilterOption">Comment SPAM Filter:</label>
-		<div class="col-md-8">
-			<div class="radio">
-				<label>
-					<input type="radio" name="CommentsFilterOption" id="AuditTrailOn" value="Y">
-					<span>Turn On</span> - Block comments SPAM by bots
-				</label>
-			</div>
-			<div class="radio">
-				<label>
-					<input type="radio" name="CommentsFilterOption" id="AuditTrailOff" value="N">
-					<span>Turn Off</span> - Do not block comments SPAM by bots
-				</label>
-			</div>
-		</div>
-	</div>
-	<div class="form-group">
-		<div class="col-md-offset-4 col-md-8">
-			<button type="submit" class="btn btn-primary">Update The Comment SPAM Setting</button>
-		</div>
-	</div>
+
+	{% set radiovalues =
+		{
+			'Y': '<span>Turn On</span> - Block automated comments SPAM by bots',
+			'N': '<span>Turn Off</span> - Do not block automated comments SPAM'
+		}
+	%}
+	{{ slideMacros.formInput_Radio( 'CommentsFilterOption', radiovalues, 'Comment SPAM Blocking' ) }}
+
+	{{ slideMacros.formInput_Hidden( 'wizard-step', 'comments_filter' ) }}
+	{{ slideMacros.formInput_Submit( 'Set Comment SPAM Protection' ) }}
 </form>
 
 {% endblock %}

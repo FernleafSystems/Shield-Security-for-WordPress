@@ -15,29 +15,13 @@
 <p>It's also a great layer of security in-case someone gets unauthorized access to your WordPress admin dashboard.</p>
 <p>To turn this option on, please supply a password below (aka 'Access Key').</p>
 
-<h4>Supply Your New Security Access Key</h4>
+<h5>Supply Your New Security Access Key</h5>
 <p><strong>Warning</strong>: You must remember this key to regain access to the Shield plugin.</p>
 <form class="form-horizontal icwp-wizard-form">
-	<input name="wizard-step" value="admin_access_restriction" type="hidden" />
-	<div class="form-group">
-		<label class="col-4 control-label" for="AccessKey">Access Key</label>
-		<div class="col-8">
-			<input type="password" class="form-control"
-				   name="AccessKey" id="AccessKey" placeholder="Access Key">
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="col-4 control-label" for="AccessKeyConfirm">Confirm Key</label>
-		<div class="col-8">
-			<input type="password" class="form-control"
-				   name="AccessKeyConfirm" id="AccessKeyConfirm" placeholder="Confirm Access Key">
-		</div>
-	</div>
-	<div class="form-group">
-		<div class="offset-4 col-8">
-			<button type="submit" class="btn btn-primary">Turn On Security Admin</button>
-		</div>
-	</div>
+	{{ slideMacros.formInput_Password( 'AccessKey', '', 'Access Key', '', 'Do not forget this key' ) }}
+	{{ slideMacros.formInput_Password( 'AccessKeyConfirm', '', 'Confirm Key', 'Confirm Access Key' ) }}
+	{{ slideMacros.formInput_Hidden( 'wizard-step', 'admin_access_restriction' ) }}
+	{{ slideMacros.formInput_Submit( 'Turn On Security Admin' ) }}
 </form>
 
 {% endblock %}

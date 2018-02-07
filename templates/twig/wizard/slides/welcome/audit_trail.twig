@@ -1,43 +1,30 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Come Join Us!' ) }}
+	{{ slideMacros.slideTitle( 'Audit Trail and Logging' ) }}
 
-<h3>Security Audit Trail</h3>
-<h4>Quick Summary:</h4>
+<h5>Quick Summary:</h5>
 <p>Turn on the Audit Trail below so you can track user activities on your site and troubleshoot problems more easily.</p>
-<h4>The Details:</h4>
+<h5>The Details:</h5>
 <p>One of the most difficult things to do is fix a problem where you don't know the cause.
    This is one of the problems that the Audit Trail feature will help you solve.</p>
 <p>It provides a log of major events on your WordPress site. It lets you see who's
    doing what, and when, and from where (IP address).</p>
 <p>Note: The Audit Trail is limited to 50 entries. You can increase this limit at any time by purchasing a Pro license.</p>
 
-<h4>Turn On/Off The Audit Trail Feature</h4>
+<h5>Turn On/Off The Audit Trail Feature</h5>
 <form class="form-horizontal icwp-wizard-form">
-	<input name="wizard-step" value="audit_trail" type="hidden" />
-	<div class="form-group">
-		<label class="col-md-4 control-label" for="AuditTrailOption">Audit Trail:</label>
-		<div class="col-md-8">
-			<div class="radio">
-				<label>
-					<input type="radio" name="AuditTrailOption" id="AuditTrailOn" value="Y">
-					<span>Turn On</span> - Log important site events
-				</label>
-			</div>
-			<div class="radio">
-				<label>
-					<input type="radio" name="AuditTrailOption" id="AuditTrailOff" value="N">
-					<span>Turn Off</span> - Do not log important site events
-				</label>
-			</div>
-		</div>
-	</div>
-	<div class="form-group">
-		<div class="col-md-offset-4 col-md-8">
-			<button type="submit" class="btn btn-primary">Update The Audit Trail Setting</button>
-		</div>
-	</div>
+
+	{% set radiovalues =
+		{
+			'Y': '<span>Turn On</span> - Log important site events',
+			'N': '<span>Turn Off</span> - Do not log important site events'
+		}
+	%}
+	{{ slideMacros.formInput_Radio( 'AuditTrailOption', radiovalues, 'Audit Trail' ) }}
+
+	{{ slideMacros.formInput_Hidden( 'wizard-step', 'audit_trail' ) }}
+	{{ slideMacros.formInput_Submit( 'Update The Audit Trail Setting' ) }}
 </form>
 
 {% endblock %}

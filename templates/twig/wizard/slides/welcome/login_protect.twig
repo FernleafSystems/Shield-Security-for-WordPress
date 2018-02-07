@@ -3,9 +3,10 @@
 {% block slide_body %}
 	{{ slideMacros.slideTitle( 'Brute Force Login Protection' ) }}
 
-<h4>Quick Summary:</h4>
+<h5>Quick Summary:</h5>
 <p>Shield can protect your login form against automated login attacks and bots.</p>
-<h4>The Details:</h4>
+
+<h5>The Details:</h5>
 <p>You can turn on Shield Login Protection which is highly effective and uses a similar
    technique to that for Comments SPAM blocking.</p>
 <p>Shield also offers you the option to use Google reCAPTCHA for login bot protection, but you'll need to
@@ -13,31 +14,19 @@ setup some API keys for this first, so we'll leave you to do that later.</p>
 <p>This option will add a <em>special anti-bot</em> checkbox to your login form that users have to check.
    It's easy, and super simple to use - no annoying CAPTCHAs.</p>
 
-<h4>Turn On/Off Login Protection</h4>
+<h5>Turn On/Off Login Protection</h5>
 <form class="form-horizontal icwp-wizard-form">
-	<input name="wizard-step" value="login_protect" type="hidden" />
-	<div class="form-group">
-		<label class="col-md-4 control-label" for="LoginProtectOption">Bot Login Protection:</label>
-		<div class="col-md-8">
-			<div class="radio">
-				<label>
-					<input type="radio" name="LoginProtectOption" id="LoginProtectOptionOn" value="Y">
-					<span>Turn On</span> - Protect my WordPress login from automated bots
-				</label>
-			</div>
-			<div class="radio">
-				<label>
-					<input type="radio" name="CommentsFilterOption" id="LoginProtectOptionOff" value="N">
-					<span>Turn Off</span> - Do not protect my WordPress login from automated bots
-				</label>
-			</div>
-		</div>
-	</div>
-	<div class="form-group">
-		<div class="col-md-offset-4 col-md-8">
-			<button type="submit" class="btn btn-primary">Submit</button>
-		</div>
-	</div>
+
+	{% set radiovalues =
+		{
+			'Y': '<span>Turn On</span> - Protect my WordPress login from automated attacks',
+			'N': '<span>Turn Off</span> - Do not protect my WordPress login from automated attacks'
+		}
+	%}
+	{{ slideMacros.formInput_Radio( 'LoginProtectOption', radiovalues, 'Bot Login Protection' ) }}
+
+	{{ slideMacros.formInput_Hidden( 'wizard-step', 'login_protect' ) }}
+	{{ slideMacros.formInput_Submit( 'Set Login Protection' ) }}
 </form>
 
 {% endblock %}

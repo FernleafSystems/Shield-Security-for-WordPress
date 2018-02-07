@@ -17,27 +17,18 @@
 	for your particular web hosting.</p>
 	<p>It involves 2 simple steps. Here goes ...</p>
 
-	<h4>Steps To Find Best Source For Visitor IP Address</h4>
-	<h5>Step 1: Find <em>your</em> current IP address</h5>
+	<h5>Steps To Find Best Source For Visitor IP Address</h5>
+	<h6>Step 1: Find <em>your</em> current IP address</h6>
 	<p><a href="{{ hrefs.visitor_ip }}" target="_blank">Click here</a>
 		to open up a new page that will tell you your current IP Address.</p>
-	<h5>Step 2: Tell us your IP address</h5>
+	<h6>Step 2: Tell us your IP address</h6>
 	<p>Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		<input name="wizard-step" value="ip_detect" type="hidden" />
-		<div class="form-group">
-			<label class="col-4 control-label" for="ip">My IP Address:</label>
-			<div class="col-8">
-				<input type="text" class="form-control" maxlength="32" size="32"
-					   name="ip" id="ip" placeholder="123.456.789.012">
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="offset-4 col-8">
-				<button type="submit" class="btn btn-primary">Submit: This Is My IP</button>
-			</div>
-		</div>
+		{{ slideMacros.formInput_Password( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
+
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
+		{{ slideMacros.formInput_Submit( 'Submit: This Is My IP' ) }}
 	</form>
 
 {% endblock %}
