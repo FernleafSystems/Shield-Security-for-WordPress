@@ -3,14 +3,21 @@
 {% block slide_body %}
 	{{ slideMacros.slideTitle( 'Audit Trail and Logging' ) }}
 
-<h5>Quick Summary:</h5>
-<p>Turn on the Audit Trail below so you can track user activities on your site and troubleshoot problems more easily.</p>
-<h5>The Details:</h5>
-<p>One of the most difficult things to do is fix a problem where you don't know the cause.
-   This is one of the problems that the Audit Trail feature will help you solve.</p>
-<p>It provides a log of major events on your WordPress site. It lets you see who's
-   doing what, and when, and from where (IP address).</p>
-<p>Note: The Audit Trail is limited to 50 entries. You can increase this limit at any time by purchasing a Pro license.</p>
+	<p>Turn on the Audit Trail below so you can track activity on your site and troubleshoot problems more easily.</p>
+
+	<h6 class="more_details">
+		<a class="btn btn-outline-secondary" data-toggle="collapse" data-target=".more_details_body">More Details &rarr;</a>
+	</h6>
+	<div id="MoreDetails" class="collapse more_details_body">
+		<div class="card card-body">
+			<p>One of the most difficult things to do is fix a problem where you don't know the cause.
+			   This is one of the problems that the Audit Trail feature will help you solve.</p>
+			<p>It provides a log of major events on your WordPress site. It lets you see who's
+			   doing what, and when, and from where (IP address).</p>
+			<p>Note: The Audit Trail is limited to 50 entries.
+			   You can increase this limit at any time by purchasing a Pro license.</p>
+		</div>
+	</div>
 
 <h5>Turn On/Off The Audit Trail Feature</h5>
 <form class="form-horizontal icwp-wizard-form">

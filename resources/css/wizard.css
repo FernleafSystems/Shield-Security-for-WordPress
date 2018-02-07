@@ -129,3 +129,13 @@ body.wait {
 	line-height: 20px;
 	text-align: left;
 }
+
+.more_details {
+	margin-bottom: 12px;
+}
+.more_details:hover {
+	cursor: pointer;
+}
+.more_details_body {
+	margin-bottom: 12px;
+}
