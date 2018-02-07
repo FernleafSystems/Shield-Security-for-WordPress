@@ -103,9 +103,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @uses echo()
+	 * @return string
 	 */
-	protected function loadWizardLanding() {
+	public function renderWizardLandingPage() {
 		try {
 			$sContent = $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
 							 ->setTemplate( 'wizard/pages/landing.twig' )
@@ -116,7 +116,31 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		catch ( Exception $oE ) {
 			$sContent = $oE->getMessage();
 		}
-		echo $sContent;
+		return $sContent;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function renderWizardLandingSnippet() {
+		try {
+			$sContent = $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
+							 ->setTemplate( 'wizard/snippets/wizard_landing.twig' )
+							 ->setRenderVars( $this->getRenderData_PageWizardLanding() )
+							 ->setTemplateEngineTwig()
+							 ->render();
+		}
+		catch ( Exception $oE ) {
+			$sContent = $oE->getMessage();
+		}
+		return $sContent;
+	}
+
+	/**
+	 * @uses echo()
+	 */
+	protected function loadWizardLanding() {
+		echo $this->renderWizardLandingPage();
 		die();
 	}
 
@@ -269,14 +293,14 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			'data'    => array(),
 			'hrefs'   => array(
 				'form_action'      => $this->loadDP()->getRequestUri(),
-				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
+				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
 				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
 				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min.css' ),
 				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin.css' ),
 				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard.css' ),
 				'js_jquery'        => $this->loadWpIncludes()->getUrl_Jquery(),
-				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
+				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min.js' ),
 				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min.js' ),
 				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
 				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min.js' ),

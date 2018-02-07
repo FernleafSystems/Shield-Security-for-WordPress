@@ -1,0 +1,91 @@
+{% macro slideTitle(content) %}
+	<h4>{{ content }}</h4>
+{% endmacro %}
+
+{% macro formInput_Hidden(name,value) %}
+	<input name="{{ name }}" value="{{ value }}" type="hidden" />
+{% endmacro %}
+
+{% macro formInput_Checkbox(name,value,toplabel,label,help,id) %}
+
+	{% if id is not defined or id|length < 1 %}
+		{% set id='_'~name %}
+	{% endif %}
+
+	<div class="form-group row">
+		<label class="col-4 col-form-label" for="{{ id }}">{{ toplabel }}</label>
+		<div class="col-8">
+			<div class="form-check">
+				<input type="checkbox" name="{{ name }}"
+					   class="form-check-input"
+					   id="{{ id }}" value="{{ value }}" />
+				<label class="form-check-label" for="{{ id }}">
+					{{ label|raw }}
+				</label>
+			</div>
+			{% if help is defined and help|length > 0 %}
+				<small class="form-text text-muted">{{ help|raw }}</small>
+			{% endif %}
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro formInput_Email(name,value,label,placeholder,help,id) %}
+	{% import _self as slideMacros %}
+	{{ slideMacros.formInput_Base('email',name,value,label,placeholder,help,id) }}
+{% endmacro %}
+
+{% macro formInput_Password(name,value,label,placeholder,help,id) %}
+	{% import _self as slideMacros %}
+	{{ slideMacros.formInput_Base('password',name,value,label,placeholder,help,id) }}
+{% endmacro %}
+
+{% macro formInput_Text(name,value,label,placeholder,help,id) %}
+	{% import _self as slideMacros %}
+	{{ slideMacros.formInput_Base('text',name,value,label,placeholder,help,id) }}
+{% endmacro %}
+
+{% macro formInput_Radio(name,values,toplabel,id) %}
+	<div class="form-group row">
+		<label class="col-4 col-form-label" for="{{ id|default( '_'~name) }}">{{ toplabel }}</label>
+		<div class="col-8">
+			<div class="form-check">
+				{% for value,label in values %}
+					<label class="form-check-label">
+						<input type="radio" name="{{ name }}"
+							   class="form-check-input"
+							   id="{{ name~value }}" value="{{ value }}">
+						{{ label|raw }}
+					</label>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro formInput_Submit(label,name,btn) %}
+	<div class="form-group row">
+		<div class="col-8 offset-4">
+			<button type="submit" class="btn btn-{{ btn|default('primary') }}"
+					{% if name is defined %} name="{{ name }}" {% endif %}
+			>{{ label|default('Submit') }}</button>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro formInput_Base(type,name,value,label,placeholder,help,id) %}
+	{% if id is not defined or id|length < 1 %}
+		{% set id='_'~name %}
+	{% endif %}
+
+	<div class="form-group row">
+		<label class="col-4 col-form-label" for="{{ id|default( '_'~name) }}">{{ label }}</label>
+		<div class="col-8">
+			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
+				   class="form-control" id="{{ id }}" placeholder="{{ placeholder|default('') }}">
+			{% if help is defined and help|length > 0 %}
+				<small class="form-text text-muted">{{ help|raw }}</small>
+			{% endif %}
+		</div>
+	</div>
+{% endmacro %}

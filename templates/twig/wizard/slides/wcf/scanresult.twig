@@ -1,13 +1,13 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
+	{{ slideMacros.slideTitle( 'Core File Scanner Results' ) }}
 
-	<h3>WordPress Core File Scanner Results</h3>
 	{% if data.files.has %}
 		<p>A total of {{ data.files.count }} file(s) were discovered.</p>
 		<div class="indent_slight">
 			{% if data.files.checksum.has %}
-				<h4>Modified Core Files: {{ data.files.checksum.count }}</h4>
+				<h5>Modified Core Files: {{ data.files.checksum.count }}</h5>
 				<ul>
 					{% for file in data.files.checksum.list %}
 						<li><code class="filepath">{{ file }}</code></li>
@@ -35,27 +35,15 @@
 			this with your web hosting provider or developers.
 		</p>
 		<form class="form-horizontal icwp-wizard-form">
-			<input name="wizard-step" value="restorefiles" type="hidden" />
-			<div class="form-group">
-				<label class="col-md-4 control-label" for="RestoreFiles">Replace Modified Files</label>
-				<div class="col-md-8">
-					<label for="RestoreFiles">
-						<input type="checkbox" value="Y" name="RestoreFiles" id="RestoreFiles">
-						Check to replace all of the modified files.
-					</label>
-					<span id="helpBlock" class="help-block">
-						If you are unsure about whether you can restore these files to official
-						WordPress originals, please discuss the results of this scan with your
-						web host/developer.
-					</span>
-				</div>
-			</div>
 
-			<div class="form-group">
-				<div class="col-md-offset-4 col-md-8">
-					<button type="submit" class="btn btn-warning">Replace Files</button>
-				</div>
-			</div>
+			{{ slideMacros.formInput_Checkbox(
+				'RestoreFiles', 'Y', 'Replace Modified Files', 'Check to replace all of the modified files',
+				"If you are unsure about whether you can restore these files to official
+						WordPress originals, please discuss the results of this scan with your
+						web host/developer.."
+			) }}
+			{{ slideMacros.formInput_Hidden( 'wizard-step', 'restorefiles' ) }}
+			{{ slideMacros.formInput_Submit( 'Replace Files With Originals' ) }}
 		</form>
 
 	{% else %}

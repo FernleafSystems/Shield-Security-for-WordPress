@@ -1,46 +1,37 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
+	{{ slideMacros.slideTitle( 'Automatic IP Blacklist' ) }}
 
-<h3>Automatic IP Blacklist</h3>
-<h4>Quick Summary:</h4>
-<p>Turn on the IP Manager below so Shield can automatically limit login attempts and block automated attacks.</p>
-<h4>The Details:</h4>
-<p>Many security plugins offer the option of blacklisting IP addresses. But the big secret they're not telling you is
-   that this is complete waste of your time.</p>
-<p>Can you think of anything you'd rather be doing, than getting 100s of email notifications and then
-   having to add IP addresses to some blacklist?</p>
-<p>The automatic IP Manager will track bad behaviour, and automatically block repeat offenders.
-   But not permanently, because that would make your IP list explode, slowing down your site for normal visitors.</p>
-<p>And nobody wants that.</p>
+	<p>Turn on the IP Manager below so Shield can automatically limit login attempts and block automated attacks.</p>
 
-<p>By default, bad visitors are blocked for 1 minute after 10 bad requests.</p>
-
-<h4>Turn On/Off Automatic Blacklist Engine</h4>
-<form class="form-horizontal icwp-wizard-form">
-	<input name="wizard-step" value="ips" type="hidden" />
-	<div class="form-group">
-		<label class="col-md-4 control-label" for="IpManagerOption">FABLE IP Manager:</label>
-		<div class="col-md-8">
-			<div class="radio">
-				<label>
-					<input type="radio" name="IpManagerOption" id="IpManagerOptionOn" value="Y">
-					<span>Turn On</span> - Automatically block bad visitors and bots
-				</label>
-			</div>
-			<div class="radio">
-				<label>
-					<input type="radio" name="IpManagerOption" id="IpManagerOptionOff" value="N">
-					<span>Turn Off</span> - Don't use black lists to protect against bad visitors and bots
-				</label>
-			</div>
+	<h6 class="more_details">
+		<a class="btn btn-outline-secondary" data-toggle="collapse" data-target=".more_details_body">More Details &rarr;</a>
+	</h6>
+	<div id="MoreDetails" class="collapse more_details_body">
+		<div class="card card-body">
+			<p>Many security plugins offer the option of blacklisting IP addresses.
+			   But the big secret they're not telling you is that this is complete waste of your time.</p>
+			<p>Can you think of anything you'd rather be doing, than getting 100s of email notifications and then
+			   having to add 100 IP addresses to a blacklist?</p>
+			<p>Shield's automatic IP Manager will track bad behaviour, and automatically block repeat offenders.
+			   But not permanently, because that would make your IP list explode,
+			   slowing down your site for normal visitors.</p>
+			<p>By default, bad visitors are blocked for 1 minute after 10 bad requests.</p>
 		</div>
 	</div>
-	<div class="form-group">
-		<div class="col-md-offset-4 col-md-8">
-			<button type="submit" class="btn btn-primary">Submit</button>
-		</div>
-	</div>
-</form>
+
+	<h4>Turn On Automatic Blacklist Engine</h4>
+	<form class="form-horizontal icwp-wizard-form">
+		{% set radiovalues =
+			{
+				'Y': '<span>Turn On</span> - Automatically block bad visitors and bots',
+				'N': '<span>Turn Off</span> - Do not use automatic black lists to protect against bad visitors and bots'
+			}
+		%}
+		{{ slideMacros.formInput_Radio( 'IpManagerOption', radiovalues, 'Automatic IP Blacklist' ) }}
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ips' ) }}
+		{{ slideMacros.formInput_Submit( 'Set IP Blacklist Option' ) }}
+	</form>
 
 {% endblock %}

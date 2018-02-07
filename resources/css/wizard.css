@@ -48,7 +48,6 @@ body.wait {
 	margin-bottom: 20px;
 }
 .wizard p {
-	margin-bottom: 20px;
 }
 .wizard .body ol,
 .wizard .body ul {
@@ -59,7 +58,7 @@ body.wait {
 	list-style: square inside none;
 }
 .wizard p.wizard-response {
-	padding: 10px 15px;
+	/*padding: 10px 15px;*/
 }
 
 .wizard .slide-body img {
@@ -95,6 +94,9 @@ body.wait {
 	font-weight: bolder;
 	letter-spacing: -0.4px;
 }
+.wizard form .form-check-label {
+	margin-bottom: 10px;
+}
 
 #GoProBtn {
 	width: 128px;
@@ -126,4 +128,14 @@ body.wait {
 	margin: 0;
 	line-height: 20px;
 	text-align: left;
+}
+
+.more_details {
+	margin-bottom: 12px;
+}
+.more_details:hover {
+	cursor: pointer;
+}
+.more_details_body {
+	margin-bottom: 12px;
 }
