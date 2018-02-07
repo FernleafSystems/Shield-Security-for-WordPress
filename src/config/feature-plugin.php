@@ -397,6 +397,10 @@
         "load_priority": 20
       },
       {
+        "slug":        "hack_protect",
+        "storage_key": "hack_protect"
+      },
+      {
         "slug":          "firewall",
         "storage_key":   "firewall",
         "load_priority": 13
@@ -416,10 +420,6 @@
       {
         "slug":        "autoupdates",
         "storage_key": "autoupdates"
-      },
-      {
-        "slug":        "hack_protect",
-        "storage_key": "hack_protect"
       },
       {
         "slug":        "headers",
