@@ -32,7 +32,7 @@
 						   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}">
 							<?php echo $strings[ 'btn_wizards' ]; ?></a>
 					<?php else : ?>
-						<a class="btn btn-outline-dark btn-icwp-wizard"
+						<a class="btn btn-outline-dark btn-icwp-wizard disabled"
 						   href="javascript:{}"
 							<?php if ( $flags[ 'can_wizard' ] ) : ?>
 								title="No Wizards for this module."

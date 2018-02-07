@@ -548,6 +548,10 @@ input[type="email"] {
 	background-color: #ffffff;
 }
 
+.btn.btn-icwp-wizard.disabled {
+	pointer-events: auto;
+}
+
 .content-wizards,
 .content-help {
 	background-color: #fafafa;

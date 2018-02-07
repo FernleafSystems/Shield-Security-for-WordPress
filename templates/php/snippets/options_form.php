@@ -17,16 +17,6 @@
 							<?php _wpsf_e( 'Save Options' ); ?>
 						</button>
 
-						<?php if ( $flags[ 'has_wizard' ] ) : ?>
-							<?php if ( $flags[ 'can_wizard' ] ) : ?>
-								<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>" class="btn btn-light"
-								   id="icwpWizard" title="Launch Guided Walk-Through Wizards"
-								   target="_blank">Wizards</a>
-							<?php else: ?>
-								<a href="#" id="icwpWizard" class="btn btn-light">Wizards</a>
-							<?php endif; ?>
-						<?php endif; ?>
-
 						<div class="btn-group" role="group" aria-label="Basic example">
 
 							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}" aria-disabled="true"
@@ -39,7 +29,7 @@
 								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}">
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 							<?php else : ?>
-								<a class="btn btn-outline-dark btn-icwp-wizard"
+								<a class="btn btn-outline-dark btn-icwp-wizard disabled"
 								   href="javascript:{}"
 									<?php if ( $flags[ 'can_wizard' ] ) : ?>
 								   title="No Wizards for this module."
