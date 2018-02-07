@@ -13,38 +13,24 @@
 	<p>The balance here of course is between an easier user experience, or harder site security.
 	   The choice is yours.</p>
 
-	<h4>Configure Factor Requirements</h4>
+	<h5>Configure Factor Requirements</h5>
 
 	<form class="form-horizontal icwp-wizard-form" id>
-		<input name="wizard-step" value="multiselect" type="hidden" />
 
-			<div class="form-group stage-verificationcode">
-				<label class="col-md-4 control-label" for="multiselect">Configure Multi-Factor Authentication</label>
-				<div class="col-md-8">
-					<div class="radio">
-						<label>
-							<input type="radio" name="multiselect" id="multiselectOn" value="Y">
-							<span>Turn On Multi-Factor</span> - all factors required
-						</label>
-					</div>
-					<div class="radio">
-						<label>
-							<input type="radio" name="multiselect" id="multiselectOff" value="N">
-							<span>Turn Off Multi-Factor</span> - only 1 extra factor required
-						</label>
-					</div>
+		{% set radiovalues =
+			{
+				'Y': '<span>Turn On Multi-Factor</span> - all factors required',
+				'N': '<span>Turn Off Multi-Factor</span> - only 1 extra factor required'
+			}
+		%}
+		{{ slideMacros.formInput_Radio( 'multiselect', radiovalues, 'Configure Authentication' ) }}
 
-					<span id="helpBlock" class="help-block">
-						Think of turning multi-factor <em>on</em> as "requiring all configured factors".
-						<br/>And think of turning multi-factor <em>off</em> as "requiring just 1 of your extra factors".
-					</span>
-				</div>
-			</div>
-
-		<div class="form-group">
-			<div class="col-md-offset-4 col-md-8">
-				<button type="submit" class="btn btn-primary">Configure Multi-Factor</button>
-			</div>
+		<div class="help-block" style="margin-bottom: 20px;">
+			Think of turning multi-factor <em>on</em> as "requiring all configured factors".
+			<br/>And think of turning multi-factor <em>off</em> as "requiring just 1 of your extra factors".
 		</div>
+
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'multiselect' ) }}
+		{{ slideMacros.formInput_Submit( 'Configure Multi-Factor' ) }}
 	</form>
 {% endblock %}

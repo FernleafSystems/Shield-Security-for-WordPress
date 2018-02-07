@@ -11,7 +11,7 @@
 	<p>Note: Turning on Google Authenticator for your user account will make the option available
 	   to turn it on for all users on the site.</p>
 
-	<h4>Register Google Authenticator On Your Account</h4>
+	<h5>Register Google Authenticator On Your Account</h5>
 
 	{% if flags.has_ga %}
 		<p>It looks like Google Authenticator is already configured for your WordPress account so
@@ -21,56 +21,36 @@
 	{% endif %}
 
 	<form class="form-horizontal icwp-wizard-form" id>
-		<input name="wizard-step" value="authga" type="hidden" />
 
 		{% if flags.has_ga %}
-			<input name="code" value="ignore" type="hidden" />
 
-			<div class="form-group stage-verificationcode">
-				<label class="col-md-4 control-label" for="enablega">Turn On Google Authenticator</label>
-				<div class="col-md-8">
-					<div class="radio">
-						<label>
-							<input type="radio" name="enablega" id="enablegaOn" value="Y" checked>
-							<span>Turn On</span> - Enable Google Authenticator
-						</label>
-					</div>
-					<div class="radio">
-						<label>
-							<input type="radio" name="enablega" id="enablegaOff" value="N">
-							<span>Turn Off</span> - Disable Google Authenticator
-						</label>
-					</div>
+			{% set radiovalues =
+					{
+						'Y': '<span>Turn On</span> - Enable Google Authenticator',
+						'N': '<span>Turn Off</span> - Disable Google Authenticator'
+					}
+				%}
+			{{ slideMacros.formInput_Radio( 'enablega', radiovalues, 'Turn On Google Authenticator' ) }}
+			{{ slideMacros.formInput_Hidden( 'gacode', 'ignore' ) }}
 
-					<span id="helpBlock" class="help-block">
-						When enabled, this will allow any user of this site to configure and
-						use Google Authenticator on their own WordPress account.
-					</span>
-				</div>
-			</div>
+			<span id="helpBlock" class="help-block">
+				When enabled, this will allow any user of this site to configure and
+				use Google Authenticator on their own WordPress account.
+			</span>
 		{% else %}
-			<input name="enablega" value="Y" type="hidden" />
 
-			<div class="form-group">
-				<label class="col-md-4 control-label">Scan your unique code</label>
-				<div class="col-md-8">
+			<div class="form-group row">
+				<label class="col-4 col-form-label">Scan your unique code</label>
+				<div class="col-8">
 					<img src="{{ hrefs.ga_chart }}" />
 				</div>
 			</div>
 
-			<div class="form-group">
-				<label class="col-md-4 control-label" for="code">Authenticator Code</label>
-				<div class="col-md-8">
-					<input type="text" class="form-control" name="code"
-						   maxlength="6" minlength="6" placeholder="" value="">
-				</div>
-			</div>
+			{{ slideMacros.formInput_Text( 'gacode', '', 'Authenticator Code', '', '6 digits long' ) }}
+			{{ slideMacros.formInput_Hidden( 'enablega', 'Y' ) }}
 		{% endif %}
 
-		<div class="form-group">
-			<div class="col-md-offset-4 col-md-8">
-				<button type="submit" class="btn btn-primary">Configure Google Authenticator</button>
-			</div>
-		</div>
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'authga' ) }}
+		{{ slideMacros.formInput_Submit( 'Configure Google Authenticator' ) }}
 	</form>
 {% endblock %}
