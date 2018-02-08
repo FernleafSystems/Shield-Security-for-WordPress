@@ -76,64 +76,6 @@ var iCWP_WPSF_Autoupdates = new function () {
 
 }();
 
-var iCWP_WPSF_OptionsFormSubmit = new function () {
-
-	var bRequestCurrentlyRunning = false;
-
-	this.submit = function ( sMessage, bSuccess ) {
-		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( sMessage );
-		setTimeout( function () {
-			$oDiv.fadeOut( 5000 );
-			$oDiv.remove();
-		}, 4000 );
-	};
-
-	/**
-	 */
-	var submitOptionsForm = function ( event ) {
-		iCWP_WPSF_BodyOverlay.show();
-
-		if ( bRequestCurrentlyRunning ) {
-			return false;
-		}
-
-		bRequestCurrentlyRunning = true;
-
-		event.preventDefault();
-
-		var $oForm = jQuery( this );
-		jQuery( '<input />' ).attr( 'type', 'hidden' )
-							 .attr( 'name', 'action' )
-							 .attr( 'value', 'icwp_OptionsFormSave' )
-							 .appendTo( $oForm );
-
-		jQuery.post( ajaxurl, $oForm.serialize(),
-			function ( oResponse ) {
-				var sMessage;
-				if ( oResponse.data.message === undefined ) {
-					sMessage = oResponse.success ? 'Success' : 'Failure';
-				}
-				else {
-					sMessage = oResponse.data.message;
-				}
-				jQuery( 'div#icwpOptionsFormContainer' ).html( oResponse.data.options_form )
-				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
-			}
-		).always( function () {
-				bRequestCurrentlyRunning = false;
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-	};
-
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", "form.icwpOptionsForm", submitOptionsForm );
-		} );
-	};
-}();
-
 var iCWP_WPSF_Growl = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
@@ -183,7 +125,6 @@ var iCWP_WPSF_BodyOverlay = new function () {
 
 }();
 
-iCWP_WPSF_Autoupdates.initialise();
-iCWP_WPSF_OptionsFormSubmit.initialise();
+// iCWP_WPSF_Autoupdates.initialise();
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();

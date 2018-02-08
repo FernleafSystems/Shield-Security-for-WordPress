@@ -15,16 +15,32 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-		$this->clearIcSnapshots();
-		$this->clearCrons();
-		$this->cleanFileExclusions();
+
+		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+
+			$this->clearIcSnapshots();
+			$this->clearCrons();
+			$this->cleanFileExclusions();
+
+			/** @var ICWP_WPSF_Processor_HackProtect $oP */
+			$oP = $this->getProcessor();
+			$oGuardLocker = $oP->getSubProcessorGuardLocker();
+			$oOpts = $this->getOptionsVo();
+			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) ) {
+				$oGuardLocker->deleteStores();
+				$oP->getSubProcessorGuardLocker()
+				   ->deleteStores();
+				$this->setPtgLastBuildAt( 0 );
+			}
+		}
 	}
 
 	protected function clearCrons() {
 		$aCrons = array(
 			$this->getIcCronName(),
 			$this->getUfcCronName(),
-			$this->getWcfCronName()
+			$this->getWcfCronName(),
+			$this->getPtgCronName()
 		);
 		$oCron = $this->loadWpCronProcessor();
 		foreach ( $aCrons as $sCron ) {
@@ -298,6 +314,56 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getPtgCronName() {
+		return $this->prefixOptionKey( $this->getDef( 'ptl_cronname' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getPtgDepth() {
+		return $this->getOpt( 'ptg_depth' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgBuildRequired() {
+		return $this->isPtgEnabled() && ( $this->getPtgLastBuildAt() == 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgEnabled() {
+		return $this->getOptIs( 'ptg_enable', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgReadyToScan() {
+		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
+	}
+
+	/**
+	 * @param int $nTime
+	 * @return $this
+	 */
+	public function setPtgLastBuildAt( $nTime = null ) {
+		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -359,6 +425,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Unrecognised Files Scanner' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
+				break;
+
+			case 'section_pluginthemes_guard' :
+				$sTitle = _wpsf__( 'Plugins/Themes Locker' );
+				$sTitleShort = _wpsf__( 'Plugins/Themes Locker' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep the Plugins/Theme Locker feature turned on.' ) )
+				);
 				break;
 
 			case 'section_integrity_checking' :
@@ -472,6 +547,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'This option may cause critial problem with 3rd party plugins that manage user accounts.' ) );
+				break;
+
+			case 'ptg_enable' :
+				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Locker' ) );
+				$sSummary = _wpsf__( 'Enable The Locker For Plugin And Theme Files' );
+				$sDescription = _wpsf__( 'When enabled the Locker will automatically scan for changes to your Plugin and Theme files.' );
+				break;
+
+			case 'ptg_depth' :
+				$sName = _wpsf__( 'Guard/Scan Depth' );
+				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
+				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
+								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit - not recommended' ), 0 );
 				break;
 
 			default:

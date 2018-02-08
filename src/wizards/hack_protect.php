@@ -212,11 +212,33 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'ufc':
 				$aSteps = $this->determineWizardSteps_Ufc();
 				break;
+			case 'ptg':
+				$aSteps = $this->determineWizardSteps_Ptg();
+				break;
 			default:
 				parent::determineWizardSteps();
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Ptg() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getModCon();
+
+		$aStepsSlugs = array(
+			'start',
+			'scanresult_plugins',
+			'scanresult_themes',
+		);
+		if ( !$oFO->isPtgEnabled() ) {
+			$aStepsSlugs[] = 'config';
+		}
+		$aStepsSlugs[] = 'finished';
+		return $aStepsSlugs;
 	}
 
 	/**
@@ -324,11 +346,84 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
+		else if ( $sCurrentWiz == 'ptg' ) {
+
+			switch ( $sStep ) {
+				case 'scanresult_themes':
+					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'themes' );
+					break;
+				case 'scanresult_plugins':
+					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'plugins' );
+					break;
+			}
+		}
 
 		if ( empty( $aAdditional ) ) {
 			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
 		}
 		return $aAdditional;
+	}
+
+	private function getPtgScanResults( $sContext ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+		$oProc = $this->getModCon()->getProcessor();
+		$oP = $oProc->getSubProcessorGuardLocker();
+		if ( $sContext == 'plugins' ) {
+			$aResults = $oP->scanPlugins();
+		}
+		else {
+			$aResults = $oP->scanThemes();
+		}
+
+		$oWpPlugins = $this->loadWpPlugins();
+		$oWpThemes = $this->loadWpThemes();
+		foreach ( $aResults as $sSlug => $aItemResultSet ) {
+			if ( $sContext == 'plugins' ) {
+				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
+				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
+			}
+			else {
+				$bIsWpOrg = false;
+				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+			}
+			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );
+			$aResults[ $sName ][ 'is_wporg' ] = $bIsWpOrg;
+			unset( $aResults[ $sSlug ] );
+		}
+
+		return array(
+			'context_sing' => rtrim( ucfirst( $sContext ), 's' ),
+			'context'      => ucfirst( $sContext ),
+			'result'       => $aResults,
+		);
+	}
+
+	/**
+	 * @param array[] $aLists
+	 * @return int
+	 */
+	private function count( $aLists ) {
+		$nCount = 0;
+		foreach ( $aLists as $aList ) {
+			$nCount += count( $aList );
+		}
+		return $nCount;
+	}
+
+	/**
+	 * @param array[] $aLists
+	 * @return array[]
+	 */
+	private function stripPaths( $aLists ) {
+		foreach ( $aLists as $sKey => $aList ) {
+			$aLists[ $sKey ] = array_map(
+				function ( $sPath ) {
+					return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+				},
+				$aList
+			);
+		}
+		return $aLists;
 	}
 
 	/**
