@@ -49,8 +49,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 			<div class="module-headline">
 				<h4>License Summary</h4>
 			</div>
-			<table class="table table-sm table-responsive" style="">
-			<tbody>
+			<table class="table table-hover table-sm table-responsive" style="">
 				<tr>
 					<th scope="row"><?php echo $strings[ 'product_name' ]; ?>:</th>
 					<td><?php echo $vars[ 'product_name' ]; ?></td>
@@ -81,12 +80,12 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				</tr>
 				<tr>
 					<th><?php echo $strings[ 'last_errors' ]; ?>:</th>
-					<td style="color: #b80000"><?php echo $vars[ 'last_errors' ]; ?></td>
+					<td class="<?php echo empty( $vars[ 'last_errors' ] ) ? '' : 'table-warning'; ?>">
+						<?php echo $vars[ 'last_errors' ]; ?></td>
 				</tr>
-			</tbody>
 			</table>
 
-<h2>License Actions</h2>
+<h4>License Actions</h4>
 <div class="row-fluid">
 	<div class="span12 well">
 		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal licenseForm">
