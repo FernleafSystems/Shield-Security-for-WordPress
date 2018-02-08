@@ -152,7 +152,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 			<div id="accordion">
 				  <div class="card gopro-card">
 					<div class="card-header" id="headingOne">
-					  <h5>
+					  <h5 class="mb-0">
 						<button class="btn btn-link" data-toggle="collapse" data-target="#collone"
 								aria-expanded="true" aria-controls="collone">
 						  &rarr; Shield Pro gives you ...
@@ -197,7 +197,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 
 				  <div class="card gopro-card">
 					<div class="card-header" id="headingTwo">
-					  <h5>
+					  <h5 class="mb-0">
 						<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#colltwo"
 								aria-expanded="false" aria-controls="colltwo">
 						  &rarr; Coming Soon...
@@ -256,7 +256,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 						<p style="text-align: center">
 							<a href="http://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
 							   class="btn btn-large btn-success">
-								Buy Shield Security Pro Now &rarr;</a>
+								Upgrade To Shield Pro Now &rarr;</a>
 						</p>
 					  </div>
 					</div>
