@@ -299,7 +299,6 @@ p.code-description {
 .option_section.active {
 }
 table.table th {
-	border-bottom: 1px solid #777777;
 }
 table.tbl_tbs_options {
 	width: 100%;
@@ -768,4 +767,8 @@ input:checked + .icwp-slider:before {
 	background-color: white;
 	padding: 40px;
 	margin: 40px 0;
+}
+
+.card.gopro-card {
+	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
 }
