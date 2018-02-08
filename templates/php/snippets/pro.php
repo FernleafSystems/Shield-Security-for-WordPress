@@ -248,11 +248,10 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 						<ol>
 							<li>Just grab a new license from the
 								<a href="http://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
-							<li>Activate your license on your sites using the Activate button (below).</li>
-							<li><strong>No manual premium download</strong> - we automatically take care of it all for you! :)</li>
+							<li>Activate your license on your sites using the 'Activate Key' button.</li>
 						</ol>
 
-						<p style="text-align: center">
+						<p class="text-center">
 							<a href="http://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
 							   class="btn btn-large btn-success">
 								Upgrade To Shield Pro Now &rarr;</a>
