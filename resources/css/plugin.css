@@ -748,7 +748,7 @@ input:checked + .icwp-slider:before {
 	border-radius: 3px 0 0 3px;
 	color: #006100;
 	letter-spacing: -0.5px;
-	margin-left: 4px;
+	margin-left: 7px;
 }
 #ModuleOptionsNav li a:hover {
 	background-color: rgba(0, 0, 0, 0.07);

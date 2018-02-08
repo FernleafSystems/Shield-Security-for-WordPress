@@ -1,7 +1,7 @@
-<h5>What is Login Protection?</h5>
-<p>The goal of login protection is to harden-up the WordPress user login process.</p>
+<h5>What is the Login Guard?</h5>
+<p>The goal of the login guard is to protect against attacks on the WordPress user login process.</p>
 <p>It protects you against brute force and bots,
-   while also providing added layers of multi-factor authentication.</p>
+   while also providing added layers of user identify verification, e.g. multi-factor authentication.</p>
 <dl>
 	<dt>What is multi-factor authentication (MFA)?</dt>
 	<dd>
@@ -19,7 +19,7 @@
 		<p>Everyone does everything differently, and so ensuring Shield works with 3rd party systems is nearly
 		   a full-time job in itself.</p>
 		<p>Systems such as WooCommerce, BuddyPress, etc. all use slightly different login/registration forms
-		   and this breaks Shield's login protection features since they aren't aligned with WordPress standard
+		   and this breaks Shield's Login Guard features since they aren't aligned with WordPress standard
 		   API.</p>
 		<p>If you use these 3rd party plugins, then you will need to go Pro.</p>
 		<p>Currently support systems are:</p>

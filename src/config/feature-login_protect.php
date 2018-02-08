@@ -2,7 +2,7 @@
   "slug":          "login_protect",
   "properties":    {
     "slug":                   "login_protect",
-    "name":                   "Login Protection",
+    "name":                   "Login Guard",
     "show_module_menu_item":  true,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
@@ -22,7 +22,7 @@
     {
       "slug":        "section_brute_force_login_protection",
       "primary":     true,
-      "title":       "Brute Force Login Protection",
+      "title":       "Brute Force Login Guard",
       "title_short": "Brute Force",
       "summary":     [
         "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
@@ -79,11 +79,11 @@
     },
     {
       "slug":        "section_enable_plugin_feature_login_protection",
-      "title":       "Disable Login Protection Module",
+      "title":       "Disable Login Guard Module",
       "title_short": "Disable",
       "summary":     [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
+        "Purpose - Login Guard blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Guard module turned on."
       ]
     },
     {
@@ -99,9 +99,9 @@
       "type":        "checkbox",
       "link_info":   "http://icwp.io/51",
       "link_blog":   "http://icwp.io/wpsf03",
-      "name":        "Enable Login Protection",
-      "summary":     "Enable (or Disable) The Login Protection module",
-      "description": "Un-Checking this option will completely disable the Login Protection module"
+      "name":        "Enable Login Guard",
+      "summary":     "Enable (or Disable) The Login Guard Module",
+      "description": "Un-Checking this option will completely disable the Login Guard module"
     },
     {
       "key":         "rename_wplogin_path",
