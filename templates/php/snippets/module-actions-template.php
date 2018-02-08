@@ -4,7 +4,7 @@
 			<h4>
 				<?php echo $sPageTitle; ?>
 
-				<div class="btn-group float-right icwp-top-buttons" role="group" aria-label="Basic example">
+				<div class="btn-group float-right icwp-top-buttons" role="group">
 					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}"
 					   class="btn btn-outline-success"><?php echo $strings[ 'btn_options' ]; ?></a>
 
