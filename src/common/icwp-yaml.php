@@ -63,7 +63,7 @@ if ( !class_exists( 'ICWP_WPSF_YamlProcessor', false ) ):
 		 */
 		protected function loadSymfonyYamlParser() {
 			if ( !class_exists( 'sfYaml', false ) ) {
-				require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'yaml/symfony/sfYaml.php' );
+				require_once( dirname(__FILE__).'/yaml/symfony/sfYaml.php' );
 			}
 			return class_exists( 'sfYaml', false );
 		}

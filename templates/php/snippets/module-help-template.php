@@ -10,18 +10,7 @@
 		<div class="module-headline">
 			<div class="float-right">
 
-				<?php if ( $flags[ 'has_wizard' ] ) : ?>
-					<?php if ( $flags[ 'can_wizard' ] ) : ?>
-						<a href="<?php echo $hrefs[ 'wizard_link' ]; ?>" class="btn btn-light"
-						   id="icwpWizard" title="Launch Guided Walk-Through Wizards"
-						   target="_blank">Wizards</a>
-					<?php else: ?>
-						<a href="#" id="icwpWizard" class="btn btn-light"
-						   title="Wizards are not available as your PHP version is too old.">Wizards</a>
-					<?php endif; ?>
-				<?php endif; ?>
-
-					<div class="btn-group icwp-top-buttons" role="group" aria-label="Basic example">
+					<div class="btn-group icwp-top-buttons" role="group">
 
 					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}"
 					   class="btn btn-outline-success"><?php echo $strings[ 'btn_options' ]; ?></a>

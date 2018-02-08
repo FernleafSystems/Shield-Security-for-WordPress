@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	protected function runPluginVulnerabilities() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'hackprotect_pluginvulnerabilities.php' );
+		require_once( dirname( __FILE__ ).'/hackprotect_pluginvulnerabilities.php' );
 		$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeature() );
 		$oPv->run();
 	}

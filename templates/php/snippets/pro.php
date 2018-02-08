@@ -41,118 +41,90 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 		margin: 5px 2px 0;
 	}
 
+	.licenseForm button {
+		display: block;
+	}
+
 </style>
 
 <div class="container-fluid">
 	<div class="row content-help">
-		<div class="col-6">
+		<div class="col-5">
 			<div class="module-headline">
 				<h4>License Summary</h4>
 			</div>
-			<table class="table table-sm table-responsive" style="">
-			<tbody>
-				<tr>
-					<th scope="row"><?php echo $strings[ 'product_name' ]; ?>:</th>
-					<td><?php echo $vars[ 'product_name' ]; ?></td>
-				</tr>
-				<tr>
-					<th scope="row"><?php echo $strings[ 'license_key' ]; ?>:</th>
-					<td><?php echo $vars[ 'license_key' ]; ?></td>
-				</tr>
-				<tr>
-					<th><?php echo $strings[ 'license_active' ]; ?>:</th>
-					<td><?php echo $vars[ 'license_active' ]; ?></td>
-				</tr>
-				<tr>
-					<th><?php echo $strings[ 'license_status' ]; ?>:</th>
-					<td><?php echo $vars[ 'license_status' ]; ?></td>
-				</tr>
-				<tr>
-					<th><?php echo $strings[ 'license_expires' ]; ?>:</th>
-					<td><?php echo $vars[ 'license_expires' ]; ?></td>
-				</tr>
-				<tr>
-					<th><?php echo $strings[ 'license_email' ]; ?>:</th>
-					<td><?php echo $vars[ 'license_email' ]; ?></td>
-				</tr>
-				<tr>
-					<th><?php echo $strings[ 'last_checked' ]; ?>:</th>
-					<td><?php echo $vars[ 'last_checked' ]; ?></td>
-				</tr>
-				<tr>
-					<th><?php echo $strings[ 'last_errors' ]; ?>:</th>
-					<td style="color: #b80000"><?php echo $vars[ 'last_errors' ]; ?></td>
-				</tr>
-			</tbody>
+			<table class="table table-hover table-sm table-responsive">
+				<?php foreach( $vars as $varKey => $licenseValue ) : ?>
+					<?php $sClasses = ( $varKey == 'last_errors' && !empty( $licenseValue ) ) ? 'table-warning' : ''; ?>
+					<tr>
+						<th scope="row"><?php echo $strings[ $varKey ]; ?>:</th>
+						<td class="<?php echo $sClasses; ?>"><?php echo $licenseValue; ?></td>
+					</tr>
+				<?php endforeach; ?>
 			</table>
+			<hr />
 
-<h2>License Actions</h2>
-<div class="row-fluid">
-	<div class="span12 well">
-		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal licenseForm">
-			<input type="hidden" name="license-action" value="activate" />
-			<div class="control-group">
-				<label class="control-label" for="<?php echo $aLicKeyInput[ 'name' ]; ?>">
-					Activate New License Key
-				</label>
-				<div class="controls">
-					<input type="text" name="<?php echo $aLicKeyInput[ 'name' ]; ?>"
-						   id="<?php echo $aLicKeyInput[ 'name' ]; ?>"
-						   maxlength="<?php echo $aLicKeyInput[ 'maxlength' ]; ?>"
-						   value=""
-					/>
-					<br /><button class="btn btn-success" type="submit" id="ButtonActivate" name="activate">Activate Key</button>
-					<br /><span class="help-inline">This will replace any existing license key.</span>
+			<h4>License Actions</h4>
+			<div class="row">
+				<div class="col card">
+					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+						<input type="hidden" name="license-action" value="activate" />
+						<div class="form-group">
+							<label for="<?php echo $aLicKeyInput[ 'name' ]; ?>">Activate New License Key</label>
+							<input type="text" name="<?php echo $aLicKeyInput[ 'name' ]; ?>"
+								   class="form-control"
+								   id="<?php echo $aLicKeyInput[ 'name' ]; ?>"
+								   maxlength="<?php echo $aLicKeyInput[ 'maxlength' ]; ?>"
+								   value="" />
+							<button class="btn btn-success" type="submit" id="ButtonActivate" name="activate">
+								Activate Key</button>
+							<span class="form-text text-muted">This will replace any existing license key.</span>
+						</div>
+					</form>
 				</div>
 			</div>
-		</form>
-	</div>
-</div>
+
 			<?php if ( $flags[ 'has_license_key' ] ) : ?>
-				<div class="row-fluid">
-	<div class="span12 well">
-		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal licenseForm">
-			<input type="hidden" name="license-action" value="recheck" />
-			<div class="control-group">
-				<label class="control-label">Recheck Key</label>
-				<div class="controls">
-					<button class="btn btn-info" type="submit"
-						<?php echo $flags[ 'button_enabled_remove' ] ? '' : 'disabled="disabled"'; ?> >
-						Recheck</button>
-					<br />
-					<span class="help-inline">Use this to verify and refresh the current license registration.</span>
+				<div class="row">
+					<div class="col card">
+						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+							<input type="hidden" name="license-action" value="recheck" />
+							<div class="form-group">
+								<label>Recheck Key</label>
+								<button class="btn btn-info" type="submit"
+									<?php echo $flags[ 'button_enabled_remove' ] ? '' : 'disabled="disabled"'; ?> >
+									Recheck
+								</button>
+								<span class="form-text text-muted">Verify and refresh the current license registration.</span>
+							</div>
+						</form>
+					</div>
 				</div>
-			</div>
-		</form>
-	</div>
-</div>
-				<div class="row-fluid">
-	<div class="span12 well">
-		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal licenseForm">
-			<input type="hidden" name="license-action" value="remove" />
-			<div class="control-group">
-				<label class="control-label">
-					Remove Current License
-				</label>
-				<div class="controls">
-					<button class="btn btn-warning" type="submit"
-						<?php echo $flags[ 'button_enabled_remove' ] ? '' : 'disabled="disabled"'; ?> >
-						Remove
-					</button>
-					<br /><span class="help-inline">Important: This will remove all Shield Security Pro features.</span>
+
+				<div class="row">
+					<div class="col card">
+						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+							<input type="hidden" name="license-action" value="remove" />
+							<div class="form-group">
+								<label>Remove Current License</label>
+								<button class="btn btn-warning" type="submit"
+									<?php echo $flags[ 'button_enabled_remove' ] ? '' : 'disabled="disabled"'; ?> >
+									Remove
+								</button>
+								<span class="form-text text-muted">Important: This will remove all Shield Security Pro features.</span>
+							</div>
+						</form>
+					</div>
 				</div>
-			</div>
-		</form>
-	</div>
-</div>
 			<?php endif; ?>
 		</div>
-		<div class="col-6">
 
+		<div class="col-7">
 			<div id="accordion">
+
 				  <div class="card gopro-card">
 					<div class="card-header" id="headingOne">
-					  <h5>
+					  <h5 class="mb-0">
 						<button class="btn btn-link" data-toggle="collapse" data-target="#collone"
 								aria-expanded="true" aria-controls="collone">
 						  &rarr; Shield Pro gives you ...
@@ -197,7 +169,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 
 				  <div class="card gopro-card">
 					<div class="card-header" id="headingTwo">
-					  <h5>
+					  <h5 class="mb-0">
 						<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#colltwo"
 								aria-expanded="false" aria-controls="colltwo">
 						  &rarr; Coming Soon...
@@ -249,14 +221,13 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 						<ol>
 							<li>Just grab a new license from the
 								<a href="http://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
-							<li>Activate your license on your sites using the Activate button (below).</li>
-							<li><strong>No manual premium download</strong> - we automatically take care of it all for you! :)</li>
+							<li>Activate your license on your sites using the 'Activate Key' button.</li>
 						</ol>
 
-						<p style="text-align: center">
+						<p class="text-center">
 							<a href="http://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
 							   class="btn btn-large btn-success">
-								Buy Shield Security Pro Now &rarr;</a>
+								Upgrade To Shield Pro Now &rarr;</a>
 						</p>
 					  </div>
 					</div>

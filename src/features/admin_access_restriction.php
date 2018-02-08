@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_AdminAccessRestriction' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -14,7 +14,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
+		return parent::isReadyToExecute() && $this->hasAccessKey() && !$this->isVisitorWhitelisted();
 	}
 
 	protected function adminAjaxHandlers() {
@@ -135,13 +135,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getAdminAccessArea( $sArea = 'plugins' ) {
 		$aSettings = $this->getOpt( 'admin_access_restrict_'.$sArea, array() );
 		return !is_array( $aSettings ) ? array() : $aSettings;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isModuleEnabled() {
-		return parent::isModuleEnabled() && $this->hasAccessKey();
 	}
 
 	/**
@@ -432,11 +425,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 		if ( $this->getOpt( 'admin_access_timeout' ) < 1 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'admin_access_timeout' );
-		}
-
-		$sAccessKey = $this->getAccessKeyHash();
-		if ( empty( $sAccessKey ) ) {
-			$this->setOpt( 'enable_admin_access_restriction', 'N' );
 		}
 
 		// Restricting Activate Plugins also means restricting the rest.

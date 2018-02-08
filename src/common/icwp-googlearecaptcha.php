@@ -28,7 +28,7 @@ class ICWP_WPSF_GoogleRecaptcha {
 	/**
 	 */
 	protected function loadGoogleRecaptchaLib() {
-		return require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'googlerecaptcha/autoload.php' );
+		return require_once( dirname( __FILE__ ).'/googlerecaptcha/autoload.php' );
 	}
 
 	/**

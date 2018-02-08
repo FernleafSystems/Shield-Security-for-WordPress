@@ -2,7 +2,7 @@
   "slug":          "login_protect",
   "properties":    {
     "slug":                   "login_protect",
-    "name":                   "Login Protection",
+    "name":                   "Login Guard",
     "show_module_menu_item":  true,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
@@ -22,7 +22,7 @@
     {
       "slug":        "section_brute_force_login_protection",
       "primary":     true,
-      "title":       "Brute Force Login Protection",
+      "title":       "Brute Force Login Guard",
       "title_short": "Brute Force",
       "summary":     [
         "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
@@ -37,6 +37,35 @@
         "Purpose - Adds Google reCAPTCHA to the Login Forms.",
         "Recommendation - Keep this turned on.",
         "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
+      ]
+    },
+    {
+      "slug":        "section_2fa_email",
+      "title":       "Email Two-Factor Authentication",
+      "title_short": "2FA - Email",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using email-based one-time-passwords.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
+      "slug":        "section_2fa_ga",
+      "title":       "Google Authenticator Two-Factor Authentication",
+      "title_short": "2FA - Google Authenticator",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
+      "slug":        "section_yubikey_authentication",
+      "title":       "Yubikey Two-Factor Authentication",
+      "title_short": "2FA -Yubikey",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
+        "Note: You may combine multiple authentication factors for increased security."
       ]
     },
     {
@@ -59,15 +88,6 @@
       ]
     },
     {
-      "slug":        "section_yubikey_authentication",
-      "title":       "Yubikey Authentication",
-      "title_short": "Yubikey",
-      "summary":     [
-        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-        "Recommendation - Use of this feature is highly recommend. Note: you must own the appropriate Yubikey hardware device."
-      ]
-    },
-    {
       "slug":        "section_user_messages",
       "title":       "User Messages",
       "title_short": "User Messages",
@@ -79,11 +99,11 @@
     },
     {
       "slug":        "section_enable_plugin_feature_login_protection",
-      "title":       "Disable Login Protection Module",
+      "title":       "Disable Login Guard Module",
       "title_short": "Disable",
       "summary":     [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
+        "Purpose - Login Guard blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Guard module turned on."
       ]
     },
     {
@@ -99,9 +119,9 @@
       "type":        "checkbox",
       "link_info":   "http://icwp.io/51",
       "link_blog":   "http://icwp.io/wpsf03",
-      "name":        "Enable Login Protection",
-      "summary":     "Enable (or Disable) The Login Protection module",
-      "description": "Un-Checking this option will completely disable the Login Protection module"
+      "name":        "Enable Login Guard",
+      "summary":     "Enable (or Disable) The Login Guard Module",
+      "description": "Un-Checking this option will completely disable the Login Guard module"
     },
     {
       "key":         "rename_wplogin_path",
@@ -140,7 +160,7 @@
     },
     {
       "key":         "enable_google_authenticator",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_2fa_ga",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/shld7",
@@ -151,7 +171,7 @@
     },
     {
       "key":         "enable_email_authentication",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_2fa_email",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3t",
@@ -162,7 +182,7 @@
     },
     {
       "key":           "two_factor_auth_user_roles",
-      "section":       "section_multifactor_authentication",
+      "section":       "section_2fa_email",
       "type":          "multiple_select",
       "default":       [
         1,
