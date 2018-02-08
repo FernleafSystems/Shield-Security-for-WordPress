@@ -681,15 +681,26 @@ input:checked + .icwp-slider:before {
 	font-size: 15px;
 	padding: 0.7rem 1.1rem 0.7rem 1.2rem;
 	color: #222222;
-	position: relative;
 	font-weight: bolder;
 	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
 }
-.modules a.module .dashicons-warning {
+.modules a#tab-license {
+	color: #1d00ff;
+}
+.modules a.module .module-name {
+	position: relative;
+}
+.modules .module-name .dashicons {
 	position: absolute;
-	left: 0;
-	top: 25%;
+	left: -20px;
+	top: 1px;
 	color: #a56300;
+}
+.modules a.module .dashicons-warning {
+	color: #a56300;
+}
+.modules a.module .dashicons-yes {
+	color: #989694;
 }
 .modules a.module .dashicons-warning:before {
 	font-size: 16px !important;

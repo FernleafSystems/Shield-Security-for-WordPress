@@ -7,11 +7,16 @@
 			<a class="nav-link module <?php echo $aSummary[ 'active' ] ? 'active' : ''; ?>"
 			   id="tab-<?php echo $aSummary[ 'slug' ]; ?>"
 			   href="<?php echo $aSummary[ 'href' ]; ?>" role="tab">
-				<?php if ( !$aSummary['enabled'] ) : ?>
-					<div class="dashicons dashicons-warning"
-						 title="This module is currently disabled"></div>
-				<?php endif; ?>
-				<div><?php echo $aSummary[ 'name' ]; ?></div>
+				<div class="module-name">
+					<?php if ( $aSummary['enabled'] ) : ?>
+						<div class="dashicons dashicons-yes"
+							 title="Module Active"></div>
+					<?php else : ?>
+						<div class="dashicons dashicons-warning"
+							 title="Module Disabled"></div>
+					<?php endif; ?>
+					<?php echo $aSummary[ 'name' ]; ?>
+				</div>
 
 			</a>
 		<?php endforeach; ?>
