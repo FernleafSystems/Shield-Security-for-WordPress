@@ -249,7 +249,7 @@ class ICWP_WPSF_Foundation {
 		if ( !isset( self::$oRender ) ) {
 			self::requireCommonLib( 'icwp-render.php' );
 			self::$oRender = ICWP_WPSF_Render::GetInstance()
-											 ->setAutoloaderPath( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'Twig'.DIRECTORY_SEPARATOR.'Autoloader.php' );
+											 ->setAutoloaderPath( dirname( __FILE__ ).'/Twig'.DIRECTORY_SEPARATOR.'Autoloader.php' );
 		}
 		if ( !empty( $sTemplatePath ) ) {
 			self::$oRender->setTemplateRoot( $sTemplatePath );

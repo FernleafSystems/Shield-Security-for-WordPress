@@ -2,7 +2,7 @@
 
 if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', false ) ):
 
-	require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+	require_once( dirname(__FILE__ ).'/base_wpsf.php' );
 
 	class ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities extends ICWP_WPSF_Processor_BaseWpsf {
 

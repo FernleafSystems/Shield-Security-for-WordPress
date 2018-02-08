@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
+require_once( dirname( __FILE__ ).'/base.php' );
 
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 

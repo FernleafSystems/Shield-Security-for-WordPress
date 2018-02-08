@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
+require_once( dirname( __FILE__ ).'/basedb.php' );
 
 class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getBaseAuditor() {
 		if ( !isset( $this->oAuditor ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_auditor_base.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_auditor_base.php' );
 			$this->oAuditor = new ICWP_WPSF_AuditTrail_Auditor_Base();
 		}
 		return $this->oAuditor;
@@ -59,43 +59,43 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_users', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_users.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_users.php' );
 			$oUsers = new ICWP_WPSF_Processor_AuditTrail_Users();
 			$oUsers->run();
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_plugins', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_plugins.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_plugins.php' );
 			$oPlugins = new ICWP_WPSF_Processor_AuditTrail_Plugins();
 			$oPlugins->run();
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_themes', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_themes.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_themes.php' );
 			$oThemes = new ICWP_WPSF_Processor_AuditTrail_Themes();
 			$oThemes->run();
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_wordpress', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_wordpress.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_wordpress.php' );
 			$oWp = new ICWP_WPSF_Processor_AuditTrail_Wordpress();
 			$oWp->run();
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_posts', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_posts.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_posts.php' );
 			$oPosts = new ICWP_WPSF_Processor_AuditTrail_Posts();
 			$oPosts->run();
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_emails', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_emails.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_emails.php' );
 			$oEmails = new ICWP_WPSF_Processor_AuditTrail_Emails();
 			$oEmails->run();
 		}
 
 		if ( $this->getIsOption( 'enable_audit_context_wpsf', 'Y' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'audit_trail_wpsf.php' );
+			require_once( dirname( __FILE__ ).'/audit_trail_wpsf.php' );
 			$oWpsf = new ICWP_WPSF_Processor_AuditTrail_Wpsf();
 			$oWpsf->run();
 		}

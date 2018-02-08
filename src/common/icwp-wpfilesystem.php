@@ -144,7 +144,7 @@ class ICWP_WPSF_WpFilesystem {
 	protected function setWpConfigPath() {
 		$this->sWpConfigPath = ABSPATH.'wp-config.php';
 		if ( !$this->exists( $this->sWpConfigPath ) ) {
-			$this->sWpConfigPath = ABSPATH.'..'.DIRECTORY_SEPARATOR.'wp-config.php';
+			$this->sWpConfigPath = ABSPATH.'../wp-config.php';
 			if ( !$this->exists( $this->sWpConfigPath ) ) {
 				$this->sWpConfigPath = false;
 			}
@@ -480,7 +480,7 @@ class ICWP_WPSF_WpFilesystem {
 	private function initFileSystem() {
 		if ( is_null( $this->oWpfs ) ) {
 			$this->oWpfs = false;
-			require_once( ABSPATH.'wp-admin'.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'file.php' );
+			require_once( ABSPATH.'wp-admin/includes/file.php' );
 			if ( WP_Filesystem() ) {
 				global $wp_filesystem;
 				if ( isset( $wp_filesystem ) && is_object( $wp_filesystem ) ) {
