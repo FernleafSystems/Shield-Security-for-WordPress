@@ -40,6 +40,35 @@
       ]
     },
     {
+      "slug":        "section_2fa_email",
+      "title":       "Email Two-Factor Authentication",
+      "title_short": "2FA - Email",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using email-based one-time-passwords.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
+      "slug":        "section_2fa_ga",
+      "title":       "Google Authenticator Two-Factor Authentication",
+      "title_short": "2FA - Google Authenticator",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
+      "slug":        "section_yubikey_authentication",
+      "title":       "Yubikey Two-Factor Authentication",
+      "title_short": "2FA -Yubikey",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
       "slug":        "section_multifactor_authentication",
       "title":       "Multi-Factor Authentication",
       "title_short": "2-Factor Auth",
@@ -56,15 +85,6 @@
       "summary":     [
         "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
         "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
-      ]
-    },
-    {
-      "slug":        "section_yubikey_authentication",
-      "title":       "Yubikey Authentication",
-      "title_short": "Yubikey",
-      "summary":     [
-        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-        "Recommendation - Use of this feature is highly recommend. Note: you must own the appropriate Yubikey hardware device."
       ]
     },
     {
@@ -140,7 +160,7 @@
     },
     {
       "key":         "enable_google_authenticator",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_2fa_ga",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/shld7",
@@ -151,7 +171,7 @@
     },
     {
       "key":         "enable_email_authentication",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_2fa_email",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3t",
@@ -162,7 +182,7 @@
     },
     {
       "key":           "two_factor_auth_user_roles",
-      "section":       "section_multifactor_authentication",
+      "section":       "section_2fa_email",
       "type":          "multiple_select",
       "default":       [
         1,

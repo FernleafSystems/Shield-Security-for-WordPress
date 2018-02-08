@@ -12,7 +12,7 @@
 		<p>Please read this. It really helps.</p>
 	</dd>
 
-	<dt>What does support for 3rd parties mean?</dt>
+	<dt>Are 3rd party plugins with custom login pages supported?</dt>
 	<dd>
 		<p>This is a Pro option and lets Shield interact with 3rd party plugins.</p>
 		<p>Unless you're a developer it might be hard to realise that the WordPress plugin landscape is a mess.</p>
