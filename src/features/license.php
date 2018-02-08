@@ -80,14 +80,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
 				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
 
-				'product_name'    => _wpsf__( 'Product Name' ),
-				'license_active'  => _wpsf__( 'License Active State' ),
-				'license_status'  => _wpsf__( 'License Official Status' ),
-				'license_key'     => _wpsf__( 'License Key' ),
-				'license_expires' => _wpsf__( 'License Expires' ),
-				'license_email'   => _wpsf__( 'License Owner Email' ),
-				'last_checked'    => _wpsf__( 'Last Checked' ),
-				'last_errors'     => _wpsf__( 'Last Errors' ),
+				'product_name'    => _wpsf__( 'Name' ),
+				'license_active'  => _wpsf__( 'Active' ),
+				'license_status'  => _wpsf__( 'Status' ),
+				'license_key'     => _wpsf__( 'Key' ),
+				'license_expires' => _wpsf__( 'Expires' ),
+				'license_email'   => _wpsf__( 'Owner' ),
+				'last_checked'    => _wpsf__( 'Checked' ),
+				'last_errors'     => _wpsf__( 'Error' ),
 			)
 		);
 	}
