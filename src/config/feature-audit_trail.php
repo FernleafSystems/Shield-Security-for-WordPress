@@ -3,7 +3,7 @@
   "properties": {
     "slug": "audit_trail",
     "name": "Audit Trail",
-    "show_module_menu_item": false,
+    "show_module_menu_item": true,
     "storage_key": "audit_trail",
     "tagline": "Get a view on what happens on your site, when it happens",
     "show_central": true,

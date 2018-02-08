@@ -3,7 +3,7 @@
   "properties": {
     "slug": "comments_filter",
     "name": "Comments SPAM",
-    "show_module_menu_item": false,
+    "show_module_menu_item": true,
     "storage_key": "commentsfilter",
     "tagline": "Block comment SPAM and retain your privacy",
     "use_sessions": true,

@@ -8,7 +8,7 @@
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
-    "has_custom_actions":     true,
+    "has_custom_actions":     false,
     "order":                  10
   },
   "admin_notices": {
@@ -397,6 +397,10 @@
         "load_priority": 20
       },
       {
+        "slug":        "hack_protect",
+        "storage_key": "hack_protect"
+      },
+      {
         "slug":          "firewall",
         "storage_key":   "firewall",
         "load_priority": 13
@@ -416,10 +420,6 @@
       {
         "slug":        "autoupdates",
         "storage_key": "autoupdates"
-      },
-      {
-        "slug":        "hack_protect",
-        "storage_key": "hack_protect"
       },
       {
         "slug":        "headers",

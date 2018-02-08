@@ -7,7 +7,7 @@
     "auto_enabled": true,
     "show_module_menu_item": true,
     "highlight_menu_item": true,
-    "hide_summary": true,
+    "hide_summary": false,
     "storage_key": "license",
     "show_central": true,
     "premium": false,

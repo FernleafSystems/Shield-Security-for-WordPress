@@ -299,7 +299,6 @@ p.code-description {
 .option_section.active {
 }
 table.table th {
-	border-bottom: 1px solid #777777;
 }
 table.tbl_tbs_options {
 	width: 100%;
@@ -554,9 +553,8 @@ input[type="email"] {
 
 .content-wizards,
 .content-help {
-	background-color: #fafafa;
-	padding: 10px 20px 20px;
-	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	background-color: #f1f1f1; /** == #ColumnOptions */
+	padding: 20px;
 }
 .content-help h2 {
 	margin-bottom: 8px;
@@ -769,4 +767,8 @@ input:checked + .icwp-slider:before {
 	background-color: white;
 	padding: 40px;
 	margin: 40px 0;
+}
+
+.card.gopro-card {
+	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
 }

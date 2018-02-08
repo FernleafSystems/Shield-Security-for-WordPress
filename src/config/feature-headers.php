@@ -3,7 +3,7 @@
   "properties": {
     "slug": "headers",
     "name": "HTTP Headers",
-    "show_module_menu_item": false,
+    "show_module_menu_item": true,
     "storage_key": "headers",
     "tagline": "Control HTTP Security Headers",
     "show_central": true,
