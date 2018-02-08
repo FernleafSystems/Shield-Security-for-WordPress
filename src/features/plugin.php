@@ -650,8 +650,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		switch ( $sSectionSlug ) {
 
 			case 'section_global_security_options' :
-				$sTitle = _wpsf__( 'Global Plugin Security Options' );
-				$sTitleShort = _wpsf__( 'Global Options' );
+				$sTitle = _wpsf__( 'Global Security Plugin Disable' );
+				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $this->getConn()->getHumanName() );
 				break;
 
 			case 'section_defaults' :

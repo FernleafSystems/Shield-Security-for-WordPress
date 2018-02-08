@@ -532,7 +532,6 @@ input[type="email"] {
 #icwpOptionsTopPill > .tab-content {
 	background-color: transparent;
 }
-
 .content-wizards .wizard_slot {
 	border: 1px solid #dddddd;
 	border-radius: 3px;
@@ -542,15 +541,14 @@ input[type="email"] {
 .content-wizards .wizard_slot:hover {
 	background-color: #ffffff;
 }
-
 .btn.btn-icwp-wizard.disabled {
 	pointer-events: auto;
 }
-
 .content-wizards,
 .content-help {
 	background-color: #f1f1f1; /** == #ColumnOptions */
 	padding: 20px;
+
 }
 .content-help h2 {
 	margin-bottom: 8px;
@@ -653,11 +651,18 @@ input:checked + .icwp-slider:before {
 }
 #TopPluginIcon {
 	background: url("../images/shield/SHIELDSECURITY.png?ver=2.0") no-repeat 0 0 #f1f1f1;
+	border-bottom: 1px solid #ccc;
+
 	height: 128px;
 	width: 128px;
+
+	margin-bottom: 7px;
+	position: relative;
+	left: 1px;
 }
 #ColumnModules {
 	max-width: 128px;
+	border-right: 1px solid #ccc;
 }
 #ColumnOptions {
 	background-color: #f1f1f1;
@@ -680,10 +685,11 @@ input:checked + .icwp-slider:before {
 	color: #222222;
 	font-weight: bolder;
 	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
-	border-right: 1px solid #ccc;
+
+	border-bottom: 1px solid transparent;
+	border-top: 1px solid transparent;
 }
 .modules a.module:first-child {
-	border-top: 1px solid #ccc;
 }
 .modules a#tab-license {
 	color: #1d00ff;
@@ -716,8 +722,11 @@ input:checked + .icwp-slider:before {
 .modules a.module.active {
 	background-color: #f1f1f1; /** == #ColumnOptions */
 	color: #222222;
-	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-	border-right-color: transparent;
+
+	margin-right: -1px;
+	z-index: 2;
+	border-bottom-color: #ccc;
+	border-top-color: #ccc;
 }
 .icwp-options-page .tab-content {
 	background-color: #fcfffc;
@@ -782,7 +791,6 @@ input:checked + .icwp-slider:before {
 	padding: 40px;
 	margin: 40px 0;
 }
-
 .card.gopro-card {
 	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
 }

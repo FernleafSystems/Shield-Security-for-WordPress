@@ -85,7 +85,7 @@
     {
       "slug":        "section_global_security_options",
       "title":       "Global Plugin Security Options",
-      "title_short": "Global Options"
+      "title_short": "Disable Shield"
     },
     {
       "slug":   "section_non_ui",
