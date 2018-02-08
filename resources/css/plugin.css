@@ -10,10 +10,6 @@ body {
 #wpcontent .wrap {
 	margin: 0;
 }
-.pluginlogo_32,
-#pluginlogo_32 {
-	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
-}
 .pluginlogo_16 {
 	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -649,18 +645,19 @@ input:checked + .icwp-slider:before {
 #wpfooter {
 }
 .icwp-options-page {
-	margin-top: 7px;
-	margin-right: 7px;
+	/*margin-top: 7px;*/
+	/*margin-right: 7px;*/
 }
 #ModulePageTopRow {
 	min-width: 760px; /** prevents col breaking **/
 }
 #TopPluginIcon {
-	height: 62px;
-	background-position: 48%;
+	background: url("../images/shield/SHIELDSECURITY.png?ver=2.0") no-repeat 0 0 #f1f1f1;
+	height: 128px;
+	width: 128px;
 }
 #ColumnModules {
-	max-width: 126px;
+	max-width: 128px;
 }
 #ColumnOptions {
 	background-color: #f1f1f1;
@@ -683,11 +680,16 @@ input:checked + .icwp-slider:before {
 	color: #222222;
 	font-weight: bolder;
 	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
+	border-right: 1px solid #ccc;
+}
+.modules a.module:first-child {
+	border-top: 1px solid #ccc;
 }
 .modules a#tab-license {
 	color: #1d00ff;
 }
 .modules a.module .module-name {
+	line-height: 19px;
 	position: relative;
 }
 .modules .module-name .dashicons {
@@ -715,6 +717,7 @@ input:checked + .icwp-slider:before {
 	background-color: #f1f1f1; /** == #ColumnOptions */
 	color: #222222;
 	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+	border-right-color: transparent;
 }
 .icwp-options-page .tab-content {
 	background-color: #fcfffc;
