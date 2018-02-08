@@ -85,7 +85,7 @@
     {
       "slug":        "section_global_security_options",
       "title":       "Global Plugin Security Options",
-      "title_short": "Global Options"
+      "title_short": "Disable Shield"
     },
     {
       "slug":   "section_non_ui",
@@ -211,7 +211,7 @@
       "link_info": "",
       "link_blog": "",
       "name": "XML-RPC Compatibility",
-      "summary": "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
+      "summary": "Allow Login Through XML-RPC To By-Pass Login Guard Rules",
       "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
     },
     {

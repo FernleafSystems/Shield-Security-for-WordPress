@@ -36,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'license_expires' => $sExpiresAt,
 				'license_email'   => $this->getOfficialLicenseRegisteredEmail(),
 				'last_checked'    => $sCheckedAt,
-				'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : 'n/a'
+				'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 			),
 			'inputs'    => array(
 				'license_key' => array(
@@ -48,7 +48,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'aHrefs'    => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
-				'iframe_url'               => $this->getDefinition( 'landing_page_url' ),
+				'iframe_url'               => $this->getDef( 'landing_page_url' ),
 			),
 			'flags'     => array(
 				'has_license_key'        => $this->isLicenseKeyValidFormat(),

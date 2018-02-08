@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -72,7 +72,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						_wpsf__( "The email has been sent to you at blog admin address: %s" ),
 						'<strong>'.get_bloginfo( 'admin_email' ).'</strong>'
 					),
-					'how_resend_email'  => _wpsf__( "To resend the email, re-save your Login Protection settings." ),
+					'how_resend_email'  => _wpsf__( "To resend the email, re-save your Login Guard settings." ),
 					'how_turn_off'      => _wpsf__( "To turn this notice off, disable 2-Factor Authentication." ),
 				)
 			);

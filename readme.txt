@@ -15,7 +15,8 @@ Free All-In-One Protection for your data, reputation, and users on your WordPres
 Shield handles it all for you:
 
 * Easy-To-Use Guided Setup Wizards
-* Login Protection against bots (including Limit Login Attempts)
+* Login Guard against bots (including Limit Login Attempts)
+* Hack Guard scans files for unintended changes, e.g. code injection into core files
 * Automatic IP Black List
 * 2-Factor Authentication
 * Comments SPAM - block 100% of bot spam.
@@ -105,7 +106,7 @@ With the Audit Trail you can review all major actions that have taken place on y
 = Firewall Protection =
 Blocks all web requests to the site that violate the firewall security rules! [more info](http://icwp.io/wpsf06)
 
-= Brute Force Login Protection and Two-Factor Authentication =
+= Brute Force Login Guard and Two-Factor Authentication =
 Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](http://icwp.io/wpsf07)
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
@@ -148,9 +149,9 @@ Basic functionality is based on the principles employed by the [WordPress Firewa
 
 = Login and Identity Security Protection - Stops Brute Force Attacks =
 
-Note: Login Protection is a completely independent feature to the Firewall.
+Note: Login Guard is a completely independent feature to the Firewall.
 
-With the Login Protection features this plugin will single-handedly prevent brute force login attacks on all your WordPress sites.
+With the Login Guard this plugin will single-handedly prevent brute force login attacks on all your WordPress sites.
 
 It doesn't need IP Address Ban Lists (which are actually useless anyway), and instead puts hard limits on your WordPress site,
 and force users to verify themselves when they login.
@@ -311,7 +312,7 @@ login for a further 60 seconds.
 
 More Info: http://icwp.io/2t
 
-= How does the GASP login protection work? =
+= How does the GASP Login Guard work? =
 
 This is best [described on the blog](http://icwp.io/2u)
 

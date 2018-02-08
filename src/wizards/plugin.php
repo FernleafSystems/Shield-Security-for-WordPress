@@ -501,12 +501,12 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
-				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Protection' ),
+				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Guard' ),
 					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
-				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Protection' ) );
+				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Guard' ) );
 			}
 		}
 

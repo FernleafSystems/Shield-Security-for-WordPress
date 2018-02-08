@@ -321,7 +321,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getReportingProcessor() {
 		if ( !isset( $this->oReportingProcessor ) ) {
-			require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'statistics_reporting.php' );
+			require_once( dirname(__FILE__ ).'/statistics_reporting.php' );
 			$this->oReportingProcessor = new ICWP_WPSF_Processor_Statistics_Reporting( $this->getFeature() );
 		}
 		return $this->oReportingProcessor;

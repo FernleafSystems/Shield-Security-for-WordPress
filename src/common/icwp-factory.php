@@ -10,7 +10,7 @@ class ICWP_WPSF_Factory {
 	 */
 	static public function OptionsVo() {
 		if ( !class_exists( 'ICWP_WPSF_OptionsVO' ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-optionsvo.php' );
+			require_once( dirname( __FILE__ ).'/icwp-optionsvo.php' );
 		}
 		return new ICWP_WPSF_OptionsVO();
 	}
