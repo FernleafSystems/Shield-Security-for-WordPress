@@ -30,6 +30,9 @@
 			margin: 30px 0;
 			text-decoration: underline;
 		}
+		#skip_mfa {
+			margin: 10px 10px 5px 20px;
+		}
     </style>
 
 	<!--    <script type="text/javascript" src="--><?php //echo $hrefs['js_bootstrap']; ?><!--"></script>-->
@@ -117,15 +120,16 @@
 				<?php endforeach; ?>
 
 				<?php if ( $flags[ 'can_skip_mfa' ] ) : ?>
-					<div class="form-group row">
-                        <label for="skip_mfa" class="control-label"></label>
-						<div class="input-group" style="padding: 5px;">
+				<div class="form-row">
+					<div class="form-group mb-0">
+						<div class="input-group">
 							<label for="skip_mfa">
 								<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa">
 								<?php echo $strings[ 'skip_mfa' ]; ?>
 							</label>
 						</div>
                     </div>
+				</div>
 				<?php endif; ?>
 
 				<div class="form-group row submit">
@@ -151,7 +155,7 @@
 			<div class="row">
 				<div class="col">
 					<p id="WhatIsThis" class="text-center">
-						<a href="<?php echo $hrefs[ 'what_is_this' ]; ?>"
+						<a href="<?php echo $hrefs[ 'what_is_this' ]; ?>" class="btn btn-link"
 						   target="_blank"><?php echo $strings[ 'what_is_this' ]; ?></a>
 					</p>
 				</div>
