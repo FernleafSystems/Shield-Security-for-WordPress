@@ -259,4 +259,12 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	protected function getStub() {
 		return ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey;
 	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function isSecretValid( WP_User $oUser ) {
+		return true; // we don't use individual user secrets
+	}
 }

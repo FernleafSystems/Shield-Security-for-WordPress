@@ -47,7 +47,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 
 		$sFactor = $this->getStub();
-		if ( !$this->hasValidatedProfile( $oUser ) ) {
+		if ( !$this->isProfileReady( $oUser ) ) {
 			$oLoginTrack->removeFactorToTrack( $sFactor );
 		}
 		else {
@@ -77,21 +77,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsers();
 
 		$sKey = $this->getStub().'_validated';
-		$oMeta = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID );
-
-		$bValidated = ( $oMeta->{$sKey} == 'Y' );
+		$bValidated = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
 
 		// fallback to old meta
 		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
-		if ( !$bValidated ) {
+		if ( is_string( $bValidated ) ) {
+			$bValidated = ( $bValidated == 'Y' );
+		}
+		else if ( is_null( $bValidated ) ) {
 			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
 			// look for the old style meta
 			$bValidated = ( $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID ) == 'Y' );
 			if ( $bValidated ) {
-				$this->setProfileValidated( $oUser, $bValidated );
 				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
 			}
 		}
+		$this->setProfileValidated( $oUser, $bValidated );
 
 		return $bValidated;
 	}
@@ -125,6 +126,23 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		}
 
 		return $sSecret;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function isProfileReady( WP_User $oUser ) {
+		return $this->hasValidatedProfile( $oUser ) && $this->isSecretValid( $oUser );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function isSecretValid( WP_User $oUser ) {
+		$sSecret = $this->getSecret( $oUser );
+		return !empty( $sSecret ) && is_string( $sSecret );
 	}
 
 	/**
