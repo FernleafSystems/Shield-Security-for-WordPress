@@ -357,11 +357,15 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.2.2 - Current Release =
-*Released: 2nd February January, 2018* - [Release Notes](http://icwp.io/b6)
+= 6.3.0 - Current Release =
+*Released: 12th February, 2018* - [Release Notes](http://icwp.io/b6)
 
-* **(v.2)**  FIXED:			Fix for IP Manager PHP error.
-* **(v.2)**  IMPROVED:		Two-factor verification email.
+* **(v.0)**  IMPROVED:		Complete plugin UI rebuild, using the new Bootstrap 4.
+
+= 6.3 Series =
+*Released: 12th February, 2018* - [Release Notes](http://icwp.io/b6)
+
+* **(v.0)**  IMPROVED:		Complete Plugin UI rebuild. Using the new Bootstrap 4.
 
 = 6.2 Series =
 *Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
