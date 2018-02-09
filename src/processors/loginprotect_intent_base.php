@@ -79,7 +79,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		$sKey = $this->getStub().'_validated';
 		$oMeta = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID );
 
-		$bValidated = (bool)$oMeta->{$sKey};
+		$bValidated = ( $oMeta->{$sKey} == 'Y' );
 
 		// fallback to old meta
 		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
