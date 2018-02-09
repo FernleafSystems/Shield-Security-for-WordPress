@@ -129,13 +129,13 @@
 				<?php endif; ?>
 
 				<div class="form-group row submit">
-					<div class="col-6 text-left">
-						<button class="btn btn-outline-danger" name="cancel" value="1">
-							&larr; <?php echo $strings[ 'cancel' ]; ?></button>
-					</div>
-					<div class="col-6 text-right">
+					<div class="col-6 order-2 text-right">
 						<button type="submit" id="mainSubmit" class="pull-right btn btn-success">
 							<?php echo $strings[ 'verify_my_login' ]; ?></button>
+					</div>
+					<div class="col-6 order-1 text-left">
+						<button class="btn btn-outline-danger" name="cancel" value="1">
+							&larr; <?php echo $strings[ 'cancel' ]; ?></button>
 					</div>
                 </div>
             </form>

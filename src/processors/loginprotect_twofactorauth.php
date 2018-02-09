@@ -161,10 +161,10 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param string $sSecret
 	 * @return bool
 	 */
-	protected function isSecretValid( WP_User $oUser ) {
+	protected function isSecretValid( $sSecret ) {
 		return true; // we don't use individual user secrets for email (yet)
 	}
 

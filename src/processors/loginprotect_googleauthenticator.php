@@ -392,10 +392,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param string $sSecret
 	 * @return bool
 	 */
-	protected function isSecretValid( WP_User $oUser ) {
-		return parent::isSecretValid( $oUser ) && ( strlen( $this->getSecret( $oUser ) ) == 16 );
+	protected function isSecretValid( $sSecret ) {
+		return parent::isSecretValid( $sSecret ) && ( strlen( $sSecret ) == 16 );
 	}
 }

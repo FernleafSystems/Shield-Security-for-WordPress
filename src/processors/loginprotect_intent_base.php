@@ -111,18 +111,17 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 
 		// fallback to old meta
 		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
-		if ( empty( $sSecret ) ) {
+		if ( !$this->isSecretValid( $sSecret ) ) {
 			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
-			// look for the old style meta
 			$sSecret = $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID );
-			if ( !empty( $sSecret ) ) {
-				$this->setSecret( $oUser, $sSecret );
-				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
-			}
-		}
+			$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
 
-		if ( empty( $sSecret ) ) {
-			$this->resetSecret( $oUser );
+			if ( $this->isSecretValid( $sSecret ) ) {
+				$this->setSecret( $oUser, $sSecret );
+			}
+			else {
+				$sSecret = $this->resetSecret( $oUser );
+			}
 		}
 
 		return $sSecret;
@@ -133,15 +132,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 	 * @return bool
 	 */
 	protected function isProfileReady( WP_User $oUser ) {
-		return $this->hasValidatedProfile( $oUser ) && $this->isSecretValid( $oUser );
+		return $this->hasValidatedProfile( $oUser ) && $this->hasValidSecret( $oUser );
 	}
 
 	/**
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	protected function isSecretValid( WP_User $oUser ) {
-		$sSecret = $this->getSecret( $oUser );
+	protected function hasValidSecret( WP_User $oUser ) {
+		return $this->isSecretValid( $this->getSecret( $oUser ) );
+	}
+
+	/**
+	 * @param string $sSecret
+	 * @return bool
+	 */
+	protected function isSecretValid( $sSecret ) {
 		return !empty( $sSecret ) && is_string( $sSecret );
 	}
 
