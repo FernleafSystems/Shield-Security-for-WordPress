@@ -19,6 +19,10 @@
 			font-weight: bold;
 			display: block;
 		}
+		a.input-help {
+			display: inline-block;
+			padding: 0 0.5rem;
+		}
 		#countdown {
 			font-weight: bolder;
 		}
@@ -111,7 +115,8 @@
 								/>
 								<div class="input-group-append">
 									<div class="input-group-text">
-										<a href="<?php echo $aField[ 'help_link' ]; ?>" target="_blank" class="input-help">&quest;</a>
+										<a href="<?php echo $aField[ 'help_link' ]; ?>"
+										   target="_blank" class="input-help">&quest;</a>
 									</div>
 								</div>
 							</div>
