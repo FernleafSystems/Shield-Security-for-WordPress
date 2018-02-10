@@ -50,6 +50,10 @@
 
 <div class="row no-gutters content-help">
 	<div class="col">
-	<?php include_once( dirname( __FILE__ ).sprintf( '/module-help-%s.php', $data[ 'mod_slug_short' ] ) ); ?>
+	<?php
+	$sFile = dirname( __FILE__ ).sprintf( '/module-help-%s.php', $data[ 'mod_slug_short' ] );
+	if ( file_exists( $sFile  ) ) {
+		include_once( $sFile );
+	} ?>
 	</div>
 </div>

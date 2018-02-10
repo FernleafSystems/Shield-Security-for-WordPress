@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator', false
 	return;
 }
 
-require_once( dirname(__FILE__ ).'/loginprotect_intent_base.php' );
+require_once( dirname( __FILE__ ).'/loginprotect_intent_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Processor_LoginProtect_IntentBase {
 
@@ -82,7 +82,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	/**
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
-	 *
 	 * @param int $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
@@ -140,7 +139,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 *
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
@@ -232,14 +230,14 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			if ( empty( $sGaOtp ) ) {
 				$bIsError = true;
 				$oError->add( 'shield_google_authenticator_empty',
-					_wpsf__( 'Whoops.' ).' '. _wpsf__( 'Did we forget to use the Google Authenticator?' ) );
+					_wpsf__( 'Whoops.' ).' '._wpsf__( 'Did we forget to use the Google Authenticator?' ) );
 			}
 			else {
 				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
 				if ( !$this->processOtp( $oUser, $sGaOtp ) ) {
 					$bIsError = true;
 					$oError->add( 'shield_google_authenticator_failed',
-						_wpsf__( 'Oh dear.' ).' '. _wpsf__( 'Google Authenticator Code Failed.' ) );
+						_wpsf__( 'Oh dear.' ).' '._wpsf__( 'Google Authenticator Code Failed.' ) );
 				}
 			}
 
@@ -264,13 +262,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function addLoginIntentField( $aFields ) {
 		if ( $this->getCurrentUserHasValidatedProfile() ) {
 			$aFields[] = array(
-				'name'      => $this->getLoginFormParameter(),
-				'type'      => 'text',
-				'value'     => '',
+				'name'        => $this->getLoginFormParameter(),
+				'type'        => 'text',
+				'value'       => '',
 				'placeholder' => _wpsf__( 'Please use your Google Authenticator App to retrieve your code.' ),
-				'text'      => _wpsf__( 'Google Authenticator Code' ),
-				'help_link' => 'http://icwp.io/wpsf42',
-				'extras' => array(
+				'text'        => _wpsf__( 'Google Authenticator Code' ),
+				'help_link'   => 'http://icwp.io/wpsf42',
+				'extras'      => array(
 					'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
 				)
 			);
@@ -287,7 +285,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		$aEmailContent = array();
 		$aEmailContent[] = _wpsf__( 'You have requested the removal of Google Authenticator from your WordPress account.' )
-			. _wpsf__( 'Please click the link below to confirm.' );
+						   ._wpsf__( 'Please click the link below to confirm.' );
 		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
 
 		$sRecipient = $oUser->get( 'user_email' );
@@ -303,7 +301,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function validateUserGaRemovalLink() {
 		// Must be already logged in for this link to work.
 		$oWpCurrentUser = $this->loadWpUsers()->getCurrentWpUser();
-		if ( empty( $oWpCurrentUser )  ) {
+		if ( empty( $oWpCurrentUser ) ) {
 			return;
 		}
 
@@ -330,7 +328,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 	/**
 	 * @param WP_User $oUser
-	 * @param string $sOtpCode
+	 * @param string  $sOtpCode
 	 * @return bool
 	 */
 	public function validateGaCode( $oUser, $sOtpCode ) {
@@ -338,7 +336,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		if ( !empty( $sOtpCode ) && preg_match( '#^[0-9]{6}$#', $sOtpCode ) ) {
 			$bValidOtp = $this->loadGoogleAuthenticatorProcessor()
 							  ->verifyOtp( $this->getSecret( $oUser ), $sOtpCode );
-
 		}
 		return $bValidOtp;
 	}
@@ -349,14 +346,20 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	protected function auditLogin( $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf(
+					_wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ),
+					$this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' )
+				),
 				2, 'login_protect_ga_verified'
 			);
 			$this->doStatIncrement( 'login.googleauthenticator.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf(
+					_wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ),
+					$this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' )
+				),
 				2, 'login_protect_ga_failed'
 			);
 			$this->doStatIncrement( 'login.googleauthenticator.fail' );
@@ -368,8 +371,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function generateGaRemovalConfirmationLink() {
 		$aQueryArgs = array(
-			'shield_action'	=> 'garemovalconfirm',
-			'sessionid'		=> $this->getController()->getSessionId()
+			'shield_action' => 'garemovalconfirm',
+			'sessionid'     => $this->getController()->getSessionId()
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWp()->getUrl_WpAdmin() );
 	}
@@ -386,5 +389,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function getStub() {
 		return ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator;
+	}
+
+	/**
+	 * @param string $sSecret
+	 * @return bool
+	 */
+	protected function isSecretValid( $sSecret ) {
+		return parent::isSecretValid( $sSecret ) && ( strlen( $sSecret ) == 16 );
 	}
 }
