@@ -69,7 +69,72 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
 		}
 
-		add_action( 'set_site_transient_update_core', array( $this, 'trackCoreUpdates' ) );
+		add_action( 'set_site_transient_update_core', array( $this, 'trackUpdateTimesCore' ) );
+		add_action( 'set_site_transient_update_plugins', array( $this, 'trackUpdateTimesPlugins' ) );
+		add_action( 'set_site_transient_update_themes', array( $this, 'trackUpdateTimesThemes' ) );
+	}
+
+	/**
+	 * @param stdClass $oUpdates
+	 */
+	public function trackUpdateTimesCore( $oUpdates ) {
+
+		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
+			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+			$oFO = $this->getFeature();
+
+			$aTk = $oFO->getDelayTracking();
+			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : array();
+			foreach ( $oUpdates->updates as $oUpdate ) {
+				if ( 'autoupdate' == $oUpdate->response ) {
+					$sVersion = $oUpdate->current;
+					if ( !isset( $aItemTk[ $sVersion ] ) ) {
+						$aItemTk[ $sVersion ] = $this->time();
+					}
+				}
+			}
+			$aTk[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
+			$oFO->setDelayTracking( $aTk );
+		}
+	}
+
+	/**
+	 * @param stdClass $oUpdates
+	 */
+	public function trackUpdateTimesPlugins( $oUpdates ) {
+		$this->trackUpdateTimeCommon( $oUpdates, 'plugins' );
+	}
+
+	/**
+	 * @param stdClass $oUpdates
+	 */
+	public function trackUpdateTimesThemes( $oUpdates ) {
+		$this->trackUpdateTimeCommon( $oUpdates, 'themes' );
+	}
+
+	/**
+	 * @param stdClass $oUpdates
+	 * @param string   $sContext - plugins/themes
+	 */
+	protected function trackUpdateTimeCommon( $oUpdates, $sContext ) {
+
+		if ( !empty( $oUpdates ) && isset( $oUpdates->response ) && is_array( $oUpdates->response ) ) {
+			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+			$oFO = $this->getFeature();
+
+			$aTk = $oFO->getDelayTracking();
+			foreach ( $oUpdates->response as $sSlug => $oUpdate ) {
+				$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
+				$sNewVersion = isset( $oUpdate->new_version ) ? $oUpdate->new_version : '';
+				if ( !empty( $sNewVersion ) ) {
+					if ( !isset( $aItemTk[ $sNewVersion ] ) ) {
+						$aItemTk[ $sNewVersion ] = $this->time();
+					}
+					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
+				}
+			}
+			$oFO->setDelayTracking( $aTk );
+		}
 	}
 
 	/**
@@ -218,27 +283,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		return $bDoAutoUpdate;
 	}
 
-	public function trackCoreUpdates( $oUpdates ) {
-
-		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
-			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getFeature();
-
-			$aTk = $oFO->getDelayTracking();
-			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : array();
-			foreach ( $oUpdates->updates as $oUpdate ) {
-				if ( 'autoupdate' == $oUpdate->response ) {
-					$sVersion = $oUpdate->current;
-					if ( !isset( $aItemTk[ $sVersion ] ) ) {
-						$aItemTk[ $sVersion ] = $this->time();
-					}
-				}
-			}
-			$aTk[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
-			$oFO->setDelayTracking( $aTk );
-		}
-	}
-
 	/**
 	 * @param string|stdClass $sSlug
 	 * @param string          $sContext
@@ -271,14 +315,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				$sVersion = $oTheme->get( 'version' );
 			}
 
-			if ( !empty( $sVersion ) ) {
-				// Update the stored tracking for this "new" version
-				if ( !isset( $aItemTk[ $sVersion ] ) ) {
-					$aItemTk[ $sVersion ] = $this->time();
-					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
-					$oFO->setDelayTracking( $aTk );
-				}
-
+			if ( !empty( $sVersion ) && isset( $aItemTk[ $sVersion ] ) ) {
 				$bDelayed = ( $this->time() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
 			}
 		}
