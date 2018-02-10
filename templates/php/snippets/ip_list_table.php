@@ -68,26 +68,22 @@
 	<script type="text/javascript" >
 
 		var $oTable = jQuery('#<?php echo $sTableId; ?>');
+
 		jQuery( document ).ready(function() {
 			jQuery( '#AddIpButton', $oTable ).click( add_ip_to_whitelist );
 			jQuery( 'input.on_return_send', $oTable ).keypress( function(e) {
-				if( e.which == 13 ) {
+				if( e.which === 13 ) {
 					add_ip_to_whitelist();
 				}
 			});
 		});
 
-		function add_ip_to_whitelist( $sList ) {
-
-			var aData = {
-				'action': 'icwp_wpsf_AddIpToWhiteList',
-				'ip': jQuery('#AddIpAddress', $oTable).val(),
-				'label': jQuery('#AddIpAddressLabel', $oTable).val(),
-				'list': 'MW',
-				'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-			};
-			$oContentDiv = $oTable.parent();
-			request_and_reload( aData, $oContentDiv );
+		function add_ip_to_whitelist() {
+			var aData = <?php echo $ajax['alist']; ?>;
+			aData[ "ip" ] = jQuery('#AddIpAddress', $oTable).val();
+			aData[ "label" ] = jQuery('#AddIpAddressLabel', $oTable).val();
+			aData[ "list" ] = 'MW';
+			request_and_reload( aData, $oTable.parent() );
 		}
 
 	</script>

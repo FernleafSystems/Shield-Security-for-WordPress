@@ -401,13 +401,13 @@
         "storage_key": "hack_protect"
       },
       {
+        "slug":        "login_protect",
+        "storage_key": "loginprotect"
+      },
+      {
         "slug":          "firewall",
         "storage_key":   "firewall",
         "load_priority": 13
-      },
-      {
-        "slug":        "login_protect",
-        "storage_key": "loginprotect"
       },
       {
         "slug":        "user_management",

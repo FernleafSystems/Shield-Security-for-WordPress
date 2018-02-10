@@ -19,6 +19,10 @@
 			font-weight: bold;
 			display: block;
 		}
+		a.input-help {
+			display: inline-block;
+			padding: 0 0.5rem;
+		}
 		#countdown {
 			font-weight: bolder;
 		}
@@ -29,6 +33,9 @@
 		#WhatIsThis {
 			margin: 30px 0;
 			text-decoration: underline;
+		}
+		#skip_mfa {
+			margin: 10px 10px 5px 20px;
 		}
     </style>
 
@@ -108,7 +115,8 @@
 								/>
 								<div class="input-group-append">
 									<div class="input-group-text">
-										<a href="<?php echo $aField[ 'help_link' ]; ?>" target="_blank" class="input-help">&quest;</a>
+										<a href="<?php echo $aField[ 'help_link' ]; ?>"
+										   target="_blank" class="input-help">&quest;</a>
 									</div>
 								</div>
 							</div>
@@ -117,25 +125,26 @@
 				<?php endforeach; ?>
 
 				<?php if ( $flags[ 'can_skip_mfa' ] ) : ?>
-					<div class="form-group row">
-                        <label for="skip_mfa" class="control-label"></label>
-						<div class="input-group" style="padding: 5px;">
+				<div class="form-row">
+					<div class="form-group mb-0">
+						<div class="input-group">
 							<label for="skip_mfa">
 								<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa">
 								<?php echo $strings[ 'skip_mfa' ]; ?>
 							</label>
 						</div>
                     </div>
+				</div>
 				<?php endif; ?>
 
 				<div class="form-group row submit">
-					<div class="col-6 text-left">
-						<button class="btn btn-outline-danger" name="cancel" value="1">
-							&larr; <?php echo $strings[ 'cancel' ]; ?></button>
-					</div>
-					<div class="col-6 text-right">
+					<div class="col-6 order-2 text-right">
 						<button type="submit" id="mainSubmit" class="pull-right btn btn-success">
 							<?php echo $strings[ 'verify_my_login' ]; ?></button>
+					</div>
+					<div class="col-6 order-1 text-left">
+						<button class="btn btn-outline-danger" name="cancel" value="1">
+							&larr; <?php echo $strings[ 'cancel' ]; ?></button>
 					</div>
                 </div>
             </form>
@@ -151,7 +160,7 @@
 			<div class="row">
 				<div class="col">
 					<p id="WhatIsThis" class="text-center">
-						<a href="<?php echo $hrefs[ 'what_is_this' ]; ?>"
+						<a href="<?php echo $hrefs[ 'what_is_this' ]; ?>" class="btn btn-link"
 						   target="_blank"><?php echo $strings[ 'what_is_this' ]; ?></a>
 					</p>
 				</div>

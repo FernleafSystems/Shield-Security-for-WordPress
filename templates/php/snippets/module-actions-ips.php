@@ -1,62 +1,53 @@
-
 <h2>IP Lists Management</h2>
 <p>Click the buttons below to manage the respective IP Address Lists</p>
 <p>
 	<!--<a href="#TB_inline?width=800&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-success">View White List</a>-->
-	<a href="#TB_inline?width=1000&height=600&inlineId=WpsfAutoBlackList" title="Automatic Black List" class="thickbox btn btn-warning btn-large">Manage: Auto Black List</a>
-	<a href="#TB_inline?width=1000&height=600&inlineId=WpsfWhiteList" title="White List" class="thickbox btn btn-info btn-large">Manage: White List</a>
+	<a href="#TB_inline?width=1000&height=600&inlineId=WpsfAutoBlackList" title="Automatic Black List"
+	   class="thickbox btn btn-warning btn-large">Manage: Auto Black List</a>
+	<a href="#TB_inline?width=1000&height=600&inlineId=WpsfWhiteList" title="White List"
+	   class="thickbox btn btn-info btn-large">Manage: White List</a>
 </p>
 
 <div id="WpsfWhiteList" style="display:none;">
-	<div class="bootstrap-wpadmin wpsf-ip-list" id="IpTableList_White"> </div>
+	<div class="wpsf-ip-list" id="IpTableList_White"> </div>
 </div>
 
 <div id="WpsfAutoBlackList" style="display:none;">
-	<div class="bootstrap-wpadmin wpsf-ip-list" id="IpTableList_AutoBlack"> </div>
+	<div class="wpsf-ip-list" id="IpTableList_AutoBlack"> </div>
 </div>
-<script type="text/javascript" >
-	jQuery( document ).ready(function() {
-		refresh_list( 'MW', jQuery('#IpTableList_White') );
-		refresh_list( 'AB', jQuery('#IpTableList_AutoBlack') );
-	});
+<script type="text/javascript">
+	jQuery( document ).ready( function () {
+		refresh_list( 'MW', jQuery( '#IpTableList_White' ) );
+		refresh_list( 'AB', jQuery( '#IpTableList_AutoBlack' ) );
+	} );
 
 	function refresh_list( $sList, $oTarget ) {
-
-		var aData = {
-			'action': 'icwp_wpsf_GetIpList',
-			'list': $sList,
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
-
+		var aData = <?php echo $ajax['glist']; ?>;
+		aData[ "list" ] = $sList;
 		request_and_reload( aData, $oTarget );
 	}
 
 	function remove_ip( $sIp, $sList, $oTarget ) {
-
-		var aData = {
-			'action': 'icwp_wpsf_RemoveIpFromList',
-			'ip': $sIp,
-			'list': $sList,
-			'_ajax_nonce': '<?php echo $sAjaxNonce; ?>'
-		};
-
+		var aData = <?php echo $ajax['rlist']; ?>;
+		aData[ 'ip' ] = $sIp;
+		aData[ 'list' ] = $sList;
 		request_and_reload( aData, $oTarget );
 	}
 
 	function request_and_reload( requestData, $oTarget ) {
 
-		$oTarget.html( '<div class="spinner"></div>');
+		$oTarget.html( '<div class="spinner"></div>' );
 		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-		jQuery.post(ajaxurl, requestData, function( oResponse ) {
+		jQuery.post( ajaxurl, requestData, function ( oResponse ) {
 
-			if( oResponse.data ) {
+			if ( oResponse.data ) {
 				$oTarget.html( oResponse.data.html );
 			}
 			else {
 				$oTarget.html( 'There was an unknown error' );
 			}
 
-		});
+		} );
 	}
 </script>
 

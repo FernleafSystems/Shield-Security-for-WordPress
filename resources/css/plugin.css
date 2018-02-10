@@ -795,3 +795,24 @@ input:checked + .icwp-slider:before {
 .card.gopro-card {
 	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
 }
+
+@media (max-width: 848px) {
+	#ColumnModules {
+		max-width: 76px;
+	}
+	#TopPluginIcon {
+		height: 76px;
+		width: 76px;
+		background-size: 76px 76px;
+	}
+	.modules a.module {
+		font-size: 0.7rem;
+		font-weight: normal;
+		letter-spacing: -1px;
+		padding: 0.4rem 0.6rem 0.4rem 0.8rem;
+	}
+	.modules .module-name .dashicons {
+		font-size: 16px;
+		left: -17px;
+	}
+}
