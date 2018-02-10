@@ -71,15 +71,12 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Will force-run the WordPress automatic updates process and then redirect to the updates screen.
-	 * @return bool
 	 */
 	public function force_run_autoupdates() {
-
-		if ( !$this->getIfForceRunAutoupdates() ) {
-			return true;
+		if ( $this->getIfForceRunAutoupdates() ) {
+			$this->doStatIncrement( 'autoupdates.forcerun' );
+			$this->loadWp()->doForceRunAutomaticUpdates();
 		}
-		$this->doStatIncrement( 'autoupdates.forcerun' );
-		return $this->loadWp()->doForceRunAutomaticUpdates();
 	}
 
 	/**
@@ -143,22 +140,8 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 
-		if ( $oFO->isDelayUpdates() ) {
-			$aTk = $oFO->getDelayTracking();
-			$aItemTk = isset( $aTk[ 'plugins' ][ $sFile ] ) ? $aTk[ 'plugins' ][ $sFile ] : array();
-
-			$aPlugin = $this->loadWpPlugins()->getPlugin( $sFile );
-
-			// Update the stored tracking for this "new" version
-			if ( !isset( $aItemTk[ $aPlugin[ 'Version' ] ] ) ) {
-				$aItemTk[ $aPlugin[ 'Version' ] ] = $this->time();
-				$aTk[ 'plugins' ][ $sFile ] = array_slice( $aItemTk, -3 );
-				$oFO->setDelayTracking( $aTk );
-			}
-
-			if ( $this->time() - $aItemTk[ $aPlugin[ 'Version' ] ] < $oFO->getDelayUpdatesPeriod() ) {
-				return false;
-			}
+		if ( $this->isDelayed( $sFile, 'plugins' ) ) {
+			return false;
 		}
 
 		// first, is global auto updates for plugins set
@@ -191,19 +174,61 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
 
+		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
+
+		if ( $this->isDelayed( $sFile, 'themes' ) ) {
+			return false;
+		}
+
 		// first, is global auto updates for themes set
 		if ( $this->getIsOption( 'enable_autoupdate_themes', 'Y' ) ) {
 			$this->doStatIncrement( 'autoupdates.themes.all' );
 			return true;
 		}
 
-		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
-
 		$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
-		if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sItemFile, $aAutoUpdates ) ) {
+		if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
 			$bDoAutoUpdate = true;
 		}
 		return $bDoAutoUpdate;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @param string $sContext
+	 * @return bool
+	 */
+	protected function isDelayed( $sSlug, $sContext = 'plugins' ) {
+
+		$bDelayed = false;
+
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->isDelayUpdates() ) {
+
+			$aTk = $oFO->getDelayTracking();
+			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
+
+			if ( $sContext == 'plugins' ) {
+				$aPlugin = $this->loadWpPlugins()->getPlugin( $sSlug );
+				$sVersion = $aPlugin[ 'Version' ];
+			}
+			else {
+				$oTheme = $this->loadWpThemes()->getTheme( $sSlug );
+				$sVersion = $oTheme->get( 'version' );
+			}
+
+			// Update the stored tracking for this "new" version
+			if ( !isset( $aItemTk[ $sVersion ] ) ) {
+				$aItemTk[ $sVersion ] = $this->time();
+				$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
+				$oFO->setDelayTracking( $aTk );
+			}
+
+			$bDelayed = ( $this->time() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
+		}
+
+		return $bDelayed;
 	}
 
 	/**
