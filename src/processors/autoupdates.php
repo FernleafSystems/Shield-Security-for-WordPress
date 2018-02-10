@@ -40,6 +40,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'auto_update_translation', array( $this, 'autoupdate_translations' ), $nFilterPriority, 2 );
 		add_filter( 'auto_update_plugin', array( $this, 'autoupdate_plugins' ), $nFilterPriority, 2 );
 		add_filter( 'auto_update_theme', array( $this, 'autoupdate_themes' ), $nFilterPriority, 2 );
+		add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), $nFilterPriority, 2 );
 
 		if ( $this->getIsOption( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
 			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
@@ -67,6 +68,8 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			// Adds automatic update indicator column to all plugins in plugin listing.
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
 		}
+
+		add_action( 'set_site_transient_update_core', array( $this, 'trackCoreUpdates' ) );
 	}
 
 	/**
@@ -86,13 +89,18 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function autoupdate_core_major( $bUpdate ) {
-		if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
-			$this->doStatIncrement( 'autoupdates.core.major.blocked' );
-			return false;
-		}
-		else if ( $this->getIsOption( 'autoupdate_core', 'core_major' ) ) {
-			$this->doStatIncrement( 'autoupdates.core.major.allowed' );
-			return true;
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getFeature();
+
+		if ( !$oFO->isDelayUpdates() ) {
+			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
+				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
+				$bUpdate = false;
+			}
+			else if ( $this->getIsOption( 'autoupdate_core', 'core_major' ) ) {
+				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
+				$bUpdate = true;
+			}
 		}
 		return $bUpdate;
 	}
@@ -104,13 +112,18 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function autoupdate_core_minor( $bUpdate ) {
-		if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
-			$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
-			return false;
-		}
-		else if ( $this->getIsOption( 'autoupdate_core', 'core_minor' ) ) {
-			$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
-			return true;
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getFeature();
+
+		if ( !$oFO->isDelayUpdates() ) {
+			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
+				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
+				$bUpdate = false;
+			}
+			else if ( $this->getIsOption( 'autoupdate_core', 'core_minor' ) ) {
+				$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
+				$bUpdate = true;
+			}
 		}
 		return $bUpdate;
 	}
@@ -127,6 +140,18 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			return true;
 		}
 		return $bUpdate;
+	}
+
+	/**
+	 * @param bool     $bDoAutoUpdate
+	 * @param stdClass $oCoreUpdate
+	 * @return bool
+	 */
+	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
+		if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
+			$bDoAutoUpdate = false;
+		}
+		return $bDoAutoUpdate;
 	}
 
 	/**
@@ -193,9 +218,30 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		return $bDoAutoUpdate;
 	}
 
+	public function trackCoreUpdates( $oUpdates ) {
+
+		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
+			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+			$oFO = $this->getFeature();
+
+			$aTk = $oFO->getDelayTracking();
+			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : array();
+			foreach ( $oUpdates->updates as $oUpdate ) {
+				if ( 'autoupdate' == $oUpdate->response ) {
+					$sVersion = $oUpdate->current;
+					if ( !isset( $aItemTk[ $sVersion ] ) ) {
+						$aItemTk[ $sVersion ] = $this->time();
+					}
+				}
+			}
+			$aTk[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
+			$oFO->setDelayTracking( $aTk );
+		}
+	}
+
 	/**
-	 * @param string $sSlug
-	 * @param string $sContext
+	 * @param string|stdClass $sSlug
+	 * @param string          $sContext
 	 * @return bool
 	 */
 	protected function isDelayed( $sSlug, $sContext = 'plugins' ) {
@@ -207,25 +253,34 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isDelayUpdates() ) {
 
 			$aTk = $oFO->getDelayTracking();
+
+			$sVersion = '';
+			if ( $sContext == 'core' ) {
+				$sVersion = $sSlug->current; // stdClass from transient update_core
+				$sSlug = 'wp';
+			}
+
 			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
 
 			if ( $sContext == 'plugins' ) {
 				$aPlugin = $this->loadWpPlugins()->getPlugin( $sSlug );
 				$sVersion = $aPlugin[ 'Version' ];
 			}
-			else {
+			else if ( $sContext == 'themes' ) {
 				$oTheme = $this->loadWpThemes()->getTheme( $sSlug );
 				$sVersion = $oTheme->get( 'version' );
 			}
 
-			// Update the stored tracking for this "new" version
-			if ( !isset( $aItemTk[ $sVersion ] ) ) {
-				$aItemTk[ $sVersion ] = $this->time();
-				$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
-				$oFO->setDelayTracking( $aTk );
-			}
+			if ( !empty( $sVersion ) ) {
+				// Update the stored tracking for this "new" version
+				if ( !isset( $aItemTk[ $sVersion ] ) ) {
+					$aItemTk[ $sVersion ] = $this->time();
+					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
+					$oFO->setDelayTracking( $aTk );
+				}
 
-			$bDelayed = ( $this->time() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
+				$bDelayed = ( $this->time() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
+			}
 		}
 
 		return $bDelayed;
