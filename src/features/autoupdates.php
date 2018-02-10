@@ -8,6 +8,13 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		// Force run automatic updates
+		if ( $this->loadDP()->query( 'force_run_auto_updates' ) == 'now' ) {
+			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
+		}
+	}
+
 	/**
 	 * @return string[]
 	 */
@@ -139,13 +146,6 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return $this->setOpt( 'selected_plugins', $aPlugins );
-	}
-
-	protected function doPostConstruction() {
-		// Force run automatic updates
-		if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
-			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
-		}
 	}
 
 	/**

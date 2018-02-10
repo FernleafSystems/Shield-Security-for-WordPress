@@ -125,6 +125,10 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$aTk = $oFO->getDelayTracking();
 			foreach ( $oUpdates->response as $sSlug => $oUpdate ) {
 				$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
+				if ( is_array( $oUpdate ) ) {
+					$oUpdate = (object)$oUpdate;
+				}
+
 				$sNewVersion = isset( $oUpdate->new_version ) ? $oUpdate->new_version : '';
 				if ( !empty( $sNewVersion ) ) {
 					if ( !isset( $aItemTk[ $sNewVersion ] ) ) {
