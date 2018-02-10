@@ -141,16 +141,34 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getFeature();
 
+		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
+
+		if ( $oFO->isDelayUpdates() ) {
+			$aTk = $oFO->getDelayTracking();
+			$aItemTk = isset( $aTk[ 'plugins' ][ $sFile ] ) ? $aTk[ 'plugins' ][ $sFile ] : array();
+
+			$aPlugin = $this->loadWpPlugins()->getPlugin( $sFile );
+
+			// Update the stored tracking for this "new" version
+			if ( !isset( $aItemTk[ $aPlugin[ 'Version' ] ] ) ) {
+				$aItemTk[ $aPlugin[ 'Version' ] ] = $this->time();
+				$aTk[ 'plugins' ][ $sFile ] = array_slice( $aItemTk, -3 );
+				$oFO->setDelayTracking( $aTk );
+			}
+
+			if ( $this->time() - $aItemTk[ $aPlugin[ 'Version' ] ] < $oFO->getDelayUpdatesPeriod() ) {
+				return false;
+			}
+		}
+
 		// first, is global auto updates for plugins set
 		if ( $oFO->isAutoupdateAllPlugins() ) {
 			$this->doStatIncrement( 'autoupdates.plugins.all' );
 			return true;
 		}
 
-		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
-
 		// If it's this plugin and autoupdate this plugin is set...
-		if ( $sItemFile === $oFO->getConn()->getPluginBaseFile() ) {
+		if ( $sFile === $oFO->getConn()->getPluginBaseFile() ) {
 			$bDoAutoUpdate = true;
 			if ( $this->loadWp()->getIsRunningAutomaticUpdates() ) {
 				$this->doStatIncrement( 'autoupdates.plugins.self' );
@@ -158,7 +176,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		else {
 			$aAutoUpdates = $oFO->getAutoupdatePlugins();
-			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sItemFile, $aAutoUpdates ) ) {
+			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
 				$bDoAutoUpdate = true;
 			}
 		}
@@ -215,7 +233,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_email_override( $aEmailParams ) {
 		$sOverride = $this->getOption( 'override_email_address', '' );
-		if ( $this->loadDataProcessor()->validEmail( $sOverride ) ) {
+		if ( $this->loadDP()->validEmail( $sOverride ) ) {
 			$aEmailParams[ 'to' ] = $sOverride;
 		}
 		return $aEmailParams;
@@ -354,13 +372,13 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			sprintf( "Automatic Updates Completed For %s", $this->loadWp()->getSiteName() )
 		);
 		$this->getEmailProcessor()
-			 ->sendEmailTo( $this->getOption( 'override_email_address', '' ), $sTitle, $aEmailContent );
+			 ->sendEmailTo( $this->getOption( 'override_email_address' ), $sTitle, $aEmailContent );
 	}
 
 	/**
 	 * @param string $sPluginBaseFileName
-	 * @param bool $bIsAutoupdate
-	 * @param bool $bDisabled
+	 * @param bool   $bIsAutoupdate
+	 * @param bool   $bDisabled
 	 * @return string
 	 */
 	protected function getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bIsAutoupdate, $bDisabled ) {

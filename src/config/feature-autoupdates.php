@@ -23,10 +23,10 @@
       ]
     },
     {
-      "slug": "section_automatic_update_email_notifications",
-      "title": "Automatic Update Email Notifications",
-      "title_short": "Notifications",
-      "summary": "Purpose - Control how you are notified of automatic updates that have occurred."
+      "slug": "section_options",
+      "title": "Auto-Update Options",
+      "title_short": "Auto-Update Options",
+      "summary": "Purpose - Make adjustments to how automatic updates are handled on your site."
     },
     {
       "slug": "section_enable_plugin_feature_automatic_updates_control",
@@ -147,9 +147,20 @@
       "description": "If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates."
     },
     {
+      "key": "update_delay",
+      "section": "section_options",
+      "premium": true,
+      "default": "0",
+      "type": "integer",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Update Delay",
+      "summary": "Delay Automatic Updates For Stability Period",
+      "description": "Shield will delay upgrades until the new update has been available for the set number of days."
+    },
+    {
       "key": "enable_upgrade_notification_email",
-      "section": "section_automatic_update_email_notifications",
-      "sensitive": true,
+      "section": "section_options",
       "default": "",
       "type": "checkbox",
       "link_info": "",
@@ -160,15 +171,21 @@
     },
     {
       "key": "override_email_address",
-      "section": "section_automatic_update_email_notifications",
+      "section": "section_options",
       "sensitive": true,
-      "default": "",
+      "default": "Y",
       "type": "email",
       "link_info": "",
       "link_blog": "",
       "name": "Report Email Address",
       "summary": "Where to send upgrade notification reports",
       "description": "If this is empty, it will default to the Site Admin email address"
+    },
+    {
+      "key": "delay_tracking",
+      "transferable": false,
+      "default": [],
+      "section": "section_non_ui"
     },
     {
       "key": "selected_plugins",
