@@ -155,7 +155,7 @@
       "link_info": "",
       "link_blog": "",
       "name": "Update Delay",
-      "summary": "Delay Automatic Updates For Stability Period",
+      "summary": "Delay Automatic Updates For Period Of Stability",
       "description": "Shield will delay upgrades until the new update has been available for the set number of days."
     },
     {
