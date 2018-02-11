@@ -667,6 +667,7 @@ input:checked + .icwp-slider:before {
 #ColumnOptions {
 	background-color: #f1f1f1;
 	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
 	min-width: 590px; /** prevents col breaking **/
 }
 .module-headline {

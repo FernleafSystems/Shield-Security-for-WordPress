@@ -161,6 +161,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array|false
+	 */
+	public function getCoreUpdates() {
+		include_once( ABSPATH.'wp-admin/includes/update.php' );
+		return get_core_updates();
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getDirUploads() {
