@@ -8,6 +8,13 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		// Force run automatic updates
+		if ( $this->loadDP()->query( 'force_run_auto_updates' ) == 'now' ) {
+			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
+		}
+	}
+
 	/**
 	 * @return string[]
 	 */
@@ -23,6 +30,42 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getDelayTracking() {
+		$aTracking = $this->getOpt( 'delay_tracking', array() );
+		if ( !is_array( $aTracking ) ) {
+			$aTracking = array();
+		}
+		$aTracking = $this->loadDP()->mergeArraysRecursive(
+			array(
+				'core'    => array(),
+				'plugins' => array(),
+				'themes'  => array(),
+			),
+			$aTracking
+		);
+		$this->setOpt( 'delay_tracking', $aTracking );
+
+		return $aTracking;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getDelayUpdatesPeriod() {
+		return $this->isPremium() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
+	}
+
+	/**
+	 * @param array $aTrackingInfo
+	 * @return $this
+	 */
+	public function setDelayTracking( $aTrackingInfo ) {
+		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isAutoupdateAllPlugins() {
@@ -35,6 +78,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isAutoupdateIndividualPlugins() {
 		return $this->getOptIs( 'enable_individual_autoupdate_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isDelayUpdates() {
+		return $this->getDelayUpdatesPeriod() > 0;
 	}
 
 	/**
@@ -98,13 +148,6 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		return $this->setOpt( 'selected_plugins', $aPlugins );
 	}
 
-	protected function doPostConstruction() {
-		// Force run automatic updates
-		if ( $this->loadDataProcessor()->FetchGet( 'force_run_auto_updates' ) == 'now' ) {
-			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
-		}
-	}
-
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
@@ -152,12 +195,12 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sTitleShort = _wpsf__( 'WordPress Components' );
 				break;
 
-			case 'section_automatic_update_email_notifications' :
-				$sTitle = _wpsf__( 'Automatic Update Email Notifications' );
+			case 'section_options' :
+				$sTitle = _wpsf__( 'Auto-Update Options' );
+				$sTitleShort = _wpsf__( 'Auto-Update Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Control how you are notified of automatic updates that have occurred.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Make adjustments to how automatic updates are handled on your site.' ) ),
 				);
-				$sTitleShort = _wpsf__( 'Notifications' );
 				break;
 
 			default:
@@ -244,6 +287,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Report Email Address' );
 				$sSummary = _wpsf__( 'Where to send upgrade notification reports' );
 				$sDescription = _wpsf__( 'If this is empty, it will default to the Site Admin email address' );
+				break;
+
+			case 'update_delay' :
+				$sName = _wpsf__( 'Update Delay' );
+				$sSummary = _wpsf__( 'Delay Automatic Updates For Period Of Stability' );
+				$sDescription = _wpsf__( 'Shield will delay upgrades until the new update has been available for the set number of days.' )
+								.'<br />'._wpsf__( "This helps ensure updates are more stable before they're automatically applied to your site." );
 				break;
 
 			default:

@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.2.2
+Stable tag: 6.3.0
 
 Free All-In-One Protection for your data, reputation, and users on your WordPress sites - the Highest-Rated Security Plugin for WordPress
 
@@ -358,14 +358,18 @@ Technical support, and some newer options and features will not be available to 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
 = 6.3.0 - Current Release =
-*Released: 12th February, 2018* - [Release Notes](http://icwp.io/b6)
+*Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
 
-* **(v.0)**  IMPROVED:		Complete plugin UI rebuild, using the new Bootstrap 4.
+* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](http://icwp.io/bd), using the new Bootstrap 4.
+* **(v.0)**  FIXED:			A few bugs with Google Authenticator.
 
 = 6.3 Series =
-*Released: 12th February, 2018* - [Release Notes](http://icwp.io/b6)
+*Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
 
-* **(v.0)**  IMPROVED:		Complete Plugin UI rebuild. Using the new Bootstrap 4.
+* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](http://icwp.io/bd), using the new Bootstrap 4.
+* **(v.0)**  FIXED:			A few bugs with Google Authenticator.
 
 = 6.2 Series =
 *Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
