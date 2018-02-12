@@ -5,13 +5,13 @@
 				<?php echo $sPageTitle; ?>
 
 				<div class="btn-group float-right icwp-top-buttons" role="group">
-					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}"
-					   class="btn btn-outline-success"><?php echo $strings[ 'btn_options' ]; ?></a>
+
+					<a href="javascript:void(0)" class="btn btn-outline-success icwp-carousel-2">
+						<?php echo $strings[ 'btn_options' ]; ?></a>
 
 					<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>
-						<a class="btn btn-outline-dark btn-icwp-wizard"
-						   title="Launch Guided Walk-Through Wizards"
-						   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}">
+						<a class="btn btn-outline-dark btn-icwp-wizard icwp-carousel-1"
+						   title="Launch Guided Walk-Through Wizards" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 					<?php else : ?>
 						<a class="btn btn-outline-dark btn-icwp-wizard disabled"
@@ -24,11 +24,11 @@
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 					<?php endif; ?>
 
-					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-					   class="btn btn-outline-info"><?php echo $strings[ 'btn_help' ]; ?></a>
+					<a href="javascript:void(0)" class="btn btn-outline-info icwp-carousel-2">
+						<?php echo $strings[ 'btn_help' ]; ?></a>
 
-					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 3 );}" aria-disabled="true"
-					   class="btn btn-secondary disabled"><?php echo $strings[ 'btn_actions' ]; ?></a>
+					<a href="javascript:void(0)" aria-disabled="true" class="btn btn-secondary disabled">
+						<?php echo $strings[ 'btn_actions' ]; ?></a>
 				</div>
 				<small class="module-tagline"><?php echo $sTagline; ?></small>
 			</h4>
