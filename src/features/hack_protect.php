@@ -22,12 +22,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$this->clearCrons();
 			$this->cleanFileExclusions();
 
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$oGuardLocker = $oP->getSubProcessorGuardLocker();
 			$oOpts = $this->getOptionsVo();
 			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) ) {
-				$oGuardLocker->deleteStores();
+				/** @var ICWP_WPSF_Processor_HackProtect $oP */
+				$oP = $this->getProcessor();
 				$oP->getSubProcessorGuardLocker()
 				   ->deleteStores();
 				$this->setPtgLastBuildAt( 0 );
