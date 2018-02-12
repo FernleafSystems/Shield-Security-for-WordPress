@@ -367,11 +367,20 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	public function ajaxPluginReinstall() {
-		$sFile = $this->loadDP()->post( 'file' );
+		$oDP = $this->loadDP();
+		$bReinstall = (bool)$oDP->post( 'reinstall' );
+		$bActivate = (bool)$oDP->post( 'activate' );
+		$sFile = sanitize_text_field( wp_unslash( $oDP->post( 'file' ) ) );
 		$oWpP = $this->loadWpPlugins();
 
-		$bSuccess = $oWpP->reinstall( $sFile );
-		$this->sendAjaxResponse( $bSuccess );
+		if ( $bReinstall ) {
+			$bActivate = $oWpP->reinstall( $sFile ) && $bActivate;
+		}
+		if ( $bActivate ) {
+			$oWpP->activate( $sFile );
+		}
+
+		$this->sendAjaxResponse( true );
 	}
 
 	public function insertCustomJsVars() {
@@ -380,10 +389,25 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'icwp_wpsf_vars_hp',
 			array(
 				'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+				'reinstallable'  => $this->getReinstallablePlugins()
 			)
 		);
 		wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getReinstallablePlugins() {
+		$oWPP = $this->loadWpPlugins();
+		$aP = array();
+		foreach ( $oWPP->getPlugins() as $sPluginFile => $aData ) {
+			if ( $oWPP->isWpOrg( $sPluginFile ) ) {
+				$aP[] = $sPluginFile;
+			}
+		}
+		return $aP;
 	}
 
 	/**

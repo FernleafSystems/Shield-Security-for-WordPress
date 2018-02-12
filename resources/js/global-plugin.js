@@ -30,17 +30,26 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 
 var iCWP_WPSF_HackGuard_Reinstall = new function () {
 
-	var $oActivePluginLink;
+	var sActiveFile;
+	var bActivate;
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
 
-			var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
+			var $oTr;
+			jQuery( 'table.wp-list-table.plugins > tbody  > tr' ).each( function ( nIndex ) {
+				$oTr = jQuery( this );
+				if ( $oTr.data( 'plugin' ) !== undefined
+					&& icwp_wpsf_vars_hp.reinstallable.indexOf( $oTr.data( 'plugin' ) ) >= 0 ) {
+					$oTr.addClass( 'reinstallable' );
+				}
+			} );
 
-			jQuery( document ).on( "click", 'a.icwp-reinstall-plugin', prompt );
+			jQuery( document ).on( "click", 'tr.reinstallable .row-actions a.icwp-reinstall-plugin', promptReinstall );
+			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .activate a', promptActivate );
 
-			$oReinstallDialog.dialog( {
-				title: 'My Dialog',
+			var oShareSettings = {
+				title: 'Re-Install Plugin',
 				dialogClass: 'wp-dialog',
 				autoOpen: false,
 				draggable: false,
@@ -53,49 +62,74 @@ var iCWP_WPSF_HackGuard_Reinstall = new function () {
 					at: "center",
 					of: window
 				},
-				buttons: {
-					"Okay, Re-Install It": function() {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin();
-					},
-					Cancel: function() {
-						jQuery( this ).dialog( "close" );
-					}
-				},
 				open: function () {
 					// close dialog by clicking the overlay behind it
 					jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
-						$oReinstallDialog.dialog( 'close' );
+						jQuery( this ).dialog( 'close' );
 					} )
 				},
 				create: function () {
 					// style fix for WordPress admin
 					jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
 				}
-			} );
+			};
 
+			var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
+			oShareSettings[ 'buttons' ] = {
+				"Okay, Re-Install It": function () {
+					jQuery( this ).dialog( "close" );
+					reinstall_plugin( 1 );
+				},
+				"Cancel": function () {
+					jQuery( this ).dialog( "close" );
+				}
+			};
+			$oReinstallDialog.dialog( oShareSettings );
+
+			var $oActivateReinstallDialog = jQuery( '#icwpWpsfActivateReinstall' );
+			oShareSettings[ 'buttons' ] = {
+				"Re-Install First, Then Activate": function () {
+					jQuery( this ).dialog( "close" );
+					reinstall_plugin( 1 );
+				},
+				"Activate Only": function () {
+					jQuery( this ).dialog( "close" );
+					reinstall_plugin( 0 );
+				}
+			};
+			$oActivateReinstallDialog.dialog( oShareSettings );
 		} );
 	};
-	var prompt = function ( event ) {
+
+	var promptReinstall = function ( event ) {
 		event.preventDefault();
-		$oActivePluginLink = jQuery( event.target );
+		bActivate = 0;
+		sActiveFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
 		jQuery( '#icwpWpsfReinstall' ).dialog( 'open' );
+		return false;
 	};
 
-	var reinstall_plugin = function ( event ) {
+	var promptActivate = function ( event ) {
+		event.preventDefault();
+		bActivate = 1;
+		sActiveFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
+		jQuery( '#icwpWpsfActivateReinstall' ).dialog( 'open' );
+		return false;
+	};
+
+	var reinstall_plugin = function ( bReinstall ) {
 		iCWP_WPSF_BodyOverlay.show();
 
 		var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
-		$aData[ 'file' ] = $oActivePluginLink.data( 'file' );
+		$aData[ 'file' ] = sActiveFile;
+		$aData[ 'reinstall' ] = bReinstall;
+		$aData[ 'activate' ] = bActivate;
 
 		jQuery.post( ajaxurl, $aData, function ( oResponse ) {
-			if ( oResponse.success ) {
-			}
-			else {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
+
 		} ).always( function () {
-				iCWP_WPSF_BodyOverlay.hide();
+				location.reload( true );
+				bActivate = null;
 			}
 		);
 

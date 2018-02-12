@@ -6,7 +6,8 @@
 
 <div id="icwpWpsfActivateReinstall" class="hidden icwp-wpsf-dialog">
 	<h3>Re-Install First?</h3>
-	<p>For best security practices, Shield will download and re-install the latest available version of this plugin.</p>
-	<p>This ensures your files for this plugin have not been corrupted in any way.</p>
-	<p>Click 'Cancel' to keep the existing version and activate anyway (not recommended).</p>
+	<p>For best security practices, Shield will download and re-install the
+		<strong>latest available version</strong> of this plugin.</p>
+	<p>This ensures the files for this plugin have not been corrupted in any way.</p>
+	<p>You can also choose to Activate Only (not recommended).</p>
 </div>
