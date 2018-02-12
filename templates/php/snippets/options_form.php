@@ -19,38 +19,33 @@
 
 						<div class="btn-group" role="group" aria-label="Basic example">
 
-							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}" aria-disabled="true"
-							   class="btn btn-success disabled">
+							<a aria-disabled="true" class="btn btn-success disabled icwp-carousel-0" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_options' ]; ?></a>
 
 							<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>
-								<a class="btn btn-outline-dark btn-icwp-wizard"
-								   title="Launch Guided Walk-Through Wizards"
-								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 1 );}">
+								<a class="btn btn-outline-dark btn-icwp-wizard icwp-carousel-1"
+								   title="Launch Guided Walk-Through Wizards" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 							<?php else : ?>
 								<a class="btn btn-outline-dark btn-icwp-wizard disabled"
 								   href="javascript:{}"
 									<?php if ( $flags[ 'can_wizard' ] ) : ?>
-								   title="No Wizards for this module."
+										title="No Wizards for this module."
 									<?php else : ?>
-								   title="Wizards are not available as your PHP version is too old."
+										title="Wizards are not available as your PHP version is too old."
 									<?php endif; ?>>
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 							<?php endif; ?>
 
-							<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-							   class="btn btn-outline-info">
+							<a class="btn btn-outline-info icwp-carousel-2" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_help' ]; ?></a>
 
 							<?php if ( $flags[ 'show_content_actions' ] ) : ?>
-								<a class="btn btn-outline-secondary"
-								   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 3 );}">
-								<?php echo $strings[ 'btn_actions' ]; ?></a>
+								<a class="btn btn-outline-secondary icwp-carousel-3" href="javascript:void(0)">
+									<?php echo $strings[ 'btn_actions' ]; ?></a>
 							<?php else : ?>
-								<a class="btn btn-outline-secondary disabled"
-								   href="javascript:{}">
-								<?php echo $strings[ 'btn_actions' ]; ?></a>
+								<a class="btn btn-outline-secondary disabled" href="javascript:void(0)">
+									<?php echo $strings[ 'btn_actions' ]; ?></a>
 							<?php endif; ?>
 
 						</div>
