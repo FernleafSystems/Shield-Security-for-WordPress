@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_AdminAccessRestriction' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -14,13 +14,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
+		return parent::isReadyToExecute() && $this->hasAccessKey() && !$this->isVisitorWhitelisted();
 	}
 
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
 		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
 		add_action( $this->prefixWpAjax( 'AdminAccessLogin' ), array( $this, 'ajaxAdminAccessLogin' ) );
+		add_action( $this->prefixWpAjax( 'RestrictedAccessKey' ), array( $this, 'ajaxRestrictedAccessKey' ) );
 	}
 
 	public function ajaxLoadAdminAccessForm() {
@@ -63,15 +64,28 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 	}
 
+	public function ajaxRestrictedAccessKey() {
+		$sResponseData = array();
+		$bSuccess = $this->checkAdminAccessKeySubmission();
+		if ( $bSuccess ) {
+			$this->setPermissionToSubmit( true );
+			$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
+		}
+		else {
+			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+		}
+		$this->sendAjaxResponse( $bSuccess, $sResponseData );
+	}
+
 	/**
-	 * @param bool $fHasPermission
+	 * @param bool $bHasPermission
 	 * @return bool
 	 */
-	public function doCheckHasPermissionToSubmit( $fHasPermission = true ) {
+	public function doCheckHasPermissionToSubmit( $bHasPermission = true ) {
 
-		$this->bHasPermissionToSubmit = $fHasPermission;
-		if ( $this->getIsMainFeatureEnabled() ) {
-				$sAccessKey = $this->getAccessKeyHash();
+		$this->bHasPermissionToSubmit = $bHasPermission;
+		if ( $this->isModuleEnabled() ) {
+			$sAccessKey = $this->getAccessKeyHash();
 			if ( !empty( $sAccessKey ) ) {
 				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid() || $this->checkAdminAccessKeySubmission();
 			}
@@ -121,13 +135,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getAdminAccessArea( $sArea = 'plugins' ) {
 		$aSettings = $this->getOpt( 'admin_access_restrict_'.$sArea, array() );
 		return !is_array( $aSettings ) ? array() : $aSettings;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIsMainFeatureEnabled() {
-		return parent::getIsMainFeatureEnabled() && $this->hasAccessKey();
 	}
 
 	/**
@@ -257,7 +264,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function verifyAccessKey( $sKey ) {
-		return !empty( $sKey ) && ( $this->getOpt( 'admin_access_key' ) === md5( $sKey ) );
+		return !empty( $sKey ) && ( $this->getAccessKeyHash() === md5( $sKey ) );
 	}
 
 	/**
@@ -290,19 +297,19 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restricts access to this plugin preventing unauthorized changes to your security settings.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Security Admin' ) ) ),
 					sprintf( _wpsf__( 'You need to also enter a new Access Key to enable this feature.' ) ),
 				);
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_admin_access_restriction_settings' :
 				$sTitle = _wpsf__( 'Security Admin Restriction Settings' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restrict access using a simple Access Key.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restricts access to this plugin preventing unauthorized changes to your security settings.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 				);
 				$sTitleShort = _wpsf__( 'Security Admin Settings' );
@@ -337,22 +344,22 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		switch ( $sKey ) {
 
 			case 'enable_admin_access_restriction' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Security Admin' ) );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), _wpsf__( 'Security Admin' ) );
 				$sSummary = _wpsf__( 'Enforce Security Admin Access Restriction' );
-				$sDescription = _wpsf__( 'Enable this with great care and consideration. When this Access Key option is enabled, you must specify a key below and use it to gain access to this plugin.' );
+				$sDescription = _wpsf__( 'Enable this with great care and consideration. Ensure that you set a key that you have set an access key that you will remember.' );
 				break;
 
 			case 'admin_access_key' :
 				$sName = _wpsf__( 'Security Admin Access Key' );
 				$sSummary = _wpsf__( 'Provide/Update Security Admin Access Key' );
-				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) );
+				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
+								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>';
 				break;
 
 			case 'admin_access_timeout' :
 				$sName = _wpsf__( 'Security Admin Timeout' );
 				$sSummary = _wpsf__( 'Specify An Automatic Timeout Interval For Security Admin Access' );
 				$sDescription = _wpsf__( 'This will automatically expire your Security Admin Session.' )
-								.' '._wpsf__( 'Does not apply until you enter the access key again.' )
 								.'<br />'.sprintf( _wpsf__( 'Default: %s minutes.' ), $this->getOptionsVo()
 																						   ->getOptDefault( 'admin_access_timeout' ) );
 				break;
@@ -418,11 +425,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 		if ( $this->getOpt( 'admin_access_timeout' ) < 1 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'admin_access_timeout' );
-		}
-
-		$sAccessKey = $this->getOpt( 'admin_access_key' );
-		if ( empty( $sAccessKey ) ) {
-			$this->setOpt( 'enable_admin_access_restriction', 'N' );
 		}
 
 		// Restricting Activate Plugins also means restricting the rest.

@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_BasePlugin', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -84,13 +84,14 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$bCanWizardWelcome = $oFO->canRunWizards();
 
+		$sName = $oFO->getConn()->getHumanName();
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => array(
 				'dismiss'  => _wpsf__( "I don't need the setup wizard just now" ),
-				'title'    => _wpsf__( 'Get started quickly with the Shield Security Setup Wizard' ),
-				'setup'    => _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core Shield Security features.' ),
-				'no_setup' => _wpsf__( "Shield Security has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+ " )
+				'title'    => sprintf( _wpsf__( 'Get started quickly with the %s Setup Wizard' ), $sName ),
+				'setup'    => sprintf( _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features' ), $sName ),
+				'no_setup' => sprintf( _wpsf__( "%s has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+" ), $sName ),
 			),
 			'hrefs'             => array(
 				'wizard' => $bCanWizardWelcome ? $oFO->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',

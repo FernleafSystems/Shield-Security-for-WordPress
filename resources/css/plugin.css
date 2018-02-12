@@ -1,17 +1,14 @@
 @CHARSET "ISO-8859-1";
 
 /* GENERAL STYLES */
-
-.bootstrap-wpadmin {
+body {
+	overflow-y: scroll;
 }
-.bootstrap-wpadmin .row {
-	margin-left: 0;
+#wpcontent {
+	padding: 0;
 }
-.bootstrap-wpadmin > .row > div[class*=span]:first-child {
-	margin-left: 0;
-}
-#pluginlogo_32 {
-	background: url("../images/pluginlogo_32x32.png?ver=1.0.0") no-repeat 0 3px transparent;
+#wpcontent .wrap {
+	margin: 0;
 }
 .pluginlogo_16 {
 	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
@@ -54,11 +51,6 @@
 .icwp-options-page ul.nav-tabs li a:hover {
 	background-color: #dddddd;
 	border-color: #999999;
-}
-.icwp-options-page .tab-content {
-	background-color: #ffffff;
-	border: 1px solid #dddddd;
-	border-top: 0 none;
 }
 .icwp-options-page .form-actions {
 	background-color: #d8d8d8;
@@ -180,11 +172,11 @@ p.code-description {
 }
 /** Section summaries **/
 .row_section_summary {
+	background-color: rgba(0, 0, 0, 0.02);
+	border: 1px solid rgb(240, 240, 240);
+	margin: 10px 20px 20px;
 }
 .row_section_summary div {
-	background-color: #f5f4f4;
-	border: 1px solid rgb(230, 226, 226);
-	border-width: 1px 0;
 	margin: 0;
 	padding: 0 20px 0 2px;
 }
@@ -210,16 +202,9 @@ p.code-description {
 .options-body legend {
 	border-bottom: 1px dashed transparent;
 	margin-bottom: 0;
-	padding: 16px 22px 12px;
-	width: 80%;
+	padding: 16px 20px 0;
 }
 .option_row .item_group {
-	border-style: solid;
-	border-width: 1px 0;
-	border-color: rgb(230, 226, 226);
-	box-sizing: border-box;
-	padding: 0;
-	margin-top: -1px;
 }
 .option_row .item_group .control-group {
 	margin: 22px 20px;
@@ -233,16 +218,12 @@ p.code-description {
 	margin-top: 2px;
 	text-align: right;
 }
-.control-label .optname {
-	display: block;
-}
-.control-label .optlinks {
+.optlinks {
 	display: block;
 	margin-top: 5px;
+	font-size: smaller;
 }
 .option_row .item_group.selected_item_group {
-	background-color: rgba(135, 232, 38, 0.03);
-	border-color: rgb(203, 232, 174);
 }
 .row.option_row {
 	margin-bottom: 15px;
@@ -286,11 +267,17 @@ p.code-description {
 	border-radius: 4px;
 	padding: 8px 10px;
 }
+.option_section input,
+.option_section select,
+.option_section textarea {
+	width: 100%;
+}
 .option_section input[type=checkbox] {
 	margin-right: 5px;
 }
 .option_section label {
 	background-color: transparent;
+	width: 100%;
 }
 .selected_item label {
 	font-weight: bold;
@@ -308,7 +295,6 @@ p.code-description {
 .option_section.active {
 }
 table.table th {
-	border-bottom: 1px solid #777777;
 }
 table.tbl_tbs_options {
 	width: 100%;
@@ -343,7 +329,7 @@ label input[type=checkbox] {
 	width: 100%;
 	margin-top: 20px;
 	box-shadow: 1px 1px 2px 0 rgba(0, 0, 0, 0.2) inset;
-	border: 1px solid #ccc;
+	border: 1px solid #cccccc;
 	background: #f9f9f9;
 }
 .feature-summary-blocks .feature-icon:before {
@@ -545,55 +531,65 @@ input[type="email"] {
 }
 #icwpOptionsTopPill > .tab-content {
 	background-color: transparent;
-	border: 1px solid transparent;
 }
-#icwpOptionsTopPill > .tab-content .content-help {
-	background-color: #fafafa;
-	padding: 10px 20px;
-	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-	margin: 5px;
+.content-wizards .wizard_slot {
+	border: 1px solid #dddddd;
+	border-radius: 3px;
+	margin-top: 30px;
+	padding: 20px;
 }
-#icwpOptionsTopPill .content-help h2 {
+.content-wizards .wizard_slot:hover {
+	background-color: #ffffff;
+}
+.btn.btn-icwp-wizard.disabled {
+	pointer-events: auto;
+}
+.content-wizards,
+.content-help {
+	background-color: #f1f1f1; /** == #ColumnOptions */
+	padding: 20px;
+
+}
+.content-help h2 {
 	margin-bottom: 8px;
 }
-#icwpOptionsTopPill .content-help p,
-#icwpOptionsTopPill .content-help li {
+.content-help p,
+.content-help li {
 	font-size: 14px;
 }
-#icwpOptionsTopPill .content-help dt {
+.content-help dt {
 	border-bottom: 1px dotted rgba(0, 0, 0, 0.2);
 	font-size: 16px;
 	margin-bottom: 7px;
 	padding-bottom: 3px;
 }
-#icwpOptionsTopPill .content-help dd {
+.content-help dd {
 	margin-bottom: 15px;
 	margin-left: 12px;
 }
 .bootstrap-wpadmin .option_section_row .options-body {
 }
 .bootstrap-wpadmin .option_row .item_group {
-	margin-left: 0;
 }
-
 /* The switch - the box around the slider */
 label.forcheckbox .summary {
 	vertical-align: top;
 	line-height: 20px;
 	margin-left: 7px;
 }
-.switch {
+.icwp-switch {
 	position: relative;
 	display: inline-block;
 	width: 40px;
 	height: 20px;
 }
-.bootstrap-wpadmin .switch .summary {
+.icwp-switch .summary {
 	display: block;
 }
 /* Hide default HTML checkbox */
-.bootstrap-wpadmin .switch input {display:none; !important;}
-
+.icwp-switch input {
+	display: none;
+}
 /* The slider */
 .icwp-slider {
 	position: absolute;
@@ -602,7 +598,7 @@ label.forcheckbox .summary {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #ccc;
+	background-color: #cccccc;
 	-webkit-transition: .1s;
 	transition: .1s;
 }
@@ -634,4 +630,190 @@ input:checked + .icwp-slider:before {
 }
 .icwp-slider.round:before {
 	border-radius: 10%;
+}
+/** NEW FORMS **/
+
+#wpwrap {
+	background-color: #e4e4e4;
+}
+#wpcontent,
+#wpbody-content {
+	background-color: #e4e4e4;
+}
+#wpfooter {
+}
+.icwp-options-page {
+	/*margin-top: 7px;*/
+	/*margin-right: 7px;*/
+}
+#ModulePageTopRow {
+	min-width: 760px; /** prevents col breaking **/
+}
+#TopPluginIcon {
+	background: url("../images/shield/SHIELDSECURITY.png?ver=2.0") no-repeat 0 0 #f1f1f1;
+	border-bottom: 1px solid #ccc;
+
+	height: 128px;
+	width: 128px;
+
+	margin-bottom: 7px;
+	position: relative;
+	left: 1px;
+}
+#ColumnModules {
+	max-width: 128px;
+	border-right: 1px solid #ccc;
+}
+#ColumnOptions {
+	background-color: #f1f1f1;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	min-width: 590px; /** prevents col breaking **/
+}
+.module-headline {
+	font-size: 14px;
+	padding: 14px 16px 10px;
+}
+.headline-title {
+	font-variant: small-caps;
+}
+.module-tagline {
+	font-size: 14px;
+	display: block;
+}
+.modules a.module {
+	font-size: 15px;
+	padding: 0.7rem 1.1rem 0.7rem 1.2rem;
+	color: #222222;
+	font-weight: bolder;
+	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
+
+	border-bottom: 1px solid transparent;
+	border-top: 1px solid transparent;
+}
+.modules a.module:first-child {
+}
+.modules a#tab-license {
+	color: #1d00ff;
+}
+.modules a.module .module-name {
+	line-height: 19px;
+	position: relative;
+}
+.modules .module-name .dashicons {
+	position: absolute;
+	left: -20px;
+	top: 1px;
+	color: #a56300;
+}
+.modules a.module .dashicons-warning {
+	color: #a56300;
+}
+.modules a.module .dashicons-yes {
+	color: #bdbdbd;
+}
+.modules a.module .dashicons-warning:before {
+	font-size: 16px !important;
+}
+.modules a.module:hover,
+.modules a.module:focus {
+	background-color: #eeeeee;
+	color: #222222;
+	box-shadow: none;
+}
+.modules a.module.active {
+	background-color: #f1f1f1; /** == #ColumnOptions */
+	color: #222222;
+
+	margin-right: -1px;
+	z-index: 2;
+	border-bottom-color: #ccc;
+	border-top-color: #ccc;
+}
+.icwp-options-page .tab-content {
+	background-color: #fcfffc;
+	border: 1px solid #dddddd;
+	box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.05);
+	min-height: 450px;
+}
+#ModuleOptionsNav {
+	margin-top: 20px;
+}
+#ModuleOptionsNav li {
+	margin-bottom: 0;
+}
+#ModuleOptionsNav li a {
+	border: 1px solid transparent;
+	font-size: 14px;
+	min-height: 60px;
+	margin-right: -1px;
+	border-radius: 3px 0 0 3px;
+	color: #006100;
+	letter-spacing: -0.5px;
+	margin-left: 7px;
+}
+#ModuleOptionsNav li a:hover {
+	background-color: rgba(0, 0, 0, 0.07);
+}
+#ModuleOptionsNav li a.active {
+	background-color: #fcfffc;
+	border: 1px solid #cccccc;
+	border-right-color: transparent;
+	z-index: 2;
+	position: relative;
+	box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.03);
+}
+#ModuleOptionsNav li a:active,
+#ModuleOptionsNav li a:focus {
+	box-shadow: none;
+}
+.smoothwidth {
+	transition: width 4.5s;
+}
+.form-label {
+	font-size: 14px;
+}
+.form-label-inner {
+	padding-left: 10px;
+}
+.option_container {
+}
+.carousel-item {
+
+	transition: -webkit-transform 0.3s ease;
+	transition: transform 0.2s ease;
+	transition: transform 0.2s ease, -webkit-transform 0.2s ease;
+}
+#AuditTrailTabs .tab-content {
+	border: 0 none;
+	box-shadow: none;
+}
+#IcwpWpsfSecurityAdmin {
+	background-color: white;
+	padding: 40px;
+	margin: 40px 0;
+}
+.card.gopro-card {
+	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
+}
+
+@media (max-width: 848px) {
+	#ColumnModules {
+		max-width: 76px;
+	}
+	#TopPluginIcon {
+		height: 76px;
+		width: 76px;
+		background-size: 76px 76px;
+	}
+	.modules a.module {
+		font-size: 0.7rem;
+		font-weight: normal;
+		letter-spacing: -1px;
+		padding: 0.4rem 0.6rem 0.4rem 0.8rem;
+	}
+	.modules .module-name .dashicons {
+		font-size: 16px;
+		left: -17px;
+	}
 }

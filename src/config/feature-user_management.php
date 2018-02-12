@@ -2,7 +2,7 @@
   "slug": "user_management",
   "properties": {
     "name": "User Management",
-    "show_feature_menu_item": true,
+    "show_module_menu_item": true,
     "storage_key": "user_management",
     "tagline": "Control user sessions, duration, timeouts and account sharing",
     "show_central": true,
@@ -13,17 +13,9 @@
   },
   "sections": [
     {
-      "slug": "section_enable_plugin_feature_user_accounts_management",
-      "primary": true,
-      "title": "Enable Plugin Feature: User Management",
-      "title_short": "Enable / Disable",
-      "summary": [
-        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
-        "Recommendation - Keep the User Management feature turned on."
-      ]
-    },
-    {
       "slug": "section_user_session_management",
+      "primary": true,
+      "primary": true,
       "title": "User Session Management",
       "title_short": "Session Options",
       "summary": [
@@ -41,6 +33,15 @@
       ]
     },
     {
+      "slug": "section_enable_plugin_feature_user_accounts_management",
+      "title": "Enable Module: User Management",
+      "title_short": "Disable Module",
+      "summary": [
+        "Purpose - User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.",
+        "Recommendation - Keep the User Management feature turned on."
+      ]
+    },
+    {
       "slug": "section_non_ui",
       "hidden": true
     }
@@ -49,24 +50,13 @@
     {
       "key": "enable_user_management",
       "section": "section_enable_plugin_feature_user_accounts_management",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Enable User Management",
-      "summary": "Enable (or Disable) The User Management Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole User Management feature"
-    },
-    {
-      "key": "enable_xmlrpc_compatibility",
-      "section": "section_enable_plugin_feature_user_accounts_management",
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "XML-RPC Compatibility",
-      "summary": "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
+      "name": "Enable User Management",
+      "summary": "Enable (or Disable) The User Management module",
+      "description": "Un-Checking this option will completely disable the User Management module"
     },
     {
       "key": "enable_admin_login_email_notification",

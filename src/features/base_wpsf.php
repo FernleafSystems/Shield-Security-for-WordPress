@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base.php' );
+require_once( dirname( __FILE__ ).'/base.php' );
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
@@ -90,37 +90,73 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData() {
+	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
 		return $this->loadDP()->mergeArraysRecursive(
-			parent::getBaseDisplayData(),
+			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
 			array(
 				'strings' => array(
-					'go_to_settings'                    => _wpsf__( 'Settings' ),
-					'on'                                => _wpsf__( 'On' ),
-					'off'                               => _wpsf__( 'Off' ),
-					'more_info'                         => _wpsf__( 'More Info' ),
-					'blog'                              => _wpsf__( 'Blog' ),
-					'plugin_activated_features_summary' => _wpsf__( 'Plugin Activated Features Summary:' ),
-					'save_all_settings'                 => _wpsf__( 'Save All Settings' ),
-					'options_title'                     => _wpsf__( 'Options' ),
-					'options_summary'                   => _wpsf__( 'Configure Module' ),
-					'actions_title'                     => _wpsf__( 'Actions and Info' ),
-					'actions_summary'                   => _wpsf__( 'Perform actions for this module' ),
-					'help_title'                        => _wpsf__( 'Help' ),
-					'help_summary'                      => _wpsf__( 'Learn More' ),
+					'go_to_settings'    => _wpsf__( 'Settings' ),
+					'on'                => _wpsf__( 'On' ),
+					'off'               => _wpsf__( 'Off' ),
+					'more_info'         => _wpsf__( 'More Info' ),
+					'blog'              => _wpsf__( 'Blog' ),
+					'save_all_settings' => _wpsf__( 'Save All Settings' ),
+					'options_title'     => _wpsf__( 'Options' ),
+					'options_summary'   => _wpsf__( 'Configure Module' ),
+					'actions_title'     => _wpsf__( 'Actions and Info' ),
+					'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
+					'help_title'        => _wpsf__( 'Help' ),
+					'help_summary'      => _wpsf__( 'Learn More' ),
 
-					'aar_what_should_you_enter'    => _wpsf__( 'What should you enter here?' ),
-					'aar_must_supply_key_first'    => _wpsf__( 'At some point you entered a Security Admin Access Key - to manage this plugin, you must supply it here first.' ),
+					'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
+					'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),
+					'aar_must_supply_key_first'    => _wpsf__( 'Please provide the Security Access Key to manage this plugin.' ),
 					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 					'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
-					'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' )
+					'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
+					'aar_forget_key'               => _wpsf__( "Forgotten Key" )
 				),
 				'flags'   => array(
 					'show_summary' => true,
 					'has_session'  => $this->hasSession()
+				),
+				'hrefs'   => array(
+					'aar_forget_key' => 'http://icwp.io/b5',
 				)
+			)
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'go_to_settings'    => _wpsf__( 'Settings' ),
+				'on'                => _wpsf__( 'On' ),
+				'off'               => _wpsf__( 'Off' ),
+				'more_info'         => _wpsf__( 'More Info' ),
+				'blog'              => _wpsf__( 'Blog' ),
+				'save_all_settings' => _wpsf__( 'Save All Settings' ),
+				'options_title'     => _wpsf__( 'Options' ),
+				'options_summary'   => _wpsf__( 'Configure Module' ),
+				'actions_title'     => _wpsf__( 'Actions and Info' ),
+				'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
+				'help_title'        => _wpsf__( 'Help' ),
+				'help_summary'      => _wpsf__( 'Learn More' ),
+
+				'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
+				'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),
+				'aar_must_supply_key_first'    => _wpsf__( 'Please provide the Security Access Key to manage this plugin.' ),
+				'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
+				'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
+				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
+				'aar_forget_key'               => _wpsf__( "Forgotten Key" )
 			)
 		);
 	}
@@ -138,6 +174,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function isVisitorWhitelisted() {
 		return apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isXmlrpcBypass() {
+		return $this->getConn()
+					->getModule( 'plugin' )
+					->isXmlrpcBypass();
 	}
 
 	/**

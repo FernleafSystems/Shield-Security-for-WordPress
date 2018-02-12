@@ -2,9 +2,10 @@
   "slug":        "hack_protect",
   "properties":  {
     "slug":                   "hack_protect",
-    "name":                   "Hack Protection",
-    "show_feature_menu_item": true,
+    "name":                   "Hack Guard",
+    "show_module_menu_item":  true,
     "storage_key":            "hack_protect",
+    "tagline": "Automatically detect and repair vulnerable and suspicious items",
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
@@ -12,13 +13,12 @@
   },
   "sections":    [
     {
-      "slug":        "section_enable_plugin_feature_hack_protection_tools",
+      "slug":        "section_scan_schedule",
       "primary":     true,
-      "title":       "Enable Plugin Feature: Hack Protection",
-      "title_short": "Enable / Disable",
+      "title":       "Scan Schedule",
+      "title_short": "Schedule",
       "summary":     [
-        "Purpose - The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.",
-        "Recommendation - Keep the Hack Protection feature turned on."
+        "Purpose - Set how often the Hack Guard scans will run."
       ]
     },
     {
@@ -49,6 +49,24 @@
       ]
     },
     {
+      "slug": "section_integrity_checking",
+      "title": "Integrity Checks",
+      "title_short": "Integrity Checks",
+      "summary": [
+        "Purpose - Monitor for unrecognised changes to your system.",
+        "Recommendation - Enable these to automatically recover from unauthorized changes to your WordPress site."
+      ]
+    },
+    {
+      "slug":        "section_enable_plugin_feature_hack_protection_tools",
+      "title":       "Enable Module: Hack Guard",
+      "title_short": "Disable Module",
+      "summary":     [
+        "Purpose - Hack Guard is a set of tools to warn you and protect you against hacks on your site.",
+        "Recommendation - Keep the Hack Guard module turned on."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -61,9 +79,9 @@
       "type":        "checkbox",
       "link_info":   "http://icwp.io/wpsf38",
       "link_blog":   "http://icwp.io/9x",
-      "name":        "Enable Hack Protection",
-      "summary":     "Enable (or Disable) The Hack Protection Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Hack Protection feature"
+      "name":        "Enable Hack Guard",
+      "summary":     "Enable (or Disable) The Hack Guard Module",
+      "description": "Un-Checking this option will completely disable the Hack Guard module"
     },
     {
       "key":           "enable_wpvuln_scan",
@@ -152,7 +170,7 @@
     },
     {
       "key":         "scan_frequency",
-      "section":     "section_enable_plugin_feature_hack_protection_tools",
+      "section":     "section_scan_schedule",
       "premium":       true,
       "default":       1,
       "type":          "select",
@@ -192,7 +210,7 @@
       ],
       "link_info":   "http://icwp.io/b2",
       "link_blog":   "",
-      "name":        "Daily Frequency",
+      "name":        "Scan Frequency",
       "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
       "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
@@ -255,6 +273,35 @@
       "name":        "File Exclusions",
       "summary":     "Provide A List Of Files To Be Excluded From The Scan",
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
+    },
+    {
+      "key": "ic_enabled",
+      "section": "section_non_ui",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable Integrity Checking Scan",
+      "summary": "Scans For Critical Changes Made To Your WordPress Site",
+      "description": "Detects changes made to your WordPress site outside of WordPress."
+    },
+    {
+      "key": "ic_users",
+      "section": "section_non_ui",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Monitor User Accounts",
+      "summary": "Scans For Critical Changes Made To User Accounts",
+      "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
+    },
+    {
+      "key": "snapshot_users",
+      "transferable": false,
+      "sensitive": true,
+      "section": "section_non_ui",
+      "value": []
     },
     {
       "key":          "wpvuln_notified_ids",

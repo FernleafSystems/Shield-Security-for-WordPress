@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Plugin_ImportExport', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -89,7 +89,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !$oFO->isPremium() ) {
 			$nCode = 1;
-			$sMessage = _wpsf__( 'Not currently running Shield Security Pro.' );
+			$sMessage = sprintf( _wpsf__( 'Not currently running %s Pro.' ), $oFO->getConn()->getHumanName() );
 		}
 		else if ( !$oFO->isImportExportPermitted() ) {
 			$nCode = 2;

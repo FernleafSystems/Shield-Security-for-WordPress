@@ -1,43 +1,34 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
+	{{ slideMacros.slideTitle( 'Security Administrators' ) }}
 
-<h3>Security Administrator</h3>
-<p>Shield offers you the unique ability to lock down access to the <em>Shield Security plugin itself</em>.
-</p>
-<p>This is important because it means that only admins with security access key will be able to:
-	<ul>
-		<li>View Shield Security settings</li>
-		<li>Change Shield Security settings</li>
-		<li>Deactivate the Shield Security plugin</li>
-	</ul>
-</p>
-<p>It's also a great layer of security in-case someone gets unauthorized access to your WordPress admin dashboard.</p>
-<p>To turn this option on, please supply a password below (aka 'Access Key').</p>
+	<p>Shield lets you lock down access to the <em>Shield Security plugin itself</em> using a Security Access Key.</p>
 
-<h4>Supply Your New Security Access Key</h4>
+	<h6 class="more_details">
+		<a class="btn btn-outline-secondary" data-toggle="collapse" data-target=".more_details_body">More Details &rarr;</a>
+	</h6>
+	<div id="MoreDetails" class="collapse more_details_body">
+		<div class="card card-body">
+			<p>This is important because it means that only admins with the access key will be able to:</p>
+			<ul>
+				<li>View Shield Security settings</li>
+				<li>Change Shield Security settings</li>
+				<li>Deactivate the Shield Security plugin</li>
+			</ul>
+			<p>It's also a great layer of security in-case someone gets unauthorized access
+			   to your WordPress admin dashboard.</p>
+			<p>To turn this option on, please supply a password below (aka 'Access Key').</p>
+		</div>
+	</div>
+
+<h6>Supply A New Security Access Key</h6>
 <p><strong>Warning</strong>: You must remember this key to regain access to the Shield plugin.</p>
 <form class="form-horizontal icwp-wizard-form">
-	<input name="wizard-step" value="admin_access_restriction" type="hidden" />
-	<div class="form-group">
-		<label class="col-md-4 control-label" for="AccessKey">Access Key</label>
-		<div class="col-md-8">
-			<input type="password" class="form-control"
-				   name="AccessKey" id="AccessKey" placeholder="Access Key">
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="col-md-4 control-label" for="AccessKeyConfirm">Confirm Key</label>
-		<div class="col-md-8">
-			<input type="password" class="form-control"
-				   name="AccessKeyConfirm" id="AccessKeyConfirm" placeholder="Confirm Access Key">
-		</div>
-	</div>
-	<div class="form-group">
-		<div class="col-md-offset-4 col-md-8">
-			<button type="submit" class="btn btn-primary">Turn On Security Admin</button>
-		</div>
-	</div>
+	{{ slideMacros.formInput_Password( 'AccessKey', '', 'Access Key', '', 'Do not forget this key' ) }}
+	{{ slideMacros.formInput_Password( 'AccessKeyConfirm', '', 'Confirm Key', 'Confirm Access Key' ) }}
+	{{ slideMacros.formInput_Hidden( 'wizard-step', 'admin_access_restriction' ) }}
+	{{ slideMacros.formInput_Submit( 'Turn On Security Admin' ) }}
 </form>
 
 {% endblock %}

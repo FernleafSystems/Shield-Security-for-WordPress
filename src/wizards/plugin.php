@@ -127,29 +127,29 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'import';
 		}
 
-		if ( !$oConn->getModule( 'admin_access_restriction' )->getIsMainFeatureEnabled() ) {
+		if ( !$oConn->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
 		$oModule = $oConn->getModule( 'audit_trail' );
-		if ( !$oModule->getIsMainFeatureEnabled() ) {
+		if ( !$oModule->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$oConn->getModule( 'ips' )->getIsMainFeatureEnabled() ) {
+		if ( !$oConn->getModule( 'ips' )->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
 		$oModule = $oConn->getModule( 'login_protect' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
 		$oModule = $oConn->getModule( 'comments_filter' );
-		if ( !( $oModule->getIsMainFeatureEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';
 		}
 
@@ -217,24 +217,27 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'how_shield_works' => $oConn->getPluginUrl_Image( 'wizard/general-shield_where.png' ),
 							'modules'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_modules.png' ),
 							'options'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_options.png' ),
+							'wizards'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_wizards.png' ),
 							'help'             => $oConn->getPluginUrl_Image( 'wizard/general-shield_help.png' ),
 							'actions'          => $oConn->getPluginUrl_Image( 'wizard/general-shield_actions.png' ),
-							'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
 							'option_help'      => $oConn->getPluginUrl_Image( 'wizard/general-option_help.png' ),
+							'module_onoff'     => $oConn->getPluginUrl_Image( 'wizard/general-module_onoff.png' ),
 						),
 						'headings' => array(
 							'how_shield_works' => _wpsf__( 'Where to find Shield' ),
 							'modules'          => _wpsf__( 'Accessing Each Module' ),
 							'options'          => _wpsf__( 'Accessing Options' ),
+							'wizards'          => _wpsf__( 'Launching Wizards' ),
 							'help'             => _wpsf__( 'Finding Help' ),
 							'actions'          => _wpsf__( 'Actions (not Options)' ),
-							'module_onoff'     => _wpsf__( 'Module On/Off Switch' ),
 							'option_help'      => _wpsf__( 'Help For Each Option' ),
+							'module_onoff'     => _wpsf__( 'Module On/Off Switch' ),
 						),
 						'captions' => array(
-							'how_shield_works' => _wpsf__( "You'll find the main Shield Security setting in the left-hand WordPress menu." ),
+							'how_shield_works' => sprintf( _wpsf__( "You'll find the main %s settings in the left-hand WordPress menu." ), $oConn->getHumanName() ),
 							'modules'          => _wpsf__( 'Shield is split up into independent modules for accessing the options of each feature.' ),
 							'options'          => _wpsf__( 'When you load a module, you can access the options by clicking on the Options Panel link.' ),
+							'wizards'          => _wpsf__( 'Launch helpful walk-through wizards for modules that have them.' ),
 							'help'             => _wpsf__( 'Each module also has a brief overview help section - there is more in-depth help available.' ),
 							'actions'          => _wpsf__( 'Certain modules have extra actions and features, e.g. Audit Trail Viewer.' )
 												  .' '._wpsf__( 'Note: Not all modules have the actions section' ),
@@ -430,10 +433,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Audit Trail' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
@@ -463,10 +466,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'IP Manager' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
@@ -499,14 +502,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setEnabledGaspCheck( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
-				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Protection' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Guard' ),
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
-				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Protection' ) );
+				$sMessage = sprintf( _wpsf__( '%s setting could not be changed at this time.' ), _wpsf__( 'Login Guard' ) );
 			}
 		}
 
@@ -537,7 +540,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = _wpsf__( 'Preferences have been saved.' );
 			}
 		}
-		else if ( $sForm == 'optin_badge' ) {
+		else if ( $sForm == 'optin_usage' ) {
 			$sInput = $oDP->post( 'AnonymousOption' );
 
 			if ( !empty( $sInput ) ) {
@@ -573,10 +576,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setEnabledGasp( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->getIsMainFeatureEnabled() === $bEnabled;
+			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comment SPAM Protection' ),
-					$oModule->getIsMainFeatureEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {

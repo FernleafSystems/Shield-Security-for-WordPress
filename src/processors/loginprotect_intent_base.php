@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_IntentBase', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -47,7 +47,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 
 		$sFactor = $this->getStub();
-		if ( !$this->hasValidatedProfile( $oUser ) ) {
+		if ( !$this->isProfileReady( $oUser ) ) {
 			$oLoginTrack->removeFactorToTrack( $sFactor );
 		}
 		else {
@@ -77,21 +77,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 		$oWpUsers = $this->loadWpUsers();
 
 		$sKey = $this->getStub().'_validated';
-		$oMeta = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID );
-
-		$bValidated = (bool)$oMeta->{$sKey};
+		$bValidated = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
 
 		// fallback to old meta
 		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
-		if ( !$bValidated ) {
+		if ( is_string( $bValidated ) ) {
+			$bValidated = ( $bValidated == 'Y' );
+		}
+		else if ( is_null( $bValidated ) ) {
 			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
 			// look for the old style meta
 			$bValidated = ( $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID ) == 'Y' );
 			if ( $bValidated ) {
-				$this->setProfileValidated( $oUser, $bValidated );
 				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
 			}
 		}
+		$this->setProfileValidated( $oUser, $bValidated );
 
 		return $bValidated;
 	}
@@ -110,21 +111,44 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentBase extends ICWP_WPSF_Pro
 
 		// fallback to old meta
 		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
-		if ( empty( $sSecret ) ) {
+		if ( !$this->isSecretValid( $sSecret ) ) {
 			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
-			// look for the old style meta
 			$sSecret = $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID );
-			if ( !empty( $sSecret ) ) {
+			$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
+
+			if ( $this->isSecretValid( $sSecret ) ) {
 				$this->setSecret( $oUser, $sSecret );
-				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
+			}
+			else {
+				$sSecret = $this->resetSecret( $oUser );
 			}
 		}
 
-		if ( empty( $sSecret ) ) {
-			$this->resetSecret( $oUser );
-		}
-
 		return $sSecret;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function isProfileReady( WP_User $oUser ) {
+		return $this->hasValidatedProfile( $oUser ) && $this->hasValidSecret( $oUser );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function hasValidSecret( WP_User $oUser ) {
+		return $this->isSecretValid( $this->getSecret( $oUser ) );
+	}
+
+	/**
+	 * @param string $sSecret
+	 * @return bool
+	 */
+	protected function isSecretValid( $sSecret ) {
+		return !empty( $sSecret ) && is_string( $sSecret );
 	}
 
 	/**

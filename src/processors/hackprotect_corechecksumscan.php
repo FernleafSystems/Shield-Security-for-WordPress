@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) )
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -245,7 +245,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$aContent = array(
 			sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()
 																									->getHumanName() ),
-			_wpsf__( 'This is part of the Hack Protection feature for the WordPress Core File Scanner.' )
+			_wpsf__( 'This is sent from the WordPress Core File Scanner, part of the Hack Guard module.' )
 			.' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>',
 			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',

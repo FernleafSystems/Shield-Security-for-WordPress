@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -20,16 +20,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function getContentCustomActions() {
-		if ( $this->canDisplayOptionsForm() ) {
-			return $this->renderUserSessions();
-		}
-		return parent::getContentCustomActions();
+	protected function getContentCustomActionsData() {
+		return $this->getUserSessionsData();
 	}
 
-	protected function renderUserSessions() {
+	protected function getUserSessionsData() {
 		$aActiveSessions = $this->getActiveSessionsData();
 
 		$aFormatted = array();
@@ -53,13 +50,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oTable->display();
 		$sUserSessionsTable = ob_get_clean();
 
-		$aData = array(
+		return array(
 			'strings'            => $this->getDisplayStrings(),
 			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
 																												  ->time() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
-		return $this->renderTemplate( 'snippets/module-user_management-sessions', $aData );
 	}
 
 	/**
@@ -118,17 +114,20 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'   => _wpsf__( 'User Sessions' ),
-			'actions_summary' => _wpsf__( 'Review user sessions' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'btn_actions'         => _wpsf__( 'User Sessions' ),
+				'btn_actions_summary' => _wpsf__( 'Review user sessions' ),
 
-			'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
-			'um_username'                       => _wpsf__( 'Username' ),
-			'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),
-			'um_last_activity_at'               => _wpsf__( 'Last Activity At' ),
-			'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
-			'um_login_ip'                       => _wpsf__( 'Login IP' ),
-			'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
+				'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
+				'um_username'                       => _wpsf__( 'Username' ),
+				'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),
+				'um_last_activity_at'               => _wpsf__( 'Last Activity At' ),
+				'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
+				'um_login_ip'                       => _wpsf__( 'Login IP' ),
+				'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
+			)
 		);
 	}
 
@@ -162,21 +161,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_user_accounts_management' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
 				);
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-				break;
-
-			case 'section_bypass_user_accounts_management' :
-				$sTitle = _wpsf__( 'By-Pass User Accounts Management' );
-				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Compatibility with XML-RPC services such as the WordPress iPhone and Android Apps.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned off unless you know you need it.' ) )
-				);
-				$sTitleShort = _wpsf__( 'By-Pass' );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_admin_login_notification' :
@@ -226,15 +216,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sKey ) {
 
 			case 'enable_user_management' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
-				break;
-
-			case 'enable_xmlrpc_compatibility' :
-				$sName = _wpsf__( 'XML-RPC Compatibility' );
-				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules' );
-				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
 			case 'enable_admin_login_email_notification' :

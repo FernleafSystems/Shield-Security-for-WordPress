@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Ips', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
+require_once( dirname( __FILE__ ).'/basedb.php' );
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
@@ -112,7 +112,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 					'title'             => sprintf( _wpsf__( '%s is ignoring you' ), $oCon->getHumanName() ),
 					'your_ip'           => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
 					'notice_message'    => _wpsf__( 'Your IP address is whitelisted and NO features you activate apply to you.' ),
-					'including_message' => _wpsf__( 'Including the Rename WP Login feature.' )
+					'including_message' => _wpsf__( 'Including the hiding the WP Login page.' )
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );

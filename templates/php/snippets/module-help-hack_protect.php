@@ -1,4 +1,4 @@
-<h2>What is the Hack Protection module?</h2>
+<h5>What is the Hack Guard module?</h5>
 <p>This module is probably one of the most critical modules of the Shield plugin.</p>
 <p>Its purpose is to alert you to strange, unusual, unexpected files present on your web host.</p>
 <p>These strange files can be something, or nothing, but you need to be aware of them because they can easily

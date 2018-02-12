@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Intent', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -274,8 +274,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			),
 			'hrefs'   => array(
 				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
-				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap3.min.css' ),
-				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap3.min.js' ),
+				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
+				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
@@ -298,7 +298,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
 	 */
 	protected function getProcessorTwoFactor() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_twofactorauth.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_twofactorauth.php' );
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
@@ -309,7 +309,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
 	 */
 	protected function getProcessorYubikey() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_yubikey.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_yubikey.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -318,7 +318,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
 	 */
 	public function getProcessorGoogleAuthenticator() {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_googleauthenticator.php' );
+		require_once( dirname( __FILE__ ).'/loginprotect_googleauthenticator.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeature() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -328,7 +328,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function getLoginTrack() {
 		if ( !isset( $this->oLoginTrack ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_track.php' );
+			require_once( dirname( __FILE__ ).'/loginprotect_track.php' );
 			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
 		}
 		return $this->oLoginTrack;

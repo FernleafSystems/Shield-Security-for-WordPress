@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -29,18 +29,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function getContentCustomActions() {
-		if ( !$this->canDisplayOptionsForm() ) {
-			return parent::getContentCustomActions();
-		}
-
+	protected function getContentCustomActionsData() {
 		$bCanWizard = $this->canRunWizards();
 		$bCanWizardWelcome = $bCanWizard;
 		$bCanWizardImport = $bCanWizard && $this->isPremium();
 
-		$aData = array(
+		return array(
 			'strings' => $this->getDisplayStrings(),
 			'hrefs'   => array(
 				'wizard_welcome' => $bCanWizardWelcome ? $this->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
@@ -55,7 +51,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'phpversion' => $this->loadDP()->getPhpVersion(),
 			)
 		);
-		return $this->renderTemplate( 'snippets/module-plugin-actions', $aData );
 	}
 
 	/**
@@ -252,7 +247,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return mixed
 	 */
-	public function getIsMainFeatureEnabled() {
+	public function isModuleEnabled() {
 		return true;
 	}
 
@@ -628,10 +623,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'   => _wpsf__( 'Plugin Actions' ),
-			'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'actions_title'   => _wpsf__( 'Plugin Actions' ),
+				'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+			)
 		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isXmlrpcBypass() {
+		return $this->getOptIs( 'enable_xmlrpc_compatibility', 'Y' );
 	}
 
 	/**
@@ -645,13 +650,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		switch ( $sSectionSlug ) {
 
 			case 'section_global_security_options' :
-				$sTitle = _wpsf__( 'Global Plugin Security Options' );
-				$sTitleShort = _wpsf__( 'Global Options' );
+				$sTitle = _wpsf__( 'Global Security Plugin Disable' );
+				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $this->getConn()->getHumanName() );
 				break;
 
 			case 'section_defaults' :
 				$sTitle = _wpsf__( 'Plugin Defaults' );
 				$sTitleShort = _wpsf__( 'Plugin Defaults' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Important default settings used throughout the plugin.' ) ),
+				);
 				break;
 
 			case 'section_importexport' :
@@ -703,14 +711,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		switch ( $sKey ) {
 
 			case 'global_enable_plugin_features' :
-				$sName = _wpsf__( 'Enable Plugin Features' );
-				$sSummary = _wpsf__( 'Global Plugin On/Off Switch' );
+				$sName = _wpsf__( 'Enable/Disable Plugin Modules' );
+				$sSummary = _wpsf__( 'Enable/Disable All Plugin Modules' );
 				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getConn()
 																										   ->getHumanName() );
 				break;
 
 			case 'enable_tracking' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Information Gathering' ) );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), _wpsf__( 'Information Gathering' ) );
 				$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
 				$sDescription = _wpsf__( 'Allows us to gather information on statistics and features in-use across our client installations.' )
 								.' '._wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' )
@@ -750,6 +758,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'Delete Plugin Settings' );
 				$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
 				$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
+				break;
+
+			case 'enable_xmlrpc_compatibility' :
+				$sName = _wpsf__( 'XML-RPC Compatibility' );
+				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules' );
+				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
 				break;
 
 			case 'importexport_enable' :
@@ -857,17 +871,17 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Email' );
 		_wpsf__( 'Firewall' );
 		_wpsf__( 'Automatically block malicious URLs and data sent to your site' );
-		_wpsf__( 'Hack Protection' );
+		_wpsf__( 'Hack Guard' );
 		_wpsf__( 'HTTP Headers' );
 		_wpsf__( 'Control HTTP Security Headers' );
 		_wpsf__( 'IP Manager' );
 		_wpsf__( 'Manage Visitor IP Address' );
 		_wpsf__( 'Lockdown' );
 		_wpsf__( 'Harden the more loosely controlled settings of your site' );
-		_wpsf__( 'Login Protection' );
+		_wpsf__( 'Login Guard' );
 		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' );
 		_wpsf__( 'Dashboard' );
-		_wpsf__( 'Overview of the plugin settings' );
+		_wpsf__( 'General Plugin Settings' );
 		_wpsf__( 'Statistics' );
 		_wpsf__( 'Summary of the main security actions taken by this plugin' );
 		_wpsf__( 'Stats Viewer' );

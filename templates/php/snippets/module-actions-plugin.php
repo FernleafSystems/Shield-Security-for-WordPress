@@ -14,13 +14,13 @@
 		</p>
 		<p>Website security covers many areas, and running your webhost/server on up-to-date software is
 		   a critical one of these areas.</p>
-		<p>Note: As Shield Security is further developed, more and more features will require higher versions of PHP.</p>
+		<p>Note: As <?php echo $sPluginName; ?> is further developed, more and more features will require higher versions of PHP.</p>
 	</div>
 <?php endif; ?>
 
 <div class="well">
 	<h3>Original Welcome Wizard</h3>
-	<p>Use this to re-run the original welcome wizard that gets you started with Shield Security.</p>
+	<p>Use this to re-run the original welcome wizard that gets you started with <?php echo $sPluginName; ?>.</p>
 	<p><a href="<?php echo $hrefs[ 'wizard_welcome' ]; ?>" title="Shield Welcome Wizard" target="_blank"
 			<?php echo $flags[ 'can_welcome' ] ? '' : 'disabled="disabled" onclick="event.preventDefault();"'; ?>
 		  class="btn btn-default btn-large">Shield Welcome Wizard</a></p>

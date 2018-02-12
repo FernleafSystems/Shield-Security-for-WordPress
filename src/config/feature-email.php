@@ -3,7 +3,7 @@
   "properties": {
     "slug": "email",
     "name": "Email",
-    "show_feature_menu_item": false,
+    "show_module_menu_item": false,
     "storage_key": "email",
     "show_central": false,
     "premium": false,

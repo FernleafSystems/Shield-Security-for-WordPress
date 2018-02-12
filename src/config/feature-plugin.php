@@ -2,13 +2,13 @@
   "properties":    {
     "slug":                   "plugin",
     "name":                   "Dashboard",
-    "show_feature_menu_item": true,
+    "show_module_menu_item":  true,
     "storage_key":            "plugin",
-    "tagline":                "Overview of the plugin settings",
+    "tagline":                "General Plugin Settings",
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
-    "has_custom_actions":     true,
+    "has_custom_actions":     false,
     "order":                  10
   },
   "admin_notices": {
@@ -62,20 +62,10 @@
   },
   "sections":      [
     {
-      "slug":        "section_global_security_options",
-      "primary":     true,
-      "title":       "Global Plugin Security Options",
-      "title_short": "Global Options"
-    },
-    {
       "slug":        "section_defaults",
+      "primary":     true,
       "title":       "Plugin Defaults",
       "title_short": "Plugin Defaults"
-    },
-    {
-      "slug":        "section_importexport",
-      "title":       "Import / Export",
-      "title_short": "Import / Export"
     },
     {
       "slug":        "section_general_plugin_options",
@@ -83,9 +73,19 @@
       "title_short": "General Options"
     },
     {
+      "slug":        "section_importexport",
+      "title":       "Import / Export",
+      "title_short": "Import / Export"
+    },
+    {
       "slug":        "section_third_party_google",
       "title":       "Google",
       "title_short": "Google"
+    },
+    {
+      "slug":        "section_global_security_options",
+      "title":       "Global Plugin Security Options",
+      "title_short": "Disable Shield"
     },
     {
       "slug":   "section_non_ui",
@@ -100,7 +100,7 @@
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Enable Plugin Features",
+      "name":        "Enable/Disable All Plugin Modules",
       "summary":     "Global Plugin On/Off Switch",
       "description": "Uncheck this option to disable all Shield features"
     },
@@ -204,15 +204,15 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
-      "key":         "delete_on_deactivate",
-      "section":     "section_defaults",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Delete Plugin Settings",
-      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
-      "description": "Careful: Removes all plugin options when you deactivate the plugin."
+      "key": "enable_xmlrpc_compatibility",
+      "section": "section_defaults",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "XML-RPC Compatibility",
+      "summary": "Allow Login Through XML-RPC To By-Pass Login Guard Rules",
+      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
     },
     {
       "key":         "importexport_enable",
@@ -274,16 +274,15 @@
       "description":  "Keep this Secret Key private as it will allow the import and export of options."
     },
     {
-      "key":          "unique_installation_id",
-      "section":      "section_general_plugin_options",
-      "transferable": false,
-      "default":      "",
-      "type":         "noneditable_text",
-      "link_info":    "",
-      "link_blog":    "",
-      "name":         "Installation ID",
-      "summary":      "Unique Plugin Installation ID",
-      "description":  "Keep this ID private."
+      "key":         "delete_on_deactivate",
+      "section":     "section_general_plugin_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Delete Plugin Settings",
+      "summary":     "Delete All Plugin Settings Upon Plugin Deactivation",
+      "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
       "key":           "google_recaptcha_style",
@@ -342,6 +341,12 @@
       "section":      "section_non_ui"
     },
     {
+      "key":          "unique_installation_id",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "default":      ""
+    },
+    {
       "key":     "tracking_permission_set_at",
       "default": 0,
       "section": "section_non_ui"
@@ -392,13 +397,17 @@
         "load_priority": 20
       },
       {
-        "slug":          "firewall",
-        "storage_key":   "firewall",
-        "load_priority": 13
+        "slug":        "hack_protect",
+        "storage_key": "hack_protect"
       },
       {
         "slug":        "login_protect",
         "storage_key": "loginprotect"
+      },
+      {
+        "slug":          "firewall",
+        "storage_key":   "firewall",
+        "load_priority": 13
       },
       {
         "slug":        "user_management",
@@ -411,10 +420,6 @@
       {
         "slug":        "autoupdates",
         "storage_key": "autoupdates"
-      },
-      {
-        "slug":        "hack_protect",
-        "storage_key": "hack_protect"
       },
       {
         "slug":        "headers",

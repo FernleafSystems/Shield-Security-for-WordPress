@@ -2,8 +2,8 @@
   "slug":          "login_protect",
   "properties":    {
     "slug":                   "login_protect",
-    "name":                   "Login Protection",
-    "show_feature_menu_item": true,
+    "name":                   "Login Guard",
+    "show_module_menu_item":  true,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central":           true,
@@ -20,18 +20,9 @@
   },
   "sections":      [
     {
-      "slug":        "section_enable_plugin_feature_login_protection",
-      "primary":     true,
-      "title":       "Enable Plugin Feature: Login Protection",
-      "title_short": "Enable / Disable",
-      "summary":     [
-        "Purpose - Login Protection blocks all automated and brute force attempts to log in to your site.",
-        "Recommendation - Keep the Login Protection feature turned on."
-      ]
-    },
-    {
       "slug":        "section_brute_force_login_protection",
-      "title":       "Brute Force Login Protection",
+      "primary":     true,
+      "title":       "Brute Force Login Guard",
       "title_short": "Brute Force",
       "summary":     [
         "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
@@ -49,6 +40,35 @@
       ]
     },
     {
+      "slug":        "section_2fa_email",
+      "title":       "Email Two-Factor Authentication",
+      "title_short": "2FA - Email",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using email-based one-time-passwords.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
+      "slug":        "section_2fa_ga",
+      "title":       "Google Authenticator Two-Factor Authentication",
+      "title_short": "2FA - Google Authenticator",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
+      "slug":        "section_yubikey_authentication",
+      "title":       "Yubikey Two-Factor Authentication",
+      "title_short": "2FA -Yubikey",
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
+        "Note: You may combine multiple authentication factors for increased security."
+      ]
+    },
+    {
       "slug":        "section_multifactor_authentication",
       "title":       "Multi-Factor Authentication",
       "title_short": "2-Factor Auth",
@@ -60,20 +80,11 @@
     },
     {
       "slug":        "section_rename_wplogin",
-      "title":       "Rename WP Login Page",
-      "title_short": "Rename wp-login.php",
+      "title":       "Hide WP Login Page",
+      "title_short": "Hide Login Page",
       "summary":     [
         "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
         "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
-      ]
-    },
-    {
-      "slug":        "section_yubikey_authentication",
-      "title":       "Yubikey Authentication",
-      "title_short": "Yubikey",
-      "summary":     [
-        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-        "Recommendation - Use of this feature is highly recommend. Note: you must own the appropriate Yubikey hardware device."
       ]
     },
     {
@@ -87,6 +98,15 @@
       ]
     },
     {
+      "slug":        "section_enable_plugin_feature_login_protection",
+      "title":       "Disable Login Guard Module",
+      "title_short": "Disable",
+      "summary":     [
+        "Purpose - Login Guard blocks all automated and brute force attempts to log in to your site.",
+        "Recommendation - Keep the Login Guard module turned on."
+      ]
+    },
+    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -95,36 +115,13 @@
     {
       "key":         "enable_login_protect",
       "section":     "section_enable_plugin_feature_login_protection",
-      "default":     "N",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/51",
       "link_blog":   "http://icwp.io/wpsf03",
-      "name":        "Enable Login Protection",
-      "summary":     "Enable (or Disable) The Login Protection Feature",
-      "description": "Checking/Un-Checking this option will completely turn on/off the whole Login Protection feature"
-    },
-    {
-      "key":         "login_protect_3pty",
-      "section":     "section_enable_plugin_feature_login_protection",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "3rd-Party Support",
-      "summary":     "Support For 3rd-Party Plugins, e.g. WooCommerce",
-      "description": "Add Support For 3rd-Party Login, Register, and Password Reset Forms e.g. WooCommerce, Easy Digital Downloads."
-    },
-    {
-      "key":         "enable_xmlrpc_compatibility",
-      "section":     "section_enable_plugin_feature_login_protection",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "http://icwp.io/9u",
-      "link_blog":   "",
-      "name":        "XML-RPC Compatibility",
-      "summary":     "Allow Login Through XML-RPC To By-Pass Login Protection Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
+      "name":        "Enable Login Guard",
+      "summary":     "Enable (or Disable) The Login Guard Module",
+      "description": "Un-Checking this option will completely disable the Login Guard module"
     },
     {
       "key":         "rename_wplogin_path",
@@ -134,7 +131,7 @@
       "type":        "text",
       "link_info":   "http://icwp.io/5q",
       "link_blog":   "http://icwp.io/5r",
-      "name":        "Rename WP Login",
+      "name":        "Hide Login Page",
       "summary":     "Rename The WordPress Login Page",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
     },
@@ -163,7 +160,7 @@
     },
     {
       "key":         "enable_google_authenticator",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_2fa_ga",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/shld7",
@@ -174,7 +171,7 @@
     },
     {
       "key":         "enable_email_authentication",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_2fa_email",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3t",
@@ -185,7 +182,7 @@
     },
     {
       "key":           "two_factor_auth_user_roles",
-      "section":       "section_multifactor_authentication",
+      "section":       "section_2fa_email",
       "type":          "multiple_select",
       "default":       [
         1,
@@ -265,12 +262,12 @@
     {
       "key":         "enable_login_gasp_check",
       "section":     "section_brute_force_login_protection",
-      "default":     "Y",
+      "default":     "N",
       "type":        "checkbox",
       "link_info":   "http://icwp.io/3r",
       "link_blog":   "http://icwp.io/9n",
-      "name":        "G.A.S.P Protection",
-      "summary":     "Use G.A.S.P. Protection To Prevent Login Attempts By Bots",
+      "name":        "Bot Protection",
+      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {

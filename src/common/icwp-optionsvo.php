@@ -9,39 +9,53 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @var array
 	 */
 	protected $aOptionsValues;
+
+	/**
+	 * @var array
+	 */
+	protected $aOld;
+
 	/**
 	 * @var array
 	 */
 	protected $aRawOptionsConfigData;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bNeedSave;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bIsPremium;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bRebuildFromFile = false;
+
 	/**
 	 * @var string
 	 */
 	protected $aOptionsKeys;
+
 	/**
 	 * @var string
 	 */
 	protected $sOptionsStorageKey;
+
 	/**
 	 *  by default we load from saved
 	 * @var string
 	 */
 	protected $bLoadFromSaved = true;
+
 	/**
 	 * @var string
 	 */
 	protected $sOptionsEncoding;
+
 	/**
 	 * @var string
 	 */
@@ -221,6 +235,19 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
+	public function getSections() {
+		$aSections = array();
+		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
+			if ( !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
+				$aSections[ $aRawSection[ 'slug' ] ] = $aRawSection;
+			}
+		}
+		return $aSections;
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getOptionsForPluginUse() {
 
 		$aOptionsData = array();
@@ -304,6 +331,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return mixed|null
+	 */
+	public function getOldValue( $sKey ) {
+		return $this->isOptChanged( $sKey ) ? $this->aOld[ $sKey ] : null;
+	}
+
+	/**
 	 * @param string $sOptionKey
 	 * @param mixed  $mDefault
 	 * @return mixed
@@ -384,6 +419,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getPathToConfig() {
 		return $this->sPathToConfig;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getConfigModTime() {
+		return $this->loadFS()->getModifiedTime( $this->getPathToConfig() );
 	}
 
 	/**
@@ -495,6 +537,14 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function isModulePremium() {
 		return (bool)$this->getFeatureProperty( 'premium' );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function isOptChanged( $sKey ) {
+		return is_array( $this->aOld ) && isset( $this->aOld[ $sKey ] );
 	}
 
 	/**
@@ -615,9 +665,25 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 					return $this->resetOptToDefault( $sOptionKey );
 				}
 			}
+			$this->setOldOptValue( $sOptionKey, $mCurrent );
 			$this->aOptionsValues[ $sOptionKey ] = $mValue;
 		}
 		return true;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	private function setOldOptValue( $sOptionKey, $mValue ) {
+		if ( !is_array( $this->aOld ) ) {
+			$this->aOld = array();
+		}
+		if ( !isset( $this->aOld[ $sOptionKey ] ) ) {
+			$this->aOld[ $sOptionKey ] = $mValue;
+		}
+		return $this;
 	}
 
 	/**
@@ -685,7 +751,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$sTransientKey = $this->getSpecTransientStorageKey();
 		$aConfig = $oWp->getTransient( $sTransientKey );
 
-		if ( $this->getRebuildFromFile() || empty( $aConfig ) ) {
+		$bRebuild = $this->getRebuildFromFile() || empty( $aConfig );
+		if ( !$bRebuild && !empty( $aConfig ) && is_array( $aConfig ) ) {
+
+			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
+				$aConfig[ 'meta_modts' ] = 0;
+			}
+			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
+		}
+
+		if ( $bRebuild ) {
 
 			try {
 				$aConfig = $this->readConfigurationJson();
@@ -696,6 +771,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				}
 				$aConfig = array();
 			}
+			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
 			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 		}
 		return $aConfig;

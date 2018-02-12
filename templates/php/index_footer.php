@@ -1,14 +1,12 @@
-	</div><!-- / bootstrap-wpadmin -->
-</div><!-- / wrap -->
-
 <script type="text/javascript">
-	jQuery( 'a.feature-icon' ).popover( {
-		placement: 'left',
-		trigger: 'hover',
-		html: true
-	} );
-	jQuery( 'li#icwpWizardPill a' ).tooltip( {
-		placement: 'top',
-		trigger: 'hover focus'
+	jQuery( document ).ready( function () {
+		jQuery( 'a.btn-icwp-wizard' ).tooltip( {
+			placement: 'bottom',
+			trigger: 'hover focus'
+		} );
+		jQuery( 'a.module .dashicons' ).tooltip( {
+			placement: 'right',
+			trigger: 'hover focus'
+		} );
 	} );
 </script>

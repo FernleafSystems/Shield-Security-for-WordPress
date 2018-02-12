@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -31,7 +31,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * Should be hooked to 'init' so we have is_user_logged_in()
 	 */
 	private function checkCurrentSession() {
 		$oWp = $this->loadWp();

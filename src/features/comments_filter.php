@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_CommentsFilter', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -107,12 +107,12 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), _wpsf__( 'Comments SPAM Protection' ) );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), _wpsf__( 'Comments SPAM Protection' ) );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
 				);
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_bot_comment_spam_protection_filter' :
@@ -192,9 +192,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sKey ) {
 
 			case 'enable_comments_filter' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = _wpsf__( 'Enable (or Disable) The Comment SPAM Protection Feature' );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), _wpsf__( 'Comment SPAM Protection' ) );
+				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), _wpsf__( 'Comment SPAM Protection' ) );
 				break;
 
 			case 'enable_comments_human_spam_filter' :
@@ -216,9 +216,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				break;
 
 			case 'enable_comments_gasp_protection' :
-				$sName = _wpsf__( 'GASP Protection' );
-				$sSummary = _wpsf__( 'Add Growmap Anti Spambot Protection to your comments' );
-				$sDescription = _wpsf__( 'Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection.' );
+				$sName = _wpsf__( 'SPAM Bot Protection' );
+				$sSummary = _wpsf__( 'Block Automatic Comment SPAM By Bots' );
+				$sDescription = _wpsf__( 'Simple, yet highly effective SPAM Bot protection for your WordPress comments.' );
 				break;
 
 			case 'comments_default_action_spam_bot' :

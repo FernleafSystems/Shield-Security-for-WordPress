@@ -57,6 +57,26 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param array $aArgs
+	 * @return WP_User[]
+	 */
+	public function getAllUsers( $aArgs = array() ) {
+		$aArgs = wp_parse_args(
+			$aArgs,
+			array(
+				'blog_id' => 0,
+				//					'fields' => array(
+				//						'ID',
+				//						'user_login',
+				//						'user_email',
+				//						'user_pass',
+				//					)
+			)
+		);
+		return function_exists( 'get_users' ) ? get_users( $aArgs ) : array();
+	}
+
+	/**
 	 * @return integer
 	 */
 	public function getCurrentUserLevel() {

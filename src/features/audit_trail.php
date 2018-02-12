@@ -3,7 +3,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -20,16 +20,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		if ( $this->getOpt( 'audit_trail_auto_clean' ) < 0 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'audit_trail_auto_clean' );
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getContentCustomActions() {
-		if ( $this->canDisplayOptionsForm() ) {
-			return $this->displayAuditTrailViewer();
-		}
-		return parent::getContentCustomActions();
 	}
 
 	protected function adminAjaxHandlers() {
@@ -149,9 +139,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function displayAuditTrailViewer() {
+	protected function getContentCustomActionsData() {
 		$aContexts = array(
 			'all'       => 'All', //special
 			'wpsf'      => 'Shield',
@@ -168,7 +158,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
 		}
 
-		$aDisplayData = array_merge(
+		return array_merge(
 			array(
 				'aAuditTables' => $aAuditTables,
 				'aContexts'    => $aContexts,
@@ -176,32 +166,33 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			),
 			$this->getBaseAjaxActionRenderData( 'AuditTable' )
 		);
-
-		return $this->renderTemplate( 'snippets/module-audit_trail-viewer', $aDisplayData );
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return array(
-			'actions_title'       => _wpsf__( 'Audit Trail Viewer' ),
-			'actions_summary'     => _wpsf__( 'Review audit trail logs ' ),
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
+				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
 
-			'at_users'            => _wpsf__( 'Users' ),
-			'at_plugins'          => _wpsf__( 'Plugins' ),
-			'at_themes'           => _wpsf__( 'Themes' ),
-			'at_wordpress'        => _wpsf__( 'WordPress' ),
-			'at_posts'            => _wpsf__( 'Posts' ),
-			'at_emails'           => _wpsf__( 'Emails' ),
-			'at_time'             => _wpsf__( 'Time' ),
-			'at_event'            => _wpsf__( 'Event' ),
-			'at_message'          => _wpsf__( 'Message' ),
-			'at_username'         => _wpsf__( 'Username' ),
-			'at_category'         => _wpsf__( 'Category' ),
-			'at_ipaddress'        => _wpsf__( 'IP Address' ),
-			'at_you'              => _wpsf__( 'You' ),
-			'at_no_audit_entries' => _wpsf__( 'There are currently no audit entries this is section.' ),
+				'at_users'            => _wpsf__( 'Users' ),
+				'at_plugins'          => _wpsf__( 'Plugins' ),
+				'at_themes'           => _wpsf__( 'Themes' ),
+				'at_wordpress'        => _wpsf__( 'WordPress' ),
+				'at_posts'            => _wpsf__( 'Posts' ),
+				'at_emails'           => _wpsf__( 'Emails' ),
+				'at_time'             => _wpsf__( 'Time' ),
+				'at_event'            => _wpsf__( 'Event' ),
+				'at_message'          => _wpsf__( 'Message' ),
+				'at_username'         => _wpsf__( 'Username' ),
+				'at_category'         => _wpsf__( 'Category' ),
+				'at_ipaddress'        => _wpsf__( 'IP Address' ),
+				'at_you'              => _wpsf__( 'You' ),
+				'at_no_audit_entries' => _wpsf__( 'There are currently no audit entries this is section.' ),
+			)
 		);
 	}
 
@@ -223,12 +214,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_audit_trail' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Audit Trail' ) ) )
 				);
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_audit_trail_options' :
@@ -271,9 +262,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		switch ( $sKey ) {
 
 			case 'enable_audit_trail' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
 			case 'audit_trail_max_entries' :

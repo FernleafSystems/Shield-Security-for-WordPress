@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'loginprotect_intent_base.php' );
+require_once( dirname( __FILE__ ).'/loginprotect_intent_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentBase {
 
@@ -158,6 +158,14 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	protected function getStoredSessionHashCode() {
 		return $this->getCurrentUserMeta()->code_tfaemail;
+	}
+
+	/**
+	 * @param string $sSecret
+	 * @return bool
+	 */
+	protected function isSecretValid( $sSecret ) {
+		return true; // we don't use individual user secrets for email (yet)
 	}
 
 	/**

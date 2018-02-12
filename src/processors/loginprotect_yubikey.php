@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ) {
 	return;
 }
 
-require_once( dirname(__FILE__).DIRECTORY_SEPARATOR.'loginprotect_intent_base.php' );
+require_once( dirname(__FILE__ ).'/loginprotect_intent_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentBase {
 
@@ -258,5 +258,13 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	protected function getStub() {
 		return ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey;
+	}
+
+	/**
+	 * @param string $sSecret
+	 * @return bool
+	 */
+	protected function isSecretValid( $sSecret ) {
+		return true; // we don't use individual user secrets
 	}
 }

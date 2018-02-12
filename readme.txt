@@ -6,16 +6,17 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.2.2
+Stable tag: 6.3.0
 
-Free All-In-One Protection for your data, reputation, and users on your WordPress sites - the Highest-Rated Security Plugin for WordPress
+Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
 == Description ==
 
 Shield handles it all for you:
 
 * Easy-To-Use Guided Setup Wizards
-* Login Protection against bots (including Limit Login Attempts)
+* Login Guard against bots (including Limit Login Attempts)
+* Hack Guard scans files for unintended changes, e.g. code injection into core files
 * Automatic IP Black List
 * 2-Factor Authentication
 * Comments SPAM - block 100% of bot spam.
@@ -105,7 +106,7 @@ With the Audit Trail you can review all major actions that have taken place on y
 = Firewall Protection =
 Blocks all web requests to the site that violate the firewall security rules! [more info](http://icwp.io/wpsf06)
 
-= Brute Force Login Protection and Two-Factor Authentication =
+= Brute Force Login Guard and Two-Factor Authentication =
 Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](http://icwp.io/wpsf07)
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
@@ -148,9 +149,9 @@ Basic functionality is based on the principles employed by the [WordPress Firewa
 
 = Login and Identity Security Protection - Stops Brute Force Attacks =
 
-Note: Login Protection is a completely independent feature to the Firewall.
+Note: Login Guard is a completely independent feature to the Firewall.
 
-With the Login Protection features this plugin will single-handedly prevent brute force login attacks on all your WordPress sites.
+With the Login Guard this plugin will single-handedly prevent brute force login attacks on all your WordPress sites.
 
 It doesn't need IP Address Ban Lists (which are actually useless anyway), and instead puts hard limits on your WordPress site,
 and force users to verify themselves when they login.
@@ -311,7 +312,7 @@ login for a further 60 seconds.
 
 More Info: http://icwp.io/2t
 
-= How does the GASP login protection work? =
+= How does the GASP Login Guard work? =
 
 This is best [described on the blog](http://icwp.io/2u)
 
@@ -356,11 +357,19 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.2.2 - Current Release =
-*Released: 2nd February January, 2018* - [Release Notes](http://icwp.io/b6)
+= 6.3.0 - Current Release =
+*Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
 
-* **(v.2)**  FIXED:			Fix for IP Manager PHP error.
-* **(v.2)**  IMPROVED:		Two-factor verification email.
+* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](http://icwp.io/bd), using the new Bootstrap 4.
+* **(v.0)**  FIXED:			A few bugs with Google Authenticator.
+
+= 6.3 Series =
+*Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
+
+* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](http://icwp.io/bd), using the new Bootstrap 4.
+* **(v.0)**  FIXED:			A few bugs with Google Authenticator.
 
 = 6.2 Series =
 *Released: 31st January, 2018* - [Release Notes](http://icwp.io/b6)
@@ -447,7 +456,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 *Released: 21st September, 2017*
 
 * **(v.1)**  FIX:			Processing AJAX requests from the Network Admin side of WordPress.
-* **(v.1)**  IMPROVEMENTS:	Better handling of file exclusions in the hack protection module.
+* **(v.1)**  IMPROVEMENTS:	Better handling of file exclusions in the Hack Guard module.
 * **(v.1)**  IMPROVEMENTS:	Better handling of fatal errors in loading Shield where some core files are missing.
 * **(v.0)**  ADDED:			New HTTP Security Header: Referrer Policy.
 * **(v.0)**  ADDED:			Supports paths for file exclusions in the Unrecognised File Scanner.

@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		// XML-RPC Compatibility
-		if ( $this->loadWp()->getIsXmlrpc() && $this->getIsOption( 'enable_xmlrpc_compatibility', 'Y' ) ) {
+		if ( $this->loadWp()->getIsXmlrpc() && $oFO->isXmlrpcBypass() ) {
 			return;
 		}
 

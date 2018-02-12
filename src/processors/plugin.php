@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_plugin.php' );
+require_once( dirname( __FILE__ ).'/base_plugin.php' );
 
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getBadgeProcessor() {
 		if ( !isset( $this->oBadgeProcessor ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_badge.php' );
+			require_once( dirname( __FILE__ ).'/plugin_badge.php' );
 			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getFeature() );
 		}
 		return $this->oBadgeProcessor;
@@ -76,7 +76,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getTrackingProcessor() {
 		if ( !isset( $this->oTrackingProcessor ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_tracking.php' );
+			require_once( dirname( __FILE__ ).'/plugin_tracking.php' );
 			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeature() );
 		}
 		return $this->oTrackingProcessor;
@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function getSubProcessorImportExport() {
 		$oProc = $this->getSubProcessor( 'importexport' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'plugin_importexport.php' );
+			require_once( dirname( __FILE__ ).'/plugin_importexport.php' );
 			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getFeature() );
 			$this->aSubProcessors[ 'importexport' ] = $oProc;
 		}
@@ -174,6 +174,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
 
+		$sName = $this->getController()->getHumanName();
+
 		$nDays = $this->getInstallationDays();
 		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
 			$aRenderData = array(
@@ -186,8 +188,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					'your_name'    => _wpsf__( 'Your Name' ),
 					'your_email'   => _wpsf__( 'Your Email' ),
 					'dismiss'      => "No thanks, I'm not interested in such informative groups",
-					'summary'      => 'The Shield security team is running an initiative (with currently 2000+ members) to raise awareness of WordPress Security
-				and to provide further help with the Shield security plugin. Get Involved here:',
+					'summary'      => sprintf( 'The %s security team is running an initiative (with currently 2000+ members) to raise awareness of WordPress Security
+				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),
 				),
 				'hrefs'             => array(
 					'form_action' => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259'

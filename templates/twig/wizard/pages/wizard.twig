@@ -16,9 +16,8 @@
 
 {% block body_content_main %}
 	<div class="row">
-		<div class="col-md-8 col-md-offset-2">
-			<div id="wizard">
-			</div>
+		<div class="col-12 col-xl-8 offset-xl-2">
+			<div id="wizard"></div>
 		</div>
 	</div>
 {% endblock %}
@@ -145,11 +144,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 							 .appendTo( $oForm );
 
 		if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
-			$oForm.append( '<p class="wizard-response"></p>' )
+			$oForm.append( '<p class="wizard-response alert"></p>' )
 		}
 
 		var $oResponseField = jQuery( 'p.wizard-response', $oForm );
-		$oResponseField.removeClass( 'bg-success bg-danger' )
+		$oResponseField.removeClass( 'alert-danger alert-success' )
 					   .html( '...' );
 
 		var $oSubmitButton = jQuery( 'button[type=submit]', $oForm );
@@ -159,12 +158,12 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 			function ( oResponse ) {
 
 				if ( oResponse.success ) {
-					$oResponseField.removeClass( 'bg-danger' )
-								   .addClass( 'bg-success' );
+					$oResponseField.removeClass( 'alert-danger' )
+								   .addClass( 'alert-success' );
 				}
 				else {
-					$oResponseField.removeClass( 'bg-success' )
-								   .addClass( 'bg-danger' );
+					$oResponseField.removeClass( 'alert-success' )
+								   .addClass( 'alert-danger' );
 					$oSubmitButton.prop( 'disabled', false );
 				}
 

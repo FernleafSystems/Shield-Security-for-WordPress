@@ -1,4 +1,4 @@
-<h2>What is the Security Admin?</h2>
+<h5>What is the Security Admin?</h5>
 <p>Imagine someone somehow gets access to your WordPress admin dashboard.</p>
 <p>If it was me, the first thing I'd do is fiddle with and disable any security plugins.</p>
 <p>But with Shield's Security Admin module, this isn't a problem. When active this feature will prevent
@@ -12,7 +12,7 @@
 	<dd>
 		<p>Currently the security admin is authenticated with the 'Security Admin Key'.</p>
 		<p>You can't turn on the security admin feature without first supplying the key.</p>
-		<p>On the main Enable / Disable section, you must check on the checkbox and supply a key. You must
+		<p>On the main 'Disable Module' section, you must check on the checkbox and supply a key. You must
 		   remember this key, because you'll be asked for it later.
 		</p>
 	</dd>

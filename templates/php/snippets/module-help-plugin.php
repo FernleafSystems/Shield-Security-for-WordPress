@@ -1,4 +1,4 @@
-<h2>What is the Shield?</h2>
+<h5>What is the Shield?</h5>
 <p>Shield is a security plugin designed to protect your WordPress site from numerous avenues of attack.</p>
 <p>It's a big plugin, but nearly every option is documented and it's just a matter of reading the details.</p>
 

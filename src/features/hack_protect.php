@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -15,14 +15,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
+		$this->clearIcSnapshots();
 		$this->clearCrons();
 		$this->cleanFileExclusions();
 	}
 
 	protected function clearCrons() {
-		$this->loadWpCronProcessor()
-			 ->deleteCronJob( $this->getUfcCronName() )
-			 ->deleteCronJob( $this->getWcfCronName() );
+		$aCrons = array(
+			$this->getIcCronName(),
+			$this->getUfcCronName(),
+			$this->getWcfCronName()
+		);
+		$oCron = $this->loadWpCronProcessor();
+		foreach ( $aCrons as $sCron ) {
+			$oCron->deleteCronJob( $sCron );
+		}
 	}
 
 	/**
@@ -46,6 +53,42 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				 )
 			 );
 		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function clearIcSnapshots() {
+		return $this->setIcSnapshotUsers( array() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIcEnabled() {
+		return $this->getOptIs( 'ic_enabled', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIcUsersEnabled() {
+		return $this->getOptIs( 'ic_users', 'Y' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getIcCronName() {
+		return $this->prefix( $this->getDef( 'cron_name_integrity_check' ) );
+	}
+
+	/**
+	 * @param array[] $aUsers
+	 * @return $this
+	 */
+	public function setIcSnapshotUsers( $aUsers ) {
+		return $this->setOpt( 'snapshot_users', $aUsers );
 	}
 
 	/**
@@ -264,13 +307,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
 		switch ( $sSectionSlug ) {
 
-			case 'section_enable_plugin_feature_hack_protection_tools' :
-				$sTitle = sprintf( _wpsf__( 'Enable Plugin Feature: %s' ), $this->getMainFeatureName() );
+			case 'section_scan_schedule' :
+				$sTitle = _wpsf__( 'Scan Schedule' );
+				$sTitleShort = _wpsf__( 'Scan Schedule' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Hack Protection system is a set of tools to warn you and protect you against hacks on your site.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Protection' ) ) )
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Set how frequently the Hack Guard scans will run.' ) )
 				);
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				break;
+
+			case 'section_enable_plugin_feature_hack_protection_tools' :
+				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Guard' ) ) )
+				);
+				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_wpvuln_scan' :
@@ -310,6 +361,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
 				break;
 
+			case 'section_integrity_checking' :
+				$sTitle = _wpsf__( 'Integrity Checks' );
+				$sTitleShort = _wpsf__( 'Integrity Checks' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Monitor for unrecognised changes to your system.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enable these to prevent unauthorized changes to your WordPress site.' ) )
+				);
+				break;
+
 			default:
 				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
@@ -329,9 +389,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		switch ( $sKey ) {
 
 			case 'enable_hack_protect' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Feature' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Checking/Un-Checking this option will completely turn on/off the whole %s feature.' ), $this->getMainFeatureName() );
+				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
 			case 'scan_frequency' :
@@ -397,6 +457,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
 								.'<br/><strong>'._wpsf__( 'No commas are necessary.' ).'</strong>'
 								.'<br/>'.sprintf( 'Default: %s', $sDefaults );
+				break;
+
+			case 'ic_enabled' :
+				$sName = _wpsf__( 'Enable Integrity Scan' );
+				$sSummary = _wpsf__( 'Scans For Critical Changes Made To Your WordPress Site' );
+				$sDescription = _wpsf__( 'Detects changes made to your WordPress site outside of WordPress.' );
+				break;
+
+			case 'ic_users' :
+				$sName = _wpsf__( 'Monitor User Accounts' );
+				$sSummary = _wpsf__( 'Scans For Critical Changes Made To User Accounts' );
+				$sDescription = sprintf( _wpsf__( 'Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system.' ), 'author=' )
+								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
+								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
+								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'This option may cause critial problem with 3rd party plugins that manage user accounts.' ) );
 				break;
 
 			default:

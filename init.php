@@ -8,7 +8,7 @@ if ( isset( $oICWP_Wpsf ) ) {
 }
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'icwp-plugin-controller.php' );
+require_once( dirname( __FILE__ ).'/icwp-plugin-controller.php' );
 
 class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 
@@ -86,7 +86,7 @@ class ICWP_WPSF_Shield_Security extends ICWP_Wordpress_Simple_Firewall {
 	public static function GetInstance( $oController = null ) {
 		if ( is_null( self::$oInstance ) ) {
 			if ( is_null( $oController ) || !( $oController instanceof ICWP_WPSF_Plugin_Controller ) ) {
-				throw new Exception( 'Trying to create a Shield Security instance without a valid Controller' );
+				throw new Exception( 'Trying to create a Shield Plugin instance without a valid Controller' );
 			}
 			self::$oInstance = new self( $oController );
 		}
