@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Tested up to: 4.9
 Stable tag: 6.3.0
 
-Free All-In-One Protection for your sites, data, reputation, and users, on your WordPress sites - the Highest-Rated Security Plugin for WordPress
+Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
 == Description ==
 
