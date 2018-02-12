@@ -32,6 +32,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 			}
 		}
 		add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
+		add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
 	}
 
 	/**
@@ -53,6 +54,18 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		}
 
 		return $aLinks;
+	}
+
+	public function printPluginReinstallDialogs() {
+
+		$aRenderData = array(
+			'strings'     => array(
+				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+			),
+			'js_snippets' => array()
+		);
+		echo $this->getFeature()
+				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
 	}
 
 	/**

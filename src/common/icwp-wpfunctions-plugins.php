@@ -104,7 +104,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		}
 
 		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
-		var_dump( $aResult );
+		$aResult[ 'raw' ] = $sInstallResult;
 		return $aResult;
 	}
 
@@ -125,6 +125,8 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		if ( !is_wp_error( $api ) ) {
 			return $this->install( $api->download_link, true, true );
 		}
+		else {
+		}
 		return false;
 	}
 
@@ -134,22 +136,30 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 */
 	public function reinstall( $sFile ) {
 		$bSuccess = false;
+
 		if ( $this->isPluginInstalled( $sFile ) ) {
-			$oFS = $this->loadFS();
 
-			// backup
-			$sDir = dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
-			$sBackupDir = $sDir.'.bak'.rand();
-			$oFS->move( $sDir, $sBackupDir );
+			$sSlug = $this->getSlug( $sFile );
+			if ( !empty( $sSlug ) ) {
+				$oFS = $this->loadFS();
 
-			$aResult = $this->installFromWpOrg( $this->getSlug( $sFile ) );
-			$bSuccess = $aResult[ 'successful' ];
-			if ( $bSuccess ) {
-				$oFS->deleteDir( $sBackupDir );
+				// backup
+				$sDir = dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
+				$sBackupDir = $sDir.'.bak-'.time();
+				$oFS->move( $sDir, $sBackupDir );
+
+				$aResult = $this->installFromWpOrg( $sSlug );
+				$bSuccess = $aResult[ 'successful' ];
+				if ( $bSuccess ) {
+					$oFS->deleteDir( $sBackupDir );
+					$oFS->deleteDir( $sBackupDir );
+					wp_update_plugins(); //refreshes our update information
+				}
+				else {
+					$oFS->move( $sBackupDir, $sDir );
+				}
 			}
-			else {
-				$oFS->move( $sBackupDir, $sDir );
-			}
+
 		}
 		return $bSuccess;
 	}

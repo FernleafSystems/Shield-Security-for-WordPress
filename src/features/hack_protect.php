@@ -382,6 +382,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
 			)
 		);
+		wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	}
 
 	/**

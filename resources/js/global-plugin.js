@@ -30,20 +30,63 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 
 var iCWP_WPSF_HackGuard_Reinstall = new function () {
 
+	var $oActivePluginLink;
+
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( document ).on( "click", 'a.icwp-reinstall-plugin', reinstall_plugin );
+
+			var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
+
+			jQuery( document ).on( "click", 'a.icwp-reinstall-plugin', prompt );
+
+			$oReinstallDialog.dialog( {
+				title: 'My Dialog',
+				dialogClass: 'wp-dialog',
+				autoOpen: false,
+				draggable: false,
+				width: 'auto',
+				modal: true,
+				resizable: false,
+				closeOnEscape: true,
+				position: {
+					my: "center",
+					at: "center",
+					of: window
+				},
+				buttons: {
+					"Okay, Re-Install It": function() {
+						jQuery( this ).dialog( "close" );
+						reinstall_plugin();
+					},
+					Cancel: function() {
+						jQuery( this ).dialog( "close" );
+					}
+				},
+				open: function () {
+					// close dialog by clicking the overlay behind it
+					jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
+						$oReinstallDialog.dialog( 'close' );
+					} )
+				},
+				create: function () {
+					// style fix for WordPress admin
+					jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
+				}
+			} );
+
 		} );
+	};
+	var prompt = function ( event ) {
+		event.preventDefault();
+		$oActivePluginLink = jQuery( event.target );
+		jQuery( '#icwpWpsfReinstall' ).dialog( 'open' );
 	};
 
 	var reinstall_plugin = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
-		event.preventDefault();
-
-		var $aLink = jQuery( event.target );
 
 		var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
-		$aData[ 'file' ] = $aLink.data( 'file' );
+		$aData[ 'file' ] = $oActivePluginLink.data( 'file' );
 
 		jQuery.post( ajaxurl, $aData, function ( oResponse ) {
 			if ( oResponse.success ) {
@@ -52,7 +95,7 @@ var iCWP_WPSF_HackGuard_Reinstall = new function () {
 				iCWP_WPSF_BodyOverlay.hide();
 			}
 		} ).always( function () {
-			iCWP_WPSF_BodyOverlay.hide();
+				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 
