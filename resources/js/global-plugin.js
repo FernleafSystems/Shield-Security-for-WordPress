@@ -28,6 +28,38 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 	};
 }();
 
+var iCWP_WPSF_HackGuard_Reinstall = new function () {
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			jQuery( document ).on( "click", 'a.icwp-reinstall-plugin', reinstall_plugin );
+		} );
+	};
+
+	var reinstall_plugin = function ( event ) {
+		iCWP_WPSF_BodyOverlay.show();
+		event.preventDefault();
+
+		var $aLink = jQuery( event.target );
+
+		var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
+		$aData[ 'file' ] = $aLink.data( 'file' );
+
+		jQuery.post( ajaxurl, $aData, function ( oResponse ) {
+			if ( oResponse.success ) {
+			}
+			else {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		} ).always( function () {
+			iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+
+		return false;
+	};
+}();
+
 var iCWP_WPSF_Autoupdates = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -128,3 +160,4 @@ var iCWP_WPSF_BodyOverlay = new function () {
 // iCWP_WPSF_Autoupdates.initialise();
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();
+iCWP_WPSF_HackGuard_Reinstall.initialise();

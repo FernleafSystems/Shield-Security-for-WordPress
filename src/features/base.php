@@ -121,6 +121,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
+			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars' ), 100 );
+
 			$this->doPostConstruction();
 		}
 	}
@@ -1592,6 +1594,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function canRunWizards() {
 		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
+	}
+
+	/**
+	 * Override this with custom JS vars for your particular module.
+	 */
+	public function insertCustomJsVars() {
 	}
 
 	/**

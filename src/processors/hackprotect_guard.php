@@ -15,8 +15,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 */
 	public function run() {
 		parent::run();
-//		var_dump( $this->scanThemes() );
-//		die();
+
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
@@ -32,6 +31,28 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 				$oFO->setPtgLastBuildAt();
 			}
 		}
+		add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
+	}
+
+	/**
+	 * @param array  $aLinks
+	 * @param string $sPluginFile
+	 * @return string[]
+	 */
+	public function addActionLinkRefresh( $aLinks, $sPluginFile ) {
+		$oWpP = $this->loadWpPlugins();
+
+		if ( $oWpP->isWpOrg( $sPluginFile ) ) {
+			$sLinkTemplate = '<a href="%s" data-file="%s" class="icwp-reinstall-plugin">%s</a>';
+			$aLinks[] = sprintf(
+				$sLinkTemplate,
+				'javascript:void(0)',
+				$sPluginFile,
+				'Re-Install'
+			);
+		}
+
+		return $aLinks;
 	}
 
 	/**

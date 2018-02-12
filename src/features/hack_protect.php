@@ -12,6 +12,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->setCustomCronSchedules();
 	}
 
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'PluginReinstall' ), array( $this, 'ajaxPluginReinstall' ) );
+	}
+
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
@@ -359,6 +364,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setPtgLastBuildAt( $nTime = null ) {
 		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
+	}
+
+	public function ajaxPluginReinstall() {
+		$sFile = $this->loadDP()->post( 'file' );
+		$oWpP = $this->loadWpPlugins();
+
+		$bSuccess = $oWpP->reinstall( $sFile );
+		$this->sendAjaxResponse( $bSuccess );
+	}
+
+	public function insertCustomJsVars() {
+		wp_localize_script(
+			$this->prefix( 'global-plugin' ),
+			'icwp_wpsf_vars_hp',
+			array(
+				'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+			)
+		);
 	}
 
 	/**
