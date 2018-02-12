@@ -1,0 +1,48 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+
+	<h3>{{ data.context_sing }} Guard Scan Results</h3>
+	{% if data.result|length == 0 %}
+		<p>There were no files discovered that need your attention.</p>
+	{% else %}
+		<p>There are {{ data.result|length }} {{ data.context }}(s) that need your attention.</p>
+
+		{% for item_name,item_results in data.result %}
+			<div>
+			<h4>{{ data.context_sing }}: {{ item_name }}</h4>
+
+				{% if item_results.different is defined %}
+					<div class="indent_slight">
+					<h5>Modified Files: {{ item_results.different|length }}</h5>
+						{% for file in item_results.different %}
+							<li><code class="filepath">{{ file }}</code></li>
+						{% endfor %}
+					</div>
+				{% endif %}
+
+				{% if item_results.missing is defined %}
+					<div class="indent_slight">
+					<h5>Missing Files: {{ data.result.missing|length }}</h5>
+						{% for file in item_results.missing %}
+							<li><code class="filepath">{{ file }}</code></li>
+						{% endfor %}
+					</div>
+				{% endif %}
+
+				{% if item_results.unrecognised is defined %}
+					<div class="indent_slight">
+					<h5>Unrecognised Files: {{ data.result.unrecognised|length }}</h5>
+						{% for file in item_results.unrecognised %}
+							<li><code class="filepath">{{ file }}</code></li>
+						{% endfor %}
+					</div>
+				{% endif %}
+				{% if item_results.is_wporg %}TODO: reinstall{% endif %}
+			</div>
+
+		{% endfor %}
+
+	{% endif %}
+
+{% endblock %}
