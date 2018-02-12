@@ -12,24 +12,21 @@
 
 					<div class="btn-group icwp-top-buttons" role="group">
 
-					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 0 );}"
-					   class="btn btn-outline-success"><?php echo $strings[ 'btn_options' ]; ?></a>
+					<a href="javascript:void(0)" class="btn btn-outline-success icwp-carousel-0">
+						<?php echo $strings[ 'btn_options' ]; ?></a>
 
 					<a class="btn btn-dark btn-icwp-wizard disabled" aria-disabled="true"
-					   title="Launch Guided Walk-Through Wizards"
-					   href="javascript:{}">
+					   title="Launch Guided Walk-Through Wizards" href="javascript:void(0)">
 						<?php echo $strings[ 'btn_wizards' ]; ?></a>
 
-					<a href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 2 );}"
-					   class="btn btn-outline-info"><?php echo $strings[ 'btn_help' ]; ?></a>
+					<a href="javascript:void(0)" class="btn btn-outline-info icwp-carousel-2"><?php echo $strings[ 'btn_help' ]; ?></a>
 
 					<?php if ( $flags[ 'show_content_actions' ] ) : ?>
-						<a class="btn btn-outline-secondary"
-						   href="javascript:{ jQuery( '.icwp-carousel' ).carousel( 3 );}">
+						<a class="btn btn-outline-secondary icwp-carousel-3" href="javascript:void(0)">
 							<?php echo $strings[ 'btn_actions' ]; ?></a>
 					<?php else : ?>
-						<a class="btn btn-outline-secondary disabled"
-						   href="javascript:{}"><?php echo $strings[ 'btn_actions' ]; ?></a>
+						<a class="btn btn-outline-secondary disabled" href="javascript:void(0)">
+							<?php echo $strings[ 'btn_actions' ]; ?></a>
 					<?php endif; ?>
 				</div>
 			</div>
