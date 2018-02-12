@@ -131,10 +131,11 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param $sFile
+	 * @param string $sFile
+	 * @param bool   $bUseBackup
 	 * @return bool
 	 */
-	public function reinstall( $sFile ) {
+	public function reinstall( $sFile, $bUseBackup = false ) {
 		$bSuccess = false;
 
 		if ( $this->isPluginInstalled( $sFile ) ) {
@@ -143,23 +144,26 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 			if ( !empty( $sSlug ) ) {
 				$oFS = $this->loadFS();
 
-				// backup
 				$sDir = dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
 				$sBackupDir = $sDir.'.bak-'.time();
-				$oFS->move( $sDir, $sBackupDir );
+				if ( $bUseBackup ) {
+					$oFS->move( $sDir, $sBackupDir );
+				}
 
 				$aResult = $this->installFromWpOrg( $sSlug );
 				$bSuccess = $aResult[ 'successful' ];
 				if ( $bSuccess ) {
-					$oFS->deleteDir( $sBackupDir );
-					$oFS->deleteDir( $sBackupDir );
+					if ( $bUseBackup ) {
+						$oFS->deleteDir( $sBackupDir );
+					}
 					wp_update_plugins(); //refreshes our update information
 				}
 				else {
-					$oFS->move( $sBackupDir, $sDir );
+					if ( $bUseBackup ) {
+						$oFS->move( $sBackupDir, $sDir );
+					}
 				}
 			}
-
 		}
 		return $bSuccess;
 	}
