@@ -10,11 +10,11 @@
 
 		{% for item_name,item_results in data.result %}
 			<div>
-			<h4>{{ data.context_sing }}: {{ item_name }}</h4>
+			<h5>{{ data.context_sing }}: {{ item_name }}</h5>
 
 				{% if item_results.different is defined %}
 					<div class="indent_slight">
-					<h5>Modified Files: {{ item_results.different|length }}</h5>
+					<h6>Modified Files: {{ item_results.different|length }}</h6>
 						{% for file in item_results.different %}
 							<li><code class="filepath">{{ file }}</code></li>
 						{% endfor %}
@@ -23,7 +23,7 @@
 
 				{% if item_results.missing is defined %}
 					<div class="indent_slight">
-					<h5>Missing Files: {{ data.result.missing|length }}</h5>
+					<h6>Missing Files: {{ item_results.missing|length }}</h6>
 						{% for file in item_results.missing %}
 							<li><code class="filepath">{{ file }}</code></li>
 						{% endfor %}
@@ -32,7 +32,7 @@
 
 				{% if item_results.unrecognised is defined %}
 					<div class="indent_slight">
-					<h5>Unrecognised Files: {{ data.result.unrecognised|length }}</h5>
+					<h6>Unrecognised Files: {{ item_results.unrecognised|length }}</h6>
 						{% for file in item_results.unrecognised %}
 							<li><code class="filepath">{{ file }}</code></li>
 						{% endfor %}
