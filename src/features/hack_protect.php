@@ -12,6 +12,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->setCustomCronSchedules();
 	}
 
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'PluginReinstall' ), array( $this, 'ajaxPluginReinstall' ) );
+	}
+
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
@@ -21,13 +26,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$this->clearIcSnapshots();
 			$this->clearCrons();
 			$this->cleanFileExclusions();
+			$this->cleanPtgFileExtensions();
 
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$oGuardLocker = $oP->getSubProcessorGuardLocker();
 			$oOpts = $this->getOptionsVo();
-			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) ) {
-				$oGuardLocker->deleteStores();
+			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
+				/** @var ICWP_WPSF_Processor_HackProtect $oP */
+				$oP = $this->getProcessor();
 				$oP->getSubProcessorGuardLocker()
 				   ->deleteStores();
 				$this->setPtgLastBuildAt( 0 );
@@ -314,10 +318,36 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return $this
+	 */
+	protected function cleanPtgFileExtensions() {
+		$aExt = array();
+		foreach ( $this->getPtgFileExtensions() as $nKey => $sExt ) {
+			$sExt = preg_replace( '#[a-z0-9_-]#i', '', $sExt );
+			if ( !empty( $sExt ) ) {
+				$aExt[] = $sExt;
+			}
+		}
+		$aExt = array_unique( $aExt );
+		if ( empty( $aExt ) ) {
+			$aExt = $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
+		}
+		return $this->setOpt( 'ptg_extensions', $aExt );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function getPtgCronName() {
 		return $this->prefixOptionKey( $this->getDef( 'ptl_cronname' ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPtgFileExtensions() {
+		$aEx = $this->getOpt( 'ptg_extensions' );
+		return is_array( $aEx ) ? $aEx : $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
 	}
 
 	/**
@@ -361,6 +391,50 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setPtgLastBuildAt( $nTime = null ) {
 		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
+	}
+
+	public function ajaxPluginReinstall() {
+		$oDP = $this->loadDP();
+		$bReinstall = (bool)$oDP->post( 'reinstall' );
+		$bActivate = (bool)$oDP->post( 'activate' );
+		$sFile = sanitize_text_field( wp_unslash( $oDP->post( 'file' ) ) );
+		$oWpP = $this->loadWpPlugins();
+
+		if ( $bReinstall ) {
+			$bActivate = $oWpP->reinstall( $sFile ) && $bActivate;
+		}
+		if ( $bActivate ) {
+			$oWpP->activate( $sFile );
+		}
+
+		$this->sendAjaxResponse( true );
+	}
+
+	public function insertCustomJsVars() {
+		wp_localize_script(
+			$this->prefix( 'global-plugin' ),
+			'icwp_wpsf_vars_hp',
+			array(
+				'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+				'reinstallable'  => $this->getReinstallablePlugins()
+			)
+		);
+		wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getReinstallablePlugins() {
+		$oWPP = $this->loadWpPlugins();
+		$aP = array();
+		foreach ( $oWPP->getPlugins() as $sPluginFile => $aData ) {
+			if ( $oWPP->isWpOrg( $sPluginFile ) ) {
+				$aP[] = $sPluginFile;
+			}
+		}
+		return $aP;
 	}
 
 	/**
@@ -560,6 +634,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
 				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
 								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit - not recommended' ), 0 );
+				break;
+
+			case 'ptg_extensions' :
+				$sName = _wpsf__( 'Included File Types' );
+				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
+				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
+								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' );
 				break;
 
 			default:

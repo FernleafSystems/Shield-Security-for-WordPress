@@ -328,6 +328,21 @@
       "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
     },
     {
+      "key":         "ptg_extensions",
+      "section":     "section_pluginthemes_guard",
+      "default":     [
+        "php",
+        "js",
+        "htaccess"
+      ],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "File Types",
+      "summary":     "The File Types Included In The Scan",
+      "description": "Take a new line for each file extension. No commas(,) or periods(.) necessary."
+    },
+    {
       "key": "ptg_last_build_at",
       "transferable": false,
       "section": "section_non_ui",

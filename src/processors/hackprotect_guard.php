@@ -15,8 +15,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 */
 	public function run() {
 		parent::run();
-//		var_dump( $this->scanThemes() );
-//		die();
+
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
@@ -32,6 +31,39 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 				$oFO->setPtgLastBuildAt();
 			}
 		}
+		add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
+		add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
+	}
+
+	/**
+	 * @param array  $aLinks
+	 * @param string $sPluginFile
+	 * @return string[]
+	 */
+	public function addActionLinkRefresh( $aLinks, $sPluginFile ) {
+		$oWpP = $this->loadWpPlugins();
+
+		if ( $oWpP->isWpOrg( $sPluginFile ) && !$oWpP->isUpdateAvailable( $sPluginFile ) ) {
+			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
+			$aLinks[ 'icwp-reinstall' ] = sprintf(
+				$sLinkTemplate,
+				'Re-Install'
+			);
+		}
+
+		return $aLinks;
+	}
+
+	public function printPluginReinstallDialogs() {
+
+		$aRenderData = array(
+			'strings'     => array(
+				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+			),
+			'js_snippets' => array()
+		);
+		echo $this->getFeature()
+				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
 	}
 
 	/**
@@ -311,7 +343,10 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return GuardRecursiveFilterIterator
 	 */
 	private function getIterator( $sDir ) {
-		return new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oIt = new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
+		return $oIt->setExtensions( $oFO->getPtgFileExtensions() );
 	}
 
 	/**
@@ -415,13 +450,31 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 
 class GuardRecursiveFilterIterator extends RecursiveFilterIterator {
 
+	private $aExtensions;
+
+	/**
+	 * @return string[]
+	 */
+	public function getExtensions() {
+		return empty( $this->aExtensions ) ? array( 'php' ) : $this->aExtensions;
+	}
+
+	/**
+	 * @param string[] $aExtensions
+	 * @return GuardRecursiveFilterIterator
+	 */
+	public function setExtensions( $aExtensions ) {
+		$this->aExtensions = $aExtensions;
+		return $this;
+	}
+
 	public function accept() {
 		/** @var SplFileInfo $oCurrent */
 		$oCurrent = $this->current();
 
 		$bConsumeFile = !in_array( $oCurrent->getFilename(), array( '.', '..' ) );
 		if ( $bConsumeFile && $oCurrent->isFile() ) {
-			$bConsumeFile = in_array( $oCurrent->getExtension(), array( 'php' ) );
+			$bConsumeFile = in_array( $oCurrent->getExtension(), $this->getExtensions() );
 		}
 
 		return $bConsumeFile;

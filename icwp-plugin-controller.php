@@ -527,12 +527,22 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 						$sMethod = $aLink[ 'url_method_name' ];
 						if ( method_exists( $this, $sMethod ) ) {
 							$sSettingsLink = sprintf( $sLinkTemplate, $this->{$sMethod}(), "_top", $aLink[ 'name' ] );;
-							array_unshift( $aActionLinks, $sSettingsLink );
+							$aActionLinks = array_merge(
+								array(
+									$this->doPluginPrefix( 'dashboard' ) => $sSettingsLink
+								),
+								$aActionLinks
+							);
 						}
 					}
 					else if ( !empty( $aLink[ 'href' ] ) ) {
-						$sSettingsLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], "_blank", $aLink[ 'name' ] );;
-						array_unshift( $aActionLinks, $sSettingsLink );
+						$sSettingsLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], "_blank", $aLink[ 'name' ] );
+						$aActionLinks = array_merge(
+							array(
+								$this->doPluginPrefix( 'dashboard' ) => $sSettingsLink
+							),
+							$aActionLinks
+						);
 					}
 				}
 			}

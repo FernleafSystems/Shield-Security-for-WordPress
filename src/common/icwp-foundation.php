@@ -74,7 +74,7 @@ class ICWP_WPSF_Foundation {
 	 */
 	private static $oEdd;
 	/**
-	 * @var ICWP_APP_WpUpgrades
+	 * @var ICWP_WPSF_WpUpgrades
 	 */
 	private static $oUpgrades;
 
@@ -154,12 +154,12 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_APP_WpUpgrades
+	 * @return ICWP_WPSF_WpUpgrades
 	 */
 	static public function loadWpUpgrades() {
 		if ( ! isset( self::$oUpgrades ) ) {
 			self::requireCommonLib( 'icwp-wpupgrades.php' );
-			self::$oUpgrades = ICWP_APP_WpUpgrades::GetInstance();
+			self::$oUpgrades = ICWP_WPSF_WpUpgrades::GetInstance();
 		}
 
 		return self::$oUpgrades;
