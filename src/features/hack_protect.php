@@ -637,8 +637,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'ptg_extensions' :
-				$sName = _wpsf__( 'Include File Types' );
-				$sSummary = _wpsf__( 'The File Types Included In The Scan' );
+				$sName = _wpsf__( 'Included File Types' );
+				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
 				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
 								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' );
 				break;
