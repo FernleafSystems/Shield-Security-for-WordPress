@@ -45,7 +45,7 @@ var iCWP_WPSF_HackGuard_Reinstall = new function () {
 				}
 			} );
 
-			jQuery( document ).on( "click", 'tr.reinstallable .row-actions a.icwp-reinstall-plugin', promptReinstall );
+			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .icwp-reinstall a', promptReinstall );
 			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .activate a', promptActivate );
 
 			var oShareSettings = {

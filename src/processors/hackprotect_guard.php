@@ -43,12 +43,10 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	public function addActionLinkRefresh( $aLinks, $sPluginFile ) {
 		$oWpP = $this->loadWpPlugins();
 
-		if ( $oWpP->isWpOrg( $sPluginFile ) ) {
-			$sLinkTemplate = '<a href="%s" data-file="%s" class="icwp-reinstall-plugin">%s</a>';
-			$aLinks[] = sprintf(
+		if ( $oWpP->isWpOrg( $sPluginFile ) && !$oWpP->isUpdateAvailable( $sPluginFile ) ) {
+			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
+			$aLinks[ 'icwp-reinstall'] = sprintf(
 				$sLinkTemplate,
-				'javascript:void(0)',
-				$sPluginFile,
 				'Re-Install'
 			);
 		}
