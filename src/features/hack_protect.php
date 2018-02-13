@@ -328,7 +328,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aExt[] = $sExt;
 			}
 		}
-		$aExt = array_unique( $aExt );
+		$aExt = array_unique( array_filter( $aExt ) );
 		if ( empty( $aExt ) ) {
 			$aExt = $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
 		}

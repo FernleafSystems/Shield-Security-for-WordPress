@@ -18,7 +18,6 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-
 		if ( $oFO->isPtgReadyToScan() ) {
 			add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
 			add_action( 'activated_plugin', array( $this, 'onActivatePlugin' ), 10 );
