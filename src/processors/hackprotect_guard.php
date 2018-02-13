@@ -45,7 +45,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 
 		if ( $oWpP->isWpOrg( $sPluginFile ) && !$oWpP->isUpdateAvailable( $sPluginFile ) ) {
 			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
-			$aLinks[ 'icwp-reinstall'] = sprintf(
+			$aLinks[ 'icwp-reinstall' ] = sprintf(
 				$sLinkTemplate,
 				'Re-Install'
 			);
@@ -343,7 +343,10 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return GuardRecursiveFilterIterator
 	 */
 	private function getIterator( $sDir ) {
-		return new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oIt = new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
+		return $oIt->setExtensions( $oFO->getPtgFileExtensions() );
 	}
 
 	/**
@@ -447,13 +450,31 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 
 class GuardRecursiveFilterIterator extends RecursiveFilterIterator {
 
+	private $aExtensions;
+
+	/**
+	 * @return string[]
+	 */
+	public function getExtensions() {
+		return empty( $this->aExtensions ) ? array( 'php' ) : $this->aExtensions;
+	}
+
+	/**
+	 * @param string[] $aExtensions
+	 * @return GuardRecursiveFilterIterator
+	 */
+	public function setExtensions( $aExtensions ) {
+		$this->aExtensions = $aExtensions;
+		return $this;
+	}
+
 	public function accept() {
 		/** @var SplFileInfo $oCurrent */
 		$oCurrent = $this->current();
 
 		$bConsumeFile = !in_array( $oCurrent->getFilename(), array( '.', '..' ) );
 		if ( $bConsumeFile && $oCurrent->isFile() ) {
-			$bConsumeFile = in_array( $oCurrent->getExtension(), array( 'php' ) );
+			$bConsumeFile = in_array( $oCurrent->getExtension(), $this->getExtensions() );
 		}
 
 		return $bConsumeFile;

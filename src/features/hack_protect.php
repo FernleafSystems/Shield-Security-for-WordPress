@@ -26,9 +26,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$this->clearIcSnapshots();
 			$this->clearCrons();
 			$this->cleanFileExclusions();
+			$this->cleanPtgFileExtensions();
 
 			$oOpts = $this->getOptionsVo();
-			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) ) {
+			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 				/** @var ICWP_WPSF_Processor_HackProtect $oP */
 				$oP = $this->getProcessor();
 				$oP->getSubProcessorGuardLocker()
@@ -317,10 +318,36 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return $this
+	 */
+	protected function cleanPtgFileExtensions() {
+		$aExt = array();
+		foreach ( $this->getPtgFileExtensions() as $nKey => $sExt ) {
+			$sExt = preg_replace( '#[a-z0-9_-]#i', '', $sExt );
+			if ( !empty( $sExt ) ) {
+				$aExt[] = $sExt;
+			}
+		}
+		$aExt = array_unique( $aExt );
+		if ( empty( $aExt ) ) {
+			$aExt = $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
+		}
+		return $this->setOpt( 'ptg_extensions', $aExt );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function getPtgCronName() {
 		return $this->prefixOptionKey( $this->getDef( 'ptl_cronname' ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPtgFileExtensions() {
+		$aEx = $this->getOpt( 'ptg_extensions' );
+		return is_array( $aEx ) ? $aEx : $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
 	}
 
 	/**
@@ -607,6 +634,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
 				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
 								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit - not recommended' ), 0 );
+				break;
+
+			case 'ptg_extensions' :
+				$sName = _wpsf__( 'Include File Types' );
+				$sSummary = _wpsf__( 'The File Types Included In The Scan' );
+				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
+								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' );
 				break;
 
 			default:
