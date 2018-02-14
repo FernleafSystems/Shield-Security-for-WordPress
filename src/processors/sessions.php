@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	public function onWpLoaded() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRestUrl() ) {
+		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRest() ) {
 			$this->autoAddSession();
 			$this->queryUpdateSessionLastActivity();
 		}
