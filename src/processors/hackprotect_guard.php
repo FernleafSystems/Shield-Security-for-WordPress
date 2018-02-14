@@ -95,9 +95,11 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		$bSuccess = false;
 
 		if ( $sContext == self::CONTEXT_PLUGINS ) {
-			$bUseBackup = $sBaseName != $this->getController()->getPluginBaseFile();
 			$bSuccess = $this->loadWpPlugins()
 							 ->reinstall( $sBaseName, false );
+			if ( $bSuccess ) {
+				$this->updateItemInSnapshot( $sBaseName, $sContext );
+			}
 		}
 		else {
 

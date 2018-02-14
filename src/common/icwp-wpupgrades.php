@@ -72,28 +72,41 @@ if ( !class_exists( 'ICWP_Plugin_Upgrader', false ) && class_exists( 'Plugin_Upg
 			$this->init();
 			$this->install_strings();
 
-			add_filter('upgrader_source_selection', array($this, 'check_package') );
+			add_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
+			add_filter( 'upgrader_clear_destination', array( $this, 'clearStatCache' ) );
 
-			$this->run( array(
-				'package' => $package,
-				'destination' => WP_PLUGIN_DIR,
-				'clear_destination' => $this->getOverwriteMode(), // this is the key to overwrite and why we're extending the native wordpress class
-				'clear_working' => true,
-				'hook_extra' => array(
-					'type' => 'plugin',
+			$oResult = $this->run( array(
+				'package'           => $package,
+				'destination'       => WP_PLUGIN_DIR,
+				'clear_destination' => $this->getOverwriteMode(), // key to overwrite and why we're extending the native wordpress class
+				'clear_working'     => true,
+				'hook_extra'        => array(
+					'type'   => 'plugin',
 					'action' => 'install',
 				)
 			) );
 
-			remove_filter('upgrader_source_selection', array($this, 'check_package') );
+			remove_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
+			remove_filter( 'upgrader_clear_destination', array( $this, 'clearStatCache' ) );
 
-			if ( ! $this->result || is_wp_error($this->result) )
+			if ( !$this->result || is_wp_error( $this->result ) ) {
 				return $this->result;
+			}
 
 			// Force refresh of plugin update information
-			wp_clean_plugins_cache( $parsed_args['clear_update_cache'] );
+			wp_clean_plugins_cache( $parsed_args[ 'clear_update_cache' ] );
 
 			return true;
+		}
+
+		/**
+		 * This is inserted right after clearing the target directory. It seems that some systems are slow
+		 * in updating filesystem "info" because we were receiving permission denied when trying to recreate
+		 * the install directory.
+		 */
+		public function clearStatCache() {
+			clearstatcache();
+			sleep( 1 );
 		}
 
 		public function getOverwriteMode() {
