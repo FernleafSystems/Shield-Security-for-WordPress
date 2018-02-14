@@ -242,10 +242,6 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$sContext = $oDP->post( 'context' );
 		$sItemAction = $oDP->post( 'ptgaction' );
 
-		$bEnabled = true;
-		$bRestore = false;
-		$bProcess = true;
-
 		$oWpPlugins = $this->loadWpPlugins();
 		$oWpThemes = $this->loadWpThemes();
 
@@ -270,8 +266,10 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'reinstall':
 					if ( $bWpOrg ) {
-						$oWpPlugins->reinstall( $sSlug );
-						$bSuccess = true;
+						/** @var ICWP_WPSF_Processor_HackProtect $oP */
+						$oP = $oFO->getProcessor();
+						$bSuccess = $oP->getSubProcessorGuardLocker()
+									   ->reinstall( $sSlug, ICWP_WPSF_Processor_HackProtect_GuardLocker::CONTEXT_PLUGINS );
 						$sMessage = 'The item has been re-installed from WordPress.org sources.';
 					}
 					break;

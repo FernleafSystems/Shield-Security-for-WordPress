@@ -36,9 +36,26 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sPluginFile
 	 * @param bool   $bNetworkWide
+	 * @return null|WP_Error
+	 */
+	protected function activateQuietly( $sPluginFile, $bNetworkWide = false ) {
+		return activate_plugin( $sPluginFile, '', $bNetworkWide, true );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param bool   $bNetworkWide
 	 */
 	public function deactivate( $sPluginFile, $bNetworkWide = false ) {
 		deactivate_plugins( $sPluginFile, '', $bNetworkWide );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param bool   $bNetworkWide
+	 */
+	protected function deactivateQuietly( $sPluginFile, $bNetworkWide = false ) {
+		deactivate_plugins( $sPluginFile, true, $bNetworkWide );
 	}
 
 	/**
@@ -145,22 +162,23 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 				$oFS = $this->loadFS();
 
 				$sDir = dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
-				$sBackupDir = $sDir.'.bak-'.time();
+				$sBackupDir = WP_PLUGIN_DIR.'/../'.basename( $sDir ).'bak'.time();
 				if ( $bUseBackup ) {
-					$oFS->move( $sDir, $sBackupDir );
+					rename( $sDir, $sBackupDir );
 				}
 
 				$aResult = $this->installFromWpOrg( $sSlug );
 				$bSuccess = $aResult[ 'successful' ];
 				if ( $bSuccess ) {
+					wp_update_plugins(); //refreshes our update information
 					if ( $bUseBackup ) {
 						$oFS->deleteDir( $sBackupDir );
 					}
-					wp_update_plugins(); //refreshes our update information
 				}
 				else {
 					if ( $bUseBackup ) {
-						$oFS->move( $sBackupDir, $sDir );
+						$oFS->deleteDir( $sDir );
+						rename( $sBackupDir, $sDir );
 					}
 				}
 			}

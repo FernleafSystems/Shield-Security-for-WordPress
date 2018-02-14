@@ -87,6 +87,26 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
+	 * @param string $sBaseName
+	 * @param string $sContext
+	 * @return bool
+	 */
+	public function reinstall( $sBaseName, $sContext = self::CONTEXT_PLUGINS ) {
+		$bSuccess = false;
+
+		if ( $sContext == self::CONTEXT_PLUGINS ) {
+			$bUseBackup = $sBaseName != $this->getController()->getPluginBaseFile();
+			$bSuccess = $this->loadWpPlugins()
+							 ->reinstall( $sBaseName, false );
+		}
+		else {
+
+		}
+
+		return $bSuccess;
+	}
+
+	/**
 	 * @param WP_Upgrader $oUpgrader
 	 * @param array       $aUpgradeInfo
 	 */

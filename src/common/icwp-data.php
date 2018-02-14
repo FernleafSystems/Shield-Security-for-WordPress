@@ -180,6 +180,13 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isWindows() {
+		return strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN';
+	}
+
+	/**
 	 * @param string $sUrl
 	 * @return string
 	 */
