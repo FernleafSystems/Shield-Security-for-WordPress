@@ -308,13 +308,27 @@
     {
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Enable/Disable Locker",
-      "summary": "Enable The Locker For Plugin And Theme Files",
-      "description": "When enabled the Locker will automatically scan for changes to your Plugin and Theme files."
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Scan Disabled"
+        },
+        {
+          "value_key": "enabled_report_only",
+          "text":      "Email Report Only"
+        },
+        {
+          "value_key": "enabled_repair_report",
+          "text":      "Auto-Repair Wherever Possible and Email Report"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name": "Enable/Disable Guard",
+      "summary": "Enable The Guard For Plugin And Theme Files",
+      "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
       "key": "ptg_depth",

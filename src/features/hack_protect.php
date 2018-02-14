@@ -321,14 +321,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanPtgFileExtensions() {
-		$aExt = array();
-		foreach ( $this->getPtgFileExtensions() as $nKey => $sExt ) {
-			$sExt = preg_replace( '#[a-z0-9_-]#i', '', $sExt );
-			if ( !empty( $sExt ) ) {
-				$aExt[] = $sExt;
-			}
-		}
-		$aExt = array_unique( array_filter( $aExt ) );
+		$aExt = $this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' );
 		if ( empty( $aExt ) ) {
 			$aExt = $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
 		}
@@ -346,8 +339,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string[]
 	 */
 	public function getPtgFileExtensions() {
-		$aEx = $this->getOpt( 'ptg_extensions' );
-		return is_array( $aEx ) ? $aEx : $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
+		return $this->getOpt( 'ptg_extensions' );
 	}
 
 	/**
@@ -375,7 +367,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
-		return $this->getOptIs( 'ptg_enable', 'Y' );
+		return $this->isPremium() && !$this->getOptIs( 'ptg_enable', 'disabled' );
 	}
 
 	/**

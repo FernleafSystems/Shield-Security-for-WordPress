@@ -33,6 +33,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'restorefiles':
 				$oResponse = $this->process_RestoreFiles();
 				break;
+			case 'ptgconfig':
+				$oResponse = $this->process_PtgConfig();
+				break;
 			case 'ufcconfig':
 				$oResponse = $this->process_UfcConfig();
 				break;
@@ -113,6 +116,36 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( true )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function process_PtgConfig() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getModCon();
+
+		$sSetting = $this->loadDP()->post( 'enable_scan' );
+		$oFO->setUfcOption( $sSetting )
+			->savePluginOptions();
+
+		$bSuccess = ( $sSetting == $oFO->getUnrecognisedFileScannerOption() );
+
+		if ( $bSuccess ) {
+			if ( $oFO->isUfcEnabled() ) {
+				$sMessage = 'Scanner automation has been enabled.';
+			}
+			else {
+				$sMessage = 'Scanner automation has been disabled.';
+			}
+		}
+		else {
+			$sMessage = 'There was a problem with saving this option. You may need to reload.';
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
 	}
 

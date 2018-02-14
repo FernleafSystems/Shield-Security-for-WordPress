@@ -11,39 +11,42 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return string
 	 */
-	public function getRestApiDisabledOption() {
+	public function getRestApiAnonymousOption() {
 		return $this->getOpt( 'disable_anonymous_restapi' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRestApiAnonymousAccessAllowed() {
-		return ( $this->getRestApiDisabledOption() == 'anon_enabled' );
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getRestApiAnonymousExclusions() {
-		$aExls = $this->getOpt( 'api_namespace_exclusions' );
-		if ( !is_array( $aExls ) ) {
-			$aExls = array();
-		}
-		$aActual = array();
-		foreach ( $aExls as $sExcl ) {
-			$aActual[] = preg_replace( '#[^a-z0-9_-]#i', '', $sExcl );
-		}
-		$aActual = array_unique( array_filter( $aActual ) );
+		return $this->getOpt( 'api_namespace_exclusions' );
+	}
 
-		$this->setOpt( 'api_namespace_exclusions', $aActual );
-		return $aActual;
+	/**
+	 * @return bool
+	 */
+	public function isRestApiAnonymousAccessAllowed() {
+		return ( $this->getRestApiAnonymousOption() == 'anon_enabled' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanApiExclusions() {
+		$aExt = $this->cleanStringArray( $this->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' );
+		return $this->setOpt( 'api_namespace_exclusions', $aExt );
 	}
 
 	protected function doExtraSubmitProcessing() {
-		$sMask = $this->getOpt( 'mask_wordpress_version' );
-		if ( !empty( $sMask ) ) {
-			$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
+
+		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+
+			$sMask = $this->getOpt( 'mask_wordpress_version' );
+			if ( !empty( $sMask ) ) {
+				$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
+			}
+
+			$this->cleanApiExclusions();
 		}
 	}
 
