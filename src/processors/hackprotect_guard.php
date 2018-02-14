@@ -388,6 +388,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 			}
 			catch ( Exception $oE ) {
 				// happens when a plugin/theme no longer exists on disk and we try to get its hashes.
+				// an exception is thrown by the recursive directory iterator
 				$this->deleteItemFromSnapshot( $sBaseName, $sContext );
 				continue;
 			}
