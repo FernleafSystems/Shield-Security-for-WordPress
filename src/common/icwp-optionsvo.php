@@ -781,7 +781,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
 				$aConfig[ 'meta_modts' ] = 0;
 			}
-			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
+			$bRebuild = $this->getConfigModTime() != $aConfig[ 'meta_modts' ];
 		}
 
 		if ( $bRebuild ) {

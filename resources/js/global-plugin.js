@@ -44,7 +44,7 @@ var iCWP_WPSF_HackGuard_Reinstall = new function () {
 					$oTr.addClass( 'reinstallable' );
 				}
 			} );
-			
+
 			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .icwp-reinstall a', promptReinstall );
 			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .activate a', promptActivate );
 
