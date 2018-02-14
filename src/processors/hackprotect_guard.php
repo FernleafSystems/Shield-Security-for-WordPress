@@ -383,7 +383,15 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 			$aItemResults = array();
 
 			// First find the difference between live hashes and cached.
-			$aLiveHashes = $this->hashFiles( $sBaseName, $sContext );
+			try {
+				$aLiveHashes = $this->hashFiles( $sBaseName, $sContext );
+			}
+			catch ( Exception $oE ) {
+				// happens when a plugin/theme no longer exists on disk and we try to get its hashes.
+				$this->deleteItemFromSnapshot( $sBaseName, $sContext );
+				continue;
+			}
+
 			$aDifferent = array();
 			foreach ( $aSnap[ 'hashes' ] as $sFile => $sHash ) {
 				if ( $aLiveHashes[ $sFile ] != $sHash ) {
