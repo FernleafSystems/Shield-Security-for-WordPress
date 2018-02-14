@@ -95,7 +95,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getController()
 																												  ->getHumanName() ),
 				array( 'status' => rest_authorization_required_code() ) );
-			$this->addToAuditEntry( 'Blocked Anonymous API Access' );
+			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
 		}
 		return $mCurrentStatus;
 	}
