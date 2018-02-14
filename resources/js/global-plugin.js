@@ -237,4 +237,8 @@ var iCWP_WPSF_BodyOverlay = new function () {
 // iCWP_WPSF_Autoupdates.initialise();
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();
-iCWP_WPSF_HackGuard_Reinstall.initialise();
+
+/** only run when HackGuard module is processing enqueues **/
+if ( typeof icwp_wpsf_vars_hp === undefined ) {
+	iCWP_WPSF_HackGuard_Reinstall.initialise();
+}

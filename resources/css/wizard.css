@@ -139,3 +139,10 @@ body.wait {
 .more_details_body {
 	margin-bottom: 12px;
 }
+
+
+.scan-results-accordian {
+}
+.scan-results-accordian .card {
+	margin-bottom: 12px;
+}
