@@ -231,11 +231,13 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$aStepsSlugs = array(
 			'start',
-			'scanresult_plugins',
-			'scanresult_themes',
 		);
 		if ( !$oFO->isPtgEnabled() ) {
 			$aStepsSlugs[] = 'config';
+		}
+		else {
+			$aStepsSlugs[] = 'scanresult_plugins';
+			$aStepsSlugs[] = 'scanresult_themes';
 		}
 		$aStepsSlugs[] = 'finished';
 		return $aStepsSlugs;
