@@ -333,8 +333,9 @@
     {
       "key": "ptg_depth",
       "section": "section_pluginthemes_guard",
-      "default": 1,
       "type": "integer",
+      "default": 1,
+      "min": 0,
       "link_info": "",
       "link_blog": "",
       "name": "Guard/Scan Depth",
