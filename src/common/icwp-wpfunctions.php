@@ -121,7 +121,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getIsPermalinksEnabled() {
+	public function isPermalinksEnabled() {
 		return ( $this->getOption( 'permalink_structure' ) ? true : false );
 	}
 
@@ -696,7 +696,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$oDP = $this->loadDP();
 
 			$sNameSpace = $oDP->FetchRequest( 'rest_route' );
-			if ( empty( $sNameSpace ) ) {
+			if ( empty( $sNameSpace ) && $this->isPermalinksEnabled() ) {
 				$sFullUri = $this->loadWp()->getHomeUrl().$oDP->getRequestPath();
 				$sNameSpace = trim(
 					substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) ),
