@@ -32,7 +32,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 		$aActual = array();
 		foreach ( $aExls as $sExcl ) {
-			$aActual[] = preg_replace( '#[a-z0-9_-]#i', '', $sExcl );
+			$aActual[] = preg_replace( '#[^a-z0-9_-]#i', '', $sExcl );
 		}
 		$aActual = array_unique( array_filter( $aActual ) );
 
@@ -134,7 +134,13 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'disable_anonymous_restapi' :
 				$sName = sprintf( _wpsf__( 'Disable %s' ), _wpsf__( 'Anonymous Rest API' ) );
 				$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), _wpsf__( 'Anonymous Rest API' ) );
-				$sDescription = sprintf( _wpsf__( 'Checking this option will disable anonymous access to the REST API.' ), 'XML-RPC' );
+				$sDescription = _wpsf__( 'Checking this option will disable anonymous access to the REST API.' );
+				break;
+
+			case 'api_namespace_exclusions' :
+				$sName = _wpsf__( 'Rest API Exclusions' );
+				$sSummary = _wpsf__( 'Anonymous REST API Exclusions' );
+				$sDescription = _wpsf__( 'Any namespaces provided here will be excluded from the Anonymous API restriction.' );
 				break;
 
 			case 'disable_file_editing' :

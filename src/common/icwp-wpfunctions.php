@@ -689,22 +689,36 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string|null
 	 */
-	public function restGetNamespace() {
+	public function getRestNamespace() {
 		$sNameSpace = null;
+
+		$sPath = $this->getRestPath();
+
+		if ( !empty( $sPath ) ) {
+			$aParts = explode( '/', $sPath );
+			if ( !empty( $aParts ) ) {
+				$sNameSpace = $aParts[ 0 ];
+			}
+		}
+		return $sNameSpace;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getRestPath() {
+		$sPath = null;
 
 		if ( $this->isRest() ) {
 			$oDP = $this->loadDP();
 
-			$sNameSpace = $oDP->FetchRequest( 'rest_route' );
-			if ( empty( $sNameSpace ) && $this->isPermalinksEnabled() ) {
+			$sPath = $oDP->FetchRequest( 'rest_route' );
+			if ( empty( $sPath ) && $this->isPermalinksEnabled() ) {
 				$sFullUri = $this->loadWp()->getHomeUrl().$oDP->getRequestPath();
-				$sNameSpace = trim(
-					substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) ),
-					'/'
-				);
+				$sPath = substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) );
 			}
 		}
-		return $sNameSpace;
+		return $sPath;
 	}
 
 	/**
