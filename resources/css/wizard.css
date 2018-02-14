@@ -97,6 +97,9 @@ body.wait {
 .wizard form .form-check-label {
 	margin-bottom: 10px;
 }
+.wizard form .form-check-inline .form-check-label {
+	margin-bottom: 0;
+}
 
 #GoProBtn {
 	width: 128px;

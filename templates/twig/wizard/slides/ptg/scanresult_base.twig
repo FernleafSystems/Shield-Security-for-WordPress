@@ -55,27 +55,38 @@
 				</div>
 				<div class="card-footer">
 					<form class="icwp-wizard-form">
-						<div class="clearfix">
-							<div class="btn-group float-right" role="group">
-								{% if item_res.flags.can_reinstall %}
-									<button class="btn btn-sm btn-outline-success"
-											name="action" value="reinstall">
-										Re-Install / Upgrade</button>
-								{% else %}
-									<button class="btn btn-sm btn-outline-success" disabled
-											name="action" value="reinstall">
-										Re-Install / Upgrade</button>
-								{% endif %}
 
-								<button class="btn btn-sm btn-outline-secondary"
-										name="action" value="deactivate">
-									Deactivate</button>
-
-								<button class="btn btn-sm btn-outline-danger" title="Ignore"
-										name="action" value="ignore">
-									Ignore Changes</button>
-							</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input"
+								   type="radio"
+								   name="ptgaction"
+								   id="ptgaction1"
+							{% if item_res.flags.can_reinstall %}
+							{% else %}
+								disabled
+							{% endif %}
+								   value="reinstall" />
+							<label class="form-check-label" for="ptgaction1">Re-Install / Upgrade</label>
 						</div>
+
+						<div class="form-check form-check-inline">
+							<input class="form-check-input"
+								   type="radio"
+								   name="ptgaction"
+								   id="ptgaction2"
+								   value="deactivate" >
+							<label class="form-check-label" for="ptgaction2">Deactivate</label>
+						</div>
+
+						<div class="form-check form-check-inline">
+							<input class="form-check-input"
+								   type="radio"
+								   name="ptgaction"
+								   id="ptgaction3"
+								   value="ignore" >
+							<label class="form-check-label" for="ptgaction3">Ignore Changes</label>
+						</div>
+						<button type="submit" class="btn btn-warning mb-2">Run Selected Action</button>
 						{{ slideMacros.formInput_Hidden( 'wizard-step', 'ptg_assetaction' ) }}
 						{{ slideMacros.formInput_Hidden( 'slug', item_res.flags.slug ) }}
 						{{ slideMacros.formInput_Hidden( 'context', data.context ) }}
