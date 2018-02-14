@@ -9,10 +9,35 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return string
+	 */
+	public function getRestApiDisabledOption() {
+		return $this->getOpt( 'disable_anonymous_restapi' );
+	}
+
+	/**
 	 * @return bool
 	 */
-	public function getIfRestApiDisabled() {
-		return $this->getOptIs( 'disable_anonymous_restapi', 'Y' );
+	public function isRestApiAnonymousAccessAllowed() {
+		return ( $this->getRestApiDisabledOption() == 'anon_enabled' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRestApiAnonymousExclusions() {
+		$aExls = $this->getOpt( 'api_namespace_exclusions' );
+		if ( !is_array( $aExls ) ) {
+			$aExls = array();
+		}
+		$aActual = array();
+		foreach ( $aExls as $sExcl ) {
+			$aActual[] = preg_replace( '#[^a-z0-9_-]#i', '', $sExcl );
+		}
+		$aActual = array_unique( array_filter( $aActual ) );
+
+		$this->setOpt( 'api_namespace_exclusions', $aActual );
+		return $aActual;
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -48,8 +73,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
-			case 'section_system_lockdown' :
-				$sTitle = _wpsf__( 'WordPress System Lockdown' );
+			case 'section_apixml' :
+				$sTitle = _wpsf__( 'API & XML-RPC' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
@@ -109,7 +134,13 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'disable_anonymous_restapi' :
 				$sName = sprintf( _wpsf__( 'Disable %s' ), _wpsf__( 'Anonymous Rest API' ) );
 				$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), _wpsf__( 'Anonymous Rest API' ) );
-				$sDescription = sprintf( _wpsf__( 'Checking this option will disable anonymous access to the REST API.' ), 'XML-RPC' );
+				$sDescription = _wpsf__( 'Checking this option will disable anonymous access to the REST API.' );
+				break;
+
+			case 'api_namespace_exclusions' :
+				$sName = _wpsf__( 'Rest API Exclusions' );
+				$sSummary = _wpsf__( 'Anonymous REST API Exclusions' );
+				$sDescription = _wpsf__( 'Any namespaces provided here will be excluded from the Anonymous API restriction.' );
 				break;
 
 			case 'disable_file_editing' :

@@ -54,10 +54,31 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_filter( 'xmlrpc_methods', '__return_empty_array', 1000 );
 		}
 
-		if ( $oFO->getIfRestApiDisabled() ) {
+		add_action( 'init', array( $this, 'onWpInit' ), 5 );
+	}
+
+	public function onWpInit() {
+		if ( $this->loadWp()->isRest() ) {
+			$this->processRestApi();
+		}
+	}
+
+	protected function processRestApi() {
+		if ( !$this->isRestApiAccessAllowed() ) {
 			// 99 so that we jump in just before the always-on WordPress cookie auth.
 			add_filter( 'rest_authentication_errors', array( $this, 'disableAnonymousRestApi' ), 99 );
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isRestApiAccessAllowed() {
+		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->isRestApiAnonymousAccessAllowed()
+			   || $this->loadWpUsers()->isUserLoggedIn()
+			   || in_array( $this->loadWp()->getRestNamespace(), $oFO->getRestApiAnonymousExclusions() );
 	}
 
 	/**
@@ -74,6 +95,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getController()
 																												  ->getHumanName() ),
 				array( 'status' => rest_authorization_required_code() ) );
+			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
 		}
 		return $mCurrentStatus;
 	}

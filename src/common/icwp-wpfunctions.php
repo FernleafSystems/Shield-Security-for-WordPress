@@ -121,7 +121,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getIsPermalinksEnabled() {
+	public function isPermalinksEnabled() {
 		return ( $this->getOption( 'permalink_structure' ) ? true : false );
 	}
 
@@ -674,15 +674,51 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function isRestUrl() {
-		$bIsRest = false;
-		if ( function_exists( 'rest_url' ) ) {
+	public function isRest() {
+		$bIsRest = ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || !empty( $_REQUEST[ 'rest_route' ] );
+
+		if ( !$bIsRest && function_exists( 'rest_url' ) ) {
 			$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 			$sRestPath = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
-			$sRequestPath = trim( $this->loadDataProcessor()->getRequestPath(), '/' );
+			$sRequestPath = trim( $this->loadDP()->getRequestPath(), '/' );
 			$bIsRest = ( strpos( $sRequestPath, $sRestPath ) === 0 );
 		}
 		return $bIsRest;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getRestNamespace() {
+		$sNameSpace = null;
+
+		$sPath = $this->getRestPath();
+
+		if ( !empty( $sPath ) ) {
+			$aParts = explode( '/', $sPath );
+			if ( !empty( $aParts ) ) {
+				$sNameSpace = $aParts[ 0 ];
+			}
+		}
+		return $sNameSpace;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getRestPath() {
+		$sPath = null;
+
+		if ( $this->isRest() ) {
+			$oDP = $this->loadDP();
+
+			$sPath = $oDP->FetchRequest( 'rest_route' );
+			if ( empty( $sPath ) && $this->isPermalinksEnabled() ) {
+				$sFullUri = $this->loadWp()->getHomeUrl().$oDP->getRequestPath();
+				$sPath = substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) );
+			}
+		}
+		return $sPath;
 	}
 
 	/**
