@@ -390,7 +390,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
 			add_action( 'manage_plugins_custom_column',
 				array( $this, 'aPrintPluginsListAutoUpdateColumnContent' ),
-				PHP_INT_MAX, 2
+				100, 2
 			);
 		}
 		return $aColumns;

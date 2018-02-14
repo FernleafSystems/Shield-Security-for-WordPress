@@ -10,13 +10,14 @@
 
 		<div id="accord{{ data.context_sing }}" class="scan-results-accordian">
 		{% set resultCounter = 0 %}
-		{% for item_name,item_res in data.result %}
-			{% set resultCounter = resultCounter + 1 %}
+			{% for item_name,item_res in data.result %}
+				{% set resultCounter = resultCounter + 1 %}
 
-			<div class="card">
+				<div class="card">
 				<div class="card-header">
 					<h5 class="mb-0">
-						<button class="btn btn-link" data-toggle="collapse" data-target="#coll{{ resultCounter }}">
+						<button class="btn btn-link btn-block text-left collapsed"
+								data-toggle="collapse" data-target="#coll{{ resultCounter }}">
 							{{ data.context_sing }}: {{ item_name }}
 						</button>
 					</h5>
@@ -53,30 +54,35 @@
 				  </div>
 				</div>
 				<div class="card-footer">
-					<div class="btn-group float-right" role="group">
-						 {% if item_res.flags.can_reinstall %}
-							 <a href="javascript:void(0)"
-								class="btn btn-sm btn-success">
-							Re-Install / Upgrade</a>
-						 {% else %}
-							 <a href="javascript:void(0)"
-								class="btn btn-sm btn-outline-success disabled"
-								tabindex="-1">
-							Re-Install / Upgrade</a>
-						 {% endif %}
+					<form class="icwp-wizard-form">
+						<div class="clearfix">
+							<div class="btn-group float-right" role="group">
+								{% if item_res.flags.can_reinstall %}
+									<button class="btn btn-sm btn-outline-success"
+											name="action" value="reinstall">
+										Re-Install / Upgrade</button>
+								{% else %}
+									<button class="btn btn-sm btn-outline-success" disabled
+											name="action" value="reinstall">
+										Re-Install / Upgrade</button>
+								{% endif %}
 
-						<a href="javascript:void(0)"
-						   class="btn btn-sm btn-secondary">
-							Deactivate</a>
+								<button class="btn btn-sm btn-outline-secondary"
+										name="action" value="deactivate">
+									Deactivate</button>
 
-						<a href="javascript:void(0)"
-						   class="btn btn-sm btn-danger"
-						   title="Ignore">
-							Ignore Changes</a>
-					</div>
+								<button class="btn btn-sm btn-outline-danger" title="Ignore"
+										name="action" value="ignore">
+									Ignore Changes</button>
+							</div>
+						</div>
+						{{ slideMacros.formInput_Hidden( 'wizard-step', 'ptg_assetaction' ) }}
+						{{ slideMacros.formInput_Hidden( 'slug', item_res.flags.slug ) }}
+						{{ slideMacros.formInput_Hidden( 'context', data.context ) }}
+					</form>
 				</div>
 			  </div>
-		{% endfor %}
+			{% endfor %}
 		</div>
 
 	{% endif %}

@@ -433,7 +433,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		return array(
 			'context_sing' => rtrim( ucfirst( $sContext ), 's' ),
-			'context'      => ucfirst( $sContext ),
+			'context'      => $sContext,
 			'result'       => $aResults,
 		);
 	}
