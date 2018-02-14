@@ -645,30 +645,54 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $sOptKey
 	 * @param mixed  $mValue
 	 * @return mixed
 	 */
-	public function setOpt( $sOptionKey, $mValue ) {
+	public function setOpt( $sOptKey, $mValue ) {
 
 		// We can't use getOpt() to find the current value since we'll create an infinite loop
 		$aOptionsValues = $this->getAllOptionsValues();
-		$mCurrent = isset( $aOptionsValues[ $sOptionKey ] ) ? $aOptionsValues[ $sOptionKey ] : null;
+		$mCurrent = isset( $aOptionsValues[ $sOptKey ] ) ? $aOptionsValues[ $sOptKey ] : null;
 
-		if ( serialize( $mCurrent ) !== serialize( $mValue ) ) {
+		if ( serialize( $mCurrent ) !== serialize( $mValue ) && $this->verifySet( $sOptKey, $mValue ) ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
-			$aOption = $this->getRawData_SingleOption( $sOptionKey );
+			$aOption = $this->getRawData_SingleOption( $sOptKey );
 			if ( !empty( $aOption[ 'type' ] ) ) {
 				if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mValue ) ) {
-					return $this->resetOptToDefault( $sOptionKey );
+					return $this->resetOptToDefault( $sOptKey );
 				}
 			}
-			$this->setOldOptValue( $sOptionKey, $mCurrent );
-			$this->aOptionsValues[ $sOptionKey ] = $mValue;
+			$this->setOldOptValue( $sOptKey, $mCurrent );
+			$this->aOptionsValues[ $sOptKey ] = $mValue;
 		}
 		return true;
+	}
+
+	/**
+	 * @param string $sOptKey
+	 * @param mixed  $mValue
+	 * @return bool
+	 */
+	protected function verifySet( $sOptKey, $mValue ) {
+		$bValid = true;
+
+		switch ( $this->getOptionType( $sOptKey ) ) {
+
+			case 'integer':
+				$nMin = $this->getOptProperty( $sOptKey, 'min' );
+				if ( !is_null( $nMin ) ) {
+					$bValid = $mValue >= $nMin;
+				}
+				$nMax = $this->getOptProperty( $sOptKey, 'max' );
+				if ( !is_null( $nMax ) ) {
+					$bValid = $mValue <= $nMax;
+				}
+				break;
+		}
+		return $bValid;
 	}
 
 	/**
