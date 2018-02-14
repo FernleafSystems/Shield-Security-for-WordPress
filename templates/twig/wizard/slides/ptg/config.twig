@@ -10,8 +10,8 @@
 
 		{% set radiovalues =
 			{
-				'Y': '<span>Report Only</span> - send email reports only',
-				'N': '<span>Repair &amp; Report</span> - automatically re-install plugins where possible; send email report; (<em>recommended</em>)'
+				'enabled_report_only': '<span>Report Only</span> - send email reports only',
+				'enabled_repair_report': '<span>Repair &amp; Report</span> - automatically re-install plugins where possible; send email report; (<em>recommended</em>)'
 			} %}
 		{{ slideMacros.formInput_Radio( 'enable_scan', radiovalues, 'Enable Automatic Scanning' ) }}
 

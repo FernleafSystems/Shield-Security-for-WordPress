@@ -140,9 +140,11 @@ body.wait {
 	margin-bottom: 12px;
 }
 
-
 .scan-results-accordian {
 }
 .scan-results-accordian .card {
 	margin-bottom: 12px;
+}
+.scan-results-accordian .card-header {
+	padding: .5rem 1.25rem;
 }

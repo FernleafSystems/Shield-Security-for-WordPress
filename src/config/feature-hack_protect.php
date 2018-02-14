@@ -308,6 +308,7 @@
     {
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
+      "premium":       true,
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -383,7 +384,7 @@
     "wpvulnscan_cron_name":                 "wpvulnscan-notification",
     "corechecksum_cron_name":               "core-checksum-notification",
     "unrecognisedscan_cron_name":           "unrecognised-scan-notification",
-    "ptl_cronname":          				"cron-pluginthemeslocker",
+    "ptg_cronname":          				"cron-pluginthemesguard",
     "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",

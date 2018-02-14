@@ -6,11 +6,11 @@
 	{% if data.result|length == 0 %}
 		<p>There were no files discovered that need your attention.</p>
 	{% else %}
-		<p>There are {{ data.result|length }} {{ data.context_sing }}(s) that need your attention.</p>
+		<p>{{ data.result|length }} {{ data.context_sing }}(s) that need your attention.</p>
 
 		<div id="accord{{ data.context_sing }}" class="scan-results-accordian">
 		{% set resultCounter = 0 %}
-		{% for item_name,item_results in data.result %}
+		{% for item_name,item_res in data.result %}
 			{% set resultCounter = resultCounter + 1 %}
 
 			<div class="card">
@@ -24,38 +24,56 @@
 
 				<div id="coll{{ resultCounter }}" class="collapse" data-parent="#accord{{ data.context_sing }}">
 				  <div class="card-body">
-					  {% if item_results.different is defined %}
+					  {% if item_res.different is defined %}
 						  <div class="indent_slight">
-							  <h6>Modified Files: {{ item_results.different|length }}</h6>
-							  {% for file in item_results.different %}
+							  <h6>Modified Files: {{ item_res.different|length }}</h6>
+							  {% for file in item_res.different %}
 								  <li><code class="filepath">{{ file }}</code></li>
 							  {% endfor %}
 						  </div>
 					  {% endif %}
 
-					  {% if item_results.missing is defined %}
+					  {% if item_res.missing is defined %}
 						  <div class="indent_slight">
-							  <h6>Missing Files: {{ item_results.missing|length }}</h6>
-							  {% for file in item_results.missing %}
+							  <h6>Missing Files: {{ item_res.missing|length }}</h6>
+							  {% for file in item_res.missing %}
 								  <li><code class="filepath">{{ file }}</code></li>
 							  {% endfor %}
 						  </div>
 					  {% endif %}
 
-					  {% if item_results.unrecognised is defined %}
+					  {% if item_res.unrecognised is defined %}
 						  <div class="indent_slight">
-							  <h6>Unrecognised Files: {{ item_results.unrecognised|length }}</h6>
-							  {% for file in item_results.unrecognised %}
+							  <h6>Unrecognised Files: {{ item_res.unrecognised|length }}</h6>
+							  {% for file in item_res.unrecognised %}
 								  <li><code class="filepath">{{ file }}</code></li>
 							  {% endfor %}
 						  </div>
 					  {% endif %}
-
-					  {% if item_results.is_wporg %}TODO: reinstall{% endif %}
 				  </div>
 				</div>
 				<div class="card-footer">
-					Actions:
+					<div class="btn-group float-right" role="group">
+						 {% if item_res.flags.can_reinstall %}
+							 <a href="javascript:void(0)"
+								class="btn btn-sm btn-success">
+							Re-Install / Upgrade</a>
+						 {% else %}
+							 <a href="javascript:void(0)"
+								class="btn btn-sm btn-outline-success disabled"
+								tabindex="-1">
+							Re-Install / Upgrade</a>
+						 {% endif %}
+
+						<a href="javascript:void(0)"
+						   class="btn btn-sm btn-secondary">
+							Deactivate</a>
+
+						<a href="javascript:void(0)"
+						   class="btn btn-sm btn-danger"
+						   title="Ignore">
+							Ignore Changes</a>
+					</div>
 				</div>
 			  </div>
 		{% endfor %}

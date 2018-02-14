@@ -127,18 +127,13 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oFO = $this->getModCon();
 
 		$sSetting = $this->loadDP()->post( 'enable_scan' );
-		$oFO->setUfcOption( $sSetting )
+		$oFO->setPtgEnabledOption( $sSetting )
 			->savePluginOptions();
 
-		$bSuccess = ( $sSetting == $oFO->getUnrecognisedFileScannerOption() );
+		$bSuccess = ( $sSetting == $oFO->getPtgEnabledOption() );
 
-		if ( $bSuccess ) {
-			if ( $oFO->isUfcEnabled() ) {
-				$sMessage = 'Scanner automation has been enabled.';
-			}
-			else {
-				$sMessage = 'Scanner automation has been disabled.';
-			}
+		if ( $bSuccess && $oFO->isPtgEnabled() ) {
+			$sMessage = 'Scanner automation has been enabled.';
 		}
 		else {
 			$sMessage = 'There was a problem with saving this option. You may need to reload.';
@@ -416,13 +411,23 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			if ( $sContext == 'plugins' ) {
 				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
 				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
+				$aFlags = array(
+					'is_wporg'      => $bIsWpOrg,
+					'can_reinstall' => $bIsWpOrg,
+					'slug'          => $sSlug,
+				);
 			}
 			else {
-				$bIsWpOrg = false;
 				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+				$bIsWpOrg = false; // TODO
+				$aFlags = array(
+					'is_wporg'      => $bIsWpOrg,
+					'can_reinstall' => $bIsWpOrg,
+					'slug'          => $sSlug,
+				);
 			}
 			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );
-			$aResults[ $sName ][ 'is_wporg' ] = $bIsWpOrg;
+			$aResults[ $sName ][ 'flags' ] = $aFlags;
 			unset( $aResults[ $sSlug ] );
 		}
 

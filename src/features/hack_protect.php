@@ -332,7 +332,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getPtgCronName() {
-		return $this->prefixOptionKey( $this->getDef( 'ptl_cronname' ) );
+		return $this->prefixOptionKey( $this->getDef( 'ptg_cronname' ) );
 	}
 
 	/**
@@ -347,6 +347,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getPtgDepth() {
 		return $this->getOpt( 'ptg_depth' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPtgEnabledOption() {
+		return $this->getOpt( 'ptg_enable' );
 	}
 
 	/**
@@ -383,6 +390,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setPtgLastBuildAt( $nTime = null ) {
 		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
+	}
+
+	/**
+	 * @param string $sValue
+	 * @return $this
+	 */
+	public function setPtgEnabledOption( $sValue ) {
+		return $this->setOpt( 'ptg_enable', $sValue );
 	}
 
 	public function ajaxPluginReinstall() {
@@ -616,16 +631,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'ptg_enable' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Locker' ) );
-				$sSummary = _wpsf__( 'Enable The Locker For Plugin And Theme Files' );
-				$sDescription = _wpsf__( 'When enabled the Locker will automatically scan for changes to your Plugin and Theme files.' );
+				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Guard' ) );
+				$sSummary = _wpsf__( 'Enable The Guard For Plugin And Theme Files' );
+				$sDescription = _wpsf__( 'When enabled the Guard will automatically scan for changes to your Plugin and Theme files.' );
 				break;
 
 			case 'ptg_depth' :
 				$sName = _wpsf__( 'Guard/Scan Depth' );
 				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
 				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
-								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit - not recommended' ), 0 );
+								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit and all sub-folders will be scanned - not recommended' ), 0 );
 				break;
 
 			case 'ptg_extensions' :
