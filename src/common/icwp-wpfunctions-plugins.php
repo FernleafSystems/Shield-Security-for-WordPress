@@ -384,7 +384,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @param $sBaseFile
 	 * @return null|stdClass
 	 */
-	public function getExtendedPluginData( $sBaseFile ) {
+	public function getExtendedData( $sBaseFile ) {
 		$aData = $this->getAllExtendedData();
 		return isset( $aData[ $sBaseFile ] ) ? $aData[ $sBaseFile ] : null;
 	}
@@ -409,7 +409,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getSlug( $sBaseName ) {
-		$oPluginInfo = $this->getExtendedPluginData( $sBaseName );
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
 		return isset( $oPluginInfo->slug ) ? $oPluginInfo->slug : '';
 	}
 
@@ -418,7 +418,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isWpOrg( $sBaseName ) {
-		$oPluginInfo = $this->getExtendedPluginData( $sBaseName );
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
 		return isset( $oPluginInfo->id ) ? strpos( $oPluginInfo->id, 'w.org/' ) === 0 : false;
 	}
 

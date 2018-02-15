@@ -254,7 +254,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 		else if ( $sContext == 'themes' ) {
 			$mAsset = $oWpThemes->getTheme( $sSlug );
-			$bWpOrg = false;
+			$bWpOrg = $oWpThemes->isWpOrg( $sSlug );
 		}
 
 		$bSuccess = false;
@@ -491,18 +491,20 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
 				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
 				$aFlags = array(
-					'is_wporg'      => $bIsWpOrg,
-					'can_reinstall' => $bIsWpOrg,
-					'slug'          => $sSlug,
+					'is_wporg'       => $bIsWpOrg,
+					'can_reinstall'  => $bIsWpOrg,
+					'can_deactivate' => true,
+					'slug'           => $sSlug,
 				);
 			}
 			else {
 				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
-				$bIsWpOrg = false; // TODO
+				$bIsWpOrg = $oWpThemes->isWpOrg( $sSlug );
 				$aFlags = array(
-					'is_wporg'      => $bIsWpOrg,
-					'can_reinstall' => $bIsWpOrg,
-					'slug'          => $sSlug,
+					'is_wporg'       => $bIsWpOrg,
+					'can_reinstall'  => $bIsWpOrg,
+					'can_deactivate' => false,
+					'slug'           => $sSlug,
 				);
 			}
 			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );

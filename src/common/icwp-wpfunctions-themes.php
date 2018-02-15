@@ -189,11 +189,40 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sBase
+	 * @return object|WP_Error
+	 */
+	public function getExtendedData( $sBase ) {
+		include_once( ABSPATH.'wp-admin/includes/theme.php' );
+
+		$oApi = themes_api( 'theme_information', array(
+			'slug'   => $sBase,
+			'fields' => array(
+				'sections' => false,
+			),
+		) );
+		return $oApi;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isActiveThemeAChild() {
 		$oTheme = $this->getCurrent();
 		return ( $oTheme->get_stylesheet() != $oTheme->get_template() );
+	}
+
+	/**
+	 * @param string $sBaseName
+	 * @return bool
+	 */
+	public function isWpOrg( $sBaseName ) {
+		$bIsWpOrg = false;
+		$oInfo = $this->getExtendedData( $sBaseName );
+		if ( !empty( $oInfo ) && !is_wp_error( $oInfo ) && isset( $oInfo->download_link ) ) {
+			$bIsWpOrg = strpos( $oInfo->download_link, 'https://downloads.wordpress.org' ) === 0;
+		}
+		return $bIsWpOrg;
 	}
 
 	/**
