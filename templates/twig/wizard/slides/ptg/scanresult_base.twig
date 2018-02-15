@@ -54,8 +54,8 @@
 				  </div>
 				</div>
 				<div class="card-footer">
-					<form class="icwp-wizard-form">
-
+					<form class="icwp-wizard-form mb-0">
+						<div class="clearfix">
 						<div class="form-check form-check-inline">
 							<input class="form-check-input"
 								   type="radio"
@@ -66,7 +66,8 @@
 								disabled
 							{% endif %}
 								   value="reinstall" />
-							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}1">Re-Install / Upgrade</label>
+							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}1">
+								Re-Install / Upgrade</label>
 						</div>
 
 						{% if item_res.flags.can_deactivate %}
@@ -80,7 +81,8 @@
 										disabled
 									{% endif %}
 								   value="deactivate" >
-							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}2">Deactivate</label>
+							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}2">
+								Deactivate</label>
 						</div>
 						{% endif %}
 
@@ -90,9 +92,12 @@
 								   name="ptgaction"
 								   id="ptgaction_{{ item_res.flags.id }}3"
 								   value="ignore" >
-							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}3">Ignore Changes</label>
+							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}3">
+								Ignore Changes</label>
 						</div>
-						<button type="submit" class="btn btn-warning mb-2">Run Selected Action</button>
+						<button type="submit" class="btn btn-warning mb-2 float-right">
+							Run Selected Action</button>
+						</div>
 						{{ slideMacros.formInput_Hidden( 'wizard-step', 'ptg_assetaction' ) }}
 						{{ slideMacros.formInput_Hidden( 'slug', item_res.flags.slug ) }}
 						{{ slideMacros.formInput_Hidden( 'context', data.context ) }}
