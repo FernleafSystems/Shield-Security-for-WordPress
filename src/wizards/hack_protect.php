@@ -269,7 +269,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 						/** @var ICWP_WPSF_Processor_HackProtect $oP */
 						$oP = $oFO->getProcessor();
 						$bSuccess = $oP->getSubProcessorGuardLocker()
-									   ->reinstall( $sSlug, ICWP_WPSF_Processor_HackProtect_GuardLocker::CONTEXT_PLUGINS );
+									   ->reinstall( $sSlug, $sContext );
 						$sMessage = 'The item has been re-installed from WordPress.org sources.';
 					}
 					break;
