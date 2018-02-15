@@ -495,6 +495,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					'can_reinstall'  => $bIsWpOrg,
 					'can_deactivate' => true,
 					'slug'           => $sSlug,
+					'id'             => $sContext.sanitize_key( $sSlug ),
 				);
 			}
 			else {
@@ -505,6 +506,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					'can_reinstall'  => $bIsWpOrg,
 					'can_deactivate' => false,
 					'slug'           => $sSlug,
+					'id'             => $sContext.sanitize_key( $sSlug ),
 				);
 			}
 			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );

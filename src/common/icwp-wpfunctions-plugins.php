@@ -64,7 +64,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function delete( $sPluginFile, $bNetworkWide = false ) {
-		if ( !$this->isPluginInstalled( $sPluginFile ) ) {
+		if ( !$this->isInstalled( $sPluginFile ) ) {
 			return false;
 		}
 
@@ -142,8 +142,6 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		if ( !is_wp_error( $api ) ) {
 			return $this->install( $api->download_link, true, true );
 		}
-		else {
-		}
 		return false;
 	}
 
@@ -155,7 +153,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function reinstall( $sFile, $bUseBackup = false ) {
 		$bSuccess = false;
 
-		if ( $this->isPluginInstalled( $sFile ) ) {
+		if ( $this->isInstalled( $sFile ) ) {
 
 			$sSlug = $this->getSlug( $sFile );
 			if ( !empty( $sSlug ) ) {
@@ -458,14 +456,14 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPluginActive( $sPluginFile ) {
-		return ( $this->isPluginInstalled( $sPluginFile ) && is_plugin_active( $sPluginFile ) );
+		return ( $this->isInstalled( $sPluginFile ) && is_plugin_active( $sPluginFile ) );
 	}
 
 	/**
 	 * @param string $sFile The full plugin file.
 	 * @return bool
 	 */
-	public function isPluginInstalled( $sFile ) {
+	public function isInstalled( $sFile ) {
 		return !empty( $sFile ) && !is_null( $this->getPlugin( $sFile ) );
 	}
 
