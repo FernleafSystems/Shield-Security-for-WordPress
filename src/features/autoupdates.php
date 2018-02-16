@@ -109,7 +109,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 			$oWpPlugins = $this->loadWpPlugins();
 			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
-			if ( $oWpPlugins->isPluginInstalled( $sFile ) ) {
+			if ( $oWpPlugins->isInstalled( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
 
 				$aPlugin = $oWpPlugins->getPlugin( $sFile );

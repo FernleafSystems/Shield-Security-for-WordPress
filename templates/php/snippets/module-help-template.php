@@ -10,7 +10,7 @@
 		<div class="module-headline">
 			<div class="float-right">
 
-					<div class="btn-group icwp-top-buttons" role="group">
+				<div class="btn-group icwp-top-buttons" role="group">
 
 					<a href="javascript:void(0)" class="btn btn-outline-success icwp-carousel-0">
 						<?php echo $strings[ 'btn_options' ]; ?>

@@ -36,6 +36,15 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sPluginFile
 	 * @param bool   $bNetworkWide
+	 * @return null|WP_Error
+	 */
+	protected function activateQuietly( $sPluginFile, $bNetworkWide = false ) {
+		return activate_plugin( $sPluginFile, '', $bNetworkWide, true );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param bool   $bNetworkWide
 	 */
 	public function deactivate( $sPluginFile, $bNetworkWide = false ) {
 		deactivate_plugins( $sPluginFile, '', $bNetworkWide );
@@ -44,10 +53,18 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sPluginFile
 	 * @param bool   $bNetworkWide
+	 */
+	protected function deactivateQuietly( $sPluginFile, $bNetworkWide = false ) {
+		deactivate_plugins( $sPluginFile, true, $bNetworkWide );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param bool   $bNetworkWide
 	 * @return bool
 	 */
 	public function delete( $sPluginFile, $bNetworkWide = false ) {
-		if ( !$this->isPluginInstalled( $sPluginFile ) ) {
+		if ( !$this->isInstalled( $sPluginFile ) ) {
 			return false;
 		}
 
@@ -125,8 +142,6 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		if ( !is_wp_error( $api ) ) {
 			return $this->install( $api->download_link, true, true );
 		}
-		else {
-		}
 		return false;
 	}
 
@@ -138,29 +153,30 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function reinstall( $sFile, $bUseBackup = false ) {
 		$bSuccess = false;
 
-		if ( $this->isPluginInstalled( $sFile ) ) {
+		if ( $this->isInstalled( $sFile ) ) {
 
 			$sSlug = $this->getSlug( $sFile );
 			if ( !empty( $sSlug ) ) {
 				$oFS = $this->loadFS();
 
 				$sDir = dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
-				$sBackupDir = $sDir.'.bak-'.time();
+				$sBackupDir = WP_PLUGIN_DIR.'/../'.basename( $sDir ).'bak'.time();
 				if ( $bUseBackup ) {
-					$oFS->move( $sDir, $sBackupDir );
+					rename( $sDir, $sBackupDir );
 				}
 
 				$aResult = $this->installFromWpOrg( $sSlug );
 				$bSuccess = $aResult[ 'successful' ];
 				if ( $bSuccess ) {
+					wp_update_plugins(); //refreshes our update information
 					if ( $bUseBackup ) {
 						$oFS->deleteDir( $sBackupDir );
 					}
-					wp_update_plugins(); //refreshes our update information
 				}
 				else {
 					if ( $bUseBackup ) {
-						$oFS->move( $sBackupDir, $sDir );
+						$oFS->deleteDir( $sDir );
+						rename( $sBackupDir, $sDir );
 					}
 				}
 			}
@@ -366,7 +382,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @param $sBaseFile
 	 * @return null|stdClass
 	 */
-	public function getExtendedPluginData( $sBaseFile ) {
+	public function getExtendedData( $sBaseFile ) {
 		$aData = $this->getAllExtendedData();
 		return isset( $aData[ $sBaseFile ] ) ? $aData[ $sBaseFile ] : null;
 	}
@@ -391,7 +407,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getSlug( $sBaseName ) {
-		$oPluginInfo = $this->getExtendedPluginData( $sBaseName );
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
 		return isset( $oPluginInfo->slug ) ? $oPluginInfo->slug : '';
 	}
 
@@ -400,7 +416,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isWpOrg( $sBaseName ) {
-		$oPluginInfo = $this->getExtendedPluginData( $sBaseName );
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
 		return isset( $oPluginInfo->id ) ? strpos( $oPluginInfo->id, 'w.org/' ) === 0 : false;
 	}
 
@@ -440,14 +456,14 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPluginActive( $sPluginFile ) {
-		return ( $this->isPluginInstalled( $sPluginFile ) && is_plugin_active( $sPluginFile ) );
+		return ( $this->isInstalled( $sPluginFile ) && is_plugin_active( $sPluginFile ) );
 	}
 
 	/**
 	 * @param string $sFile The full plugin file.
 	 * @return bool
 	 */
-	public function isPluginInstalled( $sFile ) {
+	public function isInstalled( $sFile ) {
 		return !empty( $sFile ) && !is_null( $this->getPlugin( $sFile ) );
 	}
 

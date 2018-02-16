@@ -60,11 +60,27 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param $sSlug
+	 * @return array|bool
+	 */
+	public function installFromWpOrg( $sSlug ) {
+		include_once( ABSPATH.'wp-admin/includes/plugin-install.php' );
+
+		$oApi = $this->getExtendedData( $sSlug );
+
+		if ( !is_wp_error( $oApi ) ) {
+			return $this->install( $oApi->download_link, true, true );
+		}
+		return false;
+	}
+
+	/**
 	 * @param string $sUrlToInstall
 	 * @param bool   $bOverwrite
-	 * @return bool
+	 * @param bool   $bMaintenanceMode
+	 * @return array
 	 */
-	public function install( $sUrlToInstall, $bOverwrite = true ) {
+	public function install( $sUrlToInstall, $bOverwrite = true, $bMaintenanceMode = false ) {
 		$this->loadWpUpgrades();
 
 		$aResult = array(
@@ -76,9 +92,18 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 		$oUpgraderSkin = new ICWP_Upgrader_Skin();
 		$oUpgrader = new ICWP_Theme_Upgrader( $oUpgraderSkin );
 		$oUpgrader->setOverwriteMode( $bOverwrite );
+		if ( $bMaintenanceMode ) {
+			$oUpgrader->maintenance_mode( true );
+		}
+
 		ob_start();
 		$sInstallResult = $oUpgrader->install( $sUrlToInstall );
 		ob_end_clean();
+
+		if ( $bMaintenanceMode ) {
+			$oUpgrader->maintenance_mode( false );
+		}
+
 		if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
 			$aResult[ 'successful' ] = false;
 			$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
@@ -89,6 +114,43 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 
 		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
 		return $aResult;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @param bool   $bUseBackup
+	 * @return bool
+	 */
+	public function reinstall( $sSlug, $bUseBackup = false ) {
+		$bSuccess = false;
+
+		if ( $this->isInstalled( $sSlug ) ) {
+			$oFS = $this->loadFS();
+
+			$oTheme = $this->getTheme( $sSlug );
+
+			$sDir = $oTheme->get_stylesheet_directory();
+			$sBackupDir = dirname( $sDir ).'/../../'.$sSlug.'bak'.time();
+			if ( $bUseBackup ) {
+				rename( $sDir, $sBackupDir );
+			}
+
+			$aResult = $this->installFromWpOrg( $sSlug );
+			$bSuccess = $aResult[ 'successful' ];
+			if ( $bSuccess ) {
+				wp_update_themes(); //refreshes our update information
+				if ( $bUseBackup ) {
+					$oFS->deleteDir( $sBackupDir );
+				}
+			}
+			else {
+				if ( $bUseBackup ) {
+					$oFS->deleteDir( $sDir );
+					rename( $sBackupDir, $sDir );
+				}
+			}
+		}
+		return $bSuccess;
 	}
 
 	/**
@@ -189,11 +251,48 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sBase
+	 * @return object|WP_Error
+	 */
+	public function getExtendedData( $sBase ) {
+		include_once( ABSPATH.'wp-admin/includes/theme.php' );
+
+		$oApi = themes_api( 'theme_information', array(
+			'slug'   => $sBase,
+			'fields' => array(
+				'sections' => false,
+			),
+		) );
+		return $oApi;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isActiveThemeAChild() {
 		$oTheme = $this->getCurrent();
 		return ( $oTheme->get_stylesheet() != $oTheme->get_template() );
+	}
+
+	/**
+	 * @param string $sSlug The directory slug.
+	 * @return bool
+	 */
+	public function isInstalled( $sSlug ) {
+		return !empty( $sSlug ) && !is_null( $this->getTheme( $sSlug ) );
+	}
+
+	/**
+	 * @param string $sBaseName
+	 * @return bool
+	 */
+	public function isWpOrg( $sBaseName ) {
+		$bIsWpOrg = false;
+		$oInfo = $this->getExtendedData( $sBaseName );
+		if ( !empty( $oInfo ) && !is_wp_error( $oInfo ) && isset( $oInfo->download_link ) ) {
+			$bIsWpOrg = strpos( $oInfo->download_link, 'https://downloads.wordpress.org' ) === 0;
+		}
+		return $bIsWpOrg;
 	}
 
 	/**

@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
-			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), 100, 2 );
+			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), PHP_INT_MAX, 2 );
 		}
 
 		try {

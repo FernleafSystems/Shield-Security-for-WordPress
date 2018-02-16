@@ -186,6 +186,26 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param string[] $aArray
+	 * @param string   $sPregReplacePattern
+	 * @return string[]
+	 */
+	protected function cleanStringArray( $aArray, $sPregReplacePattern ) {
+		$aCleaned = array();
+		if ( !is_array( $aArray ) ) {
+			return $aCleaned;
+		}
+
+		foreach ( $aArray as $nKey => $sVal ) {
+			$sVal = preg_replace( $sPregReplacePattern, '', $sVal );
+			if ( !empty( $sVal ) ) {
+				$aCleaned[] = $sVal;
+			}
+		}
+		return array_unique( array_filter( $aCleaned ) );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

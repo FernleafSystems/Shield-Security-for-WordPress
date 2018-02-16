@@ -357,13 +357,17 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.3.1 - Current Release =
-*Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
+= 6.4.0 - Current Release =
+*Released: 26th February, 2018* - [Release Notes](http://icwp.io/bc)
 
-* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)
-* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](http://icwp.io/bd), using the new Bootstrap 4.
-* **(v.0)**  FIXED:			A few bugs with Google Authenticator.
-* **(v.1)**  FIXED:			Options page javascript to work around conflicts.
+* **(v.0)**  ADDED:			[**PRO**] New Scanner to detect file changes for active plugins and themes
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins now ignores [automatic updates delay setting](http://icwp.io/bc)
+
+= 6.4 Series =
+*Released: 26th February, 2018* - [Release Notes](http://icwp.io/bc)
+
+* **(v.0)**  ADDED:			[**PRO**] New Scanner to detect file changes for active plugins and themes
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins now ignores [automatic updates delay setting](http://icwp.io/bc)
 
 = 6.3 Series =
 *Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)

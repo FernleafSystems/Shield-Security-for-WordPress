@@ -308,19 +308,35 @@
     {
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Enable/Disable Locker",
-      "summary": "Enable The Locker For Plugin And Theme Files",
-      "description": "When enabled the Locker will automatically scan for changes to your Plugin and Theme files."
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Scan Disabled"
+        },
+        {
+          "value_key": "enabled_report_only",
+          "text":      "Email Report Only"
+        },
+        {
+          "value_key": "enabled_repair_report",
+          "text":      "Auto-Repair Wherever Possible and Email Report"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name": "Enable/Disable Guard",
+      "summary": "Enable The Guard For Plugin And Theme Files",
+      "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
       "key": "ptg_depth",
       "section": "section_pluginthemes_guard",
-      "default": 1,
       "type": "integer",
+      "default": 1,
+      "min": 0,
       "link_info": "",
       "link_blog": "",
       "name": "Guard/Scan Depth",
@@ -349,6 +365,12 @@
       "value": 0
     },
     {
+      "key": "ptg_email_track",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": []
+    },
+    {
       "key": "snapshot_users",
       "transferable": false,
       "sensitive": true,
@@ -368,7 +390,7 @@
     "wpvulnscan_cron_name":                 "wpvulnscan-notification",
     "corechecksum_cron_name":               "core-checksum-notification",
     "unrecognisedscan_cron_name":           "unrecognised-scan-notification",
-    "ptl_cronname":          				"cron-pluginthemeslocker",
+    "ptg_cronname":          				"cron-pluginthemesguard",
     "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",
