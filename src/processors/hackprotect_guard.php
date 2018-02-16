@@ -388,7 +388,13 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 
 		// Only email if there's results
 		if ( !empty( $aResults ) ) {
-			$this->emailResults( $aResults );
+
+			if ( $this->canSendResults( $aResults ) ) {
+				$this->emailResults( $aResults );
+			}
+			else {
+				$this->addToAuditEntry( _wpsf__( 'Silenced repeated email alert from Plugin/Theme Scan Guard' ) );
+			}
 		}
 	}
 
@@ -396,6 +402,8 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @param array[][] $aResults
 	 */
 	protected function emailResults( $aResults ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
 
 		// Plugins
 		$aAllPlugins = array();
@@ -429,7 +437,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		$aContent = array(
 			sprintf( _wpsf__( '%s has detected at least 1 Plugins/Themes have been modified on your site.' ), $sName ),
 			'',
-			sprintf( '<strong>%s</strong>', _wpsf__( 'You will receive only 1 email notification about these changes.' ) ),
+			sprintf( '<strong>%s</strong>', _wpsf__( 'You will receive only 1 email notification about these changes in a 1 week period.' ) ),
 			'',
 			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',
@@ -452,8 +460,6 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 			}
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
 		if ( $oFO->canRunWizards() ) {
 			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
 				$oFO->getUrl_Wizard( 'ptg' ),
@@ -473,7 +479,38 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 		else {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin/Theme Guard email alert to: %s' ), $sRecipient ) );
 		}
-		die();
+	}
+
+	/**
+	 * @param array $aResults
+	 * @return bool
+	 */
+	private function canSendResults( $aResults ) {
+		return ( $this->getResultsHashTime( md5( serialize( $aResults ) ) ) === 0 );
+	}
+
+	/**
+	 * @param string $sResultHash
+	 * @return int
+	 */
+	private function getResultsHashTime( $sResultHash ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$aTracking = $oFO->getPtgEmailTrackData();
+
+		$nSent = isset( $aTracking[ $sResultHash ] ) ? $aTracking[ $sResultHash ] : 0;
+
+		if ( $this->time() - $nSent > WEEK_IN_SECONDS ) { // reset
+			$nSent = 0;
+		}
+
+		if ( $nSent == 0 ) { // we've seen this changeset before.
+			$aTracking[ $sResultHash ] = $this->time();
+			$oFO->setPtgEmailTrackData( $aTracking );
+		}
+
+		return $nSent;
 	}
 
 	/**

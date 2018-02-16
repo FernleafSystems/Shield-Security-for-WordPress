@@ -350,6 +350,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getPtgEmailTrackData() {
+		$aData = $this->getOpt( 'ptg_email_track' );
+		return is_array( $aData ) ? $aData : array();
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getPtgEnabledOption() {
@@ -383,6 +391,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isPtgReadyToScan() {
 		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
+	}
+
+	/**
+	 * @param array $aData
+	 * @return $this
+	 */
+	public function setPtgEmailTrackData( $aData ) {
+		return $this->setOpt( 'ptg_email_track', $aData );
 	}
 
 	/**
