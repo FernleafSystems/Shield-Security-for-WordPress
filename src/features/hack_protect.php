@@ -383,7 +383,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isPtgEnabled() {
 		return $this->isPremium() && !$this->getOptIs( 'ptg_enable', 'disabled' )
-			   && $this->loadDP()->getPhpVersionIsAtLeast( '5.4' );
+			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' );
 	}
 
 	/**

@@ -41,6 +41,9 @@
     },
     {
       "slug":        "section_pluginthemes_guard",
+      "reqs" : {
+        "php_min": "5.4"
+      },
       "title":       "Plugins/Themes Guard",
       "title_short": "Plugins/Themes Guard",
       "summary":     [

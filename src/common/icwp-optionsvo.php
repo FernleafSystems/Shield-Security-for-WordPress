@@ -233,7 +233,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return array
+	 * @param string $sSlug
+	 * @return array|null
+	 */
+	public function getSection( $sSlug ) {
+		$aSections = $this->getSections();
+		return isset( $aSections[ $sSlug ] ) ? $aSections[ $sSlug ] : null;
+	}
+
+	/**
+	 * @return array[]
 	 */
 	public function getSections() {
 		$aSections = array();
@@ -243,6 +252,39 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aSections;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return array
+	 */
+	public function getSection_Requirements( $sSlug ) {
+		$aSection = $this->getSection( $sSlug );
+		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : array();
+		return array_merge(
+			array(
+				'php_min' => '5.2.4'
+			),
+			$aReqs
+		);
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return bool
+	 */
+	public function isSectionReqsMet( $sSectionSlug ) {
+		$aReqs = $this->getSection_Requirements( $sSectionSlug );
+		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] );
+		return $bMet;
+	}
+
+	/**
+	 * @param string $sOptKey
+	 * @return bool
+	 */
+	public function isOptReqsMet( $sOptKey ) {
+		return $this->isSectionReqsMet( $this->getOptProperty( $sOptKey, 'section' ) );
 	}
 
 	/**
@@ -266,6 +308,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				),
 				$aRawSection
 			);
+
+			$aRawSection[ 'reqs_met' ] = $this->isSectionReqsMet( $aRawSection[ 'slug' ] );
 
 			if ( !empty( $aRawSection[ 'options' ] ) ) {
 				$aOptionsData[] = $aRawSection;
