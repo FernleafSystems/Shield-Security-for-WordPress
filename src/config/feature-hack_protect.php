@@ -312,7 +312,7 @@
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "enabled",
       "type":          "select",
       "value_options": [
         {

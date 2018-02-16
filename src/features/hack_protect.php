@@ -530,7 +530,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_pluginthemes_guard' :
-				$sTitle = _wpsf__( 'Plugins/Themes Guard' );
+				$sTitle = _wpsf__( 'Plugins and Themes Guard' );
 				$sTitleShort = _wpsf__( 'Plugins/Themes Guard' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
