@@ -374,9 +374,106 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	/**
 	 * Cron callback
 	 */
-	public function cron_runLockerScan() {
-		$this->scanPlugins();
-		$this->scanThemes();
+	public function cron_runGuardScan() {
+		$aPs = $this->scanPlugins();
+		$aTs = $this->scanThemes();
+
+		$aResults = array();
+		if ( !empty( $aPs ) ) {
+			$aResults[ self::CONTEXT_PLUGINS ] = $aPs;
+		}
+		if ( !empty( $aTs ) ) {
+			$aResults[ self::CONTEXT_THEMES ] = $aTs;
+		}
+
+		// Only email if there's results
+		if ( !empty( $aResults ) ) {
+			$this->emailResults( $aResults );
+		}
+	}
+
+	/**
+	 * @param array[][] $aResults
+	 */
+	protected function emailResults( $aResults ) {
+
+		// Plugins
+		$aAllPlugins = array();
+		if ( isset( $aResults[ self::CONTEXT_PLUGINS ] ) ) {
+			$oPlgs = $this->loadWpPlugins();
+			$aAllPlugins = array_filter( array_map(
+				function ( $sBaseFile ) use ( $oPlgs ) {
+					$aData = $oPlgs->getPlugin( $sBaseFile );
+					return sprintf( '%s: v%s', $aData[ 'Name' ], ltrim( $aData[ 'Version' ], 'v' ) );
+				},
+				array_keys( $aResults[ self::CONTEXT_PLUGINS ] )
+			) );
+		}
+
+		// Themes
+		$aAllThemes = array();
+		if ( isset( $aResults[ self::CONTEXT_THEMES ] ) ) {
+			$oThms = $this->loadWpThemes();
+			$aAllThemes = array_filter( array_map(
+				function ( $sBaseFile ) use ( $oThms ) {
+					$oTheme = $oThms->getTheme( $sBaseFile );
+					return sprintf( '%s: v%s', $oTheme->get( 'name' ), ltrim( $oTheme->get( 'version' ), 'v' ) );
+				},
+				array_keys( $aResults[ self::CONTEXT_THEMES ] )
+			) );
+		}
+
+		$sName = $this->getController()->getHumanName();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
+
+		$aContent = array(
+			sprintf( _wpsf__( '%s has detected at least 1 Plugins/Themes have been modified on your site.' ), $sName ),
+			'',
+			sprintf( '<strong>%s</strong>', _wpsf__( 'You will receive only 1 email notification about these changes.' ) ),
+			'',
+			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			'',
+			_wpsf__( 'Details of the problem items are below:' ),
+		);
+
+		if ( !empty( $aAllPlugins ) ) {
+			$aContent[] = '';
+			$aContent[] = sprintf( '<strong>%s</strong>', _wpsf__( 'Modified Plugins:' ) );
+			foreach ( $aAllPlugins as $sPlugins ) {
+				$aContent[] = ' - '.$sPlugins;
+			}
+		}
+
+		if ( !empty( $aAllThemes ) ) {
+			$aContent[] = '';
+			$aContent[] = sprintf( '<strong>%s</strong>', _wpsf__( 'Modified Themes:' ) );
+			foreach ( $aAllThemes as $sTheme ) {
+				$aContent[] = ' - '.$sTheme;
+			}
+		}
+
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		if ( $oFO->canRunWizards() ) {
+			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
+				$oFO->getUrl_Wizard( 'ptg' ),
+				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
+				_wpsf__( 'Run the scanner' )
+			);
+			$aContent[] = '';
+		}
+
+		$sRecipient = $this->getPluginDefaultRecipientAddress();
+		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugins/Themes Have Been Altered.' ) );
+		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
+
+		if ( $bSendSuccess ) {
+			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin/Theme Guard email alert to: %s' ), $sRecipient ) );
+		}
+		else {
+			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin/Theme Guard email alert to: %s' ), $sRecipient ) );
+		}
+		die();
 	}
 
 	/**
@@ -450,7 +547,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return callable
 	 */
 	protected function getCronCallback() {
-		return array( $this, 'cron_runLockerScan' );
+		return array( $this, 'cron_runGuardScan' );
 	}
 
 	/**
