@@ -317,12 +317,8 @@
           "text":      "Scan Disabled"
         },
         {
-          "value_key": "enabled_report_only",
-          "text":      "Email Report Only"
-        },
-        {
-          "value_key": "enabled_repair_report",
-          "text":      "Auto-Repair Wherever Possible and Email Report"
+          "value_key": "enabled",
+          "text":      "Scan Enabled"
         }
       ],
       "link_info":     "",
