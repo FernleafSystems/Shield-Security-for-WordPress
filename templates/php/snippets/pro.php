@@ -179,7 +179,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 					<div id="colltwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
 					  <div class="card-body">
 						<dl>
-							<dt>Catch Hacks Immediately - Plugins and Themes Locker</dt>
+							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
 							<dd>Be alerted immediately to ANY unauthorized changes to plugin and theme files.</dd>
 
 							<dt>White Label</dt>

@@ -41,11 +41,11 @@
     },
     {
       "slug":        "section_pluginthemes_guard",
-      "title":       "Plugins/Themes Locker",
-      "title_short": "Plugins/Themes Locker",
+      "title":       "Plugins/Themes Guard",
+      "title_short": "Plugins/Themes Guard",
       "summary":     [
         "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Locker feature turned on."
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
       ]
     },
     {

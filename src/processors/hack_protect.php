@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getSubProcessorIntegrity()->run();
 		}
 		if ( $oFO->isPtgEnabled() ) {
-			$this->runLocker();
+			$this->runPTGuard();
 		}
 	}
 
@@ -80,8 +80,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
-	protected function runLocker() {
-		$this->getSubProcessorGuardLocker()->run();
+	protected function runPTGuard() {
+		$this->getSubProcessorGuard()->run();
 	}
 
 	/**
@@ -120,14 +120,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_GuardLocker
+	 * @return ICWP_WPSF_Processor_HackProtect_PTGuard
 	 */
-	public function getSubProcessorGuardLocker() {
-		$oProc = $this->getSubProcessor( 'locker' );
+	public function getSubProcessorGuard() {
+		$oProc = $this->getSubProcessor( 'ptguard' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_guard.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_GuardLocker( $this->getFeature() );
-			$this->aSubProcessors[ 'locker' ] = $oProc;
+			require_once( dirname( __FILE__ ).'/hackprotect_ptguard.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_PTGuard( $this->getFeature() );
+			$this->aSubProcessors[ 'ptguard' ] = $oProc;
 		}
 		return $oProc;
 	}

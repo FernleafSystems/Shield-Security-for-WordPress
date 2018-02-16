@@ -268,7 +268,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					if ( $bWpOrg ) {
 						/** @var ICWP_WPSF_Processor_HackProtect $oP */
 						$oP = $oFO->getProcessor();
-						$bSuccess = $oP->getSubProcessorGuardLocker()
+						$bSuccess = $oP->getSubProcessorGuard()
 									   ->reinstall( $sSlug, $sContext );
 						$sMessage = 'The item has been re-installed from WordPress.org sources.';
 					}
@@ -278,7 +278,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					if ( $bWpOrg ) {
 						/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 						$oProc = $this->getModCon()->getProcessor();
-						$oP = $oProc->getSubProcessorGuardLocker();
+						$oP = $oProc->getSubProcessorGuard();
 						$oP->updateItemInSnapshot( $sSlug, $sContext );
 						$bSuccess = true;
 						$sMessage = _wpsf__( 'All changes detected have been ignored.' );
@@ -476,7 +476,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function getPtgScanResults( $sContext ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $this->getModCon()->getProcessor();
-		$oP = $oProc->getSubProcessorGuardLocker();
+		$oP = $oProc->getSubProcessorGuard();
 		if ( $sContext == 'plugins' ) {
 			$aResults = $oP->scanPlugins();
 		}
