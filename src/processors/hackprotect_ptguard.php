@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_GuardLocker' ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_PTGuard' ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/cronbase.php' );
 
-class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_CronBase {
+class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBase {
 
 	const CONTEXT_PLUGINS = 'plugins';
 	const CONTEXT_THEMES = 'themes';
@@ -609,7 +609,7 @@ class ICWP_WPSF_Processor_HackProtect_GuardLocker extends ICWP_WPSF_Processor_Cr
 	 * @return string
 	 */
 	private function getSnapsBaseDir() {
-		return path_join( WP_CONTENT_DIR, 'shield/locker' );
+		return path_join( WP_CONTENT_DIR, 'shield/ptguard' );
 	}
 }
 

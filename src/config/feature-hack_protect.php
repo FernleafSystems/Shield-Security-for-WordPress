@@ -41,11 +41,14 @@
     },
     {
       "slug":        "section_pluginthemes_guard",
-      "title":       "Plugins/Themes Locker",
-      "title_short": "Plugins/Themes Locker",
+      "reqs" : {
+        "php_min": "5.4"
+      },
+      "title":       "Plugins/Themes Guard",
+      "title_short": "Plugins/Themes Guard",
       "summary":     [
         "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Locker feature turned on."
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
       ]
     },
     {
@@ -309,7 +312,7 @@
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "enabled",
       "type":          "select",
       "value_options": [
         {
@@ -317,12 +320,8 @@
           "text":      "Scan Disabled"
         },
         {
-          "value_key": "enabled_report_only",
-          "text":      "Email Report Only"
-        },
-        {
-          "value_key": "enabled_repair_report",
-          "text":      "Auto-Repair Wherever Possible and Email Report"
+          "value_key": "enabled",
+          "text":      "Scan Enabled"
         }
       ],
       "link_info":     "",

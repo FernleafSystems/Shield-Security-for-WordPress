@@ -107,6 +107,19 @@
 				</div>
 			<?php endif; ?>
 
+			<?php if ( !$aOptSection[ 'reqs_met' ] ) : ?>
+				<div class="row">
+					<div class="col">
+						<div class="alert alert-danger">
+							<p class="mb-0 text-center">
+								Unfortunately your PHP version is too low to support this feature.
+								<br />You may want to contact your host to ensure you're running PHP 5.4+
+							</p>
+						</div>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<?php foreach ( $aOptSection[ 'options' ] as $nKeyRow => $aOption ) :
 				$sOptKey = $aOption[ 'key' ];
 				$mOptValue = $aOption[ 'value' ];
@@ -114,7 +127,7 @@
 				$bEnabled = $aOption[ 'enabled' ];
 				$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 				?>
-				<div class="form-group row  row_number_<?php echo $nKeyRow; ?>">
+				<div class="form-group row row_number_<?php echo $nKeyRow; ?>">
 
 					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
 						<div class="form-label-inner text-right">

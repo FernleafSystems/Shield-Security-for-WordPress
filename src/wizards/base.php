@@ -68,7 +68,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 			$sDieMessage = 'Not Permitted';
 			if ( $this->getUserCan() ) {
-				if ( $this->verifyNonce() ) {
+				if ( $this->verifyNonce() !== false ) {
 					$this->loadWizard();
 				}
 				else {

@@ -32,7 +32,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 				/** @var ICWP_WPSF_Processor_HackProtect $oP */
 				$oP = $this->getProcessor();
-				$oP->getSubProcessorGuardLocker()
+				$oP->getSubProcessorGuard()
 				   ->deleteStores();
 				$this->setPtgLastBuildAt( 0 );
 			}
@@ -383,7 +383,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isPtgEnabled() {
 		return $this->isPremium() && !$this->getOptIs( 'ptg_enable', 'disabled' )
-			   && $this->loadDP()->getPhpVersionIsAtLeast( '5.4' );
+			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' );
 	}
 
 	/**
@@ -427,8 +427,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( $bReinstall ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $this->getProcessor();
-			$bActivate = $oP->getSubProcessorGuardLocker()
-							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_GuardLocker::CONTEXT_PLUGINS )
+			$bActivate = $oP->getSubProcessorGuard()
+							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_PTGuard::CONTEXT_PLUGINS )
 						 && $bActivate;
 		}
 		if ( $bActivate ) {
@@ -530,11 +530,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_pluginthemes_guard' :
-				$sTitle = _wpsf__( 'Plugins/Themes Locker' );
-				$sTitleShort = _wpsf__( 'Plugins/Themes Locker' );
+				$sTitle = _wpsf__( 'Plugins and Themes Guard' );
+				$sTitleShort = _wpsf__( 'Plugins/Themes Guard' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep the Plugins/Theme Locker feature turned on.' ) )
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep the Plugins/Theme Guard feature turned on.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
 				);
 				break;
 
