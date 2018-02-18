@@ -173,16 +173,18 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return boolean
 	 */
 	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
+		$oWp = $this->loadWp();
 		$sIpAddress = $this->ip();
 		$sEmail = $oUser->get( 'user_email' );
 
 		$aMessage = array(
-			_wpsf__( 'Someone just attempted to login into your WordPress site.' ),
-			_wpsf__( 'Login for this user account requires verification with the following code.' ),
+			_wpsf__( 'Someone attempted to login into this WordPress site using your account.' ),
+			_wpsf__( 'Login requires verification with the following code.' ),
 			'',
 			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSessionHashCode() ) ),
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
+			sprintf( _wpsf__( 'URL: %s' ), $oWp->getHomeUrl() ),
 			sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
 			'',
