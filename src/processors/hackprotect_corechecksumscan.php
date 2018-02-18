@@ -292,8 +292,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		}
 
 		$sRecipient = $this->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Core WordPress Files(s) Discovered That May Have Been Modified.' ) );
-		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
+		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Modified Core WordPress File Discovered' ) );
+		$bSendSuccess = $this->getEmailProcessor()
+							 ->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 
 		if ( $bSendSuccess ) {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Checksum Scan Notification email alert to: %s' ), $sRecipient ) );

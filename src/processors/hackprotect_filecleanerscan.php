@@ -262,8 +262,9 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		$sRecipient = $this->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files(s) Detected.' ) );
-		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
+		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files Detected.' ) );
+		$bSendSuccess = $this->getEmailProcessor()
+							 ->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
 
 		if ( $bSendSuccess ) {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Unrecognised File Scan notification email alert to: %s' ), $sRecipient ) );
