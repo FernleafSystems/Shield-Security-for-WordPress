@@ -222,7 +222,8 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 		$sSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
 		$sRecipient = $this->getPluginDefaultRecipientAddress();
-		$bSendSuccess = $this->getEmailProcessor()->sendEmailTo( $sRecipient, $sSubject, $this->aNotifEmail );
+		$bSendSuccess = $this->getEmailProcessor()
+							 ->sendEmailTo( $sRecipient, $sSubject, $this->aNotifEmail );
 
 		if ( $bSendSuccess ) {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );

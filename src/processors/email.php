@@ -74,14 +74,13 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWp = $this->loadWp();
 		$sUrl = array(
 			'',
-			sprintf( _wpsf__( 'This email was sent from the %s Plugin v%s, on %s.' ),
+			sprintf( _wpsf__( 'Email sent from the %s Plugin v%s, on %s.' ),
 				$this->getController()->getHumanName(),
 				$this->getController()->getVersion(),
 				$this->loadWp()->getHomeUrl()
 			),
-			_wpsf__( 'Note: delays in receiving emails are caused by your website hosting and email providers.' ),
+			_wpsf__( 'Note: Email delays are caused by website hosting and email providers.' ),
 			sprintf( _wpsf__( 'Time Sent: %s' ), $oWp->getTimeStampForDisplay( time() ) )
-			//				sprintf( '<a href="%s"><strong>%s</strong></a>', 'http://icwp.io/shieldicontrolwpemailfooter', 'iControlWP - WordPress Management and Backup Protection For Professionals' )
 		);
 
 		return apply_filters( 'icwp_shield_email_footer', $sUrl );
@@ -109,6 +108,8 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		$aMessage = array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() );
+
+		$sEmailSubject = sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sEmailSubject );
 
 		add_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100, 0 );
 		$bSuccess = wp_mail( $sEmailTo, $sEmailSubject, '<html>'.implode( "<br />", $aMessage ).'</html>' );

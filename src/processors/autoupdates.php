@@ -488,10 +488,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aEmailContent[] = _wpsf__( 'Thank you.' );
 
-		$sTitle = sprintf(
-			_wpsf__( "Notice - %s" ),
-			sprintf( "Automatic Updates Completed For %s", $this->loadWp()->getSiteName() )
-		);
+		$sTitle = sprintf( _wpsf__( "Notice: %s" ), _wpsf__( "Automatic Updates Completed" ) );
 		$this->getEmailProcessor()
 			 ->sendEmailTo( $this->getOption( 'override_email_address' ), $sTitle, $aEmailContent );
 	}
