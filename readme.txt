@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.3.2
+Stable tag: 6.3.3
 
 Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
@@ -357,14 +357,15 @@ Technical support, and some newer options and features will not be available to 
 
 You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
 
-= 6.3.2 - Current Release =
-*Released: 19th February, 2018* - [Release Notes](http://icwp.io/bc)
+= 6.3.3 - Current Release =
+*Released: 21st February, 2018* - [Release Notes](http://icwp.io/bc)
 
-* **(v.2)**  CHANGED:		Changed text that seems to cause servers to swallow-up emails. [See here for more reliable email](http://icwp.io/bi)
+* **(v.3)**  FIXED:			Bug with automatic updates delay processing
 
 = 6.3 Series =
 *Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
 
+* **(v.3)**  FIXED:			Bug with automatic updates delay setting
 * **(v.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](http://icwp.io/bi)
 * **(v.1)**  FIXED:			Options page javascript to work around conflicts.
 * **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)

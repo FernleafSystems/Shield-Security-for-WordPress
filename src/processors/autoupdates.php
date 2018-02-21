@@ -311,12 +311,12 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
 
 			if ( $sContext == 'plugins' ) {
-				$aPlugin = $this->loadWpPlugins()->getPlugin( $sSlug );
-				$sVersion = $aPlugin[ 'Version' ];
+				$oPlugin = $this->loadWpPlugins()->getUpdateInfo( $sSlug );
+				$sVersion = isset( $oPlugin->new_version ) ? $oPlugin->new_version : '';
 			}
 			else if ( $sContext == 'themes' ) {
-				$oTheme = $this->loadWpThemes()->getTheme( $sSlug );
-				$sVersion = $oTheme->get( 'version' );
+				$aThemeInfo = $this->loadWpThemes()->getUpdateInfo( $sSlug );
+				$sVersion = isset( $aThemeInfo[ 'new_version' ] ) ? $aThemeInfo[ 'new_version' ] : '';
 			}
 
 			if ( !empty( $sVersion ) && isset( $aItemTk[ $sVersion ] ) ) {

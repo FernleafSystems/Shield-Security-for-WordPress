@@ -169,15 +169,25 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return array|null
+	 */
+	public function getUpdateInfo( $sSlug ) {
+		$aU = $this->getUpdates();
+		return isset( $aU[ $sSlug ] ) ? $aU[ $sSlug ] : null;
+	}
+
+	/**
 	 * @param bool $bForceUpdateCheck
-	 * @return stdClass
+	 * @return array
 	 */
 	public function getUpdates( $bForceUpdateCheck = false ) {
 		if ( $bForceUpdateCheck ) {
 			$this->clearUpdates();
 			$this->checkForUpdates();
 		}
-		return $this->loadWp()->getTransient( 'update_themes' );
+		$aUpdates = $this->loadWp()->getWordpressUpdates( 'themes' );
+		return is_array( $aUpdates ) ? $aUpdates : array();
 	}
 
 	/**
