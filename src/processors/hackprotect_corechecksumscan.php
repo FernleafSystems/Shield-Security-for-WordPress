@@ -14,13 +14,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$this->setupChecksumCron();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 
-			if ( $oDp->FetchGet( 'force_checksumscan' ) == 1 ) {
+			if ( $oDp->query( 'force_checksumscan' ) == 1 ) {
 				$this->cron_dailyChecksumScan();
 			}
 			else {
-				$sAction = $oDp->FetchGet( 'shield_action' );
+				$sAction = $oDp->query( 'shield_action' );
 				switch ( $sAction ) {
 
 					case 'repair_file':
@@ -238,15 +238,20 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		if ( $oFO->canRunWizards() ) {
-			$aContent = $this->buildEmailBody( $aFiles );
-		}
-		else {
-			$aContent = $this->buildEmailBody_Legacy( $aFiles );
-		}
+		$sName = $this->getController()->getHumanName();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
+
+		$aContent = array_merge(
+			array(
+				sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
+				sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+				''
+			),
+			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
+		);
 
 		$aContent[] = '';
-		$aContent[] = '[<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
+		$aContent[] = '[ <a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
 
 		$this->getEmailProcessor()
 			 ->sendEmailTo(
@@ -268,15 +273,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 		$sName = $this->getController()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array(
-			sprintf( _wpsf__( "The %s Core File Scanner detected files on your site with potential problems." ), $sName ),
-			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-		);
+		$aContent = array();
 
 		if ( $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
-			$aContent[] = '';
 			$aContent[] = sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName );
 
 			if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
@@ -300,7 +300,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
 			$oFO->getUrl_Wizard( 'wcf' ),
 			'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-			_wpsf__( 'Run the scanner' )
+			_wpsf__( 'Run Scanner' )
 		);
 
 		return $aContent;
@@ -311,25 +311,16 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	private function buildEmailBody_Legacy( $aFiles ) {
-		$sName = $this->getController()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array(
-			sprintf( _wpsf__( "The %s Core File Scanner detected files on your site with potential problems." ), $sName )
-			.' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>',
-			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-			'',
-		);
+		$aContent = array();
 
 		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
-			$aContent[] = '';
 			$aContent[] = _wpsf__( "The contents of the core files listed below don't match official WordPress files:" );
 			foreach ( $aFiles[ 'checksum_mismatch' ] as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}
 		if ( !empty( $aFiles[ 'missing' ] ) ) {
-			$aContent[] = '';
 			$aContent[] = _wpsf__( 'The WordPress Core Files listed below are missing:' );
 			foreach ( $aFiles[ 'missing' ] as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
