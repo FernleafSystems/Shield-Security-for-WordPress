@@ -361,13 +361,15 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 *Released: 26th February, 2018* - [Release Notes](http://icwp.io/bc)
 
 * **(v.0)**  ADDED:			[**PRO**] New Scanner to detect file changes for active plugins and themes
-* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins now ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.4 Series =
 *Released: 26th February, 2018* - [Release Notes](http://icwp.io/bc)
 
 * **(v.0)**  ADDED:			[**PRO**] New Scanner to detect file changes for active plugins and themes
-* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins now ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.3 Series =
 *Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
