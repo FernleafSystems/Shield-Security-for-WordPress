@@ -44,6 +44,11 @@
       "reqs" : {
         "php_min": "5.4"
       },
+      "help_video" : {
+        "provider": "vimeo",
+        "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
+        "id": "256755089"
+      },
       "title":       "Plugins/Themes Guard",
       "title_short": "Plugins/Themes Guard",
       "summary":     [
