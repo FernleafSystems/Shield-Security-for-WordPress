@@ -317,7 +317,7 @@
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
       "premium":       true,
-      "default":       "enabled",
+      "default":       "disabled",
       "type":          "select",
       "value_options": [
         {
