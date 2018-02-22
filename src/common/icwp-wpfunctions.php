@@ -761,13 +761,13 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function getCurrentWpAdminPage() {
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$sScript = $oDp->FetchServer( 'SCRIPT_NAME' );
 		if ( empty( $sScript ) ) {
 			$sScript = $oDp->FetchServer( 'PHP_SELF' );
 		}
 		if ( is_admin() && !empty( $sScript ) && basename( $sScript ) == 'admin.php' ) {
-			$sCurrentPage = $oDp->FetchGet( 'page' );
+			$sCurrentPage = $oDp->query( 'page' );
 		}
 		return empty( $sCurrentPage ) ? '' : $sCurrentPage;
 	}

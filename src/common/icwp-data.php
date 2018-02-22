@@ -395,6 +395,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $sKey
 	 * @param mixed  $mDefault
 	 * @return mixed|null

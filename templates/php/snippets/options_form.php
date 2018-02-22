@@ -109,7 +109,7 @@
 				</div>
 				<div class="col-4">
 					<?php if ( !empty( $aOptSection[ 'help_video' ] ) ) : ?>
-					  <button class="btn btn-lg btn-info section_help_video" type="button"
+					  <button class="btn btn-lg btn-outline-info section_help_video" type="button"
 							  data-toggle="collapse" data-target="#sectionVideo<?php echo $aOptSection[ 'help_video' ]['id'];?>"
 							  aria-expanded="false" aria-controls="sectionVideo<?php echo $aOptSection[ 'help_video' ]['id'];?>">
 						  <span class="dashicons dashicons-controls-play"></span> Watch The Video</button>

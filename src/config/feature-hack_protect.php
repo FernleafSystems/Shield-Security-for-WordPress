@@ -365,8 +365,8 @@
     {
       "key":         "ptg_reinstall_links",
       "section":     "section_pluginthemes_guard",
-      "type": "checkbox",
-      "default": "Y",
+      "type":		 "checkbox",
+      "default":	 "Y",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Show Re-Install Links",

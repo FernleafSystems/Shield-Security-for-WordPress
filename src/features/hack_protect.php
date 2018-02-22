@@ -396,7 +396,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isPtgReinstallLinksEnabled() {
+	public function isPtgReinstallLinks() {
 		return $this->getOptIs( 'ptg_reinstall_links', 'Y' );
 	}
 
@@ -446,16 +446,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	public function insertCustomJsVars() {
-		wp_localize_script(
-			$this->prefix( 'global-plugin' ),
-			'icwp_wpsf_vars_hp',
-			array(
-				'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
-				'reinstallable'  => $this->getReinstallablePlugins()
-			)
-		);
-		wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
-		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+
+		if ( $this->loadWp()->getCurrentPage() == 'plugins.php' && $this->isPtgReinstallLinks() ) {
+			wp_localize_script(
+				$this->prefix( 'global-plugin' ),
+				'icwp_wpsf_vars_hp',
+				array(
+					'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+					'reinstallable'  => $this->getReinstallablePlugins()
+				)
+			);
+			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+		}
 	}
 
 	/**

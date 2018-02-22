@@ -31,7 +31,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			}
 		}
 
-		if ( $oFO->isPtgReinstallLinksEnabled() ) {
+		if ( $oFO->isPtgReinstallLinks() ) {
 			add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
 			add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
 		}
