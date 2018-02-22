@@ -318,8 +318,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				$aRawSection
 			);
 
-			$aRawSection[ 'reqs_met' ] = $this->isSectionReqsMet( $aRawSection[ 'slug' ] );
-
 			if ( !empty( $aRawSection[ 'options' ] ) ) {
 				$aOptionsData[] = $aRawSection;
 			}

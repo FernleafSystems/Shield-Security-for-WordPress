@@ -913,7 +913,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$bPremiumEnabled = self::getConn()->isPremiumExtensionsEnabled();
 
-		$aOptions = $this->getOptionsVo()->getOptionsForPluginUse();
+		$oOptsVo = $this->getOptionsVo();
+		$aOptions = $oOptsVo->getOptionsForPluginUse();
 		foreach ( $aOptions as $nSectionKey => $aSection ) {
 
 			if ( !empty( $aSection[ 'options' ] ) ) {
@@ -939,10 +940,27 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				else {
 					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
 				}
+
+				$aWarnings = array();
+				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
+					$aWarnings[] = _wpsf__( 'Unfortunately your PHP version is too low to support this feature.' );
+				}
+				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
+					$aWarnings,
+					$this->getSectionWarnings( $aSection[ 'slug' ] )
+				);
 			}
 		}
 
 		return $aOptions;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSectionSlug ) {
+		return array();
 	}
 
 	/**
@@ -1141,7 +1159,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPremium() {
-		return $this->hasValidPremiumLicense();
+		return true || $this->hasValidPremiumLicense();
 	}
 
 	/**

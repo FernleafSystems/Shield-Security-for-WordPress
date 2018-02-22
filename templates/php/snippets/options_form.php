@@ -19,7 +19,8 @@
 
 						<div class="btn-group" role="group" aria-label="Basic example">
 
-							<a aria-disabled="true" class="btn btn-success disabled icwp-carousel-0" href="javascript:void(0)">
+							<a aria-disabled="true" class="btn btn-success disabled icwp-carousel-0"
+							   href="javascript:void(0)">
 								<?php echo $strings[ 'btn_options' ]; ?></a>
 
 							<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>
@@ -107,39 +108,41 @@
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>
+
 				<div class="col-4">
 					<?php if ( !empty( $aOptSection[ 'help_video' ] ) ) : ?>
-					  <button class="btn btn-lg btn-outline-info section_help_video" type="button"
-							  data-toggle="collapse" data-target="#sectionVideo<?php echo $aOptSection[ 'help_video' ]['id'];?>"
-							  aria-expanded="false" aria-controls="sectionVideo<?php echo $aOptSection[ 'help_video' ]['id'];?>">
+						<button class="btn btn-lg btn-outline-info section_help_video" type="button"
+								data-toggle="collapse"
+								data-target="#sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>"
+								aria-expanded="false"
+								aria-controls="sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>">
 						  <span class="dashicons dashicons-controls-play"></span> Watch The Video</button>
 					<?php endif; ?>
 				</div>
+
 				<?php if ( !empty( $aOptSection[ 'help_video' ] ) ) : ?>
 					<div class="w-100"></div>
 					<div class="col">
-						<div class="collapse section_video" id="sectionVideo<?php echo $aOptSection[ 'help_video' ]['id'];?>">
+						<div class="collapse section_video"
+							 id="sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>">
 							<div class="embed-responsive embed-responsive-16by9">
-								<iframe src="<?php echo $aOptSection[ 'help_video' ][ 'embed_url' ]; ?>" width="640" height="360"
+								<iframe src="<?php echo $aOptSection[ 'help_video' ][ 'embed_url' ]; ?>" width="640"
+										height="360"
 										class="embed-responsive-item" allowfullscreen></iframe>
 							</div>
 						</div>
 					</div>
 				<?php endif; ?>
-
-
 			</div>
 
-
-			<?php if ( !$aOptSection[ 'reqs_met' ] ) : ?>
+			<?php if ( !empty( $aOptSection[ 'warnings' ] ) ) : ?>
 				<div class="row">
 					<div class="col">
-						<div class="alert alert-danger">
-							<p class="mb-0 text-center">
-								Unfortunately your PHP version is too low to support this feature.
-								<br />You may want to contact your host to ensure you're running PHP 5.4+
-							</p>
+						<?php foreach ( $aOptSection[ 'warnings' ] as $sWarning ) :?>
+						<div class="alert alert-warning text-center">
+							<?php echo $sWarning; ?>
 						</div>
+						<?php endforeach; ?>
 					</div>
 				</div>
 			<?php endif; ?>

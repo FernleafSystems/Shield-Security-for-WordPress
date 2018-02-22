@@ -516,6 +516,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSectionSlug ) {
+		$aWarnings = array();
+
+		if ( $sSectionSlug == 'section_pluginthemes_guard' ) {
+			if ( $this->canPtgWriteToDisk() ) {
+				$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
+			}
+		}
+
+		return $aWarnings;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
