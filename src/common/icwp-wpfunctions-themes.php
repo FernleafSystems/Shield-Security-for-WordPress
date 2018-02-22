@@ -277,11 +277,29 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @param bool $bCheckIsActiveParent
+	 * @return bool
+	 */
+	public function isActive( $sSlug, $bCheckIsActiveParent = false ) {
+		return ( $this->isInstalled( $sSlug ) && $this->getCurrent()->get_stylesheet() == $sSlug )
+			   || ( $bCheckIsActiveParent && $this->isActiveParent( $sSlug ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isActiveThemeAChild() {
 		$oTheme = $this->getCurrent();
 		return ( $oTheme->get_stylesheet() != $oTheme->get_template() );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return bool - true if this is the Parent of the currently active theme
+	 */
+	public function isActiveParent( $sSlug ) {
+		return ( $this->isInstalled( $sSlug ) && $this->getCurrent()->get_template() == $sSlug );
 	}
 
 	/**
