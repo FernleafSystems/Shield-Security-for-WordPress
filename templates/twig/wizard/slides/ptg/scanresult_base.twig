@@ -4,9 +4,13 @@
 	{{ slideMacros.slideTitle( data.context_sing~' Guard Scan Results' ) }}
 
 	{% if data.result|length == 0 %}
-		<p>There were no files discovered that need your attention.</p>
+		<div class="alert alert-success" role="alert">
+			There were no files discovered that need your attention.
+		</div>
 	{% else %}
-		<p>{{ data.result|length }} {{ data.context_sing }}(s) that need your attention.</p>
+		<div class="alert alert-warning" role="alert">
+			{{ data.result|length }} {{ data.context_sing }}(s) that need your attention.
+		</div>
 
 		<div id="accord{{ data.context_sing }}" class="scan-results-accordian">
 		{% set resultCounter = 0 %}

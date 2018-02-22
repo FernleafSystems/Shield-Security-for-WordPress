@@ -394,6 +394,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isPtgReinstallLinksEnabled() {
+		return $this->getOptIs( 'ptg_reinstall_links', 'Y' );
+	}
+
+	/**
 	 * @param array $aData
 	 * @return $this
 	 */
@@ -670,6 +677,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
 				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
 								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' );
+				break;
+
+			case 'ptg_reinstall_links' :
+				$sName = _wpsf__( 'Show Re-Install Links' );
+				$sSummary = _wpsf__( 'Show Re-Install Links For Plugins' );
+				$sDescription = _wpsf__( "Show links to re-install plugins and offer re-install when activating plugins." );
 				break;
 
 			default:

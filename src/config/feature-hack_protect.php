@@ -363,6 +363,17 @@
       "description": "Take a new line for each file extension. No commas(,) or periods(.) necessary."
     },
     {
+      "key":         "ptg_reinstall_links",
+      "section":     "section_pluginthemes_guard",
+      "type": "checkbox",
+      "default": "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Show Re-Install Links",
+      "summary":     "Show Re-Install Links For Plugins",
+      "description": "Show links to re-install plugins and offer re-install when activating plugins."
+    },
+    {
       "key": "ptg_last_build_at",
       "transferable": false,
       "section": "section_non_ui",
