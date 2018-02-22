@@ -12,6 +12,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->setCustomCronSchedules();
 	}
 
+	public function doPrePluginOptionsSave() {
+		$this->setOpt( 'ptg_candiskwrite_at', 0 );
+	}
+
 	protected function adminAjaxHandlers() {
 		parent::adminAjaxHandlers();
 		add_action( $this->prefixWpAjax( 'PluginReinstall' ), array( $this, 'ajaxPluginReinstall' ) );
@@ -318,6 +322,34 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function canPtgWriteToDisk() {
+		$bCan = (bool)$this->getOpt( 'ptg_candiskwrite' );
+		$nNow = $this->loadDP()->time();
+
+		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
+		if ( !$bCan && $bLastCheckExpired ) {
+			$oFS = $this->loadFS();
+			$sDir = $this->getPtgSnapsBaseDir();
+
+			if ( $oFS->mkdir( $sDir ) ) {
+				$sTestFile = path_join( $sDir, 'test.txt' );
+				$oFS->putFileContent( $sTestFile, $nNow );
+				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
+
+				if ( $sContents === $nNow ) {
+					$oFS->deleteFile( $sTestFile );
+					$this->setOpt( 'ptg_candiskwrite', !$oFS->exists( $sTestFile ) );
+				}
+			}
+			$this->setOpt( 'ptg_candiskwrite_at', $nNow );
+		}
+
+		return $bCan;
+	}
+
+	/**
 	 * @return $this
 	 */
 	protected function cleanPtgFileExtensions() {
@@ -372,6 +404,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPtgSnapsBaseDir() {
+		return path_join( WP_CONTENT_DIR, 'shield/ptguard' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isPtgBuildRequired() {
@@ -382,8 +421,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
-		return $this->isPremium() && !$this->getOptIs( 'ptg_enable', 'disabled' )
-			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' );
+		return $this->isPremium() && $this->getOptIs( 'ptg_enable', 'enabled' )
+			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' )
+			   && $this->canPtgWriteToDisk();
 	}
 
 	/**

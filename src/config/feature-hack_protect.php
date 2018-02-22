@@ -380,6 +380,18 @@
       "value": 0
     },
     {
+      "key": "ptg_candiskwrite",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": false
+    },
+    {
+      "key": "ptg_candiskwrite_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": false
+    },
+    {
       "key": "ptg_email_track",
       "transferable": false,
       "section": "section_non_ui",

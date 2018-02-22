@@ -623,7 +623,9 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 * @return string
 	 */
 	private function getSnapsBaseDir() {
-		return path_join( WP_CONTENT_DIR, 'shield/ptguard' );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->getPtgSnapsBaseDir();
 	}
 }
 
