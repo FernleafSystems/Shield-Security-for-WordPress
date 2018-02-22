@@ -239,8 +239,18 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			$aWizard[ 'has_perm' ] = $this->getUserCan( $aWizard[ 'min_user_permissions' ] );
 			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
 			$aWizard[ 'has_premium' ] = isset( $aWizard[ 'has_premium' ] ) && $aWizard[ 'has_premium' ];
+			$aWizard[ 'available' ] = $this->getWizardAvailability( $sKey );
 		}
 		return $aWizards;
+	}
+
+	/**
+	 * Override this to provide custom logic for wizard availability - e.g. isPremium() etc.
+	 * @param string $sKey
+	 * @return bool
+	 */
+	protected function getWizardAvailability( $sKey ) {
+		return true;
 	}
 
 	/**

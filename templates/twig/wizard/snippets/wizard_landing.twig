@@ -15,7 +15,13 @@
 					<p>{{ strings.premium_note }}</p>
 				{% endif %}
 			</div>
-			<div><a class="btn btn-info" href="{{ wizard.url }}" target="_blank">Launch Wizard</a></div>
+			<div>
+				{% if wizard.available %}
+					<a class="btn btn-info" href="{{ wizard.url }}" target="_blank">Launch Wizard</a>
+				{% else %}
+					<button class="btn btn-outline-dark" disabled>Not Available</button>
+				{% endif %}
+			</div>
 		</div>
 	</div>
 </div>
