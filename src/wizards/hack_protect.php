@@ -19,6 +19,22 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	protected function getWizardAvailability( $sKey ) {
+		switch ( $sKey ) {
+			case 'ptg':
+				$bAvailable = false;
+				break;
+			default:
+				$bAvailable = parent::getWizardAvailability( $sKey );
+				break;
+		}
+		return $bAvailable;
+	}
+
+	/**
 	 * @param string $sStep
 	 * @return \FernleafSystems\Utilities\Response|null
 	 */

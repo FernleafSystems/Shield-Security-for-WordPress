@@ -44,6 +44,11 @@
       "reqs" : {
         "php_min": "5.4"
       },
+      "help_video" : {
+        "provider": "vimeo",
+        "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
+        "id": "256755089"
+      },
       "title":       "Plugins/Themes Guard",
       "title_short": "Plugins/Themes Guard",
       "summary":     [
@@ -312,7 +317,7 @@
       "key": "ptg_enable",
       "section": "section_pluginthemes_guard",
       "premium":       true,
-      "default":       "enabled",
+      "default":       "disabled",
       "type":          "select",
       "value_options": [
         {
@@ -358,10 +363,33 @@
       "description": "Take a new line for each file extension. No commas(,) or periods(.) necessary."
     },
     {
+      "key":         "ptg_reinstall_links",
+      "section":     "section_pluginthemes_guard",
+      "type":		 "checkbox",
+      "default":	 "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Show Re-Install Links",
+      "summary":     "Show Re-Install Links For Plugins",
+      "description": "Show links to re-install plugins and offer re-install when activating plugins."
+    },
+    {
       "key": "ptg_last_build_at",
       "transferable": false,
       "section": "section_non_ui",
       "value": 0
+    },
+    {
+      "key": "ptg_candiskwrite",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": false
+    },
+    {
+      "key": "ptg_candiskwrite_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": false
     },
     {
       "key": "ptg_email_track",

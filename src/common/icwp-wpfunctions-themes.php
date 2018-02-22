@@ -231,15 +231,25 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return array|null
+	 */
+	public function getUpdateInfo( $sSlug ) {
+		$aU = $this->getUpdates();
+		return isset( $aU[ $sSlug ] ) ? $aU[ $sSlug ] : null;
+	}
+
+	/**
 	 * @param bool $bForceUpdateCheck
-	 * @return stdClass
+	 * @return array
 	 */
 	public function getUpdates( $bForceUpdateCheck = false ) {
 		if ( $bForceUpdateCheck ) {
 			$this->clearUpdates();
 			$this->checkForUpdates();
 		}
-		return $this->loadWp()->getTransient( 'update_themes' );
+		$aUpdates = $this->loadWp()->getWordpressUpdates( 'themes' );
+		return is_array( $aUpdates ) ? $aUpdates : array();
 	}
 
 	/**
@@ -267,11 +277,29 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @param bool $bCheckIsActiveParent
+	 * @return bool
+	 */
+	public function isActive( $sSlug, $bCheckIsActiveParent = false ) {
+		return ( $this->isInstalled( $sSlug ) && $this->getCurrent()->get_stylesheet() == $sSlug )
+			   || ( $bCheckIsActiveParent && $this->isActiveParent( $sSlug ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isActiveThemeAChild() {
 		$oTheme = $this->getCurrent();
 		return ( $oTheme->get_stylesheet() != $oTheme->get_template() );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return bool - true if this is the Parent of the currently active theme
+	 */
+	public function isActiveParent( $sSlug ) {
+		return ( $this->isInstalled( $sSlug ) && $this->getCurrent()->get_template() == $sSlug );
 	}
 
 	/**

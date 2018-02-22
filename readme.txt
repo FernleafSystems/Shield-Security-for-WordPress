@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.3.2
+Stable tag: 6.3.3
 
 Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
@@ -361,17 +361,20 @@ You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is avai
 *Released: 26th February, 2018* - [Release Notes](http://icwp.io/bc)
 
 * **(v.0)**  ADDED:			[**PRO**] New Scanner to detect file changes for active plugins and themes
-* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins now ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.4 Series =
 *Released: 26th February, 2018* - [Release Notes](http://icwp.io/bc)
 
 * **(v.0)**  ADDED:			[**PRO**] New Scanner to detect file changes for active plugins and themes
-* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins now ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.3 Series =
 *Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)
 
+* **(v.3)**  FIXED:			Bug with automatic updates delay setting
 * **(v.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](http://icwp.io/bi)
 * **(v.1)**  FIXED:			Options page javascript to work around conflicts.
 * **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](http://icwp.io/bc)

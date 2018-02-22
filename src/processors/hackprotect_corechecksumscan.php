@@ -14,13 +14,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$this->setupChecksumCron();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 
-			if ( $oDp->FetchGet( 'force_checksumscan' ) == 1 ) {
+			if ( $oDp->query( 'force_checksumscan' ) == 1 ) {
 				$this->cron_dailyChecksumScan();
 			}
 			else {
-				$sAction = $oDp->FetchGet( 'shield_action' );
+				$sAction = $oDp->query( 'shield_action' );
 				switch ( $sAction ) {
 
 					case 'repair_file':
@@ -139,7 +139,6 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	public function cron_dailyChecksumScan() {
-
 		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
 			return;
 		}
@@ -147,9 +146,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
 						 || ( $this->loadDP()->query( 'checksum_repair' ) == 1 );
 
-		$aDiscoveredFiles = $this->doChecksumScan( $bOptionRepair );
-		if ( !empty( $aDiscoveredFiles[ 'checksum_mismatch' ] ) || !empty( $aDiscoveredFiles[ 'missing' ] ) ) {
-			$this->sendChecksumErrorNotification( $aDiscoveredFiles );
+		$aFiles = $this->doChecksumScan( $bOptionRepair );
+		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {
+			$this->emailResults( $aFiles );
 		}
 	}
 
@@ -157,7 +156,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	protected function getFullExclusions() {
-		$aExclusions = $this->getFeature()->getDefinition( 'corechecksum_exclusions' );
+		$aExclusions = $this->getFeature()->getDef( 'corechecksum_exclusions' );
 		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 			$aExclusions = array();
 		}
@@ -178,7 +177,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	protected function getMissingOnlyExclusions() {
-		$aExclusions = $this->getFeature()->getDefinition( 'corechecksum_exclusions_missing_only' );
+		$aExclusions = $this->getFeature()->getDef( 'corechecksum_exclusions_missing_only' );
 		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 			$aExclusions = array();
 		}
@@ -197,10 +196,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$sLocale = $this->loadWp()->getLocale( true );
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 		if ( $bUseInternational ) {
-			$sRootUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn_il8n' ).$sLocale;
+			$sRootUrl = $this->getFeature()->getDef( 'url_wordress_core_svn_il8n' ).$sLocale;
 		}
 		else {
-			$sRootUrl = $this->getFeature()->getDefinition( 'url_wordress_core_svn' );
+			$sRootUrl = $this->getFeature()->getDef( 'url_wordress_core_svn' );
 		}
 		$sFileUrl = sprintf(
 			'%s/tags/%s/%s',
@@ -233,35 +232,96 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param array $aFiles
-	 * @return bool
+	 * @param array[][] $aFiles
 	 */
-	protected function sendChecksumErrorNotification( $aFiles ) {
-		if ( empty( $aFiles ) && empty( $aFiles[ 'missing' ] ) && empty( $aFiles[ 'checksum_mismatch' ] ) ) {
-			return true;
-		}
+	protected function emailResults( $aFiles ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
 
+		$sName = $this->getController()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
-		$aContent = array(
-			sprintf( _wpsf__( '%s has detected files on your site with potential problems.' ), $this->getController()
-																									->getHumanName() ),
-			_wpsf__( 'This is sent from the WordPress Core File Scanner, part of the Hack Guard module.' )
-			.' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>',
-			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-			'',
-			_wpsf__( 'Details for the problem files are below:' ),
+
+		$aContent = array_merge(
+			array(
+				sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
+				sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+				''
+			),
+			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
 		);
 
+		$aContent[] = '';
+		$aContent[] = '[ <a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+
+		$this->getEmailProcessor()
+			 ->sendEmailTo(
+				 $this->getPluginDefaultRecipientAddress(),
+				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
+				 $aContent
+			 );
+
+		$this->addToAuditEntry(
+			sprintf( _wpsf__( 'Sent Checksum Scan Notification email alert to: %s' ), $this->getPluginDefaultRecipientAddress() )
+		);
+	}
+
+	/**
+	 * @param array $aFiles
+	 * @return array
+	 */
+	private function buildEmailBody( $aFiles ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$sName = $this->getController()->getHumanName();
+
+		$aContent = array();
+
+		if ( $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
+			$aContent[] = sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName );
+
+			if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
+				$aContent[] = '';
+				$aContent[] = _wpsf__( "The contents of the core files listed below don't match official WordPress files:" );
+				foreach ( $aFiles[ 'checksum_mismatch' ] as $sFile ) {
+					$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
+				}
+			}
+			if ( !empty( $aFiles[ 'missing' ] ) ) {
+				$aContent[] = '';
+				$aContent[] = _wpsf__( 'The WordPress Core Files listed below are missing:' );
+				foreach ( $aFiles[ 'missing' ] as $sFile ) {
+					$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
+				}
+			}
+		}
+
+		$aContent[] = '';
+		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site:' );
+		$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
+			$oFO->getUrl_Wizard( 'wcf' ),
+			'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
+			_wpsf__( 'Run Scanner' )
+		);
+
+		return $aContent;
+	}
+
+	/**
+	 * @param array $aFiles
+	 * @return array
+	 */
+	private function buildEmailBody_Legacy( $aFiles ) {
+
+		$aContent = array();
+
 		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
-			$aContent[] = '';
-			$aContent[] = _wpsf__( 'The MD5 Checksum Hashes for following core files do not match the official WordPress.org Checksum Hashes:' );
+			$aContent[] = _wpsf__( "The contents of the core files listed below don't match official WordPress files:" );
 			foreach ( $aFiles[ 'checksum_mismatch' ] as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}
 		if ( !empty( $aFiles[ 'missing' ] ) ) {
-			$aContent[] = '';
-			$aContent[] = _wpsf__( 'The following official WordPress core files are missing from your site:' );
+			$aContent[] = _wpsf__( 'The WordPress Core Files listed below are missing:' );
 			foreach ( $aFiles[ 'missing' ] as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
@@ -278,31 +338,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 						  .' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
 		}
 
-		$aContent[] = '';
-
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->canRunWizards() ) {
-			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-				$oFO->getUrl_Wizard( 'wcf' ),
-				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-				_wpsf__( 'Run the scanner manually' )
-			);
-			$aContent[] = '';
-		}
-
-		$sRecipient = $this->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Modified Core WordPress File Discovered' ) );
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
-
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Checksum Scan Notification email alert to: %s' ), $sRecipient ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Checksum Scan Notification email alert to: %s' ), $sRecipient ) );
-		}
-		return $bSendSuccess;
+		return $aContent;
 	}
 
 	/**
@@ -319,8 +355,8 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 				$this->loadWp()->getUrl_WpAdmin()
 			),
 			_wpsf__( 'Repair file now' ),
-			$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWp()
-																					   ->getVersion().'/'.$sFile,
+			$this->getFeature()->getDef( 'url_wordress_core_svn' )
+			.'tags/'.$this->loadWp()->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
 	}
@@ -330,7 +366,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	protected function getCronName() {
 		$oFO = $this->getFeature();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'corechecksum_cron_name' ) );
+		return $oFO->prefixOptionKey( $oFO->getDef( 'corechecksum_cron_name' ) );
 	}
 
 	private function convertMd5FilePathToActual( $sMd5FilePath ) {

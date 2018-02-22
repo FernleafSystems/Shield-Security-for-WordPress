@@ -30,8 +30,11 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 				$oFO->setPtgLastBuildAt();
 			}
 		}
-		add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
-		add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
+
+		if ( $oFO->isPtgReinstallLinks() ) {
+			add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
+			add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
+		}
 	}
 
 	/**
@@ -94,13 +97,13 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	public function reinstall( $sBaseName, $sContext = self::CONTEXT_PLUGINS ) {
 
 		if ( $sContext == self::CONTEXT_PLUGINS ) {
-			$bSuccess = $this->loadWpPlugins()
-							 ->reinstall( $sBaseName, false );
+			$oExecutor = $this->loadWpPlugins();
 		}
 		else {
-			$bSuccess = $this->loadWpThemes()
-							 ->reinstall( $sBaseName, false );
+			$oExecutor = $this->loadWpThemes();
 		}
+
+		$bSuccess = $oExecutor->reinstall( $sBaseName, false );
 
 		if ( $bSuccess ) {
 			$this->updateItemInSnapshot( $sBaseName, $sContext );
@@ -145,20 +148,28 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	}
 
 	/**
+	 * Only snaps active.
 	 * @param string $sSlug - the basename for plugin, or stylesheet for theme.
 	 * @param string $sContext
 	 * @return $this
 	 */
 	public function updateItemInSnapshot( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnapshot = $this->loadSnapshotData( $sContext );
-		if ( $sContext == self::CONTEXT_PLUGINS ) {
-			$aNewData = $this->snapshotPlugin( $sSlug );
+
+		$aNewSnapData = null;
+		if ( $sContext == self::CONTEXT_PLUGINS && $this->loadWpPlugins()->isActive( $sSlug ) ) {
+			$aNewSnapData = $this->snapshotPlugin( $sSlug );
 		}
-		else {
-			$aNewData = $this->snapshotTheme( $sSlug );
+		if ( $sContext == self::CONTEXT_THEMES && $this->loadWpThemes()->isActive( $sSlug, true ) ) {
+			$aNewSnapData = $this->snapshotTheme( $sSlug );
 		}
-		$aSnapshot[ $sSlug ] = $aNewData;
-		return $this->storeSnapshot( $aSnapshot, $sContext );
+
+		if ( $aNewSnapData ) {
+			$aSnapshot = $this->loadSnapshotData( $sContext );
+			$aSnapshot[ $sSlug ] = $aNewSnapData;
+			$this->storeSnapshot( $aSnapshot, $sContext );
+		}
+
+		return $this;
 	}
 
 	/**
@@ -179,17 +190,17 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	}
 
 	/**
-	 * @param string $sBaseName
+	 * @param string $sBaseFile
 	 * @return array
 	 */
-	private function snapshotPlugin( $sBaseName ) {
+	private function snapshotPlugin( $sBaseFile ) {
 		$aPlugin = $this->loadWpPlugins()
-						->getPlugin( $sBaseName );
+						->getPlugin( $sBaseFile );
 
 		return array(
 			'version' => $aPlugin[ 'Version' ],
 			'ts'      => $this->loadDP()->time(),
-			'hashes'  => $this->hashPluginFiles( $sBaseName )
+			'hashes'  => $this->hashPluginFiles( $sBaseFile )
 		);
 	}
 
@@ -215,7 +226,9 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 
 		$aSnapshot = array();
 		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
-			$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
+			if ( $oWpPl->isActive( $sBaseName ) ) {
+				$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
+			}
 		}
 		return $this->storeSnapshot( $aSnapshot, self::CONTEXT_PLUGINS );
 	}
@@ -610,7 +623,9 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 * @return string
 	 */
 	private function getSnapsBaseDir() {
-		return path_join( WP_CONTENT_DIR, 'shield/ptguard' );
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->getPtgSnapsBaseDir();
 	}
 }
 

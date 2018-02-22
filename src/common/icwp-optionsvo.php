@@ -270,6 +270,15 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return array|null
+	 */
+	public function getSectionHelpVideo( $sSlug ) {
+		$aSection = $this->getSection( $sSlug );
+		return ( is_array( $aSection ) && isset( $aSection[ 'help_video' ] ) ) ? $aSection[ 'help_video' ] : null;
+	}
+
+	/**
 	 * @param string $sSectionSlug
 	 * @return bool
 	 */
@@ -308,8 +317,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				),
 				$aRawSection
 			);
-
-			$aRawSection[ 'reqs_met' ] = $this->isSectionReqsMet( $aRawSection[ 'slug' ] );
 
 			if ( !empty( $aRawSection[ 'options' ] ) ) {
 				$aOptionsData[] = $aRawSection;

@@ -195,7 +195,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 				$this->deleteFiles( $aDiscoveredFiles );
 			}
 			if ( $oFO->isUfsSendReport() ) {
-				$this->sendEmailNotification( $aDiscoveredFiles );
+				$this->emailResults( $aDiscoveredFiles );
 			}
 		}
 	}
@@ -216,63 +216,92 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 
 	/**
 	 * @param array $aFiles
-	 * @return bool
 	 */
-	protected function sendEmailNotification( $aFiles ) {
-		if ( empty( $aFiles ) ) {
-			return true;
-		}
+	protected function emailResults( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+
+		$sName = $this->getController()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
-		$aContent = array(
-			sprintf( _wpsf__( '%s detected files on your site which are not recognised.' ), $this->getController()
-																								 ->getHumanName() ),
-			_wpsf__( 'This is sent from the WordPress Unrecognised File Scanner, part of the Hack Guard module.' )
-			.' [<a href="http://icwp.io/shieldmoreinfounrecognised">'._wpsf__( 'More Info' ).']</a>',
-			'',
-			sprintf( _wpsf__( 'Site Home URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-			_wpsf__( 'The following files are considered "unrecognised" and should be examined:' ),
-			''
+
+		$aContent = array_merge(
+			array(
+				sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
+				sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+				''
+			),
+			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
 		);
 
+		$aContent[] = '';
+		$aContent[] = '[ <a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+
+		$this->getEmailProcessor()
+			 ->sendEmailTo(
+				 $this->getPluginDefaultRecipientAddress(),
+				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
+				 $aContent
+			 );
+
+		$this->addToAuditEntry(
+			sprintf( _wpsf__( 'Sent Unrecognised File Scan Notification email alert to: %s' ), $this->getPluginDefaultRecipientAddress() )
+		);
+	}
+
+	/**
+	 * The newer approach is to only enumerate files if they were deleted
+	 * @param string[] $aFiles
+	 * @return string[]
+	 */
+	private function buildEmailBody( $aFiles ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$sName = $this->getController()->getHumanName();
+
+		$aContent = array();
+
+		if ( $oFO->isUfcDeleteFiles() ) {
+			$aContent[] = 'Files that were discovered:';
+			foreach ( $aFiles as $sFile ) {
+				$aContent[] = ' - '.$sFile;
+			}
+			$aContent[] = '';
+			$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
+			$aContent[] = '';
+		}
+
+		$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
+			$oFO->getUrl_Wizard( 'ufc' ),
+			'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
+			_wpsf__( 'Run Scanner' )
+		);
+
+		return $aContent;
+	}
+
+	/**
+	 * Assumes cannot run wizard
+	 * The older approach was to always enumerate files regardless of whether they were deleted
+	 * @param string[] $aFiles
+	 * @return string[]
+	 */
+	private function buildEmailBody_Legacy( $aFiles ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$sName = $this->getController()->getHumanName();
+
+		$aContent = array();
+		$aContent[] = 'Files that were discovered:';
 		foreach ( $aFiles as $sFile ) {
 			$aContent[] = ' - '.$sFile;
 		}
 
-		$aContent[] = '';
-		if ( $oFO->canRunWizards() ) {
-			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-				$oFO->getUrl_Wizard( 'ufc' ),
-				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-				_wpsf__( 'Run the scanner manually' )
-			);
-			$aContent[] = '';
-		}
-
 		if ( $oFO->isUfcDeleteFiles() ) {
-			$aContent[] = _wpsf__( 'We have already attempted to delete these files based on your current settings.' )
-						  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
-		}
-		else {
-			$aContent[] = _wpsf__( 'You should review these files and remove them if required.' );
-			$aContent[] = _wpsf__( 'You can now add these file names to your exclusion list to no longer be warned about them.' );
-			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to delete these files automatically.' )
-						  .' [<a href="http://icwp.io/shieldmoreinfounrecognised">'._wpsf__( 'More Info' ).']</a>';
+			$aContent[] = '';
+			$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
 		}
 
-		$sRecipient = $this->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files Detected.' ) );
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
-
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Unrecognised File Scan notification email alert to: %s' ), $sRecipient ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Unrecognised File Scan notification email alert to: %s' ), $sRecipient ) );
-		}
-		return $bSendSuccess;
+		return $aContent;
 	}
 
 	/**
@@ -300,8 +329,8 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 				$this->loadWp()->getUrl_WpAdmin()
 			),
 			_wpsf__( 'Repair file now' ),
-			$this->getFeature()->getDefinition( 'url_wordress_core_svn' ).'tags/'.$this->loadWp()
-																					   ->getVersion().'/'.$sFile,
+			$this->getFeature()->getDef( 'url_wordress_core_svn' )
+			.'tags/'.$this->loadWp()->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
 	}

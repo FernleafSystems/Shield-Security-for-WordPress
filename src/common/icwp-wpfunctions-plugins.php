@@ -59,24 +59,24 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @param bool   $bNetworkWide
 	 * @return bool
 	 */
-	public function delete( $sPluginFile, $bNetworkWide = false ) {
-		if ( !$this->isInstalled( $sPluginFile ) ) {
+	public function delete( $sFile, $bNetworkWide = false ) {
+		if ( !$this->isInstalled( $sFile ) ) {
 			return false;
 		}
 
-		if ( $this->isPluginActive( $sPluginFile ) ) {
-			$this->deactivate( $sPluginFile, $bNetworkWide );
+		if ( $this->isActive( $sFile ) ) {
+			$this->deactivate( $sFile, $bNetworkWide );
 		}
-		$this->uninstall( $sPluginFile );
+		$this->uninstall( $sFile );
 
 		// delete the folder
-		$sPluginDir = dirname( $sPluginFile );
+		$sPluginDir = dirname( $sFile );
 		if ( $sPluginDir == '.' ) { //it's not within a sub-folder
-			$sPluginDir = $sPluginFile;
+			$sPluginDir = $sFile;
 		}
 		$sPath = path_join( WP_PLUGIN_DIR, $sPluginDir );
 		return $this->loadFS()->deleteDir( $sPath );
@@ -421,20 +421,20 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return stdClass|null
 	 */
-	public function getUpdateInfo( $sPluginFile ) {
+	public function getUpdateInfo( $sFile ) {
 		$aU = $this->getUpdates();
-		return isset( $aU[ $sPluginFile ] ) ? $aU[ $sPluginFile ] : null;
+		return isset( $aU[ $sFile ] ) ? $aU[ $sFile ] : null;
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return string
 	 */
-	public function getUpdateNewVersion( $sPluginFile ) {
-		$oInfo = $this->getUpdateInfo( $sPluginFile );
+	public function getUpdateNewVersion( $sFile ) {
+		$oInfo = $this->getUpdateInfo( $sFile );
 		return ( !is_null( $oInfo ) && isset( $oInfo->new_version ) ) ? $oInfo->new_version : '';
 	}
 
@@ -452,11 +452,11 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return bool
 	 */
-	public function isPluginActive( $sPluginFile ) {
-		return ( $this->isInstalled( $sPluginFile ) && is_plugin_active( $sPluginFile ) );
+	public function isActive( $sFile ) {
+		return ( $this->isInstalled( $sFile ) && is_plugin_active( $sFile ) );
 	}
 
 	/**
@@ -468,46 +468,46 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return boolean|stdClass
 	 */
-	public function isUpdateAvailable( $sPluginFile ) {
-		return !is_null( $this->getUpdateInfo( $sPluginFile ) );
+	public function isUpdateAvailable( $sFile ) {
+		return !is_null( $this->getUpdateInfo( $sFile ) );
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @param int    $nDesiredPosition
 	 */
-	public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
+	public function setActivePluginLoadPosition( $sFile, $nDesiredPosition = 0 ) {
 		$oWp = $this->loadWp();
 
 		$aActive = $this->loadDataProcessor()
 						->setArrayValueToPosition(
 							$oWp->getOption( 'active_plugins' ),
-							$sPluginFile,
+							$sFile,
 							$nDesiredPosition
 						);
 		$oWp->updateOption( 'active_plugins', $aActive );
 
 		if ( $oWp->isMultisite() ) {
 			$aActive = $this->loadDataProcessor()
-							->setArrayValueToPosition( $oWp->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
+							->setArrayValueToPosition( $oWp->getOption( 'active_sitewide_plugins' ), $sFile, $nDesiredPosition );
 			$oWp->updateOption( 'active_sitewide_plugins', $aActive );
 		}
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 */
-	public function setActivePluginLoadFirst( $sPluginFile ) {
-		$this->setActivePluginLoadPosition( $sPluginFile, 0 );
+	public function setActivePluginLoadFirst( $sFile ) {
+		$this->setActivePluginLoadPosition( $sFile, 0 );
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 */
-	public function setActivePluginLoadLast( $sPluginFile ) {
-		$this->setActivePluginLoadPosition( $sPluginFile, 1000 );
+	public function setActivePluginLoadLast( $sFile ) {
+		$this->setActivePluginLoadPosition( $sFile, 1000 );
 	}
 }
