@@ -2,17 +2,15 @@
 
 {% block slide_body %}
 	{{ slideMacros.slideTitle( 'Exclude Certain Files From Scan' ) }}
-
-	<p>Every website is different, so there are often many different types of files present on web hosts
-	that are perfectly legitimate.</p>
-	<p>Since we can't account for all these possibilities, we provide you with the option
-	   to add your own list of excluded files, that the scanner will then ignore.</p>
-	<p>In the box provided below, simply add each file name you want to ignore. If you
-	don't know what to put in here just now, or you don't want to add any further exclusions, simply move
-	to the next step to run the scanner.</p>
-	<p>Note: You can easily come back to this step and add files if the scanner picks anything up
-	that you then want to ignore. You can do this as often as you like.</p>
-	<p>Please use the list of files below to tell the file scanner which files it should completely ignore:</p>
+	<p class="font-italic">(Skip to the next step to run the scan immediately.)</p>
+	<p>There are often different types of files on a website that are legitimate but
+	   not part of the WordPress Core.</p>
+	<p>Since Shield can't automatically know about all the files on your hosting, we give you the ability
+	   to add your own list of files to exclude from the scanner.</p>
+	<p>In the box below, add each file name you want to ignore. If you
+	don't know what to put in here just now, skip to the next step to run the scanner.</p>
+	<p>Note: You can come back here and add files if the scanner picks up something
+	that you want to ignore.</p>
 
 	<form class="form-horizontal icwp-wizard-form" id>
 
