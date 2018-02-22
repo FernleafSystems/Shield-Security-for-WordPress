@@ -68,21 +68,17 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 			$sDieMessage = 'Not Permitted';
 			if ( $this->getUserCan() ) {
-				if ( $this->verifyNonce() !== false ) {
-					$this->loadWizard();
-				}
-				else {
-					$sDieMessage = 'Sorry, this link has expired.';
-				}
+				$this->loadWizard();
 			}
 			else {
 				$sDieMessage = 'Please login to run this wizard';
 			}
+
 			$this->loadWp()
 				 ->wpDie( $sDieMessage );
 		}
 		catch ( Exception $oE ) {
-			if ( $sWizard == 'landing' && $this->verifyNonce( 'landing' ) ) {
+			if ( $sWizard == 'landing' ) {
 				$this->loadWizardLanding();
 			}
 		}
@@ -547,15 +543,5 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getPluginCon() {
 		return $this->getModCon()->getConn();
-	}
-
-	/**
-	 * @return false|int
-	 */
-	protected function verifyNonce( $sWizard = null ) {
-		if ( is_null( $sWizard ) ) {
-			$sWizard = $this->getWizardSlug();
-		}
-		return wp_verify_nonce( $this->loadDP()->query( 'nonwizard' ), 'wizard'.$sWizard );
 	}
 }
