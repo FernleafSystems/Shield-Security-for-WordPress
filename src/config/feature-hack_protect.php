@@ -329,8 +329,8 @@
           "text":      "Scan Enabled"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "http://icwp.io/bl",
+      "link_blog":     "http://icwp.io/bm",
       "name": "Enable/Disable Guard",
       "summary": "Enable The Guard For Plugin And Theme Files",
       "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
@@ -341,8 +341,8 @@
       "type": "integer",
       "default": 1,
       "min": 0,
-      "link_info": "",
-      "link_blog": "",
+      "link_info": "http://icwp.io/bn",
+      "link_blog": "http://icwp.io/bm",
       "name": "Guard/Scan Depth",
       "summary": "How Deep Into The Plugin Directories To Scan And Guard",
       "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
@@ -356,7 +356,7 @@
         "htaccess"
       ],
       "type":        "array",
-      "link_info":   "",
+      "link_info":   "http://icwp.io/bo",
       "link_blog":   "",
       "name":        "File Types",
       "summary":     "The File Types Included In The Scan",
@@ -367,7 +367,7 @@
       "section":     "section_pluginthemes_guard",
       "type":		 "checkbox",
       "default":	 "Y",
-      "link_info":   "",
+      "link_info":   "http://icwp.io/bp",
       "link_blog":   "",
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
