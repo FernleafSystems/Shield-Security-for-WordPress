@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.3.3
+Stable tag: 6.4.0
 
 Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
