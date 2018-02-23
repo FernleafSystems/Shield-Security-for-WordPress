@@ -80,27 +80,27 @@
     {
       "key": "disable_anonymous_restapi",
       "section": "section_apixml",
-      "default": "anon_enabled",
+      "default": "N",
       "type": "select",
       "value_options": [
         {
-          "value_key": "anon_enabled",
+          "value_key": "N",
           "text": "Anonymous Access Allowed"
         },
         {
-          "value_key": "anon_disabled",
+          "value_key": "Y",
           "text": "Anonymous Access Prohibited"
         }
       ],
       "link_info": "",
       "link_blog": "",
-      "name": "Disable Anonymous Rest API",
+      "name": "Anonymous Rest API",
       "summary": "Disable The Anonymous Rest API",
       "description": "Checking this option will completely turn off the whole Anonymous Rest API system."
     },
     {
       "key":         "api_namespace_exclusions",
-      "section":     "section_apixml",
+      "section":     "section_non_ui",
       "default":     [
         "contact-form-7",
         "jetpack",
