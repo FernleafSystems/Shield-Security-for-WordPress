@@ -9,24 +9,17 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return string
-	 */
-	public function getRestApiAnonymousOption() {
-		return $this->getOpt( 'disable_anonymous_restapi' );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getRestApiAnonymousExclusions() {
-		return $this->getOpt( 'api_namespace_exclusions' );
+		return array();//$this->getOpt( 'api_namespace_exclusions' ); TODO: reenabled for next release
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isRestApiAnonymousAccessAllowed() {
-		return ( $this->getRestApiAnonymousOption() == 'anon_enabled' );
+		return $this->getOptIs( 'disable_anonymous_restapi', 'N' );
 	}
 
 	/**
@@ -82,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
 				);
-				$sTitleShort = _wpsf__( 'System' );
+				$sTitleShort = _wpsf__( 'API & XML-RPC' );
 				break;
 
 			case 'section_permission_access_options' :
@@ -135,9 +128,9 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'disable_anonymous_restapi' :
-				$sName = sprintf( _wpsf__( 'Disable %s' ), _wpsf__( 'Anonymous Rest API' ) );
+				$sName = _wpsf__( 'Anonymous Rest API' );
 				$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), _wpsf__( 'Anonymous Rest API' ) );
-				$sDescription = _wpsf__( 'Checking this option will disable anonymous access to the REST API.' );
+				$sDescription = _wpsf__( 'You can choose to completely disable anonymous access to the REST API.' );
 				break;
 
 			case 'api_namespace_exclusions' :
