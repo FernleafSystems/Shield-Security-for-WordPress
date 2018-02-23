@@ -81,17 +81,7 @@
       "key": "disable_anonymous_restapi",
       "section": "section_apixml",
       "default": "N",
-      "type": "select",
-      "value_options": [
-        {
-          "value_key": "N",
-          "text": "Anonymous Access Allowed"
-        },
-        {
-          "value_key": "Y",
-          "text": "Anonymous Access Prohibited"
-        }
-      ],
+      "type": "checkbox",
       "link_info": "",
       "link_blog": "",
       "name": "Anonymous Rest API",
