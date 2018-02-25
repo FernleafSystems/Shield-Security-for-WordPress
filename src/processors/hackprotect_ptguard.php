@@ -631,13 +631,32 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 
 class GuardRecursiveFilterIterator extends RecursiveFilterIterator {
 
+	/**
+	 * @var bool
+	 */
+	private $bHasExtensions;
+
+	/**
+	 * @var array
+	 */
 	private $aExtensions;
 
 	/**
 	 * @return string[]
 	 */
 	public function getExtensions() {
-		return empty( $this->aExtensions ) ? array( 'php' ) : $this->aExtensions;
+		return is_array( $this->aExtensions ) ? $this->aExtensions : array();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasExtensions() {
+		if ( !isset( $this->bHasExtensions ) ) {
+			$aExt = $this->getExtensions();
+			$this->bHasExtensions = !empty( $aExt );
+		}
+		return $this->bHasExtensions;
 	}
 
 	/**
@@ -654,7 +673,7 @@ class GuardRecursiveFilterIterator extends RecursiveFilterIterator {
 		$oCurrent = $this->current();
 
 		$bConsumeFile = !in_array( $oCurrent->getFilename(), array( '.', '..' ) );
-		if ( $bConsumeFile && $oCurrent->isFile() ) {
+		if ( $bConsumeFile && $oCurrent->isFile() && $this->hasExtensions() ) {
 			$bConsumeFile = in_array( $oCurrent->getExtension(), $this->getExtensions() );
 		}
 
