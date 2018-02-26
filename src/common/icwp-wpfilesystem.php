@@ -110,7 +110,9 @@ class ICWP_WPSF_WpFilesystem {
 		try {
 			if ( empty( $oDirIterator ) ) {
 				$oDirIterator = new RecursiveDirectoryIterator( $sDir );
-				$oDirIterator->setFlags( RecursiveDirectoryIterator::SKIP_DOTS );
+				if ( method_exists( $oDirIterator, 'setFlags' ) ) {
+					$oDirIterator->setFlags( RecursiveDirectoryIterator::SKIP_DOTS );
+				}
 			}
 
 			$oRecurIter = new RecursiveIteratorIterator( $oDirIterator );
