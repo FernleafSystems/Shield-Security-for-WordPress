@@ -12,19 +12,43 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->setCustomCronSchedules();
 	}
 
+	public function doPrePluginOptionsSave() {
+		$this->setOpt( 'ptg_candiskwrite_at', 0 );
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'PluginReinstall' ), array( $this, 'ajaxPluginReinstall' ) );
+	}
+
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-		$this->clearIcSnapshots();
-		$this->clearCrons();
-		$this->cleanFileExclusions();
+
+		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+
+			$this->clearIcSnapshots();
+			$this->clearCrons();
+			$this->cleanFileExclusions();
+			$this->cleanPtgFileExtensions();
+
+			$oOpts = $this->getOptionsVo();
+			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
+				/** @var ICWP_WPSF_Processor_HackProtect $oP */
+				$oP = $this->getProcessor();
+				$oP->getSubProcessorGuard()
+				   ->deleteStores();
+				$this->setPtgLastBuildAt( 0 );
+			}
+		}
 	}
 
 	protected function clearCrons() {
 		$aCrons = array(
 			$this->getIcCronName(),
 			$this->getUfcCronName(),
-			$this->getWcfCronName()
+			$this->getWcfCronName(),
+			$this->getPtgCronName()
 		);
 		$oCron = $this->loadWpCronProcessor();
 		foreach ( $aCrons as $sCron ) {
@@ -298,6 +322,215 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function canPtgWriteToDisk() {
+		$bCan = (bool)$this->getOpt( 'ptg_candiskwrite' );
+		$nNow = $this->loadDP()->time();
+
+		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
+		if ( !$bCan && $bLastCheckExpired ) {
+			$oFS = $this->loadFS();
+			$sDir = $this->getPtgSnapsBaseDir();
+
+			if ( $oFS->mkdir( $sDir ) ) {
+				$sTestFile = path_join( $sDir, 'test.txt' );
+				$oFS->putFileContent( $sTestFile, $nNow );
+				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
+
+				if ( $sContents === $nNow ) {
+					$oFS->deleteFile( $sTestFile );
+					$this->setOpt( 'ptg_candiskwrite', !$oFS->exists( $sTestFile ) );
+				}
+			}
+			$this->setOpt( 'ptg_candiskwrite_at', $nNow );
+		}
+
+		return $bCan;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanPtgFileExtensions() {
+		return $this->setOpt(
+			'ptg_extensions',
+			$this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
+		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getPtgCronName() {
+		return $this->prefixOptionKey( $this->getDef( 'ptg_cronname' ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPtgFileExtensions() {
+		return $this->getOpt( 'ptg_extensions' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getPtgDepth() {
+		return $this->getOpt( 'ptg_depth' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPtgEmailTrackData() {
+		$aData = $this->getOpt( 'ptg_email_track' );
+		return is_array( $aData ) ? $aData : array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPtgEnabledOption() {
+		return $this->getOpt( 'ptg_enable' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPtgSnapsBaseDir() {
+		return path_join( WP_CONTENT_DIR, 'shield/ptguard' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgBuildRequired() {
+		return $this->isPtgEnabled() && ( $this->getPtgLastBuildAt() == 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgEnabled() {
+		return $this->isPremium() && $this->getOptIs( 'ptg_enable', 'enabled' )
+			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' )
+			   && $this->canPtgWriteToDisk();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgReadyToScan() {
+		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgReinstallLinks() {
+		return $this->getOptIs( 'ptg_reinstall_links', 'Y' );
+	}
+
+	/**
+	 * @param array $aData
+	 * @return $this
+	 */
+	public function setPtgEmailTrackData( $aData ) {
+		return $this->setOpt( 'ptg_email_track', $aData );
+	}
+
+	/**
+	 * @param int $nTime
+	 * @return $this
+	 */
+	public function setPtgLastBuildAt( $nTime = null ) {
+		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
+	}
+
+	/**
+	 * @param string $sValue
+	 * @return $this
+	 */
+	public function setPtgEnabledOption( $sValue ) {
+		return $this->setOpt( 'ptg_enable', $sValue );
+	}
+
+	public function ajaxPluginReinstall() {
+		$oDP = $this->loadDP();
+		$bReinstall = (bool)$oDP->post( 'reinstall' );
+		$bActivate = (bool)$oDP->post( 'activate' );
+		$sFile = sanitize_text_field( wp_unslash( $oDP->post( 'file' ) ) );
+		$oWpP = $this->loadWpPlugins();
+
+		if ( $bReinstall ) {
+			/** @var ICWP_WPSF_Processor_HackProtect $oP */
+			$oP = $this->getProcessor();
+			$bActivate = $oP->getSubProcessorGuard()
+							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_PTGuard::CONTEXT_PLUGINS )
+						 && $bActivate;
+		}
+		if ( $bActivate ) {
+			$oWpP->activate( $sFile );
+		}
+
+		$this->sendAjaxResponse( true );
+	}
+
+	public function insertCustomJsVars() {
+
+		if ( $this->loadWp()->getCurrentPage() == 'plugins.php' && $this->isPtgReinstallLinks() ) {
+			wp_localize_script(
+				$this->prefix( 'global-plugin' ),
+				'icwp_wpsf_vars_hp',
+				array(
+					'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+					'reinstallable'  => $this->getReinstallablePlugins()
+				)
+			);
+			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getReinstallablePlugins() {
+		$oWPP = $this->loadWpPlugins();
+		$aP = array();
+		foreach ( $oWPP->getPlugins() as $sPluginFile => $aData ) {
+			if ( $oWPP->isWpOrg( $sPluginFile ) ) {
+				$aP[] = $sPluginFile;
+			}
+		}
+		return $aP;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSectionSlug ) {
+		$aWarnings = array();
+
+		if ( $sSectionSlug == 'section_pluginthemes_guard' ) {
+			if ( !$this->canPtgWriteToDisk() ) {
+				$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
+			}
+		}
+
+		return $aWarnings;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -359,6 +592,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Unrecognised Files Scanner' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
+				break;
+
+			case 'section_pluginthemes_guard' :
+				$sTitle = _wpsf__( 'Plugins and Themes Guard' );
+				$sTitleShort = _wpsf__( 'Plugins/Themes Guard' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep the Plugins/Theme Guard feature turned on.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
+				);
 				break;
 
 			case 'section_integrity_checking' :
@@ -472,6 +715,33 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
 								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'This option may cause critial problem with 3rd party plugins that manage user accounts.' ) );
+				break;
+
+			case 'ptg_enable' :
+				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Guard' ) );
+				$sSummary = _wpsf__( 'Enable The Guard For Plugin And Theme Files' );
+				$sDescription = _wpsf__( 'When enabled the Guard will automatically scan for changes to your Plugin and Theme files.' );
+				break;
+
+			case 'ptg_depth' :
+				$sName = _wpsf__( 'Guard/Scan Depth' );
+				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
+				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
+								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit and all sub-folders will be scanned - not recommended' ), 0 );
+				break;
+
+			case 'ptg_extensions' :
+				$sName = _wpsf__( 'Included File Types' );
+				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
+				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
+								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' )
+								.'<br/>'._wpsf__( 'Remove all extensions to scan all file type (not recommended).' );
+				break;
+
+			case 'ptg_reinstall_links' :
+				$sName = _wpsf__( 'Show Re-Install Links' );
+				$sSummary = _wpsf__( 'Show Re-Install Links For Plugins' );
+				$sDescription = _wpsf__( "Show links to re-install plugins and offer re-install when activating plugins." );
 				break;
 
 			default:

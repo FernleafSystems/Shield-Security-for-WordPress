@@ -1,0 +1,26 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( 'Turn On Plugin and Theme Guard Scanner' ) }}
+
+	<p>It looks like the Plugin and Theme Guard scanner isn't set to run yet.</p>
+	<p>You can adjust this using the settings below.</p>
+
+	<form class="form-horizontal icwp-wizard-form">
+
+		{% set radiovalues =
+			{
+				'enabled': '<span>Scan and Report</span> - scan and email report (<em>recommended</em>)',
+				'disabled': '<span>Disabled</span> - do not scan.'
+			} %}
+		{{ slideMacros.formInput_Radio( 'enable_scan', radiovalues, 'Enable Automatic Scanning' ) }}
+
+		<span id="helpBlock" class="help-block">
+			Be sure that when you're enabling this scan that you are satisfied that all active plugins
+			and themes are in pristine condition, free from hacks or corruption.
+		</span>
+
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ptgconfig' ) }}
+		{{ slideMacros.formInput_Submit( 'Set Automatic Scan' ) }}
+	</form>
+{% endblock %}

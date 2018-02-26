@@ -177,11 +177,9 @@ p.code-description {
 	margin: 10px 20px 20px;
 }
 .row_section_summary div {
-	margin: 0;
-	padding: 0 20px 0 2px;
 }
 .row_section_summary p {
-	margin: 12px 20px;
+	margin: 12px 0;
 }
 .row_section_summary p.noselect {
 	-webkit-touch-callout: none;
@@ -189,6 +187,19 @@ p.code-description {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+.row_section_summary button.section_help_video {
+	position:relative;
+	top:25%;
+}
+.row_section_summary button.section_help_video .dashicons {
+	font-size: 33px;
+	width: 30px;
+}
+.row_section_summary .section_video > div {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+	margin-bottom: 20px;
 }
 /** End-Section summaries **/
 
@@ -710,7 +721,7 @@ input:checked + .icwp-slider:before {
 	color: #a56300;
 }
 .modules a.module .dashicons-yes {
-	color: #bdbdbd;
+	color: #69ab72;
 }
 .modules a.module .dashicons-warning:before {
 	font-size: 16px !important;

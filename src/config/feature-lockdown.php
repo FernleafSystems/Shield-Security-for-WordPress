@@ -13,7 +13,7 @@
   },
   "sections": [
     {
-      "slug": "section_system_lockdown",
+      "slug": "section_apixml",
       "primary": true,
       "title": "WordPress System Lockdown",
       "title_short": "System",
@@ -68,7 +68,7 @@
     },
     {
       "key": "disable_xmlrpc",
-      "section": "section_system_lockdown",
+      "section": "section_apixml",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
@@ -79,14 +79,29 @@
     },
     {
       "key": "disable_anonymous_restapi",
-      "section": "section_system_lockdown",
+      "section": "section_apixml",
       "default": "N",
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "Disable Anonymous Rest API",
+      "name": "Anonymous Rest API",
       "summary": "Disable The Anonymous Rest API",
       "description": "Checking this option will completely turn off the whole Anonymous Rest API system."
+    },
+    {
+      "key":         "api_namespace_exclusions",
+      "section":     "section_non_ui",
+      "default":     [
+        "contact-form-7",
+        "jetpack",
+        "woocommerce"
+      ],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Rest API Exclusions",
+      "summary":     "Anonymous REST API Exclusions",
+      "description": "Any namespaces provided here will be excluded from the Anonymous API restriction."
     },
     {
       "key": "disable_file_editing",

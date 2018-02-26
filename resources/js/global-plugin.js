@@ -28,6 +28,115 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 	};
 }();
 
+var iCWP_WPSF_HackGuard_Reinstall = new function () {
+
+	var sActiveFile;
+	var bActivate;
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+
+			var $oTr;
+			jQuery( 'table.wp-list-table.plugins > tbody  > tr' ).each( function ( nIndex ) {
+				$oTr = jQuery( this );
+				if ( $oTr.data( 'plugin' ) !== undefined
+					&& icwp_wpsf_vars_hp.reinstallable.indexOf( $oTr.data( 'plugin' ) ) >= 0 ) {
+					$oTr.addClass( 'reinstallable' );
+				}
+			} );
+
+			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .icwp-reinstall a', promptReinstall );
+			jQuery( document ).on( "click", 'tr.reinstallable .row-actions .activate a', promptActivate );
+
+			var oShareSettings = {
+				title: 'Re-Install Plugin',
+				dialogClass: 'wp-dialog',
+				autoOpen: false,
+				draggable: false,
+				width: 'auto',
+				modal: true,
+				resizable: false,
+				closeOnEscape: true,
+				position: {
+					my: "center",
+					at: "center",
+					of: window
+				},
+				open: function () {
+					// close dialog by clicking the overlay behind it
+					jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
+						jQuery( this ).dialog( 'close' );
+					} )
+				},
+				create: function () {
+					// style fix for WordPress admin
+					jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
+				}
+			};
+
+			var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
+			oShareSettings[ 'buttons' ] = {
+				"Okay, Re-Install It": function () {
+					jQuery( this ).dialog( "close" );
+					reinstall_plugin( 1 );
+				},
+				"Cancel": function () {
+					jQuery( this ).dialog( "close" );
+				}
+			};
+			$oReinstallDialog.dialog( oShareSettings );
+
+			var $oActivateReinstallDialog = jQuery( '#icwpWpsfActivateReinstall' );
+			oShareSettings[ 'buttons' ] = {
+				"Re-Install First, Then Activate": function () {
+					jQuery( this ).dialog( "close" );
+					reinstall_plugin( 1 );
+				},
+				"Activate Only": function () {
+					jQuery( this ).dialog( "close" );
+					reinstall_plugin( 0 );
+				}
+			};
+			$oActivateReinstallDialog.dialog( oShareSettings );
+		} );
+	};
+
+	var promptReinstall = function ( event ) {
+		event.preventDefault();
+		bActivate = 0;
+		sActiveFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
+		jQuery( '#icwpWpsfReinstall' ).dialog( 'open' );
+		return false;
+	};
+
+	var promptActivate = function ( event ) {
+		event.preventDefault();
+		bActivate = 1;
+		sActiveFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
+		jQuery( '#icwpWpsfActivateReinstall' ).dialog( 'open' );
+		return false;
+	};
+
+	var reinstall_plugin = function ( bReinstall ) {
+		iCWP_WPSF_BodyOverlay.show();
+
+		var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
+		$aData[ 'file' ] = sActiveFile;
+		$aData[ 'reinstall' ] = bReinstall;
+		$aData[ 'activate' ] = bActivate;
+
+		jQuery.post( ajaxurl, $aData, function ( oResponse ) {
+
+		} ).always( function () {
+				location.reload( true );
+				bActivate = null;
+			}
+		);
+
+		return false;
+	};
+}();
+
 var iCWP_WPSF_Autoupdates = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -74,64 +183,6 @@ var iCWP_WPSF_Autoupdates = new function () {
 		} );
 	};
 
-}();
-
-var iCWP_WPSF_OptionsFormSubmit = new function () {
-
-	var bRequestCurrentlyRunning = false;
-
-	this.submit = function ( sMessage, bSuccess ) {
-		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( sMessage );
-		setTimeout( function () {
-			$oDiv.fadeOut( 5000 );
-			$oDiv.remove();
-		}, 4000 );
-	};
-
-	/**
-	 */
-	var submitOptionsForm = function ( event ) {
-		iCWP_WPSF_BodyOverlay.show();
-
-		if ( bRequestCurrentlyRunning ) {
-			return false;
-		}
-
-		bRequestCurrentlyRunning = true;
-
-		event.preventDefault();
-
-		var $oForm = jQuery( this );
-		jQuery( '<input />' ).attr( 'type', 'hidden' )
-							 .attr( 'name', 'action' )
-							 .attr( 'value', 'icwp_OptionsFormSave' )
-							 .appendTo( $oForm );
-
-		jQuery.post( ajaxurl, $oForm.serialize(),
-			function ( oResponse ) {
-				var sMessage;
-				if ( oResponse.data.message === undefined ) {
-					sMessage = oResponse.success ? 'Success' : 'Failure';
-				}
-				else {
-					sMessage = oResponse.data.message;
-				}
-				jQuery( 'div#icwpOptionsFormContainer' ).html( oResponse.data.options_form )
-				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
-			}
-		).always( function () {
-				bRequestCurrentlyRunning = false;
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-	};
-
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", "form.icwpOptionsForm", submitOptionsForm );
-		} );
-	};
 }();
 
 var iCWP_WPSF_Growl = new function () {
@@ -183,7 +234,11 @@ var iCWP_WPSF_BodyOverlay = new function () {
 
 }();
 
-iCWP_WPSF_Autoupdates.initialise();
-iCWP_WPSF_OptionsFormSubmit.initialise();
+// iCWP_WPSF_Autoupdates.initialise();
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();
+
+/** only run when HackGuard module is processing enqueues **/
+if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
+	iCWP_WPSF_HackGuard_Reinstall.initialise();
+}

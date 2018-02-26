@@ -126,7 +126,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aMessage[] = sprintf( _wpsf__( "Here's your code for the guided wizard: %s" ), $this->getCanEmailVerifyCode() );
 		}
 
-		$sEmailSubject = sprintf( _wpsf__( 'Email Sending Verification For %s' ), $this->loadWp()->getHomeUrl() );
+		$sEmailSubject = _wpsf__( 'Email Sending Verification' );
 		return $this->getEmailProcessor()
 					->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
 	}

@@ -109,6 +109,8 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aMessage = array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() );
 
+		$sEmailSubject = sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sEmailSubject );
+
 		add_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100, 0 );
 		$bSuccess = wp_mail( $sEmailTo, $sEmailSubject, '<html>'.implode( "<br />", $aMessage ).'</html>' );
 

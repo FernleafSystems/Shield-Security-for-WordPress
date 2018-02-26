@@ -68,21 +68,17 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 			$sDieMessage = 'Not Permitted';
 			if ( $this->getUserCan() ) {
-				if ( $this->verifyNonce() ) {
-					$this->loadWizard();
-				}
-				else {
-					$sDieMessage = 'Sorry, this link has expired.';
-				}
+				$this->loadWizard();
 			}
 			else {
 				$sDieMessage = 'Please login to run this wizard';
 			}
+
 			$this->loadWp()
 				 ->wpDie( $sDieMessage );
 		}
 		catch ( Exception $oE ) {
-			if ( $sWizard == 'landing' && $this->verifyNonce( 'landing' ) ) {
+			if ( $sWizard == 'landing' ) {
 				$this->loadWizardLanding();
 			}
 		}
@@ -243,8 +239,18 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			$aWizard[ 'has_perm' ] = $this->getUserCan( $aWizard[ 'min_user_permissions' ] );
 			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
 			$aWizard[ 'has_premium' ] = isset( $aWizard[ 'has_premium' ] ) && $aWizard[ 'has_premium' ];
+			$aWizard[ 'available' ] = $this->getWizardAvailability( $sKey );
 		}
 		return $aWizards;
+	}
+
+	/**
+	 * Override this to provide custom logic for wizard availability - e.g. isPremium() etc.
+	 * @param string $sKey
+	 * @return bool
+	 */
+	protected function getWizardAvailability( $sKey ) {
+		return true;
 	}
 
 	/**
@@ -547,15 +553,5 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getPluginCon() {
 		return $this->getModCon()->getConn();
-	}
-
-	/**
-	 * @return false|int
-	 */
-	protected function verifyNonce( $sWizard = null ) {
-		if ( is_null( $sWizard ) ) {
-			$sWizard = $this->getWizardSlug();
-		}
-		return wp_verify_nonce( $this->loadDP()->query( 'nonwizard' ), 'wizard'.$sWizard );
 	}
 }

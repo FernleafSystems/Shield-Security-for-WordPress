@@ -9,16 +9,37 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return array
+	 */
+	public function getRestApiAnonymousExclusions() {
+		return array();//$this->getOpt( 'api_namespace_exclusions' ); TODO: reenabled for next release
+	}
+
+	/**
 	 * @return bool
 	 */
-	public function getIfRestApiDisabled() {
-		return $this->getOptIs( 'disable_anonymous_restapi', 'Y' );
+	public function isRestApiAnonymousAccessAllowed() {
+		return $this->getOptIs( 'disable_anonymous_restapi', 'N' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function cleanApiExclusions() {
+		$aExt = $this->cleanStringArray( $this->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' );
+		return $this->setOpt( 'api_namespace_exclusions', $aExt );
 	}
 
 	protected function doExtraSubmitProcessing() {
-		$sMask = $this->getOpt( 'mask_wordpress_version' );
-		if ( !empty( $sMask ) ) {
-			$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
+
+		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+
+			$sMask = $this->getOpt( 'mask_wordpress_version' );
+			if ( !empty( $sMask ) ) {
+				$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
+			}
+
+			$this->cleanApiExclusions();
 		}
 	}
 
@@ -48,13 +69,13 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
-			case 'section_system_lockdown' :
-				$sTitle = _wpsf__( 'WordPress System Lockdown' );
+			case 'section_apixml' :
+				$sTitle = _wpsf__( 'API & XML-RPC' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
 				);
-				$sTitleShort = _wpsf__( 'System' );
+				$sTitleShort = _wpsf__( 'API & XML-RPC' );
 				break;
 
 			case 'section_permission_access_options' :
@@ -107,9 +128,15 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'disable_anonymous_restapi' :
-				$sName = sprintf( _wpsf__( 'Disable %s' ), _wpsf__( 'Anonymous Rest API' ) );
+				$sName = _wpsf__( 'Anonymous Rest API' );
 				$sSummary = sprintf( _wpsf__( 'Disable The %s System' ), _wpsf__( 'Anonymous Rest API' ) );
-				$sDescription = sprintf( _wpsf__( 'Checking this option will disable anonymous access to the REST API.' ), 'XML-RPC' );
+				$sDescription = _wpsf__( 'You can choose to completely disable anonymous access to the REST API.' );
+				break;
+
+			case 'api_namespace_exclusions' :
+				$sName = _wpsf__( 'Rest API Exclusions' );
+				$sSummary = _wpsf__( 'Anonymous REST API Exclusions' );
+				$sDescription = _wpsf__( 'Any namespaces provided here will be excluded from the Anonymous API restriction.' );
 				break;
 
 			case 'disable_file_editing' :

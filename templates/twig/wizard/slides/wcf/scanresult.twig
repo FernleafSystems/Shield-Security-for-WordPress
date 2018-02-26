@@ -4,7 +4,9 @@
 	{{ slideMacros.slideTitle( 'Core File Scanner Results' ) }}
 
 	{% if data.files.has %}
-		<p>A total of {{ data.files.count }} file(s) were discovered.</p>
+		<div class="alert alert-warning" role="alert">
+			{{ data.files.count }} file(s) were discovered that you need to review.
+		</div>
 		<div class="indent_slight">
 			{% if data.files.checksum.has %}
 				<h5>Modified Core Files: {{ data.files.checksum.count }}</h5>
@@ -47,6 +49,8 @@
 		</form>
 
 	{% else %}
-		<p>There were no modified files discovered in the scan.</p>
+		<div class="alert alert-success" role="alert">
+			Great! There were no modified files discovered in the scan.
+		</div>
 	{% endif %}
 {% endblock %}

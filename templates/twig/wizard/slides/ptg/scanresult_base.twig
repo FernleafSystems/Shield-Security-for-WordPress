@@ -1,0 +1,116 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( data.context_sing~' Guard Scan Results' ) }}
+
+	{% if data.result|length == 0 %}
+		<div class="alert alert-success" role="alert">
+			There were no files discovered that need your attention.
+		</div>
+	{% else %}
+		<div class="alert alert-warning" role="alert">
+			{{ data.result|length }} {{ data.context_sing }}(s) that need your attention.
+		</div>
+
+		<div id="accord{{ data.context_sing }}" class="scan-results-accordian">
+		{% set resultCounter = 0 %}
+			{% for item_name,item_res in data.result %}
+				{% set resultCounter = resultCounter + 1 %}
+
+				<div class="card">
+				<div class="card-header bg-secondary">
+					<h5 class="mb-0">
+						<button class="btn btn-link btn-block text-left collapsed"
+								data-toggle="collapse" data-target="#coll{{ data.context~resultCounter }}">
+							{{ data.context_sing }}: {{ item_name }}
+						</button>
+					</h5>
+				</div>
+
+				<div id="coll{{ data.context~resultCounter }}" class="collapse" data-parent="#accord{{ data.context_sing }}">
+				  <div class="card-body">
+					  {% if item_res.different is defined %}
+						  <div class="indent_slight">
+							  <h6>Modified Files: {{ item_res.different|length }}</h6>
+							  {% for file in item_res.different %}
+								  <li><code class="filepath">{{ file }}</code></li>
+							  {% endfor %}
+						  </div>
+					  {% endif %}
+
+					  {% if item_res.missing is defined %}
+						  <div class="indent_slight">
+							  <h6>Missing Files: {{ item_res.missing|length }}</h6>
+							  {% for file in item_res.missing %}
+								  <li><code class="filepath">{{ file }}</code></li>
+							  {% endfor %}
+						  </div>
+					  {% endif %}
+
+					  {% if item_res.unrecognised is defined %}
+						  <div class="indent_slight">
+							  <h6>Unrecognised Files: {{ item_res.unrecognised|length }}</h6>
+							  {% for file in item_res.unrecognised %}
+								  <li><code class="filepath">{{ file }}</code></li>
+							  {% endfor %}
+						  </div>
+					  {% endif %}
+				  </div>
+				</div>
+				<div class="card-footer">
+					<form class="icwp-wizard-form mb-0">
+						<div class="clearfix">
+						<div class="form-check form-check-inline">
+							<input class="form-check-input"
+								   type="radio"
+								   name="ptgaction"
+								   id="ptgaction_{{ item_res.flags.id }}1"
+							{% if item_res.flags.can_reinstall %}
+							{% else %}
+								disabled
+							{% endif %}
+								   value="reinstall" />
+							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}1">
+								Re-Install / Upgrade</label>
+						</div>
+
+						{% if item_res.flags.can_deactivate %}
+						<div class="form-check form-check-inline">
+							<input class="form-check-input"
+								   type="radio"
+								   name="ptgaction"
+								   id="ptgaction_{{ item_res.flags.id }}2"
+									{% if item_res.flags.can_deactivate %}
+									{% else %}
+										disabled
+									{% endif %}
+								   value="deactivate" >
+							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}2">
+								Deactivate</label>
+						</div>
+						{% endif %}
+
+						<div class="form-check form-check-inline">
+							<input class="form-check-input"
+								   type="radio"
+								   name="ptgaction"
+								   id="ptgaction_{{ item_res.flags.id }}3"
+								   value="ignore" >
+							<label class="form-check-label" for="ptgaction_{{ item_res.flags.id }}3">
+								Ignore Changes</label>
+						</div>
+						<button type="submit" class="btn btn-warning mb-2 float-right">
+							Run Selected Action</button>
+						</div>
+						{{ slideMacros.formInput_Hidden( 'wizard-step', 'ptg_assetaction' ) }}
+						{{ slideMacros.formInput_Hidden( 'slug', item_res.flags.slug ) }}
+						{{ slideMacros.formInput_Hidden( 'context', data.context ) }}
+					</form>
+				</div>
+			  </div>
+			{% endfor %}
+		</div>
+
+	{% endif %}
+
+{% endblock %}

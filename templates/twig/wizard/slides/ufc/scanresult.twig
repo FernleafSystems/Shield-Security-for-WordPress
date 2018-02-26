@@ -4,8 +4,10 @@
 	{{ slideMacros.slideTitle( 'Unrecognised File Scanner Results' ) }}
 
 	{% if data.files.has %}
+		<div class="alert alert-warning" role="alert">
+			{{ data.files.count }} file(s) were discovered that you need to review.
+		</div>
 		<div class="indent_slight">
-			<p>A total of {{ data.files.count }} file(s) were discovered.</p>
 			<ul>
 			{% for file in data.files.list %}
 				<li><code class="filepath">{{ file }}</code></li>

@@ -56,7 +56,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$oWpPlugins = $this->loadWpPlugins();
 			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );
-			if ( !is_null( $sPluginFile ) && $oWpPlugins->isPluginActive( $sPluginFile ) ) {
+			if ( $oWpPlugins->isActive( $sPluginFile ) ) {
 				$aRenderData = array(
 					'notice_attributes' => $aNoticeAttributes,
 					'strings' => array(

@@ -28,7 +28,6 @@
 	color: rgb(103, 21, 0);
 	text-align: right;
 }
-
 .notice-icon {
 	display: none;
 	float: left;
@@ -46,7 +45,6 @@
 .notice-content p {
 	margin-left: 0;
 }
-
 @media (min-width: 884px) {
 	.notice-icon {
 		display: block;
@@ -55,7 +53,6 @@
 		margin-left: 62px;
 	}
 }
-
 .notice-icon-right {
 	float: right;
 	width: 74px;
@@ -71,11 +68,6 @@
 	text-shadow: none;
 	font-weight: bold;
 }
-
-
-
-
-
 ul.nav-tabs li a {
 	color: rgba(69, 119, 0, 1);
 }
@@ -329,4 +321,7 @@ tr.icwp-plugin-vulnerability dd {
 }
 .icwpAjaxTableContainer table th.column-event {
 	width: 110px;
+}
+.icwp-wpsf-dialog h3 {
+	margin-top: 0;
 }

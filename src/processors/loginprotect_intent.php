@@ -184,8 +184,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime, $oUser ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
-		$oMeta->login_intent_expires_at = max( 0, (int)$nExpirationTime );
+		if ( $oUser instanceof WP_User ) {
+			$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+			$oMeta->login_intent_expires_at = max( 0, (int)$nExpirationTime );
+		}
 		return $this;
 	}
 

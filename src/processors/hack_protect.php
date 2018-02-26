@@ -35,6 +35,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isIcEnabled() ) {
 			$this->getSubProcessorIntegrity()->run();
 		}
+		if ( $oFO->isPtgEnabled() ) {
+			$this->runPTGuard();
+		}
 	}
 
 	/**
@@ -76,6 +79,12 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 */
+	protected function runPTGuard() {
+		$this->getSubProcessorGuard()->run();
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_CoreChecksumScan
 	 */
 	public function getSubProcessorChecksumScan() {
@@ -107,6 +116,19 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getSubProcessorIntegrity() {
 		require_once( dirname( __FILE__ ).'/hackprotect_integrity.php' );
 		$oProc = new ICWP_WPSF_Processor_HackProtect_Integrity( $this->getFeature() );
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_PTGuard
+	 */
+	public function getSubProcessorGuard() {
+		$oProc = $this->getSubProcessor( 'ptguard' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/hackprotect_ptguard.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_PTGuard( $this->getFeature() );
+			$this->aSubProcessors[ 'ptguard' ] = $oProc;
+		}
 		return $oProc;
 	}
 

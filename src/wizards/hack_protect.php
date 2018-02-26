@@ -19,6 +19,22 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	protected function getWizardAvailability( $sKey ) {
+		switch ( $sKey ) {
+			case 'ptg':
+				$bAvailable = false;
+				break;
+			default:
+				$bAvailable = parent::getWizardAvailability( $sKey );
+				break;
+		}
+		return $bAvailable;
+	}
+
+	/**
 	 * @param string $sStep
 	 * @return \FernleafSystems\Utilities\Response|null
 	 */
@@ -33,11 +49,17 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'restorefiles':
 				$oResponse = $this->process_RestoreFiles();
 				break;
+			case 'ptgconfig':
+				$oResponse = $this->process_PtgConfig();
+				break;
 			case 'ufcconfig':
 				$oResponse = $this->process_UfcConfig();
 				break;
 			case 'wcfconfig':
 				$oResponse = $this->process_WcfConfig();
+				break;
+			case 'ptg_assetaction':
+				$oResponse = $this->process_AssetAction();
 				break;
 			default:
 				$oResponse = parent::processWizardStep( $sStep );
@@ -113,6 +135,31 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( true )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function process_PtgConfig() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getModCon();
+
+		$sSetting = $this->loadDP()->post( 'enable_scan' );
+		$oFO->setPtgEnabledOption( $sSetting )
+			->savePluginOptions();
+
+		$bSuccess = ( $sSetting == $oFO->getPtgEnabledOption() );
+
+		if ( $bSuccess && $oFO->isPtgEnabled() ) {
+			$sMessage = 'Scanner automation has been enabled.';
+		}
+		else {
+			$sMessage = 'There was a problem with saving this option. You may need to reload.';
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
 	}
 
@@ -200,6 +247,82 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function process_AssetAction() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getModCon();
+		$oDP = $this->loadDP();
+
+		$sSlug = $oDP->post( 'slug' );
+		$sContext = $oDP->post( 'context' );
+		$sItemAction = $oDP->post( 'ptgaction' );
+
+		$oWpPlugins = $this->loadWpPlugins();
+		$oWpThemes = $this->loadWpThemes();
+
+		// 1. load the asset
+		$bWpOrg = false;
+		$mAsset = null;
+		if ( $sContext == 'plugins' ) {
+			$mAsset = $oWpPlugins->getPlugin( $sSlug );
+			$bWpOrg = $oWpPlugins->isWpOrg( $sSlug );
+		}
+		else if ( $sContext == 'themes' ) {
+			$mAsset = $oWpThemes->getTheme( $sSlug );
+			$bWpOrg = $oWpThemes->isWpOrg( $sSlug );
+		}
+
+		$bSuccess = false;
+		if ( empty( $mAsset ) ) {
+			$sMessage = 'Item could not be found.';
+		}
+		else {
+			switch ( $sItemAction ) {
+
+				case 'reinstall':
+					if ( $bWpOrg ) {
+						/** @var ICWP_WPSF_Processor_HackProtect $oP */
+						$oP = $oFO->getProcessor();
+						$bSuccess = $oP->getSubProcessorGuard()
+									   ->reinstall( $sSlug, $sContext );
+						$sMessage = 'The item has been re-installed from WordPress.org sources.';
+					}
+					break;
+
+				case 'ignore':
+					if ( $bWpOrg ) {
+						/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+						$oProc = $this->getModCon()->getProcessor();
+						$oP = $oProc->getSubProcessorGuard();
+						$oP->updateItemInSnapshot( $sSlug, $sContext );
+						$bSuccess = true;
+						$sMessage = _wpsf__( 'All changes detected have been ignored.' );
+					}
+					break;
+
+				case 'deactivate':
+					if ( $sContext == 'plugins' ) {
+						$oWpPlugins->deactivate( $sSlug );
+						$bSuccess = true;
+						$sMessage = _wpsf__( 'The plugin has been deactivated.' );
+					}
+					break;
+
+				default:
+					$sMessage = 'Action not supported.'.$sItemAction;
+					break;
+			}
+		}
+
+		//_wpsf__( 'Success.' )
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bSuccess )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
 	 * @return string[]
 	 * @throws Exception
 	 */
@@ -212,11 +335,35 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'ufc':
 				$aSteps = $this->determineWizardSteps_Ufc();
 				break;
+			case 'ptg':
+				$aSteps = $this->determineWizardSteps_Ptg();
+				break;
 			default:
 				parent::determineWizardSteps();
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Ptg() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getModCon();
+
+		$aStepsSlugs = array(
+			'start',
+		);
+		if ( !$oFO->isPtgEnabled() ) {
+			$aStepsSlugs[] = 'config';
+		}
+		else {
+			$aStepsSlugs[] = 'scanresult_plugins';
+			$aStepsSlugs[] = 'scanresult_themes';
+		}
+		$aStepsSlugs[] = 'finished';
+		return $aStepsSlugs;
 	}
 
 	/**
@@ -324,11 +471,98 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
+		else if ( $sCurrentWiz == 'ptg' ) {
+
+			switch ( $sStep ) {
+				case 'scanresult_themes':
+					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'themes' );
+					break;
+				case 'scanresult_plugins':
+					$aAdditional[ 'data' ] = $this->getPtgScanResults( 'plugins' );
+					break;
+			}
+		}
 
 		if ( empty( $aAdditional ) ) {
 			$aAdditional = parent::getRenderData_SlideExtra( $sStep );
 		}
 		return $aAdditional;
+	}
+
+	private function getPtgScanResults( $sContext ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+		$oProc = $this->getModCon()->getProcessor();
+		$oP = $oProc->getSubProcessorGuard();
+		if ( $sContext == 'plugins' ) {
+			$aResults = $oP->scanPlugins();
+		}
+		else {
+			$aResults = $oP->scanThemes();
+		}
+
+		$oWpPlugins = $this->loadWpPlugins();
+		$oWpThemes = $this->loadWpThemes();
+		foreach ( $aResults as $sSlug => $aItemResultSet ) {
+			if ( $sContext == 'plugins' ) {
+				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
+				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
+				$aFlags = array(
+					'is_wporg'       => $bIsWpOrg,
+					'can_reinstall'  => $bIsWpOrg,
+					'can_deactivate' => true,
+					'slug'           => $sSlug,
+					'id'             => $sContext.sanitize_key( $sSlug ),
+				);
+			}
+			else {
+				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+				$bIsWpOrg = $oWpThemes->isWpOrg( $sSlug );
+				$aFlags = array(
+					'is_wporg'       => $bIsWpOrg,
+					'can_reinstall'  => $bIsWpOrg,
+					'can_deactivate' => false,
+					'slug'           => $sSlug,
+					'id'             => $sContext.sanitize_key( $sSlug ),
+				);
+			}
+			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );
+			$aResults[ $sName ][ 'flags' ] = $aFlags;
+			unset( $aResults[ $sSlug ] );
+		}
+
+		return array(
+			'context_sing' => rtrim( ucfirst( $sContext ), 's' ),
+			'context'      => $sContext,
+			'result'       => $aResults,
+		);
+	}
+
+	/**
+	 * @param array[] $aLists
+	 * @return int
+	 */
+	private function count( $aLists ) {
+		$nCount = 0;
+		foreach ( $aLists as $aList ) {
+			$nCount += count( $aList );
+		}
+		return $nCount;
+	}
+
+	/**
+	 * @param array[] $aLists
+	 * @return array[]
+	 */
+	private function stripPaths( $aLists ) {
+		foreach ( $aLists as $sKey => $aList ) {
+			$aLists[ $sKey ] = array_map(
+				function ( $sPath ) {
+					return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+				},
+				$aList
+			);
+		}
+		return $aLists;
 	}
 
 	/**

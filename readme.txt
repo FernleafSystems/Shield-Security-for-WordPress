@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.3.3
+Stable tag: 6.4.0
 
 Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
@@ -78,7 +78,7 @@ downloading and installing Shield now
 
 = What makes the Shield different? =
 
-* No "Pro" restrictions on security features - where possible, anything pertaining directly to site security is free.
+* Powerful free security protection.
 * Easy-To-Setup User Interface.
 * It won't break your website - you'll never get that horrible,
 	pit-of-your stomach feeling you get with other security plugins when your website doesn't load anymore.
@@ -349,18 +349,28 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-Our policy is to never restrict security features to Pro upgrades. **This has not changed**.
+Our policy was to never restrict security features to Pro upgrades. [This has now changed](http://icwp.io/bs).
 
 We're now offering technical support and other features exclusively to premium customers.
-If you don't want to support the work, no problem! You can still continue to use Shield Security and its features in-full.
-Technical support, and some newer options and features will not be available to you, however.
+If you don't want to support the work, no problem! You can still continue to use Shield Security and its free features in-full.
+Technical support, and some newer features will not be available to you, however.
 
-You can [go Pro for just $1/month](http://icwp.io/aa). Technical support is available to premium clients only.
+You can [go Pro for just $1/month](http://icwp.io/aa).
+Technical support is available to premium clients only.
 
-= 6.3.3 - Current Release =
-*Released: 21st February, 2018* - [Release Notes](http://icwp.io/bc)
+= 6.4.0 - Current Release =
+*Released: 26th February, 2018* - [Release Notes](http://icwp.io/br)
 
-* **(v.3)**  FIXED:			Bug with automatic updates delay processing
+* **(v.0)**  ADDED:			[**PRO**] New Scanner to [detect file changes for active plugins and themes](http://icwp.io/bq)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
+
+= 6.4 Series =
+*Released: 26th February, 2018* - [Release Notes](http://icwp.io/br)
+
+* **(v.0)**  ADDED:			[**PRO**] New Scanner to [detect file changes for active plugins and themes](http://icwp.io/bq)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
+* **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.3 Series =
 *Released: 12th February, 2018* - [Release Notes](http://icwp.io/bc)

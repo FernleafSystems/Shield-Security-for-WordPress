@@ -36,6 +36,15 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sPluginFile
 	 * @param bool   $bNetworkWide
+	 * @return null|WP_Error
+	 */
+	protected function activateQuietly( $sPluginFile, $bNetworkWide = false ) {
+		return activate_plugin( $sPluginFile, '', $bNetworkWide, true );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param bool   $bNetworkWide
 	 */
 	public function deactivate( $sPluginFile, $bNetworkWide = false ) {
 		deactivate_plugins( $sPluginFile, '', $bNetworkWide );
@@ -44,22 +53,30 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sPluginFile
 	 * @param bool   $bNetworkWide
+	 */
+	protected function deactivateQuietly( $sPluginFile, $bNetworkWide = false ) {
+		deactivate_plugins( $sPluginFile, true, $bNetworkWide );
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param bool   $bNetworkWide
 	 * @return bool
 	 */
-	public function delete( $sPluginFile, $bNetworkWide = false ) {
-		if ( !$this->isPluginInstalled( $sPluginFile ) ) {
+	public function delete( $sFile, $bNetworkWide = false ) {
+		if ( !$this->isInstalled( $sFile ) ) {
 			return false;
 		}
 
-		if ( $this->isPluginActive( $sPluginFile ) ) {
-			$this->deactivate( $sPluginFile, $bNetworkWide );
+		if ( $this->isActive( $sFile ) ) {
+			$this->deactivate( $sFile, $bNetworkWide );
 		}
-		$this->uninstall( $sPluginFile );
+		$this->uninstall( $sFile );
 
 		// delete the folder
-		$sPluginDir = dirname( $sPluginFile );
+		$sPluginDir = dirname( $sFile );
 		if ( $sPluginDir == '.' ) { //it's not within a sub-folder
-			$sPluginDir = $sPluginFile;
+			$sPluginDir = $sFile;
 		}
 		$sPath = path_join( WP_PLUGIN_DIR, $sPluginDir );
 		return $this->loadFS()->deleteDir( $sPath );
@@ -68,9 +85,10 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sUrlToInstall
 	 * @param bool   $bOverwrite
-	 * @return bool
+	 * @param bool   $bMaintenanceMode
+	 * @return array
 	 */
-	public function install( $sUrlToInstall, $bOverwrite = true ) {
+	public function install( $sUrlToInstall, $bOverwrite = true, $bMaintenanceMode = false ) {
 		$this->loadWpUpgrades();
 
 		$aResult = array(
@@ -82,9 +100,18 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		$oUpgraderSkin = new ICWP_Upgrader_Skin();
 		$oUpgrader = new ICWP_Plugin_Upgrader( $oUpgraderSkin );
 		$oUpgrader->setOverwriteMode( $bOverwrite );
+		if ( $bMaintenanceMode ) {
+			$oUpgrader->maintenance_mode( true );
+		}
+
 		ob_start();
 		$sInstallResult = $oUpgrader->install( $sUrlToInstall );
 		ob_end_clean();
+
+		if ( $bMaintenanceMode ) {
+			$oUpgrader->maintenance_mode( false );
+		}
+
 		if ( is_wp_error( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
 			$aResult[ 'successful' ] = false;
 			$aResult[ 'errors' ] = $oUpgraderSkin->m_aErrors[ 0 ]->get_error_messages();
@@ -94,8 +121,67 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		}
 
 		$aResult[ 'feedback' ] = $oUpgraderSkin->getFeedback();
-
+		$aResult[ 'raw' ] = $sInstallResult;
 		return $aResult;
+	}
+
+	/**
+	 * @param $sSlug
+	 * @return array|bool
+	 */
+	public function installFromWpOrg( $sSlug ) {
+		include_once( ABSPATH.'wp-admin/includes/plugin-install.php' );
+
+		$api = plugins_api( 'plugin_information', array(
+			'slug'   => $sSlug,
+			'fields' => array(
+				'sections' => false,
+			),
+		) );
+
+		if ( !is_wp_error( $api ) ) {
+			return $this->install( $api->download_link, true, true );
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param bool   $bUseBackup
+	 * @return bool
+	 */
+	public function reinstall( $sFile, $bUseBackup = false ) {
+		$bSuccess = false;
+
+		if ( $this->isInstalled( $sFile ) ) {
+
+			$sSlug = $this->getSlug( $sFile );
+			if ( !empty( $sSlug ) ) {
+				$oFS = $this->loadFS();
+
+				$sDir = dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
+				$sBackupDir = WP_PLUGIN_DIR.'/../'.basename( $sDir ).'bak'.time();
+				if ( $bUseBackup ) {
+					rename( $sDir, $sBackupDir );
+				}
+
+				$aResult = $this->installFromWpOrg( $sSlug );
+				$bSuccess = $aResult[ 'successful' ];
+				if ( $bSuccess ) {
+					wp_update_plugins(); //refreshes our update information
+					if ( $bUseBackup ) {
+						$oFS->deleteDir( $sBackupDir );
+					}
+				}
+				else {
+					if ( $bUseBackup ) {
+						$oFS->deleteDir( $sDir );
+						rename( $sBackupDir, $sDir );
+					}
+				}
+			}
+		}
+		return $bSuccess;
 	}
 
 	/**
@@ -282,18 +368,32 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return stdClass[] - keys are plugin base files
+	 */
+	public function getAllExtendedData() {
+		$oData = $this->loadWp()->getTransient( 'update_plugins' );
+		return array_merge(
+			isset( $oData->no_update ) ? $oData->no_update : array(),
+			isset( $oData->response ) ? $oData->response : array()
+		);
+	}
+
+	/**
+	 * @param $sBaseFile
+	 * @return null|stdClass
+	 */
+	public function getExtendedData( $sBaseFile ) {
+		$aData = $this->getAllExtendedData();
+		return isset( $aData[ $sBaseFile ] ) ? $aData[ $sBaseFile ] : null;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getAllSlugs() {
 		$aSlugs = array();
 
-		$oData = $this->loadWp()->getTransient( 'update_plugins' );
-		$aPlugins = array_merge(
-			isset( $oData->no_update ) ? $oData->no_update : array(),
-			isset( $oData->response ) ? $oData->response : array()
-		);
-
-		foreach ( $aPlugins as $sBaseName => $oPlugData ) {
+		foreach ( $this->getAllExtendedData() as $sBaseName => $oPlugData ) {
 			if ( isset( $oPlugData->slug ) ) {
 				$aSlugs[ $sBaseName ] = $oPlugData->slug;
 			}
@@ -304,11 +404,11 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param $sBaseName
-	 * @return string|null
+	 * @return string
 	 */
 	public function getSlug( $sBaseName ) {
-		$aSlugs = $this->getAllSlugs();
-		return array_key_exists( $sBaseName, $aSlugs ) ? $aSlugs[ $sBaseName ] : null;
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
+		return isset( $oPluginInfo->slug ) ? $oPluginInfo->slug : '';
 	}
 
 	/**
@@ -316,24 +416,25 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isWpOrg( $sBaseName ) {
-		return !is_null( $this->getSlug( $sBaseName ) );
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
+		return isset( $oPluginInfo->id ) ? strpos( $oPluginInfo->id, 'w.org/' ) === 0 : false;
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return stdClass|null
 	 */
-	public function getUpdateInfo( $sPluginFile ) {
+	public function getUpdateInfo( $sFile ) {
 		$aU = $this->getUpdates();
-		return isset( $aU[ $sPluginFile ] ) ? $aU[ $sPluginFile ] : null;
+		return isset( $aU[ $sFile ] ) ? $aU[ $sFile ] : null;
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return string
 	 */
-	public function getUpdateNewVersion( $sPluginFile ) {
-		$oInfo = $this->getUpdateInfo( $sPluginFile );
+	public function getUpdateNewVersion( $sFile ) {
+		$oInfo = $this->getUpdateInfo( $sFile );
 		return ( !is_null( $oInfo ) && isset( $oInfo->new_version ) ) ? $oInfo->new_version : '';
 	}
 
@@ -351,62 +452,62 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return bool
 	 */
-	public function isPluginActive( $sPluginFile ) {
-		return ( $this->isPluginInstalled( $sPluginFile ) && is_plugin_active( $sPluginFile ) );
+	public function isActive( $sFile ) {
+		return ( $this->isInstalled( $sFile ) && is_plugin_active( $sFile ) );
 	}
 
 	/**
 	 * @param string $sFile The full plugin file.
 	 * @return bool
 	 */
-	public function isPluginInstalled( $sFile ) {
+	public function isInstalled( $sFile ) {
 		return !empty( $sFile ) && !is_null( $this->getPlugin( $sFile ) );
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @return boolean|stdClass
 	 */
-	public function isUpdateAvailable( $sPluginFile ) {
-		return !is_null( $this->getUpdateInfo( $sPluginFile ) );
+	public function isUpdateAvailable( $sFile ) {
+		return !is_null( $this->getUpdateInfo( $sFile ) );
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 * @param int    $nDesiredPosition
 	 */
-	public function setActivePluginLoadPosition( $sPluginFile, $nDesiredPosition = 0 ) {
+	public function setActivePluginLoadPosition( $sFile, $nDesiredPosition = 0 ) {
 		$oWp = $this->loadWp();
 
 		$aActive = $this->loadDataProcessor()
 						->setArrayValueToPosition(
 							$oWp->getOption( 'active_plugins' ),
-							$sPluginFile,
+							$sFile,
 							$nDesiredPosition
 						);
 		$oWp->updateOption( 'active_plugins', $aActive );
 
 		if ( $oWp->isMultisite() ) {
 			$aActive = $this->loadDataProcessor()
-							->setArrayValueToPosition( $oWp->getOption( 'active_sitewide_plugins' ), $sPluginFile, $nDesiredPosition );
+							->setArrayValueToPosition( $oWp->getOption( 'active_sitewide_plugins' ), $sFile, $nDesiredPosition );
 			$oWp->updateOption( 'active_sitewide_plugins', $aActive );
 		}
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 */
-	public function setActivePluginLoadFirst( $sPluginFile ) {
-		$this->setActivePluginLoadPosition( $sPluginFile, 0 );
+	public function setActivePluginLoadFirst( $sFile ) {
+		$this->setActivePluginLoadPosition( $sFile, 0 );
 	}
 
 	/**
-	 * @param string $sPluginFile
+	 * @param string $sFile
 	 */
-	public function setActivePluginLoadLast( $sPluginFile ) {
-		$this->setActivePluginLoadPosition( $sPluginFile, 1000 );
+	public function setActivePluginLoadLast( $sFile ) {
+		$this->setActivePluginLoadPosition( $sFile, 1000 );
 	}
 }

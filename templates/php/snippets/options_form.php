@@ -19,7 +19,8 @@
 
 						<div class="btn-group" role="group" aria-label="Basic example">
 
-							<a aria-disabled="true" class="btn btn-success disabled icwp-carousel-0" href="javascript:void(0)">
+							<a aria-disabled="true" class="btn btn-success disabled icwp-carousel-0"
+							   href="javascript:void(0)">
 								<?php echo $strings[ 'btn_options' ]; ?></a>
 
 							<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>
@@ -99,11 +100,50 @@
 				<?php endif; ?>
 			</legend>
 
-			<?php if ( !empty( $aOptSection[ 'summary' ] ) ) : ?>
-				<div class="row_section_summary">
-					<?php foreach ( $aOptSection[ 'summary' ] as $sItem ) : ?>
-						<p class="noselect"><?php echo $sItem; ?></p>
-					<?php endforeach; ?>
+			<div class="row_section_summary row">
+				<div class="col-8">
+					<?php if ( !empty( $aOptSection[ 'summary' ] ) ) : ?>
+						<?php foreach ( $aOptSection[ 'summary' ] as $sItem ) : ?>
+							<p class="noselect"><?php echo $sItem; ?></p>
+						<?php endforeach; ?>
+					<?php endif; ?>
+				</div>
+
+				<div class="col-4">
+					<?php if ( !empty( $aOptSection[ 'help_video' ] ) ) : ?>
+						<button class="btn btn-lg btn-outline-info section_help_video" type="button"
+								data-toggle="collapse"
+								data-target="#sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>"
+								aria-expanded="false"
+								aria-controls="sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>">
+						  <span class="dashicons dashicons-controls-play"></span> Watch The Video</button>
+					<?php endif; ?>
+				</div>
+
+				<?php if ( !empty( $aOptSection[ 'help_video' ] ) ) : ?>
+					<div class="w-100"></div>
+					<div class="col">
+						<div class="collapse section_video"
+							 id="sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>">
+							<div class="embed-responsive embed-responsive-16by9">
+								<iframe src="<?php echo $aOptSection[ 'help_video' ][ 'embed_url' ]; ?>" width="640"
+										height="360"
+										class="embed-responsive-item" allowfullscreen></iframe>
+							</div>
+						</div>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( !empty( $aOptSection[ 'warnings' ] ) ) : ?>
+				<div class="row">
+					<div class="col">
+						<?php foreach ( $aOptSection[ 'warnings' ] as $sWarning ) :?>
+						<div class="alert alert-warning text-center">
+							<?php echo $sWarning; ?>
+						</div>
+						<?php endforeach; ?>
+					</div>
 				</div>
 			<?php endif; ?>
 
@@ -114,7 +154,7 @@
 				$bEnabled = $aOption[ 'enabled' ];
 				$sDisabledText = $bEnabled ? '' : 'disabled="Disabled"';
 				?>
-				<div class="form-group row  row_number_<?php echo $nKeyRow; ?>">
+				<div class="form-group row row_number_<?php echo $nKeyRow; ?>">
 
 					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
 						<div class="form-label-inner text-right">

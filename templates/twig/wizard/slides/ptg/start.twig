@@ -1,0 +1,18 @@
+{% extends 'wizard/slides/common/base_start.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( 'Start: Plugin & Theme Guard' ) }}
+
+	<p>What is the Plugin & Theme Guard?</p>
+	<p>The purpose of this scanner is to detect potentially malicious or
+	   unintended changes to plugin and theme files.</p>
+	<p>Why is this important?</p>
+	<p>It is common for hacks to involve modifications to existing plugin and theme files.</p>
+	<p>This scanner will detect filesystem changes that have occurred outside normal WordPress operations, specifically:</p>
+	<ul>
+		<li>files where content has been modified</li>
+		<li>files that are missing</li>
+		<li>files that have been added</li>
+	</ul>
+	<p>If you're in doubt about the results, please discuss the findings with your hosting provider.</p>
+{% endblock %}

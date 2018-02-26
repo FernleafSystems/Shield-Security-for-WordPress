@@ -6,7 +6,7 @@
 </div>
 {% for wizard in data.mod_wizards %}
 <div class="row">
-	<div class="col-6 offset-3 col-sm-10 offset-sm-1 col-lg-6 offset-lg-3">
+	<div class="col-8 offset-2">
 		<div class="wizard_slot">
 			<div><h5>{{ wizard.title }}</h5></div>
 			<div>
@@ -15,7 +15,13 @@
 					<p>{{ strings.premium_note }}</p>
 				{% endif %}
 			</div>
-			<div><a class="btn btn-info" href="{{ wizard.url }}" target="_blank">Launch Wizard</a></div>
+			<div>
+				{% if wizard.available %}
+					<a class="btn btn-info" href="{{ wizard.url }}" target="_blank">Launch Wizard</a>
+				{% else %}
+					<button class="btn btn-outline-dark" disabled>Not Available</button>
+				{% endif %}
+			</div>
 		</div>
 	</div>
 </div>

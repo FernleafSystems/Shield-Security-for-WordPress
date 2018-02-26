@@ -97,6 +97,9 @@ body.wait {
 .wizard form .form-check-label {
 	margin-bottom: 10px;
 }
+.wizard form .form-check-inline .form-check-label {
+	margin-bottom: 0;
+}
 
 #GoProBtn {
 	width: 128px;
@@ -138,4 +141,17 @@ body.wait {
 }
 .more_details_body {
 	margin-bottom: 12px;
+}
+
+.scan-results-accordian {
+}
+.scan-results-accordian .card {
+	margin-bottom: 24px;
+}
+.scan-results-accordian .card-header {
+	padding: .5rem 1.25rem;
+}
+.scan-results-accordian .card-header button:hover,
+.scan-results-accordian .card-header button {
+	color: #f1f1f1
 }

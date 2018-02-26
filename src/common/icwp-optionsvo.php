@@ -233,7 +233,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return array
+	 * @param string $sSlug
+	 * @return array|null
+	 */
+	public function getSection( $sSlug ) {
+		$aSections = $this->getSections();
+		return isset( $aSections[ $sSlug ] ) ? $aSections[ $sSlug ] : null;
+	}
+
+	/**
+	 * @return array[]
 	 */
 	public function getSections() {
 		$aSections = array();
@@ -243,6 +252,48 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aSections;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return array
+	 */
+	public function getSection_Requirements( $sSlug ) {
+		$aSection = $this->getSection( $sSlug );
+		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : array();
+		return array_merge(
+			array(
+				'php_min' => '5.2.4'
+			),
+			$aReqs
+		);
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return array|null
+	 */
+	public function getSectionHelpVideo( $sSlug ) {
+		$aSection = $this->getSection( $sSlug );
+		return ( is_array( $aSection ) && isset( $aSection[ 'help_video' ] ) ) ? $aSection[ 'help_video' ] : null;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return bool
+	 */
+	public function isSectionReqsMet( $sSectionSlug ) {
+		$aReqs = $this->getSection_Requirements( $sSectionSlug );
+		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] );
+		return $bMet;
+	}
+
+	/**
+	 * @param string $sOptKey
+	 * @return bool
+	 */
+	public function isOptReqsMet( $sOptKey ) {
+		return $this->isSectionReqsMet( $this->getOptProperty( $sOptKey, 'section' ) );
 	}
 
 	/**
@@ -645,30 +696,54 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $sOptKey
 	 * @param mixed  $mValue
 	 * @return mixed
 	 */
-	public function setOpt( $sOptionKey, $mValue ) {
+	public function setOpt( $sOptKey, $mValue ) {
 
 		// We can't use getOpt() to find the current value since we'll create an infinite loop
 		$aOptionsValues = $this->getAllOptionsValues();
-		$mCurrent = isset( $aOptionsValues[ $sOptionKey ] ) ? $aOptionsValues[ $sOptionKey ] : null;
+		$mCurrent = isset( $aOptionsValues[ $sOptKey ] ) ? $aOptionsValues[ $sOptKey ] : null;
 
-		if ( serialize( $mCurrent ) !== serialize( $mValue ) ) {
+		if ( serialize( $mCurrent ) !== serialize( $mValue ) && $this->verifySet( $sOptKey, $mValue ) ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
-			$aOption = $this->getRawData_SingleOption( $sOptionKey );
+			$aOption = $this->getRawData_SingleOption( $sOptKey );
 			if ( !empty( $aOption[ 'type' ] ) ) {
 				if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mValue ) ) {
-					return $this->resetOptToDefault( $sOptionKey );
+					return $this->resetOptToDefault( $sOptKey );
 				}
 			}
-			$this->setOldOptValue( $sOptionKey, $mCurrent );
-			$this->aOptionsValues[ $sOptionKey ] = $mValue;
+			$this->setOldOptValue( $sOptKey, $mCurrent );
+			$this->aOptionsValues[ $sOptKey ] = $mValue;
 		}
 		return true;
+	}
+
+	/**
+	 * @param string $sOptKey
+	 * @param mixed  $mValue
+	 * @return bool
+	 */
+	protected function verifySet( $sOptKey, $mValue ) {
+		$bValid = true;
+
+		switch ( $this->getOptionType( $sOptKey ) ) {
+
+			case 'integer':
+				$nMin = $this->getOptProperty( $sOptKey, 'min' );
+				if ( !is_null( $nMin ) ) {
+					$bValid = $mValue >= $nMin;
+				}
+				$nMax = $this->getOptProperty( $sOptKey, 'max' );
+				if ( !is_null( $nMax ) ) {
+					$bValid = $mValue <= $nMax;
+				}
+				break;
+		}
+		return $bValid;
 	}
 
 	/**
@@ -757,7 +832,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
 				$aConfig[ 'meta_modts' ] = 0;
 			}
-			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
+			$bRebuild = $this->getConfigModTime() != $aConfig[ 'meta_modts' ];
 		}
 
 		if ( $bRebuild ) {
