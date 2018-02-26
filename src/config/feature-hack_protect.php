@@ -352,6 +352,7 @@
       "section":     "section_pluginthemes_guard",
       "default":     [
         "php",
+        "php5",
         "js",
         "htaccess"
       ],

@@ -353,11 +353,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanPtgFileExtensions() {
-		$aExt = $this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' );
-		if ( empty( $aExt ) ) {
-			$aExt = $this->getOptionsVo()->getOptDefault( 'ptg_extensions' );
-		}
-		return $this->setOpt( 'ptg_extensions', $aExt );
+		return $this->setOpt(
+			'ptg_extensions',
+			$this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
+		);
 	}
 
 	/**
@@ -735,7 +734,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Included File Types' );
 				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
 				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
-								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' );
+								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' )
+								.'<br/>'._wpsf__( 'Remove all extensions to scan all file type (not recommended).' );
 				break;
 
 			case 'ptg_reinstall_links' :
