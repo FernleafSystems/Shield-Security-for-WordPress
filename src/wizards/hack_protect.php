@@ -25,7 +25,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	protected function getWizardAvailability( $sKey ) {
 		switch ( $sKey ) {
 			case 'ptg':
-				$bAvailable = false;
+				/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+				$oFO = $this->getModCon();
+				$bAvailable = $oFO->isPtgEnabled();
 				break;
 			default:
 				$bAvailable = parent::getWizardAvailability( $sKey );
