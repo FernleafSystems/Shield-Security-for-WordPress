@@ -32,11 +32,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	public function run() {
 
-		if ( $this->loadDP()->FetchGet( 'force_wpvulnscan' ) == 1 ) {
-			$this->scanPlugins();
-			die();
-		}
-
 		// For display on the Plugins page
 		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
 
