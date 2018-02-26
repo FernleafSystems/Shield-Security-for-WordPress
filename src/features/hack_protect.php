@@ -10,10 +10,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	protected function doPostConstruction() {
 		$this->setCustomCronSchedules();
+		$this->canPtgWriteToDisk();
 	}
 
 	public function doPrePluginOptionsSave() {
-		$this->setOpt( 'ptg_candiskwrite_at', 0 );
+		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+			$this->setOpt( 'ptg_candiskwrite_at', 0 );
+		}
 	}
 
 	protected function adminAjaxHandlers() {
@@ -335,10 +338,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			if ( $oFS->mkdir( $sDir ) ) {
 				$sTestFile = path_join( $sDir, 'test.txt' );
-				$oFS->putFileContent( $sTestFile, $nNow );
+				$oFS->putFileContent( $sTestFile, 'test-'.$nNow );
 				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
-
-				if ( $sContents === $nNow ) {
+				if ( $sContents === 'test-'.$nNow ) {
 					$oFS->deleteFile( $sTestFile );
 					$this->setOpt( 'ptg_candiskwrite', !$oFS->exists( $sTestFile ) );
 				}
