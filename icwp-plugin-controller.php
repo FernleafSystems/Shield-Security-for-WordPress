@@ -428,15 +428,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->getPluginSpec_Menu( 'top_level' ) ) {
 
-			$aPluginLabels = $this->getPluginLabels();
-
-			$sMenuTitle = $this->getPluginSpec_Menu( 'title' );
+			$aLabels = $this->getPluginLabels();
+			$sMenuTitle = empty( $aLabels[ 'MenuTitle' ] ) ? $this->getPluginSpec_Menu( 'title' ) : $aLabels[ 'MenuTitle' ];
 			if ( is_null( $sMenuTitle ) ) {
 				$sMenuTitle = $this->getHumanName();
 			}
 
 			$sMenuIcon = $this->getPluginUrl_Image( $this->getPluginSpec_Menu( 'icon_image' ) );
-			$sIconUrl = empty( $aPluginLabels[ 'icon_url_16x16' ] ) ? $sMenuIcon : $aPluginLabels[ 'icon_url_16x16' ];
+			$sIconUrl = empty( $aLabels[ 'icon_url_16x16' ] ) ? $sMenuIcon : $aLabels[ 'icon_url_16x16' ];
 
 			$sFullParentMenuId = $this->getPluginPrefix();
 			add_menu_page(
@@ -772,7 +771,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getPluginLabels() {
-		return apply_filters( $this->doPluginPrefix( 'plugin_labels' ), $this->getPluginSpec_Labels() );
+		return array_map( 'stripslashes', apply_filters( $this->doPluginPrefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
 	}
 
 	/**

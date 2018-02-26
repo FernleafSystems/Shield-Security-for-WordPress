@@ -47,6 +47,14 @@
       ]
     },
     {
+      "slug": "section_whitelabel",
+      "title": "Shield White Label",
+      "title_short": "White Label",
+      "summary": [
+        "Purpose - Rename and re-brand the Shield Security plugin for your client site installations."
+      ]
+    },
+    {
       "slug": "section_enable_plugin_feature_admin_access_restriction",
       "title": "Enable Module: WordPress Security Admin",
       "title_short": "Disable Module",
@@ -203,6 +211,85 @@
       "link_blog": "http://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion."
+    },
+    {
+      "key": "whitelabel_enable",
+      "section": "section_whitelabel",
+      "premium": true,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable White Label",
+      "summary": "Activate Your White Label Settings",
+      "description": "Use this option to turn on/off the whole White Label feature."
+    },
+    {
+      "key": "wl_hide_updates",
+      "section": "section_whitelabel",
+      "premium": true,
+      "default": "Y",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Hide Updates",
+      "summary": "Hide Available Updates From Non Security Admins",
+      "description": "Hides the availability of Shield updates from non-security admins."
+    },
+    {
+      "key": "wl_namemain",
+      "section": "section_whitelabel",
+      "default": "Shield Security",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Plugin Name",
+      "summary": "The Name Of The Plugin",
+      "description": "The Name Of The Plugin."
+    },
+    {
+      "key": "wl_namemenu",
+      "section": "section_whitelabel",
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Menu Title",
+      "summary": "The Main Menu Title Of The Plugin",
+      "description": "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
+    },
+    {
+      "key": "wl_description",
+      "section": "section_whitelabel",
+      "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Plugin Tag Line",
+      "summary": "The Tag Line Of The Plugin",
+      "description": "The Tag Line Of The Plugin."
+    },
+    {
+      "key": "wl_homeurl",
+      "section": "section_whitelabel",
+      "default": "http://icwp.io/home",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Home URL",
+      "summary": "Plugin Home Page URL",
+      "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
+    },
+    {
+      "key": "wl_iconurl",
+      "section": "section_whitelabel",
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Icon URL",
+      "summary": "Plugin Icon URL",
+      "description": "The URL of the icon displayed in the menu and in the admin pages."
     }
   ],
   "definitions": {
