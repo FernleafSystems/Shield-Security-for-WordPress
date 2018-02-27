@@ -102,6 +102,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		// TODO Test this URL on wpms
 		if ( $bExpired || $bPassCheckFailed ) {
+			$this->loadAdminNoticesProcessor()
+				 ->addFlashMessage( _wpsf__( "Your password doesn't currently meet requirements set by your security administrator." ) );
 			$this->loadWp()
 				 ->doRedirect(
 					 self_admin_url( 'profile.php' ),
