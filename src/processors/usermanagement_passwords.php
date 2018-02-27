@@ -124,9 +124,14 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			if ( !empty( $sPassword ) ) {
 				try {
 					$this->applyPasswordChecks( $sPassword );
+
+					$oWpUser = $this->loadWpUsers();
+					if ( $oWpUser->isUserLoggedIn() ) {
+						$this->getCurrentUserMeta()->pass_check_failed_at = 0;
+					}
 				}
 				catch ( Exception $oE ) {
-					$sMessage = _wpsf__( 'Your site security administrator has imposed requirements for password quality.' )
+					$sMessage = _wpsf__( 'Your security administrator has imposed requirements for password quality.' )
 								.' '.$oE->getMessage();
 					$oErrors->add( 'shield_password_policy', $sMessage );
 				}
