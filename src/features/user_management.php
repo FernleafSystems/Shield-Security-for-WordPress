@@ -9,17 +9,6 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * TODO: remove on next release
-	 */
-	protected function updateHandler() {
-		$oDb = $this->loadDbProcessor();
-		$sDbName = $oDb->getPrefix().$this->prefix( 'user_management', '_' );
-		if ( $oDb->getIfTableExists( $sDbName ) ) {
-			$oDb->doDropTable( $sDbName );
-		}
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getContentCustomActionsData() {
