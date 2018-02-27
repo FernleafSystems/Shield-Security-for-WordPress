@@ -25,6 +25,9 @@
     },
     {
       "slug": "section_passwords",
+      "reqs" : {
+        "php_min": "5.4"
+      },
       "title": "Password Policies",
       "title_short": "Password Policies",
       "summary": [

@@ -182,7 +182,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isPasswordPoliciesEnabled() {
-		return $this->getOptIs( 'enable_password_policies', 'Y' );
+		return $this->getOptIs( 'enable_password_policies', 'Y' )
+			   && $this->getOptionsVo()->isOptReqsMet( 'enable_password_policies' );
 	}
 
 	/**
@@ -216,7 +217,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = _wpsf__( 'Password Policies' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Have full control over passwords used by users on the site.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
 				);
 				break;
 
@@ -337,7 +339,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = _wpsf__( 'Password Expiration' );
 				$sSummary = _wpsf__( 'Passwords Expire After This Many Days' );
 				$sDescription = _wpsf__( 'Users will be forced to reset their passwords after the number of days specified.' )
-								.' '._wpsf__( 'Set to Zero(0) to disable' );
+								.' '._wpsf__( 'Set to Zero(0) to disable.' );
 				break;
 
 			default:
