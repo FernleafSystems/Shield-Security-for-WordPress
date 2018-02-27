@@ -438,7 +438,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgReinstallLinks() {
-		return $this->getOptIs( 'ptg_reinstall_links', 'Y' );
+		return $this->isPtgEnabled() && $this->getOptIs( 'ptg_reinstall_links', 'Y' );
 	}
 
 	/**
