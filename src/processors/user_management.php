@@ -169,6 +169,19 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_UserManagement_Pwned
+	 */
+	protected function getProcessorPwned() {
+		$oProc = $this->getSubProcessor( 'pwned' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/usermanagement_pwned.php' );
+			$oProc = new ICWP_WPSF_Processor_UserManagement_Pwned( $this->getFeature() );
+			$this->aSubProcessors[ 'pwned' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Sessions
 	 */
 	protected function getProcessorSessions() {
