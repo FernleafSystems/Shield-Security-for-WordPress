@@ -95,8 +95,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			}
 		}
 
+		$bPassCheckFailed = isset( $oMeta->pass_check_failed_at ) ? $oMeta->pass_check_failed_at > 0 : false;
 		// TODO Test this URL on wpms
-		if ( $bExpired || $oMeta->pass_check_failed_at ) {
+		if ( $bExpired || $bPassCheckFailed ) {
 			$this->loadWp()
 				 ->doRedirect(
 					 self_admin_url( 'profile.php' ),
