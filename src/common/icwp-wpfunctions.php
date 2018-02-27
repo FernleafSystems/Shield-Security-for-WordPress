@@ -9,6 +9,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @var WP_Automatic_Updater
 	 */
 	protected $oWpAutomaticUpdater;
+
 	/**
 	 * @var ICWP_WPSF_WpFunctions
 	 */
@@ -475,7 +476,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool   $bWpmsOnly
+	 * @param bool $bWpmsOnly
 	 * @return string
 	 */
 	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
@@ -532,7 +533,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isRequestLoginUrl() {
-		return $this->isLoginUrl( $this->loadDataProcessor()->getRequestPath() );
+		return $this->isLoginUrl( $this->loadDP()->getRequestPath() );
 	}
 
 	/**
@@ -540,29 +541,25 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function isRequestUserLogin() {
 		$oDp = $this->loadDP();
-		return $this->isRequestLoginUrl() && $oDp->GetIsRequestPost()
-			   && !is_null( $oDp->FetchPost( 'log' ) ) && !is_null( $oDp->FetchPost( 'pwd' ) );
+		return $this->isRequestLoginUrl() && $oDp->isMethodPost()
+			   && !is_null( $oDp->post( 'log' ) ) && !is_null( $oDp->post( 'pwd' ) );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isRequestUserRegister() {
-		$oDp = $this->loadDataProcessor();
-		return
-			$oDp->GetIsRequestPost()
-			&& !is_null( $oDp->FetchPost( 'user_login' ) )
-			&& !is_null( $oDp->FetchPost( 'user_email' ) )
-			&& $this->isRequestLoginUrl();
+		$oDp = $this->loadDP();
+		return $oDp->isMethodPost() && !is_null( $oDp->post( 'user_login' ) )
+			   && !is_null( $oDp->post( 'user_email' ) ) && $this->isRequestLoginUrl();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isRequestUserResetPasswordStart() {
-		$oDp = $this->loadDataProcessor();
-		return $this->isRequestLoginUrl() &&
-			   $oDp->GetIsRequestPost() && !is_null( $oDp->FetchPost( 'user_login' ) );
+		$oDp = $this->loadDP();
+		return $this->isRequestLoginUrl() && $oDp->isMethodPost() && !is_null( $oDp->post( 'user_login' ) );
 	}
 
 	/**

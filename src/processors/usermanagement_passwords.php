@@ -24,15 +24,21 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
 		// Reset
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
-
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		// Login
 		add_filter( 'authenticate', array( $this, 'checkLoginPassword' ), PHP_INT_MAX, 3 );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
+
 		$this->loadAutoload();
 	}
 
+	/**
+	 * @param WP_User|WP_Error $oErrorUser
+	 * @param string           $sUsername
+	 * @param string           $sPassword
+	 * @return WP_User|WP_Error
+	 */
 	public function checkLoginPassword( $oErrorUser, $sUsername, $sPassword ) {
 
 		if ( $oErrorUser instanceof WP_User ) { // successful login.
@@ -49,8 +55,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	/**
-	 * Hooked to action wp_login
-	 * @param $sUsername
+	 * @param string $sUsername
 	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
@@ -78,7 +83,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( !$this->loadDP()->isMethodPost() && $this->loadWpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 		}
 	}
@@ -150,7 +155,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	protected function applyPasswordChecks( $sPassword ) {
 		$this->getPasswordMeetsMinimumLength( $sPassword );
 		$this->getPasswordMeetsMinimumStrength( $sPassword );
-		$this->sendRequestToPwned( $sPassword );
+		$this->sendRequestToPwnedRange( $sPassword );
 	}
 
 	/**
@@ -195,7 +200,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	protected function verifyApiAccess() {
 		try {
-			$this->sendRequestToPwned( 'P@ssw0rd' );
+			$this->sendRequestToPwnedRange( 'P@ssw0rd' );
 		}
 		catch ( Exception $oE ) {
 			return false;
@@ -209,9 +214,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @throws Exception
 	 */
 	protected function sendRequestToPwned( $sPass ) {
-		$oConn = $this->getController();
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$oConn = $oFO->getConn();
+
 		$aResponse = $this->loadFS()->requestUrl(
-			sprintf( 'https://api.pwnedpasswords.com/pwnedpassword/%s', hash( 'sha1', $sPass ) ),
+			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
 			array(
 				'headers' => array(
 					'user-agent' => sprintf( '%s WP Plugin-v%s', $oConn->getHumanName(), $oConn->getVersion() )
@@ -247,6 +255,69 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 							  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
 							  sprintf( _wpsf__( '%s times' ), $nCount )
 						  );
+			}
+		}
+
+		if ( !empty( $sError ) ) {
+			throw new Exception( $sError );
+		}
+
+		return true;
+	}
+
+	protected function sendRequestToPwnedRange( $sPass ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$oConn = $oFO->getConn();
+
+		$sPassHash = strtoupper( hash( 'sha1', $sPass ) );
+		$sSubHash = substr( $sPassHash, 0, 5 );
+
+		$aResponse = $this->loadFS()->requestUrl(
+			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
+			array(
+				'headers' => array(
+					'user-agent' => sprintf( '%s WP Plugin-v%s', $oConn->getHumanName(), $oConn->getVersion() )
+				)
+			),
+			true
+		);
+
+		$sError = '';
+		if ( is_wp_error( $aResponse ) ) {
+			$sError = $aResponse->get_error_message();
+		}
+		else if ( empty( $aResponse ) ) {
+			$sError = 'Response was empty';
+		}
+		else if ( is_array( $aResponse ) ) {
+			if ( empty( $aResponse[ 'response' ][ 'code' ] ) ) {
+				$sError = 'Unexpected Error: No response code available from the API';
+			}
+			else if ( $aResponse[ 'response' ][ 'code' ] != 200 ) {
+				// means that the password isn't on the pwned list. It's acceptable.
+				$sError = 'Unexpected Error: The response from the API was unexpected';
+			}
+			else if ( empty( $aResponse[ 'body' ] ) ) {
+				$sError = 'Unexpected Error: The response from the API was empty';
+			}
+			else {
+				$nCount = 0;
+				foreach ( explode( "\n", trim( $aResponse[ 'body' ] ) ) as $sRow ) {
+					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
+						$nCount = substr( preg_replace( '#[^a-z0-9]#i', '', $sRow ), 36 ); // need to preg_replace to clean up funny characters.
+						break;
+					}
+				}
+				if ( $nCount > 0 ) {
+					$sError = _wpsf__( 'Please use a different password.' )
+							  .' '._wpsf__( 'This password has already been pwned.' )
+							  .' '.sprintf(
+								  '(<a href="%s" target="_blank">%s</a>)',
+								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
+								  sprintf( _wpsf__( '%s times' ), $nCount )
+							  );
+				}
 			}
 		}
 

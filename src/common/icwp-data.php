@@ -262,6 +262,13 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isMethodPost() {
+		return ( self::GetRequestMethod() == 'post' );
+	}
+
+	/**
 	 * Taken from http://www.phacks.net/detecting-search-engine-bot-and-web-spiders/
 	 */
 	public static function IsSearchEngineBot() {
@@ -318,13 +325,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 		$sAtoZ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		$nRandomInt = rand( 0, ( strlen( $sAtoZ ) - 1 ) );
 		return $sAtoZ[ $nRandomInt ];
-	}
-
-	/**
-	 * @return bool
-	 */
-	static public function GetIsRequestPost() {
-		return ( self::GetRequestMethod() == 'post' );
 	}
 
 	/**

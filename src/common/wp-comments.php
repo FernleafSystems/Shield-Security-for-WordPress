@@ -80,7 +80,6 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isCommentPost() {
-		return $this->loadDataProcessor()->GetIsRequestPost() && $this->loadWp()
-																	  ->getIsCurrentPage( 'wp-comments-post.php' );
+		return $this->loadDP()->isMethodPost() && $this->loadWp()->getIsCurrentPage( 'wp-comments-post.php' );
 	}
 }
