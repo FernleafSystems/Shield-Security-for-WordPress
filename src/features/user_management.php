@@ -197,6 +197,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
+	public function isPassForceUpdateExisting() {
+		return $this->getOptIs( 'pass_force_existing', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isPassPreventPwned() {
 		return $this->getOptIs( 'pass_prevent_pwned', 'Y' );
 	}
@@ -321,8 +328,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 			case 'enable_password_policies' :
 				$sName = _wpsf__( 'Enable Password Policies' );
-				$sSummary = _wpsf__( 'Switch This On To Enable The Password Policies Below' );
-				$sDescription = _wpsf__( 'Turn on/off all password policies.' );
+				$sSummary = _wpsf__( 'Enable The Password Policies Detailed Below' );
+				$sDescription = _wpsf__( 'Turn on/off all password policy settings.' );
 				break;
 
 			case 'pass_prevent_pwned' :
@@ -341,6 +348,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = _wpsf__( 'Minimum Strength' );
 				$sSummary = _wpsf__( 'Minimum Password Strength' );
 				$sDescription = _wpsf__( 'All passwords that a user sets must meet this minimum strength.' );
+				break;
+
+			case 'pass_force_existing' :
+				$sName = _wpsf__( 'Apply To Existing' );
+				$sSummary = _wpsf__( 'Apply Password Policies To Existing Users and Their Passwords' );
+				$sDescription = _wpsf__( "Forces existing users to update their passwords if they don't meet requirements, after they next login." )
+								.'<br/>'._wpsf__( 'Note: You may want to warn users prior to enabling this option.' );
 				break;
 
 			case 'pass_expire' :

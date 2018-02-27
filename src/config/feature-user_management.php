@@ -134,7 +134,7 @@
       "link_info": "",
       "link_blog": "",
       "name": "Enable Password Policies",
-      "summary": "Switch This On To Enable The Password Policies Below",
+      "summary": "Enable The Password Policies Below",
       "description": "Turn on/off all password policies."
     },
     {
@@ -187,6 +187,17 @@
       "name": "Minimum Strength",
       "summary": "Minimum Password Strength",
       "description": "All passwords that a user sets must meet this minimum strength."
+    },
+    {
+      "key": "pass_force_existing",
+      "section": "section_passwords",
+      "type": "checkbox",
+      "default": "N",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Apply To Existing",
+      "summary": "Apply Password Policies To Existing Users and Their Passwords",
+      "description": "Forces existing users to update their passwords if they don't meet requirements, after they next login ."
     },
     {
       "key": "pass_expire",
