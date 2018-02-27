@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		if ( $oFO->isPasswordPoliciesEnabled() ) {
-			$this->getProcessorPwned()->run();
+			$this->getProcessorPasswords()->run();
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
@@ -175,14 +175,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Pwned
+	 * @return ICWP_WPSF_Processor_UserManagement_Passwords
 	 */
-	protected function getProcessorPwned() {
-		$oProc = $this->getSubProcessor( 'pwned' );
+	protected function getProcessorPasswords() {
+		$oProc = $this->getSubProcessor( 'passwords' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/usermanagement_pwned.php' );
-			$oProc = new ICWP_WPSF_Processor_UserManagement_Pwned( $this->getFeature() );
-			$this->aSubProcessors[ 'pwned' ] = $oProc;
+			require_once( dirname( __FILE__ ).'/usermanagement_passwords.php' );
+			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getFeature() );
+			$this->aSubProcessors[ 'passwords' ] = $oProc;
 		}
 		return $oProc;
 	}

@@ -158,6 +158,27 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getPassStrengthName( $nStrength ) {
+		$aMap = array(
+			_wpsf__( 'Weak' ),
+			_wpsf__( 'Weak' ),
+			_wpsf__( 'Medium' ),
+			_wpsf__( 'Strong' ),
+			_wpsf__( 'Very Strong' ),
+		);
+		return $aMap[ max( 0, min( 4, $nStrength ) ) ];
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPassMinStrength() {
+		return (int)$this->getOpt( 'pass_min_strength' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isPasswordPoliciesEnabled() {
@@ -304,6 +325,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = _wpsf__( 'Minimum Length' );
 				$sSummary = _wpsf__( 'Minimum Password Length' );
 				$sDescription = _wpsf__( 'All passwords that a user sets must be at least this many characters in length.' );
+				break;
+
+			case 'pass_min_strength' :
+				$sName = _wpsf__( 'Minimum Strength' );
+				$sSummary = _wpsf__( 'Minimum Password Strength' );
+				$sDescription = _wpsf__( 'All passwords that a user sets must meet this minimum strength.' );
 				break;
 
 			case 'pass_expire' :

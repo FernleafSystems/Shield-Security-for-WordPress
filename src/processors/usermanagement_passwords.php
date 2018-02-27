@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Passwords', false ) ) {
 	return;
 }
 
@@ -10,7 +10,7 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
  * Class ICWP_WPSF_Processor_UserManagement_Pwned
  */
-class ICWP_WPSF_Processor_UserManagement_Pwned extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
 		// Account Reg
@@ -21,6 +21,8 @@ class ICWP_WPSF_Processor_UserManagement_Pwned extends ICWP_WPSF_Processor_BaseW
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
 		// Login
 		add_filter( 'authenticate', array( $this, 'checkPassword' ), 100, 3 );
+
+		$this->loadAutoload();
 	}
 
 	/**
@@ -30,19 +32,60 @@ class ICWP_WPSF_Processor_UserManagement_Pwned extends ICWP_WPSF_Processor_BaseW
 	public function checkPassword( $oErrors ) {
 		$aExistingCodes = $oErrors->get_error_code();
 		if ( empty( $aExistingCodes ) ) {
-
 			$sPassword = $this->loadDP()->post( 'pass1' );
+
 			if ( !empty( $sPassword ) ) {
 				try {
+					$this->getPasswordMeetsMinimumLength( $sPassword );
+					$this->getPasswordMeetsMinimumStrength( $sPassword );
 					$this->sendRequestToPwned( $sPassword );
 				}
 				catch ( Exception $oE ) {
-					$oErrors->add( 'shield_pwned_password', $oE->getMessage() );
+					$sMessage = _wpsf__( 'Your site security administrator has imposed requirements for password quality.' )
+								.' '.$oE->getMessage();
+					$oErrors->add( 'shield_password_policy', $sMessage );
 				}
 			}
 		}
 
 		return $oErrors;
+	}
+
+	/**
+	 * @param string $sPassword
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function getPasswordMeetsMinimumStrength( $sPassword ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$nMin = $oFO->getPassMinStrength();
+
+		$oStengther = new \ZxcvbnPhp\Zxcvbn();
+		$aResults = $oStengther->passwordStrength( $sPassword );
+
+		$nScore = $aResults[ 'score' ];
+		if ( $nScore < $nMin ) { // TODO: use names, not numbers in error
+			throw new Exception( sprintf( "Password strength (%s) doesn't meet the minimum required (%s).",
+				$oFO->getPassStrengthName( $nScore ), $oFO->getPassStrengthName( $nMin ) ) );
+		}
+		return true;
+	}
+
+	/**
+	 * @param string $sPassword
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function getPasswordMeetsMinimumLength( $sPassword ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$nMin = $oFO->getPassMinLength();
+		$nLength = strlen( $sPassword );
+		if ( $nMin > 0 && $nLength < $nMin ) {
+			throw new Exception( sprintf( _wpsf__( 'Password length (%s) too short (min: %s characters)' ), $nLength, $nMin ) );
+		}
+		return true;
 	}
 
 	/**

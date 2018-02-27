@@ -157,6 +157,35 @@
       "description": "All passwords that a user sets must be at least this many characters in length."
     },
     {
+      "key": "pass_min_strength",
+      "section": "section_passwords",
+      "type":          "select",
+      "default": "4",
+      "value_options": [
+        {
+          "value_key": "1",
+          "text":      "Weak"
+        },
+        {
+          "value_key": "2",
+          "text":      "Medium"
+        },
+        {
+          "value_key": "3",
+          "text":      "Strong"
+        },
+        {
+          "value_key": "4",
+          "text":      "Very Strong"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Minimum Strength",
+      "summary": "Minimum Password Strength",
+      "description": "All passwords that a user sets must meet this minimum strength."
+    },
+    {
       "key": "pass_expire",
       "section": "section_passwords",
       "type": "integer",
