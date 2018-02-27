@@ -10,7 +10,8 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
  * @property bool   $ga_validated
  * @property array  $hash_loginmfa
  * @property string $pass_hash
- * @property string $pass_started_at
+ * @property int    $pass_started_at
+ * @property int    $pass_check_failed_at
  * @property string $yubi_secret
  * @property bool   $yubi_validated
  * @property string $code_tfaemail

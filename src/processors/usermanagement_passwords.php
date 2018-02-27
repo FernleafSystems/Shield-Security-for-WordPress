@@ -12,6 +12,11 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
  */
 class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_BaseWpsf {
 
+	/**
+	 * @var bool
+	 */
+	private $bPasswordFailedChecks;
+
 	public function run() {
 		// Account Reg
 		add_filter( 'registration_errors', array( $this, 'checkPassword' ), 100, 3 );
@@ -22,8 +27,54 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		// Login
-		add_filter( 'authenticate', array( $this, 'checkPassword' ), 100, 3 );
+		add_filter( 'authenticate', array( $this, 'checkLoginPassword' ), PHP_INT_MAX, 3 );
+		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
+
 		$this->loadAutoload();
+	}
+
+	public function checkLoginPassword( $oErrorUser, $sUsername, $sPassword ) {
+
+		if ( $oErrorUser instanceof WP_User ) { // successful login.
+			try {
+				$this->applyPasswordChecks( $sPassword );
+				$this->bPasswordFailedChecks = false;
+			}
+			catch ( Exception $oE ) {
+				$this->bPasswordFailedChecks = true;
+			}
+		}
+
+		return $oErrorUser;
+	}
+
+	/**
+	 * Hooked to action wp_login
+	 * @param $sUsername
+	 */
+	public function onWpLogin( $sUsername ) {
+		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		if ( $oUser instanceof WP_User ) {
+			$this->setPasswordFlags( $oUser );
+		}
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return $this
+	 */
+	private function setPasswordFlags( $oUser ) {
+		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+
+		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 0, 6 );
+		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
+			$oMeta->pass_hash = $sCurrentPassHash;
+			$oMeta->pass_started_at = $this->time();
+		}
+
+		$oMeta->pass_check_failed_at = (bool)$this->bPasswordFailedChecks ? $this->time() : 0;
+
+		return $this;
 	}
 
 	public function onWpLoaded() {
@@ -37,15 +88,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$oFO = $this->getFeature();
 		$bExpired = false;
 		$nExpireTimeout = $oFO->getPassExpireTimeout();
+		$oMeta = $oFO->getCurrentUserMeta();
 		if ( $nExpireTimeout > 0 ) {
-			$oMeta = $oFO->getCurrentUserMeta();
 			if ( !empty( $oMeta->pass_hash ) ) { // we can only do this if we've recorded a password
 				$bExpired = ( $this->time() - $oMeta->pass_started_at ) > $nExpireTimeout;
 			}
 		}
 
 		// TODO Test this URL on wpms
-		if ( $bExpired ) {
+		if ( $bExpired || $oMeta->pass_check_failed_at ) {
 			$this->loadWp()
 				 ->doRedirect(
 					 self_admin_url( 'profile.php' ),
@@ -67,9 +118,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 			if ( !empty( $sPassword ) ) {
 				try {
-					$this->getPasswordMeetsMinimumLength( $sPassword );
-					$this->getPasswordMeetsMinimumStrength( $sPassword );
-					$this->sendRequestToPwned( $sPassword );
+					$this->applyPasswordChecks( $sPassword );
 				}
 				catch ( Exception $oE ) {
 					$sMessage = _wpsf__( 'Your site security administrator has imposed requirements for password quality.' )
@@ -80,6 +129,16 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		return $oErrors;
+	}
+
+	/**
+	 * @param string $sPassword
+	 * @throws Exception
+	 */
+	protected function applyPasswordChecks( $sPassword ) {
+		$this->getPasswordMeetsMinimumLength( $sPassword );
+		$this->getPasswordMeetsMinimumStrength( $sPassword );
+		$this->sendRequestToPwned( $sPassword );
 	}
 
 	/**
