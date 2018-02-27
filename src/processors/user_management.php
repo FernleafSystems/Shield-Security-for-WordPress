@@ -26,6 +26,12 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
+		if ( $oFO->isPasswordPoliciesEnabled() ) {
+			$this->getProcessorPwned()->run();
+		}
+
+		/** Everything from this point on must consider XMLRPC compatibility **/
+
 		// XML-RPC Compatibility
 		if ( $this->loadWp()->getIsXmlrpc() && $oFO->isXmlrpcBypass() ) {
 			return;

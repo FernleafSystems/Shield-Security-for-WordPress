@@ -24,6 +24,15 @@
       ]
     },
     {
+      "slug": "section_passwords",
+      "title": "Password Policies",
+      "title_short": "Password Policies",
+      "summary": [
+        "Purpose - Have full control over passwords used by users on the site.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
       "slug": "section_admin_login_notification",
       "title": "Admin Login Notification",
       "title_short": "Notifications",
@@ -113,6 +122,50 @@
       "name": "Max Simultaneous Sessions",
       "summary": "Limit Simultaneous Sessions For The Same Username",
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
+    },
+    {
+      "key": "enable_password_policies",
+      "section": "section_passwords",
+      "type": "checkbox",
+      "default": "N",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable Password Policies",
+      "summary": "Switch This On To Enable The Password Policies Below",
+      "description": "Turn on/off all password policies."
+    },
+    {
+      "key": "pass_prevent_pwned",
+      "section": "section_passwords",
+      "type": "checkbox",
+      "default": "Y",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Prevent Pwned Passwords",
+      "summary": "Prevent Use Of Any Pwned Passwords",
+      "description": "Prevents users from using any passwords found on the public available list of pwned passwords."
+    },
+    {
+      "key": "pass_min_length",
+      "section": "section_passwords",
+      "type": "integer",
+      "default": "12",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Minimum Length",
+      "summary": "Minimum Password Length",
+      "description": "All passwords that a user sets must be at least this many characters in length."
+    },
+    {
+      "key": "pass_expire",
+      "section": "section_passwords",
+      "type": "integer",
+      "default": "60",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Password Expiration",
+      "summary": "Passwords Expire After This Many Days",
+      "description": "Users will be forced to reset their passwords after the number of days specified."
     },
     {
       "key":          "autoadd_sessions_started_at",
