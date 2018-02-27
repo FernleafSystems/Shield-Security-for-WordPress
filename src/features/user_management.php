@@ -158,6 +158,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return int seconds
+	 */
+	public function getPassExpireTimeout() {
+		$nDays = max( 0, (int)$this->getOpt( 'pass_expire' ) );
+		return $nDays*DAY_IN_SECONDS;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getPassStrengthName( $nStrength ) {

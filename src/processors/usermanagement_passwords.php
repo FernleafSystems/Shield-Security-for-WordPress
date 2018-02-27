@@ -20,7 +20,40 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		// Reset
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
 
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
+		// Login
+		add_filter( 'authenticate', array( $this, 'checkPassword' ), 100, 3 );
 		$this->loadAutoload();
+	}
+
+	public function onWpLoaded() {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			$this->processExpiredPassword();
+		}
+	}
+
+	private function processExpiredPassword() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$bExpired = false;
+		$nExpireTimeout = $oFO->getPassExpireTimeout();
+		if ( $nExpireTimeout > 0 ) {
+			$oMeta = $oFO->getCurrentUserMeta();
+			if ( !empty( $oMeta->pass_hash ) ) { // we can only do this if we've recorded a password
+				$bExpired = ( $this->time() - $oMeta->pass_started_at ) > $nExpireTimeout;
+			}
+		}
+
+		// TODO Test this URL on wpms
+		if ( $bExpired ) {
+			$this->loadWp()
+				 ->doRedirect(
+					 self_admin_url( 'profile.php' ),
+					 array(
+						 $oFO->prefix( 'force-user-password' ) => '1'
+					 )
+				 );
+		}
 	}
 
 	/**
