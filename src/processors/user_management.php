@@ -50,6 +50,9 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
+
+			$this->setPasswordStartedAt( $oUser ); // used by Password Policies
+
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeature();
 			if ( $oFO->isSendEmailLoginNotification() ) {
@@ -63,8 +66,23 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param WP_User $oUser
 	 * @return $this
 	 */
+	private function setPasswordStartedAt( $oUser ) {
+		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+
+		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 0, 6 );
+		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
+			$oMeta->pass_hash = $sCurrentPassHash;
+			$oMeta->pass_started_at = $this->time();
+		}
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return $this
+	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = $this->getFeature()->getUserMeta( $oUser );
 		$oMeta->last_login_at = $this->time();
 		return $this;
 	}

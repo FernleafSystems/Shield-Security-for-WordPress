@@ -19,8 +19,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
 		// Reset
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
-		// Login
-		add_filter( 'authenticate', array( $this, 'checkPassword' ), 100, 3 );
 
 		$this->loadAutoload();
 	}
@@ -32,7 +30,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	public function checkPassword( $oErrors ) {
 		$aExistingCodes = $oErrors->get_error_code();
 		if ( empty( $aExistingCodes ) ) {
-			$sPassword = $this->loadDP()->post( 'pass1' );
+			$sPassword = $this->getLoginPassword();
 
 			if ( !empty( $sPassword ) ) {
 				try {
@@ -63,9 +61,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		$oStengther = new \ZxcvbnPhp\Zxcvbn();
 		$aResults = $oStengther->passwordStrength( $sPassword );
-
 		$nScore = $aResults[ 'score' ];
-		if ( $nScore < $nMin ) { // TODO: use names, not numbers in error
+
+		if ( $nMin > 0 && $nScore < $nMin ) {
 			throw new Exception( sprintf( "Password strength (%s) doesn't meet the minimum required (%s).",
 				$oFO->getPassStrengthName( $nScore ), $oFO->getPassStrengthName( $nMin ) ) );
 		}
@@ -153,5 +151,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		return true;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getLoginPassword() {
+		return $this->loadDP()->post( 'pass1' );
 	}
 }
