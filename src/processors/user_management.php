@@ -26,6 +26,12 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		// Handles login notification emails and setting last user login
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
+		if ( $oFO->isPasswordPoliciesEnabled() ) {
+			$this->getProcessorPasswords()->run();
+		}
+
+		/** Everything from this point on must consider XMLRPC compatibility **/
+
 		// XML-RPC Compatibility
 		if ( $this->loadWp()->getIsXmlrpc() && $oFO->isXmlrpcBypass() ) {
 			return;
@@ -166,6 +172,19 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_UserManagement_Passwords
+	 */
+	protected function getProcessorPasswords() {
+		$oProc = $this->getSubProcessor( 'passwords' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/usermanagement_passwords.php' );
+			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getFeature() );
+			$this->aSubProcessors[ 'passwords' ] = $oProc;
+		}
+		return $oProc;
 	}
 
 	/**

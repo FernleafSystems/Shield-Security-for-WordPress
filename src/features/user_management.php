@@ -151,6 +151,49 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getPassMinLength() {
+		return (int)$this->getOpt( 'pass_min_length' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPassStrengthName( $nStrength ) {
+		$aMap = array(
+			_wpsf__( 'Weak' ),
+			_wpsf__( 'Weak' ),
+			_wpsf__( 'Medium' ),
+			_wpsf__( 'Strong' ),
+			_wpsf__( 'Very Strong' ),
+		);
+		return $aMap[ max( 0, min( 4, $nStrength ) ) ];
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPassMinStrength() {
+		return (int)$this->getOpt( 'pass_min_strength' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPasswordPoliciesEnabled() {
+		return $this->getOptIs( 'enable_password_policies', 'Y' )
+			   && $this->getOptionsVo()->isOptReqsMet( 'enable_password_policies' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPassPreventPwned() {
+		return $this->getOptIs( 'pass_prevent_pwned', 'Y' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -167,6 +210,16 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				break;
+
+			case 'section_passwords' :
+				$sTitle = _wpsf__( 'Password Policies' );
+				$sTitleShort = _wpsf__( 'Password Policies' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Have full control over passwords used by users on the site.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
+				);
 				break;
 
 			case 'section_admin_login_notification' :
@@ -256,6 +309,37 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'Limit Simultaneous Sessions For The Same Username' );
 				$sDescription = _wpsf__( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.' )
 								.'<br />'._wpsf__( "Zero (0) will allow unlimited simultaneous sessions." );
+				break;
+
+			case 'enable_password_policies' :
+				$sName = _wpsf__( 'Enable Password Policies' );
+				$sSummary = _wpsf__( 'Switch This On To Enable The Password Policies Below' );
+				$sDescription = _wpsf__( 'Turn on/off all password policies.' );
+				break;
+
+			case 'pass_prevent_pwned' :
+				$sName = _wpsf__( 'Prevent Pwned Passwords' );
+				$sSummary = _wpsf__( 'Prevent Use Of Any Pwned Passwords' );
+				$sDescription = _wpsf__( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.' );
+				break;
+
+			case 'pass_min_length' :
+				$sName = _wpsf__( 'Minimum Length' );
+				$sSummary = _wpsf__( 'Minimum Password Length' );
+				$sDescription = _wpsf__( 'All passwords that a user sets must be at least this many characters in length.' );
+				break;
+
+			case 'pass_min_strength' :
+				$sName = _wpsf__( 'Minimum Strength' );
+				$sSummary = _wpsf__( 'Minimum Password Strength' );
+				$sDescription = _wpsf__( 'All passwords that a user sets must meet this minimum strength.' );
+				break;
+
+			case 'pass_expire' :
+				$sName = _wpsf__( 'Password Expiration' );
+				$sSummary = _wpsf__( 'Passwords Expire After This Many Days' );
+				$sDescription = _wpsf__( 'Users will be forced to reset their passwords after the number of days specified.' )
+								.' '._wpsf__( 'Set to Zero(0) to disable.' );
 				break;
 
 			default:
