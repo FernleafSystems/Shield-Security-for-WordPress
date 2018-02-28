@@ -247,14 +247,19 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			}
 			else {
 				// password pwned
-				$nCount = intval( preg_replace( '#[^0-9]#', '', $aResponse[ 'body' ] ) );
-				$sError = _wpsf__( 'Please use a different password.' )
-						  .' '._wpsf__( 'This password has already been pwned.' )
-						  .' '.sprintf(
-							  '(<a href="%s" target="_blank">%s</a>)',
-							  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-							  sprintf( _wpsf__( '%s times' ), $nCount )
-						  );
+				$nCount = intval( $aResponse[ 'body' ] );
+				if ( $nCount == 0 ) {
+					$sError = 'Unexpected Error: The API response could not be properly parsed.';
+				}
+				else {
+					$sError = _wpsf__( 'Please use a different password.' )
+							  .' '._wpsf__( 'This password has already been pwned.' )
+							  .' '.sprintf(
+								  '(<a href="%s" target="_blank">%s</a>)',
+								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
+								  sprintf( _wpsf__( '%s times' ), $nCount )
+							  );
+				}
 			}
 		}
 
@@ -303,9 +308,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			}
 			else {
 				$nCount = 0;
-				foreach ( explode( "\n", trim( $aResponse[ 'body' ] ) ) as $sRow ) {
+				foreach ( array_map( 'trim', explode( "\n", trim( $aResponse[ 'body' ] ) ) ) as $sRow ) {
 					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
-						$nCount = substr( preg_replace( '#[^a-z0-9]#i', '', $sRow ), 36 ); // need to preg_replace to clean up funny characters.
+						$nCount = substr( $sRow, 36 ); // need to preg_replace to clean up funny characters.
 						break;
 					}
 				}
