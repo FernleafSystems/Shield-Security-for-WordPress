@@ -293,14 +293,12 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'ignore':
-					if ( $bWpOrg ) {
-						/** @var ICWP_WPSF_Processor_HackProtect $oProc */
-						$oProc = $this->getModCon()->getProcessor();
-						$oP = $oProc->getSubProcessorGuard();
-						$oP->updateItemInSnapshot( $sSlug, $sContext );
-						$bSuccess = true;
-						$sMessage = _wpsf__( 'All changes detected have been ignored.' );
-					}
+					/** @var ICWP_WPSF_Processor_HackProtect $oProc */
+					$oProc = $this->getModCon()->getProcessor();
+					$oP = $oProc->getSubProcessorGuard();
+					$oP->updateItemInSnapshot( $sSlug, $sContext );
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'All changes detected have been ignored.' );
 					break;
 
 				case 'deactivate':
