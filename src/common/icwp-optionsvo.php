@@ -242,12 +242,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bIncludeHidden
 	 * @return array[]
 	 */
-	public function getSections() {
+	public function getSections( $bIncludeHidden = false ) {
 		$aSections = array();
 		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
-			if ( !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
+			if ( $bIncludeHidden || !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
 				$aSections[ $aRawSection[ 'slug' ] ] = $aRawSection;
 			}
 		}
@@ -262,9 +263,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$aSection = $this->getSection( $sSlug );
 		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : array();
 		return array_merge(
-			array(
-				'php_min' => '5.2.4'
-			),
+			array( 'php_min' => '5.2.4' ),
 			$aReqs
 		);
 	}

@@ -1426,9 +1426,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'        => array(
-				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
-				'wizard_link'     => $this->getUrl_WizardLanding(),
-				'wizard_landing'  => $this->getUrl_WizardLanding(),
+				'go_pro'         => 'http://icwp.io/shieldgoprofeature',
+				'wizard_link'    => $this->getUrl_WizardLanding(),
+				'wizard_landing' => $this->getUrl_WizardLanding(),
 			),
 			'content'      => array(
 				'options_form'   => '',
@@ -1464,6 +1464,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'blog'              => __( 'Blog' ),
 			'save_all_settings' => __( 'Save All Settings' ),
 			'see_help_video'    => __( 'Watch Help Video' ),
+			'btn_save'          => __( 'Save Options' ),
 			'btn_options'       => __( 'Options' ),
 			'btn_help'          => __( 'Help' ),
 			'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
