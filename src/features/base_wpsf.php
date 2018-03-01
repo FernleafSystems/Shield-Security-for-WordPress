@@ -120,7 +120,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'aar_forget_key'               => _wpsf__( "Forgotten Key" )
 				),
 				'flags'   => array(
-					'show_summary' => true,
 					'has_session'  => $this->hasSession()
 				),
 				'hrefs'   => array(

@@ -5,7 +5,8 @@
 
 		<h3><?php echo $strings[ 'aar_title' ]; ?></h3>
 		<p><?php echo $strings[ 'aar_what_should_you_enter' ]; ?>
-			<br /><?php echo $strings[ 'aar_must_supply_key_first' ]; ?></p>
+			<br /><?php echo $strings[ 'aar_must_supply_key_first' ]; ?>
+		</p>
 
 		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal" id="SecurityAdminForm">
 			<input type="hidden" name="plugin_form_submit" value="Y" />
@@ -22,8 +23,8 @@
 
 					<div class="option_section">
 						<label class="admin_access_key_request">
-							<input type="password" name="admin_access_key_request" id="admin_access_key_request"
-								   value="" autocomplete="off" autofocus />
+							<input type="password" name="admin_access_key_request"
+								   id="admin_access_key_request" value="" autocomplete="off" autofocus />
 						</label>
 						<p class="help-block"><?php echo $strings[ 'aar_to_manage_must_enter_key' ]; ?></p>
 					</div>
@@ -42,6 +43,7 @@
 
 			</div>
 		</form>
+		</div>
 	</div>
-	</div>
+</div>
 </div>

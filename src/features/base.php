@@ -1376,7 +1376,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
+	protected function getBaseDisplayData( $bRenderEmbeddedContent = false ) {
 		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
@@ -1417,7 +1417,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'flags'        => array(
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
-				'show_summary'          => false,
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
 				'show_content_actions'  => $this->hasCustomActions(),
@@ -1428,10 +1427,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'hrefs'        => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
-				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
 				'wizard_link'     => $this->getUrl_WizardLanding(),
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
-				'primary_wizard'  => $this->getUrl_WizardPrimary(),
 			),
 			'content'      => array(
 				'options_form'   => '',
@@ -1443,7 +1440,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		);
 
 		if ( $bRenderEmbeddedContent ) { // prevents recursive loops
-
 			$aData[ 'content' ] = array(
 				'options_form'   => 'no form',
 				'alt'            => '',
@@ -1512,13 +1508,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string|null
-	 */
-	protected function getPrimaryWizard() {
-		return $this->hasWizard() ? key( $this->getWizardDefinitions() ) : null;
-	}
-
-	/**
 	 * @uses nonce
 	 * @param string $sWizardSlug
 	 * @return string
@@ -1540,14 +1529,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getUrl_WizardLanding() {
 		return $this->getUrl_Wizard( 'landing' );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getUrl_WizardPrimary() {
-		$sPrimary = $this->getPrimaryWizard();
-		return $this->getUrl_Wizard( $sPrimary );
 	}
 
 	/**
@@ -1595,7 +1576,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		// Get the same Base Data as normal display
 		return $this->loadRenderer( self::getConn()->getPath_Templates() )
 					->setTemplate( $sTemplate )
-					->setRenderVars( $this->getBaseDisplayData() )
+					->setRenderVars( $this->getBaseDisplayData( true ) )
 					->render();
 	}
 
@@ -1629,7 +1610,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDataProcessor();
 
 		// Get Base Data
-		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
+		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sModuleView = 'feature-'.$this->getFeatureSlug();
 			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';

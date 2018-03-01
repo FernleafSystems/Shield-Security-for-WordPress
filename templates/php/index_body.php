@@ -17,7 +17,6 @@
 					<?php endif; ?>
 					<?php echo $aSummary[ 'name' ]; ?>
 				</div>
-
 			</a>
 		<?php endforeach; ?>
 		</div>
