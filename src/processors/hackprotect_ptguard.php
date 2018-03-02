@@ -198,9 +198,12 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 						->getPlugin( $sBaseFile );
 
 		return array(
-			'version' => $aPlugin[ 'Version' ],
-			'ts'      => $this->loadDP()->time(),
-			'hashes'  => $this->hashPluginFiles( $sBaseFile )
+			'meta'   => array(
+				'name'    => $aPlugin[ 'Name' ],
+				'version' => $aPlugin[ 'Version' ],
+				'ts'      => $this->loadDP()->time(),
+			),
+			'hashes' => $this->hashPluginFiles( $sBaseFile )
 		);
 	}
 
@@ -212,9 +215,12 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		$oTheme = $this->loadWpThemes()
 					   ->getTheme( $sSlug );
 		return array(
-			'version' => $oTheme->get( 'Version' ),
-			'ts'      => $this->loadDP()->time(),
-			'hashes'  => $this->hashThemeFiles( $sSlug )
+			'meta'   => array(
+				'name'    => $oTheme->get( 'Name' ),
+				'version' => $oTheme->get( 'Version' ),
+				'ts'      => $this->loadDP()->time(),
+			),
+			'hashes' => $this->hashThemeFiles( $sSlug )
 		);
 	}
 
@@ -320,8 +326,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 * @return string[]
 	 */
 	protected function hashPluginFiles( $sSlugBaseName ) {
-		$sDir = dirname( path_join( WP_PLUGIN_DIR, $sSlugBaseName ) );
-		return $this->hashFilesInDir( $sDir );
+		return $this->hashFilesInDir( $this->loadWpPlugins()->getInstallationDir( $sSlugBaseName ) );
 	}
 
 	/**
@@ -553,20 +558,23 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 
 			$aItemResults = array();
 
-			// First find the difference between live hashes and cached.
+			// First grab all the current hashes.
 			try {
 				$aLiveHashes = $this->hashFiles( $sBaseName, $sContext );
 			}
 			catch ( Exception $oE ) {
 				// happens when a plugin/theme no longer exists on disk and we try to get its hashes.
 				// an exception is thrown by the recursive directory iterator
-				$this->deleteItemFromSnapshot( $sBaseName, $sContext );
-				continue;
+//				$this->deleteItemFromSnapshot( $sBaseName, $sContext );
+
+				// We now imagine the whole folder is "missing" and we list all files as missing.
+				$aLiveHashes = array();
 			}
 
+			// todo: array_diff_assoc ?
 			$aDifferent = array();
 			foreach ( $aSnap[ 'hashes' ] as $sFile => $sHash ) {
-				if ( $aLiveHashes[ $sFile ] != $sHash ) {
+				if ( isset( $aLiveHashes[ $sFile ] ) && $aLiveHashes[ $sFile ] != $sHash ) {
 					$aDifferent[] = $sFile;
 				}
 			}
@@ -587,6 +595,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			}
 
 			if ( !empty( $aItemResults ) ) {
+				$aItemResults[ 'meta' ] = $aSnap[ 'meta' ];
 				$aResults[ $sBaseName ] = $aItemResults;
 			}
 		}
