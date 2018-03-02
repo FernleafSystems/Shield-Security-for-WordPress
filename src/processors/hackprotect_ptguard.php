@@ -438,7 +438,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			$aAllThemes = array_filter( array_map(
 				function ( $sBaseFile ) use ( $oThms ) {
 					$oTheme = $oThms->getTheme( $sBaseFile );
-					return sprintf( '%s: v%s', $oTheme->get( 'name' ), ltrim( $oTheme->get( 'version' ), 'v' ) );
+					return sprintf( '%s: v%s', $oTheme->get( 'Name' ), ltrim( $oTheme->get( 'Version' ), 'v' ) );
 				},
 				array_keys( $aResults[ self::CONTEXT_THEMES ] )
 			) );
