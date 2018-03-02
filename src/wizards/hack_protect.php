@@ -508,17 +508,26 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			if ( $sContext == 'plugins' ) {
 				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
 				$bInstalled = $oWpPlugins->isInstalled( $sSlug );
+				if ( $bInstalled ) {
+					$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
+				}
 				$bCanReinstall = $bInstalled && $bIsWpOrg;
 				$bCanDeactivate = $bInstalled;
 			}
 			else {
 				$bIsWpOrg = $oWpThemes->isWpOrg( $sSlug );
 				$bInstalled = $oWpThemes->isInstalled( $sSlug );
+				if ( $bInstalled ) {
+					$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+				}
 				$bCanReinstall = $bInstalled && $bIsWpOrg;
 				$bCanDeactivate = false;
 			}
 
-			$sName = $aItem[ 'meta' ][ 'name' ];
+			if ( empty( $sName ) ) {
+				$sName = isset( $aItem[ 'meta' ][ 'name' ] ) ? $aItem[ 'meta' ][ 'name' ] : 'Unknown: '.$sSlug;
+			}
+
 			$aResults[ $sName ] = $this->stripPaths( $aItem );
 			$aResults[ $sName ][ 'flags' ] = array(
 				'is_wporg'       => $bIsWpOrg,
