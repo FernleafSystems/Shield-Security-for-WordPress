@@ -361,7 +361,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa).
 *Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
 
 * **(v.0)**  IMPROVED:		[Plugin Guard](http://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
-* **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
+* **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now trigger the blacklist transgressions counter.
 * **(v.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
 * **(v.0)**  ADDED:			[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
 * **(v.0)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes

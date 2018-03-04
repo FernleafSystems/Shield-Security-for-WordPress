@@ -1431,6 +1431,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'hrefs'        => array(
 				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
+				'goprofooter'     => 'http://icwp.io/goprofooter',
 				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
 				'wizard_link'     => $this->getUrl_WizardLanding(),
 				'wizard_landing'  => $this->getUrl_WizardLanding(),
@@ -1579,7 +1580,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	protected function getIsShowMarketing() {
-		return false && apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
+		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
 	}
 
 	/**
