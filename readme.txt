@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, protect, spam, scan, recaptcha, two-factor authentication, login, 2FA, ithemes, wordfence, better wp security, all-in-one, lockdown, hack
 Requires at least: 3.5.0
 Tested up to: 4.9
-Stable tag: 6.4.5
+Stable tag: 6.5.0
 
 Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
@@ -358,17 +358,26 @@ Technical support, and some newer features will not be available to you, however
 You can [go Pro for just $1/month](http://icwp.io/aa).
 Technical support is available to premium clients only.
 
-= 6.4.5 - Current Release =
-*Released: 5th March, 2018* - [Release Notes](http://icwp.io/br)
+= 6.5.0 - Current Release =
+*Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
 
-* **(v.5)**  IMPROVED:		Plugin Guard better handles the case where a plugin/theme has been entirely renamed/removed.
-* **(v.5)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
+* **(v.0)**  IMPROVED:		[Plugin Guard](http://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
+* **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
+* **(v.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
+* **(v.0)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
+* **(v.0)**  FIXED:			A few small bugs
+
+= 6.5 Series =
+*Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
+
+* **(v.0)**  IMPROVED:		Plugin Guard better handles the case where a plugin/theme has been entirely renamed/removed.
+* **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
+* **(v.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
+* **(v.0)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
 
 = 6.4 Series =
 *Released: 26th February, 2018* - [Release Notes](http://icwp.io/br)
 
-* **(v.5)**  IMPROVED:		Plugin Guard better handles the case where a plugin/theme has been entirely renamed/removed.
-* **(v.5)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
 * **(v.1-4)**  FIXED:		Various Fixes
 * **(v.0)**  ADDED:			[**PRO**] New Scanner to [detect file changes for active plugins and themes](http://icwp.io/bq)
 * **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](http://icwp.io/bc)
