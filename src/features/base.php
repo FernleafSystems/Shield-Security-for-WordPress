@@ -396,17 +396,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
 	public function isModuleEnabled() {
-		if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
-			return false;
+
+		$bEnabled = $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' )
+					|| $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true );
+
+		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true ) {
+			$bEnabled = true;
+		}
+		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+			$bEnabled = false;
 		}
 
-		$bEnabled =
-			$this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' )
-			|| $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true )
-			|| ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 		return $bEnabled;
 	}
 

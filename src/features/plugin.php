@@ -245,13 +245,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return mixed
-	 */
-	public function isModuleEnabled() {
-		return true;
-	}
-
-	/**
 	 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
 	 * @param string $sPlugin
 	 */

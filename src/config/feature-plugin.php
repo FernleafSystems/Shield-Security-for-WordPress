@@ -5,6 +5,7 @@
     "show_module_menu_item":  true,
     "storage_key":            "plugin",
     "tagline":                "General Plugin Settings",
+    "auto_enabled":           true,
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
