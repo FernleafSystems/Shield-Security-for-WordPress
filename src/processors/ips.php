@@ -26,17 +26,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
-		$this->setAutoExpirePeriod( $oFO->getAutoExpireTime() );
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function readyToRun() {
@@ -699,5 +688,14 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK
 		);
 		return $this->loadDbProcessor()->doSql( $sQuery );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getAutoExpirePeriod() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->getAutoExpireTime();
 	}
 }

@@ -9,9 +9,9 @@ require_once( dirname( __FILE__ ).'/basedb.php' );
 class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
-	 * @var string
+	 * @var int
 	 */
-	protected $nDaysToKeep = 30;
+	const DAYS_TO_KEEP = 30;
 
 	/**
 	 * @var ICWP_WPSF_SessionVO
@@ -23,14 +23,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oFeatureOptions ) {
 		parent::__construct( $oFeatureOptions, $oFeatureOptions->getSessionsTableName() );
-	}
-
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$this->setAutoExpirePeriod( DAY_IN_SECONDS*$this->nDaysToKeep );
 	}
 
 	public function run() {
@@ -290,5 +282,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getFeature()->getDef( 'sessions_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getAutoExpirePeriod() {
+		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
 	}
 }

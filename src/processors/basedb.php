@@ -291,15 +291,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return int
 	 */
 	protected function getAutoExpirePeriod() {
-		return $this->nAutoExpirePeriod;
-	}
-
-	/**
-	 * @param int $nTimePeriod
-	 * @return $this
-	 */
-	protected function setAutoExpirePeriod( $nTimePeriod ) {
-		$this->nAutoExpirePeriod = $nTimePeriod;
-		return $this;
+		return null;
 	}
 }

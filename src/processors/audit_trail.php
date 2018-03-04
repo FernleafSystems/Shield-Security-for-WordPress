@@ -31,19 +31,6 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		parent::__construct( $oFeatureOptions, $oFeatureOptions->getAuditTrailTableName() );
 	}
 
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-
-		// Auto delete db entries
-		$nDays = $this->getOption( 'audit_trail_auto_clean' );
-		if ( $nDays > 0 ) {
-			$this->setAutoExpirePeriod( $nDays*DAY_IN_SECONDS );
-		}
-	}
-
 	public function action_doFeatureProcessorShutdown() {
 		parent::action_doFeatureProcessorShutdown();
 		if ( !$this->getFeature()->isPluginDeleting() ) {
@@ -191,23 +178,10 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return bool|int
-	 */
-	public function cleanupDatabase() {
-//		parent::cleanupDatabase();
-//
-//		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-//		$oFO = $this->getFeature();
-//		$sQuery = "DELETE * FROM `%s` ORDER BY `id` DESC LIMIT %s,%s";
-//		$sQuery = sprintf( $sQuery, $this->getTableName(), $oFO->getMaxEntries(), PHP_INT_MAX );
-//		return $this->selectCustom( $sQuery );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDefinition( 'audit_trail_table_columns' );
+		$aDef = $this->getFeature()->getDef( 'audit_trail_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -215,5 +189,14 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * override and do not delete
 	 */
 	public function deleteTable() {
+	}
+
+	/**
+	 * @return int|null
+	 */
+	protected function getAutoExpirePeriod() {
+		// Auto delete db entries
+		$nDays = (int)$this->getOption( 'audit_trail_auto_clean' );
+		return ( $nDays > 0 ) ? ( $nDays*DAY_IN_SECONDS ) : parent::getAutoExpirePeriod();
 	}
 }
