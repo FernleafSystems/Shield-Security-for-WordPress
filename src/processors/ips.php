@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
-			add_action( 'wp_login_failed', array( $this, 'doBlackMarkIp' ), 10, 0 );
+			add_action( 'wp_login_failed', array( $this, 'setIpTransgressed' ), 10, 0 );
 		}
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
@@ -67,16 +67,12 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		add_action( 'wp', array( $this, 'doTrack404' ) );
 	}
 
-	public function doBlackMarkIp() {
-		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
-	}
-
 	public function doTrack404() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
 		if ( $oFO->is404Tracking() && is_404() ) {
 			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
-				$this->doBlackMarkIp();
+				$this->setIpTransgressed(); // We now black mark this IP
 			}
 			$this->addToAuditEntry(
 				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadDataProcessor()->getRequestPath() ),
@@ -180,7 +176,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bBlackMark ) {
-			$this->doBlackMarkIp();
+			$this->setIpTransgressed(); // We now black mark this IP
 
 			if ( !is_wp_error( $oUserOrError ) ) {
 				$oUserOrError = new WP_Error();

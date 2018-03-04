@@ -183,8 +183,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_checkbox' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.checkbox.fail' );
 
-			// We now black mark this IP
-			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+			$this->setIpTransgressed(); // We now black mark this IP
 
 			$this->loadWp()
 				 ->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
@@ -196,7 +195,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			$this->doStatIncrement( $sActionAttempted.'.gasp.honeypot.fail' );
 
 			// We now black mark this IP
-			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+			$this->setIpTransgressed(); // We now black mark this IP
 
 			$this->loadWp()
 				 ->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
