@@ -66,7 +66,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
-		return ( ( $this->loadDataProcessor()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
+		return ( ( $this->loadDP()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
 	}
 
 	/**
@@ -85,11 +85,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( $this->getLastCheckServerIpAtHasExpired() ) {
 			$oIp = $this->loadIpService();
 			$sThisServerIp = $oIp->whatIsMyIp();
-			if ( $oIp->isValidIp_PublicRemote( $sThisServerIp ) ) {
+			if ( !empty( $sThisServerIp ) ) {
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}
 			// we always update so we don't forever check on every single page load
-			$this->setOpt( 'this_server_ip_last_check_at', $this->loadDataProcessor()->time() );
+			$this->setOpt( 'this_server_ip_last_check_at', $this->loadDP()->time() );
 		}
 		return $sThisServerIp;
 	}
@@ -99,7 +99,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isDisplayPluginBadge() {
 		return $this->getOptIs( 'display_plugin_badge', 'Y' )
-			   && ( $this->loadDataProcessor()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
+			   && ( $this->loadDP()->FetchCookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
 	/**

@@ -280,15 +280,16 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
 
-		// Never black mark IPs that are on the whitelist
-		if ( $oFO->isPluginDeleting() || !$oFO->getIsAutoBlackListFeatureEnabled()
-			 || $this->getIsVisitorWhitelisted() ) {
-			return;
-		}
+		if ( apply_filters( $oFO->prefix( 'ip_black_mark' ), false ) ) {
 
-		$bDoBlackMark = apply_filters( $oFO->prefix( 'ip_black_mark' ), false );
-		if ( $bDoBlackMark ) {
-			$this->blackMarkIp( $this->ip() );
+			// Never black mark IPs that are on the whitelist
+			$oIP = $this->loadIpService();
+			$bCanBlackMark = !$oFO->isPluginDeleting() && $oFO->getIsAutoBlackListFeatureEnabled()
+							 && !$this->getIsVisitorWhitelisted() && ( $oIP->whatIsMyIp() !== $this->ip() );
+
+			if ( $bCanBlackMark ) {
+				$this->blackMarkIp( $this->ip() );
+			}
 		}
 	}
 

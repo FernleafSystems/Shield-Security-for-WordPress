@@ -232,7 +232,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function whatIsMyIp() {
 
@@ -242,7 +242,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 			if ( is_string( $sIp ) ) {
 				$sIp = trim( $sIp );
 			}
-			$this->sMyIp = empty( $sIp ) ? '' : $sIp;
+			$this->sMyIp = $this->isValidIp_PublicRemote( $sIp ) ? $sIp : null;
 		}
 		return $this->sMyIp;
 	}
