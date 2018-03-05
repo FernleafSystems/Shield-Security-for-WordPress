@@ -267,6 +267,14 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sFile - plugin base file, e.g. wp-folder/wp-plugin.php
+	 * @return string
+	 */
+	public function getInstallationDir( $sFile ) {
+		return dirname( path_join( WP_PLUGIN_DIR, $sFile ) );
+	}
+
+	/**
 	 * @param string $sPluginFile
 	 * @return string
 	 */

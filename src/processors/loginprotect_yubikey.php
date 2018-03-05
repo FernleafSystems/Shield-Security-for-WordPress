@@ -4,9 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ) {
 	return;
 }
 
-require_once( dirname(__FILE__ ).'/loginprotect_intent_base.php' );
+require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
 
-class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentBase {
+class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**
 	 * @const string

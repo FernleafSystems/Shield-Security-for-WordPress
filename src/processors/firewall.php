@@ -287,8 +287,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				}
 			}
 
-			// black mark this IP
-			add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
+			$this->setIpTransgressed(); // black mark this IP
 		}
 	}
 

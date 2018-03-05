@@ -264,19 +264,21 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oWpThemes = $this->loadWpThemes();
 
 		// 1. load the asset
-		$bWpOrg = false;
-		$mAsset = null;
 		if ( $sContext == 'plugins' ) {
 			$mAsset = $oWpPlugins->getPlugin( $sSlug );
 			$bWpOrg = $oWpPlugins->isWpOrg( $sSlug );
 		}
-		else if ( $sContext == 'themes' ) {
+		else { //$sContext == 'themes'
 			$mAsset = $oWpThemes->getTheme( $sSlug );
 			$bWpOrg = $oWpThemes->isWpOrg( $sSlug );
 		}
 
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $oFO->getProcessor();
+		$oGuard = $oP->getSubProcessorGuard();
+
 		$bSuccess = false;
-		if ( empty( $mAsset ) ) {
+		if ( empty( $mAsset ) && $sItemAction != 'ignore' ) { // we can only ignore "empty"/missing assets
 			$sMessage = 'Item could not be found.';
 		}
 		else {
@@ -284,23 +286,20 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'reinstall':
 					if ( $bWpOrg ) {
-						/** @var ICWP_WPSF_Processor_HackProtect $oP */
-						$oP = $oFO->getProcessor();
-						$bSuccess = $oP->getSubProcessorGuard()
-									   ->reinstall( $sSlug, $sContext );
+						$bSuccess = $oGuard->reinstall( $sSlug, $sContext );
 						$sMessage = 'The item has been re-installed from WordPress.org sources.';
 					}
 					break;
 
 				case 'ignore':
-					if ( $bWpOrg ) {
-						/** @var ICWP_WPSF_Processor_HackProtect $oProc */
-						$oProc = $this->getModCon()->getProcessor();
-						$oP = $oProc->getSubProcessorGuard();
-						$oP->updateItemInSnapshot( $sSlug, $sContext );
-						$bSuccess = true;
-						$sMessage = _wpsf__( 'All changes detected have been ignored.' );
+					if ( empty( $mAsset ) ) {
+						$oGuard->deleteItemFromSnapshot( $sSlug );
 					}
+					else {
+						$oGuard->updateItemInSnapshot( $sSlug, $sContext );
+					}
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'All changes detected have been ignored.' );
 					break;
 
 				case 'deactivate':
@@ -504,31 +503,40 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$oWpPlugins = $this->loadWpPlugins();
 		$oWpThemes = $this->loadWpThemes();
-		foreach ( $aResults as $sSlug => $aItemResultSet ) {
+		foreach ( $aResults as $sSlug => $aItem ) {
+
 			if ( $sContext == 'plugins' ) {
 				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
-				$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
-				$aFlags = array(
-					'is_wporg'       => $bIsWpOrg,
-					'can_reinstall'  => $bIsWpOrg,
-					'can_deactivate' => true,
-					'slug'           => $sSlug,
-					'id'             => $sContext.sanitize_key( $sSlug ),
-				);
+				$bInstalled = $oWpPlugins->isInstalled( $sSlug );
+				if ( $bInstalled ) {
+					$sName = $oWpPlugins->getPlugin( $sSlug )[ 'Name' ];
+				}
+				$bCanReinstall = $bInstalled && $bIsWpOrg;
+				$bCanDeactivate = $bInstalled;
 			}
 			else {
-				$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
 				$bIsWpOrg = $oWpThemes->isWpOrg( $sSlug );
-				$aFlags = array(
-					'is_wporg'       => $bIsWpOrg,
-					'can_reinstall'  => $bIsWpOrg,
-					'can_deactivate' => false,
-					'slug'           => $sSlug,
-					'id'             => $sContext.sanitize_key( $sSlug ),
-				);
+				$bInstalled = $oWpThemes->isInstalled( $sSlug );
+				if ( $bInstalled ) {
+					$sName = $oWpThemes->getTheme( $sSlug )->get( 'Name' );
+				}
+				$bCanReinstall = $bInstalled && $bIsWpOrg;
+				$bCanDeactivate = false;
 			}
-			$aResults[ $sName ] = $this->stripPaths( $aItemResultSet );
-			$aResults[ $sName ][ 'flags' ] = $aFlags;
+
+			if ( empty( $sName ) ) {
+				$sName = isset( $aItem[ 'meta' ][ 'name' ] ) ? $aItem[ 'meta' ][ 'name' ] : 'Unknown: '.$sSlug;
+			}
+
+			$aResults[ $sName ] = $this->stripPaths( $aItem );
+			$aResults[ $sName ][ 'flags' ] = array(
+				'is_wporg'       => $bIsWpOrg,
+				'can_reinstall'  => $bCanReinstall,
+				'can_deactivate' => $bCanDeactivate,
+				'slug'           => $sSlug,
+				'id'             => $sContext.sanitize_key( $sSlug ),
+				'is_installed'   => $bInstalled
+			);
 			unset( $aResults[ $sSlug ] );
 		}
 
@@ -557,12 +565,17 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function stripPaths( $aLists ) {
 		foreach ( $aLists as $sKey => $aList ) {
-			$aLists[ $sKey ] = array_map(
-				function ( $sPath ) {
-					return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
-				},
-				$aList
-			);
+			if ( is_array( $aList ) ) {
+				$aLists[ $sKey ] = array_map(
+					function ( $sPath ) {
+						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+					},
+					$aList
+				);
+			}
+			else {
+				$aLists[ $sKey ] = $aList;
+			}
 		}
 		return $aLists;
 	}

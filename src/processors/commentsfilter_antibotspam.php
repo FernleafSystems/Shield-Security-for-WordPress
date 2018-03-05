@@ -42,7 +42,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	public function init() {
 		parent::init();
-		$this->setAutoExpirePeriod( DAY_IN_SECONDS );
 		$this->getUniqueCommentToken(); //ensures the necessary cookie is set early
 	}
 
@@ -71,7 +70,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		return $fIfDoCheck;
 	}
-	
+
 	/**
 	 */
 	public function run() {
@@ -199,9 +198,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->doStatIncrement( sprintf( 'spam.gasp.%s', $sStatKey ) );
 			$this->sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
 			$this->setCommentStatusExplanation( $sExplanation );
-
-			// We now black mark this IP
-			add_filter( $oFO->prefix( 'ip_black_mark' ), '__return_true' );
+			$this->setIpTransgressed(); // black mark this IP
 		}
 	}
 
@@ -263,7 +260,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 		echo $this->getGaspCommentsHtml();
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -273,7 +270,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$sReturn .= sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />', $this->getUniqueCommentToken() );
 		return $sReturn;
 	}
-	
+
 	protected function getGaspCommentsHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getFeature();
@@ -381,7 +378,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function checkCommentToken( $sCommentToken, $sPostId ) {
 
 		$sToken = esc_sql( $sCommentToken ); //just in-case someones tries to get all funky up in it
-		
+
 		// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
 		$sQuery = "
 			SELECT *
@@ -406,7 +403,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		else {
 			// Only 1 chance is given per token, so we delete it
 			$this->deleteUniquePostCommentToken( $sToken, $sPostId );
-			
+
 			// Did sufficient time pass, or has it expired?
 			$aRecord = $mResult[0];
 			$nInterval = $this->time() - $aRecord['created_at'];
@@ -501,6 +498,13 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				$this->sCommentStatus,
 				$sExplanation
 			)." *]\n";
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getAutoExpirePeriod() {
+		return DAY_IN_SECONDS;
 	}
 }
 endif;
