@@ -1,6 +1,6 @@
 === Shield Security for WordPress ===
 Contributors: onedollarplugin, paultgoodchild
-Donate link: http://icwp.io/q
+Donate link: http://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, scan, spam, recaptcha, two-factor authentication, ithemes, wordfence, better wp security, cerber, hack

@@ -6,8 +6,8 @@
  * Version: 6.5.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages/
- * Author: iControlWP
- * Author URI: http://icwp.io/2e
+ * Author: One Dollar Plugin
+ * Author URI: http://icwp.io/bv
  */
 
 /**
