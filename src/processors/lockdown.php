@@ -50,11 +50,19 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( $oFO->getOptIs( 'disable_xmlrpc', 'Y' ) ) {
-			add_filter( 'xmlrpc_enabled', '__return_false', 1000 );
-			add_filter( 'xmlrpc_methods', '__return_empty_array', 1000 );
+			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
+			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}
 
 		add_action( 'init', array( $this, 'onWpInit' ), 5 );
+	}
+
+	/**
+	 * @return array|false
+	 */
+	public function disableXmlrpc() {
+		$this->setIpTransgressed();
+		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
 	}
 
 	public function onWpInit() {

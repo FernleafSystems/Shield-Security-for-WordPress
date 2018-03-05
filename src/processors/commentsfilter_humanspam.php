@@ -126,9 +126,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					$this->doStatIncrement( sprintf( 'spam.human.%s', $sKey ) );
 					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
 					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
-
-					// We now black mark this IP
-					add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+					$this->setIpTransgressed(); // black mark this IP
 					break 2;
 				}
 			}

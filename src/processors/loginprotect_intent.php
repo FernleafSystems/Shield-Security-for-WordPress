@@ -16,8 +16,28 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	/**
 	 */
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
 		add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
+
+		if ( $oFO->getIfSupport3rdParty() ) {
+			add_action( 'wc_social_login_before_user_login', array( $this, 'onWcSocialLogin' ) );
+		}
+	}
+
+	/**
+	 * @param int $nUserId
+	 */
+	public function onWcSocialLogin( $nUserId ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+
+		$oUser = new WP_User( $nUserId );
+		if ( $oUser->ID != 0 ) { // i.e. said user id exists.
+			$oMeta = $oFO->getUserMeta( $oUser );
+			$oMeta->wc_social_login_valid = true;
+		}
 	}
 
 	public function onWpInit() {
@@ -134,7 +154,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	/**
 	 */
 	public function onWpLogout() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+
 		$this->resetLoginIntent();
+
+		// support for WooCommerce Social Login
+		if ( $oFO->getIfSupport3rdParty() ) {
+			$oFO->getCurrentUserMeta()->wc_social_login_valid = false;
+		}
 	}
 
 	/**

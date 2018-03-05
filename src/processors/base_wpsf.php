@@ -30,6 +30,13 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
+	 * Used to mark an IP address for transgression/black-mark
+	 */
+	public function setIpTransgressed() {
+		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+	}
+
+	/**
 	 * @return int
 	 */
 	protected function getInstallationDays() {
