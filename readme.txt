@@ -351,9 +351,8 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 Our policy was to never restrict security features to Pro upgrades. [This has now changed](http://icwp.io/bs).
 
-We're now offering technical support and other features exclusively to premium customers.
+Shield Pro brings exclusive features to the serious webmaster to maximise site security. You'll also have access to our email technical support team.
 If you don't want to support the work, no problem! You can still continue to use Shield Security and its free features in-full.
-Technical support, and some newer features will not be available to you, however.
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
