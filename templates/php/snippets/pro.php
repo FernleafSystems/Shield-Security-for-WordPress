@@ -114,7 +114,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 					  </h5>
 					</div>
 
-					<div id="collone" class="collapse" aria-labelledby="headingOne"
+					<div id="collone" class="collapse show" aria-labelledby="headingOne"
 						 data-parent="#accordion">
 					  <div class="card-body">
 						<dl>
@@ -123,24 +123,24 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 								Shield can then automatically upgrade as updates become available.
 							</dd>
 
+							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
+							<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
+
 							<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
-							<dd>Shield Pro works seamlessly with WooCommerce, providing tighter security
-								for your customer accounts.
+							<dd>Provide tighter security for your WooCommerce customers.
 							</dd>
 
 							<dt>Exclusive Customer Support</dt>
-							<dd>Technical email support for Shield Security is exclusive to Pro customers.
-							</dd>
+							<dd>Technical support for Shield is exclusive to Pro customers.</dd>
 
 							<dt>Import and Export of plugin options</dt>
-							<dd>Automatically import plugin settings directly from 1 site to another.</dd>
+							<dd>Automatically import settings directly from 1 site to another.</dd>
 
-							<dt>Exclusive Early-Access to new features </dt>
-							<dd>Be the first to access new security features, as soon as they're available.
-							</dd>
+							<dt>Exclusive Early-Access </dt>
+							<dd>Be 1st to get new security features, as soon as they're available.</dd>
 
 							<dt>Unlimited Audit Trail</dt>
-							<dd>Retain the audit trail logs for as long as you need - no limits.</dd>
+							<dd>Retain logs for as long as you need - no limits.</dd>
 
 							<dt>Customize text shown to visitors</dt>
 							<dd>Edit customer-facing messages/text of the Shield plugin.</dd>
@@ -161,9 +161,6 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 					<div id="colltwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
 					  <div class="card-body">
 						<dl>
-							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
-							<dd>Be alerted immediately to ANY unauthorized changes to plugin and theme files.</dd>
-
 							<dt>White Label</dt>
 							<dd>Re-Brand Shield Security as your own!</dd>
 
