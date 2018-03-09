@@ -31,11 +31,11 @@
 				</div>
 			</div>
 			<div class="form-group row no-gutters">
-				<div class="col-6">
+				<div class="col-6 order-2 text-right">
 					<button type="submit" class="btn btn-primary" name="submit">
 						<?php echo $strings[ 'aar_submit_access_key' ]; ?></button>
 				</div>
-				<div class="col-6 text-right">
+				<div class="col-6 order-1 text-left">
 					<a class="btn btn-link "
 					   href="<?php echo $hrefs[ 'aar_forget_key' ]; ?>" target="_blank">
 						<?php echo $strings[ 'aar_forget_key' ]; ?></a>
