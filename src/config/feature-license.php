@@ -95,6 +95,18 @@
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
+    },
+    {
+      "key": "keyless_request_hash",
+      "transferable": false,
+      "default": "",
+      "section": "section_non_ui"
+    },
+    {
+      "key": "keyless_request_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
@@ -105,6 +117,8 @@
     "license_item_id_sc": "968",
     "license_lack_check_expire_days": 3,
     "license_key_length": 32,
-    "license_key_type": "alphanumeric"
+    "license_key_type": "alphanumeric",
+    "keyless": true,
+    "keyless_handshake_expire": 15
   }
 }

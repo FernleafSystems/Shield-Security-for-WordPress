@@ -11,6 +11,11 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	protected static $oInstance = null;
 
 	/**
+	 * @var array
+	 */
+	private $aAdditionalRequestParams;
+
+	/**
 	 * @return ICWP_WPSF_Edd
 	 */
 	public static function GetInstance() {
@@ -73,6 +78,16 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sItemId
 	 * @return ICWP_EDD_LicenseVO|null
 	 */
+	public function checkLicense( $sStoreUrl, $sKey, $sItemId ) {
+		return $this->commonLicenseAction( 'check_license', $sStoreUrl, $sKey, $sItemId );
+	}
+
+	/**
+	 * @param string $sStoreUrl
+	 * @param string $sKey
+	 * @param string $sItemId
+	 * @return ICWP_EDD_LicenseVO|null
+	 */
 	public function deactivateLicense( $sStoreUrl, $sKey, $sItemId ) {
 		return $this->commonLicenseAction( 'deactivate_license', $sStoreUrl, $sKey, $sItemId );
 	}
@@ -88,21 +103,40 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 		$oLicense = null;
 
 		$aLicenseLookupParams = array(
-			'body' => array(
-				'edd_action' => $sAction,
-				'license'    => $sKey,
-				'item_id'    => $sItemId,
-				'url'        => $this->loadWp()->getHomeUrl(),
-				'alt_url'    => $this->loadWp()->getWpUrl()
+			'body' => array_merge(
+				array(
+					'edd_action' => $sAction,
+					'license'    => $sKey,
+					'item_id'    => $sItemId,
+					'url'        => $this->loadWp()->getHomeUrl(),
+					'alt_url'    => $this->loadWp()->getWpUrl()
+				),
+				$this->getRequestParams()
 			)
 		);
 
 		$aContent = $this->loadFS()
-						 ->postUrl( $sStoreUrl, $aLicenseLookupParams );
+						 ->getUrl( $sStoreUrl, $aLicenseLookupParams );
 		if ( !empty( $aContent ) ) {
 			require_once( dirname( __FILE__ ).'/easydigitaldownloads/ICWP_EDD_LicenseVO.php' );
 			$oLicense = new ICWP_EDD_LicenseVO( json_decode( $aContent[ 'body' ] ) );
 		}
 		return $oLicense;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRequestParams() {
+		return is_array( $this->aAdditionalRequestParams ) ? $this->aAdditionalRequestParams : array();
+	}
+
+	/**
+	 * @param array $aParams
+	 * @return $this
+	 */
+	public function setRequestParams( $aParams = array() ) {
+		$this->aAdditionalRequestParams = is_array( $aParams ) ? $aParams : array();
+		return $this;
 	}
 }

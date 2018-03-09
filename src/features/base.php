@@ -678,7 +678,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array|string $mErrors
 	 * @return $this
 	 */
-	public function setLastErrors( $mErrors ) {
+	public function setLastErrors( $mErrors = array() ) {
 		if ( !is_array( $mErrors ) ) {
 			if ( is_string( $mErrors ) ) {
 				$mErrors = array( $mErrors );
@@ -794,7 +794,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sAction
 	 * @return string
 	 */
-	protected function genNonce( $sAction = '' ) {
+	public function genNonce( $sAction = '' ) {
 		return wp_create_nonce( $this->prefix( $sAction ) );
 	}
 
@@ -803,7 +803,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sAction
 	 * @return bool
 	 */
-	protected function checkNonceAction( $sNonce, $sAction = '' ) {
+	public function checkNonceAction( $sNonce, $sAction = '' ) {
 		return wp_verify_nonce( $sNonce, $this->prefix( $sAction ) );
 	}
 
