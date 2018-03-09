@@ -206,10 +206,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			 ->setKeylessRequestHash( sha1( $sPass.$this->loadWp()->getHomeUrl() ) )
 			 ->savePluginOptions();
 
-		$aNonce = array( 'nonce' => wp_generate_password( 16 ) );
-
 		$oLicense = $this->loadEdd()
-						 ->setRequestParams( $aNonce )
+						 ->setRequestParams( array( 'nonce' => $sPass ) )
 						 ->activateLicense( $this->getLicenseStoreUrl(), '', $this->getLicenseItemId() );
 		try {
 			$this->storeLicense( $oLicense );
