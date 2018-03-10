@@ -115,7 +115,7 @@
     "license_item_id": "6047",
     "license_item_name_sc": "Shield Security Pro (via Shield Central)",
     "license_item_id_sc": "968",
-    "license_lack_check_expire_days": 3,
+    "license_lack_check_expire_days": 5,
     "license_key_length": 32,
     "license_key_type": "alphanumeric",
     "keyless": true,

@@ -143,11 +143,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$this->validateCurrentLicenseKey();
 			$bSuccess = $this->hasValidWorkingLicense();
 		}
-		else if ( $sLicenseAction == 'activate' ) {
-			$sKey = $oDp->FetchPost( $this->prefixOptionKey( 'license_key' ) );
-			$this->activateOfficialLicense( $sKey );
-			$bSuccess = $this->hasValidWorkingLicense();
-		}
 		else if ( $sLicenseAction == 'remove' ) {
 			$oLicense = $this->loadEdd()
 							 ->deactivateLicense(
@@ -214,7 +209,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$this->setLastErrors();
 		}
 		catch ( Exception $oE ) {
-			$this->setLastErrors( 'Could not retrieve a valid license' );
+			$this->setLastErrors( 'Could not find a valid license' );
 		}
 
 		$this->setKeylessRequestAt( 0 )
@@ -241,7 +236,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$bIsNewKey = $sOrigKey != $sKey;
 			$bIsOrigValid = $this->hasValidWorkingLicense();
 			$bDeactivateOriginal = $bIsNewKey && $bIsOrigValid;
-			$bIsShieldCentral = false;
 
 			if ( $bForceUpdate || $bIsNewKey || !$bIsOrigValid ) {
 				$oEDD = $this->loadEdd();
@@ -254,32 +248,23 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 						$this->getLicenseItemId()
 					);
 
-					if ( !is_null( $oLicense ) ) {
-
-						if ( !$oLicense->isSuccess() ) {
-							$oScLicense = $this->activateOfficialLicenseAsShieldCentral( $sKey );
-							if ( $oScLicense->isSuccess() ) {
-								$bIsShieldCentral = true;
-								$oLicense = $oScLicense;
-							}
-						}
-					}
-					else {
+					if ( is_null( $oLicense ) ) {
 						$sErrorMessage = 'Could not successfully request license server.'; // error for license lookup
 					}
+					else {
 
-					try {
-						$this->storeLicense( $oLicense, $sKey );
-						$this->setOpt( 'is_license_shield_central', $bIsShieldCentral );
-						$this->clearLastErrors();
-						// We also officially deactivate any existing valid licenses
-						if ( $bDeactivateOriginal && $oLicense->isSuccess() ) {
-							$this->loadEdd()
-								 ->deactivateLicense( $this->getLicenseStoreUrl(), $sOrigKey, $this->getLicenseItemId() );
+						try {
+							$this->storeLicense( $oLicense, $sKey );
+							$this->clearLastErrors();
+							// We also officially deactivate any existing valid licenses
+							if ( $bDeactivateOriginal && $oLicense->isSuccess() ) {
+								$this->loadEdd()
+									 ->deactivateLicense( $this->getLicenseStoreUrl(), $sOrigKey, $this->getLicenseItemId() );
+							}
 						}
-					}
-					catch ( Exception $oE ) {
-						$sErrorMessage = $oE->getMessage();
+						catch ( Exception $oE ) {
+							$sErrorMessage = $oE->getMessage();
+						}
 					}
 				}
 				else {
@@ -296,19 +281,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		return $oLicense;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return ICWP_EDD_LicenseVO
-	 */
-	protected function activateOfficialLicenseAsShieldCentral( $sKey ) {
-		return $this->loadEdd()
-					->activateLicense(
-						$this->getLicenseStoreUrl(),
-						$sKey,
-						$this->getLicenseItemIdShieldCentral()
-					);
 	}
 
 	/**
@@ -357,7 +329,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return string
 	 */
 	public function getLicenseItemName() {
-		return $this->getOpt( 'is_license_shield_central' ) ?
+		return $this->isLicenseShieldCentral() ?
 			$this->getDef( 'license_item_name_sc' ) :
 			$this->getDef( 'license_item_name' );
 	}
