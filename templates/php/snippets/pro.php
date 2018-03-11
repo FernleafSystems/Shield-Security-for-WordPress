@@ -69,6 +69,11 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 			<div class="row">
 				<div class="col card">
 					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+
+						<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
+							<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+						<?php endforeach; ?>
+
 						<input type="hidden" name="license-action" value="check" />
 						<div class="form-group">
 							<label>Check License Availability For This Site</label>
@@ -86,6 +91,11 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				<div class="row">
 					<div class="col card">
 						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+
+							<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
+								<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+							<?php endforeach; ?>
+
 							<input type="hidden" name="license-action" value="remove" />
 							<div class="form-group">
 								<label>Remove Current License</label>
@@ -233,23 +243,9 @@ var iCWP_WPSF_LicenseHandler = new function () {
 			return false;
 		}
 		bRequestCurrentlyRunning = true;
-
 		event.preventDefault();
 
 		var $oForm = jQuery( this );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "<?php echo $aLicenseAjax[ 'action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec' )
-							 .attr( 'value', "<?php echo $aLicenseAjax[ 'exec' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec_nonce' )
-							 .attr( 'value', "<?php echo $aLicenseAjax[ 'exec_nonce' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
-							 .attr( 'value', "<?php echo $aLicenseAjax[ 'mod_slug' ]; ?>" )
-							 .appendTo( $oForm );
-
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 			}

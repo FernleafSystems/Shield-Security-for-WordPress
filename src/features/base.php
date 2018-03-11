@@ -1473,8 +1473,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'ajax'         => array(
-				'mod_options'     => $this->getBaseAjaxActionRenderData( 'mod_options' ),
+			'ajax'              => array(
+				'mod_options' => $this->getBaseAjaxActionRenderData( 'mod_options' ),
 				'sec_admin_login' => $this->getBaseAjaxActionRenderData( 'sec_admin_login' ),
 			),
 			'strings'      => $this->getDisplayStrings(),
