@@ -95,20 +95,38 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->getIsValidAdminArea() ) {
-			add_action( 'wp_ajax_icwp_wpsf_TogglePluginAutoupdate', array( $this, 'ajaxTogglePluginAutoupdate' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthedAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'toggle_plugin_autoupdate':
+					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->getIsValidAdminArea() ) {
+						$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
+					}
+					break;
+
+				default:
+					break;
+			}
 		}
+		return parent::handleAuthedAjax( $aAjaxResponse );
 	}
 
-	public function ajaxTogglePluginAutoupdate() {
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_TogglePluginAutoupdate() {
 
 		$bSuccess = false;
 		if ( $this->checkAjaxNonce() ) {
 
 			$oWpPlugins = $this->loadWpPlugins();
-			$sFile = $this->loadDataProcessor()->FetchPost( 'pluginfile' );
+			$sFile = $this->loadDP()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
 
@@ -127,7 +145,11 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		else {
 			$sMessage = _wpsf__( 'Nonce security checking failed. Please reload.' );
 		}
-		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
+		);
 	}
 
 	/**
