@@ -65,42 +65,24 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 			<hr />
 
 			<h4>License Actions</h4>
+
 			<div class="row">
 				<div class="col card">
 					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
-						<input type="hidden" name="license-action" value="activate" />
+						<input type="hidden" name="license-action" value="check" />
 						<div class="form-group">
-							<label for="<?php echo $aLicKeyInput[ 'name' ]; ?>">Activate New License Key</label>
-							<input type="text" name="<?php echo $aLicKeyInput[ 'name' ]; ?>"
-								   class="form-control"
-								   id="<?php echo $aLicKeyInput[ 'name' ]; ?>"
-								   maxlength="<?php echo $aLicKeyInput[ 'maxlength' ]; ?>"
-								   value="" />
-							<button class="btn btn-success" type="submit" id="ButtonActivate" name="activate">
-								Activate Key</button>
-							<span class="form-text text-muted">This will replace any existing license key.</span>
+							<label>Check License Availability For This Site</label>
+							<button class="btn btn-info" type="submit"
+								<?php echo $flags[ 'button_enabled_check' ] ? '' : 'disabled="disabled"'; ?> >
+								Check License
+							</button>
+							<span class="form-text text-muted">Verify License Registration</span>
 						</div>
 					</form>
 				</div>
 			</div>
 
 			<?php if ( $flags[ 'has_license_key' ] ) : ?>
-				<div class="row">
-					<div class="col card">
-						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
-							<input type="hidden" name="license-action" value="recheck" />
-							<div class="form-group">
-								<label>Recheck Key</label>
-								<button class="btn btn-info" type="submit"
-									<?php echo $flags[ 'button_enabled_remove' ] ? '' : 'disabled="disabled"'; ?> >
-									Recheck
-								</button>
-								<span class="form-text text-muted">Verify and refresh the current license registration.</span>
-							</div>
-						</form>
-					</div>
-				</div>
-
 				<div class="row">
 					<div class="col card">
 						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
