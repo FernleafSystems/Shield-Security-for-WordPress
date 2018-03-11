@@ -57,8 +57,8 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 
 		var requestData = {
 			'action': '<?php echo $aTableAjax[ 'action' ]; ?>',
-			'icwp_nonce': '<?php echo $aTableAjax[ 'icwp_nonce' ]; ?>',
-			'icwp_nonce_action': '<?php echo $aTableAjax[ 'icwp_nonce_action' ]; ?>',
+			'exec': '<?php echo $aTableAjax[ 'exec' ]; ?>',
+			'exec_nonce': '<?php echo $aTableAjax[ 'exec_nonce' ]; ?>',
 			'mod_slug': '<?php echo $aTableAjax[ 'mod_slug' ]; ?>',
 			'auditcontext': $oMainContainer.data( 'auditcontext' )
 		};

@@ -130,11 +130,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
 							 .attr( 'value', "{{ ajax.content.action }}" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "{{ ajax.content.icwp_nonce }}" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec' )
+							 .attr( 'value', "{{ ajax.content.exec }}" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "{{ ajax.content.icwp_nonce_action }}" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec_nonce' )
+							 .attr( 'value', "{{ ajax.content.exec_nonce }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
 							 .attr( 'value', "{{ ajax.content.mod_slug }}" )

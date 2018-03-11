@@ -4,8 +4,11 @@
     <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />
 
+	<?php foreach ( $data[ 'ajax' ][ 'mod_options' ] as $sAjKey => $sAjVal ) : ?>
+		<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+	<?php endforeach; ?>
 
-<div style="margin-bottom: -1px">
+	<div style="margin-bottom: -1px">
 	<div class="row no-gutters">
 		<div class="col">
 			<div class="module-headline">
@@ -124,8 +127,8 @@
 			<?php if ( !empty( $aOptSection[ 'warnings' ] ) ) : ?>
 				<div class="row">
 					<div class="col">
-						<?php foreach ( $aOptSection[ 'warnings' ] as $sWarning ) :?>
-						<div class="alert alert-warning text-center"><?php echo $sWarning; ?></div>
+						<?php foreach ( $aOptSection[ 'warnings' ] as $sWarning ) : ?>
+							<div class="alert alert-warning text-center"><?php echo $sWarning; ?></div>
 						<?php endforeach; ?>
 					</div>
 				</div>
@@ -191,7 +194,7 @@
 											  id="<?php echo $sOptKey; ?>"
 											  placeholder="<?php echo $mOptValue; ?>"
 											  rows="<?php echo $aOption[ 'rows' ]; ?>"
-											 <?php echo $sDisabledText; ?>
+										<?php echo $sDisabledText; ?>
 									><?php echo $mOptValue; ?></textarea>
 
 								<?php elseif ( $sOptType == 'noneditable_text' ) : ?>
@@ -206,7 +209,7 @@
 										   id="<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
-										   <?php echo $sDisabledText; ?> />
+										<?php echo $sDisabledText; ?> />
 
 								<?php elseif ( $sOptType == 'email' ) : ?>
 
@@ -215,7 +218,7 @@
 										   id="<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
-										   <?php echo $sDisabledText; ?> />
+										<?php echo $sDisabledText; ?> />
 
 								<?php elseif ( $sOptType == 'select' ) : ?>
 
@@ -254,7 +257,7 @@
 											  id="<?php echo $sOptKey; ?>"
 											  placeholder="<?php echo $mOptValue; ?>"
 											  rows="<?php echo $aOption[ 'rows' ]; ?>"
-											  <?php echo $sDisabledText; ?>
+										<?php echo $sDisabledText; ?>
 									><?php echo $mOptValue; ?></textarea>
 
 								<?php elseif ( $sOptType == 'integer' ) : ?>
@@ -264,7 +267,7 @@
 										   id="<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
-										   <?php echo $sDisabledText; ?> />
+										<?php echo $sDisabledText; ?> />
 
 								<?php else : ?>
 									ERROR: Should never reach this point.

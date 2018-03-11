@@ -240,11 +240,11 @@ var iCWP_WPSF_LicenseHandler = new function () {
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
 							 .attr( 'value', "<?php echo $aLicenseAjax[ 'action' ]; ?>" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "<?php echo $aLicenseAjax[ 'icwp_nonce' ]; ?>" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec' )
+							 .attr( 'value', "<?php echo $aLicenseAjax[ 'exec' ]; ?>" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "<?php echo $aLicenseAjax[ 'icwp_nonce_action' ]; ?>" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec_nonce' )
+							 .attr( 'value', "<?php echo $aLicenseAjax[ 'exec_nonce' ]; ?>" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
 							 .attr( 'value', "<?php echo $aLicenseAjax[ 'mod_slug' ]; ?>" )

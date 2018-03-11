@@ -95,8 +95,8 @@
 
 			var requestData = {
 				'action': '<?php echo $aBadgeAjax[ 'action' ]; ?>',
-				'icwp_nonce': '<?php echo $aBadgeAjax[ 'icwp_nonce' ]; ?>',
-				'icwp_nonce_action': '<?php echo $aBadgeAjax[ 'icwp_nonce_action' ]; ?>',
+				'exec': '<?php echo $aBadgeAjax[ 'exec' ]; ?>',
+				'exec_nonce': '<?php echo $aBadgeAjax[ 'exec_nonce' ]; ?>',
 				'mod_slug': '<?php echo $aBadgeAjax[ 'mod_slug' ]; ?>',
 			};
 

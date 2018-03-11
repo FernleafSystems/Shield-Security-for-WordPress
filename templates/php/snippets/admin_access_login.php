@@ -1,4 +1,4 @@
-<div class="input-holder" id="AdminInputHolder-<?php echo $unique_render_id;?>">
+<div class="input-holder" id="AdminInputHolder-<?php echo $unique_render_id; ?>">
 	<label>
 		<?php echo $admin_access_message; ?>:
 		<input type="password" name="admin_access_key_request" data-nonce="<?php echo $sAjaxNonce; ?>" />
@@ -7,43 +7,43 @@
 </div>
 
 <script type="text/javascript">
-	var $oThisAAL = jQuery('#AdminInputHolder-<?php echo $unique_render_id;?>');
+	var $oThisAAL = jQuery( '#AdminInputHolder-<?php echo $unique_render_id;?>' );
 	var $oInput = jQuery( 'input', $oThisAAL );
 	var $oSubmit = jQuery( 'button', $oThisAAL );
 	jQuery( document ).ready(
-		function() {
+		function () {
 			$oSubmit.click( submit_admin_access );
-			$oInput.keypress( function(e) {
-				if( e.which == 13 ) {
+			$oInput.keypress( function ( e ) {
+				if ( e.which == 13 ) {
 					submit_admin_access();
 				}
-			});
+			} );
 		}
 	);
 
 	function submit_admin_access() {
-		$oThisAAL.html( '<div class="spinner"></div>');
+		$oThisAAL.html( '<div class="spinner"></div>' );
 		$oInput.prop( 'disabled', true );
 
 		var requestData = {
 			'action': '<?php echo $aSecAdminAjax[ 'action' ]; ?>',
-			'icwp_nonce': '<?php echo $aSecAdminAjax[ 'icwp_nonce' ]; ?>',
-			'icwp_nonce_action': '<?php echo $aSecAdminAjax[ 'icwp_nonce_action' ]; ?>',
+			'exec': '<?php echo $aSecAdminAjax[ 'exec' ]; ?>',
+			'exec_nonce': '<?php echo $aSecAdminAjax[ 'exec_nonce' ]; ?>',
 			'mod_slug': '<?php echo $aSecAdminAjax[ 'mod_slug' ]; ?>',
 			'admin_access_key_request': $oInput.val()
 		};
 
-		jQuery.post(ajaxurl, requestData, function( oResponse ) {
-			if( oResponse.success ) {
-				location.reload(true);
+		jQuery.post( ajaxurl, requestData, function ( oResponse ) {
+			if ( oResponse.success ) {
+				location.reload( true );
 			}
-			if( oResponse.data ) {
+			if ( oResponse.data ) {
 				$oThisAAL.html( oResponse.data.html );
 			}
 			else {
 				$oThisAAL.html( 'There was an unknown error' );
 			}
-		});
+		} );
 	}
 
 
