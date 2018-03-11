@@ -90,6 +90,16 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getSecAdminLoginAjaxData() {
+		// We set a custom mod_slug so that this module handles the ajax request
+		$aAjaxData = $this->getAjaxActionData( 'sec_admin_login' );
+		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $aAjaxData;
+	}
+
+	/**
 	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
@@ -97,6 +107,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
 			array(
+				'ajax'    => array(
+					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
+				),
 				'strings' => array(
 					'go_to_settings'    => _wpsf__( 'Settings' ),
 					'on'                => _wpsf__( 'On' ),
@@ -120,7 +133,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'aar_forget_key'               => _wpsf__( "Forgotten Key" )
 				),
 				'flags'   => array(
-					'has_session'  => $this->hasSession()
+					'has_session' => $this->hasSession()
 				),
 				'hrefs'   => array(
 					'aar_forget_key' => 'http://icwp.io/b5',

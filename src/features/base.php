@@ -1475,7 +1475,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			),
 			'ajax'              => array(
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
-				'sec_admin_login' => $this->getAjaxActionData( 'sec_admin_login' ),
 			),
 			'strings'      => $this->getDisplayStrings(),
 			'flags'        => array(
