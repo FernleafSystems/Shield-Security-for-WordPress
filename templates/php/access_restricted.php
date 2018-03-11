@@ -9,7 +9,6 @@
 		</p>
 
 		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal" id="SecurityAdminForm">
-			<input type="hidden" name="plugin_form_submit" value="Y" />
 
 			<?php foreach ( $ajax[ 'sec_admin_login' ] as $sName => $sVal ) : ?>
 				<input type="hidden" value="<?php echo $sVal; ?>" name="<?php echo $sName; ?>" />

@@ -55,17 +55,12 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 		$oMainContainer.html( '' );
 
-		var requestData = {
-			'action': '<?php echo $aTableAjax[ 'action' ]; ?>',
-			'exec': '<?php echo $aTableAjax[ 'exec' ]; ?>',
-			'exec_nonce': '<?php echo $aTableAjax[ 'exec_nonce' ]; ?>',
-			'mod_slug': '<?php echo $aTableAjax[ 'mod_slug' ]; ?>',
-			'auditcontext': $oMainContainer.data( 'auditcontext' )
-		};
+		var requestData = <?php echo $ajax['render_audit_table']; ?>;
+		requestData[ 'auditcontext' ] = $oMainContainer.data( 'auditcontext' );
 
 		jQuery.post( ajaxurl, jQuery.extend( aTableRequestParams, requestData ),
 			function ( oResponse ) {
-				$oMainContainer.html( oResponse.data.tablecontent )
+				$oMainContainer.html( oResponse.data.html )
 			}
 		).always(
 			function () {
