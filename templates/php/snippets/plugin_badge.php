@@ -94,11 +94,10 @@
 		var closeBadge = function () {
 
 			var requestData = {
-				'action': '<?php echo $icwp_ajax_action; ?>',
-				'icwp_ajax_action': '<?php echo $icwp_ajax_action; ?>',
-				'icwp_nonce': '<?php echo $icwp_nonce; ?>',
-				'icwp_nonce_action': '<?php echo $icwp_nonce_action; ?>',
-				'icwp_action_module': '<?php echo $icwp_action_module; ?>'
+				'action': '<?php echo $aBadgeAjax[ 'action' ]; ?>',
+				'exec': '<?php echo $aBadgeAjax[ 'exec' ]; ?>',
+				'exec_nonce': '<?php echo $aBadgeAjax[ 'exec_nonce' ]; ?>',
+				'mod_slug': '<?php echo $aBadgeAjax[ 'mod_slug' ]; ?>',
 			};
 
 			jQuery.post( '<?php echo $ajaxurl; ?>', requestData,

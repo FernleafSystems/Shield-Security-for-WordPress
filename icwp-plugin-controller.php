@@ -2,11 +2,9 @@
 /**
  * Copyright (c) 2018 iControlWP <support@icontrolwp.com>
  * All rights reserved.
- *
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -270,6 +268,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_action( 'admin_menu', array( $this, 'onWpAdminMenu' ) );
 		add_action( 'network_admin_menu', array( $this, 'onWpAdminMenu' ) );
 
+		if ( $this->loadWp()->isAjax() ) {
+			add_action( 'wp_ajax_'.$this->prefix(), array( $this, 'ajaxAction' ) );
+			add_action( 'wp_ajax_nopriv_'.$this->prefix(), array( $this, 'ajaxAction' ) );
+		}
+
 		add_filter( 'all_plugins', array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins', array( $this, 'doPluginLabels' ) );
 		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
@@ -371,7 +374,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function downloadOptionsExport() {
 		$oDp = $this->loadDataProcessor();
-		if ( $oDp->FetchGet( 'icwp_shield_export' ) == 1 ) {
+		if ( $oDp->query( 'icwp_shield_export' ) == 1 ) {
 			$aExportOptions = apply_filters( $this->prefix( 'gather_options_for_export' ), array() );
 			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
 				$oDp->downloadStringAsFile(
@@ -381,6 +384,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					.'-'.date( 'y-m-d__H-i-s' ).'.txt'
 				);
 			}
+		}
+	}
+
+	public function ajaxAction() {
+		$sNonceAction = $this->loadDP()->request( 'exec' );
+		check_ajax_referer( $sNonceAction, 'exec_nonce' );
+
+		$sAction = $this->loadWpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxAction';
+		$aResponse = apply_filters( $this->prefix( $sAction ), array() );
+
+		if ( !empty( $aResponse ) && is_array( $aResponse ) && isset( $aResponse[ 'success' ] ) ) {
+			$bSuccess = $aResponse[ 'success' ];
+			wp_send_json(
+				array(
+					'success' => $bSuccess,
+					'data'    => $aResponse
+				)
+			);
 		}
 	}
 

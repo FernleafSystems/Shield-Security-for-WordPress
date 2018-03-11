@@ -3,7 +3,7 @@
 /** @var string[] $inputs */
 /** @var string[] $flags */
 /** @var string[] $vars */
-/** @var string[] $ajax_vars */
+/** @var string[] $aLicenseAjax */
 /** @var array $aLicKeyInput */
 $aLicKeyInput = $inputs[ 'license_key' ];
 ?>
@@ -69,6 +69,11 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 			<div class="row">
 				<div class="col card">
 					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+
+						<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
+							<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+						<?php endforeach; ?>
+
 						<input type="hidden" name="license-action" value="check" />
 						<div class="form-group">
 							<label>Check License Availability For This Site</label>
@@ -86,6 +91,11 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				<div class="row">
 					<div class="col card">
 						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+
+							<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
+								<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+							<?php endforeach; ?>
+
 							<input type="hidden" name="license-action" value="remove" />
 							<div class="form-group">
 								<label>Remove Current License</label>
@@ -233,26 +243,9 @@ var iCWP_WPSF_LicenseHandler = new function () {
 			return false;
 		}
 		bRequestCurrentlyRunning = true;
-
 		event.preventDefault();
 
 		var $oForm = jQuery( this );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce_action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_action_module' ]; ?>" )
-							 .appendTo( $oForm );
-
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 			}

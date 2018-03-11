@@ -19,9 +19,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		add_action( $this->prefixWpAjax( 'PluginReinstall' ), array( $this, 'ajaxPluginReinstall' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthedAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'plugin_reinstall':
+					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthedAjax( $aAjaxResponse );
 	}
 
 	/**
@@ -465,7 +480,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->setOpt( 'ptg_enable', $sValue );
 	}
 
-	public function ajaxPluginReinstall() {
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_PluginReinstall() {
 		$oDP = $this->loadDP();
 		$bReinstall = (bool)$oDP->post( 'reinstall' );
 		$bActivate = (bool)$oDP->post( 'activate' );
@@ -483,7 +501,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oWpP->activate( $sFile );
 		}
 
-		$this->sendAjaxResponse( true );
+		return array(
+			'success' => true
+		);
 	}
 
 	public function insertCustomJsVars() {
@@ -493,7 +513,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
 				array(
-					'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+					'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'plugin_reinstall' ),
 					'reinstallable'  => $this->getReinstallablePlugins()
 				)
 			);

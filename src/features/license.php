@@ -40,20 +40,22 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		$aData = array(
-			'vars'      => $aLicenseTableVars,
-			'inputs'    => array(
+			'vars'    => $aLicenseTableVars,
+			'inputs'  => array(
 				'license_key' => array(
 					'name'      => $this->prefixOptionKey( 'license_key' ),
 					'maxlength' => $this->getDef( 'license_key_length' ),
 				)
 			),
-			'ajax_vars' => $this->getBaseAjaxActionRenderData( 'LicenseHandling' ),
-			'aHrefs'    => array(
+			'ajax'    => array(
+				'license_handling' => $this->getBaseAjaxActionRenderData( 'license_handling' )
+			),
+			'aHrefs'  => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
 				'iframe_url'               => $this->getDef( 'landing_page_url' ),
 			),
-			'flags'     => array(
+			'flags'   => array(
 				'show_key'              => !$this->isKeyless(),
 				'has_license_key'       => $this->isLicenseKeyValidFormat(),
 				'show_ads'              => false,
@@ -62,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
 			),
-			'strings'   => $this->getDisplayStrings(),
+			'strings' => $this->getDisplayStrings(),
 		);
 		$aData[ 'content' ] = array(
 			'alt' => $this->loadRenderer( self::getConn()->getPath_Templates() )
@@ -129,13 +131,32 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 	}
 
-	protected function adminAjaxHandlers() {
-		add_action( $this->prefixWpAjax( 'LicenseHandling' ), array( $this, 'ajaxLicenseHandling' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthedAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'license_handling':
+					$aAjaxResponse = $this->ajaxExec_LicenseHandling();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthedAjax( $aAjaxResponse );
 	}
 
-	public function ajaxLicenseHandling() {
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_LicenseHandling() {
 		$bSuccess = false;
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$sLicenseAction = $oDp->post( 'license-action' );
 
@@ -158,7 +179,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				 ->setOpt( 'license_official_status', 'n/a' );
 		}
 
-		$this->sendAjaxResponse( $bSuccess );
+		return array(
+			'success' => $bSuccess,
+		);
 	}
 
 	/**

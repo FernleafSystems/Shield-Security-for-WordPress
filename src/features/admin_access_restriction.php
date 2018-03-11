@@ -17,20 +17,89 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return parent::isReadyToExecute() && $this->hasAccessKey() && !$this->isVisitorWhitelisted();
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
-		add_action( $this->prefixWpAjax( 'AdminAccessLogin' ), array( $this, 'ajaxAdminAccessLogin' ) );
-		add_action( $this->prefixWpAjax( 'RestrictedAccessKey' ), array( $this, 'ajaxRestrictedAccessKey' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthedAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'sec_admin_login':
+				case 'restricted_access':
+					$aAjaxResponse = $this->ajaxExec_SecAdminLogin();
+					break;
+
+				case 'sec_admin_login_box':
+					$aAjaxResponse = $this->ajaxExec_SecAdminLoginBox();
+					break;
+
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthedAjax( $aAjaxResponse );
 	}
 
-	public function ajaxLoadAdminAccessForm() {
-		$bSuccess = $this->checkAjaxNonce();
-		if ( $bSuccess ) {
-			$sResponseData = array();
-			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm();
-			$this->sendAjaxResponse( true, $sResponseData );
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_SecAdminLogin() {
+		$aResponse = array();
+
+		if ( $this->checkAdminAccessKeySubmission() ) {
+
+			if ( $this->setPermissionToSubmit( true ) ) {
+				$aResponse[ 'success' ] = true;
+				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
+									   .' '._wpsf__( 'Please wait' ).' ...';
+			}
+			else {
+				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+			}
 		}
+		else {
+			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+		}
+
+		return $aResponse;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_SecAdminLoginBox() {
+		return array(
+			'success' => 'true',
+			'html'    => $this->renderAdminAccessAjaxLoginForm()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_RestrictedAccess() {
+		$aResponse = array();
+
+		if ( $this->checkAdminAccessKeySubmission() ) {
+
+			if ( $this->setPermissionToSubmit( true ) ) {
+				$aResponse[ 'success' ] = true;
+				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
+									   .' '._wpsf__( 'Please wait' ).' ...';
+			}
+			else {
+				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+			}
+		}
+		else {
+			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+		}
+
+		return $aResponse;
 	}
 
 	/**
@@ -38,43 +107,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string
 	 */
 	protected function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
-		$aData = $this->getBaseAjaxActionRenderData( 'AdminAccessLogin' );
-		$aData[ 'admin_access_message' ] = empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage;
+		$aData = array(
+			'ajax' => array(
+				'sec_admin_login' => $this->getBaseAjaxActionRenderData( 'sec_admin_login', true )
+			),
+			'strings' => array(
+				'access_message' => empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage
+			)
+		);
 		return $this->renderTemplate( 'snippets/admin_access_login', $aData );
-	}
-
-	public function ajaxAdminAccessLogin() {
-
-		if ( $this->isValidAjaxRequestForModule() ) {
-			$sResponseData = array();
-			$bSuccess = $this->checkAdminAccessKeySubmission();
-			if ( $bSuccess ) {
-				$bSuccess = $this->setPermissionToSubmit( true );
-				if ( $bSuccess ) {
-					$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
-				}
-				else {
-					$sResponseData[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
-				}
-			}
-			else {
-				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
-			}
-			$this->sendAjaxResponse( $bSuccess, $sResponseData );
-		}
-	}
-
-	public function ajaxRestrictedAccessKey() {
-		$sResponseData = array();
-		$bSuccess = $this->checkAdminAccessKeySubmission();
-		if ( $bSuccess ) {
-			$this->setPermissionToSubmit( true );
-			$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
-		}
-		else {
-			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
-		}
-		$this->sendAjaxResponse( $bSuccess, $sResponseData );
 	}
 
 	/**

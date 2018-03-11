@@ -9,10 +9,11 @@
 		</p>
 
 		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal" id="SecurityAdminForm">
-			<input type="hidden" name="plugin_form_submit" value="Y" />
-			<?php foreach ( $data[ 'ajax' ] as $sName => $sVal ) : ?>
+
+			<?php foreach ( $ajax[ 'sec_admin_login' ] as $sName => $sVal ) : ?>
 				<input type="hidden" value="<?php echo $sVal; ?>" name="<?php echo $sName; ?>" />
 			<?php endforeach; ?>
+
 			<div class="form-group row no-gutters">
 
 				<label class="form-label col-3 col-form-label" for="admin_access_key_request">
