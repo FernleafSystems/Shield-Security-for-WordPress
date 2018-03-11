@@ -445,7 +445,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
 				'unlock_link'        => $this->getUnlockLinkHtml(),
 			),
-			'sAjaxNonce'  => wp_create_nonce( 'icwp_ajax' ),
 			'js_snippets' => array(
 				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 			),

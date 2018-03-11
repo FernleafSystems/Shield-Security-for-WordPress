@@ -288,7 +288,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
-			$this->loadAdminNoticesProcessor()->setActionPrefix( $this->prefix() );
+			$oNofics = $this->loadAdminNoticesProcessor();
+			$oNofics->setActionPrefix( $this->prefix() );
+			add_filter( $this->prefix( 'ajaxAuthAction' ), array( $oNofics, 'handleAuthAjax' ) );
 		}
 	}
 

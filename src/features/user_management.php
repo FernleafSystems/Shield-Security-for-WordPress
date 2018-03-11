@@ -53,7 +53,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	protected function getTableRendererForSessions() {
 		$this->requireCommonLib( 'Components/Tables/SessionsTable.php' );
 		/** @var ICWP_WPSF_Processor_UserManagement $oProc */
-		$oProc = $this->loadFeatureProcessor();
+		$oProc = $this->loadProcessor();
 //		$nCount = $oProc->countAuditEntriesForContext( $sContext );
 
 		$oTable = new SessionsTable();

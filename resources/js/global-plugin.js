@@ -137,6 +137,7 @@ var iCWP_WPSF_HackGuard_Reinstall = new function () {
 	};
 }();
 
+/** TODO: THIS AJAX IS NOT COMPLETE **/
 var iCWP_WPSF_Autoupdates = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -156,13 +157,12 @@ var iCWP_WPSF_Autoupdates = new function () {
 		return sendTogglePluginAutoupdate( $oInput.data( 'pluginfile' ), $oInput.data( 'nonce' ) );
 	};
 
-	var sendTogglePluginAutoupdate = function ( sPluginFile, sAjaxNonce ) {
+	var sendTogglePluginAutoupdate = function ( sPluginFile ) {
 		bRequestCurrentlyRunning = true;
 
 		var requestData = {
 			'action': 'icwp_wpsf_TogglePluginAutoupdate',
-			'pluginfile': sPluginFile,
-			'_ajax_nonce': sAjaxNonce
+			'pluginfile': sPluginFile
 		};
 
 		jQuery.post( ajaxurl, requestData,

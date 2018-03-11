@@ -60,7 +60,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	protected function getTableRendererForContext( $sContext ) {
 		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadFeatureProcessor();
+		$oAuditTrail = $this->loadProcessor();
 		$nCount = $oAuditTrail->countAuditEntriesForContext( $sContext );
 
 		$oTable = new AuditTrailTable();
@@ -94,7 +94,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$nPage = (int)$aParams[ 'paged' ];
 
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadFeatureProcessor();
+		$oAuditTrail = $this->loadProcessor();
 		$aEntries = $oAuditTrail->getAuditEntriesForContext(
 			$sContext,
 			$aParams[ 'orderby' ],

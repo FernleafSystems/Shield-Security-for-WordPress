@@ -119,8 +119,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			'strings'     => array(
 				'tracking_data' => print_r( $this->getTrackingProcessor()->collectTrackingData(), true ),
 			),
-			//				'sAjaxNonce' => wp_create_nonce( 'icwp_ajax' ),
-			'js_snippets' => array(//					'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+			'js_snippets' => array(
 			)
 		);
 		add_thickbox();

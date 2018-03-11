@@ -335,7 +335,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Override this and adapt per feature
 	 * @return ICWP_WPSF_Processor_Base
 	 */
-	protected function loadFeatureProcessor() {
+	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			include_once( self::getConn()
 							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
@@ -431,7 +431,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Base
 	 */
 	public function getProcessor() {
-		return $this->loadFeatureProcessor();
+		return $this->loadProcessor();
 	}
 
 	/**
@@ -830,29 +830,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Will send ajax error response immediately upon failure
-	 * @return bool
-	 */
-	protected function checkAjaxNonce() {
-
-		$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
-		if ( empty( $sNonce ) ) {
-			$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
-		}
-		else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
-			$sMessage = $this->getTranslatedString( 'nonce_failed_supplied', 'Nonce security checking failed - the nonce supplied was "%s".' );
-			$sMessage = sprintf( $sMessage, $sNonce );
-		}
-		else {
-			return true; // At this stage we passed the nonce check
-		}
-
-		// At this stage we haven't returned after success so we failed the nonce check
-		$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
-		return false; //unreachable
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getBypassAdminRestriction() {
@@ -881,14 +858,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$this->oWizard = new $sClassName( $this );
 		}
 		return $this->oWizard;
-	}
-
-	/**
-	 * @param       $bSuccess
-	 * @param array $aData
-	 */
-	public function sendAjaxResponse( $bSuccess, $aData = array() ) {
-		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 
 	/**
@@ -1160,10 +1129,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $bSuccess;
 	}
 
-	public function handleAjaxOptionsSubmit() {
-
-	}
-
 	protected function verifyFormSubmit() {
 		if ( !self::getConn()->getHasPermissionToManage() ) {
 //				TODO: manage how we react to prohibited submissions
@@ -1430,8 +1395,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'width'       => 772,
 				'height'      => 454,
 			),
-			'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
-
 			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
@@ -1676,9 +1639,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			throw new Exception( 'notice_attributes is empty' );
 		}
 
-		if ( !isset( $aData[ 'icwp_ajax_nonce' ] ) ) {
-			$aData[ 'icwp_ajax_nonce' ] = wp_create_nonce( 'icwp_ajax' );
-		}
 		if ( !isset( $aData[ 'icwp_admin_notice_template' ] ) ) {
 			$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
 		}
@@ -1695,7 +1655,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
 
-		return $this->renderTemplate( 'notices'.DIRECTORY_SEPARATOR.'admin-notice-template', $aData );
+		$aAjaxData = $this->getAjaxActionData( 'dismiss_admin_notice' );
+		$aAjaxData[ 'hide' ] = 1;
+		$aAjaxData[ 'notice_id' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
+		$aData[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $aAjaxData );
+
+		return $this->renderTemplate( 'notices/admin-notice-template', $aData );
 	}
 
 	/**

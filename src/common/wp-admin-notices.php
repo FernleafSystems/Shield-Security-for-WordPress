@@ -39,9 +39,30 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		add_action( 'admin_notices', array( $this, 'onWpAdminNotices' ) );
 		add_action( 'network_admin_notices', array( $this, 'onWpAdminNotices' ) );
 		add_action( 'wp_loaded', array( $this, 'flushFlashMessage' ) );
-		if ( $this->loadWp()->isAjax() ) {
-			add_action( 'wp_ajax_icwp_wpsf_DismissAdminNotice', array( $this, 'ajaxDismissAdminNotice' ) );
+	}
+
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+		if ( empty( $aAjaxResponse ) && $this->loadDP()->request( 'exec' ) === 'dismiss_admin_notice' ) {
+			$aAjaxResponse = $this->ajaxExec_DismissAdminNotice();
 		}
+		return $aAjaxResponse;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_DismissAdminNotice() {
+		// Get all notices and if this notice exists, we set it to "hidden"
+		$sNoticeId = sanitize_key( $this->loadDP()->query( 'notice_id', '' ) );
+		$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
+		if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
+			$this->setMeta( $aNotices[ $sNoticeId ][ 'id' ] );
+		}
+		return array( 'success' => true );
 	}
 
 	public function onWpAdminNotices() {
@@ -50,19 +71,6 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 			echo $sAdminNoticeContent;
 		}
 		$this->flashNotice();
-	}
-
-	public function ajaxDismissAdminNotice() {
-
-		if ( $this->checkAjaxNonce() ) {
-			// Get all notices and if this notice exists, we set it to "hidden"
-			$sNoticeId = sanitize_key( $this->loadDP()->query( 'notice_id', '' ) );
-			$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
-			if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
-				$this->setMeta( $aNotices[ $sNoticeId ][ 'id' ] );
-			}
-			$this->sendAjaxResponse( true );
-		}
 	}
 
 	/**
@@ -113,36 +121,6 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
 		$oMeta->{$sCleanNotice} = array_merge( array( 'time' => $this->loadDP()->time() ), $aMeta );
 		return;
-	}
-
-	/**
-	 * Will send ajax error response immediately upon failure
-	 * @return bool
-	 */
-	protected function checkAjaxNonce() {
-
-		$sNonce = $this->loadDP()->FetchRequest( '_ajax_nonce', '' );
-		if ( empty( $sNonce ) ) {
-			$sMessage = 'Nonce security checking failed - the nonce value was empty.';
-		}
-		else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
-			$sMessage = sprintf( 'Nonce security checking failed - the nonce supplied was "%s".', $sNonce );
-		}
-		else {
-			return true; // At this stage we passed the nonce check
-		}
-
-		// At this stage we haven't returned after success so we failed the nonce check
-		$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
-		return false; //unreachable
-	}
-
-	/**
-	 * @param       $bSuccess
-	 * @param array $aData
-	 */
-	protected function sendAjaxResponse( $bSuccess, $aData = array() ) {
-		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 
 	/**
