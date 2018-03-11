@@ -183,7 +183,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'aContexts'    => $aContexts,
 			'sTitle'       => _wpsf__( 'Audit Trail Viewer' ),
 			'ajax'         => array(
-				'render_audit_table' => $this->getBaseAjaxActionRenderData( 'render_audit_table', true )
+				'render_audit_table' => $this->getAjaxActionData( 'render_audit_table', true )
 			)
 		);
 	}

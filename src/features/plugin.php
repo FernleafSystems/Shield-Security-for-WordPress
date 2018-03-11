@@ -593,7 +593,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 						  ->clearRenderVars()
 						  ->setRenderVars(
 							  array(
-								  'aBadgeAjax' => $this->getBaseAjaxActionRenderData( 'PluginBadgeClose' )
+								  'aBadgeAjax' => $this->getAjaxActionData( 'PluginBadgeClose' )
 							  )
 						  )
 						  ->setTemplate( 'snippets/plugin_badge' )

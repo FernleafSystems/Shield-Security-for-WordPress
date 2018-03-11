@@ -450,7 +450,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 			),
 			'ajax' => array(
-				'sec_admin_login_box' => $oFO->getBaseAjaxActionRenderData( 'sec_admin_login_box', true )
+				'sec_admin_login_box' => $oFO->getAjaxActionData( 'sec_admin_login_box', true )
 			)
 		);
 		add_thickbox();

@@ -790,7 +790,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$bValid = $this->loadWp()->isAjax() && $this->isModuleRequest();
 
 		if ( $bValid ) {
-			foreach ( array_keys( $this->getBaseAjaxActionRenderData() ) as $sKey ) {
+			foreach ( array_keys( $this->getAjaxActionData() ) as $sKey ) {
 				if ( strpos( $sKey, 'icwp_' ) === 0 ) {
 					$bValid = $bValid && ( strlen( $oDp->post( $sKey, '' ) ) > 0 );
 				}
@@ -804,7 +804,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param bool   $bAsJsonEncodedObject
 	 * @return array
 	 */
-	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {
+	public function getAjaxActionData( $sAction = '', $bAsJsonEncodedObject = false ) {
 		$aData = array(
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
@@ -1425,7 +1425,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->display(
 			array(
 				'ajax' => array(
-					'restricted_access' => $this->getBaseAjaxActionRenderData( 'restricted_access' )
+					'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
 				)
 			),
 			'access_restricted.php'
@@ -1474,8 +1474,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
 			'ajax'              => array(
-				'mod_options' => $this->getBaseAjaxActionRenderData( 'mod_options' ),
-				'sec_admin_login' => $this->getBaseAjaxActionRenderData( 'sec_admin_login' ),
+				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
+				'sec_admin_login' => $this->getAjaxActionData( 'sec_admin_login' ),
 			),
 			'strings'      => $this->getDisplayStrings(),
 			'flags'        => array(

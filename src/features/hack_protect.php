@@ -513,7 +513,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
 				array(
-					'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'plugin_reinstall' ),
+					'ajax_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
 					'reinstallable'  => $this->getReinstallablePlugins()
 				)
 			);

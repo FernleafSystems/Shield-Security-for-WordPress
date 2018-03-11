@@ -278,9 +278,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'goprofooter' => 'http://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
-					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
-					'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
-					'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
+					'content'       => $oFO->getAjaxActionData( 'WizardProcessStepSubmit' ),
+					'steps'         => $oFO->getAjaxActionData( 'WizardRenderStep' ),
+					'steps_as_json' => $oFO->getAjaxActionData( 'WizardRenderStep', true ),
 				)
 			)
 		);
@@ -343,9 +343,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'goprofooter' => 'http://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
-					'content'       => $oFO->getBaseAjaxActionRenderData( 'WizardProcessStepSubmit' ),
-					'steps'         => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep' ),
-					'steps_as_json' => $oFO->getBaseAjaxActionRenderData( 'WizardRenderStep', true ),
+					'content'       => $oFO->getAjaxActionData( 'WizardProcessStepSubmit' ),
+					'steps'         => $oFO->getAjaxActionData( 'WizardRenderStep' ),
+					'steps_as_json' => $oFO->getAjaxActionData( 'WizardRenderStep', true ),
 				)
 			)
 		);

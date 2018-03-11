@@ -205,9 +205,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function getAjaxDataSets() {
 		return array(
-			'glist' => $this->getBaseAjaxActionRenderData( 'get_ip_list', true ),
-			'alist' => $this->getBaseAjaxActionRenderData( 'add_ip_white', true ),
-			'rlist' => $this->getBaseAjaxActionRenderData( 'remove_ip', true ),
+			'glist' => $this->getAjaxActionData( 'get_ip_list', true ),
+			'alist' => $this->getAjaxActionData( 'add_ip_white', true ),
+			'rlist' => $this->getAjaxActionData( 'remove_ip', true ),
 		);
 	}
 
