@@ -38,7 +38,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string
 	 */
 	protected function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
-		$aData = $this->getBaseAjaxActionRenderData( 'AdminAccessLogin' );
+		$aData = array(
+			'aSecAdminAjax' => $this->getBaseAjaxActionRenderData( 'AdminAccessLogin' )
+		);
 		$aData[ 'admin_access_message' ] = empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage;
 		return $this->renderTemplate( 'snippets/admin_access_login', $aData );
 	}

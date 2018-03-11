@@ -112,6 +112,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			if ( $this->isThisModuleRequest() ) {
 				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
 			}
+
+			add_action( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
+			add_action( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAjaxAuth' ) );
+
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
@@ -125,6 +129,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			$this->doPostConstruction();
 		}
+	}
+
+	public function handleAjax() {
+	}
+
+	public function handleAjaxAuth() {
 	}
 
 	/**
@@ -739,7 +749,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDP();
 
 		$bValid = $this->loadWp()->isAjax()
-				  && ( $this->getModSlug() == $oDp->post( 'icwp_action_module', '' ) );
+				  && ( $this->getModSlug() == $oDp->post( 'mod_slug', '' ) );
 		if ( $bValid ) {
 			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
 			foreach ( $aItems as $sKey ) {
@@ -758,12 +768,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {
 		$aData = array(
-			'action'             => $this->prefix( $sAction ), //wp ajax doesn't work without this.
-			'icwp_ajax_action'   => $this->prefix( $sAction ),
-			'icwp_nonce'         => $this->genNonce( $sAction ),
-			'icwp_nonce_action'  => $sAction,
-			'icwp_action_module' => $this->getModSlug(),
-			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+			'action'            => $this->prefix( $sAction ), //wp ajax doesn't work without this.
+			'icwp_ajax_action'  => $this->prefix( $sAction ),
+			'icwp_nonce'        => $this->genNonce( $sAction ),
+			'icwp_nonce_action' => $sAction,
+			'mod_slug'          => $this->getModSlug(),
+			'ajaxurl'           => admin_url( 'admin-ajax.php' ),
 		);
 		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
 	}
@@ -1429,10 +1439,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'        => array(
-				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
-				'goprofooter'     => 'http://icwp.io/goprofooter',
-				'wizard_link'     => $this->getUrl_WizardLanding(),
-				'wizard_landing'  => $this->getUrl_WizardLanding()
+				'go_pro'         => 'http://icwp.io/shieldgoprofeature',
+				'goprofooter'    => 'http://icwp.io/goprofooter',
+				'wizard_link'    => $this->getUrl_WizardLanding(),
+				'wizard_landing' => $this->getUrl_WizardLanding()
 			),
 			'content'      => array(
 				'options_form'   => '',

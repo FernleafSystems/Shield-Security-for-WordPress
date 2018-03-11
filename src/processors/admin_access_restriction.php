@@ -451,7 +451,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			)
 		);
 		add_thickbox();
-		echo $oFO->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'admin_access_login_box.php', $aRenderData );
+		echo $oFO->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
 	}
 
 	/**

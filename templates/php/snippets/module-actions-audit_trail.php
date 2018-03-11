@@ -1,4 +1,4 @@
-<h2 style="margin: 0 0 20px"><?php echo $sTitle;?></h2>
+<h2 style="margin: 0 0 20px"><?php echo $sTitle; ?></h2>
 <div id="AuditTrailTabs">
 	<ul class="nav nav-tabs">
 	<?php foreach ( $aAuditTables as $sContext => $aAuditDataContext ) : ?>
@@ -56,11 +56,10 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		$oMainContainer.html( '' );
 
 		var requestData = {
-			'action': '<?php echo $icwp_ajax_action; ?>',
-			'icwp_ajax_action': '<?php echo $icwp_ajax_action; ?>',
-			'icwp_nonce': '<?php echo $icwp_nonce; ?>',
-			'icwp_nonce_action': '<?php echo $icwp_nonce_action; ?>',
-			'icwp_action_module': '<?php echo $icwp_action_module; ?>',
+			'action': '<?php echo $aTableAjax[ 'action' ]; ?>',
+			'icwp_nonce': '<?php echo $aTableAjax[ 'icwp_nonce' ]; ?>',
+			'icwp_nonce_action': '<?php echo $aTableAjax[ 'icwp_nonce_action' ]; ?>',
+			'mod_slug': '<?php echo $aTableAjax[ 'mod_slug' ]; ?>',
 			'auditcontext': $oMainContainer.data( 'auditcontext' )
 		};
 

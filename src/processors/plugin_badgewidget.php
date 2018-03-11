@@ -72,7 +72,7 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 		return self::$oFeatureOptions
 			->loadRenderer( $oCon->getPath_Templates().'php' )
 			->setRenderVars( $aData )
-			->setTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin_badge_widget' )
+			->setTemplate( 'snippets/plugin_badge_widget' )
 			->setTemplateEnginePhp()
 			->render();
 	}

@@ -26,11 +26,10 @@
 		$oInput.prop( 'disabled', true );
 
 		var requestData = {
-			'action': '<?php echo $icwp_ajax_action; ?>',
-			'icwp_ajax_action': '<?php echo $icwp_ajax_action; ?>',
-			'icwp_nonce': '<?php echo $icwp_nonce; ?>',
-			'icwp_nonce_action': '<?php echo $icwp_nonce_action; ?>',
-			'icwp_action_module': '<?php echo $icwp_action_module; ?>',
+			'action': '<?php echo $aSecAdminAjax[ 'action' ]; ?>',
+			'icwp_nonce': '<?php echo $aSecAdminAjax[ 'icwp_nonce' ]; ?>',
+			'icwp_nonce_action': '<?php echo $aSecAdminAjax[ 'icwp_nonce_action' ]; ?>',
+			'mod_slug': '<?php echo $aSecAdminAjax[ 'mod_slug' ]; ?>',
 			'admin_access_key_request': $oInput.val()
 		};
 

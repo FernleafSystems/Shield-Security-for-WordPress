@@ -258,17 +258,14 @@ var iCWP_WPSF_LicenseHandler = new function () {
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
 							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
-							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
 							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce' ]; ?>" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
 							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce_action' ]; ?>" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_action_module' ]; ?>" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
+							 .attr( 'value', "<?php echo $ajax_vars[ 'mod_slug' ]; ?>" )
 							 .appendTo( $oForm );
 
 		jQuery.post( ajaxurl, $oForm.serialize(),

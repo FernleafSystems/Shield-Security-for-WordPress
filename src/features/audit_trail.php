@@ -29,7 +29,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	public function ajaxAuditTable() {
 		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
-		$sContext = $this->loadDP()->FetchPost( 'auditcontext' );
+		$sContext = $this->loadDP()->post( 'auditcontext' );
 		$this->sendAjaxResponse( true, array( 'tablecontent' => $this->renderTableForContext( $sContext, $aParams ) ) );
 	}
 
@@ -158,13 +158,11 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
 		}
 
-		return array_merge(
-			array(
-				'aAuditTables' => $aAuditTables,
-				'aContexts'    => $aContexts,
-				'sTitle'       => _wpsf__( 'Audit Trail Viewer' ),
-			),
-			$this->getBaseAjaxActionRenderData( 'AuditTable' )
+		return array(
+			'aAuditTables' => $aAuditTables,
+			'aContexts'    => $aContexts,
+			'sTitle'       => _wpsf__( 'Audit Trail Viewer' ),
+			'aTableAjax'   => $this->getBaseAjaxActionRenderData( 'AuditTable' )
 		);
 	}
 
