@@ -36,8 +36,13 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * Ensure to only ever process supported wizards
 	 */
-	public function ajaxWizardRenderStep() {
+	public function ajaxExec_WizRenderStep() {
 		$oDP = $this->loadDP();
+
+		$aResponse = array(
+			'success'   => false,
+			'next_step' => array(),
+		);
 
 		try {
 			$this->setCurrentWizard( $oDP->post( 'wizard_slug' ) );
@@ -46,19 +51,17 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					$oDP->post( 'wizard_steps' ),
 					(int)$oDP->post( 'current_index' )
 				);
-				$this->getModCon()
-					 ->sendAjaxResponse(
-						 true,
-						 array( 'next_step' => $aNextStep )
-					 );
+				$aResponse[ 'success' ] = true;
+				$aResponse[ 'next_step' ] = $aNextStep;
 			}
 			else {
-				$this->loadWp()
-					 ->wpDie( 'Please login to run this wizard.' );
+				$aResponse[ 'message' ] = 'Please login to run this wizard.';
 			}
 		}
 		catch ( Exception $oE ) {
 		}
+
+		return $aResponse;
 	}
 
 	public function onWpLoaded() {
@@ -174,12 +177,19 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		return array_keys( $this->getModCon()->getWizardDefinitions() );
 	}
 
-	public function ajaxWizardProcessStepSubmit() {
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_WizProcessStep() {
 		$this->loadAutoload(); // for Response
 		$oResponse = $this->processWizardStep( $this->loadDP()->post( 'wizard-step' ) );
 		if ( !empty( $oResponse ) ) {
-			$this->sendWizardResponse( $oResponse );
+			$this->buildWizardResponse( $oResponse );
 		}
+
+		$aData = $oResponse->getData();
+		$aData[ 'success' ] = $oResponse->successful();
+		return $aData;
 	}
 
 	/**
@@ -197,8 +207,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param \FernleafSystems\Utilities\Response $oResponse
+	 * @return \FernleafSystems\Utilities\Response
 	 */
-	protected function sendWizardResponse( $oResponse ) {
+	protected function buildWizardResponse( $oResponse ) {
 
 		$sMessage = $oResponse->getMessageText();
 		if ( $oResponse->successful() ) {
@@ -211,9 +222,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$aData = $oResponse->getData();
 		$aData[ 'message' ] = $sMessage;
 		$oResponse->setData( $aData );
-
-		$this->getModCon()
-			 ->sendAjaxResponse( $oResponse->successful(), $aData );
+		return $oResponse;
 	}
 
 	/**
@@ -278,9 +287,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'goprofooter' => 'http://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
-					'content'       => $oFO->getAjaxActionData( 'WizardProcessStepSubmit' ),
-					'steps'         => $oFO->getAjaxActionData( 'WizardRenderStep' ),
-					'steps_as_json' => $oFO->getAjaxActionData( 'WizardRenderStep', true ),
+					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
+					'steps'         => $oFO->getAjaxActionData( 'wiz_render_step' ),
+					'steps_as_json' => $oFO->getAjaxActionData( 'wiz_render_step', true ),
 				)
 			)
 		);
@@ -343,9 +352,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 					'goprofooter' => 'http://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
-					'content'       => $oFO->getAjaxActionData( 'WizardProcessStepSubmit' ),
-					'steps'         => $oFO->getAjaxActionData( 'WizardRenderStep' ),
-					'steps_as_json' => $oFO->getAjaxActionData( 'WizardRenderStep', true ),
+					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
+					'steps'         => $oFO->getAjaxActionData( 'wiz_render_step' ),
+					'steps_as_json' => $oFO->getAjaxActionData( 'wiz_render_step', true ),
 				)
 			)
 		);

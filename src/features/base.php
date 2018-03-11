@@ -144,13 +144,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			switch ( $this->loadDP()->request( 'exec' ) ) {
 
 				case 'mod_options':
-					try {
-						$aAjaxResponse = $this->ajaxExec_ModOptions();
+					$aAjaxResponse = $this->ajaxExec_ModOptions();
+					break;
+
+				case 'wiz_process_step':
+					$aAjaxResponse = $this->ajaxExec_ModOptions();
+					if ( $this->canRunWizards() && $this->hasWizard() ) {
+						$aAjaxResponse = $this->getWizardHandler()
+											  ->ajaxExec_WizProcessStep();
 					}
-					catch ( Exception $oE ) {
-						$aAjaxResponse = array(
-							'message' => 'Error occurred: '.$oE->getMessage()
-						);
+					break;
+
+				case 'wiz_render_step':
+					if ( $this->canRunWizards() && $this->hasWizard() ) {
+						$aAjaxResponse = $this->getWizardHandler()
+											  ->ajaxExec_WizRenderStep();
 					}
 					break;
 			}
@@ -756,19 +764,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setupAjaxHandlers() {
-		$bAdminRun = false;
-
 		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
 			$this->frontEndAjaxHandlers();
-			$this->adminAjaxHandlers();
-			$bAdminRun = true;
-//			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
-		}
-
-		if ( !$bAdminRun && $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
-			if ( is_admin() || is_network_admin() ) {
-				$this->adminAjaxHandlers();
-			}
 		}
 	}
 
@@ -813,23 +810,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 		);
 		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
-	}
-
-	protected function adminAjaxHandlers() {
-		// TODO: move this to the wizard handler itself
-		if ( $this->canRunWizards() && $this->hasWizard() ) {
-			$oWiz = $this->getWizardHandler();
-			if ( !is_null( $oWiz ) ) {
-				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
-					$oWiz,
-					'ajaxWizardProcessStepSubmit'
-				) );
-				add_action( $this->prefixWpAjax( 'WizardRenderStep' ), array(
-					$oWiz,
-					'ajaxWizardRenderStep'
-				) );
-			}
-		}
 	}
 
 	protected function frontEndAjaxHandlers() {
@@ -1124,7 +1104,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
 	protected function ajaxExec_ModOptions() {
 
@@ -1143,9 +1122,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
 		}
 
+		try {
+			$sForm = $this->renderOptionsForm();
+		}
+		catch ( Exception $oE ) {
+			$sForm = 'Error during form render';
+		}
 		return array(
 			'success' => $bSuccess,
-			'html'    => $this->renderOptionsForm(),
+			'html'    => $sForm,
 			'message' => $sMessage
 		);
 	}
@@ -1473,7 +1458,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'ajax'              => array(
+			'ajax'         => array(
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
 			),
 			'strings'      => $this->getDisplayStrings(),
