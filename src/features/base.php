@@ -1311,7 +1311,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return self::getConn()->doPluginPrefix( $sSuffix, $sGlue );
+		return self::getConn()->prefix( $sSuffix, $sGlue );
 	}
 
 	/**
