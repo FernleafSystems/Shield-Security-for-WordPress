@@ -113,7 +113,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			if ( $this->isModuleRequest() ) {
 				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleOptionsSubmit' ) );
 				add_filter( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
-				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthedAjax' ) );
+				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthAjax' ) );
+				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 			}
 
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
@@ -131,14 +132,29 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 	}
 
-	public function handleAjax() {
+	/**
+	 * This is ajax for anyone logged-in or not logged-care. Due care must be taken here.
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAjax( $aAjaxResponse ) {
+		return $this->normaliseAjaxResponse( $aAjaxResponse );
+	}
+
+	/**
+	 * Ajax for any request not logged-in.
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleNonAuthAjax( $aAjaxResponse ) {
+		return $this->normaliseAjaxResponse( $aAjaxResponse );
 	}
 
 	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
-	public function handleAuthedAjax( $aAjaxResponse ) {
+	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadDP()->request( 'exec' ) ) {
@@ -164,6 +180,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 
+		return $this->normaliseAjaxResponse( $aAjaxResponse );
+	}
+
+	/**
+	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
+	 * so if we send something back non-empty, it'll be treated like a "handled" response and
+	 * processing will finish
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	protected function normaliseAjaxResponse( $aAjaxResponse ) {
 		if ( !empty( $aAjaxResponse ) ) {
 			$aAjaxResponse = array_merge(
 				array(
@@ -788,9 +815,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		if ( $bValid ) {
 			foreach ( array_keys( $this->getAjaxActionData() ) as $sKey ) {
-				if ( strpos( $sKey, 'icwp_' ) === 0 ) {
-					$bValid = $bValid && ( strlen( $oDp->post( $sKey, '' ) ) > 0 );
-				}
+				$bValid = $bValid && ( strlen( $oDp->post( $sKey, '' ) ) > 0 );
 			}
 		}
 		return $bValid && $this->checkNonceAction( $oDp->post( 'exec_nonce' ), $oDp->post( 'exec' ) );

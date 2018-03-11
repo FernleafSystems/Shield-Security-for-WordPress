@@ -163,10 +163,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
 	}
 
-	protected function frontEndAjaxHandlers() {
-		add_action( $this->prefixWpAjax( 'PluginBadgeClose' ), array( $this, 'ajaxPluginBadgeClose' ) );
-	}
-
 	/**
 	 * @return string
 	 */
@@ -175,16 +171,36 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
 	 */
-	public function ajaxPluginBadgeClose() {
-		$bSuccess = $this->loadDataProcessor()
+	public function handleAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+				case 'plugin_badge_close':
+					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_PluginBadgeClose() {
+		$bSuccess = $this->loadDP()
 						 ->setCookie(
 							 $this->getCookieIdBadgeState(),
 							 'closed',
 							 DAY_IN_SECONDS
 						 );
 		$sMessage = $bSuccess ? 'Badge Closed' : 'Badge Not Closed';
-		$this->sendAjaxResponse( $bSuccess, array( 'message' => $sMessage ) );
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage
+		);
 	}
 
 	public function ajaxSetPluginTrackingPermission() {
@@ -588,14 +604,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function renderPluginBadge() {
 		$oCon = $this->getConn();
+
+		$aData = array(
+			'ajax' => array(
+				'plugin_badge_close' => $this->getAjaxActionData( 'plugin_badge_close', true ),
+			)
+		);
 		$sContents = $this->loadRenderer( $oCon->getPath_Templates() )
 						  ->setTemplateEnginePhp()
 						  ->clearRenderVars()
-						  ->setRenderVars(
-							  array(
-								  'aBadgeAjax' => $this->getAjaxActionData( 'PluginBadgeClose' )
-							  )
-						  )
+						  ->setRenderVars( $aData )
 						  ->setTemplate( 'snippets/plugin_badge' )
 						  ->render();
 

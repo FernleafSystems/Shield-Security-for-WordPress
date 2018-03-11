@@ -136,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
-	public function handleAuthedAjax( $aAjaxResponse ) {
+	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadDP()->request( 'exec' ) ) {
@@ -157,7 +157,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					break;
 			}
 		}
-		return parent::handleAuthedAjax( $aAjaxResponse );
+		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
 	/**
