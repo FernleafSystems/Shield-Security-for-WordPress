@@ -448,6 +448,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			'sAjaxNonce'  => wp_create_nonce( 'icwp_ajax' ),
 			'js_snippets' => array(
 				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+			),
+			'data'        => array(
+				'ajax' => array(
+					'sec_admin_login_box' => $oFO->getBaseAjaxActionRenderData( 'sec_admin_login_box', true )
+				)
 			)
 		);
 		add_thickbox();

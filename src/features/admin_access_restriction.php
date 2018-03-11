@@ -17,20 +17,41 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return parent::isReadyToExecute() && $this->hasAccessKey() && !$this->isVisitorWhitelisted();
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
-		add_action( $this->prefixWpAjax( 'AdminAccessLogin' ), array( $this, 'ajaxAdminAccessLogin' ) );
-		add_action( $this->prefixWpAjax( 'RestrictedAccessKey' ), array( $this, 'ajaxRestrictedAccessKey' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthedAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'sec_admin_login_box':
+					$aAjaxResponse = $this->ajaxExec_LoadAdminAccessForm();
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		return parent::handleAuthedAjax( $aAjaxResponse );
 	}
 
-	public function ajaxLoadAdminAccessForm() {
-		$bSuccess = $this->checkAjaxNonce();
-		if ( $bSuccess ) {
-			$sResponseData = array();
-			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm();
-			$this->sendAjaxResponse( true, $sResponseData );
-		}
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_LoadAdminAccessForm() {
+		return array(
+			'success' => 'true',
+			'html'    => $this->renderAdminAccessAjaxLoginForm()
+		);
+	}
+
+	protected function adminAjaxHandlers() {
+		parent::adminAjaxHandlers();
+		add_action( $this->prefixWpAjax( 'AdminAccessLogin' ), array( $this, 'ajaxAdminAccessLogin' ) );
+		add_action( $this->prefixWpAjax( 'RestrictedAccessKey' ), array( $this, 'ajaxRestrictedAccessKey' ) );
 	}
 
 	/**

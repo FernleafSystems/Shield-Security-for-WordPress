@@ -113,7 +113,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			if ( $this->isModuleRequest() ) {
 				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleOptionsSubmit' ) );
 				add_filter( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
-				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAjaxAuth' ) );
+				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthedAjax' ) );
 			}
 
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
@@ -138,7 +138,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
-	public function handleAjaxAuth( $aAjaxResponse ) {
+	public function handleAuthedAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadDP()->request( 'exec' ) ) {
@@ -149,7 +149,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					}
 					catch ( Exception $oE ) {
 						$aAjaxResponse = array(
-							'success' => false,
 							'message' => 'Error occurred: '.$oE->getMessage()
 						);
 					}
@@ -157,6 +156,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 
+		if ( !empty( $aAjaxResponse ) ) {
+			$aAjaxResponse = array_merge(
+				array(
+					'success' => false,
+					'message' => 'Unknown',
+					'html'    => '',
+				),
+				$aAjaxResponse
+			);
+		}
 		return $aAjaxResponse;
 	}
 
@@ -1135,9 +1144,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		return array(
-			'success'      => $bSuccess,
-			'options_form' => $this->renderOptionsForm(),
-			'message'      => $sMessage
+			'success' => $bSuccess,
+			'html'    => $this->renderOptionsForm(),
+			'message' => $sMessage
 		);
 	}
 
