@@ -128,10 +128,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		bRequestCurrentlyRunning = true;
 
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
+							 .attr( 'value', "{{ ajax.content.action }}" )
 							 .appendTo( $oForm );
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
 							 .attr( 'value', "{{ ajax.content.icwp_nonce }}" )

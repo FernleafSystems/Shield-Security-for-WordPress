@@ -47,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					'maxlength' => $this->getDef( 'license_key_length' ),
 				)
 			),
-			'ajax_vars' => $this->getBaseAjaxActionRenderData( 'LicenseHandling' ),
+			'aLicenseAjax' => $this->getBaseAjaxActionRenderData( 'LicenseHandling' ),
 			'aHrefs'    => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
