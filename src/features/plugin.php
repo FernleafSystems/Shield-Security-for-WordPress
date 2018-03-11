@@ -13,10 +13,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
 		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
-
-		if ( !$this->isTrackingPermissionSet() ) {
-			add_action( 'wp_ajax_icwp_PluginTrackingPermission', array( $this, 'ajaxSetPluginTrackingPermission' ) );
-		}
 		$this->setVisitorIp();
 	}
 
@@ -181,9 +177,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				case 'plugin_badge_close':
 					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
 					break;
+				case 'set_plugin_tracking_perm':
+					if ( !$this->isTrackingPermissionSet() ) {
+						$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
+					}
+					break;
 			}
 		}
-		return parent::handleAuthAjax( $aAjaxResponse );
+		return parent::handleAjax( $aAjaxResponse );
 	}
 
 	/**
@@ -203,12 +204,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		);
 	}
 
-	public function ajaxSetPluginTrackingPermission() {
-		$bValid = self::getConn()->getIsValidAdminArea() && $this->checkAjaxNonce();
-		if ( $bValid ) {
-			$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
-		}
-		$this->sendAjaxResponse( $bValid );
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_SetPluginTrackingPerm() {
+		$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
+		return array( 'success' => true );
 	}
 
 	/**

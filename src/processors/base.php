@@ -106,7 +106,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
