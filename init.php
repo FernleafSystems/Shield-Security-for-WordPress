@@ -25,7 +25,7 @@ class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 		// All core values of the plugin are derived from the values stored in this value object.
 		self::$oPluginController = $oController;
 		$this->getController()->loadAllFeatures();
-		add_filter( $oController->doPluginPrefix( 'plugin_update_message' ), array(
+		add_filter( $oController->prefix( 'plugin_update_message' ), array(
 			$this,
 			'getPluginsListUpdateMessage'
 		) );

@@ -230,6 +230,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {
-		return $this->getController()->doPluginOptionPrefix( 'last_login_at' );
+		return $this->getController()->prefixOption( 'last_login_at' );
 	}
 }
