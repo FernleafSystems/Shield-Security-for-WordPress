@@ -329,7 +329,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpInit() {
 		$this->runWizards();
 		$this->updateHandler();
-		$this->setupAjaxHandlers();
 	}
 
 	/**
@@ -790,35 +789,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 	}
 
-	protected function setupAjaxHandlers() {
-		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
-			$this->frontEndAjaxHandlers();
-		}
-	}
-
 	/**
 	 * @return bool
 	 */
 	protected function isModuleRequest() {
 		return ( $this->getModSlug() == $this->loadDP()->request( 'mod_slug' ) );
-	}
-
-	/**
-	 * A valid Ajax request must have all the icwp items as posted with getBaseAjaxActionRenderData()
-	 * Note: Also performs nonce checking
-	 * @return bool
-	 */
-	protected function isValidAjaxRequestForModule() {
-		$oDp = $this->loadDP();
-
-		$bValid = $this->loadWp()->isAjax() && $this->isModuleRequest();
-
-		if ( $bValid ) {
-			foreach ( array_keys( $this->getAjaxActionData() ) as $sKey ) {
-				$bValid = $bValid && ( strlen( $oDp->post( $sKey, '' ) ) > 0 );
-			}
-		}
-		return $bValid && $this->checkNonceAction( $oDp->post( 'exec_nonce' ), $oDp->post( 'exec' ) );
 	}
 
 	/**
@@ -835,9 +810,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 		);
 		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
-	}
-
-	protected function frontEndAjaxHandlers() {
 	}
 
 	/**
@@ -1377,17 +1349,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function prefix( $sSuffix = '', $sGlue = '-' ) {
 		return self::getConn()->prefix( $sSuffix, $sGlue );
-	}
-
-	/**
-	 * @param string $sSuffix
-	 * @return string
-	 */
-	public function prefixWpAjax( $sSuffix = '' ) {
-		return sprintf( '%s%s',
-			'wp_ajax_',
-			$this->prefix( $sSuffix )
-		);
 	}
 
 	/**
