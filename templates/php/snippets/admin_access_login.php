@@ -1,6 +1,6 @@
 <div class="input-holder" id="AdminInputHolder-<?php echo $unique_render_id; ?>">
 	<label>
-		<?php echo $admin_access_message; ?>:
+		<?php echo $strings[ 'access_message' ]; ?>:
 		<input type="password" name="admin_access_key_request" data-nonce="<?php echo $sAjaxNonce; ?>" />
 		<button type="submit">Go!</button>
 	</label>
@@ -14,7 +14,7 @@
 		function () {
 			$oSubmit.click( submit_admin_access );
 			$oInput.keypress( function ( e ) {
-				if ( e.which == 13 ) {
+				if ( e.which === 13 ) {
 					submit_admin_access();
 				}
 			} );
@@ -25,13 +25,8 @@
 		$oThisAAL.html( '<div class="spinner"></div>' );
 		$oInput.prop( 'disabled', true );
 
-		var requestData = {
-			'action': '<?php echo $aSecAdminAjax[ 'action' ]; ?>',
-			'exec': '<?php echo $aSecAdminAjax[ 'exec' ]; ?>',
-			'exec_nonce': '<?php echo $aSecAdminAjax[ 'exec_nonce' ]; ?>',
-			'mod_slug': '<?php echo $aSecAdminAjax[ 'mod_slug' ]; ?>',
-			'admin_access_key_request': $oInput.val()
-		};
+		var requestData = <?php echo $ajax[ 'sec_admin_login' ]; ?>;
+		requestData[ 'admin_access_key_request' ] = $oInput.val();
 
 		jQuery.post( ajaxurl, requestData, function ( oResponse ) {
 			if ( oResponse.success ) {

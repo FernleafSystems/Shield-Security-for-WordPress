@@ -4,7 +4,7 @@
     <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />
 
-	<?php foreach ( $data[ 'ajax' ][ 'mod_options' ] as $sAjKey => $sAjVal ) : ?>
+	<?php foreach ( $ajax[ 'mod_options' ] as $sAjKey => $sAjVal ) : ?>
 		<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
 	<?php endforeach; ?>
 

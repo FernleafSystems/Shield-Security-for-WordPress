@@ -1424,7 +1424,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function displayRestrictedPage() {
 		$this->display(
 			array(
-				'data' => array( 'ajax' => $this->getBaseAjaxActionRenderData( 'RestrictedAccessKey' ) )
+				'ajax' => array(
+					'restricted_access' => $this->getBaseAjaxActionRenderData( 'restricted_access' )
+				)
 			),
 			'access_restricted.php'
 		);
@@ -1469,10 +1471,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'mod_slug_short'    => $this->getModSlug( false ),
 				'all_options'       => $this->buildOptions(),
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
-				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions(),
-				'ajax'              => array(
-					'mod_options' => $this->getBaseAjaxActionRenderData( 'mod_options' )
-				)
+				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
+			),
+			'ajax'         => array(
+				'mod_options'     => $this->getBaseAjaxActionRenderData( 'mod_options' ),
+				'sec_admin_login' => $this->getBaseAjaxActionRenderData( 'sec_admin_login' ),
 			),
 			'strings'      => $this->getDisplayStrings(),
 			'flags'        => array(

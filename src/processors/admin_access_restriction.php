@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	protected function getSubProcessorWhitelabel() {
 		$oProc = $this->getSubProcessor( 'checksum' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'adminaccess_whitelabel.php' );
+			require_once( dirname( __FILE__ ).'/adminaccess_whitelabel.php' );
 			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getFeature() );
 			$this->aSubProcessors[ 'wl' ] = $oProc;
 		}
@@ -449,10 +449,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			'js_snippets' => array(
 				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 			),
-			'data'        => array(
-				'ajax' => array(
-					'sec_admin_login_box' => $oFO->getBaseAjaxActionRenderData( 'sec_admin_login_box', true )
-				)
+			'ajax' => array(
+				'sec_admin_login_box' => $oFO->getBaseAjaxActionRenderData( 'sec_admin_login_box', true )
 			)
 		);
 		add_thickbox();

@@ -29,7 +29,7 @@
 	} );
 
 	function load_admin_access_form( $oTarget ) {
-		var aData = <?php echo $data[ 'ajax' ][ 'sec_admin_login_box' ]; ?>;
+		var aData = <?php echo $ajax[ 'sec_admin_login_box' ]; ?>;
 		request_and_html( aData, $oTarget );
 	}
 
