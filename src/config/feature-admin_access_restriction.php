@@ -214,7 +214,7 @@
     },
     {
       "key": "whitelabel_enable",
-      "section": "section_whitelabel",
+      "section": "section_non_ui",
       "premium": true,
       "default": "N",
       "type": "checkbox",
@@ -225,8 +225,8 @@
       "description": "Use this option to turn on/off the whole White Label feature."
     },
     {
-      "key": "wl_hide_updates",
-      "section": "section_whitelabel",
+      "key": "_wl_hide_updates",
+      "section": "section_non_ui",
       "premium": true,
       "default": "Y",
       "type": "checkbox",
@@ -237,8 +237,8 @@
       "description": "Hides the availability of Shield updates from non-security admins."
     },
     {
-      "key": "wl_namemain",
-      "section": "section_whitelabel",
+      "key": "_wl_namemain",
+      "section": "section_non_ui",
       "default": "Shield Security",
       "type": "text",
       "link_info": "",
@@ -248,8 +248,8 @@
       "description": "The Name Of The Plugin."
     },
     {
-      "key": "wl_namemenu",
-      "section": "section_whitelabel",
+      "key": "_wl_namemenu",
+      "section": "section_non_ui",
       "default": "",
       "type": "text",
       "link_info": "",
@@ -259,8 +259,8 @@
       "description": "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
     },
     {
-      "key": "wl_description",
-      "section": "section_whitelabel",
+      "key": "_wl_description",
+      "section": "section_non_ui",
       "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
       "type": "text",
       "link_info": "",
@@ -270,8 +270,8 @@
       "description": "The Tag Line Of The Plugin."
     },
     {
-      "key": "wl_homeurl",
-      "section": "section_whitelabel",
+      "key": "_wl_homeurl",
+      "section": "section_non_ui",
       "default": "http://icwp.io/home",
       "type": "text",
       "link_info": "",
@@ -281,8 +281,8 @@
       "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
     },
     {
-      "key": "wl_iconurl",
-      "section": "section_whitelabel",
+      "key": "_wl_iconurl",
+      "section": "section_non_ui",
       "default": "",
       "type": "text",
       "link_info": "",

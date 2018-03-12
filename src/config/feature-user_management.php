@@ -142,7 +142,7 @@
       "section": "section_passwords",
       "type": "checkbox",
       "default": "Y",
-      "link_info": "",
+      "link_info": "http://icwp.io/by",
       "link_blog": "",
       "name": "Prevent Pwned Passwords",
       "summary": "Prevent Use Of Any Pwned Passwords",
@@ -151,6 +151,7 @@
     {
       "key": "pass_min_length",
       "section": "section_passwords",
+      "premium": true,
       "type": "integer",
       "default": "12",
       "link_info": "",
@@ -162,6 +163,7 @@
     {
       "key": "pass_min_strength",
       "section": "section_passwords",
+      "premium": true,
       "type":          "select",
       "default": "4",
       "value_options": [
@@ -191,6 +193,7 @@
     {
       "key": "pass_force_existing",
       "section": "section_passwords",
+      "premium": true,
       "type": "checkbox",
       "default": "N",
       "link_info": "",
@@ -202,6 +205,7 @@
     {
       "key": "pass_expire",
       "section": "section_passwords",
+      "premium": true,
       "type": "integer",
       "default": "60",
       "link_info": "",

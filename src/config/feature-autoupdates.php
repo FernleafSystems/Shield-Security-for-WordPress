@@ -173,7 +173,7 @@
       "key": "override_email_address",
       "section": "section_options",
       "sensitive": true,
-      "default": "Y",
+      "default": "",
       "type": "email",
       "link_info": "",
       "link_blog": "",

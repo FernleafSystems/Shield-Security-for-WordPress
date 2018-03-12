@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			)
 		);
 		add_thickbox();
-		echo $oFO->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin_tracking_data_dump.php', $aRenderData );
+		echo $oFO->renderTemplate( 'snippets/plugin_tracking_data_dump.php', $aRenderData );
 	}
 
 	/**
