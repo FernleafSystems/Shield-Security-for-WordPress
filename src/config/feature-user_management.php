@@ -145,7 +145,7 @@
       "link_info": "http://icwp.io/by",
       "link_blog": "",
       "name": "Prevent Pwned Passwords",
-      "summary": "Prevent Use Of Any Pwned Passwords",
+      "summary": "Prevent Use Of Pwned Passwords",
       "description": "Prevents users from using any passwords found on the public available list of pwned passwords."
     },
     {

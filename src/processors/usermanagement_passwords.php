@@ -60,7 +60,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
-			$this->setPasswordFlags( $oUser );
+			$this->setPasswordFailedFlag( $oUser );
 		}
 	}
 
@@ -68,55 +68,63 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @param WP_User $oUser
 	 * @return $this
 	 */
-	private function setPasswordFlags( $oUser ) {
+	private function setPasswordFailedFlag( $oUser ) {
 		$oMeta = $this->getFeature()->getUserMeta( $oUser );
-
-		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 0, 6 );
-		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
-			$oMeta->pass_hash = $sCurrentPassHash;
-			$oMeta->pass_started_at = $this->time();
-		}
-
 		$oMeta->pass_check_failed_at = (bool)$this->bPasswordFailedChecks ? $this->time() : 0;
-
 		return $this;
 	}
 
 	public function onWpLoaded() {
 		if ( !$this->loadDP()->isMethodPost() && $this->loadWpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
+			$this->processFailedCheckPassword();
 		}
 	}
 
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
-		$bExpired = false;
-		$nExpireTimeout = $oFO->getPassExpireTimeout();
 		$oMeta = $oFO->getCurrentUserMeta();
-		if ( $nExpireTimeout > 0 ) {
-			if ( !empty( $oMeta->pass_hash ) ) { // we can only do this if we've recorded a password
-				$bExpired = ( $this->time() - $oMeta->pass_started_at ) > $nExpireTimeout;
+
+		$nExpireTimeout = $oFO->getPassExpireTimeout();
+		if ( $nExpireTimeout > 0 && $oMeta->pass_started_at > 0 ) {
+			// we can only do this if we've recorded a password
+			$bExpired = ( $this->time() - $oMeta->pass_started_at ) > $nExpireTimeout;
+
+			if ( $bExpired ) {
+				$this->redirectToProfile(
+					sprintf( _wpsf__( 'Your password has expired (%s days).' ), $oFO->getPassExpireDays() )
+				);
 			}
 		}
+	}
+
+	private function processFailedCheckPassword() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$oMeta = $oFO->getCurrentUserMeta();
 
 		$bPassCheckFailed = false;
 		if ( $oFO->isPassForceUpdateExisting() ) {
 			$bPassCheckFailed = isset( $oMeta->pass_check_failed_at ) ? $oMeta->pass_check_failed_at > 0 : false;
 		}
 
-		// TODO Test this URL on wpms
-		if ( $bExpired || $bPassCheckFailed ) {
-			$this->loadAdminNoticesProcessor()
-				 ->addFlashMessage( _wpsf__( "Your password doesn't currently meet requirements set by your security administrator." ) );
-			$this->loadWp()
-				 ->doRedirect(
-					 self_admin_url( 'profile.php' ),
-					 array(
-						 $oFO->prefix( 'force-user-password' ) => '1'
-					 )
-				 );
+		if ( $bPassCheckFailed ) {
+			$this->redirectToProfile(
+				_wpsf__( "Your password doesn't meet requirements set by your security administrator." )
+			);
 		}
+	}
+
+	private function redirectToProfile( $sMessage ) {
+		$this->loadAdminNoticesProcessor()
+			 ->addFlashMessage( $sMessage.'<br/>'._wpsf__( 'Please update your password.' ) );
+
+		$this->loadWp()
+			 ->doRedirect(
+				 self_admin_url( 'profile.php' ),
+				 array( $this->getFeature()->prefix( 'force-user-password' ) => 1 )
+			 );
 	}
 
 	/**
@@ -270,6 +278,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		return true;
 	}
 
+	/**
+	 * @param string $sPass
+	 * @return bool
+	 * @throws Exception
+	 */
 	protected function sendRequestToPwnedRange( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
@@ -316,7 +329,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 				}
 				if ( $nCount > 0 ) {
 					$sError = _wpsf__( 'Please use a different password.' )
-							  .' '._wpsf__( 'This password has already been pwned.' )
+							  .' '._wpsf__( 'This password has been pwned.' )
 							  .' '.sprintf(
 								  '(<a href="%s" target="_blank">%s</a>)',
 								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',

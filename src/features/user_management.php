@@ -140,18 +140,31 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return int
+	 * @return int days
 	 */
-	public function getPassMinLength() {
-		return (int)$this->getOpt( 'pass_min_length' );
+	public function getPassExpireDays() {
+		return max( 0, (int)$this->getOpt( 'pass_expire' ) );
 	}
 
 	/**
 	 * @return int seconds
 	 */
 	public function getPassExpireTimeout() {
-		$nDays = max( 0, (int)$this->getOpt( 'pass_expire' ) );
-		return $nDays*DAY_IN_SECONDS;
+		return $this->isPremium() ? $this->getPassExpireDays()*DAY_IN_SECONDS : 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPassMinLength() {
+		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_length' ) : 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPassMinStrength() {
+		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
 	}
 
 	/**
@@ -166,13 +179,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			_wpsf__( 'Very Strong' ),
 		);
 		return $aMap[ max( 0, min( 4, $nStrength ) ) ];
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getPassMinStrength() {
-		return (int)$this->getOpt( 'pass_min_strength' );
 	}
 
 	/**
@@ -323,14 +329,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 			case 'pass_prevent_pwned' :
 				$sName = _wpsf__( 'Prevent Pwned Passwords' );
-				$sSummary = _wpsf__( 'Prevent Use Of Any Pwned Passwords' );
+				$sSummary = _wpsf__( 'Prevent Use Of "Pwned" Passwords' );
 				$sDescription = _wpsf__( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.' );
 				break;
 
 			case 'pass_min_length' :
 				$sName = _wpsf__( 'Minimum Length' );
 				$sSummary = _wpsf__( 'Minimum Password Length' );
-				$sDescription = _wpsf__( 'All passwords that a user sets must be at least this many characters in length.' );
+				$sDescription = _wpsf__( 'All passwords that a user sets must be at least this many characters in length.' )
+								.'<br/>'._wpsf__( 'Set to Zero(0) to disable.' );
 				break;
 
 			case 'pass_min_strength' :
@@ -350,7 +357,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = _wpsf__( 'Password Expiration' );
 				$sSummary = _wpsf__( 'Passwords Expire After This Many Days' );
 				$sDescription = _wpsf__( 'Users will be forced to reset their passwords after the number of days specified.' )
-								.' '._wpsf__( 'Set to Zero(0) to disable.' );
+								.'<br/>'._wpsf__( 'Set to Zero(0) to disable.' );
 				break;
 
 			default:

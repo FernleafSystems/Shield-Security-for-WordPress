@@ -19,11 +19,11 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 
-		// Adds last login indicator column to all plugins in plugin listing.
+		// Adds last login indicator column
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		// Handles login notification emails and setting last user login
+		add_action( 'init', array( $this, 'onWpInit' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		if ( $oFO->isPasswordPoliciesEnabled() ) {
@@ -40,6 +40,16 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
 			$this->getProcessorSessions()->run();
+		}
+	}
+
+	/**
+	 */
+	public function onWpInit() {
+		$oWpUsers = $this->loadWpUsers();
+		if ( $oWpUsers->isUserLoggedIn() ) {
+			$oUser = $oWpUsers->getCurrentWpUser();
+			$this->setPasswordStartedAt( $oUser ); // used by Password Policies
 		}
 	}
 
@@ -69,7 +79,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	private function setPasswordStartedAt( $oUser ) {
 		$oMeta = $this->getFeature()->getUserMeta( $oUser );
 
-		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 0, 6 );
+		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 6, 4 );
 		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
 			$oMeta->pass_hash = $sCurrentPassHash;
 			$oMeta->pass_started_at = $this->time();
