@@ -25,8 +25,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @param string $sUsername
 	 */
 	public function onWpLogin( $sUsername ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		$sPassword = $this->getLoginPassword();
 
