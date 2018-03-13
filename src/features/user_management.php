@@ -168,11 +168,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @param int $nStrength
 	 * @return int
 	 */
 	public function getPassStrengthName( $nStrength ) {
 		$aMap = array(
-			_wpsf__( 'Weak' ),
+			_wpsf__( 'Very Weak' ),
 			_wpsf__( 'Weak' ),
 			_wpsf__( 'Medium' ),
 			_wpsf__( 'Strong' ),

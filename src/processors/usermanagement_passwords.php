@@ -12,46 +12,13 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
  */
 class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_BaseWpsf {
 
-	/**
-	 * @var bool
-	 */
-	private $bPasswordFailedChecks;
-
 	public function run() {
-		// Account Reg
 		add_filter( 'registration_errors', array( $this, 'checkPassword' ), 100, 3 );
-		// Profile Update
 		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
-		// Reset
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
-		// Login
-		add_filter( 'authenticate', array( $this, 'checkLoginPassword' ), PHP_INT_MAX, 3 );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
-
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
-
 		$this->loadAutoload();
-	}
-
-	/**
-	 * @param WP_User|WP_Error $oErrorUser
-	 * @param string           $sUsername
-	 * @param string           $sPassword
-	 * @return WP_User|WP_Error
-	 */
-	public function checkLoginPassword( $oErrorUser, $sUsername, $sPassword ) {
-
-		if ( $oErrorUser instanceof WP_User ) { // successful login.
-			try {
-				$this->applyPasswordChecks( $sPassword );
-				$this->bPasswordFailedChecks = false;
-			}
-			catch ( Exception $oE ) {
-				$this->bPasswordFailedChecks = true;
-			}
-		}
-
-		return $oErrorUser;
 	}
 
 	/**
@@ -59,19 +26,17 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
-		if ( $oUser instanceof WP_User ) {
-			$this->setPasswordFailedFlag( $oUser );
-		}
-	}
+		$sPassword = $this->getLoginPassword();
 
-	/**
-	 * @param WP_User $oUser
-	 * @return $this
-	 */
-	private function setPasswordFailedFlag( $oUser ) {
-		$oMeta = $this->getFeature()->getUserMeta( $oUser );
-		$oMeta->pass_check_failed_at = (bool)$this->bPasswordFailedChecks ? $this->time() : 0;
-		return $this;
+		if ( $oUser instanceof WP_User && !empty( $sPassword ) ) {
+			try {
+				$this->applyPasswordChecks( $sPassword );
+				$this->setPasswordFailedFlag( $oUser, false );
+			}
+			catch ( Exception $oE ) {
+				$this->setPasswordFailedFlag( $oUser, true );
+			}
+		}
 	}
 
 	public function onWpLoaded() {
@@ -88,10 +53,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		$nExpireTimeout = $oFO->getPassExpireTimeout();
 		if ( $nExpireTimeout > 0 && $oMeta->pass_started_at > 0 ) {
-			// we can only do this if we've recorded a password
-			$bExpired = ( $this->time() - $oMeta->pass_started_at ) > $nExpireTimeout;
-
-			if ( $bExpired ) {
+			if ( $this->time() - $oMeta->pass_started_at > $nExpireTimeout ) {
+				$this->addToAuditEntry( _wpsf__( 'Forcing user to update expired password.' ) );
 				$this->redirectToProfile(
 					sprintf( _wpsf__( 'Your password has expired (%s days).' ), $oFO->getPassExpireDays() )
 				);
@@ -110,6 +73,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		if ( $bPassCheckFailed ) {
+			$this->addToAuditEntry(
+				_wpsf__( 'Forcing user to update password that fails to meet policies.' ),
+				'1', 'um_password_force_update'
+			);
 			$this->redirectToProfile(
 				_wpsf__( "Your password doesn't meet requirements set by your security administrator." )
 			);
@@ -147,8 +114,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 				}
 				catch ( Exception $oE ) {
 					$sMessage = _wpsf__( 'Your security administrator has imposed requirements for password quality.' )
-								.' '.$oE->getMessage();
+								.'<br/>'.sprintf( _wpsf__( 'Reason' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
+					$this->addToAuditEntry(
+						_wpsf__( 'Blocked attempted password update that failed policy requirements.' ),
+						'1', 'um_password_update_blocked'
+					);
 				}
 			}
 		}
@@ -181,7 +152,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nMin > 0 && $nScore < $nMin ) {
-			throw new Exception( sprintf( "Password strength (%s) doesn't meet the minimum required (%s).",
+			throw new Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 				$oFO->getPassStrengthName( $nScore ), $oFO->getPassStrengthName( $nMin ) ) );
 		}
 		return true;
@@ -351,5 +322,16 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	private function getLoginPassword() {
 		return $this->loadDP()->post( 'pass1' );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param bool    $bFailed
+	 * @return $this
+	 */
+	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
+		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+		$oMeta->pass_check_failed_at = $bFailed ? $this->time() : 0;
+		return $this;
 	}
 }

@@ -173,6 +173,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		);
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function getIfSupport3rdParty() {
+		return $this->isPremium();
+	}
+
 	protected function getTranslatedString( $sKey, $sDefault ) {
 		$aStrings = array(
 			'nonce_failed_empty'    => _wpsf__( 'Nonce security checking failed - the nonce value was empty.' ),

@@ -168,6 +168,10 @@
       "default": "4",
       "value_options": [
         {
+          "value_key": "0",
+          "text":      "Very Weak"
+        },
+        {
           "value_key": "1",
           "text":      "Weak"
         },
