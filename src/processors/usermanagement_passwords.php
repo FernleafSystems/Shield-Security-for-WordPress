@@ -25,17 +25,20 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @param string $sUsername
 	 */
 	public function onWpLogin( $sUsername ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		$sPassword = $this->getLoginPassword();
 
 		if ( $oUser instanceof WP_User && !empty( $sPassword ) ) {
 			try {
 				$this->applyPasswordChecks( $sPassword );
-				$this->setPasswordFailedFlag( $oUser, false );
+				$bFailed = false;
 			}
 			catch ( Exception $oE ) {
-				$this->setPasswordFailedFlag( $oUser, true );
+				$bFailed = true;
 			}
+			$this->setPasswordFailedFlag( $oUser, $bFailed );
 		}
 	}
 
@@ -132,8 +135,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @throws Exception
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
-		$this->getPasswordMeetsMinimumLength( $sPassword );
-		$this->getPasswordMeetsMinimumStrength( $sPassword );
+		$this->testPasswordMeetsMinimumLength( $sPassword );
+		$this->testPasswordMeetsMinimumStrength( $sPassword );
 		$this->sendRequestToPwnedRange( $sPassword );
 	}
 
@@ -142,7 +145,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function getPasswordMeetsMinimumStrength( $sPassword ) {
+	protected function testPasswordMeetsMinimumStrength( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 		$nMin = $oFO->getPassMinStrength();
@@ -163,7 +166,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function getPasswordMeetsMinimumLength( $sPassword ) {
+	protected function testPasswordMeetsMinimumLength( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 		$nMin = $oFO->getPassMinLength();
@@ -281,26 +284,25 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 		else if ( is_array( $aResponse ) ) {
 			if ( empty( $aResponse[ 'response' ][ 'code' ] ) ) {
-				$sError = 'Unexpected Error: No response code available from the API';
+				$sError = 'Unexpected Error: No response code available from the Pwned API';
 			}
 			else if ( $aResponse[ 'response' ][ 'code' ] != 200 ) {
-				// means that the password isn't on the pwned list. It's acceptable.
-				$sError = 'Unexpected Error: The response from the API was unexpected';
+				$sError = 'Unexpected Error: The response from the Pwned API was unexpected';
 			}
 			else if ( empty( $aResponse[ 'body' ] ) ) {
-				$sError = 'Unexpected Error: The response from the API was empty';
+				$sError = 'Unexpected Error: The response from the Pwned API was empty';
 			}
 			else {
 				$nCount = 0;
 				foreach ( array_map( 'trim', explode( "\n", trim( $aResponse[ 'body' ] ) ) ) as $sRow ) {
 					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
-						$nCount = substr( $sRow, 36 ); // need to preg_replace to clean up funny characters.
+						$nCount = substr( $sRow, 36 );
 						break;
 					}
 				}
 				if ( $nCount > 0 ) {
 					$sError = _wpsf__( 'Please use a different password.' )
-							  .' '._wpsf__( 'This password has been pwned.' )
+							  .'<br/>'._wpsf__( 'This password has been pwned.' )
 							  .' '.sprintf(
 								  '(<a href="%s" target="_blank">%s</a>)',
 								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
