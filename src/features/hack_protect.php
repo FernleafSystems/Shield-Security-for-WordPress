@@ -75,6 +75,23 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return int
+	 */
+	public function getLastScanAt( $sScan ) {
+		return (int)$this->getOpt( $sScan.'_last_scan_at', 0 );
+	}
+
+	/**
+	 * @param string   $sScan ptg, wcf, ufc, wpv
+	 * @param int|null $nAt
+	 * @return $this
+	 */
+	public function setLastScanAt( $sScan, $nAt = null ) {
+		return $this->setOpt( $sScan.'_last_scan_at', is_null( $nAt ) ? $this->loadDP()->time() : $nAt );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getScanFrequency() {
@@ -534,6 +551,47 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 		return $aP;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionNotices( $sSectionSlug ) {
+		$aNotices = array();
+		switch ( $sSectionSlug ) {
+
+			case 'section_core_file_integrity_scan':
+				$nTime = $this->getLastScanAt( 'wcf' );
+				break;
+
+			case 'section_unrecognised_file_scan':
+				$nTime = $this->getLastScanAt( 'ufc' );
+				break;
+
+			case 'section_pluginthemes_guard':
+				$nTime = $this->getLastScanAt( 'ptg' );
+				break;
+
+			case 'section_wpvuln_scan':
+				$nTime = $this->getLastScanAt( 'wpv' );
+				break;
+
+			default:
+				$nTime = null;
+				break;
+		}
+
+		if ( !is_null( $nTime ) ) {
+			if ( $nTime > 0 ) {
+				$sTime = sprintf( _wpsf__( 'Scan last run: %s' ), $this->loadWp()->getTimeStampForDisplay( $nTime ) );
+			}
+			else {
+				$sTime = _wpsf__( 'Never' );
+			}
+			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $sTime );
+		}
+		return $aNotices;
 	}
 
 	/**

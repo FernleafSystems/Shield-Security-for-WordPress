@@ -114,6 +114,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			}
 		}
 
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oFO->setLastScanAt( 'wcf' );
+
 		return $aDiscoveredFiles;
 	}
 

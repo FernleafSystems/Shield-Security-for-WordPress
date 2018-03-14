@@ -134,6 +134,16 @@
 				</div>
 			<?php endif; ?>
 
+			<?php if ( !empty( $aOptSection[ 'notices' ] ) ) : ?>
+				<div class="row">
+					<div class="col">
+						<?php foreach ( $aOptSection[ 'notices' ] as $sNotices ) : ?>
+							<div class="alert alert-info text-center"><?php echo $sNotices; ?></div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<?php foreach ( $aOptSection[ 'options' ] as $nKeyRow => $aOption ) :
 				$sOptKey = $aOption[ 'key' ];
 				$mOptValue = $aOption[ 'value' ];
