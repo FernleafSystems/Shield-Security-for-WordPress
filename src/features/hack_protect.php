@@ -583,13 +583,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		if ( !is_null( $nTime ) ) {
-			if ( $nTime > 0 ) {
-				$sTime = sprintf( _wpsf__( 'Scan last run: %s' ), $this->loadWp()->getTimeStampForDisplay( $nTime ) );
-			}
-			else {
-				$sTime = _wpsf__( 'Never' );
-			}
-			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $sTime );
+			$nTime = ( $nTime > 0 ) ? $this->loadWp()->getTimeStampForDisplay( $nTime ) : _wpsf__( 'Never' );
+			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $nTime );
 		}
 		return $aNotices;
 	}
