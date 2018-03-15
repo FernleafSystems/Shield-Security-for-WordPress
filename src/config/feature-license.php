@@ -27,7 +27,9 @@
   "options": [
     {
       "key": "license_key",
-      "section": "section_non_ui",
+      "transferable": false,
+      "default": "",
+      "section": "section_non_ui"
     },
     {
       "key": "license_activated_at",
