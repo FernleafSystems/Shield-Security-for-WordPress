@@ -27,14 +27,7 @@
   "options": [
     {
       "key": "license_key",
-      "section": "section_license_options",
-      "default": "",
-      "type": "text",
-      "link_info": "",
-      "link_blog": "",
-      "name": "License Key",
-      "summary": "License Key",
-      "description": "License Key."
+      "section": "section_non_ui",
     },
     {
       "key": "license_activated_at",
