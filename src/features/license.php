@@ -19,13 +19,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		$nExpiresAt = $this->getLicenseExpiresAt();
 		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
-			$sExpiresAt = date( $oWp->getDateFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseExpiresAt() ) );
+			$sExpiresAt = $oWp->getTimeStampForDisplay( $this->getLicenseExpiresAt() );
 		}
 		else {
 			$sExpiresAt = 'n/a';
 		}
 
-		$sCheckedAt = date( $oWp->getDateFormat().' '.$oWp->getTimeFormat(), $oWp->getTimeAsGmtOffset( $this->getLicenseVerifiedAt() ) );
+		$sCheckedAt = $oWp->getTimeStampForDisplay( $this->getLicenseVerifiedAt() );
 
 		$aLicenseTableVars = array(
 			'product_name'    => $this->getLicenseItemName(),
