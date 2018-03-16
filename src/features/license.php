@@ -201,6 +201,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * A special case whereby we only force a license check for Shield Central iff there is no working
+	 * license. Otherwise, we leave it to standard timeouts.
+	 * @return $this
+	 */
+	public function verifyLicenseShieldCentral() {
+		return $this->verifyLicense( !$this->hasValidWorkingLicense() );
+	}
+
+	/**
+	 * License check normally only happens when the verification_at expires (~3 days) for a currently valid license.
 	 * @param bool $bForceCheck
 	 * @return $this
 	 */
@@ -208,10 +218,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$nNow = $this->loadDP()->time();
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
-		$bCheckAnyway = $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-						&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 );
+		$bCheck = $bForceCheck || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
+									&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 ) );
 
-		if ( $bForceCheck || $bCheckAnyway ) {
+		if ( $bCheck ) {
 			$this->setLicenseLastCheckedAt();
 
 			$oLicense = $this->retrieveLicense();
