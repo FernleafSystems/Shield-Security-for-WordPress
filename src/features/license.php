@@ -201,15 +201,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * A special case whereby we only force a license check for Shield Central iff there is no working
-	 * license. Otherwise, we leave it to standard timeouts.
-	 * @return $this
-	 */
-	public function verifyLicenseShieldCentral() {
-		return $this->verifyLicense( !$this->hasValidWorkingLicense() );
-	}
-
-	/**
 	 * License check normally only happens when the verification_at expires (~3 days) for a currently valid license.
 	 * @param bool $bForceCheck
 	 * @return $this
@@ -396,6 +387,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * IMPORTANT: Method used by Shield Central. Modify with care.
+	 * 
 	 * We test various data points:
 	 * 1) the key is valid format
 	 * 2) the official license status is 'valid'
