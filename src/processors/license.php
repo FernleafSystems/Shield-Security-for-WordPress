@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 		$oDp = $this->loadDP();
 
 		// performs the license check
-		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), array( $oFO, 'activateLicenseKeyless' ) );
+		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), array( $oFO, 'verifyLicense' ) );
 
 		switch ( $oDp->query( 'shield_action' ) ) {
 

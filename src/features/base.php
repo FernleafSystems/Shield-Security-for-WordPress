@@ -1858,4 +1858,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aOpts[ $sKey ] = $mValue;
 		return $this->setOpt( 'help_video_options', $aOpts );
 	}
+
+	/**
+	 * @param string $sOpt
+	 * @param int    $nAt
+	 * @return $this
+	 */
+	protected function setOptAt( $sOpt, $nAt = null ) {
+		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadDP()->time() : max( 0, (int)$nAt ) );
+	}
 }
