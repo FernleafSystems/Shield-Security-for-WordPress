@@ -154,6 +154,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
 
+				if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
+					alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
+					return;
+				}
+
 				if ( oResponse.success ) {
 					$oResponseField.removeClass( 'alert-danger' )
 								   .addClass( 'alert-success' );
@@ -216,6 +221,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
 			function ( oResponse ) {
+				if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
+					alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
+					return;
+				}
+
 				if ( undefined !== oResponse.data.next_step ) {
 					$oWizard.steps( 'add', oResponse.data.next_step );
 					$oWizard.steps( 'next' );

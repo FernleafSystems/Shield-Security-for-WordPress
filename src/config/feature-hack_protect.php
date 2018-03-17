@@ -375,7 +375,25 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key": "ptg_last_build_at",
+      "key": "ptg_last_scan_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
+    },
+    {
+      "key": "wcf_last_scan_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
+    },
+    {
+      "key": "ufc_last_scan_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
+    },
+    {
+      "key": "wpv_last_scan_at",
       "transferable": false,
       "section": "section_non_ui",
       "value": 0

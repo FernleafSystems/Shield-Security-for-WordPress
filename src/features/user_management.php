@@ -41,8 +41,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
-																												  ->time() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 	}
@@ -168,11 +167,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @param int $nStrength
 	 * @return int
 	 */
 	public function getPassStrengthName( $nStrength ) {
 		$aMap = array(
-			_wpsf__( 'Weak' ),
+			_wpsf__( 'Very Weak' ),
 			_wpsf__( 'Weak' ),
 			_wpsf__( 'Medium' ),
 			_wpsf__( 'Strong' ),

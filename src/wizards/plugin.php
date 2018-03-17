@@ -315,28 +315,23 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardLicense() {
-		$sKey = $this->loadDP()->post( 'LicenseKey' );
 
 		$bSuccess = false;
-		if ( empty( $sKey ) ) {
-			$sMessage = 'License key was empty.';
+
+		/** @var ICWP_WPSF_FeatureHandler_License $oModule */
+		$oModule = $this->getPluginCon()->getModule( 'license' );
+		try {
+			$bSuccess = $oModule->verifyLicense( true )
+								->hasValidWorkingLicense();
+			if ( $bSuccess ) {
+				$sMessage = _wpsf__( 'License was found and successfully installed.' );
+			}
+			else {
+				$sMessage = _wpsf__( 'License could not be found.' );
+			}
 		}
-		else {
-			/** @var ICWP_WPSF_FeatureHandler_License $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'license' );
-			try {
-				$oModule->activateOfficialLicense( $sKey, true );
-				if ( $oModule->hasValidWorkingLicense() ) {
-					$bSuccess = true;
-					$sMessage = _wpsf__( 'License key was accepted and installed successfully.' );
-				}
-				else {
-					$sMessage = _wpsf__( 'License key was not accepted.' );
-				}
-			}
-			catch ( Exception $oE ) {
-				$sMessage = _wpsf__( $oE->getMessage() );
-			}
+		catch ( Exception $oE ) {
+			$sMessage = _wpsf__( $oE->getMessage() );
 		}
 
 		$oResponse = new \FernleafSystems\Utilities\Response();

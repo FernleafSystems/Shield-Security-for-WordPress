@@ -74,6 +74,15 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sStoreUrl
+	 * @param string $sItemId
+	 * @return ICWP_EDD_LicenseVO|null
+	 */
+	public function activateLicenseKeyless( $sStoreUrl, $sItemId ) {
+		return $this->activateLicense( $sStoreUrl, '', $sItemId );
+	}
+
+	/**
+	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
 	 * @return ICWP_EDD_LicenseVO|null

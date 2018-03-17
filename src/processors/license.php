@@ -4,9 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_License' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
-class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_Base {
+class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
@@ -14,6 +14,9 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_Base {
 		/** @var ICWP_WPSF_FeatureHandler_License $oFO */
 		$oFO = $this->getFeature();
 		$oDp = $this->loadDP();
+
+		// performs the license check
+		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), array( $oFO, 'verifyLicense' ) );
 
 		switch ( $oDp->query( 'shield_action' ) ) {
 
@@ -25,6 +28,12 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_Base {
 						$aHandshakeData[ 'success' ] = true;
 					}
 					die( json_encode( $aHandshakeData ) );
+				}
+				break;
+
+			case 'license_check':
+				if ( !wp_next_scheduled( $oFO->prefix( 'license_check' ) ) ) {
+					wp_schedule_single_event( $oDp->time() + 12, $oFO->prefix( 'adhoc_cron_license_check' ) );
 				}
 				break;
 		}

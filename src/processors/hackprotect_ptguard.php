@@ -551,6 +551,9 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 * @return array[][] - keys are slugs
 	 */
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oFO->setLastScanAt( 'ptg' );
 
 		$aResults = array();
 

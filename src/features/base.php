@@ -943,10 +943,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$aWarnings,
 					$this->getSectionWarnings( $aSection[ 'slug' ] )
 				);
+				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
 			}
 		}
 
 		return $aOptions;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionNotices( $sSectionSlug ) {
+		return array();
 	}
 
 	/**
@@ -1395,11 +1404,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'width'       => 772,
 				'height'      => 454,
 			),
-			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData'    => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-			'sPageTitle'   => $this->getMainFeatureName(),
-			'data'         => array(
+			'sPageTitle'      => $this->getMainFeatureName(),
+			'data'            => array(
 				'form_nonce'        => $this->genNonce( '' ),
 				'mod_slug'          => $this->getModSlug( true ),
 				'mod_slug_short'    => $this->getModSlug( false ),
@@ -1407,11 +1416,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'ajax'         => array(
+			'ajax'            => array(
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
 			),
-			'strings'      => $this->getDisplayStrings(),
-			'flags'        => array(
+			'strings'         => $this->getDisplayStrings(),
+			'flags'           => array(
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
 				'wrap_page_content'     => true,
@@ -1422,13 +1431,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'can_wizard'            => $this->canRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
-			'hrefs'        => array(
+			'hrefs'           => array(
 				'go_pro'         => 'http://icwp.io/shieldgoprofeature',
 				'goprofooter'    => 'http://icwp.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			),
-			'content'      => array(
+			'content'         => array(
 				'options_form'   => '',
 				'alt'            => '',
 				'actions'        => '',
@@ -1848,5 +1857,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aOpts = $this->getHelpVideoOptions();
 		$aOpts[ $sKey ] = $mValue;
 		return $this->setOpt( 'help_video_options', $aOpts );
+	}
+
+	/**
+	 * @param string $sOpt
+	 * @param int    $nAt
+	 * @return $this
+	 */
+	protected function setOptAt( $sOpt, $nAt = null ) {
+		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadDP()->time() : max( 0, (int)$nAt ) );
 	}
 }

@@ -13,8 +13,12 @@
   ],
   "repositories": [
   ],
+  "config":       {
+    "platform": {
+      "php": "5.4"
+    }
+  },
   "require":      {
-    "php":                       ">=5.3.3",
     "fernleafsystems/utilities": "^1.0",
     "nesbot/carbon":             "^1.22.0",
     "twig/twig":                 "^1.0",

@@ -184,6 +184,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function runScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+
 		$aDiscoveredFiles = $this->discoverFiles();
 		if ( !empty( $aDiscoveredFiles ) ) {
 			if ( $oFO->isUfcDeleteFiles() ) {
@@ -201,6 +202,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function discoverFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+		$oFO->setLastScanAt( 'ufc' );
 
 		$aDiscoveredFiles = $this->scanCore();
 		if ( $oFO->isUfsScanUploads() ) {
