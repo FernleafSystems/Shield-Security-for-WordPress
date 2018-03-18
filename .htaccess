@@ -1,4 +1,0 @@
-Order Allow,Deny
-<FilesMatch "^.*\.(css|js|png)$">
-	Allow from all
-</FilesMatch>
