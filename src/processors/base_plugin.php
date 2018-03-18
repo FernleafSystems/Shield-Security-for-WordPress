@@ -214,10 +214,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			return $bShow;
 		}
 
-		if ( $this->getInstallationDays() < 1 ) {
-			$bShow = false;
-		}
-
 		$oWpFunctions = $this->loadWp();
 		if ( class_exists( 'Worpit_Plugin' ) ) {
 			if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
