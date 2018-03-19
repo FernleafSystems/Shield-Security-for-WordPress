@@ -9,7 +9,7 @@
     "highlight_menu_item": true,
     "hide_summary": false,
     "storage_key": "license",
-    "show_central": true,
+    "show_central": false,
     "premium": false,
     "access_restricted": true
   },
