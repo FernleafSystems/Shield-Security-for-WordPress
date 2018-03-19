@@ -135,6 +135,9 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
 							<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
 
+							<dt>Powerful User Password Policies</dt>
+							<dd>Ensures that all users maintain strong passwords.</dd>
+
 							<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
 							<dd>Provide tighter security for your WooCommerce customers.
 							</dd>
