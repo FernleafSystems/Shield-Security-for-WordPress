@@ -131,7 +131,7 @@
       "section": "section_passwords",
       "type": "checkbox",
       "default": "N",
-      "link_info": "",
+      "link_info": "http://icwp.io/c4",
       "link_blog": "",
       "name": "Enable Password Policies",
       "summary": "Enable The Password Policies Below",
@@ -150,6 +150,7 @@
     },
     {
       "key": "pass_min_length",
+      "premium": true,
       "section": "section_passwords",
       "premium": true,
       "type": "integer",
@@ -162,6 +163,7 @@
     },
     {
       "key": "pass_min_strength",
+      "premium": true,
       "section": "section_passwords",
       "premium": true,
       "type":          "select",
@@ -196,18 +198,20 @@
     },
     {
       "key": "pass_force_existing",
+      "premium": true,
       "section": "section_passwords",
       "premium": true,
       "type": "checkbox",
       "default": "N",
       "link_info": "",
       "link_blog": "",
-      "name": "Apply To Existing",
+      "name": "Apply To Existing Users",
       "summary": "Apply Password Policies To Existing Users and Their Passwords",
       "description": "Forces existing users to update their passwords if they don't meet requirements, after they next login ."
     },
     {
       "key": "pass_expire",
+      "premium": true,
       "section": "section_passwords",
       "premium": true,
       "type": "integer",

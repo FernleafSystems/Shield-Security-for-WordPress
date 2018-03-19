@@ -347,7 +347,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				break;
 
 			case 'pass_force_existing' :
-				$sName = _wpsf__( 'Apply To Existing' );
+				$sName = _wpsf__( 'Apply To Existing Users' );
 				$sSummary = _wpsf__( 'Apply Password Policies To Existing Users and Their Passwords' );
 				$sDescription = _wpsf__( "Forces existing users to update their passwords if they don't meet requirements, after they next login." )
 								.'<br/>'._wpsf__( 'Note: You may want to warn users prior to enabling this option.' );
