@@ -68,7 +68,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 
 			<div class="row">
 				<div class="col card">
-					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+					<form method="post" class="licenseForm">
 
 						<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
 							<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
@@ -84,13 +84,15 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 							<span class="form-text text-muted">Verify License Registration</span>
 						</div>
 					</form>
+					<p class="font-weight-bold">Be sure to have first activated your URL in your
+						<a target="_blank" href="<?php echo $aHrefs['keyless_cp']; ?>">Keyless Activation control panel</a>.</p>
 				</div>
 			</div>
 
 			<?php if ( $flags[ 'has_license_key' ] ) : ?>
 				<div class="row">
 					<div class="col card">
-						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+						<form method="post" class="licenseForm">
 
 							<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
 								<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
