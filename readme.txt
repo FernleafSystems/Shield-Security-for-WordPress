@@ -5,26 +5,42 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, scan, spam, recaptcha, two-factor authentication, ithemes, wordfence, better wp security, cerber, hack
 Requires at least: 3.5.0
+Requires PHP: 5.2.4
+Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.5.0
+Stable tag: 6.6.0
 
 Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
 
 == Description ==
 
-Shield handles it all for you:
+= You Can Trust Shield To Do Exactly What It Says It Will Do =
 
-* Easy-To-Use Guided Setup Wizards
-* Login Guard against bots (including Limit Login Attempts)
-* Hack Guard scans files for unintended changes, e.g. code injection into core files
-* Automatic IP Black List
-* 2-Factor Authentication
-* Comments SPAM - block 100% of bot spam.
-* Audit Trail & Logging
+We know you may have been let down in the past, but Shield is the WordPress Security solution that does what it says it'll do - Protect Your Site.
+
+= All-In-One Shield Is Easy To Use =
+
+Your WP Security plugin must be easy to understand and easy to install/setup - Shield built for both beginners and advanced.
+
+And importantly, it [comes highly recommended](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/)
+- Shield has the highest average rating for any WP Security plugin.
+
+Its simple but powerful protection blocks attacks and suspicious activity, but won't lock you out.
+
+Shield is the must-have, free Security Solution for all your WordPress sites.
+
+= Shield Features You'll Absolutely Love =
+
+* Beautiful, Easy-To-Use Guided Wizards - help you configure Shield and run scans like a Pro
+* Limit Login Attempts / Block Automatic Brute-Force Bots - all automatically
+* Powerful Core File Scanners - automatically detects malicious file changes and hacks you'd never see
+* Automatic IP Black List - no need for you to manage IPs!
+* 2-Factor Authentication - including Google Authenticator and Email
+* Block 100% Automated Comments SPAM
+* Audit Trail & User Activity Logging
 * reCAPTCHA
 * Firewall
 * Security Admin Users
-* Core file scanners
 * Block REST API / XML-RPC
 * HTTP Headers
 * Automatic Updates Control
@@ -36,30 +52,31 @@ Shield handles it all for you:
 > Why take the risk?
 >
 > Download and install Shield now for FREE so that you have the most powerful WordPress security system working for you and protecting your site.
->
-> <strong>Shield + iControlWP</strong><br />
-> If you have multiple sites, then Shield [combined with iControlWP](http://icwp.io/shld8), takes the pain out of managing your websites, and covers your security, daily backup (and restore), and updating plugins/themes
 
 = The New Shield Pro =
 
-From November 2017, Shield Security now has a Pro version.
+From November 2017, Shield Security now has a Pro version for those that need to take their Security to the next level.
 
-For just $1/month:
+> <strong>The Pro Extras</strong>:
+>
+> 1. Exclusive customer email support.
+> 1. Plugin Vulnerability Scanner.
+> 1. Plugin / Themes Hack Detection Scanner.
+> 1. More Frequent Scans - as often as every hour.
+> 1. Protection for your WooCommerce customers (incl. Easy Digital Downloads & BuddyPress)
+> 1. Remember-Me 2-Factor Authentication.
+> 1. Powerful Password Policies.
+> 1. Import/Export of options across sites.
+> 1. Improved Audit Trail logging
+> 1. Exclusive early access to new security features
+> 1. Text customisations for your visitors.
+> 1. No manual Pro plugin downloads - we handle this all for you automatically.
+> 1. No license keys to manage - it's all automatic!
+> 1. (coming soon) White Labelling
+> 1. (coming soon) Statistics and Reporting
+> 1. (coming soon) Select individual automatic plugin updates
 
-1. Exclusive Pro customer email support.
-1. Plugin Vulnerability Scanner.
-1. Import/Export of options across sites.
-1. Protect WooCommerce login and user registration, along with other 3rd party plugins e.g. Easy Digital Downloads, BuddyPress.
-1. Improved Audit Trail logging
-1. Exclusive early access to new security features
-1. Text customisations for visitors.
-1. No manual Pro plugin downloads - we handle this all for you automatically.
-1. (coming soon) White Labelling
-1. (coming soon) Improved performance
-1. (coming soon) Statistics and Reporting
-1. (coming soon) Select individual automatic plugin updates
-
-Learn more and go Pro at [our One Dollar Plugin store](http://icwp.io/ab).
+Learn more on going Pro at [our One Dollar Plugin store](http://icwp.io/ab).
 
 = Our Mission =
 
@@ -356,15 +373,25 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.5.0 - Current Release =
-*Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
+= 6.6.0 - Current Release =
+*Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.0)**  IMPROVED:		[Plugin Guard](http://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
-* **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now trigger the blacklist transgressions counter.
-* **(v.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
-* **(v.0)**  ADDED:			[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
-* **(v.0)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
-* **(v.0)**  FIXED:			A few small bugs
+* **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
+* **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
+* **(v.0)**  ADDED:			Pwned Passwords Detection.
+* **(v.0)**  IMPROVED:		Major rewrite of plugin AJAX handling.
+* **(v.0)**  IMPROVED:		Notices to indicate the time of the last scans.
+* **(v.0)**  FIXED:			A few bugs
+
+= 6.6 Series =
+*Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
+
+* **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
+* **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
+* **(v.0)**  ADDED:			Pwned Passwords Detection.
+* **(v.0)**  IMPROVED:		Major rewrite of plugin AJAX handling.
+* **(v.0)**  IMPROVED:		Notices to indicate the time of the last scans.
+* **(v.0)**  FIXED:			A few bugs
 
 = 6.5 Series =
 *Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
