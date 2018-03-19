@@ -181,6 +181,7 @@ class ICWP_WPSF_WpFilesystem {
 	/**
 	 * @param string $sUrl
 	 * @param array  $aRequestArgs
+	 * @param bool   $bAlwaysRawResponse
 	 * @return array|WP_Error|bool
 	 */
 	public function requestUrl( $sUrl, $aRequestArgs = array(), $bAlwaysRawResponse = false ) {

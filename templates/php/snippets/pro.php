@@ -11,36 +11,28 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 	#accordionTop .accordion-toggle h3 {
 		color: #333333;
 	}
-
 	#accordionTop .accordion-toggle {
 		background-color: rgba(255, 255, 255, 0.6);
 	}
-
 	#accordionTop .accordion-toggle:hover {
 		text-decoration: none;
 		background-color: rgba(255, 255, 255, 0.6);
 	}
-
 	#accordionTop .accordion-toggle:focus {
 		box-shadow: none;
 	}
-
 	#accordionTop .accordion-group {
 		margin-bottom: 15px;
 	}
-
 	#accordionTop .accordion-inner {
 		background-color: rgba(255, 255, 255, 0.6);
 	}
-
 	#ButtonBuyNow {
 		margin: 20px;
 	}
-
 	#ButtonActivate {
 		margin: 5px 2px 0;
 	}
-
 	.licenseForm button {
 		display: block;
 	}
@@ -54,7 +46,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				<h4>License Summary</h4>
 			</div>
 			<table class="table table-hover table-sm table-responsive">
-				<?php foreach( $vars as $varKey => $licenseValue ) : ?>
+				<?php foreach ( $vars as $varKey => $licenseValue ) : ?>
 					<?php $sClasses = ( $varKey == 'last_errors' && !empty( $licenseValue ) ) ? 'table-warning' : ''; ?>
 					<tr>
 						<th scope="row"><?php echo $strings[ $varKey ]; ?>:</th>
@@ -68,12 +60,10 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 
 			<div class="row">
 				<div class="col card">
-					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
-
+					<form method="post" class="licenseForm">
 						<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
 							<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
 						<?php endforeach; ?>
-
 						<input type="hidden" name="license-action" value="check" />
 						<div class="form-group">
 							<label>Check License Availability For This Site</label>
@@ -84,13 +74,22 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 							<span class="form-text text-muted">Verify License Registration</span>
 						</div>
 					</form>
+					<p class="font-weight-bold">Be sure to have first activated your URL in your
+						<a target="_blank" href="<?php echo $aHrefs[ 'keyless_cp' ]; ?>">Keyless Activation control panel</a>.</p>
+
+					<form method="post" id="ConnectionDebug">
+						<?php foreach ( $ajax[ 'connection_debug' ] as $sAjKey => $sAjVal ) : ?>
+							<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+						<?php endforeach; ?>
+						<button class="btn btn-link btn-sm float-right p-0" type="submit">[Debug]</button>
+					</form>
 				</div>
 			</div>
 
 			<?php if ( $flags[ 'has_license_key' ] ) : ?>
 				<div class="row">
 					<div class="col card">
-						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+						<form method="post" class="licenseForm">
 
 							<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
 								<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
@@ -135,6 +134,9 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 
 							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
 							<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
+
+							<dt>Powerful User Password Policies</dt>
+							<dd>Ensures that all users maintain strong passwords.</dd>
 
 							<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
 							<dd>Provide tighter security for your WooCommerce customers.
@@ -264,5 +266,33 @@ var iCWP_WPSF_LicenseHandler = new function () {
 	};
 }();
 
+var iCWP_WPSF_ConnectionDebug = new function () {
+	/**
+	 */
+	var connectionDebug = function ( event ) {
+		iCWP_WPSF_BodyOverlay.show();
+		event.preventDefault();
+
+		var $oForm = jQuery( this );
+		jQuery.post( ajaxurl, $oForm.serialize(),
+			function ( oResponse ) {
+
+				alert( oResponse.data.message );
+
+			}
+		).always( function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			jQuery( document ).on( "submit", "form#ConnectionDebug", connectionDebug );
+		} );
+	};
+}();
+
 iCWP_WPSF_LicenseHandler.initialise();
+iCWP_WPSF_ConnectionDebug.initialise();
 </script>

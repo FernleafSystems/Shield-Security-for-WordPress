@@ -48,12 +48,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				)
 			),
 			'ajax'    => array(
-				'license_handling' => $this->getAjaxActionData( 'license_handling' )
+				'license_handling' => $this->getAjaxActionData( 'license_handling' ),
+				'connection_debug' => $this->getAjaxActionData( 'connection_debug' )
 			),
 			'aHrefs'  => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
 				'iframe_url'               => $this->getDef( 'landing_page_url' ),
+				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
 			),
 			'flags'   => array(
 				'show_key'              => !$this->isKeyless(),
@@ -142,6 +144,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$aAjaxResponse = $this->ajaxExec_LicenseHandling();
 					break;
 
+				case 'connection_debug':
+					$aAjaxResponse = $this->ajaxExec_ConnectionDebug();
+					break;
+
 				default:
 					break;
 			}
@@ -176,6 +182,49 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		return array( 'success' => $bSuccess );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_ConnectionDebug() {
+		$bSuccess = false;
+
+		$sStoreUrl = add_query_arg(
+			array( 'license_ping' => 'Y' ),
+			$this->getLicenseStoreUrl()
+		);
+
+		$mResponse = $this->loadFS()->requestUrl(
+			$sStoreUrl,
+			array(
+				'method' => 'POST',
+				'body'   => array( 'ping' => 'pong' )
+			),
+			true
+		);
+
+		if ( is_wp_error( $mResponse ) ) {
+			$sResult = $mResponse->get_error_message();
+		}
+		else if ( is_array( $mResponse ) && !empty( $mResponse[ 'body' ] ) ) {
+			$aResult = @json_decode( $mResponse[ 'body' ], true );
+			if ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) {
+				$bSuccess = true;
+				$sResult = 'Successful - no problems detected communicating with license server.';
+			}
+			else {
+				$sResult = 'Unknown failure due to unexpected response';
+			}
+		}
+		else {
+			$sResult = 'Unknown error as we could not get a response back from the server';
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => esc_html( esc_js( $sResult ) )
+		);
 	}
 
 	/**
@@ -388,7 +437,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 * IMPORTANT: Method used by Shield Central. Modify with care.
-	 * 
 	 * We test various data points:
 	 * 1) the key is valid format
 	 * 2) the official license status is 'valid'
