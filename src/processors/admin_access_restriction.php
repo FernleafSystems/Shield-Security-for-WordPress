@@ -46,6 +46,30 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+
+		if ( $oFO->isWlEnabled() ) {
+			$this->runWhiteLabel();
+		}
+	}
+
+	/**
+	 */
+	protected function runWhiteLabel() {
+		$this->getSubProcessorWhitelabel()
+			 ->run();
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel
+	 */
+	protected function getSubProcessorWhitelabel() {
+		$oProc = $this->getSubProcessor( 'checksum' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/adminaccess_whitelabel.php' );
+			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getFeature() );
+			$this->aSubProcessors[ 'wl' ] = $oProc;
+		}
+		return $oProc;
 	}
 
 	/**
@@ -421,13 +445,15 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
 				'unlock_link'        => $this->getUnlockLinkHtml(),
 			),
-			'sAjaxNonce'  => wp_create_nonce( 'icwp_ajax' ),
 			'js_snippets' => array(
 				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+			),
+			'ajax' => array(
+				'sec_admin_login_box' => $oFO->getAjaxActionData( 'sec_admin_login_box', true )
 			)
 		);
 		add_thickbox();
-		echo $oFO->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'admin_access_login_box.php', $aRenderData );
+		echo $oFO->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
 	}
 
 	/**

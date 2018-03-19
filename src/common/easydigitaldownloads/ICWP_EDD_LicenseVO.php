@@ -85,6 +85,14 @@ class ICWP_EDD_LicenseVO {
 	/**
 	 * @return bool
 	 */
+	public function isShieldCentral() {
+		$oRaw = $this->getRaw();
+		return isset( $oRaw->is_central ) && $oRaw->is_central;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isSuccess() {
 		return $this->getRaw()->success;
 	}

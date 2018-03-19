@@ -5,13 +5,15 @@
 
 		<h3><?php echo $strings[ 'aar_title' ]; ?></h3>
 		<p><?php echo $strings[ 'aar_what_should_you_enter' ]; ?>
-			<br /><?php echo $strings[ 'aar_must_supply_key_first' ]; ?></p>
+			<br /><?php echo $strings[ 'aar_must_supply_key_first' ]; ?>
+		</p>
 
 		<form action="<?php echo $form_action; ?>" method="post" class="form-horizontal" id="SecurityAdminForm">
-			<input type="hidden" name="plugin_form_submit" value="Y" />
-			<?php foreach ( $data[ 'ajax' ] as $sName => $sVal ) : ?>
+
+			<?php foreach ( $ajax[ 'sec_admin_login' ] as $sName => $sVal ) : ?>
 				<input type="hidden" value="<?php echo $sVal; ?>" name="<?php echo $sName; ?>" />
 			<?php endforeach; ?>
+
 			<div class="form-group row no-gutters">
 
 				<label class="form-label col-3 col-form-label" for="admin_access_key_request">
@@ -22,19 +24,19 @@
 
 					<div class="option_section">
 						<label class="admin_access_key_request">
-							<input type="password" name="admin_access_key_request" id="admin_access_key_request"
-								   value="" autocomplete="off" autofocus />
+							<input type="password" name="admin_access_key_request"
+								   id="admin_access_key_request" value="" autocomplete="off" autofocus />
 						</label>
 						<p class="help-block"><?php echo $strings[ 'aar_to_manage_must_enter_key' ]; ?></p>
 					</div>
 				</div>
 			</div>
 			<div class="form-group row no-gutters">
-				<div class="col-6">
+				<div class="col-6 order-2 text-right">
 					<button type="submit" class="btn btn-primary" name="submit">
 						<?php echo $strings[ 'aar_submit_access_key' ]; ?></button>
 				</div>
-				<div class="col-6 text-right">
+				<div class="col-6 order-1 text-left">
 					<a class="btn btn-link "
 					   href="<?php echo $hrefs[ 'aar_forget_key' ]; ?>" target="_blank">
 						<?php echo $strings[ 'aar_forget_key' ]; ?></a>
@@ -42,6 +44,7 @@
 
 			</div>
 		</form>
+		</div>
 	</div>
-	</div>
+</div>
 </div>

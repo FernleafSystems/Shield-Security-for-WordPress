@@ -17,20 +17,89 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return parent::isReadyToExecute() && $this->hasAccessKey() && !$this->isVisitorWhitelisted();
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		add_action( 'wp_ajax_icwp_wpsf_LoadAdminAccessForm', array( $this, 'ajaxLoadAdminAccessForm' ) );
-		add_action( $this->prefixWpAjax( 'AdminAccessLogin' ), array( $this, 'ajaxAdminAccessLogin' ) );
-		add_action( $this->prefixWpAjax( 'RestrictedAccessKey' ), array( $this, 'ajaxRestrictedAccessKey' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'sec_admin_login':
+				case 'restricted_access':
+					$aAjaxResponse = $this->ajaxExec_SecAdminLogin();
+					break;
+
+				case 'sec_admin_login_box':
+					$aAjaxResponse = $this->ajaxExec_SecAdminLoginBox();
+					break;
+
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	public function ajaxLoadAdminAccessForm() {
-		$bSuccess = $this->checkAjaxNonce();
-		if ( $bSuccess ) {
-			$sResponseData = array();
-			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm();
-			$this->sendAjaxResponse( true, $sResponseData );
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_SecAdminLogin() {
+		$aResponse = array();
+
+		if ( $this->checkAdminAccessKeySubmission() ) {
+
+			if ( $this->setPermissionToSubmit( true ) ) {
+				$aResponse[ 'success' ] = true;
+				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
+									   .' '._wpsf__( 'Please wait' ).' ...';
+			}
+			else {
+				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+			}
 		}
+		else {
+			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+		}
+
+		return $aResponse;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_SecAdminLoginBox() {
+		return array(
+			'success' => 'true',
+			'html'    => $this->renderAdminAccessAjaxLoginForm()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_RestrictedAccess() {
+		$aResponse = array();
+
+		if ( $this->checkAdminAccessKeySubmission() ) {
+
+			if ( $this->setPermissionToSubmit( true ) ) {
+				$aResponse[ 'success' ] = true;
+				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
+									   .' '._wpsf__( 'Please wait' ).' ...';
+			}
+			else {
+				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+			}
+		}
+		else {
+			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+		}
+
+		return $aResponse;
 	}
 
 	/**
@@ -38,43 +107,16 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string
 	 */
 	protected function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
-		$aData = $this->getBaseAjaxActionRenderData( 'AdminAccessLogin' );
-		$aData[ 'admin_access_message' ] = empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage;
+
+		$aData = array(
+			'ajax'    => array(
+				'sec_admin_login' => json_encode( $this->getSecAdminLoginAjaxData() )
+			),
+			'strings' => array(
+				'access_message' => empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage
+			)
+		);
 		return $this->renderTemplate( 'snippets/admin_access_login', $aData );
-	}
-
-	public function ajaxAdminAccessLogin() {
-
-		if ( $this->isValidAjaxRequestForModule() ) {
-			$sResponseData = array();
-			$bSuccess = $this->checkAdminAccessKeySubmission();
-			if ( $bSuccess ) {
-				$bSuccess = $this->setPermissionToSubmit( true );
-				if ( $bSuccess ) {
-					$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
-				}
-				else {
-					$sResponseData[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
-				}
-			}
-			else {
-				$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
-			}
-			$this->sendAjaxResponse( $bSuccess, $sResponseData );
-		}
-	}
-
-	public function ajaxRestrictedAccessKey() {
-		$sResponseData = array();
-		$bSuccess = $this->checkAdminAccessKeySubmission();
-		if ( $bSuccess ) {
-			$this->setPermissionToSubmit( true );
-			$sResponseData[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' ).' '._wpsf__( 'Please wait' ).' ...';
-		}
-		else {
-			$sResponseData[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
-		}
-		$this->sendAjaxResponse( $bSuccess, $sResponseData );
 	}
 
 	/**
@@ -268,6 +310,39 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getWhitelabelOptions() {
+		$sMain = $this->getOpt( 'wl_namemain' );
+		$sMenu = $this->getOpt( 'wl_namemenu' );
+		if ( empty( $sMenu ) ) {
+			$sMenu = $sMain;
+		}
+
+		return array(
+			'name_main'   => $sMain,
+			'name_menu'   => $sMenu,
+			'description' => $this->getOpt( 'wl_description' ),
+			'url_home'    => $this->getOpt( 'wl_homeurl' ),
+			'url_icon'    => $this->getOpt( 'wl_iconurl' ),
+		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWlEnabled() {
+		return $this->getOptIs( 'whitelabel_enable', 'Y' ) && $this->isPremium();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWlHideUpdates() {
+		return $this->isWlEnabled() && $this->getOptIs( 'wl_hide_updates', 'Y' );
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return $this
 	 * @throws Exception
@@ -322,6 +397,16 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 				);
 				$sTitleShort = _wpsf__( 'Access Restriction Zones' );
+				break;
+
+			case 'section_whitelabel' :
+				$sTitle = _wpsf__( 'Shield White Label' );
+				$aSummary = array(
+					sprintf( _wpsf__( 'Purpose - %s' ),
+						sprintf( _wpsf__( 'Rename and re-brand the %s plugin for your client site installations.' ),
+							$this->getConn()->getHumanName() ) ),
+				);
+				$sTitleShort = _wpsf__( 'White Label' );
 				break;
 
 			default:
@@ -406,6 +491,42 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 										)
 									)
 								);
+				break;
+
+			case 'whitelabel_enable' :
+				$sName = sprintf( '%s: %s', _wpsf__( 'Enable' ), _wpsf__( 'White Label' ) );
+				$sSummary = _wpsf__( 'Activate Your White Label Settings' );
+				$sDescription = _wpsf__( 'Turn on/off the application of your White Label settings.' );
+				break;
+			case 'wl_hide_updates' :
+				$sName = _wpsf__( 'Hide Updates' );
+				$sSummary = _wpsf__( 'Hide Plugin Updates From Non-Security Admins' );
+				$sDescription = _wpsf__( 'Do not show the availability of updates to non-security administrators.' );
+				break;
+			case 'wl_namemain' :
+				$sName = _wpsf__( 'Plugin Name' );
+				$sSummary = _wpsf__( 'The Name Of The Plugin' );
+				$sDescription = _wpsf__( 'The name of the plugin that will be displayed to your site users.' );
+				break;
+			case 'wl_namemenu' :
+				$sName = _wpsf__( 'Menu Title' );
+				$sSummary = _wpsf__( 'The Main Menu Title Of The Plugin' );
+				$sDescription = sprintf( _wpsf__( 'The Main Menu Title Of The Plugin. If left empty, the "%s" will be used.' ), _wpsf__( 'Plugin Name' ) );
+				break;
+			case 'wl_description' :
+				$sName = _wpsf__( 'Description' );
+				$sSummary = _wpsf__( 'The Description Of The Plugin' );
+				$sDescription = _wpsf__( 'The description of the plugin displayed on the plugins page.' );
+				break;
+			case 'wl_homeurl' :
+				$sName = _wpsf__( 'Home URL' );
+				$sSummary = _wpsf__( 'Plugin Home Page URL' );
+				$sDescription = _wpsf__( "When a user clicks the home link for this plugin, this is where they'll be directed." );
+				break;
+			case 'wl_iconurl' :
+				$sName = _wpsf__( 'Icon URL' );
+				$sSummary = _wpsf__( 'Plugin Icon URL' );
+				$sDescription = _wpsf__( 'The URL of the icon displayed in the menu and in the admin pages.' );
 				break;
 
 			default:

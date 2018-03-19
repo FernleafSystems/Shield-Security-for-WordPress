@@ -3,7 +3,7 @@
 /** @var string[] $inputs */
 /** @var string[] $flags */
 /** @var string[] $vars */
-/** @var string[] $ajax_vars */
+/** @var string[] $aLicenseAjax */
 /** @var array $aLicKeyInput */
 $aLicKeyInput = $inputs[ 'license_key' ];
 ?>
@@ -65,20 +65,23 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 			<hr />
 
 			<h4>License Actions</h4>
+
 			<div class="row">
 				<div class="col card">
 					<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
-						<input type="hidden" name="license-action" value="activate" />
+
+						<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
+							<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+						<?php endforeach; ?>
+
+						<input type="hidden" name="license-action" value="check" />
 						<div class="form-group">
-							<label for="<?php echo $aLicKeyInput[ 'name' ]; ?>">Activate New License Key</label>
-							<input type="text" name="<?php echo $aLicKeyInput[ 'name' ]; ?>"
-								   class="form-control"
-								   id="<?php echo $aLicKeyInput[ 'name' ]; ?>"
-								   maxlength="<?php echo $aLicKeyInput[ 'maxlength' ]; ?>"
-								   value="" />
-							<button class="btn btn-success" type="submit" id="ButtonActivate" name="activate">
-								Activate Key</button>
-							<span class="form-text text-muted">This will replace any existing license key.</span>
+							<label>Check License Availability For This Site</label>
+							<button class="btn btn-info" type="submit"
+								<?php echo $flags[ 'button_enabled_check' ] ? '' : 'disabled="disabled"'; ?> >
+								Check License
+							</button>
+							<span class="form-text text-muted">Verify License Registration</span>
 						</div>
 					</form>
 				</div>
@@ -88,22 +91,11 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				<div class="row">
 					<div class="col card">
 						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
-							<input type="hidden" name="license-action" value="recheck" />
-							<div class="form-group">
-								<label>Recheck Key</label>
-								<button class="btn btn-info" type="submit"
-									<?php echo $flags[ 'button_enabled_remove' ] ? '' : 'disabled="disabled"'; ?> >
-									Recheck
-								</button>
-								<span class="form-text text-muted">Verify and refresh the current license registration.</span>
-							</div>
-						</form>
-					</div>
-				</div>
 
-				<div class="row">
-					<div class="col card">
-						<form action="<?php echo $form_action; ?>" method="post" class="licenseForm">
+							<?php foreach ( $ajax[ 'license_handling' ] as $sAjKey => $sAjVal ) : ?>
+								<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+							<?php endforeach; ?>
+
 							<input type="hidden" name="license-action" value="remove" />
 							<div class="form-group">
 								<label>Remove Current License</label>
@@ -132,7 +124,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 					  </h5>
 					</div>
 
-					<div id="collone" class="collapse" aria-labelledby="headingOne"
+					<div id="collone" class="collapse show" aria-labelledby="headingOne"
 						 data-parent="#accordion">
 					  <div class="card-body">
 						<dl>
@@ -141,24 +133,24 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 								Shield can then automatically upgrade as updates become available.
 							</dd>
 
+							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
+							<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
+
 							<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
-							<dd>Shield Pro works seamlessly with WooCommerce, providing tighter security
-								for your customer accounts.
+							<dd>Provide tighter security for your WooCommerce customers.
 							</dd>
 
 							<dt>Exclusive Customer Support</dt>
-							<dd>Technical email support for Shield Security is exclusive to Pro customers.
-							</dd>
+							<dd>Technical support for Shield is exclusive to Pro customers.</dd>
 
 							<dt>Import and Export of plugin options</dt>
-							<dd>Automatically import plugin settings directly from 1 site to another.</dd>
+							<dd>Automatically import settings directly from 1 site to another.</dd>
 
-							<dt>Exclusive Early-Access to new features </dt>
-							<dd>Be the first to access new security features, as soon as they're available.
-							</dd>
+							<dt>Exclusive Early-Access </dt>
+							<dd>Be 1st to get new security features, as soon as they're available.</dd>
 
 							<dt>Unlimited Audit Trail</dt>
-							<dd>Retain the audit trail logs for as long as you need - no limits.</dd>
+							<dd>Retain logs for as long as you need - no limits.</dd>
 
 							<dt>Customize text shown to visitors</dt>
 							<dd>Edit customer-facing messages/text of the Shield plugin.</dd>
@@ -179,9 +171,6 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 					<div id="colltwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
 					  <div class="card-body">
 						<dl>
-							<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
-							<dd>Be alerted immediately to ANY unauthorized changes to plugin and theme files.</dd>
-
 							<dt>White Label</dt>
 							<dd>Re-Brand Shield Security as your own!</dd>
 
@@ -254,26 +243,9 @@ var iCWP_WPSF_LicenseHandler = new function () {
 			return false;
 		}
 		bRequestCurrentlyRunning = true;
-
 		event.preventDefault();
 
 		var $oForm = jQuery( this );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_ajax_action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_nonce_action' ]; ?>" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
-							 .attr( 'value', "<?php echo $ajax_vars[ 'icwp_action_module' ]; ?>" )
-							 .appendTo( $oForm );
-
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 			}

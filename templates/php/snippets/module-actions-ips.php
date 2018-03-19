@@ -37,7 +37,6 @@
 	function request_and_reload( requestData, $oTarget ) {
 
 		$oTarget.html( '<div class="spinner"></div>' );
-		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
 		jQuery.post( ajaxurl, requestData, function ( oResponse ) {
 
 			if ( oResponse.data ) {

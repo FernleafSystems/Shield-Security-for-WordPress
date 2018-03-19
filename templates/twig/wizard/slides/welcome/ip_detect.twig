@@ -26,7 +26,7 @@
 	<p>Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		{{ slideMacros.formInput_Password( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
+		{{ slideMacros.formInput_Text( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
 
 		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
 		{{ slideMacros.formInput_Submit( 'Submit: This Is My IP' ) }}

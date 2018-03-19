@@ -128,19 +128,16 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 		bRequestCurrentlyRunning = true;
 
 		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'action' )
-							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
+							 .attr( 'value', "{{ ajax.content.action }}" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_ajax_action' )
-							 .attr( 'value', "{{ ajax.content.icwp_ajax_action }}" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec' )
+							 .attr( 'value', "{{ ajax.content.exec }}" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce' )
-							 .attr( 'value', "{{ ajax.content.icwp_nonce }}" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'exec_nonce' )
+							 .attr( 'value', "{{ ajax.content.exec_nonce }}" )
 							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_nonce_action' )
-							 .attr( 'value', "{{ ajax.content.icwp_nonce_action }}" )
-							 .appendTo( $oForm );
-		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'icwp_action_module' )
-							 .attr( 'value', "{{ ajax.content.icwp_action_module }}" )
+		jQuery( '<input />' ).attr( 'type', 'hidden' ).attr( 'name', 'mod_slug' )
+							 .attr( 'value', "{{ ajax.content.mod_slug }}" )
 							 .appendTo( $oForm );
 
 		if ( jQuery( 'p.wizard-response', $oForm ).length === 0 ) {
@@ -156,6 +153,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 		jQuery.post( '{{ ajax.content.ajaxurl }}', $oForm.serialize(),
 			function ( oResponse ) {
+
+				if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
+					alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
+					return;
+				}
 
 				if ( oResponse.success ) {
 					$oResponseField.removeClass( 'alert-danger' )
@@ -219,6 +221,11 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 
 		jQuery.post( '{{ ajax.steps.ajaxurl }}', reqData,
 			function ( oResponse ) {
+				if ( typeof oResponse === "undefined" || typeof oResponse.data === "undefined" ) {
+					alert( 'There was a critical failure in the request. Cannot proceed. Example causes are HTTPS misconfiguration or PHP error warnings output.' );
+					return;
+				}
+
 				if ( undefined !== oResponse.data.next_step ) {
 					$oWizard.steps( 'add', oResponse.data.next_step );
 					$oWizard.steps( 'next' );

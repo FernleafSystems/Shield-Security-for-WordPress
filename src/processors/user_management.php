@@ -19,12 +19,18 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 
-		// Adds last login indicator column to all plugins in plugin listing.
+		// Adds last login indicator column
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		// Handles login notification emails and setting last user login
+		add_action( 'init', array( $this, 'onWpInit' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
+
+		if ( $oFO->isPasswordPoliciesEnabled() ) {
+			$this->getProcessorPasswords()->run();
+		}
+
+		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
 		if ( $this->loadWp()->getIsXmlrpc() && $oFO->isXmlrpcBypass() ) {
@@ -38,12 +44,25 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 */
+	public function onWpInit() {
+		$oWpUsers = $this->loadWpUsers();
+		if ( $oWpUsers->isUserLoggedIn() ) {
+			$oUser = $oWpUsers->getCurrentWpUser();
+			$this->setPasswordStartedAt( $oUser ); // used by Password Policies
+		}
+	}
+
+	/**
 	 * Hooked to action wp_login
 	 * @param $sUsername
 	 */
 	public function onWpLogin( $sUsername ) {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
+
+			$this->setPasswordStartedAt( $oUser ); // used by Password Policies
+
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeature();
 			if ( $oFO->isSendEmailLoginNotification() ) {
@@ -57,8 +76,23 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param WP_User $oUser
 	 * @return $this
 	 */
+	private function setPasswordStartedAt( $oUser ) {
+		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+
+		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 6, 4 );
+		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
+			$oMeta->pass_hash = $sCurrentPassHash;
+			$oMeta->pass_started_at = $this->time();
+		}
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return $this
+	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = $this->getFeature()->getUserMeta( $oUser );
 		$oMeta->last_login_at = $this->time();
 		return $this;
 	}
@@ -169,6 +203,19 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_UserManagement_Passwords
+	 */
+	protected function getProcessorPasswords() {
+		$oProc = $this->getSubProcessor( 'passwords' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/usermanagement_passwords.php' );
+			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getFeature() );
+			$this->aSubProcessors[ 'passwords' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Sessions
 	 */
 	protected function getProcessorSessions() {
@@ -193,6 +240,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {
-		return $this->getController()->doPluginOptionPrefix( 'last_login_at' );
+		return $this->getController()->prefixOption( 'last_login_at' );
 	}
 }

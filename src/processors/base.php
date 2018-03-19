@@ -106,7 +106,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -141,8 +140,11 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			return;
 		}
 
+		$bCantDismiss = isset( $aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ] )
+					   && !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
+
 		$oNotices = $this->loadAdminNoticesProcessor();
-		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
+		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) || $bCantDismiss ) {
 
 			$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {

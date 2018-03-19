@@ -57,17 +57,10 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		if ( bRequestCurrentlyRunning ) {
 			return false;
 		}
-
 		bRequestCurrentlyRunning = true;
-
 		event.preventDefault();
 
 		var $oForm = jQuery( this );
-		jQuery( '<input />' ).attr( 'type', 'hidden' )
-							 .attr( 'name', 'action' )
-							 .attr( 'value', 'icwp_OptionsFormSave' )
-							 .appendTo( $oForm );
-
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 				var sMessage;
@@ -77,6 +70,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				else {
 					sMessage = oResponse.data.message;
 				}
+				/** TODO: div#icwpOptionsFormContainer no longer exists */
 				jQuery( 'div#icwpOptionsFormContainer' ).html( oResponse.data.options_form )
 				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 			}

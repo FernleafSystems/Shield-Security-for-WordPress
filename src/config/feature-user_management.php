@@ -24,6 +24,18 @@
       ]
     },
     {
+      "slug": "section_passwords",
+      "reqs" : {
+        "php_min": "5.4"
+      },
+      "title": "Password Policies",
+      "title_short": "Password Policies",
+      "summary": [
+        "Purpose - Have full control over passwords used by users on the site.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
       "slug": "section_admin_login_notification",
       "title": "Admin Login Notification",
       "title_short": "Notifications",
@@ -115,11 +127,105 @@
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
     },
     {
+      "key": "enable_password_policies",
+      "section": "section_passwords",
+      "type": "checkbox",
+      "default": "N",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Enable Password Policies",
+      "summary": "Enable The Password Policies Below",
+      "description": "Turn on/off all password policies."
+    },
+    {
+      "key": "pass_prevent_pwned",
+      "section": "section_passwords",
+      "type": "checkbox",
+      "default": "Y",
+      "link_info": "http://icwp.io/by",
+      "link_blog": "",
+      "name": "Prevent Pwned Passwords",
+      "summary": "Prevent Use Of Pwned Passwords",
+      "description": "Prevents users from using any passwords found on the public available list of pwned passwords."
+    },
+    {
+      "key": "pass_min_length",
+      "section": "section_passwords",
+      "premium": true,
+      "type": "integer",
+      "default": "12",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Minimum Length",
+      "summary": "Minimum Password Length",
+      "description": "All passwords that a user sets must be at least this many characters in length."
+    },
+    {
+      "key": "pass_min_strength",
+      "section": "section_passwords",
+      "premium": true,
+      "type":          "select",
+      "default": "4",
+      "value_options": [
+        {
+          "value_key": "0",
+          "text":      "Very Weak"
+        },
+        {
+          "value_key": "1",
+          "text":      "Weak"
+        },
+        {
+          "value_key": "2",
+          "text":      "Medium"
+        },
+        {
+          "value_key": "3",
+          "text":      "Strong"
+        },
+        {
+          "value_key": "4",
+          "text":      "Very Strong"
+        }
+      ],
+      "link_info": "",
+      "link_blog": "",
+      "name": "Minimum Strength",
+      "summary": "Minimum Password Strength",
+      "description": "All passwords that a user sets must meet this minimum strength."
+    },
+    {
+      "key": "pass_force_existing",
+      "section": "section_passwords",
+      "premium": true,
+      "type": "checkbox",
+      "default": "N",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Apply To Existing",
+      "summary": "Apply Password Policies To Existing Users and Their Passwords",
+      "description": "Forces existing users to update their passwords if they don't meet requirements, after they next login ."
+    },
+    {
+      "key": "pass_expire",
+      "section": "section_passwords",
+      "premium": true,
+      "type": "integer",
+      "default": "60",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Password Expiration",
+      "summary": "Passwords Expire After This Many Days",
+      "description": "Users will be forced to reset their passwords after the number of days specified."
+    },
+    {
       "key":          "autoadd_sessions_started_at",
       "transferable": false,
       "section":      "section_non_ui"
     }
   ],
   "definitions": {
+    "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
+    "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range/"
   }
 }

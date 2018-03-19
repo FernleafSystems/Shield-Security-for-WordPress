@@ -16,31 +16,25 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oDp = $this->loadDP();
 
-			if ( $oDp->query( 'force_checksumscan' ) == 1 ) {
-				$this->cron_dailyChecksumScan();
-			}
-			else {
-				$sAction = $oDp->query( 'shield_action' );
-				switch ( $sAction ) {
+			switch ( $oDp->query( 'shield_action' ) ) {
 
-					case 'repair_file':
-						$sPath = '/'.trim( $oDp->FetchGet( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
-						$sMd5FilePath = urldecode( esc_url( $sPath ) );
-						if ( !empty( $sMd5FilePath ) ) {
-							if ( $this->repairCoreFile( $sMd5FilePath ) ) {
-								$this->loadAdminNoticesProcessor()
-									 ->addFlashMessage(
-										 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
-									 );
-							}
-							else {
-								$this->loadAdminNoticesProcessor()
-									 ->addFlashMessage(
-										 _wpsf__( 'File was not replaced' )
-									 );
-							}
+				case 'repair_file':
+					$sPath = '/'.trim( $oDp->query( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
+					$sMd5FilePath = urldecode( esc_url( $sPath ) );
+					if ( !empty( $sMd5FilePath ) ) {
+						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
+							$this->loadAdminNoticesProcessor()
+								 ->addFlashMessage(
+									 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
+								 );
 						}
-				}
+						else {
+							$this->loadAdminNoticesProcessor()
+								 ->addFlashMessage(
+									 _wpsf__( 'File was not replaced' )
+								 );
+						}
+					}
 			}
 		}
 	}
@@ -119,6 +113,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 				$this->repairCoreFile( $sMd5FilePath );
 			}
 		}
+
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oFO->setLastScanAt( 'wcf' );
 
 		return $aDiscoveredFiles;
 	}

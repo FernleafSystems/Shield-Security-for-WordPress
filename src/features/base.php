@@ -109,9 +109,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
 			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
-			if ( $this->isThisModuleRequest() ) {
-				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleFormSubmit' ) );
+
+			if ( $this->isModuleRequest() ) {
+				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleOptionsSubmit' ) );
+				add_filter( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
+				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthAjax' ) );
+				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 			}
+
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
 			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
@@ -125,6 +130,78 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			$this->doPostConstruction();
 		}
+	}
+
+	/**
+	 * This is ajax for anyone logged-in or not logged-care. Due care must be taken here.
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAjax( $aAjaxResponse ) {
+		return $this->normaliseAjaxResponse( $aAjaxResponse );
+	}
+
+	/**
+	 * Ajax for any request not logged-in.
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleNonAuthAjax( $aAjaxResponse ) {
+		return $this->normaliseAjaxResponse( $aAjaxResponse );
+	}
+
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'mod_options':
+					$aAjaxResponse = $this->ajaxExec_ModOptions();
+					break;
+
+				case 'wiz_process_step':
+					$aAjaxResponse = $this->ajaxExec_ModOptions();
+					if ( $this->canRunWizards() && $this->hasWizard() ) {
+						$aAjaxResponse = $this->getWizardHandler()
+											  ->ajaxExec_WizProcessStep();
+					}
+					break;
+
+				case 'wiz_render_step':
+					if ( $this->canRunWizards() && $this->hasWizard() ) {
+						$aAjaxResponse = $this->getWizardHandler()
+											  ->ajaxExec_WizRenderStep();
+					}
+					break;
+			}
+		}
+
+		return $this->normaliseAjaxResponse( $aAjaxResponse );
+	}
+
+	/**
+	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
+	 * so if we send something back non-empty, it'll be treated like a "handled" response and
+	 * processing will finish
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	protected function normaliseAjaxResponse( $aAjaxResponse ) {
+		if ( !empty( $aAjaxResponse ) ) {
+			$aAjaxResponse = array_merge(
+				array(
+					'success' => false,
+					'message' => 'Unknown',
+					'html'    => '',
+				),
+				$aAjaxResponse
+			);
+		}
+		return $aAjaxResponse;
 	}
 
 	/**
@@ -252,14 +329,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpInit() {
 		$this->runWizards();
 		$this->updateHandler();
-		$this->setupAjaxHandlers();
 	}
 
 	/**
 	 * Override this and adapt per feature
 	 * @return ICWP_WPSF_Processor_Base
 	 */
-	protected function loadFeatureProcessor() {
+	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			include_once( self::getConn()
 							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
@@ -355,7 +431,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Base
 	 */
 	public function getProcessor() {
-		return $this->loadFeatureProcessor();
+		return $this->loadProcessor();
 	}
 
 	/**
@@ -678,7 +754,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array|string $mErrors
 	 * @return $this
 	 */
-	public function setLastErrors( $mErrors ) {
+	public function setLastErrors( $mErrors = array() ) {
 		if ( !is_array( $mErrors ) ) {
 			if ( is_string( $mErrors ) ) {
 				$mErrors = array( $mErrors );
@@ -713,42 +789,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 	}
 
-	protected function setupAjaxHandlers() {
-		$bAdminRun = false;
-
-		if ( $this->isValidAjaxRequestForModule() ) { // TODO replicate all this for the backend
-			$this->frontEndAjaxHandlers();
-			$this->adminAjaxHandlers();
-			$bAdminRun = true;
-//			$this->sendAjaxResponse( false, array( 'message' => 'Failed Ajax Nonce' ) );
-		}
-
-		if ( !$bAdminRun && $this->loadWp()->isAjax() ) { //TODO: isValidAjaxRequest()
-			if ( is_admin() || is_network_admin() ) {
-				$this->adminAjaxHandlers();
-			}
-		}
-	}
-
 	/**
-	 * A valid Ajax request must have all the icwp items as posted with getBaseAjaxActionRenderData()
-	 * Note: Also performs nonce checking
 	 * @return bool
 	 */
-	protected function isValidAjaxRequestForModule() {
-		$oDp = $this->loadDP();
-
-		$bValid = $this->loadWp()->isAjax()
-				  && ( $this->getModSlug() == $oDp->post( 'icwp_action_module', '' ) );
-		if ( $bValid ) {
-			$aItems = array_keys( $this->getBaseAjaxActionRenderData() );
-			foreach ( $aItems as $sKey ) {
-				if ( strpos( $sKey, 'icwp_' ) === 0 ) {
-					$bValid = $bValid && ( strlen( $oDp->post( $sKey, '' ) ) > 0 );
-				}
-			}
-		}
-		return $bValid && $this->checkNonceAction( $oDp->post( 'icwp_nonce' ), $oDp->post( 'icwp_nonce_action' ) );
+	protected function isModuleRequest() {
+		return ( $this->getModSlug() == $this->loadDP()->request( 'mod_slug' ) );
 	}
 
 	/**
@@ -756,46 +801,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param bool   $bAsJsonEncodedObject
 	 * @return array
 	 */
-	public function getBaseAjaxActionRenderData( $sAction = '', $bAsJsonEncodedObject = false ) {
+	public function getAjaxActionData( $sAction = '', $bAsJsonEncodedObject = false ) {
 		$aData = array(
-			'action'             => $this->prefix( $sAction ), //wp ajax doesn't work without this.
-			'icwp_ajax_action'   => $this->prefix( $sAction ),
-			'icwp_nonce'         => $this->genNonce( $sAction ),
-			'icwp_nonce_action'  => $sAction,
-			'icwp_action_module' => $this->getModSlug(),
-			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+			'action'     => $this->prefix(), //wp ajax doesn't work without this.
+			'exec'       => $sAction,
+			'exec_nonce' => $this->genNonce( $sAction ),
+			'mod_slug'   => $this->getModSlug(),
+			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 		);
 		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
-	}
-
-	protected function adminAjaxHandlers() {
-		add_action( 'wp_ajax_icwp_OptionsFormSave', array( $this, 'ajaxOptionsFormSave' ) );
-
-		// TODO: move this to the wizard handler itself
-		if ( $this->canRunWizards() && $this->hasWizard() ) {
-			$oWiz = $this->getWizardHandler();
-			if ( !is_null( $oWiz ) ) {
-				add_action( $this->prefixWpAjax( 'WizardProcessStepSubmit' ), array(
-					$oWiz,
-					'ajaxWizardProcessStepSubmit'
-				) );
-				add_action( $this->prefixWpAjax( 'WizardRenderStep' ), array(
-					$oWiz,
-					'ajaxWizardRenderStep'
-				) );
-			}
-		}
-	}
-
-	protected function frontEndAjaxHandlers() {
 	}
 
 	/**
 	 * @param string $sAction
 	 * @return string
 	 */
-	protected function genNonce( $sAction = '' ) {
-		return wp_create_nonce( $this->prefix( $sAction ) );
+	public function genNonce( $sAction = '' ) {
+		return wp_create_nonce( $sAction );
 	}
 
 	/**
@@ -803,31 +825,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sAction
 	 * @return bool
 	 */
-	protected function checkNonceAction( $sNonce, $sAction = '' ) {
+	public function checkNonceAction( $sNonce, $sAction = '' ) {
 		return wp_verify_nonce( $sNonce, $this->prefix( $sAction ) );
-	}
-
-	/**
-	 * Will send ajax error response immediately upon failure
-	 * @return bool
-	 */
-	protected function checkAjaxNonce() {
-
-		$sNonce = $this->loadDataProcessor()->FetchRequest( '_ajax_nonce', '' );
-		if ( empty( $sNonce ) ) {
-			$sMessage = $this->getTranslatedString( 'nonce_failed_empty', 'Nonce security checking failed - the nonce value was empty.' );
-		}
-		else if ( wp_verify_nonce( $sNonce, 'icwp_ajax' ) === false ) {
-			$sMessage = $this->getTranslatedString( 'nonce_failed_supplied', 'Nonce security checking failed - the nonce supplied was "%s".' );
-			$sMessage = sprintf( $sMessage, $sNonce );
-		}
-		else {
-			return true; // At this stage we passed the nonce check
-		}
-
-		// At this stage we haven't returned after success so we failed the nonce check
-		$this->sendAjaxResponse( false, array( 'message' => $sMessage ) );
-		return false; //unreachable
 	}
 
 	/**
@@ -859,14 +858,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$this->oWizard = new $sClassName( $this );
 		}
 		return $this->oWizard;
-	}
-
-	/**
-	 * @param       $bSuccess
-	 * @param array $aData
-	 */
-	public function sendAjaxResponse( $bSuccess, $aData = array() ) {
-		$bSuccess ? wp_send_json_success( $aData ) : wp_send_json_error( $aData );
 	}
 
 	/**
@@ -952,10 +943,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$aWarnings,
 					$this->getSectionWarnings( $aSection[ 'slug' ] )
 				);
+				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
 			}
 		}
 
 		return $aOptions;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionNotices( $sSectionSlug ) {
+		return array();
 	}
 
 	/**
@@ -1077,19 +1077,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return implode( self::CollateSeparator, $aToJoin );
 	}
 
-	public function ajaxOptionsFormSave() {
-
-		if ( $this->getModSlug() != $this->loadDP()->post( 'mod_slug' ) ) {
-			return;
-		}
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_ModOptions() {
 
 		$oCon = self::getConn();
 		$bSuccess = false;
 		$sName = $oCon->getHumanName();
 		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
 
-		if ( $oCon->getIsValidAdminArea() && $this->isThisModuleRequest() ) {
-			$bSuccess = $this->handleFormSubmit();
+		if ( $oCon->getIsValidAdminArea() ) {
+			$bSuccess = $this->saveOptionsSubmit();
 			if ( $bSuccess ) {
 				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
 			}
@@ -1098,23 +1097,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
 		}
 
-		$this->sendAjaxResponse(
-			$bSuccess,
-			array(
-				'options_form' => $this->renderOptionsForm(),
-				'message'      => $sMessage
-			)
+		try {
+			$sForm = $this->renderOptionsForm();
+		}
+		catch ( Exception $oE ) {
+			$sForm = 'Error during form render';
+		}
+		return array(
+			'success' => $bSuccess,
+			'html'    => $sForm,
+			'message' => $sMessage
 		);
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function handleFormSubmit() {
+	public function handleOptionsSubmit() {
 		$bVerified = $this->verifyFormSubmit();
 		if ( $bVerified ) {
-			$this->doSaveStandardOptions();
-			$this->doExtraSubmitProcessing();
+			$this->saveOptionsSubmit();
 			$this->setSaveUserResponse();
 		}
 		return $bVerified;
@@ -1123,8 +1125,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function isThisModuleRequest() {
-		return ( $this->loadDP()->FetchRequest( 'mod_slug' ) == $this->prefix( $this->getFeatureSlug() ) );
+	protected function saveOptionsSubmit() {
+		$bSuccess = true;
+		if ( self::getConn()->getHasPermissionToManage() ) {
+			$this->doSaveStandardOptions();
+			$this->doExtraSubmitProcessing();
+		}
+		else {
+//			TODO: manage how we react to prohibited submissions
+			$bSuccess = false;
+		}
+		return $bSuccess;
 	}
 
 	protected function verifyFormSubmit() {
@@ -1311,18 +1322,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return self::getConn()->doPluginPrefix( $sSuffix, $sGlue );
-	}
-
-	/**
-	 * @param string $sSuffix
-	 * @return string
-	 */
-	public function prefixWpAjax( $sSuffix = '' ) {
-		return sprintf( '%s%s',
-			'wp_ajax_',
-			$this->prefix( $sSuffix )
-		);
+		return self::getConn()->prefix( $sSuffix, $sGlue );
 	}
 
 	/**
@@ -1369,7 +1369,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function displayRestrictedPage() {
 		$this->display(
 			array(
-				'data' => array( 'ajax' => $this->getBaseAjaxActionRenderData( 'RestrictedAccessKey' ) )
+				'ajax' => array(
+					'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
+				)
 			),
 			'access_restricted.php'
 		);
@@ -1379,7 +1381,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
+	protected function getBaseDisplayData( $bRenderEmbeddedContent = false ) {
 		$oCon = self::getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
 
@@ -1402,13 +1404,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'width'       => 772,
 				'height'      => 454,
 			),
-			'sAjaxNonce'      => wp_create_nonce( 'icwp_ajax' ),
-
-			'aSummaryData' => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData'    => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-			'sPageTitle'   => $this->getMainFeatureName(),
-			'data'         => array(
+			'sPageTitle'      => $this->getMainFeatureName(),
+			'data'            => array(
 				'form_nonce'        => $this->genNonce( '' ),
 				'mod_slug'          => $this->getModSlug( true ),
 				'mod_slug_short'    => $this->getModSlug( false ),
@@ -1416,11 +1416,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
 				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
 			),
-			'strings'      => $this->getDisplayStrings(),
-			'flags'        => array(
+			'ajax'            => array(
+				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
+			),
+			'strings'         => $this->getDisplayStrings(),
+			'flags'           => array(
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
-				'show_summary'          => false,
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
 				'show_content_actions'  => $this->hasCustomActions(),
@@ -1429,15 +1431,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'can_wizard'            => $this->canRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
-			'hrefs'        => array(
-				'go_pro'          => 'http://icwp.io/shieldgoprofeature',
-				'goprofooter'     => 'http://icwp.io/goprofooter',
-				'img_wizard_wand' => $oCon->getPluginUrl_Image( 'wand.png' ),
-				'wizard_link'     => $this->getUrl_WizardLanding(),
-				'wizard_landing'  => $this->getUrl_WizardLanding(),
-				'primary_wizard'  => $this->getUrl_WizardPrimary(),
+			'hrefs'           => array(
+				'go_pro'         => 'http://icwp.io/shieldgoprofeature',
+				'goprofooter'    => 'http://icwp.io/goprofooter',
+				'wizard_link'    => $this->getUrl_WizardLanding(),
+				'wizard_landing' => $this->getUrl_WizardLanding()
 			),
-			'content'      => array(
+			'content'         => array(
 				'options_form'   => '',
 				'alt'            => '',
 				'actions'        => '',
@@ -1447,7 +1447,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		);
 
 		if ( $bRenderEmbeddedContent ) { // prevents recursive loops
-
 			$aData[ 'content' ] = array(
 				'options_form'   => 'no form',
 				'alt'            => '',
@@ -1472,6 +1471,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'blog'              => __( 'Blog' ),
 			'save_all_settings' => __( 'Save All Settings' ),
 			'see_help_video'    => __( 'Watch Help Video' ),
+			'btn_save'          => __( 'Save Options' ),
 			'btn_options'       => __( 'Options' ),
 			'btn_help'          => __( 'Help' ),
 			'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
@@ -1516,13 +1516,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string|null
-	 */
-	protected function getPrimaryWizard() {
-		return $this->hasWizard() ? key( $this->getWizardDefinitions() ) : null;
-	}
-
-	/**
 	 * @uses nonce
 	 * @param string $sWizardSlug
 	 * @return string
@@ -1544,14 +1537,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getUrl_WizardLanding() {
 		return $this->getUrl_Wizard( 'landing' );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getUrl_WizardPrimary() {
-		$sPrimary = $this->getPrimaryWizard();
-		return $this->getUrl_Wizard( $sPrimary );
 	}
 
 	/**
@@ -1599,7 +1584,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		// Get the same Base Data as normal display
 		return $this->loadRenderer( self::getConn()->getPath_Templates() )
 					->setTemplate( $sTemplate )
-					->setRenderVars( $this->getBaseDisplayData() )
+					->setRenderVars( $this->getBaseDisplayData( true ) )
 					->render();
 	}
 
@@ -1633,7 +1618,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDataProcessor();
 
 		// Get Base Data
-		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
+		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
 			$sModuleView = 'feature-'.$this->getFeatureSlug();
 			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
@@ -1663,9 +1648,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			throw new Exception( 'notice_attributes is empty' );
 		}
 
-		if ( !isset( $aData[ 'icwp_ajax_nonce' ] ) ) {
-			$aData[ 'icwp_ajax_nonce' ] = wp_create_nonce( 'icwp_ajax' );
-		}
 		if ( !isset( $aData[ 'icwp_admin_notice_template' ] ) ) {
 			$aData[ 'icwp_admin_notice_template' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
 		}
@@ -1682,7 +1664,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		$aData[ 'notice_classes' ] = implode( ' ', $aData[ 'notice_classes' ] );
 
-		return $this->renderTemplate( 'notices'.DIRECTORY_SEPARATOR.'admin-notice-template', $aData );
+		$aAjaxData = $this->getAjaxActionData( 'dismiss_admin_notice' );
+		$aAjaxData[ 'hide' ] = 1;
+		$aAjaxData[ 'notice_id' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
+		$aData[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $aAjaxData );
+
+		return $this->renderTemplate( 'notices/admin-notice-template', $aData );
 	}
 
 	/**
@@ -1870,5 +1857,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aOpts = $this->getHelpVideoOptions();
 		$aOpts[ $sKey ] = $mValue;
 		return $this->setOpt( 'help_video_options', $aOpts );
+	}
+
+	/**
+	 * @param string $sOpt
+	 * @param int    $nAt
+	 * @return $this
+	 */
+	protected function setOptAt( $sOpt, $nAt = null ) {
+		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadDP()->time() : max( 0, (int)$nAt ) );
 	}
 }

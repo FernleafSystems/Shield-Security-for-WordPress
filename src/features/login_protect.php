@@ -45,13 +45,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return $this->getOptIs( 'use_login_intent_page', true );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function getIfSupport3rdParty() {
-		return $this->isPremium();
-	}
-
 	protected function doExtraSubmitProcessing() {
 		/**
 		 * $oWp = $this->loadWpFunctionsProcessor();

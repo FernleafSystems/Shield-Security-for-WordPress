@@ -25,7 +25,8 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 */
 	protected $aRequestUriParts;
 
-	protected function __construct() {}
+	protected function __construct() {
+	}
 
 	/**
 	 * @return ICWP_WPSF_DataProcessor
@@ -95,6 +96,24 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	public function post( $sKey, $mDefault = null, $bTrim = true ) {
 		$mVal = $this->FetchPost( $sKey, $mDefault );
 		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param null   $mDefault
+	 * @param bool   $bIncludeCookie
+	 * @param bool   $bTrim -automatically trim whitespace
+	 * @return mixed|null
+	 */
+	public function request( $sKey, $bIncludeCookie = false, $mDefault = null, $bTrim = true ) {
+		$mVal = $this->post( $sKey, null, $bTrim );
+		if ( is_null( $mVal ) ) {
+			$mVal = $this->query( $sKey, null, $bTrim );
+			if ( is_null( $mVal && $bIncludeCookie ) ) {
+				$mVal = self::FetchCookie( $sKey );
+			}
+		}
+		return is_null( $mVal ) ? $mDefault : ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
 	}
 
 	/**
@@ -262,6 +281,13 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isMethodPost() {
+		return ( self::GetRequestMethod() == 'post' );
+	}
+
+	/**
 	 * Taken from http://www.phacks.net/detecting-search-engine-bot-and-web-spiders/
 	 */
 	public static function IsSearchEngineBot() {
@@ -318,13 +344,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 		$sAtoZ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		$nRandomInt = rand( 0, ( strlen( $sAtoZ ) - 1 ) );
 		return $sAtoZ[ $nRandomInt ];
-	}
-
-	/**
-	 * @return bool
-	 */
-	static public function GetIsRequestPost() {
-		return ( self::GetRequestMethod() == 'post' );
 	}
 
 	/**

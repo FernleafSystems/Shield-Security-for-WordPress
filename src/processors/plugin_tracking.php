@@ -23,7 +23,6 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	protected function addNotice_allow_tracking( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-
 		if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
 			$oCon = $this->getController();
 			$aRenderData = array(
@@ -38,6 +37,9 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'learn_more'      => _wpsf__( 'Learn More.' ),
 					'site_url'        => 'translate.icontrolwp.com',
 					'yes'             => _wpsf__( 'Absolutely' )
+				),
+				'ajax'              => array(
+					'set_plugin_tracking_perm' => $oFO->getAjaxActionData( 'set_plugin_tracking_perm', true ),
 				),
 				'hrefs'             => array(
 					'learn_more'       => 'http://translate.icontrolwp.com',

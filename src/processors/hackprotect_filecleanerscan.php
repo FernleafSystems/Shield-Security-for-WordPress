@@ -21,15 +21,10 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oDp = $this->loadDP();
 
-			if ( $oDp->query( 'force_filecleanscan' ) == 1 ) {
-				$this->runScan();
-			}
-			else {
-				$sAction = $oDp->query( 'shield_action' );
-				switch ( $sAction ) {
-					case 'delete_unrecognised_file':
-						$sPath = '/'.trim( $oDp->FetchGet( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
-				}
+			switch ( $oDp->query( 'shield_action' ) ) {
+				case 'delete_unrecognised_file':
+					$sPath = '/'.trim( $oDp->query( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
+					break;
 			}
 		}
 	}
@@ -189,6 +184,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function runScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+
 		$aDiscoveredFiles = $this->discoverFiles();
 		if ( !empty( $aDiscoveredFiles ) ) {
 			if ( $oFO->isUfcDeleteFiles() ) {
@@ -206,6 +202,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function discoverFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+		$oFO->setLastScanAt( 'ufc' );
 
 		$aDiscoveredFiles = $this->scanCore();
 		if ( $oFO->isUfsScanUploads() ) {

@@ -17,6 +17,7 @@
       "id":          "override-forceoff",
       "schedule":    "conditions",
       "valid_admin": true,
+      "can_dismiss": false,
       "type":        "error"
     },
     "plugin-update-available":    {

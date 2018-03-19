@@ -32,11 +32,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	public function run() {
 
-		if ( $this->loadDP()->FetchGet( 'force_wpvulnscan' ) == 1 ) {
-			$this->scanPlugins();
-			die();
-		}
-
 		// For display on the Plugins page
 		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
 
@@ -95,7 +90,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	public function addVulnerablePluginStatusView() {
-		if ( $this->loadDP()->FetchGet( 'plugin_status' ) == 'vulnerable' ) {
+		if ( $this->loadDP()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
 		}
@@ -125,7 +120,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function filterPluginsToView( $aPlugins ) {
-		if ( $this->loadDP()->FetchGet( 'plugin_status' ) == 'vulnerable' ) {
+		if ( $this->loadDP()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
 			$aPlugins = array_intersect_key( $aPlugins, $this->getVulnerablePlugins() );
@@ -235,6 +230,10 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	public function cron_dailyWpVulnScan() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oFO->setLastScanAt( 'wpv' );
+
 		$this->scanPlugins();
 		$this->scanThemes();
 	}

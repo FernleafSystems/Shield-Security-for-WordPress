@@ -12,8 +12,8 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * Override this and adapt per feature
 	 * @return ICWP_WPSF_Processor_Base
 	 */
-	protected function loadFeatureProcessor() {
-		$oP = parent::loadFeatureProcessor();
+	protected function loadProcessor() {
+		$oP = parent::loadProcessor();
 		self::$oSessProcessor = $oP;
 		return $oP;
 	}

@@ -19,9 +19,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 	}
 
-	protected function adminAjaxHandlers() {
-		parent::adminAjaxHandlers();
-		add_action( $this->prefixWpAjax( 'PluginReinstall' ), array( $this, 'ajaxPluginReinstall' ) );
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'plugin_reinstall':
+					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
 	/**
@@ -57,6 +72,23 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		foreach ( $aCrons as $sCron ) {
 			$oCron->deleteCronJob( $sCron );
 		}
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return int
+	 */
+	public function getLastScanAt( $sScan ) {
+		return (int)$this->getOpt( $sScan.'_last_scan_at', 0 );
+	}
+
+	/**
+	 * @param string   $sScan ptg, wcf, ufc, wpv
+	 * @param int|null $nAt
+	 * @return $this
+	 */
+	public function setLastScanAt( $sScan, $nAt = null ) {
+		return $this->setOpt( $sScan.'_last_scan_at', is_null( $nAt ) ? $this->loadDP()->time() : $nAt );
 	}
 
 	/**
@@ -465,7 +497,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->setOpt( 'ptg_enable', $sValue );
 	}
 
-	public function ajaxPluginReinstall() {
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_PluginReinstall() {
 		$oDP = $this->loadDP();
 		$bReinstall = (bool)$oDP->post( 'reinstall' );
 		$bActivate = (bool)$oDP->post( 'activate' );
@@ -483,7 +518,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oWpP->activate( $sFile );
 		}
 
-		$this->sendAjaxResponse( true );
+		return array(
+			'success' => true
+		);
 	}
 
 	public function insertCustomJsVars() {
@@ -493,7 +530,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
 				array(
-					'ajax_reinstall' => $this->getBaseAjaxActionRenderData( 'PluginReinstall' ),
+					'ajax_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
 					'reinstallable'  => $this->getReinstallablePlugins()
 				)
 			);
@@ -514,6 +551,42 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 		return $aP;
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionNotices( $sSectionSlug ) {
+		$aNotices = array();
+		switch ( $sSectionSlug ) {
+
+			case 'section_core_file_integrity_scan':
+				$nTime = $this->getLastScanAt( 'wcf' );
+				break;
+
+			case 'section_unrecognised_file_scan':
+				$nTime = $this->getLastScanAt( 'ufc' );
+				break;
+
+			case 'section_pluginthemes_guard':
+				$nTime = $this->getLastScanAt( 'ptg' );
+				break;
+
+			case 'section_wpvuln_scan':
+				$nTime = $this->getLastScanAt( 'wpv' );
+				break;
+
+			default:
+				$nTime = null;
+				break;
+		}
+
+		if ( !is_null( $nTime ) ) {
+			$nTime = ( $nTime > 0 ) ? $this->loadWp()->getTimeStampForDisplay( $nTime ) : _wpsf__( 'Never' );
+			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $nTime );
+		}
+		return $aNotices;
 	}
 
 	/**

@@ -1,11 +1,14 @@
-<form action="<?php echo $form_action; ?>" method="post" class=" icwpOptionsForm">
+<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
     <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />
 
+	<?php foreach ( $ajax[ 'mod_options' ] as $sAjKey => $sAjVal ) : ?>
+		<input type="hidden" name="<?php echo $sAjKey; ?>" value="<?php echo $sAjVal; ?>" />
+	<?php endforeach; ?>
 
-<div style="margin-bottom: -1px">
+	<div style="margin-bottom: -1px">
 	<div class="row no-gutters">
 		<div class="col">
 			<div class="module-headline">
@@ -14,7 +17,7 @@
 					<div class="float-right">
 						<button type="submit" class="btn btn-primary icwp-form-button"
 								name="submit" style="margin-right: 12px">
-							<?php _wpsf_e( 'Save Options' ); ?>
+							<?php echo $strings[ 'btn_save' ]; ?>
 						</button>
 
 						<div class="btn-group" role="group" aria-label="Basic example">
@@ -56,10 +59,11 @@
 			</div>
 		</div>
 	</div>
+
 	<div class="row no-gutters">
 		<div class="col-2 smoothwidth">
 
-			<ul id="ModuleOptionsNav" class="nav flex-column" id="v-pills-tab"
+			<ul id="ModuleOptionsNav" class="nav flex-column"
 				role="tablist" aria-orientation="vertical">
 				<?php foreach ( $data[ 'all_options' ] as $aOptSection ) : ?>
 					<li class="nav-item">
@@ -67,9 +71,8 @@
 					   id="pills-tab-<?php echo $aOptSection[ 'slug' ]; ?>"
 					   data-toggle="pill" href="#pills-<?php echo $aOptSection[ 'slug' ]; ?>"
 					   role="tab" aria-controls="pills-<?php echo $aOptSection[ 'slug' ]; ?>"
-						<?php echo $aOptSection[ 'primary' ] ? 'aria-selected="true"' : '' ?>>
-						<?php echo $aOptSection[ 'title_short' ]; ?>
-					</a>
+						<?php echo $aOptSection[ 'primary' ] ? 'aria-selected="true"' : '' ?>
+					><?php echo $aOptSection[ 'title_short' ]; ?></a>
 				</li>
 				<?php endforeach; ?>
 			</ul>
@@ -84,21 +87,7 @@
 <div class="option_section_row <?php echo $aOptSection[ 'primary' ] ? 'primary_section' : 'non_primary_section'; ?>"
 	 id="row-<?php echo $aOptSection[ 'slug' ]; ?>">
 		<div class="options-body">
-			<legend>
-				<?php echo $aOptSection[ 'title' ]; ?>
-				<?php if ( !empty( $aOptSection[ 'help_video_url' ] ) ) : ?>
-					<div style="float:right;">
-
-						<a href="<?php echo $aOptSection[ 'help_video_url' ]; ?>"
-						   class="btn"
-						   data-featherlight-iframe-height="454"
-						   data-featherlight-iframe-width="772"
-						   data-featherlight="iframe">
-							<span class="dashicons dashicons-controls-play"></span> Help Video
-						</a>
-					</div>
-				<?php endif; ?>
-			</legend>
+			<legend><?php echo $aOptSection[ 'title' ]; ?></legend>
 
 			<div class="row_section_summary row">
 				<div class="col-8">
@@ -126,9 +115,9 @@
 						<div class="collapse section_video"
 							 id="sectionVideo<?php echo $aOptSection[ 'help_video' ][ 'id' ]; ?>">
 							<div class="embed-responsive embed-responsive-16by9">
-								<iframe src="<?php echo $aOptSection[ 'help_video' ][ 'embed_url' ]; ?>" width="640"
-										height="360"
-										class="embed-responsive-item" allowfullscreen></iframe>
+								<iframe src="<?php echo $aOptSection[ 'help_video' ][ 'embed_url' ]; ?>"
+										width="640" height="360" class="embed-responsive-item"
+										allowfullscreen></iframe>
 							</div>
 						</div>
 					</div>
@@ -138,10 +127,18 @@
 			<?php if ( !empty( $aOptSection[ 'warnings' ] ) ) : ?>
 				<div class="row">
 					<div class="col">
-						<?php foreach ( $aOptSection[ 'warnings' ] as $sWarning ) :?>
-						<div class="alert alert-warning text-center">
-							<?php echo $sWarning; ?>
-						</div>
+						<?php foreach ( $aOptSection[ 'warnings' ] as $sWarning ) : ?>
+							<div class="alert alert-warning text-center"><?php echo $sWarning; ?></div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( !empty( $aOptSection[ 'notices' ] ) ) : ?>
+				<div class="row">
+					<div class="col">
+						<?php foreach ( $aOptSection[ 'notices' ] as $sNotices ) : ?>
+							<div class="alert alert-info text-center"><?php echo $sNotices; ?></div>
 						<?php endforeach; ?>
 					</div>
 				</div>
@@ -207,13 +204,13 @@
 											  id="<?php echo $sOptKey; ?>"
 											  placeholder="<?php echo $mOptValue; ?>"
 											  rows="<?php echo $aOption[ 'rows' ]; ?>"
-											  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
+										<?php echo $sDisabledText; ?>
+									><?php echo $mOptValue; ?></textarea>
 
 								<?php elseif ( $sOptType == 'noneditable_text' ) : ?>
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
-									<input type="text" readonly class="span8"
-										   value="<?php echo $mOptValue; ?>" />
+									<input type="text" value="<?php echo $mOptValue; ?>" readonly />
 
 								<?php elseif ( $sOptType == 'password' ) : ?>
 
@@ -222,7 +219,7 @@
 										   id="<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
-										   class="span7" <?php echo $sDisabledText; ?> />
+										<?php echo $sDisabledText; ?> />
 
 								<?php elseif ( $sOptType == 'email' ) : ?>
 
@@ -231,7 +228,7 @@
 										   id="<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
-										   class="span7" <?php echo $sDisabledText; ?> />
+										<?php echo $sDisabledText; ?> />
 
 								<?php elseif ( $sOptType == 'select' ) : ?>
 
@@ -263,23 +260,15 @@
 										<?php endforeach; ?>
 									</select>
 
-								<?php elseif ( $sOptType == 'array' ) : ?>
+								<?php elseif ( in_array( $sOptType, array( 'comma_separated_lists', 'array' ) ) ) : ?>
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<textarea name="<?php echo $sOptKey; ?>"
 											  id="<?php echo $sOptKey; ?>"
 											  placeholder="<?php echo $mOptValue; ?>"
 											  rows="<?php echo $aOption[ 'rows' ]; ?>"
-											  class="span7" <?php echo $sDisabledText; ?>><?php echo $mOptValue; ?></textarea>
-
-								<?php elseif ( $sOptType == 'comma_separated_lists' ) : ?>
-
-									<p><?php echo $aOption[ 'summary' ]; ?></p>
-									<textarea name="<?php echo $sOptKey; ?>"
-											  id="<?php echo $sOptKey; ?>"
-											  placeholder="<?php echo $mOptValue; ?>"
-											  rows="<?php echo $aOption[ 'rows' ]; ?>"
-											  class="span7" <?php echo $sDisabledText; ?> ><?php echo $mOptValue; ?></textarea>
+										<?php echo $sDisabledText; ?>
+									><?php echo $mOptValue; ?></textarea>
 
 								<?php elseif ( $sOptType == 'integer' ) : ?>
 
@@ -288,7 +277,7 @@
 										   id="<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
-										   class="span7" <?php echo $sDisabledText; ?> />
+										<?php echo $sDisabledText; ?> />
 
 								<?php else : ?>
 									ERROR: Should never reach this point.
@@ -310,25 +299,3 @@
 	</div>
 </div>
 </form>
-
-
-
-
-
-<!--<div class="pull-right well">-->
-<!--	<h5 style="margin-bottom: 10px;">Options Legend</h5>-->
-<!--	<label class="forcheckbox">-->
-<!--		<span class="switch">-->
-<!--			<input type="checkbox" name="legend" id="legend" value="Y" checked="checked" disabled="disabled">-->
-<!--			<span class="icwp-slider round"></span>-->
-<!--		</span>-->
-<!--		<span class="summary">Option is turned on / enabled</span>-->
-<!--	</label>-->
-<!--	<label class="forcheckbox">-->
-<!--		<span class="switch">-->
-<!--			<input type="checkbox" name="legend" id="legend" value="Y" disabled="disabled">-->
-<!--			<span class="icwp-slider round"></span>-->
-<!--		</span>-->
-<!--		<span class="summary">Option is turned off / disabled</span>-->
-<!--	</label>-->
-<!--</div>-->
