@@ -122,6 +122,6 @@
     "license_key_length": 32,
     "license_key_type": "alphanumeric",
     "keyless": true,
-    "keyless_handshake_expire": 15
+    "keyless_handshake_expire": 90
   }
 }
