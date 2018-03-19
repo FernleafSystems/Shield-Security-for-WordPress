@@ -497,10 +497,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setEnabledGaspCheck( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
+			$bSuccess = $oModule->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Login Guard' ),
-					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$bEnabled ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
@@ -571,10 +571,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule->setEnabledGasp( $bEnabled )
 					->savePluginOptions();
 
-			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
+			$bSuccess = $oModule->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', _wpsf__( 'Comment SPAM Protection' ),
-					$oModule->isModuleEnabled() ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
+					$bEnabled ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' )
 				);
 			}
 			else {
