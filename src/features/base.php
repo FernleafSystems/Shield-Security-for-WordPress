@@ -593,7 +593,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function filter_getFeatureSummaryData( $aSummaryData ) {
-		if ( $this->getIfShowSummaryItem() ) {
+		if ( $this->getIfShowModuleLink() ) {
 			$aSummaryData[] = $this->buildSummaryData();
 		}
 		return $aSummaryData;
@@ -636,13 +636,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getIfShowModuleLink() {
 		return $this->getIfShowModuleMenuItem();
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function getIfShowSummaryItem() {
-		return $this->getIfShowModuleLink() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
 	}
 
 	/**
