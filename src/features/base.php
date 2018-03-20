@@ -593,10 +593,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function filter_getFeatureSummaryData( $aSummaryData ) {
-		if ( !$this->getIfShowSummaryItem() ) {
-			return $aSummaryData;
+		if ( $this->getIfShowSummaryItem() ) {
+			$aSummaryData[] = $this->buildSummaryData();
 		}
+		return $aSummaryData;
+	}
 
+	/**
+	 * @return array
+	 */
+	protected function buildSummaryData() {
 		$oOptions = $this->getOptionsVo();
 		$sMenuTitle = $oOptions->getFeatureProperty( 'menu_title' );
 
@@ -612,12 +618,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections
+			'sections'   => $aSections,
 		);
 		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
-
-		$aSummaryData[] = $aSummary;
-		return $aSummaryData;
+		return $aSummary;
 	}
 
 	/**
@@ -631,7 +635,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function getIfShowModuleLink() {
-		return $this->getOptionsVo()->getFeatureProperty( 'show_central' );
+		return $this->getIfShowModuleMenuItem();
 	}
 
 	/**

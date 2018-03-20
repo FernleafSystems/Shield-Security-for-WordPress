@@ -606,6 +606,15 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function buildSummaryData() {
+		$aSummary = parent::buildSummaryData();
+		$aSummary[ 'enabled' ] = $this->hasValidWorkingLicense();
+		return $aSummary;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
