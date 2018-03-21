@@ -1238,9 +1238,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
-				else if ( $sOptionType == 'email' && !$oDp->validEmail( $sOptionValue ) ) {
-					$sOptionValue = '';
-				}
 				else if ( $sOptionType == 'comma_separated_lists' ) {
 					$sOptionValue = $oDp->extractCommaSeparatedList( $sOptionValue );
 				}

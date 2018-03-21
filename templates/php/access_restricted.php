@@ -36,7 +36,7 @@
 					<button type="submit" class="btn btn-primary" name="submit">
 						<?php echo $strings[ 'aar_submit_access_key' ]; ?></button>
 				</div>
-				<div class="col-6 order-1 text-left">
+				<div class="col-5 order-1 text-left">
 					<a class="btn btn-link "
 					   href="<?php echo $hrefs[ 'aar_forget_key' ]; ?>" target="_blank">
 						<?php echo $strings[ 'aar_forget_key' ]; ?></a>

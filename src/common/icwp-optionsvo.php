@@ -723,10 +723,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sOptKey
-	 * @param mixed  $mValue
+	 * @param mixed  $mPotentialValue
 	 * @return bool
 	 */
-	protected function verifySet( $sOptKey, $mValue ) {
+	protected function verifySet( $sOptKey, $mPotentialValue ) {
 		$bValid = true;
 
 		switch ( $this->getOptionType( $sOptKey ) ) {
@@ -734,12 +734,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			case 'integer':
 				$nMin = $this->getOptProperty( $sOptKey, 'min' );
 				if ( !is_null( $nMin ) ) {
-					$bValid = $mValue >= $nMin;
+					$bValid = $mPotentialValue >= $nMin;
 				}
 				$nMax = $this->getOptProperty( $sOptKey, 'max' );
 				if ( !is_null( $nMax ) ) {
-					$bValid = $mValue <= $nMax;
+					$bValid = $mPotentialValue <= $nMax;
 				}
+				break;
+
+			case 'email':
+				$bValid = empty( $mPotentialValue) || $this->loadDP()->validEmail( $mPotentialValue );
 				break;
 		}
 		return $bValid;
