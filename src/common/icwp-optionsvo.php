@@ -705,7 +705,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$aOptionsValues = $this->getAllOptionsValues();
 		$mCurrent = isset( $aOptionsValues[ $sOptKey ] ) ? $aOptionsValues[ $sOptKey ] : null;
 
-		if ( serialize( $mCurrent ) !== serialize( $mValue ) && $this->verifySet( $sOptKey, $mValue ) ) {
+		$mValue = $this->ensureOptValueState( $sOptKey, $mValue );
+		if ( serialize( $mCurrent ) !== serialize( $mValue ) && $this->verifyCanSet( $sOptKey, $mValue ) ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
@@ -722,11 +723,31 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * Ensures that set options values are of the correct type
 	 * @param string $sOptKey
 	 * @param mixed  $mValue
+	 * @return mixed
+	 */
+	private function ensureOptValueState( $sOptKey, $mValue ) {
+		switch ( $this->getOptionType( $sOptKey ) ) {
+			case 'integer':
+				$mValue = (int)$mValue;
+				break;
+
+			case 'text':
+			case 'email':
+				$mValue = (string)$mValue;
+				break;
+		}
+		return $mValue;
+	}
+
+	/**
+	 * @param string $sOptKey
+	 * @param mixed  $mPotentialValue
 	 * @return bool
 	 */
-	protected function verifySet( $sOptKey, $mValue ) {
+	private function verifyCanSet( $sOptKey, $mPotentialValue ) {
 		$bValid = true;
 
 		switch ( $this->getOptionType( $sOptKey ) ) {
@@ -734,12 +755,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			case 'integer':
 				$nMin = $this->getOptProperty( $sOptKey, 'min' );
 				if ( !is_null( $nMin ) ) {
-					$bValid = $mValue >= $nMin;
+					$bValid = $mPotentialValue >= $nMin;
 				}
 				$nMax = $this->getOptProperty( $sOptKey, 'max' );
 				if ( !is_null( $nMax ) ) {
-					$bValid = $mValue <= $nMax;
+					$bValid = $mPotentialValue <= $nMax;
 				}
+				break;
+
+			case 'email':
+				$bValid = empty( $mPotentialValue ) || $this->loadDP()->validEmail( $mPotentialValue );
 				break;
 		}
 		return $bValid;

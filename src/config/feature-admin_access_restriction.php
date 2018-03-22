@@ -238,6 +238,7 @@
     },
     {
       "key": "_wl_namemain",
+      "sensitive": true,
       "section": "section_non_ui",
       "default": "Shield Security",
       "type": "text",
@@ -249,6 +250,7 @@
     },
     {
       "key": "_wl_namemenu",
+      "sensitive": true,
       "section": "section_non_ui",
       "default": "",
       "type": "text",
@@ -260,6 +262,7 @@
     },
     {
       "key": "_wl_description",
+      "sensitive": true,
       "section": "section_non_ui",
       "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
       "type": "text",
@@ -271,6 +274,7 @@
     },
     {
       "key": "_wl_homeurl",
+      "sensitive": true,
       "section": "section_non_ui",
       "default": "http://icwp.io/home",
       "type": "text",
@@ -282,6 +286,7 @@
     },
     {
       "key": "_wl_iconurl",
+      "sensitive": true,
       "section": "section_non_ui",
       "default": "",
       "type": "text",

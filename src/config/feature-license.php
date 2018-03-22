@@ -7,9 +7,8 @@
     "auto_enabled": true,
     "show_module_menu_item": true,
     "highlight_menu_item": true,
-    "hide_summary": false,
     "storage_key": "license",
-    "show_central": true,
+    "show_central": false,
     "premium": false,
     "access_restricted": true
   },
@@ -27,6 +26,7 @@
   "options": [
     {
       "key": "license_key",
+      "sensitive": true,
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
@@ -51,18 +51,21 @@
     },
     {
       "key": "license_verified_at",
+      "sensitive": true,
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
     },
     {
       "key": "license_expires_at",
+      "sensitive": true,
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
     },
     {
       "key": "license_official_status",
+      "sensitive": true,
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
@@ -75,12 +78,14 @@
     },
     {
       "key": "license_registered_email",
+      "sensitive": true,
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
     },
     {
       "key": "is_shield_central",
+      "sensitive": true,
       "transferable": false,
       "default": false,
       "section": "section_non_ui"
@@ -93,18 +98,21 @@
     },
     {
       "key": "last_error_at",
+      "sensitive": true,
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
     },
     {
       "key": "keyless_request_hash",
+      "sensitive": true,
       "transferable": false,
       "default": "",
       "section": "section_non_ui"
     },
     {
       "key": "keyless_request_at",
+      "sensitive": true,
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
@@ -112,6 +120,7 @@
   ],
   "definitions": {
     "license_store_url": "https://onedollarplugin.com/edd-sl/",
+    "keyless_cp": "http://icwp.io/c5",
     "license_item_name": "Shield Security Pro",
     "license_item_id": "6047",
     "license_item_name_sc": "Shield Security Pro (via Shield Central)",
@@ -121,6 +130,6 @@
     "license_key_length": 32,
     "license_key_type": "alphanumeric",
     "keyless": true,
-    "keyless_handshake_expire": 15
+    "keyless_handshake_expire": 90
   }
 }

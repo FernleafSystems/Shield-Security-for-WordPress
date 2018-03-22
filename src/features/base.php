@@ -593,10 +593,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function filter_getFeatureSummaryData( $aSummaryData ) {
-		if ( !$this->getIfShowSummaryItem() ) {
-			return $aSummaryData;
+		if ( $this->getIfShowModuleLink() ) {
+			$aSummaryData[] = $this->buildSummaryData();
 		}
+		return $aSummaryData;
+	}
 
+	/**
+	 * @return array
+	 */
+	protected function buildSummaryData() {
 		$oOptions = $this->getOptionsVo();
 		$sMenuTitle = $oOptions->getFeatureProperty( 'menu_title' );
 
@@ -612,12 +618,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections
+			'sections'   => $aSections,
 		);
 		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
-
-		$aSummaryData[] = $aSummary;
-		return $aSummaryData;
+		return $aSummary;
 	}
 
 	/**
@@ -631,14 +635,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function getIfShowModuleLink() {
-		return $this->getOptionsVo()->getFeatureProperty( 'show_central' );
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function getIfShowSummaryItem() {
-		return $this->getIfShowModuleLink() && !$this->getOptionsVo()->getFeatureProperty( 'hide_summary' );
+		return $this->getIfShowModuleMenuItem();
 	}
 
 	/**
@@ -1240,9 +1237,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				}
 				else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
-				}
-				else if ( $sOptionType == 'email' && !$oDp->validEmail( $sOptionValue ) ) {
-					$sOptionValue = '';
 				}
 				else if ( $sOptionType == 'comma_separated_lists' ) {
 					$sOptionValue = $oDp->extractCommaSeparatedList( $sOptionValue );
