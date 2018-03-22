@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.1
+Stable tag: 6.6.2
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -348,10 +348,10 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.1 - Current Release =
+= 6.6.2 - Current Release =
 *Released: 22nd March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.1)**  FIXED:			Various small fixes and improvements
+* **(v.1-2)**  FIXED:		Various small fixes and improvements
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.
@@ -362,7 +362,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa).
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.1)**  FIXED:			Various small fixes and improvements
+* **(v.1-2)**  FIXED:		Various small fixes and improvements
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.
