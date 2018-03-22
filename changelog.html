@@ -1,0 +1,5049 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Untitled Document.md</title>
+<style>@charset "UTF-8";
+@import 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css';
+code {
+	color: #c7254e;
+	background-color: #f9f2f4;
+	border-radius: 4px
+}
+code, kbd {
+	padding: 2px 4px
+}
+kbd {
+	color: #ffffff;
+	background-color: #333333;
+	border-radius: 3px;
+	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .25)
+}
+kbd kbd {
+	padding: 0;
+	font-size: 100%;
+	box-shadow: none
+}
+pre {
+	display: block;
+	margin: 0 0 10px;
+	word-break: break-all;
+	word-wrap: break-word;
+	color: #333333;
+	background-color: #f5f5f5;
+	border: 1px solid #cccccc;
+	border-radius: 4px
+}
+pre code {
+	padding: 0;
+	font-size: inherit;
+	color: inherit;
+	white-space: pre-wrap;
+	background-color: transparent;
+	border-radius: 0
+}
+.pre-scrollable {
+	max-height: 340px;
+	overflow-y: scroll
+}
+table {
+	background-color: transparent
+}
+th {
+	text-align: left
+}
+.table {
+	width: 100%;
+	max-width: 100%;
+	margin-bottom: 20px
+}
+.table > thead > tr > th {
+	padding: 8px;
+	line-height: 1.4285714;
+	border-top: 1px solid #dddddd
+}
+.table > thead > tr > td, .table > tbody > tr > th, .table > tbody > tr > td, .table > tfoot > tr > th, .table > tfoot > tr > td {
+	padding: 8px;
+	line-height: 1.4285714;
+	vertical-align: top;
+	border-top: 1px solid #dddddd
+}
+.table > thead > tr > th {
+	vertical-align: bottom;
+	border-bottom: 2px solid #dddddd
+}
+.table > caption + thead > tr:first-child > th, .table > caption + thead > tr:first-child > td, .table > colgroup + thead > tr:first-child > th, .table > colgroup + thead > tr:first-child > td, .table > thead:first-child > tr:first-child > th, .table > thead:first-child > tr:first-child > td {
+	border-top: 0
+}
+.table > tbody + tbody {
+	border-top: 2px solid #dddddd
+}
+.table .table {
+	background-color: #ffffff
+}
+.table-condensed > thead > tr > th, .table-condensed > thead > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tbody > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > tfoot > tr > td {
+	padding: 5px
+}
+.table-bordered, .table-bordered > thead > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > th, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > th, .table-bordered > tfoot > tr > td {
+	border: 1px solid #dddddd
+}
+.table-bordered > thead > tr > th, .table-bordered > thead > tr > td {
+	border-bottom-width: 2px
+}
+.table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+	background-color: #f9f9f9
+}
+.table-hover > tbody > tr:hover > td, .table-hover > tbody > tr:hover > th {
+	background-color: #f5f5f5
+}
+table col[class*="col-"] {
+	position: static;
+	float: none;
+	display: table-column
+}
+table td[class*="col-"], table th[class*="col-"] {
+	position: static;
+	float: none;
+	display: table-cell
+}
+.table > thead > tr > td.active, .table > thead > tr > th.active, .table > thead > tr.active > td, .table > thead > tr.active > th, .table > tbody > tr > td.active, .table > tbody > tr > th.active, .table > tbody > tr.active > td, .table > tbody > tr.active > th, .table > tfoot > tr > td.active, .table > tfoot > tr > th.active, .table > tfoot > tr.active > td, .table > tfoot > tr.active > th {
+	background-color: #f5f5f5
+}
+.table-hover > tbody > tr > td.active:hover, .table-hover > tbody > tr > th.active:hover, .table-hover > tbody > tr.active:hover > td, .table-hover > tbody > tr:hover > .active, .table-hover > tbody > tr.active:hover > th {
+	background-color: #e8e8e8
+}
+.table > thead > tr > td.success, .table > thead > tr > th.success, .table > thead > tr.success > td, .table > thead > tr.success > th, .table > tbody > tr > td.success, .table > tbody > tr > th.success, .table > tbody > tr.success > td, .table > tbody > tr.success > th, .table > tfoot > tr > td.success, .table > tfoot > tr > th.success, .table > tfoot > tr.success > td, .table > tfoot > tr.success > th {
+	background-color: #dff0d8
+}
+.table-hover > tbody > tr > td.success:hover, .table-hover > tbody > tr > th.success:hover, .table-hover > tbody > tr.success:hover > td, .table-hover > tbody > tr:hover > .success, .table-hover > tbody > tr.success:hover > th {
+	background-color: #d0e9c6
+}
+.table > thead > tr > td.info, .table > thead > tr > th.info, .table > thead > tr.info > td, .table > thead > tr.info > th, .table > tbody > tr > td.info, .table > tbody > tr > th.info, .table > tbody > tr.info > td, .table > tbody > tr.info > th, .table > tfoot > tr > td.info, .table > tfoot > tr > th.info, .table > tfoot > tr.info > td, .table > tfoot > tr.info > th {
+	background-color: #d9edf7
+}
+.table-hover > tbody > tr > td.info:hover, .table-hover > tbody > tr > th.info:hover, .table-hover > tbody > tr.info:hover > td, .table-hover > tbody > tr:hover > .info, .table-hover > tbody > tr.info:hover > th {
+	background-color: #c4e3f3
+}
+.table > thead > tr > td.warning, .table > thead > tr > th.warning, .table > thead > tr.warning > td, .table > thead > tr.warning > th, .table > tbody > tr > td.warning, .table > tbody > tr > th.warning, .table > tbody > tr.warning > td, .table > tbody > tr.warning > th, .table > tfoot > tr > td.warning, .table > tfoot > tr > th.warning, .table > tfoot > tr.warning > td, .table > tfoot > tr.warning > th {
+	background-color: #fcf8e3
+}
+.table-hover > tbody > tr > td.warning:hover, .table-hover > tbody > tr > th.warning:hover, .table-hover > tbody > tr.warning:hover > td, .table-hover > tbody > tr:hover > .warning, .table-hover > tbody > tr.warning:hover > th {
+	background-color: #faf2cc
+}
+.table > thead > tr > td.danger, .table > thead > tr > th.danger, .table > thead > tr.danger > td, .table > thead > tr.danger > th, .table > tbody > tr > td.danger, .table > tbody > tr > th.danger, .table > tbody > tr.danger > td, .table > tbody > tr.danger > th, .table > tfoot > tr > td.danger, .table > tfoot > tr > th.danger, .table > tfoot > tr.danger > td, .table > tfoot > tr.danger > th {
+	background-color: #f2dede
+}
+.table-hover > tbody > tr > td.danger:hover, .table-hover > tbody > tr > th.danger:hover, .table-hover > tbody > tr.danger:hover > td, .table-hover > tbody > tr:hover > .danger, .table-hover > tbody > tr.danger:hover > th {
+	background-color: #ebcccc
+}
+fieldset {
+	border: 0;
+	min-width: 0
+}
+legend {
+	display: block;
+	width: 100%;
+	margin-bottom: 20px;
+	font-size: 21px;
+	line-height: inherit;
+	color: #333333;
+	border-bottom: 1px solid #e5e5e5
+}
+label {
+	display: inline-block;
+	max-width: 100%;
+	margin-bottom: 5px;
+	font-weight: 700
+}
+input[type="radio"], input[type="checkbox"] {
+	margin: 4px 0 0;
+	margin-top: 1px \9;
+	line-height: normal
+}
+input[type="file"] {
+	display: block
+}
+input[type="range"] {
+	display: block;
+	width: 100%
+}
+select[multiple], select[size] {
+	height: auto
+}
+input[type="file"]:focus, input[type="radio"]:focus, input[type="checkbox"]:focus {
+	outline: thin dotted;
+	outline: 5px auto -webkit-focus-ring-color;
+	outline-offset: -2px
+}
+output {
+	padding-top: 7px
+}
+output, .form-control {
+	display: block;
+	font-size: 14px;
+	line-height: 1.4285714;
+	color: #555555
+}
+.form-control {
+	width: 100%;
+	height: 34px;
+	padding: 6px 12px;
+	background-color: #ffffff;
+	background-image: none;
+	border: 1px solid #cccccc;
+	border-radius: 4px;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	-webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+}
+.form-control:focus {
+	border-color: #66afe9;
+	outline: 0;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+}
+.form-control::-moz-placeholder {
+	color: #777777;
+	opacity: 1
+}
+.form-control:-ms-input-placeholder {
+	color: #777777
+}
+.form-control::-webkit-input-placeholder {
+	color: #777777
+}
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+	cursor: not-allowed;
+	background-color: #eeeeee;
+	opacity: 1
+}
+textarea.form-control {
+	height: auto
+}
+input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"] {
+	line-height: 34px;
+	line-height: 1.4285714 \0
+}
+input[type="date"].input-sm, .form-horizontal .form-group-sm input[type="date"].form-control, .input-group-sm > input[type="date"].form-control, .input-group-sm > input[type="date"].input-group-addon, .input-group-sm > .input-group-btn > input[type="date"].btn, input[type="time"].input-sm, .form-horizontal .form-group-sm input[type="time"].form-control, .input-group-sm > input[type="time"].form-control, .input-group-sm > input[type="time"].input-group-addon, .input-group-sm > .input-group-btn > input[type="time"].btn, input[type="datetime-local"].input-sm, .form-horizontal .form-group-sm input[type="datetime-local"].form-control, .input-group-sm > input[type="datetime-local"].form-control, .input-group-sm > input[type="datetime-local"].input-group-addon, .input-group-sm > .input-group-btn > input[type="datetime-local"].btn, input[type="month"].input-sm, .form-horizontal .form-group-sm input[type="month"].form-control, .input-group-sm > input[type="month"].form-control, .input-group-sm > input[type="month"].input-group-addon, .input-group-sm > .input-group-btn > input[type="month"].btn {
+	line-height: 30px
+}
+input[type="date"].input-lg, .form-horizontal .form-group-lg input[type="date"].form-control, .input-group-lg > input[type="date"].form-control, .input-group-lg > input[type="date"].input-group-addon, .input-group-lg > .input-group-btn > input[type="date"].btn, input[type="time"].input-lg, .form-horizontal .form-group-lg input[type="time"].form-control, .input-group-lg > input[type="time"].form-control, .input-group-lg > input[type="time"].input-group-addon, .input-group-lg > .input-group-btn > input[type="time"].btn, input[type="datetime-local"].input-lg, .form-horizontal .form-group-lg input[type="datetime-local"].form-control, .input-group-lg > input[type="datetime-local"].form-control, .input-group-lg > input[type="datetime-local"].input-group-addon, .input-group-lg > .input-group-btn > input[type="datetime-local"].btn, input[type="month"].input-lg, .form-horizontal .form-group-lg input[type="month"].form-control, .input-group-lg > input[type="month"].form-control, .input-group-lg > input[type="month"].input-group-addon, .input-group-lg > .input-group-btn > input[type="month"].btn {
+	line-height: 46px
+}
+.form-group {
+	margin-bottom: 15px
+}
+.radio, .checkbox {
+	position: relative;
+	display: block;
+	min-height: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px
+}
+.radio label, .checkbox label {
+	padding-left: 20px;
+	margin-bottom: 0;
+	font-weight: 400;
+	cursor: pointer
+}
+.radio input[type="radio"], .radio-inline input[type="radio"], .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"] {
+	position: absolute;
+	margin-left: -20px;
+	margin-top: 4px \9
+}
+.radio + .radio, .checkbox + .checkbox {
+	margin-top: -5px
+}
+.radio-inline, .checkbox-inline {
+	display: inline-block;
+	padding-left: 20px;
+	margin-bottom: 0;
+	vertical-align: middle;
+	font-weight: 400;
+	cursor: pointer
+}
+.radio-inline + .radio-inline, .checkbox-inline + .checkbox-inline {
+	margin-top: 0;
+	margin-left: 10px
+}
+input[type="radio"][disabled], input[type="radio"].disabled, fieldset[disabled] input[type="radio"], input[type="checkbox"][disabled], input[type="checkbox"].disabled, fieldset[disabled] input[type="checkbox"], .radio-inline.disabled, fieldset[disabled] .radio-inline, .checkbox-inline.disabled, fieldset[disabled] .checkbox-inline, .radio.disabled label, fieldset[disabled] .radio label, .checkbox.disabled label, fieldset[disabled] .checkbox label {
+	cursor: not-allowed
+}
+.form-control-static {
+	padding-top: 7px;
+	padding-bottom: 7px;
+	margin-bottom: 0
+}
+.form-control-static.input-lg, .form-horizontal .form-group-lg .form-control-static.form-control, .input-group-lg > .form-control-static.form-control, .input-group-lg > .form-control-static.input-group-addon, .input-group-lg > .input-group-btn > .form-control-static.btn, .form-control-static.input-sm, .form-horizontal .form-group-sm .form-control-static.form-control, .input-group-sm > .form-control-static.form-control, .input-group-sm > .form-control-static.input-group-addon, .input-group-sm > .input-group-btn > .form-control-static.btn {
+	padding-left: 0;
+	padding-right: 0
+}
+.input-sm, .form-horizontal .form-group-sm .form-control, .input-group-sm > .form-control {
+	height: 30px;
+	padding: 5px 10px;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px
+}
+.input-group-sm > .input-group-addon {
+	height: 30px;
+	line-height: 1.5
+}
+.input-group-sm > .input-group-btn > .btn {
+	height: 30px;
+	padding: 5px 10px;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px
+}
+select.input-sm, .form-horizontal .form-group-sm select.form-control, .input-group-sm > select.form-control, .input-group-sm > select.input-group-addon, .input-group-sm > .input-group-btn > select.btn {
+	height: 30px;
+	line-height: 30px
+}
+textarea.input-sm, .form-horizontal .form-group-sm textarea.form-control, .input-group-sm > textarea.form-control, .input-group-sm > textarea.input-group-addon, .input-group-sm > .input-group-btn > textarea.btn, select[multiple].input-sm, .form-horizontal .form-group-sm select[multiple].form-control, .input-group-sm > select[multiple].form-control, .input-group-sm > select[multiple].input-group-addon, .input-group-sm > .input-group-btn > select[multiple].btn {
+	height: auto
+}
+.input-lg, .form-horizontal .form-group-lg .form-control, .input-group-lg > .form-control {
+	height: 46px;
+	padding: 10px 16px;
+	font-size: 18px;
+	line-height: 1.33;
+	border-radius: 6px
+}
+.input-group-lg > .input-group-addon {
+	height: 46px;
+	line-height: 1.33
+}
+.input-group-lg > .input-group-btn > .btn {
+	height: 46px;
+	padding: 10px 16px;
+	font-size: 18px;
+	line-height: 1.33;
+	border-radius: 6px
+}
+select.input-lg, .form-horizontal .form-group-lg select.form-control, .input-group-lg > select.form-control, .input-group-lg > select.input-group-addon, .input-group-lg > .input-group-btn > select.btn {
+	height: 46px;
+	line-height: 46px
+}
+textarea.input-lg, .form-horizontal .form-group-lg textarea.form-control, .input-group-lg > textarea.form-control, .input-group-lg > textarea.input-group-addon, .input-group-lg > .input-group-btn > textarea.btn, select[multiple].input-lg, .form-horizontal .form-group-lg select[multiple].form-control, .input-group-lg > select[multiple].form-control, .input-group-lg > select[multiple].input-group-addon, .input-group-lg > .input-group-btn > select[multiple].btn {
+	height: auto
+}
+.has-feedback {
+	position: relative
+}
+.has-feedback .form-control {
+	padding-right: 42.5px
+}
+.form-control-feedback {
+	position: absolute;
+	top: 25px;
+	right: 0;
+	z-index: 2;
+	display: block;
+	width: 34px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center
+}
+.input-lg + .form-control-feedback, .form-horizontal .form-group-lg .form-control + .form-control-feedback, .input-group-lg > .form-control + .form-control-feedback, .input-group-lg > .input-group-addon + .form-control-feedback, .input-group-lg > .input-group-btn > .btn + .form-control-feedback {
+	width: 46px;
+	height: 46px;
+	line-height: 46px
+}
+.input-sm + .form-control-feedback, .form-horizontal .form-group-sm .form-control + .form-control-feedback, .input-group-sm > .form-control + .form-control-feedback, .input-group-sm > .input-group-addon + .form-control-feedback, .input-group-sm > .input-group-btn > .btn + .form-control-feedback {
+	width: 30px;
+	height: 30px;
+	line-height: 30px
+}
+.has-success .help-block, .has-success .control-label, .has-success .radio, .has-success .checkbox, .has-success .radio-inline, .has-success .checkbox-inline {
+	color: #3c763d
+}
+.has-success .form-control {
+	border-color: #3c763d;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
+}
+.has-success .form-control:focus {
+	border-color: #2b542c;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #67b168
+}
+.has-success .input-group-addon {
+	color: #3c763d;
+	border-color: #3c763d;
+	background-color: #dff0d8
+}
+.has-success .form-control-feedback {
+	color: #3c763d
+}
+.has-warning .help-block, .has-warning .control-label, .has-warning .radio, .has-warning .checkbox, .has-warning .radio-inline, .has-warning .checkbox-inline {
+	color: #8a6d3b
+}
+.has-warning .form-control {
+	border-color: #8a6d3b;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
+}
+.has-warning .form-control:focus {
+	border-color: #66512c;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #c0a16b
+}
+.has-warning .input-group-addon {
+	color: #8a6d3b;
+	border-color: #8a6d3b;
+	background-color: #fcf8e3
+}
+.has-warning .form-control-feedback {
+	color: #8a6d3b
+}
+.has-error .help-block, .has-error .control-label, .has-error .radio, .has-error .checkbox, .has-error .radio-inline, .has-error .checkbox-inline {
+	color: #a94442
+}
+.has-error .form-control {
+	border-color: #a94442;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
+}
+.has-error .form-control:focus {
+	border-color: #843534;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 6px #ce8483
+}
+.has-error .input-group-addon {
+	color: #a94442;
+	border-color: #a94442;
+	background-color: #f2dede
+}
+.has-error .form-control-feedback {
+	color: #a94442
+}
+.has-feedback label.sr-only ~ .form-control-feedback {
+	top: 0
+}
+.help-block {
+	display: block;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	color: #737373
+}
+.form-horizontal .radio, .form-horizontal .checkbox, .form-horizontal .radio-inline, .form-horizontal .checkbox-inline {
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 7px
+}
+.form-horizontal .radio, .form-horizontal .checkbox {
+	min-height: 27px
+}
+.form-horizontal .form-group {
+	margin-left: -15px;
+	margin-right: -15px
+}
+.form-horizontal .form-group:before {
+	content: " ";
+	display: table
+}
+.form-horizontal .form-group:after {
+	content: " ";
+	display: table;
+	clear: both
+}
+.form-horizontal .has-feedback .form-control-feedback {
+	top: 0;
+	right: 15px
+}
+.btn {
+	display: inline-block;
+	vertical-align: middle;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none
+}
+.btn:focus, .btn:active:focus, .btn.active:focus {
+	outline: thin dotted;
+	outline: 5px auto -webkit-focus-ring-color;
+	outline-offset: -2px
+}
+.btn:hover, .btn:focus {
+	color: #333333;
+	text-decoration: none
+}
+.btn:active, .btn.active {
+	outline: 0;
+	background-image: none;
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125)
+}
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+	cursor: not-allowed;
+	pointer-events: none;
+	opacity: .65;
+	filter: alpha(opacity=65);
+	box-shadow: none
+}
+.btn-default {
+	color: #333333;
+	background-color: #ffffff;
+	border-color: #cccccc
+}
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open > .btn-default.dropdown-toggle {
+	color: #333333;
+	background-color: #e6e6e6;
+	border-color: #adadad
+}
+.btn-default:active, .btn-default.active, .open > .btn-default.dropdown-toggle {
+	background-image: none
+}
+.btn-default.disabled, .btn-default.disabled:hover, .btn-default.disabled:focus, .btn-default.disabled:active, .btn-default.disabled.active, .btn-default[disabled], .btn-default[disabled]:hover, .btn-default[disabled]:focus, .btn-default[disabled]:active, .btn-default[disabled].active, fieldset[disabled] .btn-default, fieldset[disabled] .btn-default:hover, fieldset[disabled] .btn-default:focus, fieldset[disabled] .btn-default:active, fieldset[disabled] .btn-default.active {
+	background-color: #ffffff;
+	border-color: #cccccc
+}
+.btn-default .badge {
+	color: #ffffff;
+	background-color: #333333
+}
+.btn-primary {
+	color: #ffffff;
+	background-color: #428bca;
+	border-color: #357ebd
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .btn-primary.dropdown-toggle {
+	color: #ffffff;
+	background-color: #3071a9;
+	border-color: #285e8e
+}
+.btn-primary:active, .btn-primary.active, .open > .btn-primary.dropdown-toggle {
+	background-image: none
+}
+.btn-primary.disabled, .btn-primary.disabled:hover, .btn-primary.disabled:focus, .btn-primary.disabled:active, .btn-primary.disabled.active, .btn-primary[disabled], .btn-primary[disabled]:hover, .btn-primary[disabled]:focus, .btn-primary[disabled]:active, .btn-primary[disabled].active, fieldset[disabled] .btn-primary, fieldset[disabled] .btn-primary:hover, fieldset[disabled] .btn-primary:focus, fieldset[disabled] .btn-primary:active, fieldset[disabled] .btn-primary.active {
+	background-color: #428bca;
+	border-color: #357ebd
+}
+.btn-primary .badge {
+	color: #428bca;
+	background-color: #ffffff
+}
+.btn-success {
+	color: #ffffff;
+	background-color: #5cb85c;
+	border-color: #4cae4c
+}
+.btn-success:hover, .btn-success:focus, .btn-success:active, .btn-success.active, .open > .btn-success.dropdown-toggle {
+	color: #ffffff;
+	background-color: #449d44;
+	border-color: #398439
+}
+.btn-success:active, .btn-success.active, .open > .btn-success.dropdown-toggle {
+	background-image: none
+}
+.btn-success.disabled, .btn-success.disabled:hover, .btn-success.disabled:focus, .btn-success.disabled:active, .btn-success.disabled.active, .btn-success[disabled], .btn-success[disabled]:hover, .btn-success[disabled]:focus, .btn-success[disabled]:active, .btn-success[disabled].active, fieldset[disabled] .btn-success, fieldset[disabled] .btn-success:hover, fieldset[disabled] .btn-success:focus, fieldset[disabled] .btn-success:active, fieldset[disabled] .btn-success.active {
+	background-color: #5cb85c;
+	border-color: #4cae4c
+}
+.btn-success .badge {
+	color: #5cb85c;
+	background-color: #ffffff
+}
+.btn-info {
+	color: #ffffff;
+	background-color: #5bc0de;
+	border-color: #46b8da
+}
+.btn-info:hover, .btn-info:focus, .btn-info:active, .btn-info.active, .open > .btn-info.dropdown-toggle {
+	color: #ffffff;
+	background-color: #31b0d5;
+	border-color: #269abc
+}
+.btn-info:active, .btn-info.active, .open > .btn-info.dropdown-toggle {
+	background-image: none
+}
+.btn-info.disabled, .btn-info.disabled:hover, .btn-info.disabled:focus, .btn-info.disabled:active, .btn-info.disabled.active, .btn-info[disabled], .btn-info[disabled]:hover, .btn-info[disabled]:focus, .btn-info[disabled]:active, .btn-info[disabled].active, fieldset[disabled] .btn-info, fieldset[disabled] .btn-info:hover, fieldset[disabled] .btn-info:focus, fieldset[disabled] .btn-info:active, fieldset[disabled] .btn-info.active {
+	background-color: #5bc0de;
+	border-color: #46b8da
+}
+.btn-info .badge {
+	color: #5bc0de;
+	background-color: #ffffff
+}
+.btn-warning {
+	color: #ffffff;
+	background-color: #f0ad4e;
+	border-color: #eea236
+}
+.btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open > .btn-warning.dropdown-toggle {
+	color: #ffffff;
+	background-color: #ec971f;
+	border-color: #d58512
+}
+.btn-warning:active, .btn-warning.active, .open > .btn-warning.dropdown-toggle {
+	background-image: none
+}
+.btn-warning.disabled, .btn-warning.disabled:hover, .btn-warning.disabled:focus, .btn-warning.disabled:active, .btn-warning.disabled.active, .btn-warning[disabled], .btn-warning[disabled]:hover, .btn-warning[disabled]:focus, .btn-warning[disabled]:active, .btn-warning[disabled].active, fieldset[disabled] .btn-warning, fieldset[disabled] .btn-warning:hover, fieldset[disabled] .btn-warning:focus, fieldset[disabled] .btn-warning:active, fieldset[disabled] .btn-warning.active {
+	background-color: #f0ad4e;
+	border-color: #eea236
+}
+.btn-warning .badge {
+	color: #f0ad4e;
+	background-color: #ffffff
+}
+.btn-danger {
+	color: #ffffff;
+	background-color: #d9534f;
+	border-color: #d43f3a
+}
+.btn-danger:hover, .btn-danger:focus, .btn-danger:active, .btn-danger.active, .open > .btn-danger.dropdown-toggle {
+	color: #ffffff;
+	background-color: #c9302c;
+	border-color: #ac2925
+}
+.btn-danger:active, .btn-danger.active, .open > .btn-danger.dropdown-toggle {
+	background-image: none
+}
+.btn-danger.disabled, .btn-danger.disabled:hover, .btn-danger.disabled:focus, .btn-danger.disabled:active, .btn-danger.disabled.active, .btn-danger[disabled], .btn-danger[disabled]:hover, .btn-danger[disabled]:focus, .btn-danger[disabled]:active, .btn-danger[disabled].active, fieldset[disabled] .btn-danger, fieldset[disabled] .btn-danger:hover, fieldset[disabled] .btn-danger:focus, fieldset[disabled] .btn-danger:active, fieldset[disabled] .btn-danger.active {
+	background-color: #d9534f;
+	border-color: #d43f3a
+}
+.btn-danger .badge {
+	color: #d9534f;
+	background-color: #ffffff
+}
+.btn-link {
+	color: #428bca;
+	font-weight: 400;
+	cursor: pointer;
+	border-radius: 0
+}
+.btn-link, .btn-link:active, .btn-link[disabled], fieldset[disabled] .btn-link {
+	background-color: transparent;
+	box-shadow: none
+}
+.btn-link, .btn-link:hover, .btn-link:focus, .btn-link:active {
+	border-color: transparent
+}
+.btn-link:hover, .btn-link:focus {
+	color: #2a6496;
+	text-decoration: underline;
+	background-color: transparent
+}
+.btn-link[disabled]:hover, .btn-link[disabled]:focus, fieldset[disabled] .btn-link:hover, fieldset[disabled] .btn-link:focus {
+	color: #777777;
+	text-decoration: none
+}
+.btn-lg {
+	padding: 10px 16px;
+	font-size: 18px;
+	line-height: 1.33;
+	border-radius: 6px
+}
+.btn-sm {
+	padding: 5px 10px
+}
+.btn-sm, .btn-xs {
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px
+}
+.btn-xs {
+	padding: 1px 5px
+}
+.btn-block {
+	display: block;
+	width: 100%
+}
+.btn-block + .btn-block {
+	margin-top: 5px
+}
+input[type="submit"].btn-block, input[type="reset"].btn-block, input[type="button"].btn-block {
+	width: 100%
+}
+.fade {
+	opacity: 0;
+	-webkit-transition: opacity .15s linear;
+	transition: opacity .15s linear
+}
+.fade.in {
+	opacity: 1
+}
+.collapse {
+	display: none
+}
+.collapse.in {
+	display: block
+}
+tr.collapse.in {
+	display: table-row
+}
+tbody.collapse.in {
+	display: table-row-group
+}
+.collapsing {
+	position: relative;
+	height: 0;
+	overflow: hidden;
+	-webkit-transition: height .35s ease;
+	transition: height .35s ease
+}
+.input-group {
+	position: relative;
+	display: table;
+	border-collapse: separate
+}
+.input-group[class*="col-"] {
+	float: none;
+	padding-left: 0;
+	padding-right: 0
+}
+.input-group .form-control {
+	position: relative;
+	z-index: 2;
+	float: left;
+	width: 100%;
+	margin-bottom: 0
+}
+.input-group-addon, .input-group-btn, .input-group .form-control {
+	display: table-cell
+}
+.input-group-addon:not(:first-child):not(:last-child), .input-group-btn:not(:first-child):not(:last-child), .input-group .form-control:not(:first-child):not(:last-child) {
+	border-radius: 0
+}
+.input-group-addon {
+	white-space: nowrap
+}
+.input-group-addon, .input-group-btn {
+	width: 1%;
+	vertical-align: middle
+}
+.input-group-addon {
+	padding: 6px 12px;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1;
+	color: #555555;
+	text-align: center;
+	background-color: #eeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 4px
+}
+.input-group-addon.input-sm, .form-horizontal .form-group-sm .input-group-addon.form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .input-group-addon.btn {
+	padding: 5px 10px;
+	font-size: 12px;
+	border-radius: 3px
+}
+.input-group-addon.input-lg, .form-horizontal .form-group-lg .input-group-addon.form-control, .input-group-lg > .input-group-addon, .input-group-lg > .input-group-btn > .input-group-addon.btn {
+	padding: 10px 16px;
+	font-size: 18px;
+	border-radius: 6px
+}
+.input-group-addon input[type="radio"], .input-group-addon input[type="checkbox"] {
+	margin-top: 0
+}
+.input-group .form-control:first-child, .input-group-addon:first-child, .input-group-btn:first-child > .btn, .input-group-btn:first-child > .btn-group > .btn, .input-group-btn:first-child > .dropdown-toggle, .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:last-child > .btn-group:not(:last-child) > .btn {
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0
+}
+.input-group-addon:first-child {
+	border-right: 0
+}
+.input-group .form-control:last-child, .input-group-addon:last-child, .input-group-btn:last-child > .btn, .input-group-btn:last-child > .btn-group > .btn, .input-group-btn:last-child > .dropdown-toggle, .input-group-btn:first-child > .btn:not(:first-child), .input-group-btn:first-child > .btn-group:not(:first-child) > .btn {
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0
+}
+.input-group-addon:last-child {
+	border-left: 0
+}
+.input-group-btn {
+	font-size: 0;
+	white-space: nowrap
+}
+.input-group-btn, .input-group-btn > .btn {
+	position: relative
+}
+.input-group-btn > .btn + .btn {
+	margin-left: -1px
+}
+.input-group-btn > .btn:hover, .input-group-btn > .btn:focus, .input-group-btn > .btn:active {
+	z-index: 2
+}
+.input-group-btn:first-child > .btn, .input-group-btn:first-child > .btn-group {
+	margin-right: -1px
+}
+.input-group-btn:last-child > .btn, .input-group-btn:last-child > .btn-group {
+	margin-left: -1px
+}
+.pagination {
+	display: inline-block;
+	padding-left: 0;
+	margin: 20px 0;
+	border-radius: 4px
+}
+.pagination > li {
+	display: inline
+}
+.pagination > li > a, .pagination > li > span {
+	position: relative;
+	float: left;
+	padding: 6px 12px;
+	line-height: 1.4285714;
+	text-decoration: none;
+	color: #428bca;
+	background-color: #ffffff;
+	border: 1px solid #dddddd;
+	margin-left: -1px
+}
+.pagination > li:first-child > a, .pagination > li:first-child > span {
+	margin-left: 0;
+	border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px
+}
+.pagination > li:last-child > a, .pagination > li:last-child > span {
+	border-bottom-right-radius: 4px;
+	border-top-right-radius: 4px
+}
+.pagination > li > a:hover, .pagination > li > a:focus, .pagination > li > span:hover, .pagination > li > span:focus {
+	color: #2a6496;
+	background-color: #eeeeee;
+	border-color: #dddddd
+}
+.pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:focus, .pagination > .active > span, .pagination > .active > span:hover, .pagination > .active > span:focus {
+	z-index: 2;
+	color: #ffffff;
+	background-color: #428bca;
+	border-color: #428bca;
+	cursor: default
+}
+.pagination > .disabled > span, .pagination > .disabled > span:hover, .pagination > .disabled > span:focus, .pagination > .disabled > a, .pagination > .disabled > a:hover, .pagination > .disabled > a:focus {
+	color: #777777;
+	background-color: #ffffff;
+	border-color: #dddddd;
+	cursor: not-allowed
+}
+.pagination-lg > li > a, .pagination-lg > li > span {
+	padding: 10px 16px;
+	font-size: 18px
+}
+.pagination-lg > li:first-child > a, .pagination-lg > li:first-child > span {
+	border-bottom-left-radius: 6px;
+	border-top-left-radius: 6px
+}
+.pagination-lg > li:last-child > a, .pagination-lg > li:last-child > span {
+	border-bottom-right-radius: 6px;
+	border-top-right-radius: 6px
+}
+.pagination-sm > li > a, .pagination-sm > li > span {
+	padding: 5px 10px;
+	font-size: 12px
+}
+.pagination-sm > li:first-child > a, .pagination-sm > li:first-child > span {
+	border-bottom-left-radius: 3px;
+	border-top-left-radius: 3px
+}
+.pagination-sm > li:last-child > a, .pagination-sm > li:last-child > span {
+	border-bottom-right-radius: 3px;
+	border-top-right-radius: 3px
+}
+.close {
+	float: right;
+	font-size: 21px;
+	font-weight: 700;
+	line-height: 1;
+	color: #000000;
+	text-shadow: 0 1px 0 #ffffff;
+	opacity: .2;
+	filter: alpha(opacity=20)
+}
+.close:hover, .close:focus {
+	color: #000000;
+	text-decoration: none;
+	cursor: pointer;
+	opacity: .5;
+	filter: alpha(opacity=50)
+}
+button.close {
+	padding: 0;
+	cursor: pointer;
+	background: 0 0;
+	border: 0;
+	-webkit-appearance: none
+}
+.modal-open, .modal {
+	overflow: hidden
+}
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1050;
+	-webkit-overflow-scrolling: touch;
+	outline: 0
+}
+.modal.fade .modal-dialog {
+	-webkit-transform: translate3d(0, -25%, 0);
+	transform: translate3d(0, -25%, 0);
+	-webkit-transition: -webkit-transform .3s ease-out;
+	transition: transform .3s ease-out;
+	transition: transform .3s ease-out, -webkit-transform .3s ease-out
+}
+.modal.in .modal-dialog {
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0)
+}
+.modal-open .modal {
+	overflow-x: hidden;
+	overflow-y: auto
+}
+.modal-dialog {
+	position: relative;
+	width: auto;
+	margin: 10px
+}
+.modal-content {
+	position: relative;
+	background-color: #ffffff;
+	border: 1px solid #999999;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 6px;
+	box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+	background-clip: padding-box;
+	outline: 0
+}
+.modal-backdrop {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1040;
+	background-color: #000000
+}
+.modal-backdrop.fade {
+	opacity: 0;
+	filter: alpha(opacity=0)
+}
+.modal-backdrop.in {
+	opacity: .5;
+	filter: alpha(opacity=50)
+}
+.modal-header {
+	padding: 15px;
+	border-bottom: 1px solid #e5e5e5;
+	min-height: 16.4285714px
+}
+.modal-header .close {
+	margin-top: -2px
+}
+.modal-title {
+	margin: 0;
+	line-height: 1.4285714
+}
+.modal-body {
+	position: relative;
+	padding: 15px
+}
+.modal-footer {
+	padding: 15px;
+	text-align: right;
+	border-top: 1px solid #e5e5e5
+}
+.modal-footer:before, .modal-footer:after {
+	content: " ";
+	display: table
+}
+.modal-footer:after {
+	clear: both
+}
+.modal-footer .btn + .btn {
+	margin-left: 5px;
+	margin-bottom: 0
+}
+.modal-footer .btn-group .btn + .btn {
+	margin-left: -1px
+}
+.modal-footer .btn-block + .btn-block {
+	margin-left: 0
+}
+.modal-scrollbar-measure {
+	position: absolute;
+	top: -9999px;
+	width: 50px;
+	height: 50px;
+	overflow: scroll
+}
+.clearfix:before, .clearfix:after {
+	content: " ";
+	display: table
+}
+.clearfix:after {
+	clear: both
+}
+.center-block {
+	display: block;
+	margin-left: auto;
+	margin-right: auto
+}
+.pull-right {
+	float: right !important
+}
+.pull-left {
+	float: left !important
+}
+.hide {
+	display: none !important
+}
+.show {
+	display: block !important
+}
+.invisible {
+	visibility: hidden
+}
+.text-hide {
+	font: 0/0 a;
+	color: transparent;
+	text-shadow: none;
+	background-color: transparent;
+	border: 0
+}
+.hidden {
+	display: none !important;
+	visibility: hidden !important
+}
+.affix {
+	position: fixed;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0)
+}
+.hljs {
+	display: block;
+	overflow-x: auto;
+	padding: .5em;
+	background: #002b36;
+	color: #839496;
+	-webkit-text-size-adjust: none
+}
+.hljs-comment, .hljs-template_comment, .diff .hljs-header, .hljs-doctype, .hljs-pi, .lisp .hljs-string, .hljs-javadoc {
+	color: #586e75
+}
+.hljs-keyword, .hljs-winutils, .method, .hljs-addition, .css .hljs-tag, .hljs-request, .hljs-status, .nginx .hljs-title {
+	color: #859900
+}
+.hljs-number, .hljs-command, .hljs-string, .hljs-tag .hljs-value, .hljs-rules .hljs-value, .hljs-phpdoc, .hljs-dartdoc, .tex .hljs-formula, .hljs-regexp, .hljs-hexcolor, .hljs-link_url {
+	color: #2aa198
+}
+.hljs-title, .hljs-localvars, .hljs-chunk, .hljs-decorator, .hljs-built_in, .hljs-identifier, .vhdl .hljs-literal, .hljs-id, .css .hljs-function {
+	color: #268bd2
+}
+.hljs-attribute, .hljs-variable, .lisp .hljs-body, .smalltalk .hljs-number, .hljs-constant, .hljs-class .hljs-title, .hljs-parent, .hljs-type, .hljs-link_reference {
+	color: #b58900
+}
+.hljs-preprocessor, .hljs-preprocessor .hljs-keyword, .hljs-pragma, .hljs-shebang, .hljs-symbol, .hljs-symbol .hljs-string, .diff .hljs-change, .hljs-special, .hljs-attr_selector, .hljs-subst, .hljs-cdata, .css .hljs-pseudo, .hljs-header {
+	color: #cb4b16
+}
+.hljs-deletion, .hljs-important {
+	color: #dc322f
+}
+.hljs-link_label {
+	color: #6c71c4
+}
+.tex .hljs-formula {
+	background: #073642
+}
+*, *:before, *:after {
+	box-sizing: border-box
+}
+html {
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%
+}
+body {
+	margin: 0
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary {
+	display: block
+}
+audio, canvas, progress, video {
+	display: inline-block;
+	vertical-align: baseline
+}
+audio:not([controls]) {
+	display: none;
+	height: 0
+}
+[hidden], template {
+	display: none
+}
+a {
+	background: 0 0
+}
+a:active, a:hover {
+	outline: 0
+}
+abbr[title] {
+	border-bottom: 1px dotted
+}
+b, strong {
+	font-weight: 700
+}
+dfn {
+	font-style: italic
+}
+h1 {
+	margin: .67em 0
+}
+mark {
+	background: #ffff00;
+	color: #000000
+}
+small {
+	font-size: 80%
+}
+sub, sup {
+	font-size: 75%;
+	line-height: 0;
+	position: relative;
+	vertical-align: baseline
+}
+sup {
+	top: -.5em
+}
+sub {
+	bottom: -.25em
+}
+images {
+	border: 0
+}
+svg:not(:root) {
+	overflow: hidden
+}
+figure {
+	margin: 1em 40px
+}
+hr {
+	box-sizing: content-box;
+	height: 0
+}
+pre {
+	overflow: auto
+}
+code, kbd {
+	font-size: 1em
+}
+code, kbd, pre, samp {
+	font-family: monospace, monospace
+}
+samp {
+	font-size: 1em
+}
+button, input, optgroup, select, textarea {
+	color: inherit;
+	font: inherit;
+	margin: 0
+}
+button {
+	overflow: visible
+}
+button, select {
+	text-transform: none
+}
+button, html input[type="button"], input[type="reset"], input[type="submit"] {
+	-webkit-appearance: button;
+	cursor: pointer
+}
+button[disabled], html input[disabled] {
+	cursor: default
+}
+button::-moz-focus-inner, input::-moz-focus-inner {
+	border: 0;
+	padding: 0
+}
+input {
+	line-height: normal
+}
+input[type="checkbox"], input[type="radio"] {
+	box-sizing: border-box;
+	padding: 0
+}
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button {
+	height: auto
+}
+input[type="search"] {
+	-webkit-appearance: textfield;
+	box-sizing: content-box
+}
+input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration {
+	-webkit-appearance: none
+}
+fieldset {
+	border: 1px solid silver;
+	margin: 0 2px;
+	padding: .35em .625em .75em
+}
+legend {
+	border: 0;
+	padding: 0
+}
+textarea {
+	overflow: auto
+}
+optgroup {
+	font-weight: 700
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0
+}
+.debug {
+	background-color: #ffc0cb !important
+}
+.ellipsis {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap
+}
+.ir {
+	background-color: transparent;
+	border: 0;
+	overflow: hidden
+}
+.ir::before {
+	content: '';
+	display: block;
+	height: 150%;
+	width: 0
+}
+html {
+	font-size: .875em;
+	background: #ffffff;
+	color: #373d49
+}
+html, body {
+	font-family: Georgia, Cambria, serif;
+	height: 100%
+}
+body {
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 2rem
+}
+ul, ol {
+	margin-bottom: .83999rem;
+	padding-top: .16001rem
+}
+li {
+	-webkit-font-feature-settings: 'kern' 1, 'onum' 1, 'liga' 1;
+	font-feature-settings: 'kern' 1, 'onum' 1, 'liga' 1;
+	margin-left: 1rem
+}
+li > ul, li > ol {
+	margin-bottom: 0
+}
+p {
+	padding-top: .66001rem;
+	-webkit-font-feature-settings: 'kern' 1, 'onum' 1, 'liga' 1;
+	font-feature-settings: 'kern' 1, 'onum' 1, 'liga' 1;
+	margin-top: 0
+}
+p, pre {
+	margin-bottom: 1.33999rem
+}
+pre {
+	font-size: 1rem;
+	padding: .66001rem 9.5px 9.5px;
+	line-height: 2rem;
+	background: -webkit-linear-gradient(top, #ffffff 0, #ffffff .75rem, #f5f7fa .75rem, #f5f7fa 2.75rem, #ffffff 2.75rem, #ffffff 4rem);
+	background: linear-gradient(to bottom, #ffffff 0, #ffffff .75rem, #f5f7fa .75rem, #f5f7fa 2.75rem, #ffffff 2.75rem, #ffffff 4rem);
+	background-size: 100% 4rem;
+	border-color: #d3daea
+}
+blockquote {
+	margin: 0
+}
+blockquote p {
+	font-size: 1rem;
+	margin-bottom: .33999rem;
+	font-style: italic;
+	padding: .66001rem 1rem 1rem;
+	border-left: 3px solid #a0aabf
+}
+th, td {
+	padding: 12px
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	-webkit-font-feature-settings: 'dlig' 1, 'liga' 1, 'lnum' 1, 'kern' 1;
+	font-feature-settings: 'dlig' 1, 'liga' 1, 'lnum' 1, 'kern' 1;
+	font-style: normal;
+	font-weight: 600;
+	margin-top: 0
+}
+h1 {
+	line-height: 3rem;
+	font-size: 2.0571429rem;
+	margin-bottom: .21999rem;
+	padding-top: .78001rem
+}
+h2 {
+	font-size: 1.953125rem;
+	margin-bottom: .1835837rem;
+	padding-top: .8164163rem
+}
+h2, h3 {
+	line-height: 3rem
+}
+h3 {
+	font-size: 1.6457143rem;
+	margin-bottom: .07599rem;
+	padding-top: .92401rem
+}
+h4 {
+	font-size: 1.5625rem;
+	margin-bottom: .546865rem;
+	padding-top: .453135rem
+}
+h5 {
+	font-size: 1.25rem;
+	margin-bottom: -.56251rem;
+	padding-top: .56251rem
+}
+h6 {
+	font-size: 1rem;
+	margin-bottom: -.65001rem;
+	padding-top: .65001rem
+}
+a {
+	cursor: pointer;
+	color: #15b748;
+	text-decoration: none
+}
+a:hover, a:focus {
+	border-bottom-color: #15b748;
+	color: #17c1a1
+}
+img {
+	height: auto;
+	max-width: 100%
+}
+.g {
+	display: block
+}
+.g:after {
+	clear: both;
+	content: '';
+	display: table
+}
+.g-b {
+	float: left;
+	margin: 0;
+	width: 100%
+}
+.g {
+	margin-left: -16px;
+	margin-right: -16px
+}
+.g-b {
+	padding-left: 16px;
+	padding-right: 16px
+}
+.g-b--center {
+	display: block;
+	float: none;
+	margin: 0 auto
+}
+.g-b--right {
+	float: right
+}
+.g-b--1of1 {
+	width: 100%
+}
+.g-b--1of2, .g-b--2of4, .g-b--3of6, .g-b--4of8, .g-b--5of10, .g-b--6of12 {
+	width: 50%
+}
+.g-b--1of3, .g-b--2of6, .g-b--4of12 {
+	width: 33.333%
+}
+.g-b--2of3, .g-b--4of6, .g-b--8of12 {
+	width: 66.666%
+}
+.g-b--1of4, .g-b--2of8, .g-b--3of12 {
+	width: 25%
+}
+.g-b--3of4, .g-b--6of8, .g-b--9of12 {
+	width: 75%
+}
+.g-b--1of5, .g-b--2of10 {
+	width: 20%
+}
+.g-b--2of5, .g-b--4of10 {
+	width: 40%
+}
+.g-b--3of5, .g-b--6of10 {
+	width: 60%
+}
+.g-b--4of5, .g-b--8of10 {
+	width: 80%
+}
+.g-b--1of6, .g-b--2of12 {
+	width: 16.666%
+}
+.g-b--5of6, .g-b--10of12 {
+	width: 83.333%
+}
+.g-b--1of8 {
+	width: 12.5%
+}
+.g-b--3of8 {
+	width: 37.5%
+}
+.g-b--5of8 {
+	width: 62.5%
+}
+.g-b--7of8 {
+	width: 87.5%
+}
+.g-b--1of10 {
+	width: 10%
+}
+.g-b--3of10 {
+	width: 30%
+}
+.g-b--7of10 {
+	width: 70%
+}
+.g-b--9of10 {
+	width: 90%
+}
+.g-b--1of12 {
+	width: 8.333%
+}
+.g-b--5of12 {
+	width: 41.666%
+}
+.g-b--7of12 {
+	width: 58.333%
+}
+.g-b--11of12 {
+	width: 91.666%
+}
+.g-b--push--1of1 {
+	margin-left: 100%
+}
+.g-b--push--1of2, .g-b--push--2of4, .g-b--push--3of6, .g-b--push--4of8, .g-b--push--5of10, .g-b--push--6of12 {
+	margin-left: 50%
+}
+.g-b--push--1of3, .g-b--push--2of6, .g-b--push--4of12 {
+	margin-left: 33.333%
+}
+.g-b--push--2of3, .g-b--push--4of6, .g-b--push--8of12 {
+	margin-left: 66.666%
+}
+.g-b--push--1of4, .g-b--push--2of8, .g-b--push--3of12 {
+	margin-left: 25%
+}
+.g-b--push--3of4, .g-b--push--6of8, .g-b--push--9of12 {
+	margin-left: 75%
+}
+.g-b--push--1of5, .g-b--push--2of10 {
+	margin-left: 20%
+}
+.g-b--push--2of5, .g-b--push--4of10 {
+	margin-left: 40%
+}
+.g-b--push--3of5, .g-b--push--6of10 {
+	margin-left: 60%
+}
+.g-b--push--4of5, .g-b--push--8of10 {
+	margin-left: 80%
+}
+.g-b--push--1of6, .g-b--push--2of12 {
+	margin-left: 16.666%
+}
+.g-b--push--5of6, .g-b--push--10of12 {
+	margin-left: 83.333%
+}
+.g-b--push--1of8 {
+	margin-left: 12.5%
+}
+.g-b--push--3of8 {
+	margin-left: 37.5%
+}
+.g-b--push--5of8 {
+	margin-left: 62.5%
+}
+.g-b--push--7of8 {
+	margin-left: 87.5%
+}
+.g-b--push--1of10 {
+	margin-left: 10%
+}
+.g-b--push--3of10 {
+	margin-left: 30%
+}
+.g-b--push--7of10 {
+	margin-left: 70%
+}
+.g-b--push--9of10 {
+	margin-left: 90%
+}
+.g-b--push--1of12 {
+	margin-left: 8.333%
+}
+.g-b--push--5of12 {
+	margin-left: 41.666%
+}
+.g-b--push--7of12 {
+	margin-left: 58.333%
+}
+.g-b--push--11of12 {
+	margin-left: 91.666%
+}
+.g-b--pull--1of1 {
+	margin-right: 100%
+}
+.g-b--pull--1of2, .g-b--pull--2of4, .g-b--pull--3of6, .g-b--pull--4of8, .g-b--pull--5of10, .g-b--pull--6of12 {
+	margin-right: 50%
+}
+.g-b--pull--1of3, .g-b--pull--2of6, .g-b--pull--4of12 {
+	margin-right: 33.333%
+}
+.g-b--pull--2of3, .g-b--pull--4of6, .g-b--pull--8of12 {
+	margin-right: 66.666%
+}
+.g-b--pull--1of4, .g-b--pull--2of8, .g-b--pull--3of12 {
+	margin-right: 25%
+}
+.g-b--pull--3of4, .g-b--pull--6of8, .g-b--pull--9of12 {
+	margin-right: 75%
+}
+.g-b--pull--1of5, .g-b--pull--2of10 {
+	margin-right: 20%
+}
+.g-b--pull--2of5, .g-b--pull--4of10 {
+	margin-right: 40%
+}
+.g-b--pull--3of5, .g-b--pull--6of10 {
+	margin-right: 60%
+}
+.g-b--pull--4of5, .g-b--pull--8of10 {
+	margin-right: 80%
+}
+.g-b--pull--1of6, .g-b--pull--2of12 {
+	margin-right: 16.666%
+}
+.g-b--pull--5of6, .g-b--pull--10of12 {
+	margin-right: 83.333%
+}
+.g-b--pull--1of8 {
+	margin-right: 12.5%
+}
+.g-b--pull--3of8 {
+	margin-right: 37.5%
+}
+.g-b--pull--5of8 {
+	margin-right: 62.5%
+}
+.g-b--pull--7of8 {
+	margin-right: 87.5%
+}
+.g-b--pull--1of10 {
+	margin-right: 10%
+}
+.g-b--pull--3of10 {
+	margin-right: 30%
+}
+.g-b--pull--7of10 {
+	margin-right: 70%
+}
+.g-b--pull--9of10 {
+	margin-right: 90%
+}
+.g-b--pull--1of12 {
+	margin-right: 8.333%
+}
+.g-b--pull--5of12 {
+	margin-right: 41.666%
+}
+.g-b--pull--7of12 {
+	margin-right: 58.333%
+}
+.g-b--pull--11of12 {
+	margin-right: 91.666%
+}
+.splashscreen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #373d49;
+	z-index: 22
+}
+.splashscreen-dillinger {
+	width: 260px;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+	padding-bottom: 3rem
+}
+.splashscreen p {
+	font-size: 1.25rem;
+	padding-top: .56251rem;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
+	text-align: center;
+	max-width: 500px;
+	margin: 0 auto;
+	color: #ffffff
+}
+.sp-center {
+	position: relative;
+	-webkit-transform: translateY(-50%);
+	transform: translateY(-50%);
+	top: 50%
+}
+.open-menu > .wrapper {
+	overflow-x: hidden
+}
+.page {
+	margin: 0 auto;
+	position: relative;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	-webkit-transition: all .25s ease-in-out;
+	transition: all .25s ease-in-out;
+	background-color: #ffffff;
+	padding-top: 51px;
+	will-change: left
+}
+.open-menu .page {
+	left: 270px
+}
+.title {
+	line-height: 1rem;
+	font-size: .8rem;
+	margin-bottom: .77999rem;
+	padding-top: .22001rem;
+	font-weight: 500;
+	color: #a0aabf;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	padding-left: 16px;
+	padding-right: 16px;
+	margin-top: 1rem
+}
+.split-preview .title {
+	padding-left: 0
+}
+.title-document {
+	line-height: 1rem;
+	font-size: 1.25rem;
+	margin-bottom: .89999rem;
+	padding-top: .10001rem;
+	font-weight: 400;
+	font-family: "Ubuntu Mono", Monaco;
+	color: #373d49;
+	padding-left: 16px;
+	padding-right: 16px;
+	width: 80%;
+	min-width: 300px;
+	outline: 0;
+	border: none
+}
+.icon {
+	display: block;
+	margin: 0 auto;
+	width: 36px;
+	height: 36px;
+	border-radius: 3px;
+	text-align: center
+}
+.icon svg {
+	display: inline-block;
+	margin-left: auto;
+	margin-right: auto
+}
+.icon-preview {
+	background-color: #373d49;
+	line-height: 40px
+}
+.icon-preview svg {
+	width: 19px;
+	height: 12px
+}
+.icon-settings {
+	background-color: #373d49;
+	line-height: 44px
+}
+.icon-settings svg {
+	width: 18px;
+	height: 18px
+}
+.icon-link {
+	width: 16px;
+	height: 16px;
+	line-height: 1;
+	margin-right: 24px;
+	text-align: right
+}
+.navbar {
+	background-color: #373d49;
+	height: 51px;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 6;
+	-webkit-transition: all .25s ease-in-out;
+	transition: all .25s ease-in-out;
+	will-change: left
+}
+.navbar:after {
+	content: "";
+	display: table;
+	clear: both
+}
+.open-menu .navbar {
+	left: 270px
+}
+.navbar-brand {
+	float: left;
+	margin: 0 0 0 24px;
+	padding: 0;
+	line-height: 42px
+}
+.navbar-brand svg {
+	width: 85px;
+	height: 11px
+}
+.nav-left {
+	float: left
+}
+.nav-right {
+	float: right
+}
+.nav-sidebar {
+	width: 100%
+}
+.menu {
+	list-style: none;
+	margin: 0;
+	padding: 0
+}
+.menu a {
+	border: 0;
+	color: #a0aabf;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	outline: none;
+	text-transform: uppercase
+}
+.menu a:hover {
+	color: #15b748
+}
+.menu .menu-item {
+	border: 0;
+	display: none;
+	float: left;
+	margin: 0;
+	position: relative
+}
+.menu .menu-item > a {
+	display: block;
+	font-size: 12px;
+	height: 51px;
+	letter-spacing: 1px;
+	line-height: 51px;
+	padding: 0 24px
+}
+.menu .menu-item--settings, .menu .menu-item--preview, .menu .menu-item--save-to.in-sidebar, .menu .menu-item--import-from.in-sidebar, .menu .menu-item--link-unlink.in-sidebar, .menu .menu-item--documents.in-sidebar {
+	display: block
+}
+.menu .menu-item--documents {
+	padding-bottom: 1rem
+}
+.menu .menu-item.open > a {
+	background-color: #1d212a
+}
+.menu .menu-item-icon > a {
+	height: auto;
+	padding: 0
+}
+.menu .menu-item-icon:hover > a {
+	background-color: transparent
+}
+.menu .menu-link.open i {
+	background-color: #1d212a
+}
+.menu .menu-link.open g {
+	fill: #15b748
+}
+.menu .menu-link-preview, .menu .menu-link-settings {
+	margin-top: 8px;
+	width: 51px
+}
+.menu-sidebar {
+	width: 100%
+}
+.menu-sidebar .menu-item {
+	float: none;
+	margin-bottom: 1px;
+	width: 100%
+}
+.menu-sidebar .menu-item.open > a {
+	background-color: #373d49
+}
+.menu-sidebar .open .caret {
+	-webkit-transform: rotate(180deg);
+	transform: rotate(180deg)
+}
+.menu-sidebar > .menu-item:hover .dropdown a, .menu-sidebar > .menu-item:hover .settings a {
+	background-color: transparent
+}
+.menu-sidebar .menu-link {
+	background-color: #373d49;
+	font-weight: 600
+}
+.menu-sidebar .menu-link:after {
+	content: "";
+	display: table;
+	clear: both
+}
+.menu-sidebar .menu-link > span {
+	float: left
+}
+.menu-sidebar .menu-link > .caret {
+	float: right;
+	text-align: right;
+	top: 22px
+}
+.menu-sidebar .dropdown, .menu-sidebar .settings {
+	background-color: transparent;
+	position: static;
+	width: 100%
+}
+.dropdown {
+	position: absolute;
+	right: 0;
+	top: 51px;
+	width: 188px
+}
+.dropdown, .settings {
+	display: none;
+	background-color: #1d212a
+}
+.dropdown {
+	padding: 0
+}
+.dropdown, .settings, .sidebar-list {
+	list-style: none;
+	margin: 0
+}
+.sidebar-list {
+	padding: 0
+}
+.dropdown li {
+	margin: 32px 0;
+	padding: 0 0 0 32px
+}
+.dropdown li, .settings li {
+	line-height: 1
+}
+.sidebar-list li {
+	line-height: 1;
+	margin: 32px 0;
+	padding: 0 0 0 32px
+}
+.dropdown a {
+	color: #d0d6e2
+}
+.dropdown a, .settings a, .sidebar-list a {
+	display: block;
+	text-transform: none
+}
+.sidebar-list a {
+	color: #d0d6e2
+}
+.dropdown a:after, .settings a:after, .sidebar-list a:after {
+	content: "";
+	display: table;
+	clear: both
+}
+.dropdown .icon, .settings .icon, .sidebar-list .icon {
+	float: right
+}
+.open .dropdown, .open .settings, .open .sidebar-list {
+	display: block
+}
+.open .dropdown.collapse, .open .collapse.settings, .open .sidebar-list.collapse {
+	display: none
+}
+.open .dropdown.collapse.in, .open .collapse.in.settings, .open .sidebar-list.collapse.in {
+	display: block
+}
+.dropdown .unlinked .icon, .settings .unlinked .icon, .sidebar-list .unlinked .icon {
+	opacity: .3
+}
+.dropdown.documents li, .documents.settings li, .sidebar-list.documents li {
+	background-image: url("../img/icons/file.svg");
+	background-position: 240px center;
+	background-repeat: no-repeat;
+	background-size: 14px 16px;
+	padding: 3px 32px
+}
+.dropdown.documents li.octocat, .documents.settings li.octocat, .sidebar-list.documents li.octocat {
+	background-image: url("../img/icons/octocat.svg");
+	background-position: 234px center;
+	background-size: 24px 24px
+}
+.dropdown.documents li:last-child, .documents.settings li:last-child, .sidebar-list.documents li:last-child {
+	margin-bottom: 1rem
+}
+.dropdown.documents li.active a, .documents.settings li.active a, .sidebar-list.documents li.active a {
+	color: #15b748
+}
+.settings {
+	position: fixed;
+	top: 67px;
+	right: 16px;
+	border-radius: 3px;
+	width: 288px;
+	background-color: #373d49;
+	padding: 16px;
+	z-index: 7
+}
+.show-settings .settings {
+	display: block
+}
+.settings .has-checkbox {
+	float: left
+}
+.settings a {
+	font-size: 1.25rem;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	line-height: 28px;
+	color: #d0d6e2
+}
+.settings a:after {
+	content: "";
+	display: table;
+	clear: both
+}
+.settings a:hover {
+	color: #15b748
+}
+.settings li {
+	border-bottom: 1px solid #4f535b;
+	margin: 0;
+	padding: 16px 0
+}
+.settings li:last-child {
+	border-bottom: none
+}
+.brand {
+	border: none;
+	display: block
+}
+.brand:hover g {
+	fill: #15b748
+}
+.toggle {
+	display: block;
+	float: left;
+	height: 16px;
+	padding: 25px 16px 26px;
+	width: 40px
+}
+.toggle span:after, .toggle span:before {
+	content: '';
+	left: 0;
+	position: absolute;
+	top: -6px
+}
+.toggle span:after {
+	top: 6px
+}
+.toggle span {
+	display: block;
+	position: relative
+}
+.toggle span, .toggle span:after, .toggle span:before {
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+	background-color: #d3daea;
+	height: 2px;
+	-webkit-transition: all .3s;
+	transition: all .3s;
+	width: 20px
+}
+.open-menu .toggle span {
+	background-color: transparent
+}
+.open-menu .toggle span:before {
+	-webkit-transform: rotate(45deg) translate(3px, 3px);
+	transform: rotate(45deg) translate(3px, 3px)
+}
+.open-menu .toggle span:after {
+	-webkit-transform: rotate(-45deg) translate(5px, -6px);
+	transform: rotate(-45deg) translate(5px, -6px)
+}
+.caret {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	margin-left: 6px;
+	vertical-align: middle;
+	position: relative;
+	top: -1px;
+	border-top: 4px solid;
+	border-right: 4px solid transparent;
+	border-left: 4px solid transparent
+}
+.sidebar {
+	overflow: auto;
+	height: 100%;
+	padding-right: 15px;
+	padding-bottom: 15px;
+	width: 285px
+}
+.sidebar-wrapper {
+	-webkit-overflow-scrolling: touch;
+	background-color: #2b2f36;
+	left: 0;
+	height: 100%;
+	overflow-y: hidden;
+	position: fixed;
+	top: 0;
+	width: 285px;
+	z-index: 1
+}
+.sidebar-branding {
+	width: 160px;
+	padding: 0;
+	margin: 16px auto
+}
+.header {
+	border-bottom: 1px solid #e8e8e8;
+	position: relative
+}
+.words, .characters {
+	line-height: 1rem;
+	font-size: .8rem;
+	margin-bottom: .77999rem;
+	padding-top: .22001rem;
+	font-weight: 500;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #a0aabf;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	z-index: 5;
+	position: absolute;
+	right: 16px;
+	top: 0
+}
+.words span, .characters span {
+	color: #000000
+}
+.words + .characters {
+	top: 22px
+}
+.btn {
+	text-align: center;
+	display: inline-block;
+	width: 100%;
+	text-transform: uppercase;
+	font-weight: 600;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	text-shadow: 0 1px 0 #1b8b77;
+	padding: 16px 24px;
+	background-color: #15b748;
+	border-radius: 3px;
+	margin: 0 auto 16px;
+	line-height: 1;
+	color: #ffffff;
+	-webkit-transition: all .15s linear;
+	transition: all .15s linear;
+	-webkit-font-smoothing: antialiased
+}
+.btn--new, .btn--save {
+	display: block;
+	width: 238px
+}
+.btn--new:hover, .btn--new:focus, .btn--save:hover, .btn--save:focus {
+	color: #ffffff;
+	border-bottom-color: transparent;
+	box-shadow: 0 1px 3px #24b59c;
+	text-shadow: 0 1px 0 #24b59c
+}
+.btn--save {
+	background-color: #4a5261;
+	text-shadow: 0 1px 1px #1e2127
+}
+.btn--save:hover, .btn--save:focus {
+	color: #ffffff;
+	border-bottom-color: transparent;
+	box-shadow: 0 1px 5px #08090a;
+	text-shadow: none
+}
+.btn--delete {
+	display: block;
+	width: 238px;
+	background-color: transparent;
+	font-size: 12px;
+	text-shadow: none
+}
+.btn--delete:hover, .btn--delete:focus {
+	color: #ffffff;
+	border-bottom-color: transparent;
+	text-shadow: 0 1px 0 #08090a;
+	opacity: .8
+}
+.btn--delete-modal, .btn--ok, .btn--close {
+	border-top: 0;
+	background-color: #4a5261;
+	text-shadow: 0 1px 0 #08090a;
+	margin: 0
+}
+.btn--delete-modal:hover, .btn--delete-modal:focus, .btn--ok:hover, .btn--ok:focus, .btn--close:hover, .btn--close:focus {
+	color: #ffffff;
+	background-color: #292d36;
+	text-shadow: none
+}
+.btn--delete-modal {
+	display: inline;
+	width: auto
+}
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(55, 61, 73, .8);
+	-webkit-transition: all .25s ease-in-out;
+	transition: all .25s ease-in-out;
+	-webkit-transition-timing-function: ease-out;
+	transition-timing-function: ease-out;
+	will-change: left, opacity, visibility;
+	z-index: 5;
+	opacity: 0;
+	visibility: hidden
+}
+.show-settings .overlay {
+	visibility: visible;
+	opacity: 1
+}
+.switch {
+	float: right;
+	line-height: 1
+}
+.switch input {
+	display: none
+}
+.switch small {
+	display: inline-block;
+	cursor: pointer;
+	padding: 0 24px 0 0;
+	-webkit-transition: all ease .2s;
+	transition: all ease .2s;
+	background-color: #2b2f36;
+	border-color: #2b2f36
+}
+.switch small, .switch small:before {
+	border-radius: 30px;
+	box-shadow: inset 0 0 2px 0 #14171f
+}
+.switch small:before {
+	display: block;
+	content: '';
+	width: 28px;
+	height: 28px;
+	background: #ffffff
+}
+.switch.checked small {
+	padding-right: 0;
+	padding-left: 24px;
+	background-color: #15b748;
+	box-shadow: none
+}
+.modal--dillinger.about .modal-dialog {
+	font-size: 1.25rem;
+	max-width: 500px
+}
+.modal--dillinger.scope .modal-dialog {
+	max-width: 300px;
+	margin: 5rem auto
+}
+.modal--dillinger .modal-dialog {
+	max-width: 600px;
+	width: auto;
+	margin: 5rem auto
+}
+.modal--dillinger .modal-content {
+	background: #373d49;
+	border-radius: 3px;
+	box-shadow: 0 2px 5px 0 #2c3b59;
+	color: #ffffff;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
+	padding: 2rem
+}
+.modal--dillinger ul {
+	list-style-type: disc;
+	margin: 1rem 0;
+	padding: 0 0 0 1rem
+}
+.modal--dillinger li {
+	padding: 0;
+	margin: 0
+}
+.modal--dillinger .modal-header {
+	border: 0;
+	padding: 0
+}
+.modal--dillinger .modal-body {
+	padding: 0
+}
+.modal--dillinger .modal-footer {
+	border: 0;
+	padding: 0
+}
+.modal--dillinger .close {
+	color: #ffffff;
+	opacity: 1
+}
+.modal-backdrop {
+	background-color: #373d49
+}
+.pagination--dillinger {
+	padding: 0 !important;
+	margin: 1.5rem 0 !important;
+	-webkit-box-pack: justify;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-line-pack: stretch;
+	align-content: stretch
+}
+.pagination--dillinger, .pagination--dillinger li {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex
+}
+.pagination--dillinger li {
+	-webkit-box-flex: 1;
+	-ms-flex-positive: 1;
+	flex-grow: 1;
+	text-align: center
+}
+.pagination--dillinger li:first-child > a, .pagination--dillinger li.disabled > a, .pagination--dillinger li.disabled > a:hover, .pagination--dillinger li.disabled > a:focus, .pagination--dillinger li > a {
+	background-color: transparent;
+	border-color: #4f535b;
+	border-right-color: transparent
+}
+.pagination--dillinger li.active > a, .pagination--dillinger li.active > a:hover, .pagination--dillinger li.active > a:focus {
+	border-color: #4a5261;
+	background-color: #4a5261;
+	color: #ffffff
+}
+.pagination--dillinger li > a {
+	float: none;
+	color: #ffffff;
+	width: 100%;
+	display: block;
+	text-align: center;
+	margin: 0;
+	border-right-color: transparent;
+	padding: 6px
+}
+.pagination--dillinger li > a:hover, .pagination--dillinger li > a:focus {
+	border-color: #15b748;
+	background-color: #15b748;
+	color: #ffffff
+}
+.pagination--dillinger li:last-child a {
+	border-color: #4f535b
+}
+.pagination--dillinger li:first-child a {
+	border-right-color: transparent
+}
+.diNotify {
+	position: absolute;
+	z-index: 9999;
+	left: 0;
+	right: 0;
+	top: 0;
+	margin: 0 auto;
+	max-width: 400px;
+	text-align: center;
+	-webkit-transition: top .5s ease-in-out, opacity .5s ease-in-out;
+	transition: top .5s ease-in-out, opacity .5s ease-in-out;
+	visibility: hidden
+}
+.diNotify-body {
+	-webkit-font-smoothing: antialiased;
+	background-color: #15b748;
+	background: #666e7f;
+	border-radius: 3px;
+	color: #ffffff;
+	font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
+	overflow: hidden;
+	padding: 1rem 2rem .5rem;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: baseline;
+	-ms-flex-align: baseline;
+	align-items: baseline;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center
+}
+.diNotify-icon {
+	display: block;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	position: relative;
+	top: 3px
+}
+.diNotify-message {
+	padding-left: 1rem
+}
+.zen-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 10;
+	background-color: #ffffff;
+	opacity: 0;
+	-webkit-transition: opacity .25s ease-in-out;
+	transition: opacity .25s ease-in-out
+}
+.zen-wrapper.on {
+	opacity: 1
+}
+.enter-zen-mode {
+	background-image: url("../img/icons/enter-zen.svg");
+	right: .5rem;
+	top: .313rem;
+	display: none
+}
+.enter-zen-mode, .close-zen-mode {
+	font: 0/0 a;
+	color: transparent;
+	text-shadow: none;
+	background-color: transparent;
+	border: 0;
+	background-repeat: no-repeat;
+	width: 32px;
+	height: 32px;
+	display: block;
+	position: absolute
+}
+.close-zen-mode {
+	background-image: url("../img/icons/exit-zen.svg");
+	right: 1rem;
+	top: 1rem
+}
+.zen-page {
+	position: relative;
+	top: 0;
+	bottom: 0;
+	z-index: 11;
+	height: 100%;
+	width: 100%
+}
+#zen {
+	font-size: 1.25rem;
+	width: 300px;
+	height: 80%;
+	margin: 0 auto;
+	position: relative;
+	top: 10%
+}
+#zen:before, #zen:after {
+	content: "";
+	position: absolute;
+	height: 10%;
+	width: 100%;
+	z-index: 12;
+	pointer-events: none
+}
+#preview .table {
+	width: auto
+}
+.ui-resizable {
+	position: relative
+}
+.ui-resizable-handle {
+	position: absolute;
+	font-size: .1px;
+	z-index: 99999;
+	display: block
+}
+.ui-resizable-e {
+	background-color: #666666;
+	border-right: 8px solid #e8e8e8;
+	border-left: 1px solid #222222;
+	width: 10px;
+	z-index: 88 !important;
+	position: relative
+}
+.ui-resizable-e:after {
+	content: "-";
+	display: block;
+	position: absolute;
+	top: calc(50% - 16px);
+	left: 0;
+	height: 25px;
+	width: 2px;
+	background-color: rgba(0, 0, 0, .4);
+	margin: 3px
+}
+#editor {
+	cursor: ew-resize;
+	position: relative;
+	z-index: auto
+}
+.profile-pic {
+	float: left;
+	width: 250px
+}
+#_default_ a::before {
+	color: #a0aabf
+}
+#_default_ img {
+	display: none
+}
+#_default_ #_default_ {
+	display: block;
+	float: left;
+	max-width: 38%;
+	word-wrap: break-word
+}
+#_default_ .default-ad {
+	display: none
+}
+#_default_ ._default_ {
+	display: block
+}
+#_default_ a {
+	color: #15b748;
+	text-decoration: none
+}
+#_default_ a:hover {
+	color: #8ae8d8
+}
+#_default_ .default-image {
+	display: none
+}
+#_default_ .default-title:after {
+	content: " — "
+}
+#_default_ .default-title, #_default_ .default-description {
+	display: inline
+}
+#_default_ .default-title {
+	position: relative;
+	font-weight: 600;
+	display: none
+}
+#_default_ a:before {
+	position: relative;
+	top: 0;
+	padding: 5px;
+	color: #a0aabf;
+	content: "Ad";
+	text-transform: uppercase;
+	font-size: 8px;
+	font-family: Verdana, sans-serif
+}
+#_default_ {
+	display: block;
+	float: left;
+	max-width: 38%;
+	word-wrap: break-word
+}
+#_default_ ._default_ {
+	display: block;
+	font-size: .75rem;
+	height: 51px;
+	letter-spacing: 1px;
+	line-height: 1rem;
+	padding: 18px 24px
+}
+.split {
+	overflow: scroll;
+	padding: 0 !important
+}
+.split-editor {
+	padding-left: 0;
+	padding-right: 0;
+	position: relative;
+	z-index: 3
+}
+.show-preview .split-editor {
+	display: none
+}
+.split-preview {
+	background-color: #ffffff;
+	display: none;
+	top: 0;
+	position: relative;
+	z-index: 4
+}
+.show-preview .split-preview {
+	display: block
+}
+#editor {
+	font-size: 1rem;
+	font-family: "Ubuntu Mono", Monaco;
+	font-weight: 400;
+	line-height: 2rem;
+	width: 100%;
+	height: 100%
+}
+#editor .ace_gutter {
+	-webkit-font-smoothing: antialiased
+}
+.editor-header {
+	width: 50%;
+	float: left;
+	border-bottom: 1px solid #e8e8e8;
+	position: relative
+}
+.editor-header--first {
+	border-right: 1px solid #e8e8e8
+}
+.editor-header .title {
+	display: inline-block
+}
+.preview-html {
+	padding: 15px
+}
+.preview-html a {
+	color: #a0aabf;
+	text-decoration: underline
+}
+.preview-src {
+	white-space: normal
+}
+.preview-mode-toggle-src {
+	background-image: url("../img/icons/code.svg")
+}
+.preview-mode-toggle-src, .preview-mode-toggle-html {
+	font: 0/0 a;
+	color: transparent;
+	text-shadow: none;
+	background-color: transparent;
+	border: 0;
+	background-repeat: no-repeat;
+	width: 32px;
+	height: 32px;
+	display: block;
+	position: absolute;
+	right: .5rem;
+	top: .5rem;
+	display: none
+}
+.preview-mode-toggle-html {
+	background-image: url("../img/icons/eye.svg")
+}
+.sr-only {
+	visibility: hidden;
+	text-overflow: 110%;
+	overflow: hidden;
+	top: -100px;
+	position: absolute
+}
+.mnone {
+	margin: 0 !important
+}
+@media screen and (min-width: 27.5em) {
+	html {
+		font-size: .875em
+	}
+	body {
+		font-size: 1rem
+	}
+	ul, ol {
+		margin-bottom: .83999rem;
+		padding-top: .16001rem
+	}
+	p {
+		padding-top: .66001rem
+	}
+	p, pre {
+		margin-bottom: 1.33999rem
+	}
+	pre, blockquote p {
+		font-size: 1rem;
+		padding-top: .66001rem
+	}
+	blockquote p {
+		margin-bottom: .33999rem
+	}
+	h1 {
+		font-size: 2.0571429rem;
+		margin-bottom: .21999rem;
+		padding-top: .78001rem
+	}
+	h2 {
+		font-size: 1.953125rem;
+		margin-bottom: .1835837rem;
+		padding-top: .8164163rem
+	}
+	h3 {
+		font-size: 1.6457143rem;
+		margin-bottom: .07599rem;
+		padding-top: .92401rem
+	}
+	h4 {
+		font-size: 1.5625rem;
+		margin-bottom: .546865rem;
+		padding-top: .453135rem
+	}
+	h5 {
+		font-size: 1.25rem;
+		margin-bottom: -.56251rem;
+		padding-top: .56251rem
+	}
+	h6 {
+		font-size: 1rem;
+		margin-bottom: -.65001rem;
+		padding-top: .65001rem
+	}
+	.g {
+		margin-left: -16px;
+		margin-right: -16px
+	}
+	.g-b {
+		padding-left: 16px;
+		padding-right: 16px
+	}
+	.g-b--m1of1 {
+		width: 100%
+	}
+	.g-b--m1of2, .g-b--m2of4, .g-b--m3of6, .g-b--m4of8, .g-b--m5of10, .g-b--m6of12 {
+		width: 50%
+	}
+	.g-b--m1of3, .g-b--m2of6, .g-b--m4of12 {
+		width: 33.333%
+	}
+	.g-b--m2of3, .g-b--m4of6, .g-b--m8of12 {
+		width: 66.666%
+	}
+	.g-b--m1of4, .g-b--m2of8, .g-b--m3of12 {
+		width: 25%
+	}
+	.g-b--m3of4, .g-b--m6of8, .g-b--m9of12 {
+		width: 75%
+	}
+	.g-b--m1of5, .g-b--m2of10 {
+		width: 20%
+	}
+	.g-b--m2of5, .g-b--m4of10 {
+		width: 40%
+	}
+	.g-b--m3of5, .g-b--m6of10 {
+		width: 60%
+	}
+	.g-b--m4of5, .g-b--m8of10 {
+		width: 80%
+	}
+	.g-b--m1of6, .g-b--m2of12 {
+		width: 16.666%
+	}
+	.g-b--m5of6, .g-b--m10of12 {
+		width: 83.333%
+	}
+	.g-b--m1of8 {
+		width: 12.5%
+	}
+	.g-b--m3of8 {
+		width: 37.5%
+	}
+	.g-b--m5of8 {
+		width: 62.5%
+	}
+	.g-b--m7of8 {
+		width: 87.5%
+	}
+	.g-b--m1of10 {
+		width: 10%
+	}
+	.g-b--m3of10 {
+		width: 30%
+	}
+	.g-b--m7of10 {
+		width: 70%
+	}
+	.g-b--m9of10 {
+		width: 90%
+	}
+	.g-b--m1of12 {
+		width: 8.333%
+	}
+	.g-b--m5of12 {
+		width: 41.666%
+	}
+	.g-b--m7of12 {
+		width: 58.333%
+	}
+	.g-b--m11of12 {
+		width: 91.666%
+	}
+	.g-b--push--m1of1 {
+		margin-left: 100%
+	}
+	.g-b--push--m1of2, .g-b--push--m2of4, .g-b--push--m3of6, .g-b--push--m4of8, .g-b--push--m5of10, .g-b--push--m6of12 {
+		margin-left: 50%
+	}
+	.g-b--push--m1of3, .g-b--push--m2of6, .g-b--push--m4of12 {
+		margin-left: 33.333%
+	}
+	.g-b--push--m2of3, .g-b--push--m4of6, .g-b--push--m8of12 {
+		margin-left: 66.666%
+	}
+	.g-b--push--m1of4, .g-b--push--m2of8, .g-b--push--m3of12 {
+		margin-left: 25%
+	}
+	.g-b--push--m3of4, .g-b--push--m6of8, .g-b--push--m9of12 {
+		margin-left: 75%
+	}
+	.g-b--push--m1of5, .g-b--push--m2of10 {
+		margin-left: 20%
+	}
+	.g-b--push--m2of5, .g-b--push--m4of10 {
+		margin-left: 40%
+	}
+	.g-b--push--m3of5, .g-b--push--m6of10 {
+		margin-left: 60%
+	}
+	.g-b--push--m4of5, .g-b--push--m8of10 {
+		margin-left: 80%
+	}
+	.g-b--push--m1of6, .g-b--push--m2of12 {
+		margin-left: 16.666%
+	}
+	.g-b--push--m5of6, .g-b--push--m10of12 {
+		margin-left: 83.333%
+	}
+	.g-b--push--m1of8 {
+		margin-left: 12.5%
+	}
+	.g-b--push--m3of8 {
+		margin-left: 37.5%
+	}
+	.g-b--push--m5of8 {
+		margin-left: 62.5%
+	}
+	.g-b--push--m7of8 {
+		margin-left: 87.5%
+	}
+	.g-b--push--m1of10 {
+		margin-left: 10%
+	}
+	.g-b--push--m3of10 {
+		margin-left: 30%
+	}
+	.g-b--push--m7of10 {
+		margin-left: 70%
+	}
+	.g-b--push--m9of10 {
+		margin-left: 90%
+	}
+	.g-b--push--m1of12 {
+		margin-left: 8.333%
+	}
+	.g-b--push--m5of12 {
+		margin-left: 41.666%
+	}
+	.g-b--push--m7of12 {
+		margin-left: 58.333%
+	}
+	.g-b--push--m11of12 {
+		margin-left: 91.666%
+	}
+	.g-b--pull--m1of1 {
+		margin-right: 100%
+	}
+	.g-b--pull--m1of2, .g-b--pull--m2of4, .g-b--pull--m3of6, .g-b--pull--m4of8, .g-b--pull--m5of10, .g-b--pull--m6of12 {
+		margin-right: 50%
+	}
+	.g-b--pull--m1of3, .g-b--pull--m2of6, .g-b--pull--m4of12 {
+		margin-right: 33.333%
+	}
+	.g-b--pull--m2of3, .g-b--pull--m4of6, .g-b--pull--m8of12 {
+		margin-right: 66.666%
+	}
+	.g-b--pull--m1of4, .g-b--pull--m2of8, .g-b--pull--m3of12 {
+		margin-right: 25%
+	}
+	.g-b--pull--m3of4, .g-b--pull--m6of8, .g-b--pull--m9of12 {
+		margin-right: 75%
+	}
+	.g-b--pull--m1of5, .g-b--pull--m2of10 {
+		margin-right: 20%
+	}
+	.g-b--pull--m2of5, .g-b--pull--m4of10 {
+		margin-right: 40%
+	}
+	.g-b--pull--m3of5, .g-b--pull--m6of10 {
+		margin-right: 60%
+	}
+	.g-b--pull--m4of5, .g-b--pull--m8of10 {
+		margin-right: 80%
+	}
+	.g-b--pull--m1of6, .g-b--pull--m2of12 {
+		margin-right: 16.666%
+	}
+	.g-b--pull--m5of6, .g-b--pull--m10of12 {
+		margin-right: 83.333%
+	}
+	.g-b--pull--m1of8 {
+		margin-right: 12.5%
+	}
+	.g-b--pull--m3of8 {
+		margin-right: 37.5%
+	}
+	.g-b--pull--m5of8 {
+		margin-right: 62.5%
+	}
+	.g-b--pull--m7of8 {
+		margin-right: 87.5%
+	}
+	.g-b--pull--m1of10 {
+		margin-right: 10%
+	}
+	.g-b--pull--m3of10 {
+		margin-right: 30%
+	}
+	.g-b--pull--m7of10 {
+		margin-right: 70%
+	}
+	.g-b--pull--m9of10 {
+		margin-right: 90%
+	}
+	.g-b--pull--m1of12 {
+		margin-right: 8.333%
+	}
+	.g-b--pull--m5of12 {
+		margin-right: 41.666%
+	}
+	.g-b--pull--m7of12 {
+		margin-right: 58.333%
+	}
+	.g-b--pull--m11of12 {
+		margin-right: 91.666%
+	}
+	.splashscreen p {
+		font-size: 1.25rem;
+		margin-bottom: 1.43749rem;
+		padding-top: .56251rem
+	}
+	.title {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.title-document {
+		margin-bottom: .89999rem;
+		padding-top: .10001rem
+	}
+	.title-document, .settings a {
+		font-size: 1.25rem
+	}
+	.words, .characters {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.modal--dillinger.about .modal-dialog, #zen {
+		font-size: 1.25rem
+	}
+	#zen {
+		width: 400px
+	}
+	#editor {
+		font-size: 1rem
+	}
+}
+@media screen and (min-width: 46.25em) {
+	html {
+		font-size: .875em
+	}
+	body {
+		font-size: 1rem
+	}
+	ul, ol {
+		margin-bottom: .83999rem;
+		padding-top: .16001rem
+	}
+	p {
+		padding-top: .66001rem
+	}
+	p, pre {
+		margin-bottom: 1.33999rem
+	}
+	pre, blockquote p {
+		font-size: 1rem;
+		padding-top: .66001rem
+	}
+	blockquote p {
+		margin-bottom: .33999rem
+	}
+	h1 {
+		font-size: 2.0571429rem;
+		margin-bottom: .21999rem;
+		padding-top: .78001rem
+	}
+	h2 {
+		font-size: 1.953125rem;
+		margin-bottom: .1835837rem;
+		padding-top: .8164163rem
+	}
+	h3 {
+		font-size: 1.6457143rem;
+		margin-bottom: .07599rem;
+		padding-top: .92401rem
+	}
+	h4 {
+		font-size: 1.5625rem;
+		margin-bottom: .546865rem;
+		padding-top: .453135rem
+	}
+	h5 {
+		font-size: 1.25rem;
+		margin-bottom: -.56251rem;
+		padding-top: .56251rem
+	}
+	h6 {
+		font-size: 1rem;
+		margin-bottom: -.65001rem;
+		padding-top: .65001rem
+	}
+	.g {
+		margin-left: -16px;
+		margin-right: -16px
+	}
+	.g-b {
+		padding-left: 16px;
+		padding-right: 16px
+	}
+	.g-b--t1of1 {
+		width: 100%
+	}
+	.g-b--t1of2, .g-b--t2of4, .g-b--t3of6, .g-b--t4of8, .g-b--t5of10, .g-b--t6of12 {
+		width: 50%
+	}
+	.g-b--t1of3, .g-b--t2of6, .g-b--t4of12 {
+		width: 33.333%
+	}
+	.g-b--t2of3, .g-b--t4of6, .g-b--t8of12 {
+		width: 66.666%
+	}
+	.g-b--t1of4, .g-b--t2of8, .g-b--t3of12 {
+		width: 25%
+	}
+	.g-b--t3of4, .g-b--t6of8, .g-b--t9of12 {
+		width: 75%
+	}
+	.g-b--t1of5, .g-b--t2of10 {
+		width: 20%
+	}
+	.g-b--t2of5, .g-b--t4of10 {
+		width: 40%
+	}
+	.g-b--t3of5, .g-b--t6of10 {
+		width: 60%
+	}
+	.g-b--t4of5, .g-b--t8of10 {
+		width: 80%
+	}
+	.g-b--t1of6, .g-b--t2of12 {
+		width: 16.666%
+	}
+	.g-b--t5of6, .g-b--t10of12 {
+		width: 83.333%
+	}
+	.g-b--t1of8 {
+		width: 12.5%
+	}
+	.g-b--t3of8 {
+		width: 37.5%
+	}
+	.g-b--t5of8 {
+		width: 62.5%
+	}
+	.g-b--t7of8 {
+		width: 87.5%
+	}
+	.g-b--t1of10 {
+		width: 10%
+	}
+	.g-b--t3of10 {
+		width: 30%
+	}
+	.g-b--t7of10 {
+		width: 70%
+	}
+	.g-b--t9of10 {
+		width: 90%
+	}
+	.g-b--t1of12 {
+		width: 8.333%
+	}
+	.g-b--t5of12 {
+		width: 41.666%
+	}
+	.g-b--t7of12 {
+		width: 58.333%
+	}
+	.g-b--t11of12 {
+		width: 91.666%
+	}
+	.g-b--push--t1of1 {
+		margin-left: 100%
+	}
+	.g-b--push--t1of2, .g-b--push--t2of4, .g-b--push--t3of6, .g-b--push--t4of8, .g-b--push--t5of10, .g-b--push--t6of12 {
+		margin-left: 50%
+	}
+	.g-b--push--t1of3, .g-b--push--t2of6, .g-b--push--t4of12 {
+		margin-left: 33.333%
+	}
+	.g-b--push--t2of3, .g-b--push--t4of6, .g-b--push--t8of12 {
+		margin-left: 66.666%
+	}
+	.g-b--push--t1of4, .g-b--push--t2of8, .g-b--push--t3of12 {
+		margin-left: 25%
+	}
+	.g-b--push--t3of4, .g-b--push--t6of8, .g-b--push--t9of12 {
+		margin-left: 75%
+	}
+	.g-b--push--t1of5, .g-b--push--t2of10 {
+		margin-left: 20%
+	}
+	.g-b--push--t2of5, .g-b--push--t4of10 {
+		margin-left: 40%
+	}
+	.g-b--push--t3of5, .g-b--push--t6of10 {
+		margin-left: 60%
+	}
+	.g-b--push--t4of5, .g-b--push--t8of10 {
+		margin-left: 80%
+	}
+	.g-b--push--t1of6, .g-b--push--t2of12 {
+		margin-left: 16.666%
+	}
+	.g-b--push--t5of6, .g-b--push--t10of12 {
+		margin-left: 83.333%
+	}
+	.g-b--push--t1of8 {
+		margin-left: 12.5%
+	}
+	.g-b--push--t3of8 {
+		margin-left: 37.5%
+	}
+	.g-b--push--t5of8 {
+		margin-left: 62.5%
+	}
+	.g-b--push--t7of8 {
+		margin-left: 87.5%
+	}
+	.g-b--push--t1of10 {
+		margin-left: 10%
+	}
+	.g-b--push--t3of10 {
+		margin-left: 30%
+	}
+	.g-b--push--t7of10 {
+		margin-left: 70%
+	}
+	.g-b--push--t9of10 {
+		margin-left: 90%
+	}
+	.g-b--push--t1of12 {
+		margin-left: 8.333%
+	}
+	.g-b--push--t5of12 {
+		margin-left: 41.666%
+	}
+	.g-b--push--t7of12 {
+		margin-left: 58.333%
+	}
+	.g-b--push--t11of12 {
+		margin-left: 91.666%
+	}
+	.g-b--pull--t1of1 {
+		margin-right: 100%
+	}
+	.g-b--pull--t1of2, .g-b--pull--t2of4, .g-b--pull--t3of6, .g-b--pull--t4of8, .g-b--pull--t5of10, .g-b--pull--t6of12 {
+		margin-right: 50%
+	}
+	.g-b--pull--t1of3, .g-b--pull--t2of6, .g-b--pull--t4of12 {
+		margin-right: 33.333%
+	}
+	.g-b--pull--t2of3, .g-b--pull--t4of6, .g-b--pull--t8of12 {
+		margin-right: 66.666%
+	}
+	.g-b--pull--t1of4, .g-b--pull--t2of8, .g-b--pull--t3of12 {
+		margin-right: 25%
+	}
+	.g-b--pull--t3of4, .g-b--pull--t6of8, .g-b--pull--t9of12 {
+		margin-right: 75%
+	}
+	.g-b--pull--t1of5, .g-b--pull--t2of10 {
+		margin-right: 20%
+	}
+	.g-b--pull--t2of5, .g-b--pull--t4of10 {
+		margin-right: 40%
+	}
+	.g-b--pull--t3of5, .g-b--pull--t6of10 {
+		margin-right: 60%
+	}
+	.g-b--pull--t4of5, .g-b--pull--t8of10 {
+		margin-right: 80%
+	}
+	.g-b--pull--t1of6, .g-b--pull--t2of12 {
+		margin-right: 16.666%
+	}
+	.g-b--pull--t5of6, .g-b--pull--t10of12 {
+		margin-right: 83.333%
+	}
+	.g-b--pull--t1of8 {
+		margin-right: 12.5%
+	}
+	.g-b--pull--t3of8 {
+		margin-right: 37.5%
+	}
+	.g-b--pull--t5of8 {
+		margin-right: 62.5%
+	}
+	.g-b--pull--t7of8 {
+		margin-right: 87.5%
+	}
+	.g-b--pull--t1of10 {
+		margin-right: 10%
+	}
+	.g-b--pull--t3of10 {
+		margin-right: 30%
+	}
+	.g-b--pull--t7of10 {
+		margin-right: 70%
+	}
+	.g-b--pull--t9of10 {
+		margin-right: 90%
+	}
+	.g-b--pull--t1of12 {
+		margin-right: 8.333%
+	}
+	.g-b--pull--t5of12 {
+		margin-right: 41.666%
+	}
+	.g-b--pull--t7of12 {
+		margin-right: 58.333%
+	}
+	.g-b--pull--t11of12 {
+		margin-right: 91.666%
+	}
+	.splashscreen-dillinger {
+		width: 500px
+	}
+	.splashscreen p {
+		font-size: 1.25rem;
+		margin-bottom: 1.43749rem;
+		padding-top: .56251rem
+	}
+	.title {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.title-document {
+		font-size: 1.25rem;
+		margin-bottom: .89999rem;
+		padding-top: .10001rem
+	}
+	.menu .menu-item--save-to, .menu .menu-item--import-from {
+		display: block
+	}
+	.menu .menu-item--preview, .menu .menu-item--save-to.in-sidebar, .menu .menu-item--import-from.in-sidebar {
+		display: none
+	}
+	.settings a {
+		font-size: 1.25rem
+	}
+	.words, .characters {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.modal--dillinger.about .modal-dialog {
+		font-size: 1.25rem
+	}
+	.enter-zen-mode {
+		display: block
+	}
+	.close-zen-mode {
+		right: 3rem;
+		top: 3rem
+	}
+	#zen {
+		font-size: 1.25rem;
+		width: 500px
+	}
+	.split-editor {
+		border-right: 1px solid #e8e8e8;
+		float: left;
+		height: calc(100vh - 172px);
+		-webkit-overflow-scrolling: touch;
+		padding-right: 16px;
+		width: 50%
+	}
+	.show-preview .split-editor {
+		display: block
+	}
+	.split-preview {
+		display: block;
+		float: right;
+		height: calc(100vh - 172px);
+		-webkit-overflow-scrolling: touch;
+		position: relative;
+		top: 0;
+		width: 50%
+	}
+	#editor {
+		font-size: 1rem
+	}
+	.preview-mode-toggle-src, .preview-mode-toggle-html {
+		display: block
+	}
+}
+@media screen and (min-width: 62.5em) {
+	html {
+		font-size: .875em
+	}
+	body {
+		font-size: 1rem
+	}
+	ul, ol {
+		margin-bottom: .83999rem;
+		padding-top: .16001rem
+	}
+	p {
+		padding-top: .66001rem
+	}
+	p, pre {
+		margin-bottom: 1.33999rem
+	}
+	pre, blockquote p {
+		font-size: 1rem;
+		padding-top: .66001rem
+	}
+	blockquote p {
+		margin-bottom: .33999rem
+	}
+	h1 {
+		font-size: 2.0571429rem;
+		margin-bottom: .21999rem;
+		padding-top: .78001rem
+	}
+	h2 {
+		font-size: 1.953125rem;
+		margin-bottom: .1835837rem;
+		padding-top: .8164163rem
+	}
+	h3 {
+		font-size: 1.6457143rem;
+		margin-bottom: .07599rem;
+		padding-top: .92401rem
+	}
+	h4 {
+		font-size: 1.5625rem;
+		margin-bottom: .546865rem;
+		padding-top: .453135rem
+	}
+	h5 {
+		font-size: 1.25rem;
+		margin-bottom: -.56251rem;
+		padding-top: .56251rem
+	}
+	h6 {
+		font-size: 1rem;
+		margin-bottom: -.65001rem;
+		padding-top: .65001rem
+	}
+	.g {
+		margin-left: -16px;
+		margin-right: -16px
+	}
+	.g-b {
+		padding-left: 16px;
+		padding-right: 16px
+	}
+	.g-b--d1of1 {
+		width: 100%
+	}
+	.g-b--d1of2, .g-b--d2of4, .g-b--d3of6, .g-b--d4of8, .g-b--d5of10, .g-b--d6of12 {
+		width: 50%
+	}
+	.g-b--d1of3, .g-b--d2of6, .g-b--d4of12 {
+		width: 33.333%
+	}
+	.g-b--d2of3, .g-b--d4of6, .g-b--d8of12 {
+		width: 66.666%
+	}
+	.g-b--d1of4, .g-b--d2of8, .g-b--d3of12 {
+		width: 25%
+	}
+	.g-b--d3of4, .g-b--d6of8, .g-b--d9of12 {
+		width: 75%
+	}
+	.g-b--d1of5, .g-b--d2of10 {
+		width: 20%
+	}
+	.g-b--d2of5, .g-b--d4of10 {
+		width: 40%
+	}
+	.g-b--d3of5, .g-b--d6of10 {
+		width: 60%
+	}
+	.g-b--d4of5, .g-b--d8of10 {
+		width: 80%
+	}
+	.g-b--d1of6, .g-b--d2of12 {
+		width: 16.666%
+	}
+	.g-b--d5of6, .g-b--d10of12 {
+		width: 83.333%
+	}
+	.g-b--d1of8 {
+		width: 12.5%
+	}
+	.g-b--d3of8 {
+		width: 37.5%
+	}
+	.g-b--d5of8 {
+		width: 62.5%
+	}
+	.g-b--d7of8 {
+		width: 87.5%
+	}
+	.g-b--d1of10 {
+		width: 10%
+	}
+	.g-b--d3of10 {
+		width: 30%
+	}
+	.g-b--d7of10 {
+		width: 70%
+	}
+	.g-b--d9of10 {
+		width: 90%
+	}
+	.g-b--d1of12 {
+		width: 8.333%
+	}
+	.g-b--d5of12 {
+		width: 41.666%
+	}
+	.g-b--d7of12 {
+		width: 58.333%
+	}
+	.g-b--d11of12 {
+		width: 91.666%
+	}
+	.g-b--push--d1of1 {
+		margin-left: 100%
+	}
+	.g-b--push--d1of2, .g-b--push--d2of4, .g-b--push--d3of6, .g-b--push--d4of8, .g-b--push--d5of10, .g-b--push--d6of12 {
+		margin-left: 50%
+	}
+	.g-b--push--d1of3, .g-b--push--d2of6, .g-b--push--d4of12 {
+		margin-left: 33.333%
+	}
+	.g-b--push--d2of3, .g-b--push--d4of6, .g-b--push--d8of12 {
+		margin-left: 66.666%
+	}
+	.g-b--push--d1of4, .g-b--push--d2of8, .g-b--push--d3of12 {
+		margin-left: 25%
+	}
+	.g-b--push--d3of4, .g-b--push--d6of8, .g-b--push--d9of12 {
+		margin-left: 75%
+	}
+	.g-b--push--d1of5, .g-b--push--d2of10 {
+		margin-left: 20%
+	}
+	.g-b--push--d2of5, .g-b--push--d4of10 {
+		margin-left: 40%
+	}
+	.g-b--push--d3of5, .g-b--push--d6of10 {
+		margin-left: 60%
+	}
+	.g-b--push--d4of5, .g-b--push--d8of10 {
+		margin-left: 80%
+	}
+	.g-b--push--d1of6, .g-b--push--d2of12 {
+		margin-left: 16.666%
+	}
+	.g-b--push--d5of6, .g-b--push--d10of12 {
+		margin-left: 83.333%
+	}
+	.g-b--push--d1of8 {
+		margin-left: 12.5%
+	}
+	.g-b--push--d3of8 {
+		margin-left: 37.5%
+	}
+	.g-b--push--d5of8 {
+		margin-left: 62.5%
+	}
+	.g-b--push--d7of8 {
+		margin-left: 87.5%
+	}
+	.g-b--push--d1of10 {
+		margin-left: 10%
+	}
+	.g-b--push--d3of10 {
+		margin-left: 30%
+	}
+	.g-b--push--d7of10 {
+		margin-left: 70%
+	}
+	.g-b--push--d9of10 {
+		margin-left: 90%
+	}
+	.g-b--push--d1of12 {
+		margin-left: 8.333%
+	}
+	.g-b--push--d5of12 {
+		margin-left: 41.666%
+	}
+	.g-b--push--d7of12 {
+		margin-left: 58.333%
+	}
+	.g-b--push--d11of12 {
+		margin-left: 91.666%
+	}
+	.g-b--pull--d1of1 {
+		margin-right: 100%
+	}
+	.g-b--pull--d1of2, .g-b--pull--d2of4, .g-b--pull--d3of6, .g-b--pull--d4of8, .g-b--pull--d5of10, .g-b--pull--d6of12 {
+		margin-right: 50%
+	}
+	.g-b--pull--d1of3, .g-b--pull--d2of6, .g-b--pull--d4of12 {
+		margin-right: 33.333%
+	}
+	.g-b--pull--d2of3, .g-b--pull--d4of6, .g-b--pull--d8of12 {
+		margin-right: 66.666%
+	}
+	.g-b--pull--d1of4, .g-b--pull--d2of8, .g-b--pull--d3of12 {
+		margin-right: 25%
+	}
+	.g-b--pull--d3of4, .g-b--pull--d6of8, .g-b--pull--d9of12 {
+		margin-right: 75%
+	}
+	.g-b--pull--d1of5, .g-b--pull--d2of10 {
+		margin-right: 20%
+	}
+	.g-b--pull--d2of5, .g-b--pull--d4of10 {
+		margin-right: 40%
+	}
+	.g-b--pull--d3of5, .g-b--pull--d6of10 {
+		margin-right: 60%
+	}
+	.g-b--pull--d4of5, .g-b--pull--d8of10 {
+		margin-right: 80%
+	}
+	.g-b--pull--d1of6, .g-b--pull--d2of12 {
+		margin-right: 16.666%
+	}
+	.g-b--pull--d5of6, .g-b--pull--d10of12 {
+		margin-right: 83.333%
+	}
+	.g-b--pull--d1of8 {
+		margin-right: 12.5%
+	}
+	.g-b--pull--d3of8 {
+		margin-right: 37.5%
+	}
+	.g-b--pull--d5of8 {
+		margin-right: 62.5%
+	}
+	.g-b--pull--d7of8 {
+		margin-right: 87.5%
+	}
+	.g-b--pull--d1of10 {
+		margin-right: 10%
+	}
+	.g-b--pull--d3of10 {
+		margin-right: 30%
+	}
+	.g-b--pull--d7of10 {
+		margin-right: 70%
+	}
+	.g-b--pull--d9of10 {
+		margin-right: 90%
+	}
+	.g-b--pull--d1of12 {
+		margin-right: 8.333%
+	}
+	.g-b--pull--d5of12 {
+		margin-right: 41.666%
+	}
+	.g-b--pull--d7of12 {
+		margin-right: 58.333%
+	}
+	.g-b--pull--d11of12 {
+		margin-right: 91.666%
+	}
+	.splashscreen-dillinger {
+		width: 700px
+	}
+	.splashscreen p {
+		font-size: 1.25rem;
+		margin-bottom: 1.43749rem;
+		padding-top: .56251rem
+	}
+	.title {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.title-document {
+		font-size: 1.25rem;
+		margin-bottom: .89999rem;
+		padding-top: .10001rem
+	}
+	.menu .menu-item--export-as {
+		display: block
+	}
+	.menu .menu-item--preview {
+		display: none
+	}
+	.settings a {
+		font-size: 1.25rem
+	}
+	.words, .characters {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.modal--dillinger.about .modal-dialog, #zen {
+		font-size: 1.25rem
+	}
+	#zen {
+		width: 700px
+	}
+	#editor {
+		font-size: 1rem
+	}
+}
+@media screen and (min-width: 87.5em) {
+	html {
+		font-size: .875em
+	}
+	body {
+		font-size: 1rem
+	}
+	ul, ol {
+		margin-bottom: .83999rem;
+		padding-top: .16001rem
+	}
+	p {
+		padding-top: .66001rem
+	}
+	p, pre {
+		margin-bottom: 1.33999rem
+	}
+	pre, blockquote p {
+		font-size: 1rem;
+		padding-top: .66001rem
+	}
+	blockquote p {
+		margin-bottom: .33999rem
+	}
+	h1 {
+		font-size: 2.0571429rem;
+		margin-bottom: .21999rem;
+		padding-top: .78001rem
+	}
+	h2 {
+		font-size: 1.953125rem;
+		margin-bottom: .1835837rem;
+		padding-top: .8164163rem
+	}
+	h3 {
+		font-size: 1.6457143rem;
+		margin-bottom: .07599rem;
+		padding-top: .92401rem
+	}
+	h4 {
+		font-size: 1.5625rem;
+		margin-bottom: .546865rem;
+		padding-top: .453135rem
+	}
+	h5 {
+		font-size: 1.25rem;
+		margin-bottom: -.56251rem;
+		padding-top: .56251rem
+	}
+	h6 {
+		font-size: 1rem;
+		margin-bottom: -.65001rem;
+		padding-top: .65001rem
+	}
+	.splashscreen-dillinger {
+		width: 800px
+	}
+	.splashscreen p {
+		font-size: 1.25rem;
+		margin-bottom: 1.43749rem;
+		padding-top: .56251rem
+	}
+	.title {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.title-document {
+		margin-bottom: .89999rem;
+		padding-top: .10001rem
+	}
+	.title-document, .settings a {
+		font-size: 1.25rem
+	}
+	.words, .characters {
+		font-size: .8rem;
+		margin-bottom: .77999rem;
+		padding-top: .22001rem
+	}
+	.modal--dillinger.about .modal-dialog, #zen {
+		font-size: 1.25rem
+	}
+	#editor {
+		font-size: 1rem
+	}
+}
+@media (min-width: 768px) {
+	.form-inline .form-group {
+		display: inline-block;
+		margin-bottom: 0;
+		vertical-align: middle
+	}
+	.form-inline .form-control {
+		display: inline-block;
+		width: auto;
+		vertical-align: middle
+	}
+	.form-inline .input-group {
+		display: inline-table;
+		vertical-align: middle
+	}
+	.form-inline .input-group .input-group-addon, .form-inline .input-group .input-group-btn, .form-inline .input-group .form-control {
+		width: auto
+	}
+	.form-inline .input-group > .form-control {
+		width: 100%
+	}
+	.form-inline .control-label {
+		margin-bottom: 0;
+		vertical-align: middle
+	}
+	.form-inline .radio, .form-inline .checkbox {
+		display: inline-block;
+		margin-top: 0;
+		margin-bottom: 0;
+		vertical-align: middle
+	}
+	.form-inline .radio label, .form-inline .checkbox label {
+		padding-left: 0
+	}
+	.form-inline .radio input[type="radio"], .form-inline .checkbox input[type="checkbox"] {
+		position: relative;
+		margin-left: 0
+	}
+	.form-inline .has-feedback .form-control-feedback {
+		top: 0
+	}
+	.form-horizontal .control-label {
+		text-align: right;
+		margin-bottom: 0;
+		padding-top: 7px
+	}
+	.form-horizontal .form-group-lg .control-label {
+		padding-top: 14.3px
+	}
+	.form-horizontal .form-group-sm .control-label {
+		padding-top: 6px
+	}
+	.modal-dialog {
+		width: 600px;
+		margin: 30px auto
+	}
+	.modal-content {
+		box-shadow: 0 5px 15px rgba(0, 0, 0, .5)
+	}
+	.modal-sm {
+		width: 300px
+	}
+}
+@media (min-width: 992px) {
+	.modal-lg {
+		width: 900px
+	}
+}
+@media screen and (max-width: 1200px) {
+	#_default_ {
+		max-width: 30%
+	}
+	#_default_ ._default_ {
+		font-size: .825rem;
+		line-height: .875rem;
+		padding: 12px 12px 6px 24px;
+		text-align: justify
+	}
+}
+@media screen and (max-width: 1100px) {
+	#_default_ {
+		max-width: 27%
+	}
+	#_default_ ._default_ {
+		font-size: .8rem;
+		line-height: .85rem;
+		padding: 12px 6px 6px 24px;
+		text-align: justify
+	}
+}
+@media screen and (max-width: 1000px) {
+	#_default_ {
+		max-width: 24%
+	}
+	#_default_ ._default_ {
+		font-size: .775rem;
+		line-height: .8rem;
+		padding: 12px 6px 6px 24px;
+		text-align: justify
+	}
+}
+@media screen and (max-width: 900px) {
+	#_default_ {
+		max-width: 30%
+	}
+}
+@media screen and (max-width: 767px) {
+	.table-responsive {
+		width: 100%;
+		margin-bottom: 15px;
+		overflow-y: hidden;
+		overflow-x: auto;
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+		border: 1px solid #dddddd;
+		-webkit-overflow-scrolling: touch
+	}
+	.table-responsive > .table {
+		margin-bottom: 0
+	}
+	.table-responsive > .table > thead > tr > th, .table-responsive > .table > thead > tr > td, .table-responsive > .table > tbody > tr > th, .table-responsive > .table > tbody > tr > td, .table-responsive > .table > tfoot > tr > th, .table-responsive > .table > tfoot > tr > td {
+		white-space: nowrap
+	}
+	.table-responsive > .table-bordered {
+		border: 0
+	}
+	.table-responsive > .table-bordered > thead > tr > th:first-child, .table-responsive > .table-bordered > thead > tr > td:first-child, .table-responsive > .table-bordered > tbody > tr > th:first-child, .table-responsive > .table-bordered > tbody > tr > td:first-child, .table-responsive > .table-bordered > tfoot > tr > th:first-child, .table-responsive > .table-bordered > tfoot > tr > td:first-child {
+		border-left: 0
+	}
+	.table-responsive > .table-bordered > thead > tr > th:last-child, .table-responsive > .table-bordered > thead > tr > td:last-child, .table-responsive > .table-bordered > tbody > tr > th:last-child, .table-responsive > .table-bordered > tbody > tr > td:last-child, .table-responsive > .table-bordered > tfoot > tr > th:last-child, .table-responsive > .table-bordered > tfoot > tr > td:last-child {
+		border-right: 0
+	}
+	.table-responsive > .table-bordered > tbody > tr:last-child > th, .table-responsive > .table-bordered > tbody > tr:last-child > td, .table-responsive > .table-bordered > tfoot > tr:last-child > th, .table-responsive > .table-bordered > tfoot > tr:last-child > td {
+		border-bottom: 0
+	}
+}
+@media screen and (max-width: 720px) {
+	#_default_ {
+		max-width: 60%
+	}
+	#_default_ ._default_ {
+		font-size: .75rem;
+		line-height: 1rem;
+		padding: 12px 24px
+	}
+}
+@media screen and (max-width: 620px) {
+	#_default_ {
+		max-width: 50%
+	}
+	#_default_ ._default_ {
+		font-size: .66rem;
+		letter-spacing: 1px;
+		line-height: 1rem;
+		padding: 10px 24px
+	}
+}
+@media screen and (max-width: 520px) {
+	#_default_ ._default_ {
+		font-size: .4rem;
+		line-height: .875rem;
+		padding: 6px 12px 6px 24px;
+		text-align: justify
+	}
+}
+@media screen and (max-width: 460px) {
+	#_default_ {
+		display: none
+	}
+}
+@media screen and (max-width: 46.1875em) {
+	.editor-header {
+		display: none
+	}
+	.editor-header--first {
+		display: block;
+		width: 100%
+	}
+}</style></head>
+<body id="preview">
+<style>
+	#preview {
+		padding-left: 20px;
+	}
+</style>
+<h2>Changelog: Shield Security for WordPress</h2>
+<p>= 6.6.1 - Current Release =<br>
+<em>Released: 22nd March, 2018</em> - <a href="http://icwp.io/c3">Release Notes</a></p>
+<ul>
+<li><strong>(v.1)</strong>  FIXED:         Various small fixes and improvements</li>
+<li><strong>(v.0)</strong>  NEW:           [<strong>PRO</strong>] <a href="http://icwp.io/c1">Keyless Activation of Pro licenses</a>.</li>
+<li><strong>(v.0)</strong>  ADDED:         <a href="http://icwp.io/c2">WordPress Password Policies</a>.</li>
+<li><strong>(v.0)</strong>  ADDED:         Pwned Passwords Detection.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Major rewrite of plugin AJAX handling.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Notices to indicate the time of the last scans.</li>
+<li><strong>(v.0)</strong>  FIXED:         A few bugs</li>
+</ul>
+<p>= 6.6 Series =<br>
+<em>Released: 19th March, 2018</em> - <a href="http://icwp.io/c3">Release Notes</a></p>
+<ul>
+<li><strong>(v.0)</strong>  NEW:           [<strong>PRO</strong>] <a href="http://icwp.io/c1">Keyless Activation of Pro licenses</a>.</li>
+<li><strong>(v.0)</strong>  ADDED:         <a href="http://icwp.io/c2">WordPress Password Policies</a>.</li>
+<li><strong>(v.0)</strong>  ADDED:         Pwned Passwords Detection.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Major rewrite of plugin AJAX handling.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Notices to indicate the time of the last scans.</li>
+<li><strong>(v.0)</strong>  FIXED:         A few bugs</li>
+</ul>
+<p>= 6.5 Series =<br>
+<em>Released: 5th March, 2018</em> - <a href="http://icwp.io/bu">Release Notes</a></p>
+<ul>
+<li><strong>(v.0)</strong>  IMPROVED:      <a href="http://icwp.io/bq">Plugin Guard</a> better handles the case where a plugin/theme has been entirely renamed/removed.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Attempts to access the XML-RPC system when it’s disabled will now result in a transgression increment in the IP Black List</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Try to prevent black listing the server’s own public IP address where visitor IP address detection is not correctly configured.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.</li>
+<li><strong>(v.0)</strong>  FIXED:         Plugin Guard better handles ignoring <a href="http://non-WordPress.org">non-WordPress.org</a> Plugins/Themes</li>
+<li><strong>(v.0)</strong>  FIXED:         A few small bugs</li>
+</ul>
+<p>= 6.4 Series =<br>
+<em>Released: 26th February, 2018</em> - <a href="http://icwp.io/br">Release Notes</a></p>
+<ul>
+<li><strong>(v.1-4)</strong>  FIXED:       Various Fixes</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] New Scanner to <a href="http://icwp.io/bq">detect file changes for active plugins and themes</a></li>
+<li><strong>(v.0)</strong>  IMPROVED:      Automatic updates for vulnerable plugins ignores <a href="http://icwp.io/bc">automatic updates delay setting</a></li>
+<li><strong>(v.0)</strong>  CHANGED:       Email notifications for scanners will now link to the Wizard where possible, instead of listing files.</li>
+</ul>
+<p>= 6.3 Series =<br>
+<em>Released: 12th February, 2018</em> - <a href="http://icwp.io/bc">Release Notes</a></p>
+<ul>
+<li><strong>(v.3)</strong>  FIXED:         Bug with automatic updates delay setting</li>
+<li><strong>(v.2)</strong>  CHANGED:       Changed a text that seems to cause servers to swallow-up emails. <a
+		href="http://icwp.io/bi">See here for more reliable email</a></li>
+<li><strong>(v.1)</strong>  FIXED:         Options page javascript to work around conflicts.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] <a href="http://icwp.io/bc">Automatic updates stability delay</a></li>
+<li><strong>(v.0)</strong>  IMPROVED:      Complete <a href="http://icwp.io/bd">plugin UI rebuild</a>, using the new Bootstrap 4.</li>
+<li><strong>(v.0)</strong>  FIXED:         A few bugs with Google Authenticator.</li>
+</ul>
+<p>= 6.2 Series =<br>
+<em>Released: 31st January, 2018</em> - <a href="http://icwp.io/b6">Release Notes</a></p>
+<ul>
+<li><strong>(v.2)</strong>  FIXED:         Fix for IP Manager PHP error.</li>
+<li><strong>(v.2)</strong>  IMPROVED:      Two-factor verification email.</li>
+<li><strong>(v.1)</strong>  FIXED:         Bug where administrator login email notification setting is not being honoured.</li>
+<li><strong>(v.1)</strong>  IMPROVED:      If a site is having trouble with database creation, User Sessions wont lock you out.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Major overhaul of the Shield User Sessions system.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Link the Security Admin authentication with the new Sessions system.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Major overhaul to plugin’s user meta data storage, limiting to a single DB entry for all data.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Ability to increase frequency of file system scans up to once every hour.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Add a “remember me” option, to allow users to skip Multi-factor authentication for a set number of days.</li>
+</ul>
+<p>= 6.1 Series =<br>
+<em>Released: 15th January, 2018</em> - <a href="http://icwp.io/ay">Release Notes</a></p>
+<ul>
+<li><strong>(v.1)</strong>  FIXED:         Verify link missing from the two-factor authentication verification email.</li>
+<li><strong>(v.0)</strong>  ADDED:         3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.</li>
+<li><strong>(v.0)</strong>  ADDED:         You can now use regular expressions for file exclusions in the ‘Unrecognised File Scanner’.</li>
+<li><strong>(v.0)</strong>  CHANGED:       File Scanner email notifications now link to the appropriate scanner wizard directly.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Plugin options pages restyling.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Plugin refactoring and improvements.</li>
+</ul>
+<p>= 6.0 Series =<br>
+<em>Released: 18th December, 2017</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] <a href="http://icwp.io/at">Shield options import and export</a></li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] In conjunction with import/export - Shield Security Network: automated options syncing.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Going forward, new features and options will <a href="http://icwp.io/au">support only PHP 5.4+</a>. Existing features will remain unaffected.</li>
+</ul>
+<p>= 5.20 Series =<br>
+<em>Released: 11th December, 2017</em></p>
+<ul>
+<li><strong>(v.0)</strong>  IMPROVED:      [<strong>PRO</strong>] Audit Trail length are configurable. Length for free is 50 entries (the original unpaginated limit)</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Large redesign of options sections to be more intuitive and cleaner</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Added dedicated help section for each module.</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Certain modules have an new <em>Actions</em> centre, such a Audit Trail viewer and User Sessions manager</li>
+<li><strong>(v.0)</strong>  IMPROVED:      Audit Trails are now ajax-paginated. You can browse through all your audit trail entries</li>
+<li><strong>(v.0)</strong>  IMPROVED:      User session tables are also ajax-paginated.</li>
+</ul>
+<p>= 5.19 Series =<br>
+<em>Released: 4th December, 2017</em></p>
+<ul>
+<li><strong>(v.1)</strong>  FIXED:         Plugin Vulnerabilities scan for premium plugins.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Automated WordPress plugins vulnerability scanner with auto updates email notifications</li>
+<li><strong>(v.0)</strong>  ADDED:         Added Google reCAPTCHA support for register/forget password pages.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.</li>
+</ul>
+<p>= 5.18 Series =<br>
+<em>Released: 27th November, 2017</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Invisible Google reCAPTCHA option.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Support for Google reCAPTCHA themes - light and dark.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENT:   Google reCAPTCHA is more reliable and configurable.</li>
+</ul>
+<p>= 5.17 Series =<br>
+<em>Released: 23rd November, 2017</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         Shield Security goes Pro! Added new options and extras to premium clients.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENT:   Fix and improvement to Google reCAPTCHA.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Support for Woocommerce and Easy Digital Downloads login/registration form protection.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Ability to customise most user-facing texts.</li>
+<li><strong>(v.0)</strong>  ADDED:         [<strong>PRO</strong>] Extra IP Transgression signal.</li>
+</ul>
+<p>= 5.16 Series =<br>
+<em>Released: 16th October, 2017</em></p>
+<p>With this release, we fixed a clash of options for Google reCAPTCHA. Every attempt was made to ensure no interruption to your existing settings, but please check to ensure your reCAPTCHA settings are as you expect them to be.</p>
+<ul>
+<li><strong>(v.4)</strong>  FIX:           Error with incorrect/unprefixed database table name used in SQL query.</li>
+<li><strong>(v.3)</strong>  IMPROVEMENT:   Tweak to the Visitor IP Auto-detection to better ensure CloudFlare IP addresses are ignored.</li>
+<li><strong>(v.3)</strong>  IMPROVEMENT:   Plugin Badge will now stay closed when a visitor closes it.</li>
+<li><strong>(v.2)</strong>  FIX:           Removed some namespace parsing that broke on sites with PHP 5.2.</li>
+<li><strong>(v.1)</strong>  FIX:           404 page displayed for password reset request when Login URL is renamed.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENT:   Much better auto-detection of valid request/visitor IP addresses.</li>
+<li><strong>(v.0)</strong>  FIX:           Clashing of reCAPTCHA options for Comments and Login Protection.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENT:   Statistic Reporting database management and pruning.</li>
+<li><strong>(v.0)</strong>  FIX:           Various system fixes and improvements.</li>
+</ul>
+<p>= 5.15 Series =<br>
+<em>Released: 21st September, 2017</em></p>
+<ul>
+<li><strong>(v.1)</strong>  FIX:           Processing AJAX requests from the Network Admin side of WordPress.</li>
+<li><strong>(v.1)</strong>  IMPROVEMENTS:  Better handling of file exclusions in the Hack Guard module.</li>
+<li><strong>(v.1)</strong>  IMPROVEMENTS:  Better handling of fatal errors in loading Shield where some core files are missing.</li>
+<li><strong>(v.0)</strong>  ADDED:         New HTTP Security Header: Referrer Policy.</li>
+<li><strong>(v.0)</strong>  ADDED:         Supports paths for file exclusions in the Unrecognised File Scanner.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Better interception of unintentional redirects to the hidden Login URL (e.g. /wp-admin/customize.php).</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Better handling of email sending entries in the Audit Trail.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Improved (tabbed) display of Audit Trail.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Better generation &amp; handling of the One Time Password for email-based two-factor authentication.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Some code clean up and refactoring.</li>
+</ul>
+<p>= 5.14 Series =<br>
+<em>Released: 9th September, 2017</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         Option for administrators to manually override and set the source of the visitor IP address.</li>
+<li><strong>(v.0)</strong>  UPDATED:       In-plugin documentation links to updated and revised helpdesk articles/blogs.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Strip out any non-alphanumeric characters uses in the generation of Google Authenticator URLs.</li>
+<li><strong>(v.0)</strong>  FIX:           Shield now ignores any requests sent to Rest API URIs with respect to Shield user sessions.</li>
+</ul>
+<p>= 5.13 Series =<br>
+<em>Released: 15th August, 2017</em></p>
+<ul>
+<li><strong>(v.2)</strong>  IMPROVEMENTS:  Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.</li>
+<li><strong>(v.2)</strong>  FIX:           Restore display of help links for options.</li>
+<li><strong>(v.1)</strong>  FIX:           PHP 5.2 incompatibility.</li>
+<li><strong>(v.0)</strong>  ADDED:         New option for <a href="http://icwp.io/94">Unrecognised File Scanner</a> to scan the Uploads folder for JS and PHP files.</li>
+<li><strong>(v.0)</strong>  ADDED:         Option to provide custom list of files to be excluded from the <a
+		href="http://icwp.io/94">Unrecognised File Scanner</a>.</li>
+</ul>
+<p>= 5.12 Series =<br>
+<em>Released: 3rd August, 2017</em></p>
+<ul>
+<li><strong>(v.2)</strong>  IMPROVEMENTS:  Improved support for Windows IIS hosting for <a href="http://icwp.io/94">Unrecognised File Scanner</a></li>
+<li><strong>(v.2)</strong>  CHANGED:       Removed the email-based 2FA automatic login link.</li>
+<li><strong>(v.2)</strong>  FIX:           Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.</li>
+<li><strong>(v.1)</strong>  ADDED:         A few more exclusions for the <a href="http://icwp.io/94">Unrecognised File Scanner</a></li>
+<li><strong>(v.1)</strong>  FIX:           Fix for Fatal error.</li>
+<li><strong>(v.0)</strong>  ADDED:         <a href="http://icwp.io/94">Unrecognised File Scanner</a> release. Automatically detect and delete<br>
+any files present in core WordPress directories that aren’t part of your core installation.</li>
+<li><strong>(v.0)</strong>  ADDED:         Updated Firewall rules for SQL under the ‘Aggressive’ rule set.</li>
+</ul>
+<p>= 5.11 Series =<br>
+<em>Released: 26th July, 2017</em></p>
+<ul>
+<li><strong>(v.1)</strong>  FIX:           JSON syntax</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Final preparation for <a href="http://icwp.io/83">Shield Central</a> release.</li>
+</ul>
+<p>= 5.10 Series =<br>
+<em>Released: 19th June, 2017</em></p>
+<ul>
+<li><strong>(v.2)</strong>  FIXED:         Fatal error with GASP + Password Reset.</li>
+<li><strong>(v.2)</strong>  FIXED:         Fatal error with failing reCAPTCHA HTTP requests.</li>
+<li><strong>(v.1)</strong>  IMPROVEMENTS:  Further preparation for <a href="http://icwp.io/83">Shield Central</a> release.</li>
+<li><strong>(v.0)</strong>  ADDED:         More in-depth reporting and statistics gathering - options for reports will be made available<br>
+in a later release.</li>
+</ul>
+<p>= 5.9 Series =<br>
+<em>Released: 31st May, 2017</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         Help Videos for 1 or 2 modules. More to come and just testing format and uptake.</li>
+<li><strong>(v.0)</strong>  ADDED:         Special handling for WP Fastest Cache.</li>
+<li><strong>(v.0)</strong>  CHANGE:        Configuration for automatic self-update for the Shield plugin has been removed.</li>
+<li><strong>(v.0)</strong>  CHANGE:        No longer remove an existing user session when accessed from another IP address. Just redirect.<br>
+Protects existing, legitimate sessions from being forcefully expired.</li>
+<li><strong>(v.0)</strong>  FIXED:         Danish string translation.</li>
+</ul>
+<p>= 5.8 Series =<br>
+<em>Released: 7th April, 2017</em></p>
+<ul>
+<li><strong>(v.2)</strong>  IMPROVEMENTS:  The core file scanner now works more reliably for international WordPress installations.</li>
+<li><strong>(v.2)</strong>  CHANGE:        Login Cooldown now uses only the flag file as an indicator of login times.</li>
+<li><strong>(v.2)</strong>  CHANGE:        Filter to allow for changing the two factor timeout period, from 5 (minutes). Filter: <code>icwp-wpsf-login_intent_timeout</code></li>
+<li><strong>(v.2)</strong>  CHANGE:        Changed timeout for two-factor authentication email to 5 minutes to account for slower email-sending providers.</li>
+<li><strong>(v.2)</strong>  CHANGE:        Added further clarification to the Login Notification email indicating that two-factor authentication was pending.</li>
+<li><strong>(v.1)</strong>  FIXED:         Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.</li>
+<li><strong>(v.0)</strong>  CHANGE:        Major overhaul of <a href="http://icwp.io/87">Two-Factor / Multi-Factor Login Authentication</a>.</li>
+<li><strong>(v.0)</strong>  CHANGE:        <a href="http://icwp.io/86">Introduction of Login Authentication Portal</a> for improved Multi-Factor Authentication.</li>
+<li><strong>(v.0)</strong>  ADDED:         Option to choose between two-factor or multi-factor login authentication.</li>
+<li><strong>(v.0)</strong>  ADDED:         Administrators can remove Google Authenticator from another user’s profile.</li>
+<li><strong>(v.0)</strong>  ADDED:         When Security Admin is active, only Security Admins may remove Google Authenticator from other admins.</li>
+<li><strong>(v.0)</strong>  CHANGE:        Yubikey login authentication is now managed directly from the User Profile screen, as with Google Authenticator.</li>
+<li><strong>(v.0)</strong>  CHANGE:        Email-based login authentication no longer uses a separate database table.</li>
+<li><strong>(v.0)</strong>  FIXED:         Core file scanning now adequately handles Windows/Unix new lines during scan.</li>
+<li><strong>(v.0)</strong>  FIXED:         Certain crons weren’t setup correctly.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Further preparation for <a href="http://icwp.io/83">Shield Central</a> release.</li>
+</ul>
+<p>= 5.7 Series =</p>
+<ul>
+<li><strong>(v.3)</strong>  FIXED:         Attempt to improve the Google Authenticator flow for more reliable activation.</li>
+<li><strong>(v.2)</strong>  IMPROVEMENTS:  More admin notices when saving Google Authenticator settings.</li>
+<li><strong>(v.2)</strong>  IMPROVEMENTS:  Further preparation for <a href="http://icwp.io/83">Shield Central</a> release.</li>
+<li><strong>(v.1)</strong>  Skipped</li>
+<li><strong>(v.0)</strong>  ADDED:         Shortcode for displaying plugin badge in pages/posts.</li>
+<li><strong>(v.0)</strong>  CHANGE:        Enabled JS eval() for the Content Security Policy by default.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Replace YAML configuration files with JSON.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Preparation for <a href="http://icwp.io/83">Shield Central</a> release.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Security Admin notices are more refined and optimized.</li>
+<li><strong>(v.0)</strong>  IMPROVEMENTS:  Removed unnecessary files/code.</li>
+</ul>
+<p>= 5.6 Series =</p>
+<ul>
+<li>
+<p><strong>(v.2)</strong>  CHANGE:        Fix an instance where the hidden Login URL would be leaded.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  CHANGE:        Replaying of Yubikey one-time-passwords is no longer permitted.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  ADDED:         Filter for login form GASP fields.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  ADDED:         Filter for comment form GASP fields.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  CHANGE:        Improved compatibility of HTTP Headers with WP Super Cache.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  ADDED:         Option to disable anonymous Rest API access. WordPress v4.7+ only. Note that if another plugin<br>
+or service authenticates the request it will be honoured, whether anonymous or not.<br>
+= 5.5 Series =</p>
+</li>
+<li>
+<p><strong>(v.6)</strong>  IMPROVED:      Fixed possible leak of the Login URL from the ‘Hide WP Login URL’ feature.</p>
+</li>
+<li>
+<p><strong>(v.5)</strong>  ADDED:         Ability to add custom protocols to the domains (apart from http/s) to the Content Security Policy</p>
+</li>
+<li>
+<p><strong>(v.5)</strong>  FIXED:         Bug where automatic update emails would contain empty plugins.</p>
+</li>
+<li>
+<p><strong>(v.5)</strong>  FIXED:         Javascript scope on GASP form elements.</p>
+</li>
+<li>
+<p><strong>(v.5)</strong>  FIXED:         Various fixes and code improvements.</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  FIXED:         Bug with data cleaning/storage that caused stored options to balloon resulting in database timeouts. (only certain options affected)</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  IMPROVED:      Sometimes “anti-virus” scanners scared normal, everyday hard-working folk by identifying a Shield file as being a virus, because they’re not very clever - reduced chances of this.</p>
+</li>
+<li>
+<p><strong>(v.3)</strong>  ADDED:         Fix for WordPress Multisite where the correct database prefix wasn’t being used.</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  ADDED:         Filter to allow modification of the email footer</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  ADDED:         Block auto-updates on Shield itself if PHP &lt; 5.3 and new version is v6.0+</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  FIXED:         Missing Link</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  FIXED:         Plugin Installation ID wasn’t always being set</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  TRANSLATIONS:  Dutch (56%)</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  ADDED:         Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability <a
+		href="http://icwp.io/7j">more info</a></p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  IMPROVED:      Better XMLRPC Lockdown - prevents ANY XMLRPC command processing.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  IMPROVED:      Make certain strings translatable</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  IMPROVED:      Wrap-up certain login form elements into spans/divs to allow styling etc.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  IMPROVED:      PHP Version number cleaning during stats tracking.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  ADDED:         Options and statistics tracking ability. Over time we are looking to share statistics and performance metrics of Shield.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  IMPROVED:      Performance for options loading, especially for web hosts that don’t permit file writing</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  CHANGED:       Numerous fixes and code improvements.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  CHANGED:       Removed query that deletes old GASP comment tokens on normal page loads.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  CHANGED:       Google reCAPTCHA is now based on the locale of the website, not auto-detected.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  FIXED:         Now URL encodes the username in the link for two-factor authentication by email.</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  FIXED:         If the xmlrpc.php has been deleted, this is now ignore by the file scanner</p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  TRANSLATIONS:  Dutch (38%), Portuguese (32%)</p>
+</li>
+</ul>
+<p>= 5.4 Series =</p>
+<ul>
+<li><strong>(v.5)</strong>  CHANGED:       User Management module is no-longer enabled by default on clean installations</li>
+<li><strong>(v.5)</strong>  CHANGED:       Made the GASP checkbox for Login protection clickable by label. <a
+		href="https://github.com/FernleafSystems/Shield/pull/22">Thanks Aubrey!</a></li>
+<li><strong>(v.5)</strong>  CHANGED:       Shield Statistics only shows for WordPress admins (instead of all users)</li>
+<li><strong>(v.5)</strong>  FIXED:         Added a couple of guards to ensure data is of the correct format to prevent spurious errors</li>
+<li><strong>(v.5)</strong>  FIXED:         Bug where automatic file repair links from emails we’re not working.</li>
+<li><strong>(v.4)</strong>  SKIPPED.</li>
+<li><strong>(v.3)</strong>  FIXED:         Various fixes and improvements</li>
+<li><strong>(v.3)</strong>  CHANGED:       Lots of cleaning of old code.</li>
+<li><strong>(v.3)</strong>  REMOVED:       Various old, unused options, and the force_ssl_login option as it’s deprecated by WordPress Core</li>
+<li><strong>(v.3)</strong>  TRANSLATIONS:  Dutch (36%), Swedish (35%)</li>
+<li><strong>(v.3)</strong>  FIXED:         Various fixes and improvements</li>
+<li><strong>(v.3)</strong>  CHANGED:       Lots of cleaning of old code.</li>
+<li><strong>(v.3)</strong>  REMOVED:       Various old, unused options, and the force_ssl_login option as it’s deprecated by WordPress Core</li>
+<li><strong>(v.3)</strong>  TRANSLATIONS:  Dutch (36%), Swedish (35%)</li>
+<li><strong>(v.2)</strong>  ADDED:         A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.</li>
+<li><strong>(v.2)</strong>  ADDED:         Exclusion for Swedish license files that don’t exist in the SVN repo.</li>
+<li><strong>(v.2)</strong>  ADDED:         Parameter exclusion for reCAPTCHA.</li>
+<li><strong>(v.2)</strong>  CHANGED:       <a href="http://icwp.io/7b">HTTP Security Headers</a> module is enabled by default on new installs.</li>
+<li><strong>(v.1)</strong>  FIXED:         Nasty bug that caused an infinite loop bug in some configurations.</li>
+<li><strong>(v.0)</strong>  ADDED:         Per-site plugin statistics gathering - summary display on admin dashboard.</li>
+<li><strong>(v.0)</strong>  ADDED:         HTML class to the “I’m a human” checkbox field.</li>
+<li><strong>(v.0)</strong>  ADDED:         Ability to change minimum user role for login notification emails with use of <code>add_filter()</code>. See FAQs.</li>
+<li><strong>(v.0)</strong>  REMOVED:       Option ‘Prevent Remote Login’ causes more trouble with than it’s worth with too many hosting configurations.</li>
+<li><strong>(v.0)</strong>  CHANGED:       For websites that don’t run WP Crons correctly, added code for automatic database cleaning.</li>
+<li><strong>(v.0)</strong>  CLEANED:       Removed Twig render code as it was never being used.</li>
+</ul>
+<p>= 5.3 Series =</p>
+<ul>
+<li><strong>(v.2)</strong>  IMPROVED:      <a href="http://icwp.io/7b">HTTP Security Headers</a> Content Security Policy now supports specifying HTTPS for domains/hosts.</li>
+<li><strong>(v.2)</strong>  FIXED:         Human Comment SPAM Feature didn’t fire under certain circumstances.</li>
+<li><strong>(v.2)</strong>  FIXED:         Fixed parsing of Human Comment SPAM dictionary words.</li>
+<li><strong>(v.1)</strong>  TRANSLATIONS:  Dutch (32%)</li>
+<li><strong>(v.0)</strong>  ADDED:         New Feature - <a href="http://icwp.io/7b">HTTP Security Headers</a>.</li>
+<li><strong>(v.0)</strong>  FIXED:         Prevent renaming WP Login to “/login”</li>
+</ul>
+<p>= 5.2 Series =</p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         Guard against core file scanner and automatic WordPress updates clashing.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Logic for brute force login checking is improved - they all run before username/password checking</li>
+<li><strong>(v.0)</strong>  FIXED:         Certain older versions of PHP don’t like combined IPv4 and IPv6 filter flags</li>
+<li><strong>(v.0)</strong>  FIXED:         Google reCAPTCHA for WordPress sites that have restrictive settings for sockets etc.</li>
+<li><strong>(v.0)</strong>  REMOVED:       <a href="http://icwp.io/75">Plugin vulnerabilities scanner</a>. It’s out-of-date and unsuitable.</li>
+</ul>
+<p>= 5.1 Series =</p>
+<ul>
+<li><strong>(v.0)</strong>  FIXED:         Improved compatibility with bbPress.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Optimizations around options and definitions (storing fewer options data)</li>
+<li><strong>(v.0)</strong>  CHANGED:       Improved styling and responsiveness of plugin badge.</li>
+<li><strong>(v.0)</strong>  ADDED:         Ability to programmatically export/import options - further preparation for iControlWP+Shield integration.</li>
+<li><strong>(v.0)</strong>  FIXED:         Issue where Core automatic updates would fail, but notification email was sent anyway</li>
+</ul>
+<p>= 5.0 Series =</p>
+<ul>
+<li><strong>(v.3)</strong>  FIXED:         Issue with setting session cookies with PHP 7</li>
+<li><strong>(v.2)</strong>  FIXED:         <a href="http://icwp.io/5s">Rename WordPress Login URL</a> bug</li>
+<li><strong>(v.2)</strong>  CHANGED:       reCAPTCHA text usage corrected throughout plugin.</li>
+<li><strong>(v.1)</strong>  CHANGED:       Removed the whole ‘wp-content’ directory from the <a
+		href="http://icwp.io/wpsf40">Core File Scanner</a> feature.</li>
+<li><strong>(v.1)</strong>  CHANGED:       A WordPress filter to change the plugin badge text content (see FAQ)</li>
+<li><strong>(v.1)</strong>  CHANGED:       Tweaked the plugin badge styling.</li>
+<li><strong>(v.1)</strong>  CHANGED:       All emails sent by the plugin contain the name of the site and the current plugin version in the email footer.</li>
+<li><strong>(v.1)</strong>  ADDED:         In-plugin links to blogs and info articles for Google ReCaptcha and <a
+		href="http://icwp.io/wpsf43">Google Authenticator</a></li>
+<li><strong>(v.0)</strong>  NEW:           WordPress Simple Firewall plugin has been re-branded and is called <strong>Shield</strong></li>
+<li><strong>(v.0)</strong>  ADDED:         NEW feature - <a href="http://icwp.io/shld2">Google ReCaptcha</a> for Comment SPAM and Login protection.</li>
+<li><strong>(v.0)</strong>  ADDED:         Support for this plugin is now Premium. Added Premium Support page that links to Helpdesk.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Refactor of comment spam code.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Core File Scanner now handles the odd Hungarian distribution.</li>
+</ul>
+<p>= 4.17 Series =<br>
+<em>Released: 17th February, 2016</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         NEW feature - <a href="http://icwp.io/wpsf43">Google Authenticator Login option</a>.</li>
+<li><strong>(v.0)</strong>  ADDED:         <a href="http://icwp.io/wpsf40">Core File Scanner</a> now includes an automatic link to repair files (you must be logged in as admin for this link to work!).</li>
+<li><strong>(v.0)</strong>  ADDED:         NEW - if you already have a logged-in session and you open the login screen, you’ll be provided with a link to go straight to the admin area.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Various efficiency improvements including reduced SQL updates.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Email system is improved and now send emails from the default WordPress sender. This may be <a
+		href="https://icontrolwp.freshdesk.com/support/solutions/articles/3000048723">changed with filter</a>.</li>
+</ul>
+<p>= 4.16 Series =<br>
+<em>Released: 20th January, 2016</em></p>
+<ul>
+<li><strong>(v.2)</strong>  CHANGED:       Further changes and improvements to the <a href="http://icwp.io/wpsf40">Core File Scanner</a>.</li>
+<li><strong>(v.2)</strong>  CHANGED:       Improvements to the <a href="http://icwp.io/wpsf27">automatic black list system</a> for failed login attempts.</li>
+<li><strong>(v.2)</strong>  TRANSLATIONS:  Turkish (100%)</li>
+<li><strong>(v.1)</strong>  CHANGED:       Improved the contents of the <a href="http://icwp.io/wpsf40">Core File Scanner</a> notification email with links to original source files.</li>
+<li><strong>(v.1)</strong>  CHANGED:       Now also excluding the /wp-content/languages/ directory since translations may update independently.</li>
+<li><strong>(v.1)</strong>  CHANGED:       Handles the special case of <a
+		href="https://wordpress.org/support/topic/problem-with-checksum-hashes">old index.php files</a></li>
+<li><strong>(v.0)</strong>  ADDED:         Feature: <a href="http://icwp.io/wpsf40">Automatically scans WordPress Core files</a> and detects alterations from the default WordPress Core File data</li>
+<li><strong>(v.0)</strong>  ADDED:         Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.</li>
+<li><strong>(v.0)</strong>  ADDED:         Option to toggle the <a href="http://icwp.io/wpsf41">Plugin Vulnerabilities cron</a>.</li>
+<li><strong>(v.0)</strong>  ADDED:         Two-Factor Authentication links now honour the WordPress ‘redirect_to’ parameter.</li>
+</ul>
+<p>= 4.15 Series =<br>
+<em>Released: 6th January, 2016</em></p>
+<ul>
+<li><strong>(v.0)</strong>  ADDED:         New and updated Firewall rules as well as a new ‘Aggressive’ option that looks for additional request data. Disabled by default, but may cause an increase in false positives.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Improved and optimized Firewall processing.</li>
+<li><strong>(v.0)</strong>  FIXED:         <a href="https://github.com/FernleafSystems/wp-simple-firewall/issues/3">Issue</a> where automatic update notification emails are sent out without any update notices (probably due to failed updates).</li>
+<li><strong>(v.0)</strong>  FIXED:         Small conflict with WP Login Rename and other security plugins.</li>
+<li><strong>(v.0)</strong>  TRANSLATIONS:  Czech (91%), Finnish (98%), Turkish (98%).</li>
+</ul>
+<p>= 4.14 Series =<br>
+<em>Released: 20th November, 2015</em></p>
+<ul>
+<li><strong>(v.2)</strong>  ADDED:         User notice message displayed when the ‘Theme My Login’ plugin is active and you try to rename your login URL - It is not compatible.</li>
+<li><strong>(v.1)</strong>  ADDED:         Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. <a
+		href="https://icontrolwp.freshdesk.com/solution/articles/3000044812">more info</a></li>
+<li><strong>(v.1)</strong>  ADDED:         Added ‘Unique Plugin Installation ID’ to be utilized in the future.</li>
+<li><strong>(v.1)</strong>  FIXED:         WordPress Comments bug where some comments didn’t pass through the SPAM filters in a certain scenario.</li>
+<li><strong>(v.0)</strong>  ADDED:         <a
+		href="http://icwp.io/wpsf33">Custom Automatic Update Notifications Email</a> that runs separately to the in-built WordPress core notification email.</li>
+<li><strong>(v.0)</strong>  ADDED:         Filter to remove the admin area IP address footer text</li>
+<li><strong>(v.0)</strong>  CHANGED:       Added native support for PayPal return links - whitelisting “verify_sign” parameter.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Tweak patterns for matching on ‘WordPress terms’.</li>
+<li><strong>(v.0)</strong>  TRANSLATIONS:  Danish (100%), Czech (92%), Turkish (92%), Finnish (88%),</li>
+<li><strong>(v.0)</strong>  FIXED:         Small bugs and readying for WordPress 4.4</li>
+</ul>
+<p>= 4.13 Series =<br>
+<em>Released: 22nd October, 2015</em></p>
+<ul>
+<li><strong>(v.0)</strong>  NEW:           Added option to block the modification, addition/promotion and deletion of WordPress administrators users within the ‘Security Admin’ module.</li>
+<li><strong>(v.0)</strong>  NEW:           Renamed ‘Admin Access’ module to ‘Security Admin’.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Simplified and consolidated the use of cookies for User Session - sets and removes cookies better to reduce their usage.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Simplified and consolidated the use of cookies for Two Factor Login Authentication.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Cleaned up some Comment SPAM filtering code.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Comments Filter doesn’t use cookies unless a session cookie for the visitor already exists.</li>
+<li><strong>(v.0)</strong>  CHANGED:       IP Manager Automatic Black List - default black list duration is now 1 minute &amp; default transgressions limit is 10</li>
+<li><strong>(v.0)</strong>  CHANGED:       Improvements to the database create queries: use MySQL Engine defaults (instead of MyISAM); use WordPress dbDelta() for updates.</li>
+<li><strong>(v.0)</strong>  CHANGED:       Various code optimizations and cleaning.</li>
+</ul>
+<p>= 4.12 Series =<br>
+<em>Released: 10th October, 2015</em></p>
+<ul>
+<li><strong>(v.0)</strong>  NEW:           Option to completely disable the XML-RPC system. <a
+		href="http://icwp.io/wpsf31">more info</a></li>
+<li><strong>(v.0)</strong>  CHANGED:       Logged-in users are automatically forwarded to the WordPress admin only if they are Administrators.</li>
+</ul>
+<p>= 4.11 Series =<br>
+<em>Released: 5th October, 2015</em></p>
+<ul>
+<li><strong>(v.0)</strong>  NEW:           Ability to now completely block the update/changing of certain WordPress site options. <a
+		href="http://icwp.io/wpsf30">more info</a></li>
+<li><strong>(v.0)</strong>  FIXED:         Various small bugs with the IP Manager UI ajax.</li>
+<li><strong>(v.0)</strong>  FIXED:         Uncaught PHP Exception when a site’s hosting isn’t properly configured to handle IPv6 addresses.</li>
+<li><strong>(v.0)</strong>  TRANSLATIONS:  Danish - 57%, Czech - 100%, Finnish - 94%</li>
+</ul>
+<p>= 4.10 Series =<br>
+<em>Released: 23rd August, 2015</em></p>
+<ul>
+<li>
+<p><strong>(v.4)</strong>  REFACTOR:      Notifications system is more reliable and most notices can be hidden/closed (at least for the current page load as some notices are persistent).</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  REMOVED:       The old manual black list option has been completely removed - in favour of the automatic black list system.</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  CHANGED:       Revised the order of certain hooks being created to avoid the possibility of pluggable.php not being loaded for PHP Shutdown.</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  CHANGED:       The presence of IP addresses in the IP Whitelist will force the IP Manager feature to be enabled.</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  CHANGED:       We now make an attempt to prevent the caching of WordPress wp_die() pages that we generate. (compatible with at least W3TC, Super Cache)</p>
+</li>
+<li>
+<p><strong>(v.4)</strong>  TRANSLATIONS:  Turkish - 100%, Danish - 3%</p>
+</li>
+<li>
+<p><strong>(v.3)</strong>  FIXED:         Another PHP 5.2 incompatibility.</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  ADDED:         White Listing UI to the IP Manager - CIDR ranges are supported (also automatically migrates IPs, except ranges, from legacy to new)</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  ADDED:         Returned the black marking of failed WP login attempts to the automatic black list system</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  ADDED:         Using a 3rd party API service: <a href="https://www.ipify.org/">ipify.org</a> - to find the server’s own IP address so we can ensure it’s not used in the black lists</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  CHANGED:       AJAX calls are handled more robustly with actual error messages where possible.</p>
+</li>
+<li>
+<p><strong>(v.2)</strong>  FIXED:         A few black list processing bugs.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  ADDED:         UI to view and remove IP address from Automatic Black List Engine.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  FIX:           Removed transgression counting on failed logins - WP data is inconsistent.</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  CHANGED:       Original legacy white list now takes priority over new auto black list</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  CHANGED:       Default transgressions limit is now 7</p>
+</li>
+<li>
+<p><strong>(v.1)</strong>  ADDED:         Ability to reset plugin options to default using ‘reset’ flag file. <a
+		href="http://icwp.io/wpsf28">more info</a></p>
+</li>
+<li>
+<p><strong>(v.0)</strong>  NEW FEATURE:   ‘FABLE’ - <a
+		href="http://icwp.io/wpsf27">Fully Automatic Black Listing Engine</a>.</p>
+</li>
+</ul>
+<p>Simply put, FABLE will automatically block all malicious traffic by IP, based on their activity. This Security Plugin will track malicious behaviour<br>
+and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the specified number transgressions, FABLE<br>
+will outright block any access they have to your WordPress site.</p>
+<p>What makes the FABLE system better?</p>
+<ul>
+<li>Hands Free - Automatic. No more need for maintaining manual black lists.</li>
+<li>Loads first before other plugins.</li>
+<li>Automatic pruning. Based on expiration time you specify, older IP address will be removed.</li>
+<li>Increased Performance. With automatic pruning, IP look-up tables remain small and concise so page load times for legitimate visitors is minimally affected.</li>
+<li>Adaptive. It wont just block based on 1 misdemeanour - instead you may allow any given visitor grace to legitimately get things wrong (like login passwords).</li>
+<li>Intelligent. With an fully integrated plugin such as this, it uses login failure attempts, spam comment attempts, login brute force attempts to capture malicious visitors.</li>
+</ul>
+<p>Which actions will trigger an ABLE transgression?</p>
+<ul>
+<li>Attempt to login with an invalid username/password combination</li>
+<li>Any attempt to login while the login cooldown system is in-effect</li>
+<li>Any login attempt that trips the GASP Login protection system</li>
+<li>Any login attempt with a username that doesn’t exist</li>
+<li>Any attempt to access /wp-admin/, /login/, or wp-login.php while the Rename WP Login setting is active</li>
+<li>Any comment that gets labelled as SPAM by the plugin</li>
+<li>Failed attempt to authenticate with the plugin’s Admin Access Protection module</li>
+<li>Any trigger of a Firewall block rule</li>
+</ul>
+<p>= 4.9 Series =<br>
+<em>Released: 7th July, 2015</em></p>
+<ul>
+<li><strong>(v.8)</strong>  CHANGED:       Firewall, User Sessions and Lockdown Feature Modules are now enabled by default for new installations.</li>
+<li><strong>(v.8)</strong>  FIX:           Some server email programs can’t handle colons (:) in the email subject (because supporting all characters would be waaay too radical man).</li>
+<li><strong>(v.8)</strong>  ADDED:         Function to better get the WordPress home URL to prevent interference from other plugins.</li>
+<li><strong>(v.8)</strong>  CHANGED:       Updated Text For <a
+		href="http://icwp.io/6e">Author Scan Block</a> feature.</li>
+<li><strong>(v.7)</strong>  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.</li>
+<li><strong>(v.6)</strong>  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -&gt; Obscurity)</li>
+<li><strong>(v.6)</strong>  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that’s posted in bulk. This results in email notifications for spam comments.</li>
+<li><strong>(v.5)</strong>  ADDED:         The plugin will load itself first before all other plugins</li>
+<li><strong>(v.5)</strong>  FIXED:         No longer using parse_url() to determine the request URL as it’s too inconsistent and unreliable.</li>
+<li><strong>(v.4)</strong>  FIX:           Audit Trail Viewer display issue with non-escaped HTML (Thanks Chris!)</li>
+<li><strong>(v.4)</strong>  ADDED:         An admin warning for sites with PHP version less than 5.3.2 (future versions will require this as a minimum)</li>
+<li><strong>(v.4)</strong>  TRANSLATIONS:  Danish - 6%, Spanish - 76%</li>
+<li><strong>(v.3)</strong>  ADDED:         Further checking for availability of certain PHP/server data before enabling the rename WordPress login feature</li>
+<li><strong>(v.3)</strong>  ADDED:         Option to add the Plugin Badge as a Widget to your side-bar or page footer, or any other widget area.</li>
+<li><strong>(v.3)</strong>  TRANSLATIONS:  Polish - 100%</li>
+<li><strong>(v.2)</strong>  ADDED:         Email notifications sent out to report email address on a daily cron. <a
+		href="https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/">more info</a></li>
+<li><strong>(v.2)</strong>  FIX:           Work around a WordPress inline plugin update Javascript bug.</li>
+<li><strong>(v.1)</strong>  FIX:           Fix syntax support for earlier versions of PHP.</li>
+<li><strong>(v.0)</strong>  FEATURE:       Plugin Vulnerabilities Detection: If you’re running plugins with known vulnerabilities you will be warned - <a
+		href="http://icwp.io/wpsf22">more info</a></li>
+</ul>
+<p>= 4.8 Series =<br>
+<em>Released: 21st June, 2015</em></p>
+<ul>
+<li><strong>(v.0)</strong>  FEATURE:       Admin Access Restriction Areas - Restrict access to certain WordPress areas and functionality to <strong>Administrators</strong> with the Admin Access key.</li>
+<li><strong>(v.0)</strong>  ADDED:         Admin Access Restriction Area - Plugins. You can now restrict access to certain Plugin actions - activate, install, update, delete.</li>
+<li><strong>(v.0)</strong>  ADDED:         Admin Access Restriction Area - Themes. You can now restrict access to certain Theme actions - activate, install, update, delete.</li>
+<li><strong>(v.0)</strong>  ADDED:         Admin Access Restriction Area - Pages/Post. You can now restrict access to certain Page/Post actions - Create/Edit, Publish, Delete.</li>
+</ul>
+<p>= 4.7 Series =<br>
+<em>Released: 29th April, 2015</em></p>
+<ul>
+<li><strong>(v.7)</strong>  FIXED:         The text used to explain why some comments were marked as spam was broken.</li>
+<li><strong>(v.7)</strong>  FIXED:         Group sign-up form now honours your SSL setting.</li>
+<li><strong>(v.7)</strong>  TRANSLATIONS:  Spanish - 74%, Russian - 91%, Turkish - 94%, Polish- 95%, Finnish - 100%</li>
+<li><strong>(v.6)</strong>  FIXED:         Verifying ability to send/receive email doesn’t complete if Admin Access Protection is turned on.</li>
+<li><strong>(v.6)</strong>  FIXED:         GASP Login Protection feature breaks because certain key options aren’t initialized when the feature is enabled.</li>
+<li><strong>(v.6)</strong>  FIXED:         Some “more info” links were empty.</li>
+<li><strong>(v.4)</strong>  ADDED:         Email Sending Verification when enabling two-factor authentication - this ensures your site can send (and you can receive) emails.</li>
+<li><strong>(v.4)</strong>  ADDED:         Section Summaries - each option tab contains a small text summary outlining the purpose and recommendation for each.</li>
+<li><strong>(v.4)</strong>  CHANGED:       The Admin Access Key input is now a password field.</li>
+<li><strong>(v.4)</strong>  CHANGED:       Custom Login URL now works with or without trailing slash.</li>
+<li><strong>(v.4)</strong>  CHANGED:       Streamlining and improvement of PHP UI templates</li>
+<li><strong>(v.4)</strong>  ADDED:         Implemented TWIG for templates (not yet activated)</li>
+<li><strong>(v.4)</strong>  TRANSLATIONS:  Romanian (100%), Spanish-Spain (63%)</li>
+<li><strong>(v.3)</strong>  ADDED:         Integrated protection against 2x RevSlider vulnerabilities (Local File Include and Arbitrary File Upload)</li>
+<li><strong>(v.3)</strong>  CHANGED:       Reverted the addition of Permalinks/Rewrite rules flushing, in case this is a problem for some.</li>
+<li><strong>(v.2)</strong>  UPDATED/FIX:   Major fixes and improvements to the rename wp-login.php feature.</li>
+<li><strong>(v.2)</strong>  TRANSLATIONS:  Mexican-Spanish (61%), Arabic (38%)</li>
+<li><strong>(v.1)</strong>  FIX:           Silence warnings from filesystem touch() command.</li>
+<li><strong>(v.1)</strong>  TRANSLATIONS:  Polish (100%), Finnish (100%), Czech (73%), Arabic (34%)</li>
+<li><strong>(v.0)</strong>  UPDATED:       Options page user interface re-design.</li>
+<li><strong>(v.0)</strong>  FIX:           Audit trail time now reflects the user’s timezone correctly.</li>
+<li><strong>(v.0)</strong>  FIX:           Better compatibility with BBPress.</li>
+<li><strong>(v.0)</strong>  UPDATED:       Underlying plugin code improvements.</li>
+<li><strong>(v.0)</strong>  TRANSLATIONS:  Russian (100%), Czech (70%), Polish (97%)</li>
+</ul>
+<p>= 4.6 Series =<br>
+<em>Released: 10th April, 2015</em></p>
+<ul>
+<li><strong>(v.3)</strong>  SECURITY:  Added protection against XSS vulnerability in WordPress comments. <a
+		href="http://icwp.io/63">Learn More</a> - Note: This is not a vulnerability with the Firewall plugin.</li>
+<li><strong>(v.3)</strong>  SECURITY:  Added extra precautions to WordPress URL redirects. <a href="http://icwp.io/64">Learn More</a>.</li>
+<li><strong>(v.3)</strong>  TRANSLATIONS: Russian (70%), Czech (67%)</li>
+<li><strong>(v.2)</strong>  FIX:       Bug with the database table verification logic.</li>
+<li><strong>(v.2)</strong>  TRANSLATIONS: Russian (New- 54%), Romanian (100%), Turkish (89%), Czech (53%)</li>
+<li><strong>(v.1)</strong>  FIX:       XMLRPC compatibility logic was preventing other non-XMLRPC related code from running.</li>
+<li><strong>(v.1)</strong>  UPDATED:   Plugin Badge styling</li>
+<li><strong>(v.1)</strong>  UPDATED:   Updated Czech(41%) and Spanish (60%) translations</li>
+<li><strong>(v.0)</strong>  ADDED:     New feature that displays the last login time for all users on the users listing page (User Management feature must be enabled).</li>
+<li><strong>(v.0)</strong>  ADDED:     <strong>Completely optional</strong> promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. <a
+		href="http://icwp.io/5x">Learn More</a></li>
+<li><strong>(v.0)</strong>  UPDATED:   Updated Czech(38%) translations</li>
+</ul>
+<p>= 4.5 Series =<br>
+<em>Released: 6th March, 2015</em></p>
+<ul>
+<li><strong>(v.5)</strong>  CHANGED:   Updated Finnish (100%), Czech (16%) translations</li>
+<li><strong>(v.5)</strong>  CHANGED:   Change logs now more clearly display changes between versions</li>
+<li><strong>(v.5)</strong>  FIX:       Small translation coverage</li>
+<li><strong>(v.4)</strong>  ADDED:     New and updated language translations including Polish (100%), Finnish</li>
+<li><strong>(v.4)</strong>  FIX:       Better string translation coverage for menus etc.</li>
+<li><strong>(v.3)</strong>  ADDED:     New and updated language translations including Polish, Czech and German</li>
+<li><strong>(v.3)</strong>  CHANGED:   Only set the plugin cookie if necessary</li>
+<li><strong>(v.2)</strong>  CHANGED:   Attempt to resolve DB errors related to transient options reported on WP Engine</li>
+<li><strong>(v.1)</strong>  ADDED:     New feature- GASP Login Protection can now be applied to lost password form - enabled by default</li>
+<li><strong>(v.0)</strong>  ADDED:     New feature- GASP Login Protection can now be applied to user registrations - enabled by default</li>
+</ul>
+<p>= 4.4 Series =<br>
+<em>Released: 21st February, 2015</em></p>
+<ul>
+<li><strong>(v.2)</strong>  ADDED:     Romanian Translation.</li>
+<li><strong>(v.2)</strong>  ADDED:     A plugin minimum-requirements processing system.</li>
+<li><strong>(v.2)</strong>  IMPROVED:  The WordPress admin-UI code is simpler and cleaner.</li>
+<li><strong>(v.1)</strong>  ADDED:     <strong>Significant</strong> performance enhancement in plugin loading times (up to 50% reduction).</li>
+<li><strong>(v.0)</strong>  CHANGED:   The ‘Prevent Remote Login’ option now tries to detect web hosting server compatibility before allowing it to be enabled.</li>
+<li><strong>(v.0)</strong>  CHANGED:   More lax in finding the ‘forceOff’ file when users are trying to turn off the firewall.</li>
+<li><strong>(v.0)</strong>  CHANGED:   Parsing the URL no longer outputs warnings that might interfere with response headers.</li>
+</ul>
+<p>= 4.3 Series =<br>
+<em>Released: 15th January, 2015</em></p>
+<ul>
+<li><strong>(v.6)</strong>  FIXES:     More thorough validation of whitelisted IP addresses</li>
+<li><strong>(v.5)</strong>  FIXES:     Some hosting environments need absolute file paths for PHP include()/require()</li>
+<li><strong>(v.5)</strong>  CHANGED:   Streamlined the detection of whitelisting and added in-plugin notification if <strong>you</strong> are whitelisted</li>
+<li><strong>(v.4)</strong>  FIXES:     Work around for cases where PHP can’t successfully run parse_url()</li>
+<li><strong>(v.2)</strong>  IMPROVED:  Refactoring for better code organisation</li>
+<li>ADDED:      New Feature - <a href="http://icwp.io/5s">Rename WP Login Page</a>.</li>
+<li>ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.</li>
+<li>CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the “Dashboard” area</li>
+<li>IMPROVED:   Firewall processing code is simplified and more efficient.</li>
+</ul>
+<p>= 4.2.1 =<br>
+<em>Released: 22th December, 2014</em></p>
+<ul>
+<li>FIXED:      Changes to how feature specifications are read from disk to prevent .tmp file build up.</li>
+</ul>
+<p>= 4.2.0 =<br>
+<em>Released: 12th December, 2014</em></p>
+<ul>
+<li>ADDED:      Audit Trail Auto Cleaning - default cleans out entries older than 30 days.</li>
+<li>FIXED:      Various small bug fixes and code cleaning.</li>
+</ul>
+<p>= 4.1.4 =<br>
+<em>Released: 24th November, 2014</em></p>
+<ul>
+<li>FIXED:      Fixed small logic bug which prevented deactivation of the plugin on the UI.</li>
+</ul>
+<p>= 4.1.3 =<br>
+<em>Released: 19th November, 2014</em></p>
+<ul>
+<li>IMPROVED:   User Sessions are simplified.</li>
+<li>UPDATED:    a few translation files based on the latest available contributions.</li>
+</ul>
+<p>= 4.1.2 =</p>
+<ul>
+<li>ADDED:      Self-correcting database table validation - if the structure of a database table isn’t what is expected, it’ll be re-created.</li>
+</ul>
+<p>= 4.1.1 =</p>
+<ul>
+<li>WARNING:    Due to new IPv6 support, all databases tables will be rebuilt - all active user sessions will be destroyed.</li>
+<li>ADDED:      Preliminary support for IPv6 addresses throughout. We don’t support whitelist ranges but IPv6 addresses are handled much more reliably in general.</li>
+<li>ADDED:      New audit trail concept added called “immutable” that represents entries that will never be deleted - such entries would usually involve actions taken on the audit trail itself.</li>
+<li>FIXED:      Support for audit trail events with longer names.</li>
+<li>IMPROVED:   Comments Filtering - It now honours the WordPress settings for previously approved comment authors and never filters such comments.</li>
+<li>REMOVED:    Option to enable GASP Comments Filtering for logged-in users has been completely removed - this reduces plugin options complexity. All logged-in users by-pass <strong>all</strong> comments filtering.</li>
+<li>FIXED:      Prevention against plugin redirect loops under certain conditions.</li>
+<li>FIXED:      IP whitelisting wasn’t working under certain cases.</li>
+</ul>
+<p>= 4.0.0 =</p>
+<ul>
+<li>ADDED:      New Feature - Audit Trail</li>
+<li>ADDED:      Audit Trail options include: Plugins, Themes, Email, WordPress Core, Posts/Pages, Shield plugin</li>
+<li>FIXED:      Full and proper cleanup of plugin options, crons, and databases upon deactivation.</li>
+<li>REMOVED:    Firewall Log. This is no longer an option and is instead integrated into the “Shield” Audit Trail.</li>
+</ul>
+<p>= 3.5.5 =</p>
+<ul>
+<li>ADDED:      Better admin notifications for events such as options saving etc.</li>
+<li>CHANGE:     Some plugin styling to highlight features and options better.</li>
+<li>FIXED:      Small bug with options default values.</li>
+</ul>
+<p>= 3.5.3 =</p>
+<ul>
+<li>ADDED:      A warning message on the WordPress admin if the “forceOff” override is active.</li>
+<li>CHANGED:    The ‘forceOff’ system is now temporary - i.e. it doesn’t save the configuration, and so once this file is removed, the plugin returns to the settings specified.</li>
+<li>CHANGED:    The ‘forceOn’ option is now removed.</li>
+<li>FIXED:      Problems with certain hosting environments reading in files with the “.yaml” extension - <a
+		href="https://wordpress.org/support/topic/yaml-breaks-plugin">support ref</a></li>
+<li>FIXED:      Small issue where when the file system paths change, some variables don’t update properly.</li>
+</ul>
+<p>= 3.5.0 =</p>
+<ul>
+<li>CHANGED:    Plugin features are now configured <a href="https://github.com/mustangostang/spyc/">using YAML</a> - no more in-PHP configuration.</li>
+<li>REMOVED:    A few options from User Sessions Management as they were unnecessary.</li>
+<li>CHANGED:    Database storing tables now have consistent naming.</li>
+<li>FIXED:      Issue with User Sessions Management where ‘0’ was specified for session length, resulting in lock out.</li>
+<li>FIXED:      Firewall log gathering.</li>
+<li>FIXED:      Various PHP warning notices.</li>
+</ul>
+<p>= 3.4.0 =</p>
+<ul>
+<li>ADDED:      Option to limit number of simultaneous sessions per WordPress user login name (User Management section)</li>
+</ul>
+<p>= 3.3.0 =</p>
+<ul>
+<li>ADDED:      Option to send notification when an administrator user logs in successfully (under User Management menu).</li>
+<li>CHANGED:    Refactoring for how GET and POST data is retrieved</li>
+</ul>
+<p>= 3.2.1 =</p>
+<ul>
+<li>FIXED:      Custom Comment Filter message problem when using more than one substitution. <a
+		href="https://wordpress.org/support/topic/warning-sprintf-too-few-arguments-in-hometnrastropublic_htmlwpwp-conten?replies=8#post-5927337">ref</a></li>
+</ul>
+<p>= 3.2.0 =</p>
+<ul>
+<li>ADDED:      Options to allow by-pass XML-RPC so as to be compatible with WordPress iPhone/Android apps.</li>
+<li>UPDATED:    Login screen message when you’re forced logged-out due to 2-factor auth failure on IP or cookie.</li>
+<li>CHANGED:    Tweaked method for setting admin access protection on/off</li>
+<li>CHANGED:    comment filtering code refactoring.</li>
+<li>FIXED:      Options that were “multiple selects” weren’t saving correctly</li>
+</ul>
+<p>= 3.1.5 =</p>
+<ul>
+<li>FIX:        Where some comments would fail GASP comment token checking.</li>
+</ul>
+<p>= 3.1.4 =</p>
+<ul>
+<li>FIX:        Logout URL parameters are now generated correctly so that the correct messages are shown.</li>
+<li>CHANGED:    small optimizations and code refactoring.</li>
+<li>UPDATED:    a few translation files based on the latest available contributions.</li>
+</ul>
+<p>= 3.1.3 =</p>
+<ul>
+<li>FIX:        issue with login cooldown timeouts not being updated where admin access restriction is in place.</li>
+</ul>
+<p>= 3.1.2 =</p>
+<ul>
+<li>FIX:        auto-updates feature not loading</li>
+<li>FIX:        simplified implementation of login protection feature to reduce possibility for bugs/lock-outs</li>
+<li>FIX:        auto-forwarding for wp-login.php was preventing user logout</li>
+</ul>
+<p>= 3.1.0 =</p>
+<ul>
+<li>ADDED:      option to check the logged-in user session only on WordPress admin pages (now the default setting)</li>
+<li>ADDED:      option to auto-forward to the WordPress dashboard when you go to wp-login.php and you’re already logged in.</li>
+<li>ADDED:      message to login screen when no user session is found</li>
+<li>CHANGED:    does not verify session when performing AJAX request. (need to build appropriate AJAX response)</li>
+<li>FIX:        for wp_login action not passing second argument</li>
+</ul>
+<p>= 3.0.0 =</p>
+<ul>
+<li>FEATURE:    User Management. Phase 1 - create user sessions to track current and attempted logged in users.</li>
+<li>CHANGED:    MASSIVE plugin refactoring for better performance and faster, more reliable future development of features</li>
+<li>ADDED:      Obscurity Feature - ability to remove the WP Generator meta tag.</li>
+<li>ADDED:      ability to change user login session length in days</li>
+<li>ADDED:      ability to set session idle timeout in hours</li>
+<li>ADDED:      ability to lock session to a particular IP address (2-factor auth by IP is separate)</li>
+<li>ADDED:      ability to view active user sessions</li>
+<li>ADDED:      ability to view last page visited for active sessions</li>
+<li>ADDED:      ability to view last active time for active sessions</li>
+<li>ADDED:      ability to view failed or attempted logins in the past 48hrs</li>
+<li>ADDED:      Support for GASP login using WooCommerce</li>
+<li>CHANGED:    Admin Access Restriction now has a separate options/feature page</li>
+<li>CHANGED:    Admin styling to better see some selected options</li>
+<li>ADDED:      Support for WP Wall shoutbox plugin (does no GASP comment checks)</li>
+<li>CHANGED:    Removed support for upgrading from versions prior to 2.0</li>
+<li>CHANGED:    Removed support for importing from Firewall 2 plugin - to import, manually install plugin v2.6.6, import settings, then upgrade.</li>
+</ul>
+<p>= 2.6.6 =</p>
+<ul>
+<li>FIX:        Improved compatibility with bbPress.</li>
+</ul>
+<p>= 2.6.5 =</p>
+<ul>
+<li>FIX:        Could not enable Admin Access Protection feature on new installs due to too aggressive testing on security.</li>
+</ul>
+<p>= 2.6.4 =</p>
+<ul>
+<li>ENHANCED:   Dashboard now shows a more visual summary of settings and removes duplicate options settings with links to sections.</li>
+<li>ENHANCED:   WordPress Lock Down options now also set the corresponding WordPress defines if they’re not already.</li>
+</ul>
+<p>= 2.6.3 =</p>
+<ul>
+<li>ADDED:      More in-line plugin links to help/blog resources</li>
+<li>ENHANCED:   <a href="http://icwp.io/5b">Admin Access Protection</a> is further enhanced in 3 ways:</li>
+</ul>
+<ol>
+<li>More robust cookie values using MD5s</li>
+<li>Blocks plugin options updating right at the point of WordPress options update so nothing can rewrite the actual plugin options.</li>
+<li>Locks the current Admin Access session to your IP address - effectively only 1 Shield admin allowed at a time.</li>
+</ol>
+<p>= 2.6.2 =</p>
+<ul>
+<li>ENHANCED:   Added option to completely reject a SPAM comment and redirect to the home page (so it doesn’t fill up your database with rubbish)</li>
+<li>ADDED:      Plugin now has an internal stats counter for spam and other significant plugin events.</li>
+</ul>
+<p>= 2.6.1 =</p>
+<ul>
+<li>ADDED:      Plugin now installs with default SPAM blacklist.</li>
+<li>ADDED:      Now automatically checks and updates the SPAM blacklist when it’s older than 48hrs.</li>
+<li>ENHANCED:   Comment messages indicate where the SPAM content was found when marking human-based spam messages.</li>
+</ul>
+<p>= 2.6.0 =</p>
+<p><strong>Major Features Release: Please review SPAM comments filtering options to determine where SPAM goes</strong></p>
+<ul>
+<li>FEATURE:    Added Human SPAM comments filtering - replacement for Akismet that doesn’t use or send any data to 3rd party services. Uses <a
+		href="https://github.com/splorp/wordpress-comment-blacklist">Blacklist provided and maintained by Grant Hutchinson</a></li>
+<li>ENHANCED:   Two-Factor Login now automatically logs in the user to the admin area without them having to re-login again.</li>
+<li>ENHANCED:   Added ability to terminate all currently (two-factor) verified logins.</li>
+<li>ENHANCED:   Spam filter/scanning adds an explanation to the SPAM content to show why a message was filtered.</li>
+<li>FIXES:      For PHP warnings while in php strict mode.</li>
+<li>CLEAN:      Much cleaning up of code.</li>
+</ul>
+<p>= 2.5.9 =</p>
+<ul>
+<li>FEATURE:    Added option to try and exclude search engine bots from firewall checking option - OFF by default.</li>
+</ul>
+<p>= 2.5.8 =</p>
+<ul>
+<li>FEATURE:    Added ‘PHP Code’ Firewall checking option.</li>
+</ul>
+<p>= 2.5.7 =</p>
+<ul>
+<li>IMPROVED:   Handling and logic of two-factor authentication and user roles/levels</li>
+</ul>
+<p>= 2.5.6 =</p>
+<ul>
+<li>FEATURE:    Added ability to specify the particular WordPress user roles that are subject to 2-factor authentication. (Default: Contributors, Authors, Editors and Administrators)</li>
+</ul>
+<p>= 2.5.5 =</p>
+<ul>
+<li>FEATURE:    Added ‘Lockdown’ feature to force login to WordPress over SSL.</li>
+<li>FEATURE:    Added ‘Lockdown’ feature to force WordPress Admin dashboard to be delivered over SSL.</li>
+<li>FIX:        Admin restricted access feature wasn’t disabled with the “forceOff” option.</li>
+</ul>
+<p>= 2.5.4 =</p>
+<ul>
+<li>FIX:        How WordPress Automatic/Background Updates filters worked was changed with WordPress 3.8.2.</li>
+</ul>
+<p>= 2.5.3 =</p>
+<ul>
+<li>UPDATED:    Translations. And confirmed compatibility with WordPress 3.9</li>
+</ul>
+<p>= 2.5.2 =</p>
+<ul>
+<li>FEATURE:    Option to Prevent Remote Posting to the WordPress Login system. Will check that the login form was submitted from the same site.</li>
+</ul>
+<p>= 2.5.1 =</p>
+<ul>
+<li>UPDATED:    Translations and added some partials (Catalan, Persian)</li>
+<li>FIX:        for cleanup cron running on non-existent tables.</li>
+</ul>
+<p>= 2.5.0 =</p>
+<ul>
+<li>FEATURE:    Two-Factor Authenticated Login using <a
+		href="http://icwp.io/4i">Yubikey</a> One Time Passwords (OTP).</li>
+</ul>
+<p>= 2.4.3 =</p>
+<ul>
+<li>ADDED:      Translations: Spanish, Italian, Turkish. (~15% complete)</li>
+<li>UPDATED:    Hebrew Translations (100%)</li>
+</ul>
+<p>= 2.4.2 =</p>
+<ul>
+<li>ADDED:      Contextual help links for many options.  More to come…</li>
+<li>ADDED:      More Portuguese (Brazil) translations (~80%)</li>
+</ul>
+<p>= 2.4.1 =</p>
+<ul>
+<li>ADDED:      More strings to the translation set for better multilingual support</li>
+<li>ADDED:      Portuguese (Brazil) translations (~40%)</li>
+<li>UPDATED:    Hebrew Translations</li>
+<li>FIXED:      Automatic cleaning of database logs wasn’t actually working as expected. Should now be fixed.</li>
+</ul>
+<p>= 2.4.0 =</p>
+<ul>
+<li>NEW:        Option to enable Two-Factor Authentication based on Cookie. In this way you can tie a user session to a single browser.</li>
+<li>FIX:        Better WordPress Multisite (WPMS) Support.</li>
+</ul>
+<p>= 2.3.4 =</p>
+<ul>
+<li>FIX:        Automatic updating of itself.</li>
+</ul>
+<p>= 2.3.3 =</p>
+<ul>
+<li>ADDED:      Hebrew Translations. Thanks <a href="http://atar4u.com">Ahrale</a>!</li>
+<li>ADDED:      Automatic trimming of the Firewall access log to 7 days - it just grows too large otherwise.</li>
+<li>FIX:        The previously added automatic clean up of old comments and login protect database entries was wiping out the valid login protect<br>
+entries and was forcing users to re-login every 24hrs.</li>
+<li>FIX:        Some small bugs, errors, and PHPDoc Comments.</li>
+</ul>
+<p>= 2.3.2 =</p>
+<ul>
+<li>ADDED:      Automatic cleaning of GASP Comments Filter and Login Protection database entries (older than 24hrs) using WordPress Cron (everyday @ 6am)</li>
+<li>CHANGED:    Huge code refactoring to allow for more easily use with other WordPress plugins.</li>
+</ul>
+<p>= 2.2.5 =</p>
+<ul>
+<li>ADDED:      Email sending options for automatic update notifications - options to change the notification email address, or turn it off completely.</li>
+</ul>
+<p>= 2.2.4 =</p>
+<ul>
+<li>FIX:        Small bug fix.</li>
+<li>CHANGED:    When running a force automatic updates process, tries to remove influence from other plugins and uses only this plugin’s automatic updates settings.</li>
+<li>CHANGED:    A bit of automatic updates code refactoring.</li>
+</ul>
+<p>= 2.2.2 =</p>
+<ul>
+<li>CHANGED:    Changed all options to be disabled by default.</li>
+<li>CHANGED:    The option for admin notices will turn off all main admin notices except after you update options.</li>
+</ul>
+<p>= 2.2.1 =</p>
+<ul>
+<li>ADDED:      Verified compatibility with WordPress 3.8</li>
+</ul>
+<p>= 2.2.0 =</p>
+<ul>
+<li>CHANGED:    Certain filesystem calls are more compatible with restrictive hosting environments.</li>
+<li>CHANGED:    Plugin is now ready to integate with <a
+		href="http://www.icontrolwp.com/2013/11/manage-wordpress-automatic-background-updates-icontrolwp/">iControlWP automatic background updates system</a>.</li>
+<li>FIX:        Login Protection Cooldown feature may not operate properly in certain scenarios.</li>
+</ul>
+<p>= 2.1.5 =</p>
+<ul>
+<li>IMPROVED:   Improved logic for Firewall whitelisting for pages and parameters to ensure whitelisting rules are followed.</li>
+<li>CHANGED:    The whitelisting rule for posting pages/posts is only for the “content” and the firewall checking will apply to all other page parameters.</li>
+</ul>
+<p>= 2.1.4 =</p>
+<ul>
+<li>FIX:        When you run the Force Automatic Background Updates, it disables the plugins.  This problem is now fixed.</li>
+</ul>
+<p>= 2.1.2 =</p>
+<ul>
+<li>FIX:        A bug that prevented auto-updates of this plugin.</li>
+<li>FIX:        Not being able to hide translations and upgrade notices.</li>
+<li>ADDED:      Tweaks to auto-update feature to allow interfacing with the iControlWP service to customize the auto update system.</li>
+</ul>
+<p>= 2.1.0 =</p>
+<ul>
+<li>ADDED:      A button that lets you run the WordPress Automatic Updates process on-demand (so you don’t have to wait for WordPress cron).</li>
+<li>CHANGED:    The plugin now sets more options to be turned on by default when the plugin is first activated.</li>
+<li>CHANGED:    A lot of optimizations and code refactoring.</li>
+</ul>
+<p>= 2.0.3 =</p>
+<ul>
+<li>FIX:        Whoops, sorry, accidentally removed the option to toggle “disable file editing”.  It’s back now.</li>
+</ul>
+<p>= 2.0.2 =</p>
+<ul>
+<li>CHANGED:    WordPress filters used to programmatically update whitelists now update the Login Protection IP whitelist</li>
+</ul>
+<p>= 2.0.1 =</p>
+<ul>
+<li>ADDED:      Localization capabilities. All we need now are translators! <a href="http://translate.icontrolwp.com/">Go here to get started</a>.</li>
+<li>ADDED:      Option to mask the WordPress version so the real version is never publicly visible.</li>
+</ul>
+<p>= 1.9.2 =</p>
+<ul>
+<li>CHANGED:    Simplified the automatic WordPress Plugin updates into 1 filter for consistency</li>
+</ul>
+<p>= 1.9.1 =</p>
+<ul>
+<li>ADDED:      Increased admin access security features - blocks the deactivation of itself if you’re not authenticated fully with the plugin.</li>
+<li>ADDED:      If you’re not authenticated with the plugin, the plugin listing view wont have ‘Deactivate’ or ‘Edit’ links.</li>
+</ul>
+<p>= 1.9.0 =</p>
+<ul>
+<li>ADDED:      New WordPress Automatic Updates Configuration settings</li>
+</ul>
+<p>= 1.8.2 =</p>
+<ul>
+<li>ADDED:      Notification of available plugin upgrade is now an option under the ‘Dashboard’</li>
+<li>CHANGED:    Certain admin and upgrade notices now only appear when you’re authenticated with the plugin (if this is enabled)</li>
+<li>FIXED:      PHP Notice with undefined index.</li>
+</ul>
+<p>= 1.8.1 =</p>
+<ul>
+<li>ADDED:      Feature- Access Key Restriction <a href="http://icwp.io/2s">more info</a>.</li>
+<li>ADDED:      Feature- WordPress Lockdown. Currently only provides 1 option, but more to come.</li>
+</ul>
+<p>= 1.7.3 =</p>
+<ul>
+<li>CHANGED:    Reworked a lot of the plugin to optimize for further performance.</li>
+<li>FIX:        Potential infinite loop in processing firewall.</li>
+</ul>
+<p>= 1.7.1 =</p>
+<ul>
+<li>ADDED:      Much more efficiency yet again in the loading/saving of the plugin options.</li>
+</ul>
+<p>= 1.7.0 =</p>
+<ul>
+<li>ADDED:      Preliminary WordPress Multisite (WPMS/WPMU) Support.</li>
+<li>CHANGED:    The Firewall now kicks in on the ‘plugins_loaded’ hook instead of as the actual firewall plugin is initialized (as a result<br>
+of WP Multisite support).</li>
+</ul>
+<p>= 1.6.2 =</p>
+<ul>
+<li>REMOVED:    Automatic upgrade option until I can ascertain what caused the plugin to auto-disable.</li>
+</ul>
+<p>= 1.6.1 =</p>
+<ul>
+<li>ADDED:      Options to fully customize the text displayed by the GASP comments section.</li>
+<li>ADDED:      Option to include logged-in users in the GASP Comments Filter.</li>
+</ul>
+<p>= 1.6.0 =</p>
+<ul>
+<li>ADDED:      A new section - ‘Comments Filtering’ that will form the basis for filtering comments with SPAM etc.</li>
+<li>ADDED:      Option to add enhanced GASP based comments filtering to prevent SPAM bots posting comments to your site.</li>
+</ul>
+<p>= 1.5.6 =</p>
+<ul>
+<li>IMPROVED:   Whitelist/Blacklist IP range processing to better cater for ranges when saving, with more thorough checking.</li>
+<li>IMPROVED:   Whitelist/Blacklist IP range processing for 32-bit systems.</li>
+<li>FIXED:      A bug with Whitelist/Blacklist IP checking.</li>
+</ul>
+<p>= 1.5.5 =</p>
+<ul>
+<li>FIXED:      Quite a few bugs fixed.</li>
+</ul>
+<p>= 1.5.4 =</p>
+<ul>
+<li>FIXED:      Typo error.</li>
+</ul>
+<p>= 1.5.3 =</p>
+<ul>
+<li>FIXED:      Some of the firewall processors were saving unnecessary data.</li>
+</ul>
+<p>= 1.5.2 =</p>
+<ul>
+<li>CHANGED:    The method for finding the client IP address is more thorough, in a bid to work with Proxy servers etc.</li>
+<li>FIXED:      PHP notice reported here: <a href="https://wordpress.org/support/topic/getting-errors-when-logged-in">http://wordpress.org/support/topic/getting-errors-when-logged-in</a></li>
+</ul>
+<p>= 1.5.1 =</p>
+<ul>
+<li>FIXED:      Bug fix where IP address didn’t show in email.</li>
+<li>FIXED:      Attempt to fix problem where update message never hides.</li>
+</ul>
+<p>= 1.5.0 =</p>
+<ul>
+<li>ADDED:      A new IP whitelist on the Login Protect that lets you by-pass login protect rules for given IP addresses.</li>
+<li>REMOVED:    Firewall rule for wp-login.php and whitelisted IPs.</li>
+</ul>
+<p>= 1.4.2 =</p>
+<ul>
+<li>ADDED:      The plugin now has an option to automatically upgrade itself when an update is detected - enabled by default.</li>
+</ul>
+<p>= 1.4.1 =</p>
+<ul>
+<li>ADDED:      The plugin will now displays an admin notice when a plugin upgrade is available with a link to immediately update.</li>
+<li>ADDED:      Plugin collision: removes the main hook by ‘All In One WordPress Security’. No need to have both plugins running.</li>
+<li>ADDED:      Improved Login Cooldown Feature- works more like email throttling as it now uses an extra filesystem-based level of protection.</li>
+<li>FIXED:      Login Cooldown Feature didn’t take effect in certain circumstances.</li>
+</ul>
+<p>= 1.4.0 =</p>
+<ul>
+<li>ADDED:      All-new plugin options handling making them more efficient, easier to manage/update, using far fewer WordPress database options.</li>
+<li>CHANGED:    Huge improvements on database calls and efficiency in loading plugin options.</li>
+<li>FIXED:      Nonce implementation.</li>
+</ul>
+<p>= 1.3.2 =</p>
+<ul>
+<li>FIXED:      Small compatibility issue with Quick Cache menu not showing.</li>
+</ul>
+<p>= 1.3.0 =</p>
+<ul>
+<li>ADDED:      Email Throttle Feature - this will prevent you getting bombarded by 1000s of emails in case you’re hit by a bot.</li>
+<li>ADDED:      Another Firewall die() option. New option will print a message and uses the wp_die() function instead.</li>
+<li>ADDED:      Refactored and improved the logging system (upgrading will delete your current logs!).</li>
+<li>ADDED:      Option to separately log Login Protect features.</li>
+<li>ADDED:      Option to by-pass 2-factor authentication in the case sending the verification email fails<br>
+(so you don’t get locked out if your hosting doesn’t support email!).</li>
+<li>CHANGED:    Login Protect checking now better logs out users immediately with a redirect.</li>
+<li>CHANGED:    We now escape the log data being printed - just in case there’s any HTML/JS etc in there we don’t want.</li>
+<li>CHANGED:    Optimized and cleaned a lot of the option caching code to improve reliability and performance (more to come).</li>
+</ul>
+<p>= 1.2.7 =</p>
+<ul>
+<li>FIX:        Bug where the GASP Login protection was only working when you had 2-factor authentication enabled.</li>
+</ul>
+<p>= 1.2.6 =</p>
+<ul>
+<li>ADDED:      Ability to import settings from WordPress Firewall 2 plugin options - note, doesn’t import page and variables whitelisting.</li>
+<li>FIX:        A reported bug - parameter values could also be arrays.</li>
+</ul>
+<p>= 1.2.5 =</p>
+<ul>
+<li>ADDED:      New Feature - Option to add a checkbox that blocks automated SPAM Bots trying to log into your site.</li>
+<li>ADDED:      Added a clear user message when they verify their 2-factor authentication.</li>
+<li>FIX:        A few bugfixes and logic corrections.</li>
+</ul>
+<p>= 1.2.4 =</p>
+<ul>
+<li>CHANGED:    Documentation on the dashboard, and the message after installing the firewall have been updated to be clearer and more informative.</li>
+<li>FIX:        A few bugfixes and logic corrections.</li>
+</ul>
+<p>= 1.2.3 =</p>
+<ul>
+<li>FIX:        bugfix.</li>
+</ul>
+<p>= 1.2.2 =</p>
+<ul>
+<li>FIX:        Some warnings and display bugs.</li>
+</ul>
+<p>= 1.2.1 =</p>
+<ul>
+<li>ADDED:      New Feature - Login Wait Interval. To reduce the effectiveness of brute force login attacks, you can add an interval by<br>
+which WordPress will wait before processing any more login attempts on a site.</li>
+<li>CHANGED:    Optimized some settings for performance.</li>
+<li>CHANGED:    Cleaned up the UI when the Firewall / Login Protect features are disabled (more to come).</li>
+<li>CHANGED:    Further code improvements (more to come).</li>
+</ul>
+<p>= 1.2.0 =</p>
+<ul>
+<li>ADDED:      New Feature - <strong>Login Protect</strong>. Added 2-Factor Login Authentication for all users and their associated IP addresses.</li>
+<li>CHANGED:    The method for processing the IP address lists is improved.</li>
+<li>CHANGED:    Improved .htaccess rules (thanks MickeyRoush)</li>
+<li>CHANGED:    Mailing method now uses WP_MAIL</li>
+<li>CHANGED:    Lot’s of code improvements.</li>
+</ul>
+<p>= 1.1.6 =</p>
+<ul>
+<li>ADDED:      Option to include Cookies in the firewall checking.</li>
+</ul>
+<p>= 1.1.5 =</p>
+<ul>
+<li>ADDED: Ability to whitelist particular pages and their parameters (see FAQ)</li>
+<li>CHANGED: Quite a few improvements made to the reliability of the firewall processing.</li>
+</ul>
+<p>= 1.1.4 =</p>
+<ul>
+<li>FIX: Left test path in plugin.</li>
+</ul>
+<p>= 1.1.3 =</p>
+<ul>
+<li>ADDED: Option to completely ignore logged-in Administrators from the Firewall processing (they wont even trigger logging etc).</li>
+<li>ADDED: Ability to (un)blacklist and (un)whitelist IP addresses directly from within the log.</li>
+<li>ADDED: helpful link to IP WHOIS from within the log.</li>
+</ul>
+<p>= 1.1.2 =</p>
+<ul>
+<li>CHANGED: Logging now has its own dedicated database table.</li>
+</ul>
+<p>= 1.1.1 =</p>
+<ul>
+<li>Fix: Block notification emails weren’t showing the user-friendly IP Address format.</li>
+</ul>
+<p>= 1.1.0 =</p>
+<ul>
+<li>You can now specify IP ranges in whitelists and blacklists. To do this separate the start and end address with a hyphen (-) E.g. For everything between 1.2.3.4 and 1.2.3.10, you would do: 1.2.3.4-1.2.3.10</li>
+<li>You can now specify which email address to send the notification emails.</li>
+<li>You can now add a comment to IP addresses in the whitelist/blacklist. To do this, write your IP address then type a SPACE and write whatever you want (don’t take a new line).</li>
+<li>You can now set to delete ALL firewall settings when you deactivate the plugin.</li>
+<li>Improved formatting of the firewall log.</li>
+</ul>
+<p>= 1.0.2 =</p>
+<ul>
+<li>First Release</li>
+</ul>
+<p>== Upgrade Notice ==</p>
+<p>= 1.1.2 =</p>
+<ul>
+<li>CHANGED: Logging now has its own dedicated database table.</li>
+<li>Fix: Block notification emails weren’t showing the user-friendly IP Address format.</li>
+<li>You can now specify IP ranges in whitelists and blacklists. To do this separate the start and end address with a hyphen (-) E.g. For everything between 1.2.3.4 and 1.2.3.10, you would do: 1.2.3.4-1.2.3.10</li>
+<li>You can now specify which email address to send the notification emails.</li>
+<li>You can now add a comment to IP addresses in the whitelist/blacklist. To do this, write your IP address then type a SPACE and write whatever you want (don’t take a new line).</li>
+<li>You can now set to delete ALL firewall settings when you deactivate the plugin.</li>
+<li>Improved formatting of the firewall log.</li>
+</ul>
+
+</body></html>
