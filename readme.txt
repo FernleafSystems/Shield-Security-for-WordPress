@@ -3,29 +3,41 @@ Contributors: onedollarplugin, paultgoodchild
 Donate link: http://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, all in one, scan, spam, recaptcha, two-factor authentication, ithemes, wordfence, better wp security, cerber, hack
+Tags: security, all in one, scanner, firewall, spam, two-factor authentication, wordfence, cerber, ithemes
 Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.0
+Stable tag: 6.6.1
 
-Free All-In-One Protection for your WordPress sites, data, reputation, and users. Shield: the Highest-Rated Security Plugin for WordPress
+Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
 == Description ==
 
-= You Can Trust Shield To Do Exactly What It Says It Will Do =
+### Powerful Security for WordPress *doesn't* need to be *hard*
 
-We know you may have been let down in the past, but Shield is the WordPress Security solution that does what it says it'll do - Protect Your Site.
+There's no good reason for WordPress security plugins to be so complicated. It doesn't have to be that way.
 
-= All-In-One Shield Is Easy To Use =
+Shield is the easiest security plugin to setup - you simply activate it. Then a beautiful, step-by-step wizard will walk you through the basic configuration.
 
-Your WP Security plugin must be easy to understand and easy to install/setup - Shield built for both beginners and advanced.
+And whenever you're ready, you can dig deeper.
 
-And importantly, it [comes highly recommended](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/)
-- Shield has the highest average rating for any WP Security plugin.
+#### Trust: Shield Does Exactly What It Says It Will Do
 
-Its simple but powerful protection blocks attacks and suspicious activity, but won't lock you out.
+You've probably been let down in the past, but Shield is the WordPress Security solution that does what it says it'll do - Protect Your Site.
+
+#### Constant notifications are not okay. You're already busy enough!
+
+Shield is your Silent Guardian. It doesn't squawk at you every time a visitor presses against your defenses.
+
+Shield notifies you when you need to be alerted to an incident. Otherwise, it'll do *its job* without moaning at you, and let you get on with *your job*.
+
+#### You're not alone, and there's no risk to test it out.
+
+You can try out Shield alongside any other security plugins, and it [comes highly recommended](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/)
+- it has the highest average rating for any WP Security plugin.
+
+Easy-to-setup, but powerful protection blocks attacks and suspicious activity, but won't lock you out.
 
 Shield is the must-have, free Security Solution for all your WordPress sites.
 
@@ -75,6 +87,11 @@ From November 2017, Shield Security now has a Pro version for those that need to
 > 1. (coming soon) White Labelling
 > 1. (coming soon) Statistics and Reporting
 > 1. (coming soon) Select individual automatic plugin updates
+
+### Dedicated Premium Support
+
+The Shield Security team prioritises email technical support over the WordPress.org forums.
+Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](http://icwp.io/ab).
 
 Learn more on going Pro at [our One Dollar Plugin store](http://icwp.io/ab).
 
@@ -373,9 +390,10 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.0 - Current Release =
-*Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
+= 6.6.1 - Current Release =
+*Released: 22nd March, 2018* - [Release Notes](http://icwp.io/c3)
 
+* **(v.1)**  FIXED:			Various small fixes and improvements
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.
