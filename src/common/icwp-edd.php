@@ -112,7 +112,8 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 		$oLicense = null;
 
 		$aLicenseLookupParams = array(
-			'body' => array_merge(
+			'timeout' => 10,
+			'body'    => array_merge(
 				array(
 					'edd_action' => $sAction,
 					'license'    => $sKey,
