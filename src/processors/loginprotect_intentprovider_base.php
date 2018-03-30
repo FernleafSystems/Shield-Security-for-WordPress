@@ -266,7 +266,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return string
 	 */
 	protected function fetchCodeFromRequest() {
-		return esc_attr( trim( $this->loadDP()->FetchRequest( $this->getLoginFormParameter(), false, '' ) ) );
+		return esc_attr( trim( $this->loadDP()->request( $this->getLoginFormParameter(), false, '' ) ) );
 	}
 
 	/**

@@ -241,7 +241,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
 				'placeholder' => _wpsf__( 'Use your Yubikey to generate a new code.' ),
-				'value'       => $this->fetchCodeFromRequest(),
+				'value'       => '',
 				'text'        => _wpsf__( 'Yubikey OTP' ),
 				'help_link'   => 'http://icwp.io/4i'
 			);
