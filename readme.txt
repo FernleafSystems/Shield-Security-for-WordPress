@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.2
+Stable tag: 6.6.3
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -20,17 +20,21 @@ There's no good reason for WordPress security plugins to be so complicated. It d
 
 Shield is the easiest security plugin to setup - you simply activate it. Then a beautiful, step-by-step wizard will walk you through the basic configuration.
 
-And whenever you're ready, you can dig deeper.
+And you can dig deeper, any time you're ready.
 
 #### Trust: Shield Does Exactly What It Says It Will Do
 
 You've probably been let down in the past, but Shield is the WordPress Security solution that does what it says it'll do - Protect Your Site.
 
-#### Constant notifications are not okay. You're already busy enough!
+#### Constant notifications are not okay. You're already busy!
+
+Receiving constant alerts from your security plugins isn't "security". It's just noise. By the time you receive a notification and respond to it, it's already too late.
+
+Instead, Shield Security does it what it needs to do, and alerts you if and when you need to informed.
 
 Shield is your Silent Guardian. It doesn't squawk at you every time a visitor presses against your defenses.
 
-Shield notifies you when you need to be alerted to an incident. Otherwise, it'll do *its job* without moaning at you, and let you get on with *your job*.
+It'll do *its job* without moaning at you, and leave you in peace to get on with *your job*.
 
 #### You're not alone, and there's no risk to test it out.
 
@@ -348,10 +352,10 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.2 - Current Release =
-*Released: 22nd March, 2018* - [Release Notes](http://icwp.io/c3)
+= 6.6.3 - Current Release =
+*Released: 30th March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.1-2)**  FIXED:		Various small fixes and improvements
+* **(v.1-3)**  FIXED:		Various small fixes and improvements
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.
@@ -362,7 +366,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa).
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.1-2)**  FIXED:		Various small fixes and improvements
+* **(v.1-3)**  FIXED:		Various small fixes and improvements
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.

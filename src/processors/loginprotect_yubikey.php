@@ -8,6 +8,7 @@ require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
+	const SECRET_LENGTH = 12;
 	/**
 	 * @const string
 	 */
@@ -20,6 +21,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			parent::run();
 		}
 	}
+
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
@@ -58,7 +60,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 *
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
@@ -86,7 +87,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		// We're trying to validate our OTP to activate
 		if ( !$this->hasValidatedProfile( $oSavingUser ) ) {
 
-			$this->setSecret( $oSavingUser, substr( $sOtp, 0, 12 ) )
+			$this->setSecret( $oSavingUser, substr( $sOtp, 0, $this->getSecretLength() ) )
 				 ->setProfileValidated( $oSavingUser );
 			$oWpNotices->addFlashMessage(
 				sprintf( _wpsf__( '%s was successfully added to your account.' ),
@@ -130,10 +131,10 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 //			$sApiKey = $this->getOption('yubikey_api_key');
 
 		// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
-		$sYubikey12 = substr( $sOneTimePassword, 0 , 12 );
+		$sYubikey12 = substr( $sOneTimePassword, 0, $this->getSecretLength() );
 		$fUsernameFound = false; // if username is never found, it means there's no yubikey specified which means we can bypass this authentication method.
 		$fFoundMatch = false;
-		foreach( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
+		foreach ( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
 			if ( isset( $aUsernameYubikeyPair[ $sUsername ] ) ) {
 				$fUsernameFound = true;
 				if ( $aUsernameYubikeyPair[ $sUsername ] == $sYubikey12 ) {
@@ -145,33 +146,33 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 		// If no yubikey-username pair found for given username, we by-pass Yubikey auth.
 		if ( !$fUsernameFound ) {
-			$sAuditMessage = sprintf( _wpsf__('User "%s" logged in without a Yubikey One Time Password because no username-yubikey pair was found for this user.'), $sUsername );
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" logged in without a Yubikey One Time Password because no username-yubikey pair was found for this user.' ), $sUsername );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_bypass' );
 			return $oUser;
 		}
 
 		// Username was found in the list of key pairs, but the yubikey provided didn't match that username.
 		if ( !$fFoundMatch ) {
-			$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey ID "%s" used was not in list of authorised keys.'), $sUsername, $sYubikey12 );
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to login but Yubikey ID "%s" used was not in list of authorised keys.' ), $sUsername, $sYubikey12 );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_permitted_id' );
 
 			if ( $bErrorOnFailure ) {
 				$oError->add(
 					'yubikey_not_allowed',
-					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__('The Yubikey provided is not on the list of permitted keys for this user.') )
+					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey provided is not on the list of permitted keys for this user.' ) )
 				);
 				return $oError;
 			}
 		}
 
 		if ( $this->processOtp( null, $sOneTimePassword ) ) {
-			$sAuditMessage = sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $sUsername );
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" successfully logged in using a validated Yubikey One Time Password.' ), $sUsername );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
 			$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 		}
 		else {
 
-			$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response.".'), $sUsername );
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response.".' ), $sUsername );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
 
 			$oError->add(
@@ -185,7 +186,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 	/**
 	 * @param WP_User $oUser
-	 * @param string $sOneTimePassword
+	 * @param string  $sOneTimePassword
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOneTimePassword ) {
@@ -198,12 +199,12 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		);
 		$sRawYubiRequest = $this->loadFS()->getUrlContent( $sUrl );
 
-		$bMatchOtpAndNonce = preg_match( '/otp=' . $sOneTimePassword . '/', $sRawYubiRequest, $aMatches )
-			&& preg_match( '/nonce=' . $sNonce . '/', $sRawYubiRequest, $aMatches );
+		$bMatchOtpAndNonce = preg_match( '/otp='.$sOneTimePassword.'/', $sRawYubiRequest, $aMatches )
+							 && preg_match( '/nonce='.$sNonce.'/', $sRawYubiRequest, $aMatches );
 
 		return $bMatchOtpAndNonce
-			&& preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatchesStatus )
-			&& ( $aMatchesStatus[ 1 ] == 'OK' ); // TODO: in preg_match
+			   && preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatchesStatus )
+			   && ( $aMatchesStatus[ 1 ] == 'OK' ); // TODO: in preg_match
 	}
 
 	/**
@@ -212,14 +213,18 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	protected function auditLogin( $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__('User "%s" successfully logged in using a validated Yubikey One Time Password.'), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'User "%s" successfully logged in using a validated Yubikey One Time Password.' ), $this->loadWpUsers()
+																														  ->getCurrentWpUser()
+																														  ->get( 'user_login' ) ),
 				2, 'login_protect_yubikey_login_success'
 			);
 			$this->doStatIncrement( 'login.yubikey.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ), $this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' ) ),
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ), $this->loadWpUsers()
+																													   ->getCurrentWpUser()
+																													   ->get( 'user_login' ) ),
 				2, 'login_protect_yubikey_failed'
 			);
 			$this->doStatIncrement( 'login.yubikey.failed' );
@@ -233,12 +238,12 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	public function addLoginIntentField( $aFields ) {
 		if ( $this->getCurrentUserHasValidatedProfile() ) {
 			$aFields[] = array(
-				'name' => $this->getLoginFormParameter(),
-				'type' => 'text',
+				'name'        => $this->getLoginFormParameter(),
+				'type'        => 'text',
 				'placeholder' => _wpsf__( 'Use your Yubikey to generate a new code.' ),
-				'value' => $this->fetchCodeFromRequest(),
-				'text' => _wpsf__( 'Yubikey OTP' ),
-				'help_link' => 'http://icwp.io/4i'
+				'value'       => '',
+				'text'        => _wpsf__( 'Yubikey OTP' ),
+				'help_link'   => 'http://icwp.io/4i'
 			);
 		}
 		return $aFields;
@@ -265,6 +270,14 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @return bool
 	 */
 	protected function isSecretValid( $sSecret ) {
-		return true; // we don't use individual user secrets
+		return parent::isSecretValid( $sSecret )
+			   && preg_match( sprintf( '#^[a-z]{%s}$#i', $this->getSecretLength() ), $sSecret );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getSecretLength() {
+		return self::SECRET_LENGTH;
 	}
 }
