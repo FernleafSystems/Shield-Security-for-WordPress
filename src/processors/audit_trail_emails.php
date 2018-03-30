@@ -15,19 +15,25 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 	}
 
 	/**
-	 * @param array $aEmailParameters
+	 * @param array $aEmailParams
 	 * @return array
 	 */
-	public function auditEmailSend( $aEmailParameters ) {
-		$sTo = isset( $aEmailParameters[ 'to' ] ) ? $aEmailParameters[ 'to' ] : 'no email provided';
-		if ( is_array( $sTo ) ) {
-			$sTo = implode( ', ', $sTo );
-		}
-		$this->add( 'emails', 'email_attempt_send', 1,
-			sprintf( _wpsf__( 'There was an attempt to send an email using the "%s" function.' ), 'wp_mail' )
-			.' '.sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmailParameters[ 'subject' ] )
-		);
+	public function auditEmailSend( $aEmailParams ) {
 
-		return $aEmailParameters;
+		if ( is_array( $aEmailParams ) ) {
+			$sTo = isset( $aEmailParams[ 'to' ] ) ? $aEmailParams[ 'to' ] : 'no email address provided';
+			if ( is_array( $sTo ) ) {
+				$sTo = implode( ', ', $sTo );
+			}
+			$sMessage = sprintf( _wpsf__( 'There was an attempt to send an email using the "%s" function.' ), 'wp_mail' )
+						.' '.sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmailParams[ 'subject' ] );
+		}
+		else {
+			$sMessage = sprintf( _wpsf__( 'Attempting to log email, but data was not of the correct type (%s)' ), 'array' );
+		}
+
+		$this->add( 'emails', 'email_attempt_send', 1, $sMessage );
+
+		return $aEmailParams;
 	}
 }
