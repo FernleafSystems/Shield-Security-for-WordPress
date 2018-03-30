@@ -92,6 +92,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
 			}
 		}
+		$bValidated = $bValidated && $this->hasValidSecret( $oUser );
 		$this->setProfileValidated( $oUser, $bValidated );
 
 		return $bValidated;
