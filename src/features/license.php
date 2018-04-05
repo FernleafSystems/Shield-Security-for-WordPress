@@ -262,7 +262,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 									&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 ) );
 
 		if ( $bCheck ) {
-			$this->setLicenseLastCheckedAt();
+			$this->setLicenseLastCheckedAt()
+				 ->savePluginOptions();
 
 			$oLicense = $this->retrieveLicense();
 			try {
