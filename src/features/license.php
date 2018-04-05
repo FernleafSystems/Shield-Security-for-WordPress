@@ -261,8 +261,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$bCheck = $bForceCheck || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
 									&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 ) );
 
+		// No more than 1 check in 20 seconds
+		$bCheck = $bCheck && ( $nNow - $this->getLicenseLastRequestAt() > 20 );
+
 		if ( $bCheck ) {
 			$this->setLicenseLastCheckedAt()
+				 ->setLicenseLastRequestedAt()
 				 ->savePluginOptions();
 
 			$oLicense = $this->retrieveLicense();
@@ -382,6 +386,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return int
 	 */
+	protected function getLicenseLastRequestAt() {
+		return $this->getOpt( 'license_last_request_at' );
+	}
+
+	/**
+	 * @return int
+	 */
 	protected function getLicenseVerifiedAt() {
 		return $this->getOpt( 'license_verified_at' );
 	}
@@ -490,6 +501,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function setLicenseLastCheckedAt( $nAt = null ) {
 		return $this->setOptAt( 'license_last_checked_at', $nAt );
+	}
+
+	/**
+	 * @param int $nAt
+	 * @return $this
+	 */
+	protected function setLicenseLastRequestedAt( $nAt = null ) {
+		return $this->setOptAt( 'license_last_request_at', $nAt );
 	}
 
 	/**

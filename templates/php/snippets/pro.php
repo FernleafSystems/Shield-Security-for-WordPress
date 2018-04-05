@@ -71,7 +71,10 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 								<?php echo $flags[ 'button_enabled_check' ] ? '' : 'disabled="disabled"'; ?> >
 								Check License
 							</button>
-							<span class="form-text text-muted">Verify License Registration</span>
+							<span class="form-text text-muted">
+								Licenses may only be checked once in 20 seconds. Checks more frequent than this will
+								automatically be skipped.
+							</span>
 						</div>
 					</form>
 					<p class="font-weight-bold">Be sure to have first activated your URL in your
@@ -86,7 +89,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				</div>
 			</div>
 
-			<?php if ( $flags[ 'has_license_key' ] ) : ?>
+			<?php if ( false && $flags[ 'has_license_key' ] ) : ?>
 				<div class="row">
 					<div class="col card">
 						<form method="post" class="licenseForm">
