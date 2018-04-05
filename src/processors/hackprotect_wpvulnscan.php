@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	public function run() {
 
 		// For display on the Plugins page
-		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
+		add_action( 'load-plugins.php', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
