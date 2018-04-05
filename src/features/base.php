@@ -1015,9 +1015,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				break;
 		}
 
-		$aOptParams[ 'value' ] = is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent;
-		$aOptParams[ 'disabled' ] = !$this->isPremium() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] );
-		$aOptParams[ 'enabled' ] = !$aOptParams[ 'disabled' ];
+		$aParams = array(
+			'value'    => is_scalar( $mCurrent ) ? esc_attr( $mCurrent ) : $mCurrent,
+			'disabled' => !$this->isPremium() && ( isset( $aOptParams[ 'premium' ] ) && $aOptParams[ 'premium' ] ),
+		);
+		$aParams[ 'enabled' ] = !$aParams[ 'disabled' ];
+		$aOptParams = array_merge( array( 'rows' => 2 ), $aOptParams, $aParams );
+
 		// add strings
 		return $this->loadStrings_Options( $aOptParams );
 	}
