@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	public function run() {
 
 		// For display on the Plugins page
-		add_action( 'admin_init', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
+		add_action( 'load-plugins.php', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
@@ -343,14 +343,14 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			$sUrl = $this->getApiRootUrl().'plugins/'.$sSlug;
 			$sFullContent = $this->loadFS()->getUrlContent( $sUrl );
 			if ( empty( $sFullContent ) ) {
-				$sFullContent = '';
+				$sFullContent = 'not available';
 			}
 		}
 
 		$oWp->setTransient( $sTransientKey, $sFullContent, DAY_IN_SECONDS );
 
 		$aVulns = array();
-		if ( !empty( $sFullContent ) ) {
+		if ( !empty( $sFullContent ) && $sFullContent != 'not available' ) {
 			$oData = @json_decode( $sFullContent );
 			if ( isset( $oData->{$sSlug} ) && !empty( $oData->{$sSlug}->vulnerabilities ) && is_array( $oData->{$sSlug}->vulnerabilities ) ) {
 				$aVulns = $oData->{$sSlug}->vulnerabilities;

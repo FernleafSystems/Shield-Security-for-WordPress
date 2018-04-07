@@ -95,15 +95,6 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		if ( isset( $oMeta->{$sCleanNotice} ) && is_array( $oMeta->{$sCleanNotice} ) ) {
 			$mValue = $oMeta->{$sCleanNotice};
 		}
-		else {
-			$oWp = $this->loadWpUsers();
-			$mOldValue = $oWp->getUserMeta( $this->getActionPrefix().$sNoticeId );
-			if ( !empty( $mOldValue ) ) {
-				$oWp->deleteUserMeta( $this->getActionPrefix().$sNoticeId );
-				$this->setMeta( $sNoticeId );
-				$mValue = $oMeta->{$sCleanNotice};
-			}
-		}
 
 		return $mValue;
 	}
