@@ -35,12 +35,7 @@ class ICWP_UserMeta extends ICWP_WPSF_Foundation {
 	 */
 	public function __construct( $sPrefix, $nUserId = 0 ) {
 		$this->load( $sPrefix, $nUserId );
-	}
-
-	/**
-	 */
-	public function __destruct() {
-		$this->save();
+		add_action( 'shutdown', array( $this, 'save' ) );
 	}
 
 	/**

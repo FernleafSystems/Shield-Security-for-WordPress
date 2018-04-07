@@ -50,6 +50,12 @@
       "section": "section_non_ui"
     },
     {
+      "key": "license_last_request_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
+    },
+    {
       "key": "license_verified_at",
       "sensitive": true,
       "transferable": false,
