@@ -356,6 +356,7 @@ You can [go Pro for just $1/month](http://icwp.io/aa).
 *Released: 6th April, 2018* - [Release Notes](http://icwp.io/c3)
 
 * **(v.1-4)**  FIXED:		Various small fixes and improvements
+* **(v.4)**  FIXED:			PHP Fatal Error on wp object cache.
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.
