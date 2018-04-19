@@ -128,6 +128,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars' ), 100 );
 
+			if ( !$this->loadWp()->isAjax() && $this->isModulePage() ) {
+//				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
+			}
+
 			$this->doPostConstruction();
 		}
 	}
@@ -332,6 +336,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * We have to do it this way as the "page hook" is built upon the top-level plugin
+	 * menu name. But what if we white label?  So we need to dynamically grab the page hook
+	 */
+	public function onSetCurrentScreen() {
+		global $page_hook;
+		add_action( 'load-'.$page_hook, array( $this, 'onLoadOptionsScreen' ) );
+	}
+
+	/**
+	 */
+	public function onLoadOptionsScreen() {
+		if ( $this->getController()->getIsValidAdminArea() ) {
+			$this->buildContextualHelp();
+		}
+	}
+
+	/**
 	 * Override this and adapt per feature
 	 * @return ICWP_WPSF_Processor_Base
 	 */
@@ -531,7 +552,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getResourcesDir( $sSourceFile = '' ) {
 		return self::getConn()
-				   ->getRootDir().'resources'.DIRECTORY_SEPARATOR.ltrim( $sSourceFile, DIRECTORY_SEPARATOR );
+				   ->getRootDir().'resources/'.ltrim( $sSourceFile, '/' );
 	}
 
 	/**
@@ -1511,6 +1532,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
 		}
 		return $this->renderTemplate( 'snippets/module-wizard-template.php', $aData );
+	}
+
+	protected function buildContextualHelp() {
+		if ( !function_exists( 'get_current_screen' ) ) {
+			require_once( ABSPATH.'wp-admin/includes/screen.php' );
+		}
+		$screen = get_current_screen();
+		//$screen->remove_help_tabs();
+		$screen->add_help_tab( array(
+			'id'      => 'my-plugin-default',
+			'title'   => __( 'Default' ),
+			'content' => 'This is where I would provide tabbed help to the user on how everything in my admin panel works. Formatted HTML works fine in here too'
+		) );
+		//add more help tabs as needed with unique id's
+
+		// Help sidebars are optional
+		$screen->set_help_sidebar(
+			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
+			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
+		);
 	}
 
 	/**
