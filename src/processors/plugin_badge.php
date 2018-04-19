@@ -15,7 +15,8 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		if ( $oFO->isDisplayPluginBadge() ) {
-			add_action( 'wp_footer', array( $this, 'printPluginBadge' ) );
+			wp_enqueue_script( 'jquery', null, array(), false, true  );
+			add_action( 'wp_footer', array( $this, 'printPluginBadge' ), 100 );
 		}
 		add_action( 'widgets_init', array( $this, 'addPluginBadgeWidget' ) );
 		add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherPluginWidgetContent' ), 100 );
