@@ -230,6 +230,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	protected function renderWizard() {
+		remove_all_actions( 'wp_footer' ); // FIX: nextgen gallery forces this to run.
 		return $this->loadRenderer( $this->getModCon()->getController()->getPath_Templates() )
 					->setTemplate( 'wizard/pages/wizard.twig' )
 					->setRenderVars( $this->getRenderData_PageWizard() )

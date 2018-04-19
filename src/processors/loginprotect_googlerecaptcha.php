@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha', false ) )
 	return;
 }
 
-require_once( dirname(__FILE__ ).'/loginprotect_base.php' );
+require_once( dirname( __FILE__ ).'/loginprotect_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
@@ -13,27 +13,24 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
-
 		if ( !$oFO->getIsGoogleRecaptchaReady() ) {
 			return;
 		}
 
-		add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+		add_action( 'login_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
 
-		add_action( 'login_form',				array( $this, 'printGoogleRecaptchaCheck' ), 100 );
-		add_action( 'woocommerce_login_form',	array( $this, 'printGoogleRecaptchaCheck' ), 100 );
-		add_filter( 'login_form_middle',		array( $this, 'printGoogleRecaptchaCheck_Filter' ), 100 );
+		add_action( 'login_form', array( $this, 'printGoogleRecaptchaCheck' ), 100 );
+		add_filter( 'login_form_middle', array( $this, 'printGoogleRecaptchaCheck_Filter' ), 100 );
 
-		if ( $oFO->getIfSupport3rdParty() && $oFO->getIsCheckingUserRegistrations() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+		if ( $oFO->getIfSupport3rdParty() ) {
+			add_action( 'woocommerce_login_form', array( $this, 'printGoogleRecaptchaCheck' ), 100 );
 			add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGoogleRecaptchaCheck' ), 10 );
 			add_action( 'bp_signup_validate', array( $this, 'checkGoogleRecaptcha_Action' ), 10 );
 		}
 
-		add_action( 'login_enqueue_scripts',	array( $this, 'registerGoogleRecaptchaJs' ), 99 );
-
 		// before username/password check (20)
-		add_filter( 'authenticate',				array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
+		add_filter( 'authenticate', array( $this, 'checkLoginForGoogleRecaptcha_Filter' ), 15, 3 );
 	}
 
 	/**
@@ -70,7 +67,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	/**
 	 * This jumps in before user password is tested. If we fail the ReCaptcha check, we'll
 	 * block testing of username and password
-	 *
 	 * @param WP_User|WP_Error $oUser
 	 * @return WP_Error
 	 */

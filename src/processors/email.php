@@ -25,22 +25,22 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @var int
 	 */
-	protected $m_nEmailThrottleLimit;
+	protected $nEmailThrottleLimit;
 
 	/**
 	 * @var int
 	 */
-	protected $m_nEmailThrottleTime;
+	protected $nEmailThrottleTime;
 
 	/**
 	 * @var int
 	 */
-	protected $m_nEmailThrottleCount;
+	protected $nEmailThrottleCount;
 
 	/**
 	 * @var boolean
 	 */
-	protected $fEmailIsThrottled;
+	protected $bEmailIsThrottled;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Email $oFeatureOptions
@@ -71,7 +71,6 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		$oWp = $this->loadWp();
 		$sUrl = array(
 			'',
 			sprintf( _wpsf__( 'Email sent from the %s Plugin v%s, on %s.' ),
@@ -80,46 +79,54 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->loadWp()->getHomeUrl()
 			),
 			_wpsf__( 'Note: Email delays are caused by website hosting and email providers.' ),
-			sprintf( _wpsf__( 'Time Sent: %s' ), $oWp->getTimeStampForDisplay( time() ) )
+			sprintf( _wpsf__( 'Time Sent: %s' ), $this->loadWp()->getTimeStampForDisplay() )
 		);
 
 		return apply_filters( 'icwp_shield_email_footer', $sUrl );
 	}
 
 	/**
-	 * @param string $sEmailAddress
-	 * @param string $sEmailSubject
+	 * @param string $sAddress
+	 * @param string $sSubject
 	 * @param array  $aMessage
 	 * @return boolean
 	 * @uses wp_mail
 	 */
-	public function sendEmailTo( $sEmailAddress = '', $sEmailSubject = '', $aMessage = array() ) {
-
-		// Add our filters for From.
-		add_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
-		add_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
-
-		$sEmailTo = $this->verifyEmailAddress( $sEmailAddress );
+	public function sendEmailTo( $sAddress = '', $sSubject = '', $aMessage = array() ) {
 
 		$this->updateEmailThrottle();
 		// We make it appear to have "succeeded" if the throttle is applied.
-		if ( $this->fEmailIsThrottled ) {
+		if ( $this->bEmailIsThrottled ) {
 			return true;
 		}
 
 		$aMessage = array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() );
 
-		$sEmailSubject = sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sEmailSubject );
-
-		add_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100, 0 );
-		$bSuccess = wp_mail( $sEmailTo, $sEmailSubject, '<html>'.implode( "<br />", $aMessage ).'</html>' );
-
-		// Remove our Filters for From
-		remove_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
-		remove_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
-		remove_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100 );
+		$this->emailFilters( true );
+		$bSuccess = wp_mail(
+			$this->verifyEmailAddress( $sAddress ),
+			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),
+			'<html>'.implode( "<br />", $aMessage ).'</html>'
+		);
+		$this->emailFilters( false );
 
 		return $bSuccess;
+	}
+
+	/**
+	 * @param $bAdd - true to add, false to remove
+	 */
+	protected function emailFilters( $bAdd ) {
+		if ( $bAdd ) {
+			add_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
+			add_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
+			add_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100, 0 );
+		}
+		else {
+			remove_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
+			remove_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
+			remove_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100 );
+		}
 	}
 
 	/**
@@ -134,7 +141,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function setMailFrom( $sFrom ) {
-		$oDP = $this->loadDataProcessor();
+		$oDP = $this->loadDP();
 		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
 		if ( $oDP->validEmail( $sProposedFrom ) ) {
 			$sFrom = $sProposedFrom;
@@ -163,7 +170,10 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 			$sFromName = $sProposedFromName;
 		}
 		else {
-			$sFromName = sprintf( '%s - %s', $this->getSiteName(), $this->getController()->getHumanName() );
+			$sFromName = sprintf( '%s - %s',
+				$this->loadWp()->getSiteName(),
+				$this->getController()->getHumanName()
+			);
 		}
 		return $sFromName;
 	}
@@ -189,7 +199,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		// Throttling Is Effectively Off
 		if ( $this->getThrottleLimit() <= 0 ) {
 			$this->setThrottledFile( false );
-			return $this->fEmailIsThrottled;
+			return $this->bEmailIsThrottled;
 		}
 
 		// Check that there is an email throttle file. If it exists and its modified time is greater than the 
@@ -197,36 +207,36 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		// concurrently. So, we update our $this->m_nEmailThrottleTime accordingly.
 		if ( is_file( self::$sModeFile_EmailThrottled ) ) {
 			$nModifiedTime = filemtime( self::$sModeFile_EmailThrottled );
-			if ( $nModifiedTime > $this->m_nEmailThrottleTime ) {
-				$this->m_nEmailThrottleTime = $nModifiedTime;
+			if ( $nModifiedTime > $this->nEmailThrottleTime ) {
+				$this->nEmailThrottleTime = $nModifiedTime;
 			}
 		}
 
-		if ( !isset( $this->m_nEmailThrottleTime ) || $this->m_nEmailThrottleTime > $this->time() ) {
-			$this->m_nEmailThrottleTime = $this->time();
+		if ( !isset( $this->nEmailThrottleTime ) || $this->nEmailThrottleTime > $this->time() ) {
+			$this->nEmailThrottleTime = $this->time();
 		}
-		if ( !isset( $this->m_nEmailThrottleCount ) ) {
-			$this->m_nEmailThrottleCount = 0;
+		if ( !isset( $this->nEmailThrottleCount ) ) {
+			$this->nEmailThrottleCount = 0;
 		}
 
 		// If $nNow is greater than throttle interval (1s) we turn off the file throttle and reset the count
-		$nDiff = $this->time() - $this->m_nEmailThrottleTime;
+		$nDiff = $this->time() - $this->nEmailThrottleTime;
 		if ( $nDiff > self::$nThrottleInterval ) {
-			$this->m_nEmailThrottleTime = $this->time();
-			$this->m_nEmailThrottleCount = 1;    //we set to 1 assuming that this was called because we're about to send, or have just sent, an email.
+			$this->nEmailThrottleTime = $this->time();
+			$this->nEmailThrottleCount = 1;    //we set to 1 assuming that this was called because we're about to send, or have just sent, an email.
 			$this->setThrottledFile( false );
 		}
-		else if ( is_file( self::$sModeFile_EmailThrottled ) || ( $this->m_nEmailThrottleCount >= $this->getThrottleLimit() ) ) {
+		else if ( is_file( self::$sModeFile_EmailThrottled ) || ( $this->nEmailThrottleCount >= $this->getThrottleLimit() ) ) {
 			$this->setThrottledFile( true );
 		}
 		else {
-			$this->m_nEmailThrottleCount++;
+			$this->nEmailThrottleCount++;
 		}
 	}
 
 	public function setThrottledFile( $infOn = false ) {
 
-		$this->fEmailIsThrottled = $infOn;
+		$this->bEmailIsThrottled = $infOn;
 
 		if ( $infOn && !is_file( self::$sModeFile_EmailThrottled ) && function_exists( 'touch' ) ) {
 			@touch( self::$sModeFile_EmailThrottled );
@@ -245,21 +255,14 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function verifyEmailAddress( $sEmailAddress = '' ) {
-		return $this->loadDataProcessor()
+		return $this->loadDP()
 					->validEmail( $sEmailAddress ) ? $sEmailAddress : $this->getPluginDefaultRecipientAddress();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSiteName() {
-		return $this->loadWp()->getSiteName();
-	}
-
 	public function getThrottleLimit() {
-		if ( empty( $this->m_nEmailThrottleLimit ) ) {
-			$this->m_nEmailThrottleLimit = $this->getOption( 'send_email_throttle_limit' );
+		if ( empty( $this->nEmailThrottleLimit ) ) {
+			$this->nEmailThrottleLimit = $this->getOption( 'send_email_throttle_limit' );
 		}
-		return $this->m_nEmailThrottleLimit;
+		return $this->nEmailThrottleLimit;
 	}
 }
