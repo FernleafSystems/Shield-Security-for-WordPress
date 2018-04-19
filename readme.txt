@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.4
+Stable tag: 6.6.5
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -352,22 +352,21 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.4 - Current Release =
-*Released: 6th April, 2018* - [Release Notes](http://icwp.io/c3)
+= 6.6.5 - Current Release =
+*Released: 19th April, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.1-4)**  FIXED:		Various small fixes and improvements
-* **(v.4)**  FIXED:			PHP Fatal Error on wp object cache.
-* **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
-* **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
-* **(v.0)**  ADDED:			Pwned Passwords Detection.
-* **(v.0)**  IMPROVED:		Major rewrite of plugin AJAX handling.
-* **(v.0)**  IMPROVED:		Notices to indicate the time of the last scans.
-* **(v.0)**  FIXED:			A few bugs
+* **(v.5)**  ADDED:			Small exclusion in the firewall for a jetpack parameter.
+* **(v.5)**  ADDED:			SVGs to the default list of files scanned by the plugin guard.
+* **(v.5)**  ADDED:			Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
 
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.1-3)**  FIXED:		Various small fixes and improvements
+* **(v.5)**  ADDED:			Small exclusion in the firewall for a jetpack parameter.
+* **(v.5)**  ADDED:			SVGs to the default list of files scanned by the plugin guard.
+* **(v.5)**  ADDED:			Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
+* **(v.1-4)**  FIXED:		Various small fixes and improvements
+* **(v.4)**  FIXED:			PHP Fatal Error on wp object cache.
 * **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
 * **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
 * **(v.0)**  ADDED:			Pwned Passwords Detection.

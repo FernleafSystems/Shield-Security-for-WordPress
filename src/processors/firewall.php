@@ -444,7 +444,8 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 					'url',
 					'referredby',
 					'redirect_to',
-					'jetpack_sso_original_request'
+					'jetpack_sso_original_request',
+					'jetpack_sso_redirect_to'
 				)
 			);
 
