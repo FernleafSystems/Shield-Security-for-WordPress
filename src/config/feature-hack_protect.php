@@ -354,6 +354,7 @@
         "php",
         "php5",
         "js",
+        "svg",
         "htaccess"
       ],
       "type":        "array",
