@@ -128,7 +128,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars' ), 100 );
 
-			if ( !$this->loadWp()->isAjax() && $this->isModulePage() ) {
+			if ( $this->isAdminOptionsPage() ) {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 			}
 
@@ -347,7 +347,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onLoadOptionsScreen() {
-		if ( $this->getController()->getIsValidAdminArea() ) {
+		if ( $this->getConn()->getIsValidAdminArea() ) {
 			$this->buildContextualHelp();
 		}
 	}
@@ -1184,11 +1184,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function setSaveUserResponse() {
-		if ( !$this->loadWp()->isAjax() && $this->isModulePage() ) {
+		if ( $this->isAdminOptionsPage() ) {
 			$this->loadAdminNoticesProcessor()
 				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
 																									   ->getHumanName() ) );
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAdminOptionsPage() {
+		return ( is_admin() && !$this->loadWp()->isAjax() && $this->isModulePage() );
 	}
 
 	/**
@@ -1654,7 +1661,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function display( $aData = array(), $sSubView = '' ) {
 		$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		// Get Base Data
 		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
@@ -1663,7 +1670,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
 		}
 
-		$aData[ 'sFeatureInclude' ] = $this->loadDP()->addExtensionToFilePath( $sSubView, '.php' );
+		$aData[ 'sFeatureInclude' ] = $oDp->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 		try {
 			echo $oRndr
