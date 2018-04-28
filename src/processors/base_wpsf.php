@@ -21,7 +21,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	/**
 	 * @var bool
 	 */
-	private $bRecaptchaEnqueue = false;
+	private static $bRecaptchaEnqueue = false;
 
 	/**
 	 * Resets the object values to be re-used anew
@@ -295,15 +295,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	public function isRecaptchaEnqueue() {
-		return $this->bRecaptchaEnqueue;
+		return self::$bRecaptchaEnqueue;
 	}
 
 	/**
-	 * @param bool $bRecaptchaEnqueue
+	 * Note we don't provide a 'false' option here as if it's set to be needed somewhere,
+	 * it shouldn't be unset anywhere else.
 	 * @return $this
 	 */
-	public function setRecaptchaEnqueue( $bRecaptchaEnqueue ) {
-		$this->bRecaptchaEnqueue = $bRecaptchaEnqueue;
+	public function setRecaptchaToEnqueue() {
+		self::$bRecaptchaEnqueue = true;
 		return $this;
 	}
 }

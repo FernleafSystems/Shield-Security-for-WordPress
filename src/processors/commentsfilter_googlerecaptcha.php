@@ -33,14 +33,14 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 * @return string
 	 */
 	public function printGoogleRecaptchaCheck_Filter() {
-		$this->setRecaptchaEnqueue( true );
+		$this->setRecaptchaToEnqueue();
 		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
 	public function printGoogleRecaptchaCheck() {
-		$this->setRecaptchaEnqueue( true );
+		$this->setRecaptchaToEnqueue();
 		echo $this->getGoogleRecaptchaHtml();
 	}
 
