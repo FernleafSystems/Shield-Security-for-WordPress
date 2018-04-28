@@ -19,6 +19,11 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	private $aStatistics;
 
 	/**
+	 * @var bool
+	 */
+	private $bRecaptchaEnqueue = false;
+
+	/**
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
@@ -105,28 +110,17 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			),
 			'https://www.google.com/recaptcha/api.js'
 		);
-		wp_register_script( 'google-recaptcha', $sJsUri, array( 'jquery' ) );
+		wp_register_script( 'google-recaptcha', $sJsUri, array(), false, true );
 		wp_enqueue_script( 'google-recaptcha' );
+
+		// This also gives us the chance to remove recaptcha before it's printed, if it isn't needed
+		add_action( 'wp_footer', array( $this, 'maybeDequeueRecaptcha' ), -100 );
+		add_action( 'login_footer', array( $this, 'maybeDequeueRecaptcha' ), -100 );
 
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
 		 */
-
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
-		echo $this->loadRenderer( $this->getController()->getPath_Templates() )
-				  ->setTemplateEnginePhp()
-				  ->setRenderVars(
-					  array(
-						  'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
-						  'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
-						  'theme'   => $this->getRecaptchaTheme(),
-						  'invis'   => $this->isRecaptchaInvisible(),
-					  )
-				  )
-				  ->setTemplate( 'snippets/google_recaptcha_js' )
-				  ->render();
 	}
 
 	/**
@@ -268,5 +262,48 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			return $aAuditMessages;
 		}
 		return isset( $this->aAuditEntry[ 'message' ] ) ? $this->aAuditEntry[ 'message' ] : array();
+	}
+
+	/**
+	 * If recaptcha is required, it prints the necessary snippet and does not remove the enqueue
+	 * @throws Exception
+	 */
+	public function maybeDequeueRecaptcha() {
+
+		if ( $this->isRecaptchaEnqueue() ) {
+			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+			$oFO = $this->getFeature();
+			echo $this->loadRenderer( $this->getController()->getPath_Templates() )
+					  ->setTemplateEnginePhp()
+					  ->setRenderVars(
+						  array(
+							  'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
+							  'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
+							  'theme'   => $this->getRecaptchaTheme(),
+							  'invis'   => $this->isRecaptchaInvisible(),
+						  )
+					  )
+					  ->setTemplate( 'snippets/google_recaptcha_js' )
+					  ->render();
+		}
+		else {
+			wp_dequeue_script( 'google-recaptcha' );
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRecaptchaEnqueue() {
+		return $this->bRecaptchaEnqueue;
+	}
+
+	/**
+	 * @param bool $bRecaptchaEnqueue
+	 * @return $this
+	 */
+	public function setRecaptchaEnqueue( $bRecaptchaEnqueue ) {
+		$this->bRecaptchaEnqueue = $bRecaptchaEnqueue;
+		return $this;
 	}
 }
