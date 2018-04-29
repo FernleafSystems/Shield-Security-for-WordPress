@@ -56,4 +56,27 @@ class ICWP_WPSF_WpIncludes extends ICWP_WPSF_Foundation {
 		$nTime = $this->loadFS()->getModifiedTime( path_join( ABSPATH, $sInclude ) );
 		return add_query_arg( array( 'mtime' => $nTime ), $sUrl );
 	}
+
+	/**
+	 * Supports PHP 5.3+
+	 * @param string $sIncludeHandle
+	 * @param string $sAttribute
+	 * @param string $sValue
+	 * @return $this
+	 */
+	public function addIncludeAttribute( $sIncludeHandle, $sAttribute, $sValue ) {
+		if ( $this->loadDP()->getPhpVersionIsAtLeast( '5.3' ) ) {
+
+			add_filter( 'script_loader_tag',
+				function ( $sTag, $sHandle ) use ( $sIncludeHandle, $sAttribute, $sValue ) {
+					if ( $sHandle == $sIncludeHandle && strpos( $sTag, $sAttribute.'=' ) === false ) {
+						$sTag = str_replace( ' src', sprintf( ' %s="%s" src', $sAttribute, $sValue ), $sTag );
+					}
+					return $sTag;
+				},
+				10, 2
+			);
+		}
+		return $this;
+	}
 }
