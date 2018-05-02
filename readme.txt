@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.6
+Stable tag: 6.6.7
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -345,23 +345,27 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-Our policy was to never restrict security features to Pro upgrades. [This has now changed](http://icwp.io/bs).
+Our policy was to never restrict security features to Pro upgrades.
+[This has now changed](http://icwp.io/bs).
 
 Shield Pro brings exclusive features to the serious webmaster to maximise site security. You'll also have access to our email technical support team.
 If you don't want to support the work, no problem! You can still continue to use Shield Security and its free features in-full.
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.6 - Current Release =
-*Released: 19th April, 2018* - [Release Notes](http://icwp.io/c3)
+= 6.6.7 - Current Release =
+*Released: 2nd May, 2018*
 
-* **(v.6)**  ADDED:			Small exclusion in the firewall for a jetpack parameter.
-* **(v.6)**  ADDED:			SVGs to the default list of files scanned by the plugin guard.
-* **(v.6)**  ADDED:			Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
+* **(v.7)**  IMPROVED:		reCAPTCHA JS is only included on pages where it's actually used by Shield.
+* **(v.7)**  IMPROVED:		Upgrade Bootstrap library to 4.1.0.
+* **(v.7)**  IMPROVED:		Include jQuery for the plugin badge as required
 
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
 
+* **(v.7)**  IMPROVED:		reCAPTCHA JS is only included on pages where it's actually used by Shield.
+* **(v.7)**  IMPROVED:		Upgrade Bootstrap library to 4.1.0.
+* **(v.7)**  IMPROVED:		Include jQuery for the plugin badge as required
 * **(v.6)**  ADDED:			Small exclusion in the firewall for a jetpack parameter.
 * **(v.6)**  ADDED:			SVGs to the default list of files scanned by the plugin guard.
 * **(v.6)**  ADDED:			Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).

@@ -1,4 +1,4 @@
-<div id="IcwpCarouselOptions" class="icwp-carousel slide">
+<div id="IcwpCarouselOptions" class="icwp-carousel carousel slide carousel-fade">
 	<div class="carousel-inner">
 
 		<div class="carousel-item active">

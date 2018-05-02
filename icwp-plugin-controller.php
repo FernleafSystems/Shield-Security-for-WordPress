@@ -179,7 +179,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( !$bMeetsRequirements ) {
 			$this->aRequirementsMessages = $aRequirementsMessages;
-			add_action( 'admin_menu', array( $this, 'adminNoticeDoesNotMeetRequirements' ) );
+			add_action( 'admin_notices', array( $this, 'adminNoticeDoesNotMeetRequirements' ) );
 			add_action( 'network_admin_notices', array( $this, 'adminNoticeDoesNotMeetRequirements' ) );
 			throw new Exception( 'Plugin does not meet minimum requirements' );
 		}
@@ -1572,7 +1572,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			catch ( Exception $oE ) {
 				if ( $this->getIsValidAdminArea() ) {
 					$this->sAdminNoticeError = $oE->getMessage();
-					add_action( 'admin_menu', array( $this, 'adminNoticePluginFailedToLoad' ) );
+					add_action( 'admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );
 					add_action( 'network_admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );
 				}
 			}

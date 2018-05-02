@@ -35,8 +35,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
 					break;
 
-					break;
-
 				default:
 					break;
 			}
