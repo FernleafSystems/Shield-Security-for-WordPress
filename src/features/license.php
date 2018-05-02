@@ -40,7 +40,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		$aData = array(
-			'vars'    => $aLicenseTableVars,
+			'vars'    => array(
+				'license_table'  => $aLicenseTableVars,
+				'activation_url' => $oWp->getHomeUrl()
+			),
 			'inputs'  => array(
 				'license_key' => array(
 					'name'      => $this->prefixOptionKey( 'license_key' ),

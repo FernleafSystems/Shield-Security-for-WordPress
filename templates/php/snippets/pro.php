@@ -46,7 +46,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 				<h4>License Summary</h4>
 			</div>
 			<table class="table table-hover table-sm table-responsive">
-				<?php foreach ( $vars as $varKey => $licenseValue ) : ?>
+				<?php foreach ( $vars[ 'license_table' ] as $varKey => $licenseValue ) : ?>
 					<?php $sClasses = ( $varKey == 'last_errors' && !empty( $licenseValue ) ) ? 'table-warning' : ''; ?>
 					<tr>
 						<th scope="row"><?php echo $strings[ $varKey ]; ?>:</th>
@@ -72,8 +72,11 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 								Check License
 							</button>
 							<span class="form-text text-muted">
-								Licenses may only be checked once in 20 seconds. Checks more frequent than this will
-								automatically be skipped.
+								<ul>
+									<li>URL To Activate: <?php echo $var[ 'activation_url' ]; ?></li>
+									<li>Licenses may only be checked once in 20 seconds. Checks more frequent than this will
+								automatically be skipped</li>
+								</ul>
 							</span>
 						</div>
 					</form>
