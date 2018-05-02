@@ -37,12 +37,14 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	public function printGoogleRecaptchaCheck_Filter() {
+		$this->setRecaptchaToEnqueue();
 		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**
 	 */
 	public function printGoogleRecaptchaCheck() {
+		$this->setRecaptchaToEnqueue();
 		echo $this->getGoogleRecaptchaHtml();
 	}
 
