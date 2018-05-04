@@ -3,12 +3,12 @@ Contributors: onedollarplugin, paultgoodchild
 Donate link: http://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, all in one, scanner, firewall, spam, two-factor authentication, wordfence, cerber, ithemes
+Tags: security, all in one, scan, firewall, two factor authentication, spam, wordfence, cerber, ithemes
 Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.7
+Stable tag: 6.6.8
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,12 +353,11 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.7 - Current Release =
-*Released: 2nd May, 2018*
+= 6.6.8 - Current Release =
+*Released: 4th May, 2018*
 
-* **(v.7)**  IMPROVED:		reCAPTCHA JS is only included on pages where it's actually used by Shield.
-* **(v.7)**  IMPROVED:		Upgrade Bootstrap library to 4.1.0.
-* **(v.7)**  IMPROVED:		Include jQuery for the plugin badge as required
+* **(v.8)**  IMPROVED:		Add GDPR-compliant Privacy Policy checkboxes to mailing list sign-up forms.
+* **(v.8)**  ADDED:			Introduction video to the Guided Setup Wizard.
 
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)

@@ -119,8 +119,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			'strings'     => array(
 				'tracking_data' => print_r( $this->getTrackingProcessor()->collectTrackingData(), true ),
 			),
-			'js_snippets' => array(
-			)
+			'js_snippets' => array()
 		);
 		add_thickbox();
 		echo $oFO->renderTemplate( 'snippets/plugin_tracking_data_dump.php', $aRenderData );
@@ -172,7 +171,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
-
+		$oModCon = $this->getFeature();
 		$sName = $this->getController()->getHumanName();
 
 		$nDays = $this->getInstallationDays();
@@ -187,11 +186,12 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					'your_name'    => _wpsf__( 'Your Name' ),
 					'your_email'   => _wpsf__( 'Your Email' ),
 					'dismiss'      => "No thanks, I'm not interested in such informative groups",
-					'summary'      => sprintf( 'The %s security team is running an initiative (with currently 2000+ members) to raise awareness of WordPress Security
+					'summary'      => sprintf( 'The %s security team is running an initiative (with currently 3000+ members) to raise awareness of WordPress Security
 				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),
 				),
 				'hrefs'             => array(
-					'form_action' => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259'
+					'form_action'    => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
+					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
 				),
 				'install_days'      => $nDays
 			);

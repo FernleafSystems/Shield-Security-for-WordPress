@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha', false ) ) {
+	return;
+}
 
-require_once( dirname(__FILE__ ).'/base_commentsfilter.php' );
+require_once( dirname( __FILE__ ).'/base_commentsfilter.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
@@ -92,4 +94,3 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 		return $aCommentData;
 	}
 }
-endif;

@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter_HumanSpam', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter_HumanSpam', false ) ) {
+	return;
+}
 
-require_once( dirname(__FILE__ ).'/base_commentsfilter.php' );
+require_once( dirname( __FILE__ ).'/base_commentsfilter.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
@@ -34,7 +36,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		}
 
 		if ( $fIfDoCheck && $oWpComments->getIfCommentsMustBePreviouslyApproved()
-			&& $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+			 && $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
 			$fIfDoCheck = false;
 		}
 
@@ -70,20 +72,19 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 */
 	protected function doBlacklistSpamCheck( $aCommentData ) {
 		$this->doBlacklistSpamCheck_Action(
-			$aCommentData['comment_author'],
-			$aCommentData['comment_author_email'],
-			$aCommentData['comment_author_url'],
-			$aCommentData['comment_content'],
+			$aCommentData[ 'comment_author' ],
+			$aCommentData[ 'comment_author_email' ],
+			$aCommentData[ 'comment_author_url' ],
+			$aCommentData[ 'comment_content' ],
 			$this->ip(),
 			substr( $this->loadDataProcessor()->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
 		);
 	}
 
 	/**
-	 * Does the same as the WordPress blacklist filter, but more intelligently and with a nod towards much higher performance.
-	 *
-	 * It also uses defined options for which fields are checked for SPAM instead of just checking EVERYTHING!
-	 *
+	 * Does the same as the WordPress blacklist filter, but more intelligently and with a nod towards much higher
+	 * performance. It also uses defined options for which fields are checked for SPAM instead of just checking
+	 * EVERYTHING!
 	 * @param string $sAuthor
 	 * @param string $sEmail
 	 * @param string $sUrl
@@ -95,31 +96,31 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 
 		$sCurrentStatus = $this->getStatus();
 		// Check that we haven't already marked the comment through another scan, say GASP
-		if ( !empty( $sCurrentStatus ) || !$this->getIsOption('enable_comments_human_spam_filter', 'Y') ) {
+		if ( !empty( $sCurrentStatus ) || !$this->getIsOption( 'enable_comments_human_spam_filter', 'Y' ) ) {
 			return;
 		}
 		// read the file of spam words
 		$sSpamWords = $this->getSpamBlacklist();
-		if ( empty($sSpamWords) ) {
+		if ( empty( $sSpamWords ) ) {
 			return;
 		}
 		$aWords = explode( "\n", $sSpamWords );
 
 		$aItemsMap = array(
-			'comment_content'	=> $sComment,
-			'url'				=> $sUrl,
-			'author_name'		=> $sAuthor,
-			'author_email'		=> $sEmail,
-			'ip_address'		=> $sUserIp,
-			'user_agent'		=> $sUserAgent
+			'comment_content' => $sComment,
+			'url'             => $sUrl,
+			'author_name'     => $sAuthor,
+			'author_email'    => $sEmail,
+			'ip_address'      => $sUserIp,
+			'user_agent'      => $sUserAgent
 		);
 		$aDesiredItemsToCheck = $this->getOption( 'enable_comments_human_spam_filter_items' );
 		$aItemsToCheck = array();
-		foreach( $aDesiredItemsToCheck as $sKey ) {
+		foreach ( $aDesiredItemsToCheck as $sKey ) {
 			$aItemsToCheck[ $sKey ] = $aItemsMap[ $sKey ];
 		}
 
-		foreach( $aItemsToCheck as $sKey => $sItem ) {
+		foreach ( $aItemsToCheck as $sKey => $sItem ) {
 			foreach ( $aWords as $sWord ) {
 				if ( stripos( $sItem, $sWord ) !== false ) {
 					//mark as spam and exit;
@@ -141,7 +142,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		$sBLFile = $this->getSpamBlacklistFile();
 
 		// first, does the file exist? If not import
-		if ( !$oFs->exists( $sBLFile ) || ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > ( DAY_IN_SECONDS * 2 ) ) ) {
+		if ( !$oFs->exists( $sBLFile ) || ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > ( DAY_IN_SECONDS*2 ) ) ) {
 			$this->doSpamBlacklistUpdate();
 		}
 		return $this->readSpamList();
@@ -178,7 +179,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 
 			$sRawList = $this->doSpamBlacklistDownload();
 
-			if ( empty($sRawList) ) {
+			if ( empty( $sRawList ) ) {
 				$sList = '';
 			}
 			else {
@@ -213,7 +214,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function getSpamBlacklistFile() {
-		return $this->getFeature()->getResourcesDir() . 'spamblacklist.txt';
+		return $this->getFeature()->getResourcesDir().'spamblacklist.txt';
 	}
 }
-endif;

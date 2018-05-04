@@ -6,14 +6,15 @@
 	<p>Use the steps below to enter your IP address. This helps Shield detect visitor IP
 	   addresses more accurately, for your particular web hosting.</p>
 	<h6 class="more_details">
-		<a class="btn btn-outline-secondary" data-toggle="collapse" data-target=".more_details_body">More Details &rarr;</a>
+		<a class="btn btn-link" data-toggle="collapse" data-target=".more_details_body">More Details &rarr;</a>
 	</h6>
 	<div id="MoreDetails" class="collapse more_details_body">
 		<div class="card card-body">
-			<p>All websites and webhosts are configured differently. This makes IP detection a bit tricky to automate.</p>
+			<p>All websites and webhosts are configured a bit differently.
+			   This makes IP detection a bit tricky to automate.</p>
 			<p>We try to do this automatically for you, of course, but sometimes a server configuration
 			   can be... unexpected. You can help ensure Shield gets the right IP address every time.</p>
-			<p>Simply tell your IP address is, so we can match it against all the possibilities
+			<p>Simply tell us what your IP address is, so we can match it against the possibilities
 			that your webhost server presents to us. When we find a match, Shield will know how to best detect
 			   visitor IPs for your web hosting.</p>
 		</div>
@@ -29,7 +30,7 @@
 		{{ slideMacros.formInput_Text( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
 
 		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
-		{{ slideMacros.formInput_Submit( 'Submit: This Is My IP' ) }}
+		{{ slideMacros.formInput_Submit( 'Submit: This Is My IP Address' ) }}
 	</form>
 
 {% endblock %}

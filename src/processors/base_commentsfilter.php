@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists( 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha', false ) ):
+if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha', false ) ) {
+	return;
+}
 
-require_once( dirname(__FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -10,10 +12,12 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	 * @var array
 	 */
 	static protected $aRawCommentData;
+
 	/**
 	 * @var string
 	 */
 	static protected $sCommentStatus;
+
 	/**
 	 * @var string
 	 */
@@ -33,8 +37,8 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	public function run() {
 		$oFO = $this->getFeature();
 		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
-		add_filter( $oFO->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $oFO->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $oFO->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $oFO->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -50,12 +54,11 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 
 	/**
 	 * A private plugin filter that lets us return up the newly set comment status.
-	 *
 	 * @param $sCurrentCommentStatus
 	 * @return string
 	 */
 	public function getCommentStatus( $sCurrentCommentStatus ) {
-		return empty( $sCurrentCommentStatus )? self::$sCommentStatus : $sCurrentCommentStatus;
+		return empty( $sCurrentCommentStatus ) ? self::$sCommentStatus : $sCurrentCommentStatus;
 	}
 
 	/**
@@ -74,7 +77,7 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 			self::$aRawCommentData = array();
 		}
 		if ( !empty( $sKey ) ) {
-			return isset( self::$aRawCommentData[$sKey] ) ? self::$aRawCommentData[$sKey] : null;
+			return isset( self::$aRawCommentData[ $sKey ] ) ? self::$aRawCommentData[ $sKey ] : null;
 		}
 		return self::$aRawCommentData;
 	}
@@ -88,12 +91,11 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 
 	/**
 	 * A private plugin filter that lets us return up the newly set comment status explanation
-	 *
 	 * @param $sCurrentCommentStatusExplanation
 	 * @return string
 	 */
 	public function getCommentStatusExplanation( $sCurrentCommentStatusExplanation ) {
-		return empty( $sCurrentCommentStatusExplanation )? self::$sCommentStatusExplanation : $sCurrentCommentStatusExplanation;
+		return empty( $sCurrentCommentStatusExplanation ) ? self::$sCommentStatusExplanation : $sCurrentCommentStatusExplanation;
 	}
 
 	/**
@@ -111,11 +113,10 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	protected function setCommentStatusExplanation( $sExplanation ) {
 		self::$sCommentStatusExplanation =
 			'[* '.sprintf(
-				_wpsf__('%s plugin marked this comment as "%s".').' '._wpsf__( 'Reason: %s' ),
+				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
 				$this->getController()->getHumanName(),
 				self::$sCommentStatus,
 				$sExplanation
 			)." *]\n";
 	}
 }
-endif;
