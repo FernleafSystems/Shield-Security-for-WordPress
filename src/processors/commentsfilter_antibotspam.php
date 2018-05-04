@@ -1,8 +1,10 @@
 <?php
 
-if ( !class_exists('ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam') ):
+if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam' ) ) {
+	return;
+}
 
-require_once( dirname(__FILE__ ).'/basedb.php' );
+require_once( dirname( __FILE__ ).'/basedb.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbProcessor {
 
@@ -11,15 +13,18 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @var integer
 	 */
 	protected $sUniqueCommentToken;
+
 	/**
 	 * The unique comment token assigned to this page
 	 * @var string
 	 */
 	protected $sFormId;
+
 	/**
 	 * @var string
 	 */
 	protected $sCommentStatus;
+
 	/**
 	 * @var string
 	 */
@@ -64,7 +69,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 
 		if ( $fIfDoCheck && $oWpComments->getIfCommentsMustBePreviouslyApproved()
-			&& $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+			 && $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
 			$fIfDoCheck = false;
 		}
 
@@ -81,12 +86,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.
-		add_action(	'comment_form',					array( $this, 'printGaspFormHook_Action' ), 1 );
-		add_action(	'comment_form',					array( $this, 'printGaspFormParts_Action' ), 2 );
-		add_filter( 'preprocess_comment',			array( $this, 'doCommentChecking' ), 1, 1 );
+		add_action( 'comment_form', array( $this, 'printGaspFormHook_Action' ), 1 );
+		add_action( 'comment_form', array( $this, 'printGaspFormParts_Action' ), 2 );
+		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
 
-		add_filter( $this->getFeature()->prefix( 'comments_filter_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeature()->prefix( 'comments_filter_status_explanation' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getFeature()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -98,29 +103,27 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->aRawCommentData = array();
 		}
 		if ( !empty( $sKey ) ) {
-			return isset( $this->aRawCommentData[$sKey] ) ? $this->aRawCommentData[$sKey] : null;
+			return isset( $this->aRawCommentData[ $sKey ] ) ? $this->aRawCommentData[ $sKey ] : null;
 		}
 		return $this->aRawCommentData;
 	}
 
 	/**
 	 * A private plugin filter that lets us return up the newly set comment status.
-	 *
 	 * @param $sCurrentCommentStatus
 	 * @return string
 	 */
 	public function getCommentStatus( $sCurrentCommentStatus ) {
-		return empty( $sCurrentCommentStatus )? $this->sCommentStatus : $sCurrentCommentStatus;
+		return empty( $sCurrentCommentStatus ) ? $this->sCommentStatus : $sCurrentCommentStatus;
 	}
 
 	/**
 	 * A private plugin filter that lets us return up the newly set comment status explanation
-	 *
 	 * @param $sCurrentCommentStatusExplanation
 	 * @return string
 	 */
 	public function getCommentStatusExplanation( $sCurrentCommentStatusExplanation ) {
-		return empty( $sCurrentCommentStatusExplanation )? $this->sCommentStatusExplanation : $sCurrentCommentStatusExplanation;
+		return empty( $sCurrentCommentStatusExplanation ) ? $this->sCommentStatusExplanation : $sCurrentCommentStatusExplanation;
 	}
 
 	/**
@@ -136,7 +139,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return $aCommentData;
 		}
 
-		$this->doGaspCommentCheck( $aCommentData['comment_post_ID'] );
+		$this->doGaspCommentCheck( $aCommentData[ 'comment_post_ID' ] );
 
 		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 		if ( $this->sCommentStatus == 'reject' ) {
@@ -149,7 +152,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * Performs the actual GASP comment checking
-	 *
 	 * @param $nPostId
 	 */
 	protected function doGaspCommentCheck( $nPostId ) {
@@ -176,7 +178,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$sFieldCommentToken = $oDp->FetchPost( 'comment_token' );
 
 		// we have the cb name, is it set?
-		if( !$sFieldCheckboxName || !$oDp->FetchPost( $sFieldCheckboxName ) ) {
+		if ( !$sFieldCheckboxName || !$oDp->FetchPost( $sFieldCheckboxName ) ) {
 			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'checkbox' ) );
 			$sStatKey = 'checkbox';
 		}
@@ -215,7 +217,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * Tells us whether, for this particular comment post, if we should do GASP comments checking.
-	 *
 	 * @return boolean
 	 */
 	protected function getIfDoGaspCheck() {
@@ -243,7 +244,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getUniqueFormId() {
 		if ( !isset( $this->sFormId ) ) {
 			$oDp = $this->loadDataProcessor();
-			$sId = $oDp->GenerateRandomLetter() . $oDp->GenerateRandomString( rand( 7, 23 ), 7 );
+			$sId = $oDp->GenerateRandomLetter().$oDp->GenerateRandomString( rand( 7, 23 ), 7 );
 			$this->sFormId = preg_replace(
 				'#[^a-zA-Z0-9]#', '',
 				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
@@ -340,8 +341,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 				frm$sId.onsubmit			= check$sId;
 
 				".(
-					( $nCooldown > 0 || $nExpire > 0 ) ?
-					"
+			( $nCooldown > 0 || $nExpire > 0 ) ?
+				"
 					var subbuttonList$sId = frm$sId.querySelectorAll( 'input[type=\"submit\"]' );
 					
 					if ( typeof( subbuttonList$sId ) != \"undefined\" ) {
@@ -349,22 +350,22 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 						if ( typeof( subbutton$sId ) != \"undefined\" ) {
 						
 						".(
-							( $nCooldown > 0 )?
-							"
+				( $nCooldown > 0 ) ?
+					"
 							subbutton$sId.disabled		= true;
 							origButtonValue$sId			= subbutton$sId.value;
 							subbutton$sId.value			= \"$sCommentWait\";
 							nTimerCounter$sId			= 0;
 							sCountdownTimer$sId			= setInterval( reenableButton$sId, 1000 );
 							"
-							:''
-						).(
-							( $nExpire > 0 )? "sTimeoutTimer$sId			= setTimeout( redisableButton$sId, ".(1000 * $nExpire - 1000)." );" : ''
-						)."
+					: ''
+				).(
+				( $nExpire > 0 ) ? "sTimeoutTimer$sId			= setTimeout( redisableButton$sId, ".( 1000*$nExpire - 1000 )." );" : ''
+				)."
 						}
 					}
-					":''
-				)."
+					" : ''
+			)."
 			</script>
 		";
 		return $sReturn;
@@ -372,7 +373,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * @param string $sCommentToken
-	 * @param $sPostId
+	 * @param        $sPostId
 	 * @return bool
 	 */
 	protected function checkCommentToken( $sCommentToken, $sPostId ) {
@@ -397,7 +398,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		);
 		$mResult = $this->selectCustom( $sQuery );
 
-		if ( empty( $mResult ) || !is_array($mResult) || count($mResult) != 1 ) {
+		if ( empty( $mResult ) || !is_array( $mResult ) || count( $mResult ) != 1 ) {
 			return false;
 		}
 		else {
@@ -405,11 +406,11 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->deleteUniquePostCommentToken( $sToken, $sPostId );
 
 			// Did sufficient time pass, or has it expired?
-			$aRecord = $mResult[0];
-			$nInterval = $this->time() - $aRecord['created_at'];
+			$aRecord = $mResult[ 0 ];
+			$nInterval = $this->time() - $aRecord[ 'created_at' ];
 			if ( $nInterval < $this->getOption( 'comments_cooldown_interval' )
-					|| ( $this->getOption( 'comments_token_expire_interval' ) > 0 && $nInterval > $this->getOption('comments_token_expire_interval') )
-				) {
+				 || ( $this->getOption( 'comments_token_expire_interval' ) > 0 && $nInterval > $this->getOption( 'comments_token_expire_interval' ) )
+			) {
 				return false;
 			}
 			return true;
@@ -443,13 +444,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 * @param string $sUniqueToken
 	 * @param string $sPostId
-	 *
 	 * @return bool|int
 	 */
 	protected function deleteUniquePostCommentToken( $sUniqueToken, $sPostId ) {
 		$aWhere = array(
-			'unique_token'  => $sUniqueToken,
-			'post_id'       => $sPostId
+			'unique_token' => $sUniqueToken,
+			'post_id'      => $sPostId
 		);
 		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 	}
@@ -460,8 +460,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function deleteOldPostCommentTokens( $sPostId = null ) {
 		$aWhere = array(
-			'ip'        => $this->ip(),
-			'post_id'   => empty( $sPostId ) ? $this->loadWp()->getCurrentPostId() : $sPostId
+			'ip'      => $this->ip(),
+			'post_id' => empty( $sPostId ) ? $this->loadWp()->getCurrentPostId() : $sPostId
 		);
 		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 	}
@@ -471,10 +471,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function insertUniquePostCommentToken() {
 		$aData = array(
-			'post_id'       => $this->loadWp()->getCurrentPostId(),
-			'unique_token'  => $this->getUniqueCommentToken(),
-			'ip'            => $this->ip(),
-			'created_at'    => $this->time()
+			'post_id'      => $this->loadWp()->getCurrentPostId(),
+			'unique_token' => $this->getUniqueCommentToken(),
+			'ip'           => $this->ip(),
+			'created_at'   => $this->time()
 		);
 		return $this->insertData( $aData );
 	}
@@ -493,7 +493,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function setCommentStatusExplanation( $sExplanation ) {
 		$this->sCommentStatusExplanation =
 			'[* '.sprintf(
-				_wpsf__('%s plugin marked this comment as "%s".').' '._wpsf__( 'Reason: %s' ),
+				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
 				$this->getController()->getHumanName(),
 				$this->sCommentStatus,
 				$sExplanation
@@ -507,4 +507,3 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		return DAY_IN_SECONDS;
 	}
 }
-endif;
