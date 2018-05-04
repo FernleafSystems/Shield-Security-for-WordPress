@@ -1,7 +1,7 @@
 {
   "properties": {
-    "version": "6.6.7",
-    "release_timestamp": 1525248893,
+    "version": "6.6.8",
+    "release_timestamp": 1525438123,
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "human_name": "Shield",
@@ -63,12 +63,12 @@
   },
   "labels": {
     "Name": "Shield",
-    "Description": "Secure Your Sites With The World's Most Powerful WordPress Security Protection System",
-    "Title": "Shield",
-    "Author": "iControlWP",
-    "AuthorName": "iControlWP",
-    "PluginURI": "http://icwp.io/home",
-    "AuthorURI": "http://icwp.io/home",
+    "Description": "Ultimate Security For Your Sites With The Highest Rated WordPress Security Plugin",
+    "Title": "Shield Security",
+    "Author": "One Dollar Plugin",
+    "AuthorName": "One Dollar Plugin",
+    "PluginURI": "http://icwp.io/2f",
+    "AuthorURI": "http://icwp.io/bv",
     "icon_url_16x16": "pluginlogo_16x16.png",
     "icon_url_32x32": "pluginlogo_32x32.png"
   },
