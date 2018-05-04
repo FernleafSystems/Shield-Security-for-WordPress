@@ -392,7 +392,7 @@
     "tracking_cron_handle":   "plugin_tracking_cron",
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
-    "href_privacy_policy": "https://www.fernleafsystems.com/common/privacy-policy-common/",
+    "href_privacy_policy":    "http://icwp.io/wpshieldprivacypolicy",
     "active_plugin_features": [
       {
         "slug":          "admin_access_restriction",
