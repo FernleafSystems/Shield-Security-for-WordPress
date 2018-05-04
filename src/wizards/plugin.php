@@ -201,9 +201,18 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'optin':
 					$oUser = $this->loadWpUsers()->getCurrentWpUser();
 					$aAdditional = array(
-						'data' => array(
+						'data'    => array(
 							'name'       => $oUser->first_name,
 							'user_email' => $oUser->user_email
+						),
+						'hrefs'   => array(
+							'privacy_policy' => $this->getModCon()->getDef( 'href_privacy_policy' )
+						),
+						'strings' => array(
+							'privacy_policy' => sprintf(
+								'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
+								$this->getModCon()->getDef( 'href_privacy_policy' )
+							),
 						)
 					);
 					break;
