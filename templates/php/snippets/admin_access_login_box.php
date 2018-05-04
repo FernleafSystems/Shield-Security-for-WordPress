@@ -37,7 +37,6 @@
 
 		$oTarget.html( '<div class="spinner"></div>' );
 		jQuery.post( ajaxurl, requestData, function ( oResponse ) {
-			console.log( oResponse );
 			if ( oResponse.data ) {
 				$oTarget.html( oResponse.data.html );
 			}
