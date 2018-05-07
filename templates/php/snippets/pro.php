@@ -73,7 +73,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 							</button>
 							<span class="form-text text-muted">
 								<ul>
-									<li>URL To Activate: <?php echo $var[ 'activation_url' ]; ?></li>
+									<li>URL To Activate: <?php echo $vars[ 'activation_url' ]; ?></li>
 									<li>Licenses may only be checked once in 20 seconds. Checks more frequent than this will
 								automatically be skipped</li>
 								</ul>
