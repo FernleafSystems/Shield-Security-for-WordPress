@@ -12,7 +12,7 @@
 	<p>Note: You can come back here and add files if the scanner picks up something
 	that you want to ignore.</p>
 
-	<form class="form-horizontal icwp-wizard-form" id>
+	<form class="form-horizontal icwp-wizard-form">
 
 		<div class="form-group row">
 			<label class="col-4 col-form-label" for="_exclusions">Excluded Files List</label>
@@ -39,8 +39,8 @@
 	</form>
 
 	<script type="text/javascript">
-		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, bSuccess ) {
-			if ( bSuccess ) {
+		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, oResponse ) {
+			if ( oResponse.success ) {
 				var $oForm = jQuery( event.target );
 				jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );
 			}

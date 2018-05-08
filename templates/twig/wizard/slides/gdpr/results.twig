@@ -1,0 +1,40 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( 'Unrecognised File Scanner Results' ) }}
+
+	{% if data.files.has %}
+		<div class="alert alert-warning" role="alert">
+			{{ data.files.count }} file(s) were discovered that you need to review.
+		</div>
+		<div class="indent_slight">
+			<ul>
+			{% for file in data.files.list %}
+				<li><code class="filepath">{{ file }}</code></li>
+			{% endfor %}
+			</ul>
+		</div>
+		<p>To have the scanner delete the files listed above, use the confirmation form below.</p>
+		<p><strong>Important</strong>: Remember it is not the job of the scanner to determine
+			whether you need these files on your website. This is <em>your role</em>.
+			We can only show you what's there. If you have doubts, please discuss
+			this with your web hosting provider.
+		</p>
+		<form class="form-horizontal icwp-wizard-form">
+
+			{{ slideMacros.formInput_Checkbox(
+				'DeleteFiles', 'Y', 'Delete Detected Files', 'Check to delete the unrecognised files',
+				"If there are files on this list that you do not want to delete, please go back
+						a step in the wizard and add them to your exclusions list.
+						<br />For security reasons, the scanner <strong>does not</strong>
+						currently support individual selection of files to delete."
+			) }}
+			{{ slideMacros.formInput_Hidden( 'wizard-step', 'deletefiles' ) }}
+			{{ slideMacros.formInput_Submit( 'Delete Unrecognised Files' ) }}
+		</form>
+
+	{% else %}
+		<p>There were no files discovered in the scan.</p>
+		<p>This could be because there are none, or your exclusions list is ensuring they're ignored.</p>
+	{% endif %}
+{% endblock %}

@@ -184,7 +184,7 @@ var iCWP_WPSF_Wizard_FormHandler = new function () {
 					iCWP_WPSF_Wizard_FormHandler.reRenderCurrent();
 				}
 
-				jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse.success );
+				jQuery( $oForm ).trigger( 'icwpWizardFormSubmit', oResponse );
 			}
 		).always(
 			function () {

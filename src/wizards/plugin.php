@@ -12,13 +12,6 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
-	 * @return string[]
-	 */
-	protected function getSupportedWizards() {
-		return array( 'welcome', 'importexport' );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getPageTitle() {
@@ -69,6 +62,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oResponse = $this->wizardOptin();
 				break;
 
+			case 'add-search-item':
+				$oResponse = $this->wizardAddSearchItem();
+				break;
+
 			default:
 				$oResponse = parent::processWizardStep( $sStep );
 				break;
@@ -86,6 +83,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'welcome':
 				$aSteps = $this->determineWizardSteps_Welcome();
 				break;
+			case 'gdpr':
+				$aSteps = $this->determineWizardSteps_Gdpr();
+				break;
 			case 'importexport':
 				$aSteps = $this->determineWizardSteps_Import();
 				break;
@@ -94,6 +94,18 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Gdpr() {
+		return array(
+			'start',
+			'search',
+			'results',
+			'finished',
+		);
 	}
 
 	/**
@@ -558,6 +570,46 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
+	private function wizardAddSearchItem() {
+		$oDP = $this->loadDP();
+		$oCon = $this->getPluginCon();
+
+		$sInput = trim( $oDP->post( 'SearchItem' ) );
+
+		$oWP = $this->loadWp();
+		$sTransKey = $oCon->prefix( 'gdpr-items' );
+		$aItems = $oWP->getTransient( $sTransKey );
+		if ( empty( $aItems ) ) {
+			$aItems = array();
+		}
+
+		if ( !empty( $sInput ) ) {
+			if ( $sInput === 'CLEAR' ) {
+				$aItems = array();
+			}
+			else {
+				$aItems[] = $sInput;
+			}
+		}
+
+		$aItems = array_unique( $aItems );
+		$oWP->setTransient( $sTransKey, $aItems, MINUTE_IN_SECONDS*10 );
+
+		$sSearchList = 'Search list is empty';
+		if ( !empty( $aItems ) ) {
+			$sItems = implode( '</li><li>', $aItems );
+			$sSearchList = sprintf( '<ul><li>%s</li></ul>', $sItems );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( true )
+						 ->setData( [ 'sSearchList' => wp_kses_post( $sSearchList ) ] )
+						 ->setMessageText( _wpsf__( 'Search item added.' ) );
 	}
 
 	/**
