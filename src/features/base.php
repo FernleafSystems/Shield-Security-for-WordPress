@@ -1574,6 +1574,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getUrl_Wizard( $sWizardSlug ) {
+		$aDef = $this->getWizardDefinition( $sWizardSlug );
+		if ( empty( $aDef[ 'min_user_permissions' ] ) ) { // i.e. no login/minimum perms
+			$sUrl = $this->loadWp()->getHomeUrl();
+		}
+		else {
+			$sUrl = $this->loadWp()->getUrl_WpAdmin( 'admin.php' );
+		}
+
 		return add_query_arg(
 			array(
 				'page'          => $this->getModSlug(),
@@ -1581,7 +1589,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wizard'        => $sWizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$sWizardSlug )
 			),
-			$this->loadWp()->getHomeUrl()
+			$sUrl
 		);
 	}
 
@@ -1590,6 +1598,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getUrl_WizardLanding() {
 		return $this->getUrl_Wizard( 'landing' );
+	}
+
+	/**
+	 * @param string $sWizardSlug
+	 * @return array
+	 */
+	public function getWizardDefinition( $sWizardSlug ) {
+		$aDef = null;
+		if ( $this->hasWizardDefinition( $sWizardSlug ) ) {
+			$aW = $this->getWizardDefinitions();
+			$aDef = $aW[ $sWizardSlug ];
+		}
+		return $aDef;
 	}
 
 	/**
@@ -1605,6 +1626,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function hasWizard() {
 		return ( count( $this->getWizardDefinitions() ) > 0 );
+	}
+
+	/**
+	 * @param string $sWizardSlug
+	 * @return bool
+	 */
+	public function hasWizardDefinition( $sWizardSlug ) {
+		$aW = $this->getWizardDefinitions();
+		return !empty( $aW[ $sWizardSlug ] );
 	}
 
 	/**
