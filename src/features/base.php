@@ -1195,7 +1195,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isAdminOptionsPage() {
-		return ( is_admin() && !$this->loadWp()->isAjax() && $this->isModulePage() );
+		return ( is_admin() && !$this->loadWp()->isAjax() && $this->isThisModulePage() );
 	}
 
 	/**
@@ -1306,8 +1306,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function isModulePage() {
+	protected function isThisModulePage() {
 		return $this->loadDP()->query( 'page' ) == $this->getModSlug();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isModulePage() {
+		return strpos( $this->loadDP()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**
@@ -1321,7 +1328,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isWizardPage() {
-		return ( $this->loadDP()->query( 'shield_action' ) == 'wizard' && $this->isModulePage() );
+		return ( $this->loadDP()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
 	}
 
 	/**
