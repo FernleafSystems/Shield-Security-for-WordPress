@@ -267,6 +267,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						),
 					);
 					break;
+
 				default:
 					break;
 			}
@@ -280,6 +281,32 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						),
 						'imgs'  => array(
 							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+						)
+					);
+					break;
+				case 'results': //gdpr results
+
+					$aAdditional = array();
+					break;
+
+				default:
+					break;
+			}
+		}
+		else if ( $sCurrentWiz == 'gdpr' ) {
+			switch ( $sStep ) {
+
+				case 'results':
+					$aItems = $this->getGdprSearchItems();
+					$bHasSearchItems = !empty( $aItems );
+
+					if ( $bHasSearchItems ) {
+						//search
+					}
+
+					$aAdditional = array(
+						'flags' => array(
+							'has_search_items' => $bHasSearchItems
 						)
 					);
 					break;
@@ -577,16 +604,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardAddSearchItem() {
 		$oDP = $this->loadDP();
-		$oCon = $this->getPluginCon();
-
 		$sInput = trim( $oDP->post( 'SearchItem' ) );
 
-		$oWP = $this->loadWp();
-		$sTransKey = $oCon->prefix( 'gdpr-items' );
-		$aItems = $oWP->getTransient( $sTransKey );
-		if ( empty( $aItems ) ) {
-			$aItems = array();
-		}
+		$aItems = $this->getGdprSearchItems();
 
 		if ( !empty( $sInput ) ) {
 			if ( $sInput === 'CLEAR' ) {
@@ -597,8 +617,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		$aItems = array_unique( $aItems );
-		$oWP->setTransient( $sTransKey, $aItems, MINUTE_IN_SECONDS*10 );
+		$aItems = $this->setGdprSearchItems( $aItems );
 
 		$sSearchList = 'Search list is empty';
 		if ( !empty( $aItems ) ) {
@@ -646,5 +665,35 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getGdprSearchItems() {
+		$aItems = $this->loadWp()
+					   ->getTransient( $this->getPluginCon()->prefix( 'gdpr-items' ) );
+		if ( !is_array( $aItems ) ) {
+			$aItems = array();
+		}
+		return $aItems;
+	}
+
+	/**
+	 * @param array $aItems
+	 * @return array
+	 */
+	private function setGdprSearchItems( $aItems ) {
+		if ( !is_array( $aItems ) ) {
+			$aItems = array();
+		}
+		$aItems = array_unique( $aItems );
+		$this->loadWp()
+			 ->setTransient(
+				 $this->getPluginCon()->prefix( 'gdpr-items' ),
+				 $aItems,
+				 MINUTE_IN_SECONDS*10
+			 );
+		return $aItems;
 	}
 }
