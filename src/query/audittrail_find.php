@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Sessions_Retrieve', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Search', false ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/base.php' );
 
-class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
+class ICWP_WPSF_Query_AuditTrail_Search extends ICWP_WPSF_Query_Base {
 
 	public function __construct() {
 		$this->init();
@@ -68,6 +68,5 @@ class ICWP_WPSF_Query_Sessions_Retrieve extends ICWP_WPSF_Query_Base {
 	}
 
 	protected function init() {
-		require_once( dirname( __FILE__ ).'/ICWP_WPSF_SessionVO.php' );
 	}
 }
