@@ -215,10 +215,80 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * See plugin controller for the nature of $aData wpPrivacyExport()
+	 * @param array  $aExportItems
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
+		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
+		$oProc = $this->getProcessor();
+
+		$oUser = $this->loadWpUsers()->getUserByEmail( $sEmail );
+
+		$aExportItem = array(
+			'group_id'    => $this->prefix(),
+			'group_label' => sprintf( _wpsf__( '[%s] Audit Trail Entries' ), $this->getConn()->getHumanName() ),
+			'item_id'     => $this->prefix( 'audit-trail' ),
+			'data'        => array(),
+		);
+
+		try {
+			$oFinder = $oProc->getAuditTrailFinder()
+							 ->setTerm( $oUser->user_login )
+							 ->setColumns( array( 'wp_username' ) )
+							 ->setResultsAsVo( true );
+
+			$oWp = $this->loadWp();
+			foreach ( $oFinder->all() as $oEntry ) {
+				$aExportItem[ 'data' ][] = array(
+					$sTimeStamp = $oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
+					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
+					'value' => sprintf( '[IP:%s] %s', $oEntry->getIp(), $oEntry->getMessage() )
+				);
+			}
+
+			if ( !empty( $aExportItem[ 'data' ] ) ) {
+				$aExportItems[] = $aExportItem;
+			}
+		}
+		catch ( Exception $oE ) {
+		}
+
+		return $aExportItems;
+	}
+
+	/**
+	 * See plugin controller for the nature of $aData wpPrivacyErase()
+	 * @param array  $aData
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
+
+		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
+		$oProc = $this->getProcessor();
+
+		try {
+			$oProc->getAuditTrailDelete()
+				  ->setTerm( $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login )
+				  ->setColumns( array( 'wp_username' ) )
+				  ->setResultsAsVo( false )
+				  ->all();
+			$aData[ 'messages' ][] = 'Shield Security Audit Entries deleted';
+		}
+		catch ( Exception $oE ) {
+		}
+		return $aData;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getAuditTrailTableName() {
-		return $this->prefix( $this->getDefinition( 'audit_trail_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'audit_trail_table_name' ), '_' );
 	}
 
 	/**

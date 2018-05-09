@@ -126,6 +126,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
+			// GDPR
+			add_filter( $this->prefix( 'wpPrivacyExport' ), array( $this, 'onWpPrivacyExport' ), 10, 3 );
+			add_filter( $this->prefix( 'wpPrivacyErase' ), array( $this, 'onWpPrivacyErase' ), 10, 3 );
+
 			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars' ), 100 );
 
 			if ( $this->isAdminOptionsPage() ) {
@@ -1823,6 +1827,28 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aOptionsData;
+	}
+
+	/**
+	 * See plugin controller for the nature of $aData wpPrivacyExport()
+	 * @param array  $aExportItems
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
+		return $aExportItems;
+	}
+
+	/**
+	 * See plugin controller for the nature of $aData wpPrivacyErase()
+	 * @param array $aData
+	 * @param string $sEmail
+	 * @param int $nPage
+	 * @return array
+	 */
+	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
+		return $aData;
 	}
 
 	/** Help Video options */

@@ -71,8 +71,7 @@ class ICWP_WPSF_WpDb {
 	 * @return integer|boolean (number of rows affected or just true/false)
 	 */
 	public function doSql( $sSqlQuery ) {
-		$mResult = $this->loadWpdb()->query( $sSqlQuery );
-		return $mResult;
+		return $this->loadWpdb()->query( $sSqlQuery );
 	}
 
 	/**

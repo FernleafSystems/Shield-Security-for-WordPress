@@ -1,0 +1,38 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( 'Add Search Items' ) }}
+
+	<p>In this step we need you to provide all the items to search for. There may just be 1 item,
+	   and in that case just provide 1 entry.</p>
+
+	<p>Enter each individual search item 1 at a time and click the 'Add' button.</p>
+	<p>When you're ready to perform the search, click the 'Next Step' button (above) to see
+	   the search results.</p>
+
+	<form class="form-horizontal icwp-wizard-form">
+		{{ slideMacros.formInput_Text(
+			'SearchItem', '', 'Enter item text to search for', '',
+			'To clear the entire list, type "CLEAR" and click the button.'
+		) }}
+		{{ slideMacros.formInput_Hidden( 'wizard-step', 'add-search-item' ) }}
+		{{ slideMacros.formInput_Submit( 'Add Item' ) }}
+	</form>
+
+	<div class="card">
+		<div class="card-body">
+			<h6 class="card-title">Search Items:</h6>
+			<div class="card-body" id="SearchItemsEnum">No items</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, oResponse ) {
+			if ( oResponse.success ) {
+				var $oForm = jQuery( event.target );
+				jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );
+				jQuery( '#SearchItemsEnum' ).html( oResponse.data.sSearchList );
+			}
+		} );
+	</script>
+{% endblock %}

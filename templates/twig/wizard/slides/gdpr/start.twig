@@ -1,0 +1,15 @@
+{% extends 'wizard/slides/common/base_start.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( 'Start GDPR Data Wizard' ) }}
+
+	<p>What is the GDPR Data Wizard?</p>
+	<p>The purpose of the GDPR data wizard is to help you examine which data the Shield Security
+	   plugin is storing in its databases that pertains to individuals and may contain private,
+	   or personally identifiable information.</p>
+	<h5>Why is this important?</h5>
+	<p>With GDPR regulations, any individual may ask you at any time about what data you have stored about
+	   them and you will be required to present it to them.</p>
+	<p>You may additionally be asked to remove this data.</p>
+	<p>This wizard will walk you through the search for such data, and the subsequent removal of it.</p>
+{% endblock %}

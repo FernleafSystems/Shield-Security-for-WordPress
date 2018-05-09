@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 			$sRequestRole = $oDp->FetchPost( 'role', '' );
 
-			if ( $oPostUser ) {
+			if ( $oPostUser instanceof WP_User ) {
 				// editing an existing user other than yourself?
 				if ( $oPostUser->get( 'user_login' ) != $oWpUsers->getCurrentWpUser()->get( 'user_login' ) ) {
 

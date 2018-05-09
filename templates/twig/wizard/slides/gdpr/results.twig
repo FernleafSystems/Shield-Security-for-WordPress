@@ -1,0 +1,44 @@
+{% extends 'wizard/slides/common/base.twig' %}
+
+{% block slide_body %}
+	{{ slideMacros.slideTitle( 'GDPR Search Results' ) }}
+
+	{% if flags.has_search_items %}
+		{% if data.has_results %}
+			<p>Use the checkbox below to delete all the search results.</p>
+			<form class="form-horizontal icwp-wizard-form">
+				{{ slideMacros.formInput_Checkbox(
+					'ConfirmDelete', 'Y', 'Confirm Deletion Of All Results',
+					'Click to confirm that you wish to delete all search results.',
+					'You will not be able to recover these audit trail entries after you delete them.',
+					'ConfirmDelete'
+				) }}
+				{{ slideMacros.formInput_Hidden( 'wizard-step', 'confirm-results-delete' ) }}
+				{{ slideMacros.formInput_Submit( 'Delete All Items' ) }}
+			</form>
+		{% else %}
+			<p>None of your search items produced results.</p>
+		{% endif %}
+
+		{% for item_name,item_res in data.result %}
+			<h6>Results For Search Item: {{ item_name }}</h6>
+			{% if item_res.has %}
+				<ul>
+				{% for item_res in item_res.entries %}
+					<li><strong>Username</strong>: {{ item_res.wp_username }}
+						<br /><strong>Audit Message</strong>: {{ item_res.message }}
+					</li>
+				{% endfor %}
+				</ul>
+			{% else %}
+				<p>No results for this search item.</p>
+			{% endif %}
+		{% endfor %}
+
+	{% else %}
+		<div class="alert alert-warning" role="alert">
+			<p>There were no search items.</p>
+			<p>Please go back to the previous step and supply your search items.</p>
+		</div>
+	{% endif %}
+{% endblock %}
