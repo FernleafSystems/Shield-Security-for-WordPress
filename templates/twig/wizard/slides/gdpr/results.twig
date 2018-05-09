@@ -21,7 +21,7 @@
 		{% endif %}
 
 		{% for item_name,item_res in data.result %}
-			<h5>Results For Search Item: {{ item_name }}</h5>
+			<h6>Results For Search Item: {{ item_name }}</h6>
 			{% if item_res.has %}
 				<ul>
 				{% for item_res in item_res.entries %}
