@@ -208,4 +208,13 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		$oSearch = new ICWP_WPSF_Query_AuditTrail_Find();
 		return $oSearch->setTable( $this->getTableName() );
 	}
+
+	/**
+	 * @return ICWP_WPSF_Query_AuditTrail_Delete
+	 */
+	public function getAuditTrailDelete() {
+		require_once( dirname( dirname( __FILE__ ) ).'/query/audittrail_delete.php' );
+		$oSearch = new ICWP_WPSF_Query_AuditTrail_Delete();
+		return $oSearch->setTable( $this->getTableName() );
+	}
 }

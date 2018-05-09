@@ -66,6 +66,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oResponse = $this->wizardAddSearchItem();
 				break;
 
+			case 'confirm-results-delete':
+				$oResponse = $this->wizardConfirmDelete();
+				break;
+
 			default:
 				$oResponse = parent::processWizardStep( $sStep );
 				break;
@@ -651,6 +655,32 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		return $oResponse->setSuccessful( true )
 						 ->setData( [ 'sSearchList' => $sSearchList ] )
 						 ->setMessageText( _wpsf__( 'Search item added.' ) );
+	}
+
+	private function wizardConfirmDelete() {
+		$oDP = $this->loadDP();
+		$bDelete = $oDP->post( 'ConfirmDelete' ) === 'Y';
+		if ( $bDelete ) {
+			/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
+			$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
+			$oDeleter = $oProc->getAuditTrailDelete();
+			foreach ( $this->getGdprSearchItems() as $sItem ) {
+				try {
+					$oDeleter->setTerm( $sItem )
+							 ->all();
+				}
+				catch ( Exception $oE ) {
+				}
+			}
+			$sMessage = _wpsf__( 'All entries were deleted' );
+		}
+		else {
+			$sMessage = _wpsf__( 'Please check the box to confirm deletion.' );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bDelete )
+						 ->setMessageText( $sMessage );
 	}
 
 	/**
