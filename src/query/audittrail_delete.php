@@ -24,22 +24,24 @@ class ICWP_WPSF_Query_AuditTrail_Delete extends ICWP_WPSF_Query_Base_Find {
 	protected function query_Delete( $sTerm ) {
 
 		$sTerm = str_replace( '"', '', esc_sql( trim( $sTerm ) ) );
-
 		if ( empty( $sTerm ) ) {
 			throw new Exception( 'Search term cannot be empty for delete request.' );
 		}
 
+		$sWhereTemplate = '`%s` LIKE "%%%s%%"';
+		$aColumnWheres = $this->getColumns();
+		foreach ( $aColumnWheres as $nKey => $sColumn ) {
+			$aColumnWheres[ $nKey ] = sprintf( $sWhereTemplate, $sColumn, $sTerm );
+		}
+
 		$sQuery = "
 			DELETE FROM `%s`
-			WHERE
-				`wp_username` LIKE \"%%%s%%\"
-				OR `message` LIKE \"%%%s%%\"
+			WHERE %s
 		";
 		$sQuery = sprintf(
 			$sQuery,
 			$this->getTable(),
-			$sTerm,
-			$sTerm
+			implode( ' OR ', $aColumnWheres )
 		);
 
 		return $this->loadDbProcessor()->doSql( $sQuery );

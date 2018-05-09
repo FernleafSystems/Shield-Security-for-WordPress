@@ -13,7 +13,8 @@ class ICWP_WPSF_Query_AuditTrail_Find extends ICWP_WPSF_Query_Base_Find {
 	}
 
 	/**
-	 * @return ICWP_WPSF_AuditTrailEntryVO[]
+	 * @return array[]|ICWP_WPSF_AuditTrailEntryVO[]
+	 * @throws Exception
 	 */
 	public function all() {
 		return $this->query_Search( $this->getTerm() );
@@ -22,23 +23,30 @@ class ICWP_WPSF_Query_AuditTrail_Find extends ICWP_WPSF_Query_Base_Find {
 	/**
 	 * @param string $sTerm
 	 * @return ICWP_WPSF_AuditTrailEntryVO[]|array[]
+	 * @throws Exception
 	 */
 	protected function query_Search( $sTerm ) {
 
 		$sTerm = str_replace( '"', '', esc_sql( trim( $sTerm ) ) );
+		if ( empty( $sTerm ) ) {
+			throw new Exception( 'Search term cannot be empty for delete request.' );
+		}
+
+		$sWhereTemplate = '`%s` LIKE "%%%s%%"';
+		$aColumnWheres = $this->getColumns();
+		foreach ( $aColumnWheres as $nKey => $sColumn ) {
+			$aColumnWheres[ $nKey ] = sprintf( $sWhereTemplate, $sColumn, $sTerm );
+		}
 
 		$sQuery = "
 			SELECT *
 			FROM `%s`
-			WHERE
-				`wp_username` LIKE \"%%%s%%\"
-				OR `message` LIKE \"%%%s%%\"
+			WHERE %s
 		";
 		$sQuery = sprintf(
 			$sQuery,
 			$this->getTable(),
-			$sTerm,
-			$sTerm
+			implode( ' OR ', $aColumnWheres )
 		);
 
 		$aData = $this->loadDbProcessor()

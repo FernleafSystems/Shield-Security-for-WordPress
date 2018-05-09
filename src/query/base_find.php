@@ -14,6 +14,11 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	protected $sTerm;
 
 	/**
+	 * @var array
+	 */
+	protected $aColumns;
+
+	/**
 	 * @var bool
 	 */
 	protected $bResultsAsVo;
@@ -26,10 +31,29 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getColumns() {
+		if ( empty( $this->aColumns ) || !is_array( $this->aColumns ) ) {
+			$this->aColumns = array( 'wp_username', 'message' );
+		}
+		return $this->aColumns;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isResultsAsVo() {
 		return $this->bResultsAsVo;
+	}
+
+	/**
+	 * @param array $aColumns
+	 * @return $this
+	 */
+	public function setColumns( $aColumns ) {
+		$this->aColumns = $aColumns;
+		return $this;
 	}
 
 	/**

@@ -24,20 +24,6 @@ class ICWP_WPSF_AuditTrailEntryVO {
 	/**
 	 * @return string
 	 */
-	public function getBrowser() {
-		return $this->getRowData()->browser;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getId() {
-		return $this->getRowData()->session_id;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getIp() {
 		return $this->getRowData()->ip;
 	}
@@ -45,15 +31,8 @@ class ICWP_WPSF_AuditTrailEntryVO {
 	/**
 	 * @return int
 	 */
-	public function getLastActivityAt() {
-		return $this->getRowData()->last_activity_at;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLoggedInAt() {
-		return $this->getRowData()->logged_in_at;
+	public function getMessage() {
+		return $this->getRowData()->message;
 	}
 
 	/**
@@ -61,13 +40,6 @@ class ICWP_WPSF_AuditTrailEntryVO {
 	 */
 	public function getUsername() {
 		return $this->getRowData()->wp_username;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getSecAdminAt() {
-		return $this->getRowData()->secadmin_at;
 	}
 
 	/**

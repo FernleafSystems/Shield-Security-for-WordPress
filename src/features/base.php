@@ -1830,20 +1830,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param array $aData
+	 * See plugin controller for the nature of $aData wpPrivacyExport()
+	 * @param array  $aExportItems
 	 * @param string $sEmail
-	 * @param int $nPage
-	 * @return mixed
+	 * @param int    $nPage
+	 * @return array
 	 */
-	public function onWpPrivacyExport( $aData, $sEmail, $nPage = 1 ) {
-		return $aData;
+	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
+		return $aExportItems;
 	}
 
 	/**
+	 * See plugin controller for the nature of $aData wpPrivacyErase()
 	 * @param array $aData
 	 * @param string $sEmail
 	 * @param int $nPage
-	 * @return mixed
+	 * @return array
 	 */
 	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
 		return $aData;

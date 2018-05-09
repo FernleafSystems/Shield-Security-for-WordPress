@@ -759,9 +759,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$aItems = array();
 		foreach ( $this->getGdprSearchItems() as $sItem ) {
-			$aResults = $oFinder->setTerm( $sItem )
-								->setResultsAsVo( false )
-								->all();
+			try {
+				$aResults = $oFinder->setTerm( $sItem )
+									->setResultsAsVo( false )
+									->all();
+			}
+			catch ( Exception $oE ) {
+				$aResults = array();
+			}
 //			$aResults = array_intersect_key( $aResults, array_flip( [ 'wp_username', 'message' ] ) );
 			$aItems[ $sItem ] = array(
 				'entries' => $aResults,
