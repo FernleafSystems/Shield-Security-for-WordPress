@@ -286,6 +286,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_action( 'shutdown', array( $this, 'onWpShutdown' ) );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 
+		// GDPR
+		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'onWpPrivacyRegisterExporter' ) );
+		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'onWpPrivacyRegisterEraser' ) );
+
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
 			$oNofics = $this->loadAdminNoticesProcessor();
@@ -1649,5 +1653,75 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$this->aModules[ $sFeatureSlug ] = $this->{$sOptionsVarName};
 		return $this->{$sOptionsVarName};
+	}
+
+	/**
+	 * @param array[] $aRegistered
+	 * @return array[]
+	 */
+	public function onWpPrivacyRegisterExporter( $aRegistered ) {
+		if ( !is_array( $aRegistered ) ) {
+			$aRegistered = array(); // account for crap plugins that do-it-wrong.
+		}
+
+		$aRegistered[] = array(
+			'exporter_friendly_name' => $this->getHumanName(),
+			'callback'               => array( $this, 'wpPrivacyExport' ),
+		);
+		return $aRegistered;
+	}
+
+	/**
+	 * @param array[] $aRegistered
+	 * @return array[]
+	 */
+	public function onWpPrivacyRegisterEraser( $aRegistered ) {
+		if ( !is_array( $aRegistered ) ) {
+			$aRegistered = array(); // account for crap plugins that do-it-wrong.
+		}
+
+		$aRegistered[] = array(
+			'eraser_friendly_name' => $this->getHumanName(),
+			'callback'             => array( $this, 'wpPrivacyErase' ),
+		);
+		return $aRegistered;
+	}
+
+	/**
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function wpPrivacyExport( $sEmail, $nPage = 1 ) {
+
+		$bValid = $this->loadDP()->validEmail( $sEmail )
+				  && ( $this->loadWpUsers()->getUserByEmail( $sEmail ) instanceof WP_User );
+
+		return array(
+			'data' => $bValid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), array(), $sEmail, $nPage ) : array(),
+			'done' => true,
+		);
+	}
+
+	/**
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function wpPrivacyErase( $sEmail, $nPage = 1 ) {
+
+		$bValidUser = $this->loadDP()->validEmail( $sEmail )
+					  && ( $this->loadWpUsers()->getUserByEmail( $sEmail ) instanceof WP_User );
+
+		$aResult = array(
+			'items_removed'  => $bValidUser,
+			'items_retained' => false,
+			'messages'       => $bValidUser ? array() : array( 'Email address not valid or does not belong to a user.' ),
+			'done'           => true,
+		);
+		if ( $bValidUser ) {
+			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
+		}
+		return $aResult;
 	}
 }
