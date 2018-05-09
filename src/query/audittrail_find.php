@@ -1,72 +1,57 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Search', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Find', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( dirname( __FILE__ ).'/base_find.php' );
 
-class ICWP_WPSF_Query_AuditTrail_Search extends ICWP_WPSF_Query_Base {
+class ICWP_WPSF_Query_AuditTrail_Find extends ICWP_WPSF_Query_Base_Find {
 
 	public function __construct() {
 		$this->init();
 	}
 
 	/**
-	 * @return ICWP_WPSF_SessionVO[]
+	 * @return ICWP_WPSF_AuditTrailEntryVO[]
 	 */
 	public function all() {
-		return $this->query_retrieveForUserSession();
+		return $this->query_Search( $this->getTerm() );
 	}
 
 	/**
-	 * @param string $sWpUsername
-	 * @return ICWP_WPSF_SessionVO[]
+	 * @param string $sTerm
+	 * @return ICWP_WPSF_AuditTrailEntryVO[]|array[]
 	 */
-	public function retrieveForUsername( $sWpUsername ) {
-		return $this->query_retrieveForUserSession( $sWpUsername );
-	}
+	protected function query_Search( $sTerm ) {
 
-	/**
-	 * @param string $sWpUsername
-	 * @param string $sSessionId
-	 * @return ICWP_WPSF_SessionVO|null
-	 */
-	public function retrieveUserSession( $sWpUsername, $sSessionId ) {
-		$aData = $this->query_retrieveForUserSession( $sWpUsername, $sSessionId );
-		return ( count( $aData ) == 1 ) ? array_shift( $aData ) : null;
-	}
+		$sTerm = str_replace( '"', '', esc_sql( trim( $sTerm ) ) );
 
-	/**
-	 * @param string $sWpUsername
-	 * @param string $sSessionId
-	 * @return ICWP_WPSF_SessionVO[]
-	 */
-	protected function query_retrieveForUserSession( $sWpUsername = '', $sSessionId = '' ) {
 		$sQuery = "
 			SELECT *
 			FROM `%s`
 			WHERE
-				`deleted_at` = 0
-				%s
-				%s
-			ORDER BY `last_activity_at` ASC
+				`wp_username` LIKE \"%%%s%%\"
+				OR `message` LIKE \"%%%s%%\"
 		";
 		$sQuery = sprintf(
 			$sQuery,
 			$this->getTable(),
-			empty( $sWpUsername ) ? '' : "AND `wp_username` = '".esc_sql( $sWpUsername )."'",
-			empty( $sSessionId ) ? '' : "AND `session_id` = '".esc_sql( $sSessionId )."'"
+			$sTerm,
+			$sTerm
 		);
 
 		$aData = $this->loadDbProcessor()
 					  ->selectCustom( $sQuery, OBJECT_K );
-		foreach ( $aData as $nKey => $oSess ) {
-			$aData[ $nKey ] = new ICWP_WPSF_SessionVO( $oSess );
+		if ( $this->isResultsAsVo() ) {
+			foreach ( $aData as $nKey => $oAudit ) {
+				$aData[ $nKey ] = new ICWP_WPSF_AuditTrailEntryVO( $oAudit );
+			}
 		}
 		return $aData;
 	}
 
 	protected function init() {
+		require_once( dirname( __FILE__ ).'/ICWP_WPSF_AuditTrailEntryVO.php' );
 	}
 }

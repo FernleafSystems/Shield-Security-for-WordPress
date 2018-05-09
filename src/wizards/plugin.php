@@ -299,13 +299,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'results':
 					$aItems = $this->getGdprSearchItems();
 					$bHasSearchItems = !empty( $aItems );
+					$aResults = $this->runGdprSearch();
+
+					$nTotal = 0;
+					foreach ( $aResults as $aResult ) {
+						$nTotal += $aResult[ 'count' ];
+					}
 
 					$aAdditional = array(
 						'flags' => array(
 							'has_search_items' => $bHasSearchItems
 						),
 						'data'  => array(
-							'result' => $this->runGdprSearch()
+							'result'      => $this->runGdprSearch(),
+							'count_total' => $nTotal,
+							'has_results' => $nTotal > 0,
 						)
 					);
 					break;
