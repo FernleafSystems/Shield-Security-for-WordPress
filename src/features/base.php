@@ -126,10 +126,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
-			// GDPR
-			add_filter( $this->prefix( 'wpPrivacyExport' ), array( $this, 'onWpPrivacyExport' ), 10, 3 );
-			add_filter( $this->prefix( 'wpPrivacyErase' ), array( $this, 'onWpPrivacyErase' ), 10, 3 );
-
 			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars' ), 100 );
 
 			if ( $this->isAdminOptionsPage() ) {
@@ -337,6 +333,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpInit() {
 		$this->runWizards();
 		$this->updateHandler();
+
+		// GDPR
+		if ( $this->isPremium() ) {
+			add_filter( $this->prefix( 'wpPrivacyExport' ), array( $this, 'onWpPrivacyExport' ), 10, 3 );
+			add_filter( $this->prefix( 'wpPrivacyErase' ), array( $this, 'onWpPrivacyErase' ), 10, 3 );
+		}
 	}
 
 	/**

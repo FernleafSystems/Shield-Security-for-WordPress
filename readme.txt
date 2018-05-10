@@ -356,8 +356,8 @@ You can [go Pro for just $1/month](http://icwp.io/aa).
 = 6.7.0 - Current Release =
 *Released: 14th May, 2018*
 
-* **(v.0)**  ADDED:		Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
-* **(v.0)**  ADDED:		New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
+* **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
 
 = 6.7 Series =
 *Released: 14th May, 2018*
