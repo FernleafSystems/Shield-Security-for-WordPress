@@ -1531,10 +1531,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWp();
-		$this->loadDataProcessor()->setCookie(
+		$oDP = $this->loadDP();
+		$oDP->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$this->loadDP()->time() + DAY_IN_SECONDS*30,
+			$oDP->time() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false
