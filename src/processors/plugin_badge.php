@@ -35,7 +35,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ),
 			$this->getController()->getHumanName(),
-			sprintf( '<a href="%s">iControlWP</a>', 'http://icwp.io/7f' )
+			sprintf( '<a href="%s">One Dollar Plugin</a>', 'http://icwp.io/7f' )
 		);
 		$aDisplayData = array(
 			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
