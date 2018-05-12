@@ -79,7 +79,7 @@
 	{% endif %}
 
 	<div class="form-group row">
-		<label class="col-4 col-form-label" for="{{ id|default( '_'~name) }}">{{ label }}</label>
+		<label class="col-4 col-form-label" for="{{ id }}">{{ label }}</label>
 		<div class="col-8">
 			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
 				   class="form-control" id="{{ id }}" placeholder="{{ placeholder|default('') }}">
@@ -87,5 +87,14 @@
 				<small class="form-text text-muted">{{ help|raw }}</small>
 			{% endif %}
 		</div>
+	</div>
+{% endmacro %}
+
+{% macro embedVimeo( video_id, width, height, class, id ) %}
+	<div class="embed-vimeo embed-responsive {{ class|default('embed-responsive-16by9') }}"
+		 id="{{ id|default('') }}">
+		<iframe src="https://player.vimeo.com/video/{{ video_id }}"
+				width="{{ width|default(640) }}" height="{{ height|default(480) }}"
+				frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 	</div>
 {% endmacro %}
