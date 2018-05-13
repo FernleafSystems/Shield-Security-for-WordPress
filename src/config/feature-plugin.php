@@ -385,6 +385,12 @@
       "transferable": false,
       "section":      "section_non_ui",
       "value":        0
+    },
+    {
+      "key":          "test_cron_last_run_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "value":        0
     }
   ],
   "definitions":   {
