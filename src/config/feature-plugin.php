@@ -401,6 +401,10 @@
     "href_privacy_policy":    "http://icwp.io/wpshieldprivacypolicy",
     "active_plugin_features": [
       {
+        "slug":        "insights",
+        "storage_key": "insights"
+      },
+      {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",
         "load_priority": 20
