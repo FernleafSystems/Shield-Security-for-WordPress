@@ -118,7 +118,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
-			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
+			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
 			add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
@@ -619,7 +619,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aSummaryData
 	 * @return array
 	 */
-	public function filter_getFeatureSummaryData( $aSummaryData ) {
+	public function addModuleSummaryData( $aSummaryData ) {
 		if ( $this->getIfShowModuleLink() ) {
 			$aSummaryData[] = $this->buildSummaryData();
 		}
@@ -1450,7 +1450,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'width'       => 772,
 				'height'      => 454,
 			),
-			'aSummaryData'    => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData'    => $this->getModulesSummaryData(),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'      => $this->getMainFeatureName(),
@@ -1579,6 +1579,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
 			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
 		);
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getModulesSummaryData() {
+		return apply_filters( $this->prefix( 'collect_module_summary_data' ), array() );
 	}
 
 	/**
