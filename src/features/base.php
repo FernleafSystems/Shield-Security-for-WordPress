@@ -1715,16 +1715,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aData[ 'sFeatureInclude' ] = $oDp->addExtensionToFilePath( $sSubView, '.php' );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
-		try {
-			echo $oRndr
-				->setTemplate( 'index.php' )
-				->setRenderVars( $aData )
-				->render();
-		}
-		catch ( Exception $oE ) {
-			echo $oE->getMessage();
-			error_log( $oE->getMessage() );
-		}
+
+ 		echo $this->renderTemplate( 'index.php', $aData );
 	}
 
 	/**
@@ -1779,6 +1771,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		catch ( Exception $oE ) {
 			$sOutput = $oE->getMessage();
+			error_log( $oE->getMessage() );
 		}
 
 		return $sOutput;
