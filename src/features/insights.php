@@ -17,7 +17,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aData = array(
 			'vars'    => array(
 				'activation_url' => $oWp->getHomeUrl(),
-				'summary'        => $this->getModsSummary()
+				'summary'        => $this->getInsightsModsSummary()
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -51,14 +51,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return array[]
 	 */
-	protected function getModsSummary() {
-		$aMods = apply_filters( $this->prefix( 'get_feature_summary_data' ), array() );
-		foreach ( $aMods as $nKey => $aMod ) {
-			if ( in_array( $aMod[ 'slug' ], [ 'plugin', 'insights' ] ) ) {
-				unset( $aMods[ $nKey ] );
+	protected function getInsightsModsSummary() {
+		$aMods = array();
+		foreach ( $this->getModulesSummaryData() as $aMod ) {
+			if ( !in_array( $aMod[ 'slug' ], [ 'plugin', 'insights' ] ) ) {
+				$aMods[] = $aMod;
 			}
 		}
-		return array_values( $aMods );
+		return $aMods;
 	}
 
 	/**
