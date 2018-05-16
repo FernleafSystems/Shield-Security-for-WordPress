@@ -1,5 +1,92 @@
 {% extends '/wpadmin_pages/base.twig' %}
 
-{% block body_main %}
+{% block body_head %}
+{% endblock %}
 
+{% block body_main %}
+{% endblock %}
+
+{% block body_foot %}
+
+	<div class="row" id="ModSummary">
+		<div class="col">
+			<table class="table  mb-0">
+				<tr>
+				{% for mod in vars.summary %}
+					<td class="mod-summary mod-{{ mod.slug }}
+						{% if mod.active %}enabled{% else %}disabled{% endif %}"
+					>
+						<a class="mod-icon dashicons"
+						   href="{{ mod.href }}"
+						   title="{{ mod.name }}">
+						</a>
+					</td>
+				{% endfor %}
+				</tr>
+			</table>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block inline_styles %}
+	<style>
+		#odp-BodyFoot {
+			border-bottom: 1px solid #aaaaaa;
+			border-top: 1px solid #aaaaaa;
+			background-color: #ffffff;
+			position: fixed;
+			bottom: 0;
+			z-index: 1;
+			width: 100%;
+		}
+		#ModSummary {
+		}
+		.mod-icon {
+			font-size: 24px;
+			display: block;
+		}
+		.mod-icon:hover {
+			text-decoration: none;
+		}
+		.mod-plugin .mod-icon:before {
+			content: "\f111";
+		}
+		.mod-admin_access_restriction .mod-icon:before {
+			content: "\f332";
+		}
+		.mod-firewall .mod-icon:before {
+			content: "\f479";
+		}
+		.mod-user_management .mod-icon:before {
+			content: "\f307";
+		}
+		.mod-hack_protect .mod-icon:before {
+			content: "\f153";
+		}
+		.mod-headers .mod-icon:before {
+			content: "\f163";
+		}
+		.mod-login_protect .mod-icon:before {
+			content: "\f112";
+		}
+		.mod-comments_filter .mod-icon:before {
+			content: "\f125";
+		}
+		.mod-autoupdates .mod-icon:before {
+			content: "\f463";
+		}
+		.mod-lockdown .mod-icon:before {
+			content: "\f160";
+		}
+		.mod-audit_trail .mod-icon:before {
+			content: "\f115";
+		}
+		.mod-ips .mod-icon:before {
+			content: "\f230";
+		}
+		.mod-license .mod-icon:before {
+			content: "\f525";
+		}
+	</style>
 {% endblock %}

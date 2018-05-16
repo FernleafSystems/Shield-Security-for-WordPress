@@ -16,7 +16,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aData = array(
 			'vars'    => array(
-				'activation_url' => $oWp->getHomeUrl()
+				'activation_url' => $oWp->getHomeUrl(),
+				'summary'        => $this->getModsSummary()
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -41,11 +42,23 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
-		
-		$aData[ 'content' ] = array(
-			'alt' => ''
-		);
+
+//		var_dump( $aData[ 'vars' ][ 'summary' ] );
+
 		echo $this->renderTemplate( '/wpadmin_pages/insights', $aData, true );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getModsSummary() {
+		$aMods = apply_filters( $this->prefix( 'get_feature_summary_data' ), array() );
+		foreach ( $aMods as $nKey => $aMod ) {
+			if ( in_array( $aMod[ 'slug' ], [ 'plugin', 'insights' ] ) ) {
+				unset( $aMods[ $nKey ] );
+			}
+		}
+		return array_values( $aMods );
 	}
 
 	/**
