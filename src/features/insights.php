@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'strings' => $this->getDisplayStrings(),
 		);
 
-//		var_dump( $aData[ 'vars' ][ 'summary' ] );
+//		var_dump( $this->getRecentAuditTrailEntries() );
 
 		echo $this->renderTemplate( '/wpadmin_pages/insights', $aData, true );
 	}
@@ -59,6 +59,25 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 		return $aMods;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getRecentAuditTrailEntries() {
+		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
+		$oProc = $this->getConn()
+					  ->getModule( 'audit_trail' )
+					  ->getProcessor();
+		try {
+			$aItems = $oProc->getAuditTrailFinder()
+							->setLimit( 10 )
+							->all();
+		}
+		catch ( Exception $oE ) {
+			$aItems = array();
+		}
+		return $aItems;
 	}
 
 	/**
