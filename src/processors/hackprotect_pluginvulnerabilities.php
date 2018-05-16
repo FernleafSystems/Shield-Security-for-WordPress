@@ -161,7 +161,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 					),
 					'nColspan' => $this->nColumnsCount
 				);
-				echo $this->getFeature()->renderTemplate( 'snippets'.DIRECTORY_SEPARATOR.'plugin-vulnerability.php', $aRenderData );
+				echo $this->getFeature()->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
 			}
 		}
 

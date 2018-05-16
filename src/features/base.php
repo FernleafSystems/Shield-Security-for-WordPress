@@ -1686,7 +1686,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		catch ( Exception $oE ) {
 			return 'Error rendering options form';
 		}
-
 	}
 
 	/**
@@ -1754,18 +1753,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sTemplate
 	 * @param array  $aData
+	 * @param bool   $bUseTwig
 	 * @return string
 	 */
-	public function renderTemplate( $sTemplate, $aData = array() ) {
+	public function renderTemplate( $sTemplate, $aData = array(), $bUseTwig = false ) {
 		if ( empty( $aData[ 'unique_render_id' ] ) ) {
 			$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$sOutput = $this
-				->loadRenderer( self::getConn()->getPath_Templates() )
-				->setTemplate( $sTemplate )
-				->setRenderVars( $aData )
-				->render();
+			$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
+			if ( $bUseTwig ) {
+				$oRndr->setTemplateEngineTwig();
+			}
+
+			$sOutput = $oRndr->setTemplate( $sTemplate )
+							 ->setRenderVars( $aData )
+							 ->render();
 		}
 		catch ( Exception $oE ) {
 			$sOutput = $oE->getMessage();
