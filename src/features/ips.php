@@ -54,10 +54,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @param array $aData
 	 */
-	public function displayModulePage() {
+	protected function displayModulePage( $aData = array() ) {
 		add_thickbox();
-		$this->display( $this->getIpTableDisplayData() );
+		parent::displayModulePage( $this->getIpTableDisplayData() );
 	}
 
 	/**

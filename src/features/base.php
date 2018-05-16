@@ -1400,20 +1400,27 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * Override this to customize anything with the display of the page
+	 * @param array $aData
 	 */
-	protected function displayModulePage() {
-		$this->display();
+	protected function displayModulePage( $aData = array() ) {
+		// Get Base Data
+		$aData = $this->loadDP()->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
+		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
+
+		echo $this->renderTemplate( 'index.php', $aData );
 	}
 
 	protected function displayRestrictedPage() {
-		$this->display(
-			array(
-				'ajax' => array(
-					'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
-				)
-			),
-			'access_restricted.php'
-		);
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive(
+						  $this->getBaseDisplayData( false ),
+						  array(
+							  'ajax' => array(
+								  'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
+							  )
+						  )
+					  );
+		echo $this->renderTemplate( 'access_restricted.php', $aData );
 	}
 
 	/**
@@ -1659,7 +1666,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return string
-	 * @throws Exception
 	 */
 	protected function renderOptionsForm() {
 
@@ -1671,10 +1677,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		// Get the same Base Data as normal display
-		return $this->loadRenderer( self::getConn()->getPath_Templates() )
-					->setTemplate( $sTemplate )
-					->setRenderVars( $this->getBaseDisplayData( true ) )
-					->render();
+		try {
+			return $this->loadRenderer( self::getConn()->getPath_Templates() )
+						->setTemplate( $sTemplate )
+						->setRenderVars( $this->getBaseDisplayData( true ) )
+						->render();
+		}
+		catch ( Exception $oE ) {
+			return 'Error rendering options form';
+		}
+
 	}
 
 	/**
@@ -1703,20 +1715,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sSubView
 	 */
 	protected function display( $aData = array(), $sSubView = '' ) {
-		$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
-		$oDp = $this->loadDP();
-
-		// Get Base Data
-		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
-		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
-			$sModuleView = 'feature-'.$this->getFeatureSlug();
-			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
-		}
-
-		$aData[ 'sFeatureInclude' ] = $oDp->addExtensionToFilePath( $sSubView, '.php' );
-		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
-
- 		echo $this->renderTemplate( 'index.php', $aData );
 	}
 
 	/**
@@ -1837,9 +1835,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyErase()
-	 * @param array $aData
+	 * @param array  $aData
 	 * @param string $sEmail
-	 * @param int $nPage
+	 * @param int    $nPage
 	 * @return array
 	 */
 	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
