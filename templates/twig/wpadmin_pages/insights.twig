@@ -14,7 +14,7 @@
 				<tr>
 				{% for mod in vars.summary %}
 					<td class="mod-summary mod-{{ mod.slug }}
-						{% if mod.active %}enabled{% else %}disabled{% endif %}"
+						state-{% if mod.enabled %}enabled{% else %}disabled{% endif %}"
 					>
 						<a class="mod-icon dashicons"
 						   href="{{ mod.href }}"
@@ -40,10 +40,17 @@
 			z-index: 1;
 			width: 100%;
 		}
-		#ModSummary {
+		#ModSummary table td {
+			height: 72px;
+		}
+		.mod-summary.state-enabled > a {
+			color: rgba(69, 119, 0, 1);
+		}
+		.mod-summary.state-disabled > a {
+			color: rgba(173, 84, 0, 0.85);
 		}
 		.mod-icon {
-			font-size: 24px;
+			font-size: 48px;
 			display: block;
 		}
 		.mod-icon:hover {
