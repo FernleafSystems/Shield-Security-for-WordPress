@@ -9,6 +9,49 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * Override this to customize anything with the display of the page
+	 */
+	protected function displayModulePage() {
+		$oWp = $this->loadWp();
+
+		$aData = array(
+			'vars'    => array(
+				'activation_url' => $oWp->getHomeUrl()
+			),
+			'inputs'  => array(
+				'license_key' => array(
+					'name'      => $this->prefixOptionKey( 'license_key' ),
+					'maxlength' => $this->getDef( 'license_key_length' ),
+				)
+			),
+			'ajax'    => array(
+				'license_handling' => $this->getAjaxActionData( 'license_handling' ),
+				'connection_debug' => $this->getAjaxActionData( 'connection_debug' )
+			),
+			'aHrefs'  => array(
+				'shield_pro_url'           => 'http://icwp.io/shieldpro',
+				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
+				'iframe_url'               => $this->getDef( 'landing_page_url' ),
+				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
+			),
+			'flags'   => array(
+				'show_ads'              => false,
+				'show_standard_options' => false,
+				'show_alt_content'      => true,
+			),
+			'strings' => $this->getDisplayStrings(),
+		);
+		$aData[ 'content' ] = array(
+			'alt' => $this->loadRenderer( self::getConn()->getPath_Templates() )
+						  ->setTemplateEngineTwig()
+						  ->setTemplate( 'wpadmin_pages/insights' )
+						  ->setRenderVars( $aData )
+						  ->render()
+		);
+		$this->display( $aData );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
