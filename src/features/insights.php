@@ -9,9 +9,9 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * Override this to customize anything with the display of the page
+	 * @param array $aData
 	 */
-	protected function displayModulePage() {
+	protected function displayModulePage( $aData = array() ) {
 		$oWp = $this->loadWp();
 
 		$aData = array(
@@ -41,14 +41,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
+		
 		$aData[ 'content' ] = array(
-			'alt' => $this->loadRenderer( self::getConn()->getPath_Templates() )
-						  ->setTemplateEngineTwig()
-						  ->setTemplate( 'wpadmin_pages/insights' )
-						  ->setRenderVars( $aData )
-						  ->render()
+			'alt' => ''
 		);
-		$this->display( $aData );
+		echo $this->renderTemplate( '/wpadmin_pages/insights', $aData, true );
 	}
 
 	/**

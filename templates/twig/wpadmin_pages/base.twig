@@ -1,0 +1,26 @@
+<div class="wrap">
+	{% block h1heading %}<h1 style="height: 0; display: none">asdf</h1>{% endblock %}
+	{% block body %}
+		<div class="row" id="odp-body">
+			<div class="col">
+				<div class="row" id="odp-BodyHead">
+					<div class="col">
+						{% block body_head %}Override this block for the header area{% endblock %}
+					</div>
+				</div>
+
+				<div class="row" id="odp-BodyMain">
+					<div class="col">
+						{% block body_main %}Override this block for the body area{% endblock %}
+					</div>
+				</div>
+
+				<div class="row" id="odp-BodyFoot">
+					<div class="col">
+						{% block body_foot %}Override this block for the footer area{% endblock %}
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+</div>
