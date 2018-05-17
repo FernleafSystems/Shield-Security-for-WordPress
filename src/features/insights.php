@@ -73,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oWpUsers = $this->loadWpUsers();
 
 		$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
-		if ( true || !empty( $oAdmin ) ) {
+		if ( !empty( $oAdmin ) ) {
 			$aNotices[] = sprintf( _wpsf__( "WP User exists with default username 'admin'" ) );
 		}
 
