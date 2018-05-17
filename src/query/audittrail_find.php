@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_AuditTrail_Find extends ICWP_WPSF_Query_Base_Find {
 	}
 
 	/**
-	 * @return array[]|ICWP_WPSF_AuditTrailEntryVO[]
+	 * @return stdClass[]|ICWP_WPSF_AuditTrailEntryVO[]
 	 * @throws Exception
 	 */
 	public function all() {
@@ -21,7 +21,7 @@ class ICWP_WPSF_Query_AuditTrail_Find extends ICWP_WPSF_Query_Base_Find {
 	}
 
 	/**
-	 * @return ICWP_WPSF_AuditTrailEntryVO[]|array[]
+	 * @return ICWP_WPSF_AuditTrailEntryVO[]|stdClass[]
 	 * @throws Exception
 	 */
 	protected function query_Search() {

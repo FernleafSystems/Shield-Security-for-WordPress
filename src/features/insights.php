@@ -14,10 +14,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function displayModulePage( $aData = array() ) {
 		$oWp = $this->loadWp();
 
+		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
+
 		$aData = array(
 			'vars'    => array(
-				'activation_url' => $oWp->getHomeUrl(),
-				'summary'        => $this->getInsightsModsSummary()
+				'activation_url'     => $oWp->getHomeUrl(),
+				'summary'            => $this->getInsightsModsSummary(),
+				'audit_trail_recent' => $aRecentAuditTrail
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -36,16 +39,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
 			),
 			'flags'   => array(
-				'show_ads'              => false,
-				'show_standard_options' => false,
-				'show_alt_content'      => true,
+				'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
+				'show_ads'                => false,
+				'show_standard_options'   => false,
+				'show_alt_content'        => true,
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
 
-//		var_dump( $this->getRecentAuditTrailEntries() );
-
-		echo $this->renderTemplate( '/wpadmin_pages/insights', $aData, true );
+		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
 	}
 
 	/**
@@ -77,6 +79,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		catch ( Exception $oE ) {
 			$aItems = array();
 		}
+		$oWP = $this->loadWp();
+		foreach ( $aItems as $oItem ) {
+			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
+		}
+
 		return $aItems;
 	}
 

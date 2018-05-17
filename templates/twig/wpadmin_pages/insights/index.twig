@@ -4,33 +4,28 @@
 {% endblock %}
 
 {% block body_main %}
+	{% include '/wpadmin_pages/insights/audit_trail.twig' %}
 {% endblock %}
 
 {% block body_foot %}
-
-	<div class="row" id="ModSummary">
-		<div class="col">
-			<table class="table  mb-0">
-				<tr>
-				{% for mod in vars.summary %}
-					<td class="mod-summary mod-{{ mod.slug }}
-						state-{% if mod.enabled %}enabled{% else %}disabled{% endif %}"
-					>
-						<a class="mod-icon dashicons"
-						   href="{{ mod.href }}"
-						   title="{{ mod.name }}">
-						</a>
-					</td>
-				{% endfor %}
-				</tr>
-			</table>
-		</div>
-	</div>
-
+	{% include '/wpadmin_pages/insights/mod_summary.twig' %}
 {% endblock %}
 
 {% block inline_styles %}
 	<style>
+
+		#SectionAuditTrail {
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			border-radius: 3px;
+			padding: 15px;
+		}
+		#SectionAuditTrail .table_container {
+			max-height: 100px;
+			overflow: auto;
+		}
+		#SectionAuditTrail table {
+			font-size: 12px;
+		}
 		#odp-BodyFoot {
 			border-bottom: 1px solid #aaaaaa;
 			border-top: 1px solid #aaaaaa;
