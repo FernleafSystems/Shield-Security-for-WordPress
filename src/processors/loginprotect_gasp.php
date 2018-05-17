@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ) {
 	return;
 }
 
-require_once( dirname(__FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -15,11 +15,11 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		$oFO = $this->getFeature();
 
 		// Add GASP checking to the login form.
-		add_action( 'login_form',				array( $this, 'printGaspLoginCheck_Action' ), 100 );
-		add_filter( 'login_form_middle',		array( $this, 'printGaspLoginCheck_Filter' ) );
+		add_action( 'login_form', array( $this, 'printGaspLoginCheck_Action' ), 100 );
+		add_filter( 'login_form_middle', array( $this, 'printGaspLoginCheck_Filter' ) );
 
 		// before username/password check (20)
-		add_filter( 'authenticate',				array( $this, 'checkLoginForGasp_Filter' ), 12, 2 );
+		add_filter( 'authenticate', array( $this, 'checkLoginForGasp_Filter' ), 12, 2 );
 
 		$b3rdParty = $oFO->getIfSupport3rdParty();
 		if ( $b3rdParty ) {
@@ -30,16 +30,19 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
 			//print the checkbox code:
-			add_action( 'register_form',		array( $this, 'printGaspLoginCheck_Action' ) );
-			add_action( 'lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ) );
+			add_action( 'register_form', array( $this, 'printGaspLoginCheck_Action' ) );
+			add_action( 'lostpassword_form', array( $this, 'printGaspLoginCheck_Action' ) );
 
 			//verify the checkbox is present:
-			add_action( 'register_post',		array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
-			add_action( 'lostpassword_post',	array( $this, 'checkResetPasswordForGasp_Action' ), 10 );
+			add_action( 'register_post', array( $this, 'checkRegisterForGasp_Action' ), 10, 1 );
+			add_action( 'lostpassword_post', array( $this, 'checkResetPasswordForGasp_Action' ), 10 );
 
 			if ( $b3rdParty ) {
-				add_action( 'woocommerce_lostpassword_form',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
-				add_action( 'edd_register_form_fields_before_submit',	array( $this, 'printGaspLoginCheck_Action' ), 10 );
+				add_action( 'woocommerce_lostpassword_form', array( $this, 'printGaspLoginCheck_Action' ), 10 );
+				add_action( 'edd_register_form_fields_before_submit', array(
+					$this,
+					'printGaspLoginCheck_Action'
+				), 10 );
 
 				// Buddypress custom registration page.
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGaspLoginCheck_Action' ), 10 );
@@ -178,29 +181,36 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		$sGaspCheckBox = $oDp->FetchPost( $this->getGaspCheckboxName() );
 		$sHoney = $oDp->FetchPost( 'icwp_wpsf_login_email' );
 
+		$bDie = false;
+		$sDieMessage = '';
 		if ( empty( $sGaspCheckBox ) ) {
-			$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to %s but GASP checkbox was not present.'), $sUsername, $sActionAttempted ).' '._wpsf__('Probably a BOT.');
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to %s but GASP checkbox was not present.' ), $sUsername, $sActionAttempted ).' '._wpsf__( 'Probably a BOT.' );
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_checkbox' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.checkbox.fail' );
 
-			$this->setIpTransgressed(); // We now black mark this IP
-
-			$this->loadWp()
-				 ->wpDie( _wpsf__( "You must check that box to say you're not a bot." ) );
-			return false;
+			$sDieMessage = _wpsf__( "You must check that box to say you're not a bot." );
+			$bDie = true;
 		}
 		else if ( !empty( $sHoney ) ) {
-			$sAuditMessage = sprintf( _wpsf__('User "%s" attempted to %s but they were caught by the GASP honeypot.'), $sUsername, $sActionAttempted ).' '._wpsf__('Probably a BOT.');
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to %s but they were caught by the GASP honeypot.' ), $sUsername, $sActionAttempted ).' '._wpsf__( 'Probably a BOT.' );
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_honeypot' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.honeypot.fail' );
 
-			// We now black mark this IP
-			$this->setIpTransgressed(); // We now black mark this IP
+			$sDieMessage = sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted );
+			$bDie = true;
+		}
 
+		if ( $bDie ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeature();
+			$oFO->setOptInsightsAt( 'last_login_block_at' );
+			$this->setIpTransgressed(); // We now black mark this IP
+			
 			$this->loadWp()
-				 ->wpDie( sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted ) );
+				 ->wpDie( $sDieMessage );
 			return false;
 		}
+
 		return true;
 	}
 

@@ -61,6 +61,9 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|false
 	 */
 	public function disableXmlrpc() {
+		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+		$oFO = $this->getFeature();
+		$oFO->setOptInsightsAt( 'xml_block_at' );
 		$this->setIpTransgressed();
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
 	}
@@ -104,6 +107,10 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 																												  ->getHumanName() ),
 				array( 'status' => rest_authorization_required_code() ) );
 			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
+
+			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			$oFO = $this->getFeature();
+			$oFO->setOptInsightsAt( 'restapi_block_at' );
 		}
 		return $mCurrentStatus;
 	}

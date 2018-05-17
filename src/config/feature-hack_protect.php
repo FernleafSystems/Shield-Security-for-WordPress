@@ -376,30 +376,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key": "ptg_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "wcf_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "ufc_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "wpv_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
       "key": "ptg_candiskwrite",
       "transferable": false,
       "section": "section_non_ui",
@@ -449,7 +425,7 @@
       "default":      0
     },
     {
-      "key":          "insights_last_scan_vuln_at",
+      "key":          "insights_last_scan_wpv_at",
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0

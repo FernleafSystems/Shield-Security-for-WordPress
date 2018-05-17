@@ -239,6 +239,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return $this
+	 */
+	public function setOptInsightsAt( $sKey ) {
+		$sKey = 'insights_'.str_replace( 'insights_', '', $sKey );
+		return $this->setOptAt( 'insights_'.$sKey );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

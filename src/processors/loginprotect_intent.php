@@ -129,6 +129,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$this->removeLoginIntent();
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
+
+					$oFO->setOptInsightsAt( 'last_idle_logout_at' );
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
