@@ -244,7 +244,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function setOptInsightsAt( $sKey ) {
 		$sKey = 'insights_'.str_replace( 'insights_', '', $sKey );
-		return $this->setOptAt( 'insights_'.$sKey );
+		return $this->setOptAt( $sKey );
 	}
 
 	/**
