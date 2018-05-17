@@ -226,6 +226,18 @@
       "key":          "autoadd_sessions_started_at",
       "transferable": false,
       "section":      "section_non_ui"
+    },
+    {
+      "key":          "insights_last_idle_logout_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_password_block_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
     }
   ],
   "definitions": {

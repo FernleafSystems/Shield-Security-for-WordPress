@@ -20,7 +20,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'vars'    => array(
 				'activation_url'     => $oWp->getHomeUrl(),
 				'summary'            => $this->getInsightsModsSummary(),
-				'audit_trail_recent' => $aRecentAuditTrail
+				'audit_trail_recent' => $aRecentAuditTrail,
+				'insight_stats'      => $this->getAllInsightsStats(),
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -61,6 +62,27 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 		return $aMods;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getAllInsightsStats() {
+
+		$aStats = array();
+		foreach ( $this->getConn()->getModules() as $oModule ) {
+			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
+			$aStats = array_merge( $aStats, $oModule->getInsightsOptions() );
+		}
+
+		$oWP = $this->loadWp();
+		foreach ( $aStats as $sStatKey => $nValue ) {
+			$aStats[ $sStatKey ] = array(
+				'name' => rand(),
+				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : _wpsf__( 'Not recorded' ),
+			);
+		}
+		return $aStats;
 	}
 
 	/**

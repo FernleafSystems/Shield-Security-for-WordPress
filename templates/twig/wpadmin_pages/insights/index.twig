@@ -4,7 +4,18 @@
 {% endblock %}
 
 {% block body_main %}
-	{% include '/wpadmin_pages/insights/audit_trail.twig' %}
+	<div class="row">
+		<div class="col-6">
+			{% include '/wpadmin_pages/insights/insight_stats.twig' %}
+		</div>
+		<div class="col-6">
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			{% include '/wpadmin_pages/insights/audit_trail.twig' %}
+		</div>
+	</div>
 {% endblock %}
 
 {% block body_foot %}
@@ -14,14 +25,19 @@
 {% block inline_styles %}
 	<style>
 
-		#SectionAuditTrail {
+		#SectionRecentlyCaptured dl {
+			margin-bottom: 3px;
+		}
+
+		.insights_widget {
 			border: 1px solid rgba(0, 0, 0, 0.1);
 			border-radius: 3px;
 			padding: 15px;
 		}
-		#SectionAuditTrail .table_container {
-			max-height: 100px;
-			overflow: auto;
+		#SectionAuditTrail .overflow_container {
+			max-height: 200px;
+			overflow-x: hidden;
+			overflow-y: auto;
 		}
 		#SectionAuditTrail table {
 			font-size: 12px;

@@ -429,6 +429,30 @@
       "transferable": false,
       "section":      "section_non_ui",
       "default":      []
+    },
+    {
+      "key":          "insights_last_scan_ufc_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_scan_wcf_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_scan_ptg_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_scan_vuln_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
     }
   ],
   "definitions": {
