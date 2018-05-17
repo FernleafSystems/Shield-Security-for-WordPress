@@ -21,7 +21,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'activation_url'     => $oWp->getHomeUrl(),
 				'summary'            => $this->getInsightsModsSummary(),
 				'audit_trail_recent' => $aRecentAuditTrail,
-				'insight_stats'      => $this->getAllInsightsStats(),
+				'insight_events'     => $this->getRecentEvents(),
+				'insight_notices'    => $this->getNotices(),
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -65,9 +66,24 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return string[]
+	 */
+	protected function getNotices() {
+		$aNotices = array();
+		$oWpUsers = $this->loadWpUsers();
+
+		$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
+		if ( true || !empty( $oAdmin ) ) {
+			$aNotices[] = sprintf( _wpsf__( "WP User exists with default username 'admin'" ) );
+		}
+
+		return $aNotices;
+	}
+
+	/**
 	 * @return array
 	 */
-	protected function getAllInsightsStats() {
+	protected function getRecentEvents() {
 		$oConn = $this->getConn();
 
 		$aStats = array();

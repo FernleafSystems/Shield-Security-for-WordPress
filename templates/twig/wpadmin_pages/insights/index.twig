@@ -6,9 +6,10 @@
 {% block body_main %}
 	<div class="row">
 		<div class="col-6">
-			{% include '/wpadmin_pages/insights/insight_stats.twig' %}
+			{% include '/wpadmin_pages/insights/recent_events.twig' %}
 		</div>
 		<div class="col-6">
+			{% include '/wpadmin_pages/insights/notices.twig' %}
 		</div>
 	</div>
 	<div class="row">
@@ -25,7 +26,7 @@
 {% block inline_styles %}
 	<style>
 
-		#SectionRecentlyCaptured dl {
+		#SectionRecentEvents dl {
 			margin-bottom: 3px;
 		}
 
@@ -34,6 +35,7 @@
 			border-radius: 3px;
 			padding: 15px;
 		}
+
 		#SectionAuditTrail .overflow_container {
 			max-height: 200px;
 			overflow-x: hidden;
