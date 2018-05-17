@@ -227,7 +227,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	public function getInsightsOptions() {
+	public function getInsightsOpts() {
 		$aOpts = array();
 		$oOpts = $this->getOptionsVo();
 		foreach ( $oOpts->getOptionsKeys() as $sOpt ) {

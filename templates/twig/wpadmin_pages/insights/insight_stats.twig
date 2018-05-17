@@ -1,9 +1,9 @@
 <div id="SectionRecentlyCaptured" class="insights_widget">
-	<h4>Recently Captured Activity</h4>
+	<h4>Most Recent Shield Activity</h4>
 	<div class="overflow_container">
 		{% for insight_stat in vars.insight_stats %}
 			<dl class="row">
-				<dt class="col-5">{{ insight_stat.name }}:</dt>
+				<dt class="col-6">{{ insight_stat.name }}:</dt>
 				<dd class="col-6">{{ insight_stat.val }}</dd>
 			</dl>
 		{% endfor %}

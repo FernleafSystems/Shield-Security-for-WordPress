@@ -72,17 +72,40 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aStats = array();
 		foreach ( $this->getConn()->getModules() as $oModule ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
-			$aStats = array_merge( $aStats, $oModule->getInsightsOptions() );
+			$aStats = array_merge( $aStats, $oModule->getInsightsOpts() );
 		}
 
 		$oWP = $this->loadWp();
+		$aNames = $this->getInsightStatNames();
 		foreach ( $aStats as $sStatKey => $nValue ) {
 			$aStats[ $sStatKey ] = array(
-				'name' => rand(),
+				'name' => $aNames[ $sStatKey ],
 				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : _wpsf__( 'Not recorded' ),
 			);
 		}
 		return $aStats;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getInsightStatNames() {
+		return array(
+			'insights_last_scan_ufc_at'       => _wpsf__( 'Unrecognised Files Scan' ),
+			'insights_last_scan_wcf_at'       => _wpsf__( 'WordPress Core Files Scan' ),
+			'insights_last_scan_ptg_at'       => _wpsf__( 'Plugin/Themes Guard Scan' ),
+			'insights_last_scan_vuln_at'      => _wpsf__( 'Plugin Vulnerabilities Scan' ),
+			'insights_last_2fa_login_at'      => _wpsf__( 'Successful 2-FA Login' ),
+			'insights_last_login_block_at'    => _wpsf__( 'Login Block' ),
+			'insights_last_firewall_block_at' => _wpsf__( 'Firewall Block' ),
+			'insights_last_idle_logout_at'    => _wpsf__( 'Idle Logout' ),
+			'insights_last_password_block_at' => _wpsf__( 'Password Block' ),
+			'insights_last_comment_block_at'  => _wpsf__( 'Comment SPAM Block' ),
+			'insights_xml_block_at'           => _wpsf__( 'XML-RPC Block' ),
+			'insights_restapi_block_at'       => _wpsf__( 'Anonymous Rest API Block' ),
+			'insights_last_transgression_at'  => _wpsf__( 'Shield Transgression' ),
+			'insights_last_ip_block_at'       => _wpsf__( 'IP Black List' ),
+		);
 	}
 
 	/**

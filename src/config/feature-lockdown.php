@@ -165,12 +165,6 @@
       "default":      0
     },
     {
-      "key":          "insights_xml_block_at1",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "default":      0
-    },
-    {
       "key":          "insights_restapi_block_at",
       "transferable": false,
       "section":      "section_non_ui",
