@@ -9,6 +9,11 @@ require_once( dirname( __FILE__ ).'/base.php' );
 class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 
 	/**
+	 * @var int
+	 */
+	protected $nLimit = 0;
+
+	/**
 	 * @var string
 	 */
 	protected $sTerm;
@@ -27,7 +32,21 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	 * @return string
 	 */
 	public function getTerm() {
-		return $this->sTerm;
+		return (string)$this->sTerm;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLimit() {
+		return max( (int)$this->nLimit, 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasLimit() {
+		return $this->getLimit() > 0;
 	}
 
 	/**
@@ -38,6 +57,13 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 			$this->aColumns = array( 'wp_username', 'message' );
 		}
 		return $this->aColumns;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasSearchTerm() {
+		return strlen( $this->getTerm() ) > 0;
 	}
 
 	/**
@@ -71,6 +97,15 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	 */
 	public function setTerm( $sTerm ) {
 		$this->sTerm = $sTerm;
+		return $this;
+	}
+
+	/**
+	 * @param int $nLimit
+	 * @return $this
+	 */
+	public function setLimit( $nLimit ) {
+		$this->nLimit = $nLimit;
 		return $this;
 	}
 }
