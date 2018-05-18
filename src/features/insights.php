@@ -68,19 +68,33 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return string[]
 	 */
 	protected function getNotices() {
-		$aNotices = array();
+		return array(
+			'plugins' => $this->getNoticesPlugins(),
+			'themes'  => $this->getNoticesThemes(),
+			'core'    => $this->getNoticesCore(),
+			'user'    => $this->getNoticesUsers(),
+		);
+	}
+
+	protected function getNoticesUsers() {
 		$oWpUsers = $this->loadWpUsers();
 
+		$aNotices = array(
+			'title'    => _wpsf__( 'Users' ),
+			'messages' => array()
+		);
+
 		$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
-		if ( !empty( $oAdmin ) ) {
-			$aNotices[] = sprintf( _wpsf__( "WP User exists with default username 'admin'" ) );
+		if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
+			$aNotices[ 'messages' ][ 'admin' ] = array(
+				'title'   => 'Admin User',
+				'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
+				'href'    => ''
+			);
 		}
 
-		return array_merge(
-			$this->getNoticesPlugins(),
-			$this->getNoticesThemes(),
-			$this->getNoticesCore()
-		);
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
 	}
 
 	/**
@@ -123,7 +137,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		return array( 'plugins' => $aNotices );
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
 	}
 
 	/**
@@ -160,7 +175,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		return array( 'themes' => $aNotices );
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
 	}
 
 	/**
@@ -227,7 +243,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		return array( 'core' => $aNotices );
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
 	}
 
 	/**
