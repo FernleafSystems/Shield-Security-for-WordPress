@@ -381,6 +381,27 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		return $oUpdater->should_update( 'plugin', $mPluginItem, WP_PLUGIN_DIR );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function canCoreUpdateAutomatically() {
+		$future_minor_update = (object)array(
+			'current' => $this->getVersion().'.1.next.minor',
+			'version' => $this->getVersion().'.1.next.minor',
+		);
+		return $this->getWpAutomaticUpdater()
+					->should_update( 'core', $future_minor_update, ABSPATH );
+	}
+
+	/**
+	 * See: /wp-admin/update-core.php core_upgrade_preamble()
+	 * @return bool
+	 */
+	public function hasCoreUpdate() {
+		$aUpdates = $this->getCoreUpdates();
+		return ( !isset( $aUpdates[ 0 ]->response ) || 'latest' == $aUpdates[ 0 ]->response );
+	}
+
 	public function redirectHere() {
 		$this->doRedirect( $this->loadDataProcessor()->getRequestUri() );
 	}
