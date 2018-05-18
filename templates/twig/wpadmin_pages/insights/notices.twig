@@ -1,10 +1,16 @@
-<div id="SectionNotices" class="insights_widget">
-	<h4>Shield Notices</h4>
-	<div class="overflow_container">
-		{% for insight_notice in vars.insight_notices %}
-			<dl class="row">
-				<dt class="col">{{ insight_notice }}:</dt>
-			</dl>
-		{% endfor %}
+<div id="SectionNotices" class="insights_widget card w-100">
+	<div class="card-header">
+		Shield Notices
+	</div>
+	<div class="card-body">
+		<div class="overflow_container">
+			{% for insight_notice in vars.insight_notices %}
+				<dl class="row">
+					<dt class="col">{{ insight_notice }}:</dt>
+				</dl>
+			{% endfor %}
+		</div>
+		{#<a href="#" class="card-link">Card link</a>#}
+		{#<a href="#" class="card-link">Another link</a>#}
 	</div>
 </div>
