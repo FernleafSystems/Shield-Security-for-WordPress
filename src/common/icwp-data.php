@@ -486,13 +486,13 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 			$sHostName = parse_url( $sRequestedUriPath, PHP_URL_HOST );
 		}
 
-		$bForwardedProto = $this->server( 'HTTP_X_FORWARDED_PROTO' ) == 'https';
+		$bSsl = is_ssl() || $this->server( 'HTTP_X_FORWARDED_PROTO' ) == 'https';
 		header( 'HTTP/1.1 404 Not Found' );
 		$sDie = sprintf(
 			'<html><head><title>404 Not Found</title><style type="text/css"></style></head><body><h1>Not Found</h1><p>The requested URL %s was not found on this server.</p><p>Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p><hr><address>Apache Server at %s Port %s</address></body></html>',
 			$sRequestedUriPath,
 			$sHostName,
-			( $bForwardedProto || is_ssl() ) ? 443 : $this->server( 'SERVER_PORT' )
+			$bSsl ? 443 : $this->server( 'SERVER_PORT' )
 		);
 		die( $sDie );
 	}
