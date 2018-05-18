@@ -48,7 +48,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
-
 		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
 	}
 
@@ -77,7 +76,91 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aNotices[] = sprintf( _wpsf__( "WP User exists with default username 'admin'" ) );
 		}
 
-		return $aNotices;
+		return array_merge(
+			$this->getNoticesPlugins(),
+			$this->getNoticesThemes()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getNoticesPlugins() {
+		$oWpPlugins = $this->loadWpPlugins();
+		$aNotices = array(
+			'title'    => _wpsf__( 'Plugins' ),
+			'messages' => array()
+		);
+
+		// Inactive
+		{
+			$nCount = 0;
+			$aActivePlugs = $oWpPlugins->getActivePlugins();
+			foreach ( $oWpPlugins->getPlugins() as $sFile => $aPlugData ) {
+				if ( !in_array( $sFile, $aActivePlugs ) ) {
+					$nCount++;
+				}
+			}
+			if ( $nCount > 0 ) {
+				$aNotices[ 'messages' ][ 'inactive' ] = array(
+					'title'   => 'Inactive',
+					'message' => sprintf( _wpsf__( '%s inactive plugin(s) - which should be removed.' ), $nCount ),
+					'href'    => ''
+				);
+			}
+		}
+
+		// updates
+		{
+			$nCount = count( $oWpPlugins->getUpdates() );
+			if ( $nCount > 0 ) {
+				$aNotices[ 'messages' ][ 'updates' ] = array(
+					'title'   => 'Updates',
+					'message' => sprintf( _wpsf__( '%s plugin update(s) - which should be applied.' ), $nCount ),
+					'href'    => ''
+				);
+			}
+		}
+
+		return array( 'plugins' => $aNotices );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getNoticesThemes() {
+		$oWpT = $this->loadWpThemes();
+		$aNotices = array(
+			'title'    => _wpsf__( 'Themes' ),
+			'messages' => array()
+		);
+
+		// Inactive
+		{
+			$aThemes = $oWpT->getThemes();
+			$nInactive = count( $aThemes ) - 1;
+			if ( $nInactive > 0 ) {
+				$aNotices[ 'messages' ][ 'inactive' ] = array(
+					'title'   => 'Inactive',
+					'message' => sprintf( _wpsf__( '%s inactive themes(s) - which should be removed.' ), $nInactive ),
+					'href'    => ''
+				);
+			}
+		}
+
+		// updates
+		{
+			$nCount = count( $oWpT->getUpdates() );
+			if ( $nCount > 0 ) {
+				$aNotices[ 'messages' ][ 'updates' ] = array(
+					'title'   => 'Updates',
+					'message' => sprintf( _wpsf__( '%s theme update(s) - which should be applied.' ), $nCount ),
+					'href'    => ''
+				);
+			}
+		}
+
+		return array( 'themes' => $aNotices );
 	}
 
 	/**

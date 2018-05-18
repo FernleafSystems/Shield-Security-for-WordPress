@@ -4,10 +4,18 @@
 	</div>
 	<div class="card-body overflow_container">
 		<div class="overflow_inner">
-			{% for insight_notice in vars.insight_notices %}
-				<dl class="row">
-					<dt class="col">{{ insight_notice }}:</dt>
-				</dl>
+			{% for notice_section in vars.insight_notices %}
+				<h6>{{ notice_section.title }}</h6>
+				{% for notice in notice_section.messages %}
+					<dl class="row">
+						<dt class="col-3 offset-1">{{ notice.title }}:</dt>
+						<dd class="col-8">{{ notice.message }}
+							{% if notice.href is not empty %}
+								(<a href="{{ notice.href }}" target="_blank">more info</a>)
+							{% endif %}
+						</dd>
+					</dl>
+				{% endfor %}
 			{% endfor %}
 		</div>
 		{#<a href="#" class="card-link">Card link</a>#}
