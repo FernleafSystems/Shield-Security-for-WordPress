@@ -307,7 +307,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		// Session IDs must be the same
-		$sSessionId = $this->loadDataProcessor()->FetchGet( 'sessionid' );
+		$sSessionId = $this->loadDP()->query( 'sessionid' );
 		if ( empty( $sSessionId ) || ( $sSessionId !== $this->getController()->getSessionId() ) ) {
 			return;
 		}

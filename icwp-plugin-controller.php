@@ -1095,7 +1095,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$oDp = $this->loadDataProcessor();
 		foreach ( $aFormSubmitOptions as $sOption ) {
-			if ( !is_null( $oDp->FetchRequest( $sOption, false ) ) ) {
+			if ( !is_null( $oDp->request( $sOption, false ) ) ) {
 				return true;
 			}
 		}

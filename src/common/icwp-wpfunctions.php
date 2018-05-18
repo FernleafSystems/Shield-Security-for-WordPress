@@ -709,7 +709,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		if ( $this->isRest() ) {
 			$oDP = $this->loadDP();
 
-			$sPath = $oDP->FetchRequest( 'rest_route' );
+			$sPath = $oDP->request( 'rest_route' );
 			if ( empty( $sPath ) && $this->isPermalinksEnabled() ) {
 				$sFullUri = $this->loadWp()->getHomeUrl().$oDP->getRequestPath();
 				$sPath = substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) );
