@@ -267,7 +267,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		foreach ( $aStats as $sStatKey => $nValue ) {
 			$aStats[ $sStatKey ] = array(
 				'name' => $aNames[ $sStatKey ],
-				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : _wpsf__( 'Not recorded' ),
+				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : _wpsf__( 'Not yet recorded' ),
 			);
 		}
 
