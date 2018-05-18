@@ -6,10 +6,10 @@
 {% block body_main %}
 	<div class="row">
 		<div class="col-6">
-			{% include '/wpadmin_pages/insights/recent_events.twig' %}
+			{% include '/wpadmin_pages/insights/notices.twig' %}
 		</div>
 		<div class="col-6">
-			{% include '/wpadmin_pages/insights/notices.twig' %}
+			{% include '/wpadmin_pages/insights/recent_events.twig' %}
 		</div>
 	</div>
 	<div class="row">
@@ -32,6 +32,7 @@
 		.insights_widget.card {
 			border: 1px solid rgba(0, 0, 0, 0.1);
 			border-radius: 3px;
+			box-shadow: 2px 2px 1px rgba(0,0,0,0.07);
 			padding: 0 0 3px 0;
 			max-width: 100%;
 		}
