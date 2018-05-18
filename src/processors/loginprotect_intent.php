@@ -102,7 +102,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
 			$oDp = $this->loadDP();
 
-			$bIsLoginIntentSubmission = $oDp->FetchRequest( $oFO->getLoginIntentRequestFlag() ) == 1;
+			$bIsLoginIntentSubmission = $oDp->request( $oFO->getLoginIntentRequestFlag() ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
 
 				if ( $oDp->post( 'cancel' ) == 1 ) {

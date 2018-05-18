@@ -162,8 +162,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function revSliderPatch_LFI() {
 		$oDp = $this->loadDataProcessor();
 
-		$sAction = $oDp->FetchGet( 'action', '' );
-		$sFileExt = strtolower( $oDp->getExtension( $oDp->FetchGet( 'img', '' ) ) );
+		$sAction = $oDp->query( 'action', '' );
+		$sFileExt = strtolower( $oDp->getExtension( $oDp->query( 'img', '' ) ) );
 		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
 			if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
 				die( 'RevSlider Local File Inclusion Attempt' );
@@ -174,8 +174,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function revSliderPatch_AFU() {
 		$oDp = $this->loadDataProcessor();
 
-		$sAction = strtolower( $oDp->FetchRequest( 'action', '' ) );
-		$sClientAction = strtolower( $oDp->FetchRequest( 'client_action', '' ) );
+		$sAction = strtolower( $oDp->request( 'action', '' ) );
+		$sClientAction = strtolower( $oDp->request( 'client_action', '' ) );
 		if ( ( strpos( $sAction, 'revslider_ajax_action' ) !== false || strpos( $sAction, 'showbiz_ajax_action' ) !== false ) && $sClientAction == 'update_plugin' ) {
 			die( 'RevSlider Arbitrary File Upload Attempt' );
 		}

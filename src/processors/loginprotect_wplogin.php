@@ -234,11 +234,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			}
 		}
 
-		$oDp = $this->loadDataProcessor();
-		$sRequestUrl = $oDp->FetchServer( 'REQUEST_URI' );
-		$oDp->doSendApache404(
-			$sRequestUrl,
-			$this->loadWp()->getHomeUrl()
-		);
+		$this->loadDP()
+			 ->doSendApache404( '', $this->loadWp()->getHomeUrl() );
 	}
 }
