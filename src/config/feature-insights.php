@@ -10,6 +10,11 @@
     "premium": false,
     "access_restricted": true
   },
+  "requirements": {
+    "php": {
+      "version": "5.4"
+    }
+  },
   "sections": [
     {
       "slug": "section_non_ui",

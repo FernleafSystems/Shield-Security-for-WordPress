@@ -78,7 +78,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		return array_merge(
 			$this->getNoticesPlugins(),
-			$this->getNoticesThemes()
+			$this->getNoticesThemes(),
+			$this->getNoticesCore()
 		);
 	}
 
@@ -137,8 +138,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		// Inactive
 		{
-			$aThemes = $oWpT->getThemes();
-			$nInactive = count( $aThemes ) - 1;
+			$nInactive = count( $oWpT->getThemes() ) - 1;
 			if ( $nInactive > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
@@ -161,6 +161,73 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		return array( 'themes' => $aNotices );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getNoticesCore() {
+		$oWp = $this->loadWp();
+		$aNotices = array(
+			'title'    => _wpsf__( 'WordPress Core' ),
+			'messages' => array()
+		);
+
+		// updates
+		{
+			if ( $oWp->hasCoreUpdate() ) {
+				$aNotices[ 'messages' ][ 'updates' ] = array(
+					'title'   => 'Updates',
+					'message' => _wpsf__( 'WordPress Core update should be applied.' ),
+					'href'    => ''
+				);
+			}
+		}
+
+		// updates
+		{
+			if ( !$oWp->canCoreUpdateAutomatically() ) {
+				$aNotices[ 'messages' ][ 'updates_auto' ] = array(
+					'title'   => 'Auto Updates',
+					'message' => _wpsf__( 'Security updates not applied automatically.' ),
+					'href'    => ''
+				);
+			}
+		}
+
+		{ // Disallow file edit
+			if ( current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
+				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
+					'title'   => 'Code Editor',
+					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
+					'href'    => ''
+				);
+			}
+		}
+
+		{ // db prefix
+			if ( in_array( $this->loadDbProcessor()->getPrefix(), array( 'wp_', 'wordpress_' ) ) ) {
+				$aNotices[ 'messages' ][ 'db_prefix' ] = array(
+					'title'   => 'DB Prefix',
+					'message' => _wpsf__( 'WordPress database prefix is the default.' ),
+					'href'    => ''
+				);
+			}
+		}
+
+		{ // db password strength
+			$this->loadAutoload();
+			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
+			if ( $nStrength < 4 ) {
+				$aNotices[ 'messages' ][ 'db_strength' ] = array(
+					'title'   => 'DB Password',
+					'message' => _wpsf__( 'DB Password appears to be weak.' ),
+					'href'    => ''
+				);
+			}
+		}
+
+		return array( 'core' => $aNotices );
 	}
 
 	/**
