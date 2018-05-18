@@ -76,6 +76,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		);
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getNoticesUsers() {
 		$oWpUsers = $this->loadWpUsers();
 
