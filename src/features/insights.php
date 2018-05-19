@@ -269,7 +269,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isWcfScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
 					'title'   => 'WordCore Files',
-					'message' => _wpsf__( 'WordPress Core File scanner is not enabled.' ),
+					'message' => _wpsf__( 'Automatic WordPress Core File scanner is not enabled.' ),
 					'href'    => $oModHg->getUrl_AdminPage()
 				);
 			}
@@ -287,7 +287,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isUfcEnabled() ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = array(
 					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
+					'message' => _wpsf__( 'Automatic Unrecognised File scanner is not enabled.' ),
 					'href'    => $oModHg->getUrl_AdminPage()
 				);
 			}
@@ -305,7 +305,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isPtgEnabled() ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = array(
 					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'Plugin/Themes Guard is not enabled.' ),
+					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
 					'href'    => $oModHg->getUrl_AdminPage()
 				);
 			}
@@ -323,7 +323,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isWpvulnEnabled() ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = array(
 					'title'   => 'Vulnerability Scanner',
-					'message' => _wpsf__( 'Vulnerability Scanner is not enabled.' ),
+					'message' => _wpsf__( 'Automatic Vulnerability Scanner is not enabled.' ),
 					'href'    => $oModHg->getUrl_AdminPage()
 				);
 			}
