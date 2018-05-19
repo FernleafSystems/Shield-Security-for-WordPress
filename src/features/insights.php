@@ -69,13 +69,72 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getNotices() {
 		return array(
-			'scans'   => $this->getNoticesScans(),
+			'site'    => $this->getNoticesSite(),
 			'shield'  => $this->getNoticesShield(),
+			'scans'   => $this->getNoticesScans(),
 			'plugins' => $this->getNoticesPlugins(),
 			'themes'  => $this->getNoticesThemes(),
 			'core'    => $this->getNoticesCore(),
 			'user'    => $this->getNoticesUsers(),
 		);
+	}
+
+	protected function getNoticesSite() {
+		$oDp = $this->loadDP();
+		$oSslService = $this->loadSslService();
+
+		$aNotices = array(
+			'title'    => _wpsf__( 'Site' ),
+			'messages' => array()
+		);
+
+		// SSL Expires
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		if ( strpos( $sHomeUrl, 'https://' ) === 0 && $oSslService->isEnvSupported() ) {
+
+			try {
+				// first verify SSL cert:
+				$oSslService->getCertDetailsForDomain( $sHomeUrl );
+
+				// If we didn't throw and exception, we got it.
+				$nExpiresAt = $oSslService->getExpiresAt( $sHomeUrl );
+				if ( $nExpiresAt > 0 ) {
+					$nTimeLeft = ( $nExpiresAt - $oDp->time() );
+					$bExpired = $nTimeLeft < 0;
+					$nDaysLeft = $bExpired ? 0 : (int)round( $nTimeLeft/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
+
+					if ( $nDaysLeft < 15 ) {
+
+						if ( $bExpired ) {
+							$sMess = _wpsf__( 'SSL certificate for this site has expired.' );
+						}
+						else {
+							$sMess = sprintf( _wpsf__( 'SSL certificate will expire soon (in %s days)' ), $nDaysLeft );
+						}
+
+						$aMessage = array(
+							'title'   => 'SSL Cert Expiration',
+							'message' => $sMess,
+							'href'    => ''
+						);
+					}
+				}
+			}
+			catch ( Exception $oE ) {
+				$aMessage = array(
+					'title'   => 'SSL Cert Expiration',
+					'message' => 'Failed to retrieve a valid SSL certificate.',
+					'href'    => ''
+				);
+			}
+
+			if ( !empty( $aMessage ) ) {
+				$aNotices[ 'messages' ][ 'ssl_cert' ] = $aMessage;
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
 	}
 
 	/**
