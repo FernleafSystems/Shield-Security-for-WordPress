@@ -95,7 +95,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getScanHasProblem( $sScan ) {
-		return $this->getLastScanProblemAt( $sScan ) - $this->getLastScanAt( $sScan ) > 0;
+		$nLastProb = $this->getLastScanProblemAt( $sScan );
+		return ( $nLastProb > 0 ) && ( $nLastProb - $this->getLastScanAt( $sScan ) >= 0 );
 	}
 
 	/**

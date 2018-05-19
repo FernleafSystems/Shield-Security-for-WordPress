@@ -69,6 +69,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getNotices() {
 		return array(
+			'scans'   => $this->getNoticesScans(),
 			'plugins' => $this->getNoticesPlugins(),
 			'themes'  => $this->getNoticesThemes(),
 			'core'    => $this->getNoticesCore(),
@@ -241,6 +242,67 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'db_strength' ] = array(
 					'title'   => 'DB Password',
 					'message' => _wpsf__( 'DB Password appears to be weak.' ),
+					'href'    => ''
+				);
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getNoticesScans() {
+		$oWp = $this->loadWp();
+		$aNotices = array(
+			'title'    => _wpsf__( 'Scans' ),
+			'messages' => array()
+		);
+
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oModHg */
+		$oModHg = $this->getConn()->getModule( 'hack_protect' );
+
+		// Core files
+		{
+			if ( $oModHg->getScanHasProblem( 'wcf' ) ) {
+				$aNotices[ 'messages' ][ 'wcf' ] = array(
+					'title'   => 'WordCore Files',
+					'message' => _wpsf__( 'Modified WordPress core files found.' ),
+					'href'    => $oModHg->getUrl_Wizard( 'wcf' )
+				);
+			}
+		}
+
+		// Unrecognised
+		{
+			if ( $oModHg->getScanHasProblem( 'ufc' ) ) {
+				$aNotices[ 'messages' ][ 'ufc' ] = array(
+					'title'   => 'Unrecognised Files',
+					'message' => _wpsf__( 'Unrecognised files were found in WordPress core directory.' ),
+					'href'    => $oModHg->getUrl_Wizard( 'ufc' )
+				);
+			}
+		}
+
+		// Unrecognised
+		{
+			if ( $oModHg->getScanHasProblem( 'ptg' ) ) {
+				$aNotices[ 'messages' ][ 'ptg' ] = array(
+					'title'   => 'Plugins/Themes',
+					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
+					'href'    => $oModHg->getUrl_Wizard( 'ptg' )
+				);
+			}
+		}
+
+		// Unrecognised
+		{
+			if ( $oModHg->getScanHasProblem( 'wpv' ) ) {
+				$aNotices[ 'messages' ][ 'ptg' ] = array(
+					'title'   => 'Vulnerable Plugins',
+					'message' => _wpsf__( 'At least 1 plugin has known vulnerabilities.' ),
 					'href'    => ''
 				);
 			}
