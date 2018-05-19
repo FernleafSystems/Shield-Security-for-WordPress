@@ -266,7 +266,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		// Core files
 		{
-			if ( $oModHg->getScanHasProblem( 'wcf' ) ) {
+			if ( !$oModHg->isWcfScanEnabled() ) {
+				$aNotices[ 'messages' ][ 'wcf' ] = array(
+					'title'   => 'WordCore Files',
+					'message' => _wpsf__( 'WordPress Core File scanner is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage()
+				);
+			}
+			else if ( $oModHg->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
 					'title'   => 'WordCore Files',
 					'message' => _wpsf__( 'Modified WordPress core files found.' ),
@@ -277,30 +284,51 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		// Unrecognised
 		{
-			if ( $oModHg->getScanHasProblem( 'ufc' ) ) {
+			if ( !$oModHg->isUfcEnabled() ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = array(
 					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised files were found in WordPress core directory.' ),
+					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage()
+				);
+			}
+			else if ( $oModHg->getScanHasProblem( 'ufc' ) ) {
+				$aNotices[ 'messages' ][ 'ufc' ] = array(
+					'title'   => 'Unrecognised Files',
+					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
 					'href'    => $oModHg->getUrl_Wizard( 'ufc' )
 				);
 			}
 		}
 
-		// Unrecognised
+		// Plugin/Theme Guard
 		{
-			if ( $oModHg->getScanHasProblem( 'ptg' ) ) {
+			if ( !$oModHg->isPtgEnabled() ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = array(
-					'title'   => 'Plugins/Themes',
+					'title'   => 'Plugin/Theme Guard',
+					'message' => _wpsf__( 'Plugin/Themes Guard is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage()
+				);
+			}
+			else if ( $oModHg->getScanHasProblem( 'ptg' ) ) {
+				$aNotices[ 'messages' ][ 'ptg' ] = array(
+					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
 					'href'    => $oModHg->getUrl_Wizard( 'ptg' )
 				);
 			}
 		}
 
-		// Unrecognised
+		// Vulnerability Scanner
 		{
-			if ( $oModHg->getScanHasProblem( 'wpv' ) ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
+			if ( !$oModHg->isWpvulnEnabled() ) {
+				$aNotices[ 'messages' ][ 'wpv' ] = array(
+					'title'   => 'Vulnerability Scanner',
+					'message' => _wpsf__( 'Vulnerability Scanner is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage()
+				);
+			}
+			else if ( $oModHg->getScanHasProblem( 'wpv' ) ) {
+				$aNotices[ 'messages' ][ 'wpv' ] = array(
 					'title'   => 'Vulnerable Plugins',
 					'message' => _wpsf__( 'At least 1 plugin has known vulnerabilities.' ),
 					'href'    => ''
