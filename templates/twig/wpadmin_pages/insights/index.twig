@@ -30,11 +30,13 @@
 
 {% block inline_styles %}
 	<style>
-
+		#odp-body-container {
+			font-size: 12px;
+		}
 		.insights_widget.card {
 			border: 1px solid rgba(0, 0, 0, 0.1);
 			border-radius: 3px;
-			box-shadow: 2px 2px 1px rgba(0,0,0,0.07);
+			box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.07);
 			padding: 0 0 3px 0;
 			max-width: 100%;
 		}
@@ -42,7 +44,7 @@
 			padding: 0 0 0 0;
 		}
 		.overflow_container {
-			max-height: 300px;
+			max-height: 500px;
 			overflow-x: hidden;
 			overflow-y: auto;
 			padding-bottom: 1rem;
@@ -53,30 +55,36 @@
 		.overflow_inner dl {
 			margin-bottom: 1px;
 		}
-
 		#SectionAuditTrail table {
 			font-size: 12px;
+		}
+		#wpbody-content {
+			padding-bottom: 0;
+		}
+		#wpfooter {
+			display: none;
 		}
 		#odp-BodyFoot {
 			border-bottom: 1px solid #aaaaaa;
 			border-top: 1px solid #aaaaaa;
 			background-color: #ffffff;
-			position: fixed;
+			position: sticky;
 			bottom: 0;
 			z-index: 1;
-			width: 100%;
+			margin-top: 30px;
 		}
 		table td.mod-summary {
-			height: 72px;
+			height: 52px;
 			text-align: center;
 		}
 		table td.mod-summary:hover {
 			background-color: #f0f0f0;
 		}
 		.mod-summary > a {
-			width: 48px;
-			height: 48px;
+			width: 32px;
+			height: 32px;
 			margin: auto;
+			display: inline-block;
 		}
 		.mod-summary > a:hover {
 			background-color: #f6f6f6;
@@ -88,7 +96,7 @@
 			color: rgba(173, 84, 0, 0.85);
 		}
 		.mod-icon {
-			font-size: 48px;
+			font-size: 32px;
 			display: block;
 		}
 		.mod-icon:hover {
