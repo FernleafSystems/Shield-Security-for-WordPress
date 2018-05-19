@@ -451,8 +451,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getStats() {
+		$oConn = $this->getConn();
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
+		$oModUsers = $oConn->getModule( 'user_management' );
 		/** @var ICWP_WPSF_Processor_Statistics $oStats */
-		$oStats = $this->getConn()->getModule( 'statistics' )->getProcessor();
+		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
 
 		$aStats = $oStats->getInsightsStats();
 		return array(
@@ -475,6 +478,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'comments'       => array(
 				'title' => _wpsf__( 'Comment Blocks' ),
 				'val'   => $aStats[ 'comments.blocked.all' ]
+			),
+			'sessions' => array(
+				'title' => _wpsf__( 'Active Sessions' ),
+				'val'   => count( $oModUsers->getActiveSessionsData() )
 			),
 		);
 	}

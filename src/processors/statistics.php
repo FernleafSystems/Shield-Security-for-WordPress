@@ -91,9 +91,12 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 			'login.twofactor.verified'
 		);
 
+		$aAllStats[ 'ip.transgression.incremented' ] = 0;
+		$aAllStats[ 'ip.connection.killed' ] = 0;
 		$aAllStats[ 'comments.blocked.all' ] = 0;
 		$aAllStats[ 'firewall.blocked.all' ] = 0;
 		$aAllStats[ 'login.blocked.all' ] = 0;
+		$aAllStats[ 'login.verified.all' ] = 0;
 		$aAllStats[ 'login.verified.all' ] = 0;
 
 		foreach ( $aAllStats as $aStat ) {
@@ -109,10 +112,10 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 				$aAllStats[ 'login.blocked.all' ] += $nTally;
 			}
 			else if ( $sStatKey == 'ip.connection.killed' ) {
-				$nTotalConnectionKilled = $nTally;
+				$aAllStats[ 'ip.connection.killed' ] += $nTally;
 			}
 			else if ( $sStatKey == 'ip.transgression.incremented' ) {
-				$nTotalTransgressions = $nTally;
+				$aAllStats[ 'ip.transgression.incremented' ] += $nTally;
 			}
 			else if ( $sStatKey == 'user.session.start' ) {
 				$nTotalUserSessionsStarted = $nTally;
