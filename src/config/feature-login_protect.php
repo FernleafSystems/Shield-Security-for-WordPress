@@ -391,6 +391,18 @@
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
+    },
+    {
+      "key":          "insights_last_register_block_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_reset-password_block_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
     }
   ],
   "definitions":   {

@@ -90,7 +90,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		// SSL Expires
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
-		if ( strpos( $sHomeUrl, 'https://' ) === 0 && $oSslService->isEnvSupported() ) {
+		$bHomeSsl = strpos( $sHomeUrl, 'https://' ) === 0;
+
+		if ( $bHomeSsl && $oSslService->isEnvSupported() ) {
 
 			try {
 				// first verify SSL cert:
@@ -569,20 +571,22 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	private function getInsightStatNames() {
 		return array(
-			'insights_last_scan_ufc_at'       => _wpsf__( 'Unrecognised Files Scan' ),
-			'insights_last_scan_wcf_at'       => _wpsf__( 'WordPress Core Files Scan' ),
-			'insights_last_scan_ptg_at'       => _wpsf__( 'Plugin/Themes Guard Scan' ),
-			'insights_last_scan_wpv_at'       => _wpsf__( 'Plugin Vulnerabilities Scan' ),
-			'insights_last_2fa_login_at'      => _wpsf__( 'Successful 2-FA Login' ),
-			'insights_last_login_block_at'    => _wpsf__( 'Login Block' ),
-			'insights_last_firewall_block_at' => _wpsf__( 'Firewall Block' ),
-			'insights_last_idle_logout_at'    => _wpsf__( 'Idle Logout' ),
-			'insights_last_password_block_at' => _wpsf__( 'Password Block' ),
-			'insights_last_comment_block_at'  => _wpsf__( 'Comment SPAM Block' ),
-			'insights_xml_block_at'           => _wpsf__( 'XML-RPC Block' ),
-			'insights_restapi_block_at'       => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'  => _wpsf__( 'Shield Transgression' ),
-			'insights_last_ip_block_at'       => _wpsf__( 'IP Connection Blocked' ),
+			'insights_last_scan_ufc_at'             => _wpsf__( 'Unrecognised Files Scan' ),
+			'insights_last_scan_wcf_at'             => _wpsf__( 'WordPress Core Files Scan' ),
+			'insights_last_scan_ptg_at'             => _wpsf__( 'Plugin/Themes Guard Scan' ),
+			'insights_last_scan_wpv_at'             => _wpsf__( 'Plugin Vulnerabilities Scan' ),
+			'insights_last_2fa_login_at'            => _wpsf__( 'Successful 2-FA Login' ),
+			'insights_last_login_block_at'          => _wpsf__( 'Login Block' ),
+			'insights_last_register_block_at'       => _wpsf__( 'User Registration Block' ),
+			'insights_last_reset-password_block_at' => _wpsf__( 'Reset Password Block' ),
+			'insights_last_firewall_block_at'       => _wpsf__( 'Firewall Block' ),
+			'insights_last_idle_logout_at'          => _wpsf__( 'Idle Logout' ),
+			'insights_last_password_block_at'       => _wpsf__( 'Password Block' ),
+			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
+			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
+			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
+			'insights_last_transgression_at'        => _wpsf__( 'Shield Transgression' ),
+			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
 		);
 	}
 }

@@ -173,7 +173,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * Uses wpDie()
 	 * @param string $sUsername
-	 * @param string $sActionAttempted
+	 * @param string $sActionAttempted - one of 'login', 'register', 'reset-password'
 	 * @return bool
 	 */
 	protected function doGaspChecks( $sUsername, $sActionAttempted = 'login' ) {
@@ -203,7 +203,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		if ( $bDie ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeature();
-			$oFO->setOptInsightsAt( 'last_login_block_at' );
+			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
 			$this->setIpTransgressed(); // We now black mark this IP
 			
 			$this->loadWp()
