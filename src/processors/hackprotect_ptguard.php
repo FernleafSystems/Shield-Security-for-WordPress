@@ -553,10 +553,9 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		$oFO->setLastScanAt( 'ptg' );
 
+		$bProblemDiscovered = false;
 		$aResults = array();
-
 		foreach ( $this->loadSnapshotData( $sContext ) as $sBaseName => $aSnap ) {
 
 			$aItemResults = array();
@@ -598,10 +597,14 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			}
 
 			if ( !empty( $aItemResults ) ) {
+				$bProblemDiscovered = true;
 				$aItemResults[ 'meta' ] = $aSnap[ 'meta' ];
 				$aResults[ $sBaseName ] = $aItemResults;
 			}
 		}
+
+		$bProblemDiscovered ? $oFO->setLastScanProblemAt( 'ptg' ) : $oFO->clearLastScanProblemAt( 'ptg' );
+		$oFO->setLastScanAt( 'ptg' );
 
 		return $aResults;
 	}

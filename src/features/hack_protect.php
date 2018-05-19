@@ -84,10 +84,42 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return int
+	 */
+	public function getLastScanProblemAt( $sScan ) {
+		return (int)$this->getOpt( sprintf( 'last_scan_problem_%s_at', $sScan ), 0 );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return bool
+	 */
+	public function getScanHasProblem( $sScan ) {
+		return $this->getLastScanProblemAt( $sScan ) - $this->getLastScanAt( $sScan ) > 0;
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return $this
 	 */
 	public function setLastScanAt( $sScan ) {
 		return $this->setOptInsightsAt( sprintf( 'last_scan_%s_at', $sScan ) );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return $this
+	 */
+	public function setLastScanProblemAt( $sScan ) {
+		return $this->setOptAt( sprintf( 'last_scan_problem_%s_at', $sScan ) );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return $this
+	 */
+	public function clearLastScanProblemAt( $sScan ) {
+		return $this->setOptAt( sprintf( 'last_scan_problem_%s_at', $sScan ), 0 );
 	}
 
 	/**

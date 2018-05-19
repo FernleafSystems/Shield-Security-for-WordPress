@@ -202,13 +202,16 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	public function discoverFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
+
+		$aDiscovered = $this->scanCore();
+		if ( $oFO->isUfsScanUploads() ) {
+			$aDiscovered = array_merge( $aDiscovered, $this->scanUploads() );
+		}
+
+		empty( $aDiscovered ) ? $oFO->clearLastScanProblemAt( 'ufc' ) : $oFO->setLastScanProblemAt( 'ufc' );
 		$oFO->setLastScanAt( 'ufc' );
 
-		$aDiscoveredFiles = $this->scanCore();
-		if ( $oFO->isUfsScanUploads() ) {
-			$aDiscoveredFiles = array_merge( $aDiscoveredFiles, $this->scanUploads() );
-		}
-		return $aDiscoveredFiles;
+		return $aDiscovered;
 	}
 
 	/**
