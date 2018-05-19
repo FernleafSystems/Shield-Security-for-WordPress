@@ -70,6 +70,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNotices() {
 		return array(
 			'scans'   => $this->getNoticesScans(),
+			'shield'  => $this->getNoticesShield(),
 			'plugins' => $this->getNoticesPlugins(),
 			'themes'  => $this->getNoticesThemes(),
 			'core'    => $this->getNoticesCore(),
@@ -83,18 +84,63 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNoticesUsers() {
 		$oWpUsers = $this->loadWpUsers();
 
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
+		$oModUsers = $this->getConn()->getModule( 'user_management' );
+
 		$aNotices = array(
 			'title'    => _wpsf__( 'Users' ),
 			'messages' => array()
 		);
 
-		$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
-		if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
-			$aNotices[ 'messages' ][ 'admin' ] = array(
-				'title'   => 'Admin User',
-				'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
-				'href'    => ''
-			);
+		{ //admin user
+			$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
+			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
+				$aNotices[ 'messages' ][ 'admin' ] = array(
+					'title'   => 'Admin User',
+					'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
+					'href'    => ''
+				);
+			}
+		}
+
+		{//password policies
+			if ( !$oModUsers->isPasswordPoliciesEnabled() ) {
+				$aNotices[ 'messages' ][ 'password' ] = array(
+					'title'   => 'Password Policies',
+					'message' => _wpsf__( "Strong password policies are not enforced." ),
+					'href'    => $oModUsers->getUrl_AdminPage()
+				);
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		return $aNotices;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getNoticesShield() {
+
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModSecAdmin */
+		$oModSecAdmin = $this->getConn()->getModule( 'admin_access_restriction' );
+
+		$aNotices = array(
+			'title'    => _wpsf__( 'Shield Security' ),
+			'messages' => array()
+		);
+
+		{//sec admin
+			if ( !( $oModSecAdmin->isModuleEnabled() && $oModSecAdmin->hasAccessKey() ) ) {
+				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
+					'title'   => 'Security Admin',
+					'message' => sprintf(
+						_wpsf__( "The Security Admin feature is not active." ),
+						$this->getConn()->getHumanName()
+					),
+					'href'    => $oModSecAdmin->getUrl_AdminPage()
+				);
+			}
 		}
 
 		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
