@@ -46,6 +46,10 @@ class ICWP_WPSF_Foundation {
 	 */
 	private static $oIp;
 	/**
+	 * @var ICWP_WPSF_Ssl
+	 */
+	private static $oSsl;
+	/**
 	 * @var ICWP_WPSF_GoogleAuthenticator
 	 */
 	private static $oGA;
@@ -192,6 +196,17 @@ class ICWP_WPSF_Foundation {
 			self::$oIp = ICWP_WPSF_Ip::GetInstance();
 		}
 		return self::$oIp;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Ssl
+	 */
+	public function loadSslService() {
+		if ( !isset( self::$oSsl ) ) {
+			self::requireCommonLib( 'icwp-ssl.php' );
+			self::$oSsl = ICWP_WPSF_Ssl::GetInstance();
+		}
+		return self::$oSsl;
 	}
 
 	/**
