@@ -1,0 +1,28 @@
+<div class="row" id="SectionStats">
+
+	<div class="col-2">
+		<div class="stat card">
+			<div class="card-header">
+				Active Users
+			</div>
+			<div class="card-body">
+				5
+			</div>
+		</div>
+	</div>
+
+	{% for stat in vars.insight_stats %}
+		<div class="col-2">
+			<div class="stat card">
+				<div class="card-header">
+					{{ stat.title }}
+				</div>
+				<div class="card-body">
+					{{ stat.val }}
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
+
+

@@ -23,6 +23,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'audit_trail_recent' => $aRecentAuditTrail,
 				'insight_events'     => $this->getRecentEvents(),
 				'insight_notices'    => $this->getNotices(),
+				'insight_stats'      => $this->getStats(),
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -362,7 +363,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesScans() {
-		$oWp = $this->loadWp();
 		$aNotices = array(
 			'title'    => _wpsf__( 'Scans' ),
 			'messages' => array()
@@ -445,6 +445,38 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
 		return $aNotices;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getStats() {
+		/** @var ICWP_WPSF_Processor_Statistics $oStats */
+		$oStats = $this->getConn()->getModule( 'statistics' )->getProcessor();
+
+		$aStats = $oStats->getInsightsStats();
+		return array(
+			'transgressions' => array(
+				'title' => _wpsf__( 'Transgressions' ),
+				'val'   => $aStats[ 'ip.transgression.incremented' ]
+			),
+			'ip_blocks'      => array(
+				'title' => _wpsf__( 'IP Blocks' ),
+				'val'   => $aStats[ 'ip.connection.killed' ]
+			),
+			'login'          => array(
+				'title' => _wpsf__( 'Login Blocks' ),
+				'val'   => $aStats[ 'login.blocked.all' ]
+			),
+			'firewall'       => array(
+				'title' => _wpsf__( 'Firewall Blocks' ),
+				'val'   => $aStats[ 'firewall.blocked.all' ]
+			),
+			'comments'       => array(
+				'title' => _wpsf__( 'Comment Blocks' ),
+				'val'   => $aStats[ 'comments.blocked.all' ]
+			),
+		);
 	}
 
 	/**

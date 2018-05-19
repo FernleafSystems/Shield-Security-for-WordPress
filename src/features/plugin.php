@@ -587,7 +587,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sIp = $oDp->loadIpService()->getRequestIp();
 			}
 			else {
-				$sIp = $oDp->FetchServer( $sKey );
+				$sIp = $oDp->server( $sKey );
 			}
 			if ( empty( $sIp ) ) {
 				$aEmpties[] = sprintf( '%s- %s', $sKey, 'ip not available' );
