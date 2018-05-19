@@ -130,6 +130,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->loadWpTrack();
 		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
 		$this->doLoadTextDomain();
+
+		// Rather than rely on the play nice of other plugins (which they don't do) we now must
+		// forcefully use the autoloader. We do only if it's OUR module page and PHP version is supported.
+		// This was added in v6.7 because All-In-One Events Cal was forcing their crap TWIG setup upon us
+		if ( $this->isThisPluginModuleRequest() && $this->loadDP()->getPhpVersionIsAtLeast( '5.4' ) ) {
+			$this->loadAutoload();
+		}
 	}
 
 	/**
@@ -221,6 +228,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			 ->setTemplate( 'notices/plugin-failed-to-load' )
 			 ->setRenderVars( $aDisplayData )
 			 ->display();
+	}
+
+	/**
+	 * All our module page names are prefixed
+	 * @return bool
+	 */
+	public function isThisPluginModuleRequest() {
+		return strpos( $this->loadDP()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**

@@ -45,7 +45,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			add_filter( 'user_has_cap', array( $this, 'disablePostsManipulation' ), 0, 3 );
 		}
 
-		if ( !$oFO->isModulePage() ) {
+		if ( !$this->getController()->isThisPluginModuleRequest() ) {
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
 		}
 
