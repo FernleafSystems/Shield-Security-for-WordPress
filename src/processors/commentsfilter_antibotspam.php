@@ -201,6 +201,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			$this->sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
 			$this->setCommentStatusExplanation( $sExplanation );
 			$this->setIpTransgressed(); // black mark this IP
+			$oFO->setOptInsightsAt( 'last_comment_block_at' );
 		}
 	}
 

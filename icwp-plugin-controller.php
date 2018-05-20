@@ -1619,6 +1619,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_Base[]
+	 */
+	public function getModules() {
+		return is_array( $this->aModules ) ? $this->aModules : array();
+	}
+
+	/**
 	 * @param array $aFeatureProperties
 	 * @param bool  $bRecreate
 	 * @param bool  $bFullBuild

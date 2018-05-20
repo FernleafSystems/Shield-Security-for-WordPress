@@ -117,6 +117,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					$sMessage = _wpsf__( 'Your security administrator has imposed requirements for password quality.' )
 								.'<br/>'.sprintf( _wpsf__( 'Reason' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
+
+					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+					$oFO = $this->getFeature();
+					$oFO->setOptInsightsAt( 'last_password_block_at' );
+
 					$this->addToAuditEntry(
 						_wpsf__( 'Blocked attempted password update that failed policy requirements.' ),
 						'1', 'um_password_update_blocked'

@@ -29,12 +29,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @var string
 	 */
 	protected $sWpVersion;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bIsMultisite;
 
-	public function __construct() {}
+	public function __construct() {
+	}
 
 	/**
 	 * @return null|string
@@ -385,9 +387,12 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function canCoreUpdateAutomatically() {
+		global $required_php_version, $required_mysql_version;
 		$future_minor_update = (object)array(
-			'current' => $this->getVersion().'.1.next.minor',
-			'version' => $this->getVersion().'.1.next.minor',
+			'current'       => $this->getVersion().'.1.next.minor',
+			'version'       => $this->getVersion().'.1.next.minor',
+			'php_version'   => $required_php_version,
+			'mysql_version' => $required_mysql_version,
 		);
 		return $this->getWpAutomaticUpdater()
 					->should_update( 'core', $future_minor_update, ABSPATH );

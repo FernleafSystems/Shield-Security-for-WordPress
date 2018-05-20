@@ -376,30 +376,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key": "ptg_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "wcf_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "ufc_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "wpv_last_scan_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
       "key": "ptg_candiskwrite",
       "transferable": false,
       "section": "section_non_ui",
@@ -429,6 +405,54 @@
       "transferable": false,
       "section":      "section_non_ui",
       "default":      []
+    },
+    {
+      "key":          "insights_last_scan_ufc_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_scan_wcf_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_scan_ptg_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_scan_wpv_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "last_scan_problem_ufc_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "last_scan_problem_wcf_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "last_scan_problem_ptg_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "last_scan_problem_wpv_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
     }
   ],
   "definitions": {

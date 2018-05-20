@@ -79,16 +79,48 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return int
 	 */
 	public function getLastScanAt( $sScan ) {
-		return (int)$this->getOpt( $sScan.'_last_scan_at', 0 );
+		return (int)$this->getOpt( sprintf( 'insights_last_scan_%s_at', $sScan ), 0 );
 	}
 
 	/**
-	 * @param string   $sScan ptg, wcf, ufc, wpv
-	 * @param int|null $nAt
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return int
+	 */
+	public function getLastScanProblemAt( $sScan ) {
+		return (int)$this->getOpt( sprintf( 'last_scan_problem_%s_at', $sScan ), 0 );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return bool
+	 */
+	public function getScanHasProblem( $sScan ) {
+		$nLastProb = $this->getLastScanProblemAt( $sScan );
+		return ( $nLastProb > 0 ) && ( $nLastProb - $this->getLastScanAt( $sScan ) >= 0 );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return $this
 	 */
-	public function setLastScanAt( $sScan, $nAt = null ) {
-		return $this->setOpt( $sScan.'_last_scan_at', is_null( $nAt ) ? $this->loadDP()->time() : $nAt );
+	public function setLastScanAt( $sScan ) {
+		return $this->setOptInsightsAt( sprintf( 'last_scan_%s_at', $sScan ) );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return $this
+	 */
+	public function setLastScanProblemAt( $sScan ) {
+		return $this->setOptAt( sprintf( 'last_scan_problem_%s_at', $sScan ) );
+	}
+
+	/**
+	 * @param string $sScan ptg, wcf, ufc, wpv
+	 * @return $this
+	 */
+	public function clearLastScanProblemAt( $sScan ) {
+		return $this->setOptAt( sprintf( 'last_scan_problem_%s_at', $sScan ), 0 );
 	}
 
 	/**

@@ -108,6 +108,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
 			else if ( $nIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nIdleTimeout ) ) {
+				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
 				$nForceLogOutCode = 2;
 			} // login ip address lock
 			else if ( $this->isLockToIp() && ( $this->ip() != $oSess->getIp() ) ) { //TODO: sha1

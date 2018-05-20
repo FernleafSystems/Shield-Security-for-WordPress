@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                   "plugin",
-    "name":                   "Dashboard",
+    "name":                   "General",
     "show_module_menu_item":  true,
     "storage_key":            "plugin",
     "tagline":                "General Plugin Settings",
@@ -400,6 +400,11 @@
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "http://icwp.io/wpshieldprivacypolicy",
     "active_plugin_features": [
+      {
+        "slug":        "insights",
+        "storage_key": "insights",
+        "menu_priority": 5
+      },
       {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",

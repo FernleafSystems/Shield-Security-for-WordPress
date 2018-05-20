@@ -157,6 +157,18 @@
       "name": "Block Username Fishing",
       "summary": "Block the ability to discover WordPress usernames based on author IDs",
       "description": "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."
+    },
+    {
+      "key":          "insights_xml_block_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_restapi_block_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
     }
   ]
 }

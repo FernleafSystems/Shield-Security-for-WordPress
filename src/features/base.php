@@ -117,7 +117,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 			}
 
-			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
+			$nMenuPriority = isset( $aFeatureProperties[ 'menu_priority' ] ) ? $aFeatureProperties[ 'menu_priority' ] : 100;
+			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ), $nMenuPriority );
 			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );

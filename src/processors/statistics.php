@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'basedb.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
 
 class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 
@@ -56,6 +56,88 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$aData[ $this->getFeature()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
 		return $aData;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInsightsStats() {
+		$aAllStats = $this->getAllTallys();
+
+		$aSpamCommentKeys = array(
+			'spam.gasp.checkbox',
+			'spam.gasp.token',
+			'spam.gasp.honeypot',
+			'spam.recaptcha.empty',
+			'spam.recaptcha.failed',
+			'spam.human.comment_content',
+			'spam.human.url',
+			'spam.human.author_name',
+			'spam.human.author_email',
+			'spam.human.ip_address',
+			'spam.human.user_agent'
+		);
+		$aLoginFailKeys = array(
+			'login.cooldown.fail',
+			'login.recaptcha.fail',
+			'login.gasp.checkbox.fail',
+			'login.gasp.honeypot.fail',
+			'login.googleauthenticator.fail',
+			'login.rename.fail',
+		);
+		$aLoginVerifiedKeys = array(
+			'login.googleauthenticator.verified',
+			'login.recaptcha.verified',
+			'login.twofactor.verified'
+		);
+
+		$aAllStats[ 'ip.transgression.incremented' ] = 0;
+		$aAllStats[ 'ip.connection.killed' ] = 0;
+		$aAllStats[ 'comments.blocked.all' ] = 0;
+		$aAllStats[ 'firewall.blocked.all' ] = 0;
+		$aAllStats[ 'login.blocked.all' ] = 0;
+		$aAllStats[ 'login.verified.all' ] = 0;
+		$aAllStats[ 'login.verified.all' ] = 0;
+
+		foreach ( $aAllStats as $aStat ) {
+			$sStatKey = $aStat[ 'stat_key' ];
+			$nTally = $aStat[ 'tally' ];
+			if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
+				$aAllStats[ 'comments.blocked.all' ] += $nTally;
+			}
+			else if ( strpos( $sStatKey, 'firewall.blocked.' ) !== false ) {
+				$aAllStats[ 'firewall.blocked.all' ] += $nTally;
+			}
+			else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
+				$aAllStats[ 'login.blocked.all' ] += $nTally;
+			}
+			else if ( $sStatKey == 'ip.connection.killed' ) {
+				$aAllStats[ 'ip.connection.killed' ] += $nTally;
+			}
+			else if ( $sStatKey == 'ip.transgression.incremented' ) {
+				$aAllStats[ 'ip.transgression.incremented' ] += $nTally;
+			}
+			else if ( $sStatKey == 'user.session.start' ) {
+				$nTotalUserSessionsStarted = $nTally;
+			}
+			else if ( $sStatKey == 'file.corechecksum.replaced' ) {
+			}
+			else if ( in_array( $sStatKey, $aLoginVerifiedKeys ) ) {
+				$aAllStats[ 'login.verified.all' ] += $nTally;
+			}
+		}
+
+		return array_merge(
+			array(
+				'ip.transgression.incremented' => 0,
+				'ip.connection.killed'         => 0,
+				'firewall.blocked.all'         => 0,
+				'comments.blocked.all'         => 0,
+				'login.blocked.all'            => 0,
+				'login.verified.all'           => 0,
+			),
+			$aAllStats
+		);
 	}
 
 	public function gatherStatsSummaryWidgetContent( $aContent ) {
@@ -133,7 +215,6 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 			'login_fail'        => array( _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ),
 			'login_verified'    => array( _wpsf__( 'Login Verified' ), $nTotalLoginVerified ),
 			'session_start'     => array( _wpsf__( 'User Sessions' ), $nTotalUserSessionsStarted ),
-			//				'file_replaced' => array( _wpsf__( 'Files Replaced' ), $nTotalFilesReplaced ),
 			'ip_killed'         => array( _wpsf__( 'IP Auto Black-Listed' ), $nTotalConnectionKilled ),
 			'ip_transgressions' => array( _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ),
 		);
