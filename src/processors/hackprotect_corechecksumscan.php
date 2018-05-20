@@ -120,7 +120,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			}
 		}
 
-		$bProblemFound ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
+		( $bProblemFound && !$bAutoRepair ) ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
 		$oFO->setLastScanAt( 'wcf' );
 
 		return $aDiscoveredFiles;

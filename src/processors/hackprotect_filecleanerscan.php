@@ -95,6 +95,10 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		foreach ( $aFilesToDelete as $sFilePath ) {
 			$this->loadFS()->deleteFile( $sFilePath );
 		}
+
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+		$oFO->clearLastScanProblemAt( 'ufc' );
 	}
 
 	/**
