@@ -457,31 +457,50 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_Processor_Statistics $oStats */
 		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
 
+		/** @var ICWP_WPSF_Processor_Ips $oIPs */
+		$oIPs = $oConn->getModule( 'ips' )->getProcessor();
+
 		$aStats = $oStats->getInsightsStats();
 		return array(
 			'transgressions' => array(
-				'title' => _wpsf__( 'Transgressions' ),
-				'val'   => $aStats[ 'ip.transgression.incremented' ]
+				'title'   => _wpsf__( 'Transgressions' ),
+				'val'     => $aStats[ 'ip.transgression.incremented' ],
+				'tooltip' => _wpsf__( 'Total transgression against the site.' )
 			),
 			'ip_blocks'      => array(
-				'title' => _wpsf__( 'IP Blocks' ),
-				'val'   => $aStats[ 'ip.connection.killed' ]
+				'title'   => _wpsf__( 'IP Blocks' ),
+				'val'     => $aStats[ 'ip.connection.killed' ],
+				'tooltip' => _wpsf__( 'Total connections blocked/killed due to too many transgressions.' )
 			),
 			'login'          => array(
-				'title' => _wpsf__( 'Login Blocks' ),
-				'val'   => $aStats[ 'login.blocked.all' ]
+				'title'   => _wpsf__( 'Login Blocks' ),
+				'val'     => $aStats[ 'login.blocked.all' ],
+				'tooltip' => _wpsf__( 'Total login attempts blocked.' )
 			),
 			'firewall'       => array(
-				'title' => _wpsf__( 'Firewall Blocks' ),
-				'val'   => $aStats[ 'firewall.blocked.all' ]
+				'title'   => _wpsf__( 'Firewall Blocks' ),
+				'val'     => $aStats[ 'firewall.blocked.all' ],
+				'tooltip' => _wpsf__( 'Total requests blocked by firewall rules.' )
 			),
 			'comments'       => array(
-				'title' => _wpsf__( 'Comment Blocks' ),
-				'val'   => $aStats[ 'comments.blocked.all' ]
+				'title'   => _wpsf__( 'Comment Blocks' ),
+				'val'     => $aStats[ 'comments.blocked.all' ],
+				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
 			),
-			'sessions' => array(
-				'title' => _wpsf__( 'Active Sessions' ),
-				'val'   => count( $oModUsers->getActiveSessionsData() )
+			'sessions'       => array(
+				'title'   => _wpsf__( 'Active Sessions' ),
+				'val'     => count( $oModUsers->getActiveSessionsData() ),
+				'tooltip' => _wpsf__( 'Total currently active user sessions.' )
+			),
+			'blackips'       => array(
+				'title'   => _wpsf__( 'Transgressed IPs' ),
+				'val'     => count( $oIPs->getAutoBlacklistData() ),
+				'tooltip' => _wpsf__( 'Current total IP address with registered transgressions against the site.' )
+			),
+			'pro'            => array(
+				'title'   => _wpsf__( 'Pro' ),
+				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
+				'tooltip' => _wpsf__( 'Is this site running Shield Pro' )
 			),
 		);
 	}
@@ -507,21 +526,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			);
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
-		$oModUsers = $oConn->getModule( 'user_management' );
-
-		$aExtras = array(
-			'insights_user_sessions' => array(
-				'name' => _wpsf__( 'Active User Sessions' ),
-				'val'  => count( $oModUsers->getActiveSessionsData() )
-			),
-			'insights_is_pro'        => array(
-				'name' => _wpsf__( 'Active Pro License' ),
-				'val'  => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
-			)
-		);
-
-		return array_merge( $aExtras, $aStats );
+		return $aStats;
 	}
 
 	/**

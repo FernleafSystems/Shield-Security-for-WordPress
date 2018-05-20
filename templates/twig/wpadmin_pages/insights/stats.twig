@@ -1,7 +1,11 @@
 <div class="row" id="SectionStats">
 	{% for stat in vars.insight_stats %}
-		<div class="col-2">
-			<div class="stat card">
+		<div class="col-sm-3">
+			<div class="stat card"
+					{% if stat.tooltip is defined %}
+						title="{{ stat.tooltip }}"
+					{% endif %}
+			>
 				<div class="card-header">
 					{{ stat.title }}
 				</div>
@@ -12,5 +16,14 @@
 		</div>
 	{% endfor %}
 </div>
+
+<script type="text/javascript">
+	jQuery( document ).ready( function () {
+		jQuery( '.stat.card' ).tooltip( {
+			placement: 'bottom',
+			trigger: 'hover'
+		} );
+	} );
+</script>
 
 
