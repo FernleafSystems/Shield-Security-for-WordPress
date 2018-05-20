@@ -11,7 +11,7 @@
 			{% for notice_section in vars.insight_notices %}
 				{% if notice_section.count > 0 %}
 					<tr class="title_row">
-						<th colspan="4of some of the most recent Shield events"><h6 class="m-1">{{ notice_section.title }}</h6></th>
+						<th colspan="4"><h6 class="m-1">{{ notice_section.title }}</h6></th>
 					</tr>
 
 					{% for notice in notice_section.messages %}
@@ -19,10 +19,11 @@
 							<td class="empty_cell">&nbsp;</td>
 							<th>{{ notice.title }}:</th>
 							<td>
-								{{ notice.message }}
+								<span class="icon-exclamation-sign icon-sign">&#9888;</span> {{ notice.message }}
 								{% if notice.rec is defined %}
 									<br /><span class="text-muted">
-										&bigstar; {{ notice.rec|default('') }}</span>
+										<span class="icon-exclamation-sign icon-sign">&#9755;</span>
+									{{ notice.rec|default('') }}</span>
 								{% endif %}
 							</td>
 							<td class="text-right text-nowrap">

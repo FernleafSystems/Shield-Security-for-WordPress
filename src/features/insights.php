@@ -403,7 +403,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		{
 			if ( !$oModHg->isWcfScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
-					'title'   => 'WordCore Files',
+					'title'   => 'WP Core Files',
 					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
 					'href'    => $oModHg->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
@@ -412,7 +412,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 			else if ( $oModHg->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
-					'title'   => 'WordCore Files',
+					'title'   => 'WP Core Files',
 					'message' => _wpsf__( 'Modified WordPress core files found.' ),
 					'href'    => $oModHg->getUrl_Wizard( 'wcf' ),
 					'action'  => _wpsf__( 'Run Scan' ),
