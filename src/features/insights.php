@@ -583,7 +583,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  ->getProcessor();
 		try {
 			$aItems = $oProc->getAuditTrailFinder()
-							->setLimit( 10 )
+							->setLimit( 20 )
 							->all();
 		}
 		catch ( Exception $oE ) {
