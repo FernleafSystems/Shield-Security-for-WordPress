@@ -470,7 +470,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'ip_blocks'      => array(
 				'title'   => _wpsf__( 'IP Blocks' ),
 				'val'     => $aStats[ 'ip.connection.killed' ],
-				'tooltip' => _wpsf__( 'Total connections blocked/killed due to too many transgressions.' )
+				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
 			),
 			'login'          => array(
 				'title'   => _wpsf__( 'Login Blocks' ),
@@ -490,12 +490,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'sessions'       => array(
 				'title'   => _wpsf__( 'Active Sessions' ),
 				'val'     => count( $oModUsers->getActiveSessionsData() ),
-				'tooltip' => _wpsf__( 'Total currently active user sessions.' )
+				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Transgressed IPs' ),
 				'val'     => count( $oIPs->getAutoBlacklistData() ),
-				'tooltip' => _wpsf__( 'Current total IP address with registered transgressions against the site.' )
+				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
 			'pro'            => array(
 				'title'   => _wpsf__( 'Pro' ),
@@ -548,6 +548,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oWP = $this->loadWp();
 		foreach ( $aItems as $oItem ) {
 			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
+			$oItem->message = stripslashes( sanitize_text_field( $oItem->message ) );
 		}
 
 		return $aItems;

@@ -146,7 +146,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		if ( is_array( $aEntries ) ) {
 			foreach ( $aEntries as &$aEntry ) {
 				$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
-				$aEntry[ 'message' ] = sanitize_text_field( $aEntry[ 'message' ] );
+				$aEntry[ 'message' ] = stripslashes( sanitize_text_field( $aEntry[ 'message' ] ) );
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
 				if ( $aEntry[ 'ip' ] == $sYou ) {
 					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
