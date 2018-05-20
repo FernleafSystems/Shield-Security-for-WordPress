@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.8
+Stable tag: 6.7.0
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -354,16 +354,22 @@ If you don't want to support the work, no problem! You can still continue to use
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
 = 6.7.0 - Current Release =
-*Released: 14th May, 2018*
+*Released: 21st May, 2018*
 
+* **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
+* **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
 * **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
 * **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+
+Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and above.
 
 = 6.7 Series =
 *Released: 14th May, 2018*
 
-* **(v.0)**  ADDED:		Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
-* **(v.0)**  ADDED:		New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
+* **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
+* **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
+* **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
 
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
