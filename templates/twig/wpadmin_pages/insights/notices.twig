@@ -9,23 +9,23 @@
 			{% for notice_section in vars.insight_notices %}
 				{% if notice_section.count > 0 %}
 					<tr>
-						<th><h6 class="m-1">{{ notice_section.title }}</h6></th>
+						<th colspan="4"><h6 class="m-1">{{ notice_section.title }}</h6></th>
 					</tr>
 
+					{% for notice in notice_section.messages %}
 					<tr>
-						<td>
-						{% for notice in notice_section.messages %}
-							<dl class="row">
-								<dt class="col-3 offset-1">{{ notice.title }}:</dt>
-								<dd class="col-8">{{ notice.message }}
-									{% if notice.href is not empty %}
-										(<a href="{{ notice.href }}" target="_blank">more info</a>)
-									{% endif %}
-								</dd>
-							</dl>
-						{% endfor %}
-						</td>
-					</tr>
+							<td>&nbsp;</td>
+							<th>{{ notice.title }}:</th>
+							<td>{{ notice.message }}</td>
+							<td>
+								{% if notice.href is not empty %}
+									<a href="{{ notice.href }}" target="_blank">
+										{{ notice.action|default( strings.more_info ) }} &nearr;
+									</a>
+								{% endif %}
+							</td>
+						</tr>
+				{% endfor %}
 				{% endif %}
 			{% endfor %}
 			</table>

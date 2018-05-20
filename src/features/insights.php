@@ -53,6 +53,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getDisplayStrings() {
+		return $this->loadDP()->mergeArraysRecursive(
+			parent::getDisplayStrings(),
+			array(
+			)
+		);
+	}
+
+	/**
 	 * @return array[]
 	 */
 	protected function getInsightsModsSummary() {
@@ -483,7 +494,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			),
 			'blackips'       => array(
-				'title'   => _wpsf__( 'Transgressed IPs' ),
+				'title'   => _wpsf__( 'Blacklist IPs' ),
 				'val'     => count( $oIPs->getAutoBlacklistData() ),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),

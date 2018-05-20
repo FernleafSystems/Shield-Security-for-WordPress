@@ -7,18 +7,18 @@
 
 {% block body_main %}
 	<div class="row">
-		<div class="col-6">
+		<div class="col-lg-6">
 			{% include '/wpadmin_pages/insights/title.twig' %}
 		</div>
-		<div class="col-6">
+		<div class="col-lg-6">
 			{% include '/wpadmin_pages/insights/stats.twig' %}
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-6">
+		<div class="col-lg-7">
 			{% include '/wpadmin_pages/insights/notices.twig' %}
 		</div>
-		<div class="col-6">
+		<div class="col-lg-5">
 			{% include '/wpadmin_pages/insights/recent_events.twig' %}
 		</div>
 	</div>
@@ -77,9 +77,12 @@
 		}
 		#SectionStats {
 		}
-		#SectionStats .stat.card {
+		.stat.card {
 			text-align: center;
 			padding: 0;
+		}
+		.stat.card .card-body {
+			font-size: 18px;
 		}
 		#ModSummary {
 			border-bottom: 1px solid #aaaaaa;
