@@ -333,16 +333,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		{ // db prefix
-			if ( in_array( $this->loadDbProcessor()->getPrefix(), array( 'wp_', 'wordpress_' ) ) ) {
-				$aNotices[ 'messages' ][ 'db_prefix' ] = array(
-					'title'   => 'DB Prefix',
-					'message' => _wpsf__( 'WordPress database prefix is the default.' ),
-					'href'    => ''
-				);
-			}
-		}
-
 		{ // db password strength
 			$this->loadAutoload();
 			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
