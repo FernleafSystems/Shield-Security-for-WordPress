@@ -16,14 +16,16 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
 
+		$aNotices = $this->getNotices();
 		$aData = array(
 			'vars'    => array(
-				'activation_url'     => $oWp->getHomeUrl(),
-				'summary'            => $this->getInsightsModsSummary(),
-				'audit_trail_recent' => $aRecentAuditTrail,
-				'insight_events'     => $this->getRecentEvents(),
-				'insight_notices'    => $this->getNotices(),
-				'insight_stats'      => $this->getStats(),
+				'activation_url'        => $oWp->getHomeUrl(),
+				'summary'               => $this->getInsightsModsSummary(),
+				'audit_trail_recent'    => $aRecentAuditTrail,
+				'insight_events'        => $this->getRecentEvents(),
+				'insight_notices'       => $aNotices,
+				'insight_notices_count' => count( $aNotices ),
+				'insight_stats'         => $this->getStats(),
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -46,6 +48,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'show_ads'                => false,
 				'show_standard_options'   => false,
 				'show_alt_content'        => true,
+				'is_pro'                  => $this->isPremium()
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
@@ -59,6 +62,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
+				'recommendation' => ucfirst( _wpsf__( 'recommendation' ) ),
+				'suggestion'     => ucfirst( _wpsf__( 'suggestion' ) ),
+
 			)
 		);
 	}
@@ -129,7 +135,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						$aMessage = array(
 							'title'   => 'SSL Cert Expiration',
 							'message' => $sMess,
-							'href'    => ''
+							'href'    => '',
+							'rec'     => _wpsf__( 'Check or renew your SSL certificate.' )
 						);
 					}
 				}
@@ -171,7 +178,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'admin' ] = array(
 					'title'   => 'Admin User',
 					'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
-					'href'    => ''
+					'href'    => '',
+					'rec'     => _wpsf__( "Default 'admin' user should be disabled or removed." )
 				);
 			}
 		}
@@ -181,7 +189,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'password' ] = array(
 					'title'   => 'Password Policies',
 					'message' => _wpsf__( "Strong password policies are not enforced." ),
-					'href'    => $oModUsers->getUrl_AdminPage()
+					'href'    => $oModUsers->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Password policies should be turned-on.' )
 				);
 			}
 		}
@@ -208,10 +218,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Admin',
 					'message' => sprintf(
-						_wpsf__( "The Security Admin feature is not active." ),
+						_wpsf__( "The Security Admin protection is not active." ),
 						$this->getConn()->getHumanName()
 					),
-					'href'    => $oModSecAdmin->getUrl_AdminPage()
+					'href'    => $oModSecAdmin->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Security Admin should be turned-on.' )
 				);
 			}
 		}
@@ -242,8 +254,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
-					'message' => sprintf( _wpsf__( '%s inactive plugin(s) - which should be removed.' ), $nCount ),
-					'href'    => ''
+					'message' => sprintf( _wpsf__( '%s inactive plugin(s)' ), $nCount ),
+					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Plugins' ) ),
+					'rec'     => _wpsf__( 'Unused plugins should be removed.' )
 				);
 			}
 		}
@@ -254,8 +268,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
 					'title'   => 'Updates',
-					'message' => sprintf( _wpsf__( '%s plugin update(s) - which should be applied.' ), $nCount ),
-					'href'    => ''
+					'message' => sprintf( _wpsf__( '%s plugin update(s)' ), $nCount ),
+					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
+					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
 				);
 			}
 		}
@@ -280,8 +296,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nInactive > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
-					'message' => sprintf( _wpsf__( '%s inactive themes(s) - which should be removed.' ), $nInactive ),
-					'href'    => ''
+					'message' => sprintf( _wpsf__( '%s inactive themes(s)' ), $nInactive ),
+					'href'    => $this->loadWp()->getAdminUrl_Themes( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Themes' ) ),
+					'rec'     => _wpsf__( 'Unused themes should be removed.' )
 				);
 			}
 		}
@@ -293,7 +311,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates' ] = array(
 					'title'   => 'Updates',
 					'message' => sprintf( _wpsf__( '%s theme update(s) - which should be applied.' ), $nCount ),
-					'href'    => ''
+					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
+					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
 				);
 			}
 		}
@@ -317,8 +337,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $oWp->hasCoreUpdate() ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
 					'title'   => 'Updates',
-					'message' => _wpsf__( 'WordPress Core update should be applied.' ),
-					'href'    => ''
+					'message' => _wpsf__( 'WordPress Core has an update available.' ),
+					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
+					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
 				);
 			}
 		}
@@ -328,8 +350,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oWp->canCoreUpdateAutomatically() ) {
 				$aNotices[ 'messages' ][ 'updates_auto' ] = array(
 					'title'   => 'Auto Updates',
-					'message' => _wpsf__( 'Security updates not applied automatically.' ),
-					'href'    => ''
+					'message' => _wpsf__( 'WordPress does not automatically install updates.' ),
+					'href'    => $this->getConn()->getModule( 'autoupdates' )->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Minor WordPress upgrades should be applied automatically.' )
 				);
 			}
 		}
@@ -339,7 +363,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
 					'title'   => 'Code Editor',
 					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
-					'href'    => ''
+					'href'    => $this->getConn()->getModule( 'lockdown' )->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'WP Plugin file editing should be disabled.' )
 				);
 			}
 		}
@@ -351,7 +377,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'db_strength' ] = array(
 					'title'   => 'DB Password',
 					'message' => _wpsf__( 'DB Password appears to be weak.' ),
-					'href'    => ''
+					'href'    => '',
+					'rec'     => _wpsf__( 'The database password should be strong.' )
 				);
 			}
 		}
@@ -377,15 +404,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isWcfScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
 					'title'   => 'WordCore Files',
-					'message' => _wpsf__( 'Automatic WordPress Core File scanner is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage()
+					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
 				);
 			}
 			else if ( $oModHg->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
 					'title'   => 'WordCore Files',
 					'message' => _wpsf__( 'Modified WordPress core files found.' ),
-					'href'    => $oModHg->getUrl_Wizard( 'wcf' )
+					'href'    => $oModHg->getUrl_Wizard( 'wcf' ),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
 				);
 			}
 		}
@@ -395,15 +426,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isUfcEnabled() ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = array(
 					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Automatic Unrecognised File scanner is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage()
+					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
 				);
 			}
 			else if ( $oModHg->getScanHasProblem( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = array(
 					'title'   => 'Unrecognised Files',
 					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
-					'href'    => $oModHg->getUrl_Wizard( 'ufc' )
+					'href'    => $oModHg->getUrl_Wizard( 'ufc' ),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
 				);
 			}
 		}
@@ -414,14 +449,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'ptg' ] = array(
 					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage()
+					'href'    => $oModHg->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
 				);
 			}
 			else if ( $oModHg->getScanHasProblem( 'ptg' ) ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = array(
 					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
-					'href'    => $oModHg->getUrl_Wizard( 'ptg' )
+					'href'    => $oModHg->getUrl_Wizard( 'ptg' ),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
 				);
 			}
 		}
@@ -431,15 +470,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oModHg->isWpvulnEnabled() ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = array(
 					'title'   => 'Vulnerability Scanner',
-					'message' => _wpsf__( 'Automatic Vulnerability Scanner is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage()
+					'message' => _wpsf__( 'Plugin Vulnerability Scanner is not enabled.' ),
+					'href'    => $oModHg->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic detection of plugin vulnerabilities is recommended.' )
 				);
 			}
 			else if ( $oModHg->getScanHasProblem( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = array(
 					'title'   => 'Vulnerable Plugins',
 					'message' => _wpsf__( 'At least 1 plugin has known vulnerabilities.' ),
-					'href'    => ''
+					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Plugins' ) ),
+					'rec'     => _wpsf__( 'Plugins with known vulnerabilities should be updated, removed, or replaced.' )
 				);
 			}
 		}

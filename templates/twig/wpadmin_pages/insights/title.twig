@@ -5,12 +5,16 @@
 	<div class="card-body overflow_container">
 		<div class="overflow_inner">
 			<p>This <span class="font-weight-bold">Insights Dashboard</span> is new with Shield v6.7.0
-				<br/>It's a 1st version, designed
+				<br />It's a 1st version, designed
 			   to provide a high-level summary of your WordPress site security, and Shield activity.</p>
 			<p>If you have suggestions or feedback, please let us know
 			   <a href="http://icwp.io/shieldsecuritygroupfb" target="_blank">in our Facebook group</a>.</p>
-			<p>For just $1/month, get all the extra features and 1-on-1 technical support -
+			{% if flags.is_pro %}
+				<p>Thank you for your support with your Shield Pro purchase. :)</p>
+			{% else %}
+				<p>For just $1/month, get all the extra features and 1-on-1 technical support -
 				<a href="http://icwp.io/cw" class="btn btn-outline-success">Go Pro Today!</a></p>
+			{% endif %}
 		</div>
 		{#<a href="#" class="card-link">Card link</a>#}
 		{#<a href="#" class="card-link">Another link</a>#}

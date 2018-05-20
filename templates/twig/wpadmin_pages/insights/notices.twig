@@ -1,23 +1,31 @@
 <div id="SectionNotices" class="insights_widget card w-100">
 	<div class="card-header">
-		<h5 class="card-title">Security Notices</h5>
-		<h6 class="card-subtitle mb-2 text-muted">Potential security issues on your site <em>now</em></h6>
+		<h5 class="card-title">Security Notices
+			<span class="badge badge-warning">{{ vars.insight_notices_count }}</span>
+		</h5>
+		<h6 class="card-subtitle mb-2 text-muted">Potential security issues on your site <em>right now</em></h6>
 	</div>
 	<div class="card-body overflow_container">
-		<div class="overflow_inner">
-			<table class="table table-borderless table-sm mb-0">
+		<div class="overflow_inner p-0">
+			<table class="table mb-0">
 			{% for notice_section in vars.insight_notices %}
 				{% if notice_section.count > 0 %}
-					<tr>
-						<th colspan="4"><h6 class="m-1">{{ notice_section.title }}</h6></th>
+					<tr class="title_row">
+						<th colspan="4of some of the most recent Shield events"><h6 class="m-1">{{ notice_section.title }}</h6></th>
 					</tr>
 
 					{% for notice in notice_section.messages %}
-					<tr>
-							<td>&nbsp;</td>
+					<tr class="message_row">
+							<td class="empty_cell">&nbsp;</td>
 							<th>{{ notice.title }}:</th>
-							<td>{{ notice.message }}</td>
 							<td>
+								{{ notice.message }}
+								{% if notice.rec is defined %}
+									<br /><span class="text-muted">
+										&bigstar; {{ notice.rec|default('') }}</span>
+								{% endif %}
+							</td>
+							<td class="text-right text-nowrap">
 								{% if notice.href is not empty %}
 									<a href="{{ notice.href }}" target="_blank">
 										{{ notice.action|default( strings.more_info ) }} &nearr;

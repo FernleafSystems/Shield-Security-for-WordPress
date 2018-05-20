@@ -510,6 +510,22 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl_Themes( $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( 'themes.php' ) : admin_url( 'themes.php' );
+	}
+
+	/**
+	 * @param bool $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl_Updates( $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( 'update-core.php' ) : admin_url( 'update-core.php' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getUrl_CurrentAdminPage() {
