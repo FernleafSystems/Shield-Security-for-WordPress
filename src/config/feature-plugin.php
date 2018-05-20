@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                   "plugin",
-    "name":                   "Dashboard",
+    "name":                   "General",
     "show_module_menu_item":  true,
     "storage_key":            "plugin",
     "tagline":                "General Plugin Settings",
@@ -402,7 +402,8 @@
     "active_plugin_features": [
       {
         "slug":        "insights",
-        "storage_key": "insights"
+        "storage_key": "insights",
+        "menu_priority": 5
       },
       {
         "slug":          "admin_access_restriction",

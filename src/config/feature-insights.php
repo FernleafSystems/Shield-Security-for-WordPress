@@ -2,7 +2,8 @@
   "slug": "insights",
   "properties": {
     "slug": "insights",
-    "name": "Insights",
+    "name": "Insights Dashboard",
+    "menu_priority": "5",
     "show_module_menu_item": true,
     "auto_enabled": true,
     "storage_key": "insights",
