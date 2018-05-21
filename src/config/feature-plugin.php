@@ -399,6 +399,14 @@
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "http://icwp.io/wpshieldprivacypolicy",
+    "db_notes_name": "notes",
+    "db_notes_table_columns": [
+      "id",
+      "user_id",
+      "note",
+      "created_at",
+      "deleted_at"
+    ]
     "active_plugin_features": [
       {
         "slug":        "insights",
