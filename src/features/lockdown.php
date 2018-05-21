@@ -51,6 +51,34 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @param array $aAllNotices
+	 * @return array
+	 */
+	public function addInsightsNoticeData( $aAllNotices ) {
+		$aNotices = array(
+			'title'    => _wpsf__( 'Lockdown' ),
+			'messages' => array()
+		);
+
+		{ //edit plugins
+			if ( current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
+				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
+					'title'   => 'Code Editor',
+					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'WP Plugin file editing should be disabled.' )
+				);
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+
+		$aAllNotices[ 'lockdown' ] = $aNotices;
+		return $aAllNotices;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

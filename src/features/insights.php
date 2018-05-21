@@ -86,14 +86,31 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return string[]
 	 */
 	protected function getNotices() {
-		return array(
-			'site'    => $this->getNoticesSite(),
-			'shield'  => $this->getNoticesShield(),
-			'scans'   => $this->getNoticesScans(),
-			'plugins' => $this->getNoticesPlugins(),
-			'themes'  => $this->getNoticesThemes(),
-			'core'    => $this->getNoticesCore(),
-			'user'    => $this->getNoticesUsers(),
+
+		$aAll = apply_filters(
+			$this->prefix( 'collect_notices' ),
+			array(
+				'plugins' => $this->getNoticesPlugins(),
+				'themes'  => $this->getNoticesThemes(),
+				'core'    => $this->getNoticesCore(),
+			)
+		);
+
+		// order and then remove empties
+		return array_filter(
+			array_merge(
+				array(
+					'site'      => array(),
+					'sec_admin' => array(),
+					'scans'     => array(),
+					'core'      => array(),
+					'plugins'   => array(),
+					'themes'    => array(),
+					'users'     => array(),
+					'lockdown'  => array(),
+				),
+				$aAll
+			)
 		);
 	}
 
@@ -154,76 +171,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesUsers() {
-		$oWpUsers = $this->loadWpUsers();
-
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
-		$oModUsers = $this->getConn()->getModule( 'user_management' );
-
-		$aNotices = array(
-			'title'    => _wpsf__( 'Users' ),
-			'messages' => array()
-		);
-
-		{ //admin user
-			$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
-			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
-				$aNotices[ 'messages' ][ 'admin' ] = array(
-					'title'   => 'Admin User',
-					'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
+		{ // db password strength
+			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
+			if ( $nStrength < 4 ) {
+				$aNotices[ 'messages' ][ 'db_strength' ] = array(
+					'title'   => 'DB Password',
+					'message' => _wpsf__( 'DB Password appears to be weak.' ),
 					'href'    => '',
-					'rec'     => _wpsf__( "Default 'admin' user should be disabled or removed." )
-				);
-			}
-		}
-
-		{//password policies
-			if ( !$oModUsers->isPasswordPoliciesEnabled() ) {
-				$aNotices[ 'messages' ][ 'password' ] = array(
-					'title'   => 'Password Policies',
-					'message' => _wpsf__( "Strong password policies are not enforced." ),
-					'href'    => $oModUsers->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Password policies should be turned-on.' )
-				);
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesShield() {
-
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModSecAdmin */
-		$oModSecAdmin = $this->getConn()->getModule( 'admin_access_restriction' );
-
-		$aNotices = array(
-			'title'    => _wpsf__( 'Shield Security' ),
-			'messages' => array()
-		);
-
-		{//sec admin
-			if ( !( $oModSecAdmin->isModuleEnabled() && $oModSecAdmin->hasAccessKey() ) ) {
-				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
-					'title'   => 'Security Admin',
-					'message' => sprintf(
-						_wpsf__( "The Security Admin protection is not active." ),
-						$this->getConn()->getHumanName()
-					),
-					'href'    => $oModSecAdmin->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Security Admin should be turned-on to protect your security settings.' )
+					'rec'     => _wpsf__( 'The database password should be strong.' )
 				);
 			}
 		}
@@ -242,8 +197,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'messages' => array()
 		);
 
-		// Inactive
-		{
+		{// Inactive
 			$nCount = 0;
 			$aActivePlugs = $oWpPlugins->getActivePlugins();
 			foreach ( $oWpPlugins->getPlugins() as $sFile => $aPlugData ) {
@@ -262,8 +216,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		// updates
-		{
+		{// updates
 			$nCount = count( $oWpPlugins->getUpdates() );
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
@@ -290,9 +243,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'messages' => array()
 		);
 
-		// Inactive
-		{
-			$nInactive = count( $oWpT->getThemes() ) - 1;
+		{// Inactive
+			$nInactive = count( $oWpT->getThemes() ) - ( $oWpT->isActiveThemeAChild() ? 2 : 1 );
 			if ( $nInactive > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
@@ -304,8 +256,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		// updates
-		{
+		{// updates
 			$nCount = count( $oWpT->getUpdates() );
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
@@ -332,8 +283,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'messages' => array()
 		);
 
-		// updates
-		{
+		{// updates
 			if ( $oWp->hasCoreUpdate() ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
 					'title'   => 'Updates',
@@ -345,8 +295,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		// updates
-		{
+		{// autoupdates
 			if ( !$oWp->canCoreUpdateAutomatically() ) {
 				$aNotices[ 'messages' ][ 'updates_auto' ] = array(
 					'title'   => 'Auto Updates',
@@ -354,135 +303,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'href'    => $this->getConn()->getModule( 'autoupdates' )->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Minor WordPress upgrades should be applied automatically.' )
-				);
-			}
-		}
-
-		{ // Disallow file edit
-			if ( current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
-				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
-					'title'   => 'Code Editor',
-					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
-					'href'    => $this->getConn()->getModule( 'lockdown' )->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'WP Plugin file editing should be disabled.' )
-				);
-			}
-		}
-
-		{ // db password strength
-			$this->loadAutoload();
-			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
-			if ( $nStrength < 4 ) {
-				$aNotices[ 'messages' ][ 'db_strength' ] = array(
-					'title'   => 'DB Password',
-					'message' => _wpsf__( 'DB Password appears to be weak.' ),
-					'href'    => '',
-					'rec'     => _wpsf__( 'The database password should be strong.' )
-				);
-			}
-		}
-
-		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
-		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getNoticesScans() {
-		$aNotices = array(
-			'title'    => _wpsf__( 'Scans' ),
-			'messages' => array()
-		);
-
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oModHg */
-		$oModHg = $this->getConn()->getModule( 'hack_protect' );
-
-		// Core files
-		{
-			if ( !$oModHg->isWcfScanEnabled() ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = array(
-					'title'   => 'WP Core Files',
-					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
-				);
-			}
-			else if ( $oModHg->getScanHasProblem( 'wcf' ) ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = array(
-					'title'   => 'WP Core Files',
-					'message' => _wpsf__( 'Modified WordPress core files found.' ),
-					'href'    => $oModHg->getUrl_Wizard( 'wcf' ),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
-				);
-			}
-		}
-
-		// Unrecognised
-		{
-			if ( !$oModHg->isUfcEnabled() ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = array(
-					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
-				);
-			}
-			else if ( $oModHg->getScanHasProblem( 'ufc' ) ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = array(
-					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
-					'href'    => $oModHg->getUrl_Wizard( 'ufc' ),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
-				);
-			}
-		}
-
-		// Plugin/Theme Guard
-		{
-			if ( !$oModHg->isPtgEnabled() ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
-					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
-				);
-			}
-			else if ( $oModHg->getScanHasProblem( 'ptg' ) ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
-					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
-					'href'    => $oModHg->getUrl_Wizard( 'ptg' ),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
-				);
-			}
-		}
-
-		// Vulnerability Scanner
-		{
-			if ( !$oModHg->isWpvulnEnabled() ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = array(
-					'title'   => 'Vulnerability Scanner',
-					'message' => _wpsf__( 'Plugin Vulnerability Scanner is not enabled.' ),
-					'href'    => $oModHg->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of plugin vulnerabilities is recommended.' )
-				);
-			}
-			else if ( $oModHg->getScanHasProblem( 'wpv' ) ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = array(
-					'title'   => 'Vulnerable Plugins',
-					'message' => _wpsf__( 'At least 1 plugin has known vulnerabilities.' ),
-					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Plugins' ) ),
-					'rec'     => _wpsf__( 'Plugins with known vulnerabilities should be updated, removed, or replaced.' )
 				);
 			}
 		}
@@ -608,63 +428,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		return $aItems;
-	}
-
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws Exception
-	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
-		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch ( $sSectionSlug ) {
-
-			case 'section_email_options' :
-				$sTitle = _wpsf__( 'Email Options' );
-				break;
-
-			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
-		}
-		$aOptionsParams[ 'title' ] = $sTitle;
-		return $aOptionsParams;
-	}
-
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws Exception
-	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
-
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
-			case 'send_email_throttle_limit' :
-				$sName = _wpsf__( 'Email Throttle Limit' );
-				$sSummary = _wpsf__( 'Limit Emails Per Second' );
-				$sDescription = _wpsf__( 'You throttle emails sent by this plugin by limiting the number of emails sent every second. This is useful in case you get hit by a bot attack. Zero (0) turns this off. Suggested: 10' );
-				break;
-
-			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
-		}
-
-		$aOptionsParams[ 'name' ] = $sName;
-		$aOptionsParams[ 'summary' ] = $sSummary;
-		$aOptionsParams[ 'description' ] = $sDescription;
-		return $aOptionsParams;
-	}
-
-	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	protected function doPrePluginOptionsSave() {
-		$sLimit = $this->getOpt( 'send_email_throttle_limit' );
-		if ( !is_numeric( $sLimit ) || $sLimit < 0 ) {
-			$sLimit = 0;
-		}
-		$this->setOpt( 'send_email_throttle_limit', $sLimit );
 	}
 
 	/**
