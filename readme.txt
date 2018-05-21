@@ -354,22 +354,30 @@ If you don't want to support the work, no problem! You can still continue to use
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
 = 6.7.0 - Current Release =
-*Released: 21st May, 2018*
+*Released: 21st May, 2018* - [Release Notes](http://icwp.io/cx)
 
 * **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
 * **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
+* **(v.0)**  ADDED:		A simple test cron to demonstrate whether your site crons are running.
 * **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
 * **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  CHANGED:	Guided Wizards now load through WP admin to fix ajax problems for poorly configured SSL on some sites
+* **(v.0)**  IMPROVED:	Upgraded Bootstrap library to 4.1.1.
+* **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
 
 Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and above.
 
 = 6.7 Series =
-*Released: 14th May, 2018*
+*Released: 21st May, 2018* - [Release Notes](http://icwp.io/cx)
 
 * **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
 * **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
+* **(v.0)**  ADDED:		A simple test cron to demonstrate whether your site crons are running.
 * **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
 * **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  CHANGED:	Guided Wizards now load through WP admin to fix ajax problems for poorly configured SSL on some sites
+* **(v.0)**  IMPROVED:	Upgraded Bootstrap library to 4.1.1.
+* **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
 
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
