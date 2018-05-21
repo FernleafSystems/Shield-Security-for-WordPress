@@ -672,6 +672,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getCanAdminNotes() {
+		return $this->isPremium();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDbNameNotes() {
+		return $this->prefixOptionKey( $this->getDef( 'db_notes_name' ) );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -747,6 +761,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sSummary = _wpsf__( 'Enable/Disable All Plugin Modules' );
 				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getConn()
 																										   ->getHumanName() );
+				break;
+
+			case 'enable_notes' :
+				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Admin Notes' ) );
+				$sSummary = _wpsf__( 'Turn-On Admin Notes Section In Insights Dashboard' );
+				$sDescription = _wpsf__( 'When turned-on it enables administrators to enter custom notes in the Insights Dashboard.' );
 				break;
 
 			case 'enable_tracking' :

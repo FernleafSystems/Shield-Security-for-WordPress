@@ -12,19 +12,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @param array $aData
 	 */
 	protected function displayModulePage( $aData = array() ) {
-		$oWp = $this->loadWp();
 
 		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
 		$aSecNotices = $this->getNotices();
+		$aNotes = $this->getNotes();
+
 		$aData = array(
 			'vars'    => array(
-				'activation_url'        => $oWp->getHomeUrl(),
 				'summary'               => $this->getInsightsModsSummary(),
 				'audit_trail_recent'    => $aRecentAuditTrail,
 				'insight_events'        => $this->getRecentEvents(),
 				'insight_notices'       => $aSecNotices,
 				'insight_notices_count' => count( $aSecNotices ),
 				'insight_stats'         => $this->getStats(),
+				'insight_notes'         => $aNotes,
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -33,14 +34,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				)
 			),
 			'ajax'    => array(
-				'license_handling' => $this->getAjaxActionData( 'license_handling' ),
-				'connection_debug' => $this->getAjaxActionData( 'connection_debug' )
+				'admin_note_new' => $this->getAjaxActionData( 'admin_note_new' ),
 			),
-			'aHrefs'  => array(
+			'hrefs'   => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
 				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
-				'iframe_url'               => $this->getDef( 'landing_page_url' ),
-				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
 			),
 			'flags'   => array(
 				'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
@@ -48,11 +46,64 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'show_standard_options'   => false,
 				'show_alt_content'        => true,
 				'is_pro'                  => $this->isPremium(),
-				'has_notices'             => count( $aSecNotices ) > 0
+				'has_notices'             => count( $aSecNotices ) > 0,
+				'has_notes'               => count( $aNotes ) > 0,
+				'can_notes'               => $this->isPremium() //not the way to determine
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
 		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
+	}
+
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'admin_note_new':
+					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_AdminNoteNew() {
+		$oDP = $this->loadDP();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getConn()->getModule( 'plugin' );
+		$sNote = trim( $oDP->post( 'admin_note', '' ) );
+
+		$bSuccess = false;
+		if ( !$oMod->getCanAdminNotes() ) {
+			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Shield Pro.' );
+		}
+		else if ( empty( $sNote ) ) {
+			$sMessage = _wpsf__( 'Sorry, but it appears your note was empty.' );
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $this->getConn()->getModule( 'plugin' )->getProcessor();
+			$bSuccess = $oP->getSubProcessorNotes()
+						   ->getQueryCreator()
+						   ->create( $sNote ) !== false;
+
+			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
+		}
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage
+		);
 	}
 
 	/**
@@ -309,6 +360,29 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
 		return $aNotices;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getNotes() {
+		/** @var ICWP_WPSF_Processor_Plugin $oProc */
+		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
+
+		$oRetriever = $oProc->getSubProcessorNotes()
+							->getQueryRetriever();
+		$aNotes = $oRetriever->setLimit( 10 )
+							 ->setResultsAsVo( false )
+							 ->all();
+
+		$oWP = $this->loadWp();
+		foreach ( $aNotes as $oItem ) {
+			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
+			$oItem->note = stripslashes( sanitize_text_field( $oItem->note ) );
+			$oItem->wp_username = sanitize_text_field( $oItem->wp_username );
+		}
+
+		return $aNotes;
 	}
 
 	/**
