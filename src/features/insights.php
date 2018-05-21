@@ -310,7 +310,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
 					'title'   => 'Updates',
-					'message' => sprintf( _wpsf__( '%s theme update(s) - which should be applied.' ), $nCount ),
+					'message' => sprintf( _wpsf__( '%s theme update(s)' ), $nCount ),
 					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
 					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
