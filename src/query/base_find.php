@@ -55,27 +55,11 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isResultsAsVo() {
-		return $this->bResultsAsVo;
-	}
-
-	/**
 	 * @param array $aColumns
 	 * @return $this
 	 */
 	public function setColumns( $aColumns ) {
 		$this->aColumns = $aColumns;
-		return $this;
-	}
-
-	/**
-	 * @param bool $bResultsAsVo
-	 * @return $this
-	 */
-	public function setResultsAsVo( $bResultsAsVo ) {
-		$this->bResultsAsVo = $bResultsAsVo;
 		return $this;
 	}
 

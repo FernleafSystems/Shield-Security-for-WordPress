@@ -107,17 +107,6 @@
       "description": "Uncheck this option to disable all Shield features"
     },
     {
-      "key":         "enable_notes",
-      "section":     "section_general_plugin_options",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Enable Admin Notes",
-      "summary":     "Turn-On Notes Section In Insights Dashboard",
-      "description": "When turned-on it enables administrators to enter custom notes in the Insights Dashboard."
-    },
-    {
       "key":         "enable_tracking",
       "section":     "section_general_plugin_options",
       "default":     "N",

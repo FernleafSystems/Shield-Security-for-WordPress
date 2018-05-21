@@ -7,6 +7,11 @@ if ( class_exists( 'ICWP_WPSF_Query_Base', false ) ) {
 class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
 
 	/**
+	 * @var bool
+	 */
+	protected $bResultsAsVo;
+
+	/**
 	 * @var int
 	 */
 	protected $nLimit = 0;
@@ -38,11 +43,27 @@ class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isResultsAsVo() {
+		return $this->bResultsAsVo;
+	}
+
+	/**
 	 * @param int $nLimit
 	 * @return $this
 	 */
 	public function setLimit( $nLimit ) {
 		$this->nLimit = $nLimit;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bResultsAsVo
+	 * @return $this
+	 */
+	public function setResultsAsVo( $bResultsAsVo ) {
+		$this->bResultsAsVo = $bResultsAsVo;
 		return $this;
 	}
 

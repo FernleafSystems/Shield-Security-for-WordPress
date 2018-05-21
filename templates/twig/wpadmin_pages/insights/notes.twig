@@ -1,4 +1,4 @@
-<div id="SectionNotices" class="insights_widget card w-100">
+<div id="SectionAdminNotes" class="insights_widget card w-100 p-0">
 	<div class="card-header">
 		<h5 class="card-title">Administrator Notes</h5>
 		<h6 class="card-subtitle mb-2 text-muted">All your admin notes</h6>
@@ -7,15 +7,19 @@
 
 		{% if flags.has_notes %}
 			<div class="overflow_inner p-0">
-				<table class="table mb-0">
-				{% for note in vars.insight_notes %}
-
-					<tr class="message_row">
-						<td>{{ note.note }}:</td>
-						<td>{{ notice.wp_username }}:</td>
-						<td>{{ notice.created_at }}:</td>
+				<table class="table table-hover mb-0">
+					<tr>
+						<th>Note</th>
+						<th>User</th>
+						<th>Date</th>
 					</tr>
-				{% endfor %}
+					{% for note in vars.insight_notes %}
+						<tr class="message_row">
+							<td>{{ note.note }}</td>
+							<td>{{ note.wp_username }}</td>
+							<td>{{ note.created_at }}</td>
+						</tr>
+					{% endfor %}
 				</table>
 			</div>
 		{% else %}
@@ -24,5 +28,26 @@
 			</div>
 		{% endif %}
 
+	</div>
+	<div class="card-footer p-0" style="margin-bottom: -1px;">
+		<form class="form-inline" id="NewAdminNote">
+			{% for name,val in ajax.admin_note_new %}
+				<input type="hidden" name="{{ name }}" value="{{ val }}" />
+			{% endfor %}
+			<label class="sr-only" for="AdminNote">Note</label>
+			<div class="input-group w-100">
+				<div class="input-group-prepend">
+				  <div class="input-group-text" style="border-radius: 0">New Note:</div>
+				</div>
+				<textarea class="form-control" id="AdminNote" name="admin_note" rows="2"
+						  placeholder="{% if flags.can_notes %}Enter new note here{% else %}Admin Notes is a Pro-only feature{% endif %}"
+				></textarea>
+				<div class="input-group-append">
+					<button type="submit" class="btn btn-info" style="border-radius: 0"
+							{% if not flags.can_notes %}disabled="disabled"{% endif %}
+					>Add Note</button>
+				</div>
+			</div>
+		</form>
 	</div>
 </div>

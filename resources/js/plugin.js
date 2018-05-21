@@ -88,5 +88,44 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	};
 }();
 
+var iCWP_WPSF_InsightsAdminNoteNew = new function () {
+
+	var bRequestCurrentlyRunning = false;
+
+	/**
+	 */
+	var submitForm = function ( event ) {
+		iCWP_WPSF_BodyOverlay.show();
+
+		if ( bRequestCurrentlyRunning ) {
+			return false;
+		}
+		bRequestCurrentlyRunning = true;
+		event.preventDefault();
+
+		jQuery.post( ajaxurl, jQuery( this ).serialize(),
+			function ( oResponse ) {
+				if ( oResponse.success ) {
+					location.reload( true );
+				}
+				else {
+					alert( '.' );
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			}
+		).always( function () {
+				bRequestCurrentlyRunning = false;
+			}
+		);
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			jQuery( document ).on( "submit", "form#NewAdminNote", submitForm );
+		} );
+	};
+}();
+
 iCWP_WPSF_OptionsPages.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
+iCWP_WPSF_InsightsAdminNoteNew.initialise();

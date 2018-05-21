@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_PluginNotes_Retrieve extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @return ICWP_WPSF_NoteVO[]
+	 * @return ICWP_WPSF_NoteVO[]|stdClass[]
 	 */
 	public function all() {
 		return $this->query_retrieve();
@@ -21,7 +21,7 @@ class ICWP_WPSF_Query_PluginNotes_Retrieve extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @param int $nId
-	 * @return ICWP_WPSF_NoteVO[]
+	 * @return ICWP_WPSF_NoteVO[]|stdClass[]
 	 */
 	public function retrieveById( $nId ) {
 		return $this->query_retrieve( $nId );
@@ -29,7 +29,7 @@ class ICWP_WPSF_Query_PluginNotes_Retrieve extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @param int $nId
-	 * @return ICWP_WPSF_NoteVO[]
+	 * @return ICWP_WPSF_NoteVO[]|stdClass[]
 	 */
 	protected function query_retrieve( $nId = null ) {
 		$sQuery = "
@@ -38,7 +38,7 @@ class ICWP_WPSF_Query_PluginNotes_Retrieve extends ICWP_WPSF_Query_Base {
 			WHERE
 				`deleted_at` = 0
 				%s
-			ORDER BY `created_at` ASC
+			ORDER BY `created_at` DESC
 			%s
 		";
 		$sQuery = sprintf(
@@ -51,8 +51,10 @@ class ICWP_WPSF_Query_PluginNotes_Retrieve extends ICWP_WPSF_Query_Base {
 		$aData = $this->loadDbProcessor()
 					  ->selectCustom( $sQuery, OBJECT_K );
 
-		foreach ( $aData as $nKey => $oResult ) {
-			$aData[ $nKey ] = new ICWP_WPSF_NoteVO( $oResult );
+		if ( $this->isResultsAsVo() ) {
+			foreach ( $aData as $nKey => $oResult ) {
+				$aData[ $nKey ] = new ICWP_WPSF_NoteVO( $oResult );
+			}
 		}
 		return $aData;
 	}

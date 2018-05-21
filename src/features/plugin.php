@@ -672,10 +672,17 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getCanAdminNotes() {
+		return $this->isPremium();
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getDbNameNotes() {
-		return $this->getDef( 'db_notes_name' );
+		return $this->prefixOptionKey( $this->getDef( 'db_notes_name' ) );
 	}
 
 	/**
