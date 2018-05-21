@@ -1,0 +1,28 @@
+<div id="SectionNotices" class="insights_widget card w-100">
+	<div class="card-header">
+		<h5 class="card-title">Administrator Notes</h5>
+		<h6 class="card-subtitle mb-2 text-muted">All your admin notes</h6>
+	</div>
+	<div class="card-body overflow_container">
+
+		{% if flags.has_notes %}
+			<div class="overflow_inner p-0">
+				<table class="table mb-0">
+				{% for note in vars.insight_notes %}
+
+					<tr class="message_row">
+						<td>{{ note.note }}:</td>
+						<td>{{ notice.wp_username }}:</td>
+						<td>{{ notice.created_at }}:</td>
+					</tr>
+				{% endfor %}
+				</table>
+			</div>
+		{% else %}
+			<div class="alert alert-info">
+				There are no admin notes.
+			</div>
+		{% endif %}
+
+	</div>
+</div>

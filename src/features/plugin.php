@@ -756,6 +756,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 																										   ->getHumanName() );
 				break;
 
+			case 'enable_notes' :
+				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Admin Notes' ) );
+				$sSummary = _wpsf__( 'Turn-On Admin Notes Section In Insights Dashboard' );
+				$sDescription = _wpsf__( 'When turned-on it enables administrators to enter custom notes in the Insights Dashboard.' );
+				break;
+
 			case 'enable_tracking' :
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), _wpsf__( 'Information Gathering' ) );
 				$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );

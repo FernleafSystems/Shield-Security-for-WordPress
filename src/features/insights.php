@@ -16,6 +16,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
 		$aSecNotices = $this->getNotices();
+		$aNotes = $this->getNotes();
 		$aData = array(
 			'vars'    => array(
 				'activation_url'        => $oWp->getHomeUrl(),
@@ -25,6 +26,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'insight_notices'       => $aSecNotices,
 				'insight_notices_count' => count( $aSecNotices ),
 				'insight_stats'         => $this->getStats(),
+				'insight_notes'         => $aNotes,
 			),
 			'inputs'  => array(
 				'license_key' => array(
@@ -48,7 +50,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'show_standard_options'   => false,
 				'show_alt_content'        => true,
 				'is_pro'                  => $this->isPremium(),
-				'has_notices'             => count( $aSecNotices ) > 0
+				'has_notices'             => count( $aSecNotices ) > 0,
+				'has_notes'               => count( $aNotes ) > 0,
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
@@ -311,6 +314,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $aNotices;
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getNotes() {
 		/** @var ICWP_WPSF_Processor_Plugin $oProc */
 		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
@@ -321,6 +327,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							 ->all();
 
 		var_dump( $aNotes );
+		return $aNotes;
 	}
 
 	/**
