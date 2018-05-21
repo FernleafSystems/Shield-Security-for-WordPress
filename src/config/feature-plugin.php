@@ -387,7 +387,7 @@
       "value":        0
     },
     {
-      "key":          "test_cron_last_run_at",
+      "key":          "insights_test_cron_last_run_at",
       "transferable": false,
       "section":      "section_non_ui",
       "value":        0
@@ -403,7 +403,8 @@
       {
         "slug":        "insights",
         "storage_key": "insights",
-        "menu_priority": 5
+        "menu_priority": 5,
+        "min_php": "5.4"
       },
       {
         "slug":          "admin_access_restriction",

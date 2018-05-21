@@ -659,15 +659,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int
 	 */
 	public function getTestCronLastRunAt() {
-		return (int)$this->getOpt( 'test_cron_last_run_at', 0 );
+		return (int)$this->getOpt( 'insights_test_cron_last_run_at', 0 );
 	}
 
 	/**
-	 * @param int $nAt
 	 * @return $this
 	 */
-	public function setTestCronLastRunAt( $nAt = null ) {
-		$this->setOpt( 'test_cron_last_run_at', is_null( $nAt ) ? $this->loadDP()->time() : $nAt )
+	public function updateTestCronLastRunAt() {
+		$this->setOptInsightsAt( 'test_cron_last_run_at' )
 			 ->savePluginOptions();
 		return $this;
 	}

@@ -15,16 +15,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oWp = $this->loadWp();
 
 		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
-
-		$aNotices = $this->getNotices();
+		$aSecNotices = $this->getNotices();
 		$aData = array(
 			'vars'    => array(
 				'activation_url'        => $oWp->getHomeUrl(),
 				'summary'               => $this->getInsightsModsSummary(),
 				'audit_trail_recent'    => $aRecentAuditTrail,
 				'insight_events'        => $this->getRecentEvents(),
-				'insight_notices'       => $aNotices,
-				'insight_notices_count' => count( $aNotices ),
+				'insight_notices'       => $aSecNotices,
+				'insight_notices_count' => count( $aSecNotices ),
 				'insight_stats'         => $this->getStats(),
 			),
 			'inputs'  => array(
@@ -48,7 +47,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'show_ads'                => false,
 				'show_standard_options'   => false,
 				'show_alt_content'        => true,
-				'is_pro'                  => $this->isPremium()
+				'is_pro'                  => $this->isPremium(),
+				'has_notices'             => count( $aSecNotices ) > 0
 			),
 			'strings' => $this->getDisplayStrings(),
 		);
@@ -75,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getInsightsModsSummary() {
 		$aMods = array();
 		foreach ( $this->getModulesSummaryData() as $aMod ) {
-			if ( !in_array( $aMod[ 'slug' ], [ 'plugin', 'insights' ] ) ) {
+			if ( !in_array( $aMod[ 'slug' ], array( 'insights' ) ) ) {
 				$aMods[] = $aMod;
 			}
 		}
@@ -223,7 +223,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					),
 					'href'    => $oModSecAdmin->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Security Admin should be turned-on.' )
+					'rec'     => _wpsf__( 'Security Admin should be turned-on to protect your security settings.' )
 				);
 			}
 		}
@@ -310,7 +310,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = array(
 					'title'   => 'Updates',
-					'message' => sprintf( _wpsf__( '%s theme update(s) - which should be applied.' ), $nCount ),
+					'message' => sprintf( _wpsf__( '%s theme update(s)' ), $nCount ),
 					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
 					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
@@ -583,7 +583,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  ->getProcessor();
 		try {
 			$aItems = $oProc->getAuditTrailFinder()
-							->setLimit( 10 )
+							->setLimit( 20 )
 							->all();
 		}
 		catch ( Exception $oE ) {
@@ -660,6 +660,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	private function getInsightStatNames() {
 		return array(
+			'insights_test_cron_last_run_at'        => _wpsf__( 'Simple Test Cron' ),
 			'insights_last_scan_ufc_at'             => _wpsf__( 'Unrecognised Files Scan' ),
 			'insights_last_scan_wcf_at'             => _wpsf__( 'WordPress Core Files Scan' ),
 			'insights_last_scan_ptg_at'             => _wpsf__( 'Plugin/Themes Guard Scan' ),
