@@ -58,6 +58,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		if ( $this->getController()->getIsValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
+		$this->setupTestCron();
 	}
 
 	/**
@@ -123,6 +124,33 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		);
 		add_thickbox();
 		echo $oFO->renderTemplate( 'snippets/plugin_tracking_data_dump.php', $aRenderData );
+	}
+
+	protected function setupTestCron() {
+		try {
+			$this->loadWpCronProcessor()
+				 ->setRecurrence( 'daily' )
+				 ->createCronJob(
+					 $this->prefix( 'testcron' ),
+					 array( $this, 'cron_TestCron' )
+				 );
+		}
+		catch ( Exception $oE ) {
+		}
+		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+	}
+
+	public function cron_TestCron() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+		$oFO->updateTestCronLastRunAt();
+	}
+
+	/**
+	 */
+	public function deleteCron() {
+		$this->loadWpCronProcessor()
+			 ->deleteCronJob( $this->prefix( 'testcron' ) );
 	}
 
 	/**

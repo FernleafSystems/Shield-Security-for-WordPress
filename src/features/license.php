@@ -13,8 +13,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * Override this to customize anything with the display of the page
+	 * @param array $aData
 	 */
-	protected function displayModulePage() {
+	protected function displayModulePage( $aData = array() ) {
 		$oWp = $this->loadWp();
 
 		$nExpiresAt = $this->getLicenseExpiresAt();
@@ -72,12 +74,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'strings' => $this->getDisplayStrings(),
 		);
 		$aData[ 'content' ] = array(
-			'alt' => $this->loadRenderer( self::getConn()->getPath_Templates() )
-						  ->setTemplate( 'snippets/pro.php' )
-						  ->setRenderVars( $aData )
-						  ->render()
+			'alt' => $this->renderTemplate( 'snippets/pro.php', $aData )
 		);
-		$this->display( $aData );
+		parent::displayModulePage( $aData );
 	}
 
 	/**

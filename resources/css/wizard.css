@@ -155,3 +155,9 @@ body.wait {
 .scan-results-accordian .card-header button {
 	color: #f1f1f1
 }
+
+.embed-vimeo {
+	margin-bottom: 20px;
+	border-radius: 3px;
+	box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}

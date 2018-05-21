@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
-	protected function getActiveSessionsData() {
+	public function getActiveSessionsData() {
 		return $this->getSessionsProcessor()
 					->queryGetActiveSessions();
 	}

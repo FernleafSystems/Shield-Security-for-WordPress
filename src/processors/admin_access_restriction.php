@@ -45,7 +45,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			add_filter( 'user_has_cap', array( $this, 'disablePostsManipulation' ), 0, 3 );
 		}
 
-		add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+		if ( !$this->getController()->isThisPluginModuleRequest() ) {
+			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+		}
 
 		if ( $oFO->isWlEnabled() ) {
 			$this->runWhiteLabel();
@@ -152,7 +154,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 			$sRequestRole = $oDp->FetchPost( 'role', '' );
 
-			if ( $oPostUser ) {
+			if ( $oPostUser instanceof WP_User ) {
 				// editing an existing user other than yourself?
 				if ( $oPostUser->get( 'user_login' ) != $oWpUsers->getCurrentWpUser()->get( 'user_login' ) ) {
 

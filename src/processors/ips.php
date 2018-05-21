@@ -53,7 +53,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
 		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
-		add_action( 'wp', array( $this, 'doTrack404' ) );
+		add_action( 'template_redirect', array( $this, 'doTrack404' ) );
 	}
 
 	public function doTrack404() {
@@ -232,6 +232,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connection was killed.' ), $sIp );
 			$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 			$this->doStatIncrement( 'ip.connection.killed' );
+			$oFO->setOptInsightsAt( 'last_ip_block_at' );
 
 			$this->query_updateLastAccessForAutoBlackListIp( $sIp );
 
@@ -286,6 +287,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sIp
 	 */
 	protected function blackMarkIp( $sIp ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getFeature();
+		$oFO->setOptInsightsAt( 'last_transgression_at' );
+		$this->doStatIncrement( 'ip.transgression.incremented' );
 
 		$aIpBlackListData = $this->getIpHasTransgressions( $sIp, true );
 		if ( count( $aIpBlackListData ) > 0 ) {
@@ -305,7 +310,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			);
 			$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
 		}
-		$this->doStatIncrement( 'ip.transgression.incremented' );
 	}
 
 	/**

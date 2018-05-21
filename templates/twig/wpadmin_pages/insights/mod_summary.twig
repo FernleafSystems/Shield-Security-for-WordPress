@@ -1,0 +1,21 @@
+<div class="row" style="height: 15px;background-color: #e4e4e4;">
+	<div class="col"></div>
+</div>
+<div class="row" id="ModSummary">
+	<div class="col">
+		<table class="table table-borderless mb-0 w-100">
+			<tr>
+			{% for mod in vars.summary %}
+				<td class="mod-summary mod-{{ mod.slug }}
+					state-{% if mod.enabled %}enabled{% else %}disabled{% endif %}"
+				>
+					<a class="mod-icon dashicons"
+					   href="{{ mod.href }}"
+					   title="{{ mod.name }}">
+					</a>
+				</td>
+			{% endfor %}
+			</tr>
+		</table>
+	</div>
+</div>

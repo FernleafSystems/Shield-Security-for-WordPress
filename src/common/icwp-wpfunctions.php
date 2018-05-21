@@ -29,12 +29,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @var string
 	 */
 	protected $sWpVersion;
+
 	/**
 	 * @var boolean
 	 */
 	protected $bIsMultisite;
 
-	public function __construct() {}
+	public function __construct() {
+	}
 
 	/**
 	 * @return null|string
@@ -381,6 +383,30 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		return $oUpdater->should_update( 'plugin', $mPluginItem, WP_PLUGIN_DIR );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function canCoreUpdateAutomatically() {
+		global $required_php_version, $required_mysql_version;
+		$future_minor_update = (object)array(
+			'current'       => $this->getVersion().'.1.next.minor',
+			'version'       => $this->getVersion().'.1.next.minor',
+			'php_version'   => $required_php_version,
+			'mysql_version' => $required_mysql_version,
+		);
+		return $this->getWpAutomaticUpdater()
+					->should_update( 'core', $future_minor_update, ABSPATH );
+	}
+
+	/**
+	 * See: /wp-admin/update-core.php core_upgrade_preamble()
+	 * @return bool
+	 */
+	public function hasCoreUpdate() {
+		$aUpdates = $this->getCoreUpdates();
+		return ( !isset( $aUpdates[ 0 ]->response ) || 'latest' == $aUpdates[ 0 ]->response );
+	}
+
 	public function redirectHere() {
 		$this->doRedirect( $this->loadDataProcessor()->getRequestUri() );
 	}
@@ -481,6 +507,22 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
 		return $bWpmsOnly ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' );
+	}
+
+	/**
+	 * @param bool $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl_Themes( $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( 'themes.php' ) : admin_url( 'themes.php' );
+	}
+
+	/**
+	 * @param bool $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl_Updates( $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( 'update-core.php' ) : admin_url( 'update-core.php' );
 	}
 
 	/**
@@ -709,7 +751,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		if ( $this->isRest() ) {
 			$oDP = $this->loadDP();
 
-			$sPath = $oDP->FetchRequest( 'rest_route' );
+			$sPath = $oDP->request( 'rest_route' );
 			if ( empty( $sPath ) && $this->isPermalinksEnabled() ) {
 				$sFullUri = $this->loadWp()->getHomeUrl().$oDP->getRequestPath();
 				$sPath = substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) );

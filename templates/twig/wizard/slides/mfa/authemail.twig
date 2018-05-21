@@ -33,8 +33,8 @@
 	</form>
 
 	<script type="text/javascript">
-		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, bSuccess ) {
-			if ( bSuccess ) {
+		jQuery( document ).on( 'icwpWizardFormSubmit', function ( event, oResponse ) {
+			if ( oResponse.success ) {
 				var $oForm = jQuery( event.target );
 				jQuery( '.stage-verificationcode', $oForm ).slideDown();
 				jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );

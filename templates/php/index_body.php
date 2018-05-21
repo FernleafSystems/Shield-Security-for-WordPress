@@ -23,11 +23,6 @@
 	</div>
 
     <div class="col" id="ColumnOptions">
-		<?php
-		if ( empty( $sFeatureInclude ) ) {
-			$sFeatureInclude = 'feature-default';
-		}
-		include( $sBaseDirName.$sFeatureInclude );
-		?>
+		<?php include( $sBaseDirName.'feature-default.php' ); ?>
 	</div>
 </div>

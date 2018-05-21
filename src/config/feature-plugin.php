@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                   "plugin",
-    "name":                   "Dashboard",
+    "name":                   "General",
     "show_module_menu_item":  true,
     "storage_key":            "plugin",
     "tagline":                "General Plugin Settings",
@@ -385,6 +385,12 @@
       "transferable": false,
       "section":      "section_non_ui",
       "value":        0
+    },
+    {
+      "key":          "insights_test_cron_last_run_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "value":        0
     }
   ],
   "definitions":   {
@@ -394,6 +400,12 @@
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "http://icwp.io/wpshieldprivacypolicy",
     "active_plugin_features": [
+      {
+        "slug":        "insights",
+        "storage_key": "insights",
+        "menu_priority": 5,
+        "min_php": "5.4"
+      },
       {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",
@@ -507,6 +519,28 @@
           "thankyou":                 {
             "security_admin": false,
             "title":             "Thank You!"
+          }
+        }
+      },
+      "gdpr": {
+        "title": "GDPR Data Wizard",
+        "desc": "Walks you through the searching and removal of personally identifiable data.",
+        "min_user_permissions": "manage_options",
+        "has_premium": true,
+        "steps":                {
+          "start":    {
+            "security_admin": false,
+            "title":             "Start: GDPR Compliance"
+          },
+          "search":   {
+            "title": "Input Search"
+          },
+          "results":   {
+            "title": "Search Results"
+          },
+          "finished": {
+            "security_admin": false,
+            "title":             "Finished: GDPR Compliance"
           }
         }
       },

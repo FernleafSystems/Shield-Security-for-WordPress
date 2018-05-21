@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.6.8
+Stable tag: 6.7.0
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,38 +353,58 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](http://icwp.io/aa).
 
-= 6.6.8 - Current Release =
-*Released: 4th May, 2018*
+= 6.7.0 - Current Release =
+*Released: 21st May, 2018* - [Release Notes](http://icwp.io/cx)
 
-* **(v.8)**  IMPROVED:		Add GDPR-compliant Privacy Policy checkboxes to mailing list sign-up forms.
-* **(v.8)**  ADDED:			Introduction video to the Guided Setup Wizard.
+* **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
+* **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
+* **(v.0)**  ADDED:		A simple test cron to demonstrate whether your site crons are running.
+* **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
+* **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  CHANGED:	Guided Wizards now load through WP admin to fix ajax problems for poorly configured SSL on some sites
+* **(v.0)**  IMPROVED:	Upgraded Bootstrap library to 4.1.1.
+* **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
+
+Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and above.
+
+= 6.7 Series =
+*Released: 21st May, 2018* - [Release Notes](http://icwp.io/cx)
+
+* **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
+* **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
+* **(v.0)**  ADDED:		A simple test cron to demonstrate whether your site crons are running.
+* **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
+* **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  CHANGED:	Guided Wizards now load through WP admin to fix ajax problems for poorly configured SSL on some sites
+* **(v.0)**  IMPROVED:	Upgraded Bootstrap library to 4.1.1.
+* **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
 
 = 6.6 Series =
 *Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
 
-* **(v.7)**  IMPROVED:		reCAPTCHA JS is only included on pages where it's actually used by Shield.
-* **(v.7)**  IMPROVED:		Upgrade Bootstrap library to 4.1.0.
-* **(v.7)**  IMPROVED:		Include jQuery for the plugin badge as required
-* **(v.6)**  ADDED:			Small exclusion in the firewall for a jetpack parameter.
-* **(v.6)**  ADDED:			SVGs to the default list of files scanned by the plugin guard.
-* **(v.6)**  ADDED:			Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
-* **(v.1-4)**  FIXED:		Various small fixes and improvements
-* **(v.4)**  FIXED:			PHP Fatal Error on wp object cache.
-* **(v.0)**  NEW:			[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
-* **(v.0)**  ADDED:			[WordPress Password Policies](http://icwp.io/c2).
-* **(v.0)**  ADDED:			Pwned Passwords Detection.
-* **(v.0)**  IMPROVED:		Major rewrite of plugin AJAX handling.
-* **(v.0)**  IMPROVED:		Notices to indicate the time of the last scans.
-* **(v.0)**  FIXED:			A few bugs
+* **(v.7)**  IMPROVED:	reCAPTCHA JS is only included on pages where it's actually used by Shield.
+* **(v.7)**  IMPROVED:	Upgrade Bootstrap library to 4.1.0.
+* **(v.7)**  IMPROVED:	Include jQuery for the plugin badge as required
+* **(v.6)**  ADDED:		Small exclusion in the firewall for a jetpack parameter.
+* **(v.6)**  ADDED:		SVGs to the default list of files scanned by the plugin guard.
+* **(v.6)**  ADDED:		Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
+* **(v.1-4)**  FIXED:	Various small fixes and improvements
+* **(v.4)**  FIXED:		PHP Fatal Error on wp object cache.
+* **(v.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
+* **(v.0)**  ADDED:		[WordPress Password Policies](http://icwp.io/c2).
+* **(v.0)**  ADDED:		Pwned Passwords Detection.
+* **(v.0)**  IMPROVED:	Major rewrite of plugin AJAX handling.
+* **(v.0)**  IMPROVED:	Notices to indicate the time of the last scans.
+* **(v.0)**  FIXED:		A few bugs
 
 = 6.5 Series =
 *Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
 
-* **(v.0)**  IMPROVED:		[Plugin Guard](http://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
-* **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
-* **(v.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
-* **(v.0)**  ADDED:			[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
-* **(v.0)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
-* **(v.0)**  FIXED:			A few small bugs
+* **(v.0)**  IMPROVED:	[Plugin Guard](http://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
+* **(v.0)**  IMPROVED:	Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
+* **(v.0)**  IMPROVED:	Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
+* **(v.0)**  ADDED:		[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
+* **(v.0)**  FIXED:		Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
+* **(v.0)**  FIXED:		A few small bugs
 
 #### [Full Changelog](https://ps.w.org/wp-simple-firewall/trunk/changelog.html)

@@ -130,6 +130,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->loadWpTrack();
 		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
 		$this->doLoadTextDomain();
+
+		// Rather than rely on the play nice of other plugins (which they don't do) we now must
+		// forcefully use the autoloader. We do only if it's OUR module page and PHP version is supported.
+		// This was added in v6.7 because All-In-One Events Cal was forcing their crap TWIG setup upon us
+		if ( $this->isThisPluginModuleRequest() && $this->loadDP()->getPhpVersionIsAtLeast( '5.4' ) ) {
+			$this->loadAutoload();
+		}
 	}
 
 	/**
@@ -224,6 +231,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * All our module page names are prefixed
+	 * @return bool
+	 */
+	public function isThisPluginModuleRequest() {
+		return strpos( $this->loadDP()->query( 'page' ), $this->prefix() ) === 0;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getRequirementsMessages() {
@@ -285,6 +300,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		add_action( 'shutdown', array( $this, 'onWpShutdown' ) );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
+
+		// GDPR
+		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'onWpPrivacyRegisterExporter' ) );
+		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'onWpPrivacyRegisterEraser' ) );
 
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
@@ -1091,7 +1110,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$oDp = $this->loadDataProcessor();
 		foreach ( $aFormSubmitOptions as $sOption ) {
-			if ( !is_null( $oDp->FetchRequest( $sOption, false ) ) ) {
+			if ( !is_null( $oDp->request( $sOption, false ) ) ) {
 				return true;
 			}
 		}
@@ -1527,10 +1546,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWp();
-		$this->loadDataProcessor()->setCookie(
+		$oDP = $this->loadDP();
+		$oDP->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$this->loadDP()->time() + DAY_IN_SECONDS*30,
+			$oDP->time() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false
@@ -1599,30 +1619,37 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param array $aFeatureProperties
+	 * @return ICWP_WPSF_FeatureHandler_Base[]
+	 */
+	public function getModules() {
+		return is_array( $this->aModules ) ? $this->aModules : array();
+	}
+
+	/**
+	 * @param array $aModProps
 	 * @param bool  $bRecreate
 	 * @param bool  $bFullBuild
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public function loadFeatureHandler( $aFeatureProperties, $bRecreate = false, $bFullBuild = false ) {
+	public function loadFeatureHandler( $aModProps, $bRecreate = false, $bFullBuild = false ) {
 
-		$sFeatureSlug = $aFeatureProperties[ 'slug' ];
+		$sModSlug = $aModProps[ 'slug' ];
 
-		$oHandler = $this->getModule( $sFeatureSlug );
+		$oHandler = $this->getModule( $sModSlug );
 		if ( !empty( $oHandler ) ) {
 			return $oHandler;
 		}
 
-		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sFeatureSlug ) ) );
+		if ( !empty( $aModProps[ 'min_php' ] ) && !$this->loadDP()->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
+			return null;
+		}
+
+		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sModSlug ) ) );
 		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $sFeatureName ); // e.g. oFeatureHandlerPlugin
 
-		$sSourceFile = $this->getPath_SourceFile(
-			sprintf(
-				'features/%s.php',
-				$sFeatureSlug
-			)
-		); // e.g. features/firewall.php
+		// e.g. features/firewall.php
+		$sSourceFile = $this->getPath_SourceFile( sprintf( 'features/%s.php', $sModSlug ) );
 		$sClassName = sprintf(
 			'%s_%s_FeatureHandler_%s',
 			strtoupper( $this->getParentSlug() ),
@@ -1635,19 +1662,89 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$bClassExists = class_exists( $sClassName, false );
 		if ( $bClassExists ) {
 			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
-				$this->{$sOptionsVarName} = new $sClassName( $this, $aFeatureProperties );
+				$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
 			}
 			if ( $bFullBuild ) {
 				$this->{$sOptionsVarName}->buildOptions();
 			}
 		}
 		else {
-			$sMessage = sprintf( 'Source file for feature %s %s. ', $sFeatureSlug, $bIncluded ? 'exists' : 'missing' );
+			$sMessage = sprintf( 'Source file for feature %s %s. ', $sModSlug, $bIncluded ? 'exists' : 'missing' );
 			$sMessage .= sprintf( 'Class "%s" %s', $sClassName, $bClassExists ? 'exists' : 'missing' );
 			throw new Exception( $sMessage );
 		}
 
-		$this->aModules[ $sFeatureSlug ] = $this->{$sOptionsVarName};
+		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
 		return $this->{$sOptionsVarName};
+	}
+
+	/**
+	 * @param array[] $aRegistered
+	 * @return array[]
+	 */
+	public function onWpPrivacyRegisterExporter( $aRegistered ) {
+		if ( !is_array( $aRegistered ) ) {
+			$aRegistered = array(); // account for crap plugins that do-it-wrong.
+		}
+
+		$aRegistered[] = array(
+			'exporter_friendly_name' => $this->getHumanName(),
+			'callback'               => array( $this, 'wpPrivacyExport' ),
+		);
+		return $aRegistered;
+	}
+
+	/**
+	 * @param array[] $aRegistered
+	 * @return array[]
+	 */
+	public function onWpPrivacyRegisterEraser( $aRegistered ) {
+		if ( !is_array( $aRegistered ) ) {
+			$aRegistered = array(); // account for crap plugins that do-it-wrong.
+		}
+
+		$aRegistered[] = array(
+			'eraser_friendly_name' => $this->getHumanName(),
+			'callback'             => array( $this, 'wpPrivacyErase' ),
+		);
+		return $aRegistered;
+	}
+
+	/**
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function wpPrivacyExport( $sEmail, $nPage = 1 ) {
+
+		$bValid = $this->loadDP()->validEmail( $sEmail )
+				  && ( $this->loadWpUsers()->getUserByEmail( $sEmail ) instanceof WP_User );
+
+		return array(
+			'data' => $bValid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), array(), $sEmail, $nPage ) : array(),
+			'done' => true,
+		);
+	}
+
+	/**
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function wpPrivacyErase( $sEmail, $nPage = 1 ) {
+
+		$bValidUser = $this->loadDP()->validEmail( $sEmail )
+					  && ( $this->loadWpUsers()->getUserByEmail( $sEmail ) instanceof WP_User );
+
+		$aResult = array(
+			'items_removed'  => $bValidUser,
+			'items_retained' => false,
+			'messages'       => $bValidUser ? array() : array( 'Email address not valid or does not belong to a user.' ),
+			'done'           => true,
+		);
+		if ( $bValidUser ) {
+			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
+		}
+		return $aResult;
 	}
 }

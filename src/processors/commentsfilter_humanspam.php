@@ -120,6 +120,8 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			$aItemsToCheck[ $sKey ] = $aItemsMap[ $sKey ];
 		}
 
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getFeature();
 		foreach ( $aItemsToCheck as $sKey => $sItem ) {
 			foreach ( $aWords as $sWord ) {
 				if ( stripos( $sItem, $sWord ) !== false ) {
@@ -128,6 +130,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
 					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
 					$this->setIpTransgressed(); // black mark this IP
+					$oFO->setOptInsightsAt( 'last_comment_block_at' );
 					break 2;
 				}
 			}

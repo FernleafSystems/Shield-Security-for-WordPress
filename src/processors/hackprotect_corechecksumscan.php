@@ -64,6 +64,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	public function doChecksumScan( $bAutoRepair ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getFeature();
+
 		$aChecksumData = $this->loadWp()->getCoreChecksums();
 
 		if ( empty( $aChecksumData ) ) {
@@ -83,6 +86,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$sFullExclusionsPattern = '#('.implode( '|', $this->getFullExclusions() ).')#i';
 		$sMissingOnlyExclusionsPattern = '#('.implode( '|', $this->getMissingOnlyExclusions() ).')#i';
 
+		$bProblemFound = false;
 		$oFS = $this->loadFS();
 		foreach ( $aChecksumData as $sMd5FilePath => $sWpOrgChecksum ) {
 			if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
@@ -94,6 +98,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 
 			if ( $oFS->isFile( $sFullPath ) ) {
 				if ( $this->compareFileChecksums( $sWpOrgChecksum, $sFullPath ) ) {
+					$bProblemFound = true;
 					if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
 						$bRepairThis = true;
 					}
@@ -105,6 +110,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			}
 			else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
 				// If the file is missing and it's not in the missing-only exclusions
+				$bProblemFound = true;
 				$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
 				$bRepairThis = $bAutoRepair;
 			}
@@ -114,8 +120,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			}
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		( $bProblemFound && !$bAutoRepair ) ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
 		$oFO->setLastScanAt( 'wcf' );
 
 		return $aDiscoveredFiles;

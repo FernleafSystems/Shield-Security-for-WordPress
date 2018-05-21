@@ -12,13 +12,6 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 	/**
-	 * @return string[]
-	 */
-	protected function getSupportedWizards() {
-		return array( 'welcome', 'importexport' );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getPageTitle() {
@@ -69,6 +62,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oResponse = $this->wizardOptin();
 				break;
 
+			case 'add-search-item':
+				$oResponse = $this->wizardAddSearchItem();
+				break;
+
+			case 'confirm-results-delete':
+				$oResponse = $this->wizardConfirmDelete();
+				break;
+
 			default:
 				$oResponse = parent::processWizardStep( $sStep );
 				break;
@@ -86,6 +87,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'welcome':
 				$aSteps = $this->determineWizardSteps_Welcome();
 				break;
+			case 'gdpr':
+				$aSteps = $this->determineWizardSteps_Gdpr();
+				break;
 			case 'importexport':
 				$aSteps = $this->determineWizardSteps_Import();
 				break;
@@ -94,6 +98,18 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				break;
 		}
 		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function determineWizardSteps_Gdpr() {
+		return array(
+			'start',
+			'search',
+			'results',
+			'finished',
+		);
 	}
 
 	/**
@@ -255,6 +271,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						),
 					);
 					break;
+
 				default:
 					break;
 			}
@@ -268,6 +285,39 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						),
 						'imgs'  => array(
 							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
+						)
+					);
+					break;
+				case 'results': //gdpr results
+
+					$aAdditional = array();
+					break;
+
+				default:
+					break;
+			}
+		}
+		else if ( $sCurrentWiz == 'gdpr' ) {
+			switch ( $sStep ) {
+
+				case 'results':
+					$aItems = $this->getGdprSearchItems();
+					$bHasSearchItems = !empty( $aItems );
+					$aResults = $this->runGdprSearch();
+
+					$nTotal = 0;
+					foreach ( $aResults as $aResult ) {
+						$nTotal += $aResult[ 'count' ];
+					}
+
+					$aAdditional = array(
+						'flags' => array(
+							'has_search_items' => $bHasSearchItems
+						),
+						'data'  => array(
+							'result'      => $this->runGdprSearch(),
+							'count_total' => $nTotal,
+							'has_results' => $nTotal > 0,
 						)
 					);
 					break;
@@ -563,6 +613,79 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	/**
 	 * @return \FernleafSystems\Utilities\Response
 	 */
+	private function wizardAddSearchItem() {
+		$oDP = $this->loadDP();
+		$sInput = esc_js( esc_html( trim( $oDP->post( 'SearchItem' ) ) ) );
+
+		$aItems = $this->getGdprSearchItems();
+
+		if ( !empty( $sInput ) ) {
+			if ( $sInput === 'CLEAR' ) {
+				$aItems = array();
+			}
+			else {
+				$aItems[] = $sInput;
+				if ( $oDP->validEmail( $sInput ) ) {
+					$oUser = $this->loadWpUsers()->getUserByEmail( $sInput );
+					if ( !is_null( $oUser ) ) {
+						$aItems[] = $oUser->user_login;
+					}
+				}
+				else {
+					$sUsername = sanitize_user( $sInput );
+					if ( !empty( $sUsername ) ) {
+						$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+						if ( $oUser instanceof WP_User ) {
+							$aItems[] = $oUser->user_email;
+						}
+					}
+				}
+			}
+		}
+
+		$aItems = $this->setGdprSearchItems( $aItems );
+
+		$sSearchList = 'Search list is empty';
+		if ( !empty( $aItems ) ) {
+			$sItems = implode( '</li><li>', $aItems );
+			$sSearchList = sprintf( '<ul><li>%s</li></ul>', $sItems );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( true )
+						 ->setData( [ 'sSearchList' => $sSearchList ] )
+						 ->setMessageText( _wpsf__( 'Search item added.' ) );
+	}
+
+	private function wizardConfirmDelete() {
+		$oDP = $this->loadDP();
+		$bDelete = $oDP->post( 'ConfirmDelete' ) === 'Y';
+		if ( $bDelete ) {
+			/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
+			$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
+			$oDeleter = $oProc->getAuditTrailDelete();
+			foreach ( $this->getGdprSearchItems() as $sItem ) {
+				try {
+					$oDeleter->setTerm( $sItem )
+							 ->all();
+				}
+				catch ( Exception $oE ) {
+				}
+			}
+			$sMessage = _wpsf__( 'All entries were deleted' );
+		}
+		else {
+			$sMessage = _wpsf__( 'Please check the box to confirm deletion.' );
+		}
+
+		$oResponse = new \FernleafSystems\Utilities\Response();
+		return $oResponse->setSuccessful( $bDelete )
+						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return \FernleafSystems\Utilities\Response
+	 */
 	private function wizardCommentsFilter() {
 
 		$sInput = $this->loadDP()->post( 'CommentsFilterOption' );
@@ -594,5 +717,63 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( $bSuccess )
 						 ->setMessageText( $sMessage );
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getGdprSearchItems() {
+		$aItems = $this->loadWp()
+					   ->getTransient( $this->getPluginCon()->prefix( 'gdpr-items' ) );
+		if ( !is_array( $aItems ) ) {
+			$aItems = array();
+		}
+		return $aItems;
+	}
+
+	/**
+	 * @param array $aItems
+	 * @return array
+	 */
+	private function setGdprSearchItems( $aItems ) {
+		if ( !is_array( $aItems ) ) {
+			$aItems = array();
+		}
+		$aItems = array_filter( array_unique( $aItems ) );
+		$this->loadWp()
+			 ->setTransient(
+				 $this->getPluginCon()->prefix( 'gdpr-items' ),
+				 $aItems,
+				 MINUTE_IN_SECONDS*10
+			 );
+		return $aItems;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	private function runGdprSearch() {
+		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
+		$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
+		$oFinder = $oProc->getAuditTrailFinder();
+
+		$aItems = array();
+		foreach ( $this->getGdprSearchItems() as $sItem ) {
+			try {
+				$aResults = $oFinder->setTerm( $sItem )
+									->setResultsAsVo( false )
+									->all();
+			}
+			catch ( Exception $oE ) {
+				$aResults = array();
+			}
+//			$aResults = array_intersect_key( $aResults, array_flip( [ 'wp_username', 'message' ] ) );
+			$aItems[ $sItem ] = array(
+				'entries' => $aResults,
+				'count'   => count( $aResults ),
+				'has'     => count( $aResults ) > 0,
+			);
+		}
+		return $aItems;
 	}
 }

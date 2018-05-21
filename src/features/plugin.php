@@ -587,7 +587,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sIp = $oDp->loadIpService()->getRequestIp();
 			}
 			else {
-				$sIp = $oDp->FetchServer( $sKey );
+				$sIp = $oDp->server( $sKey );
 			}
 			if ( empty( $sIp ) ) {
 				$aEmpties[] = sprintf( '%s- %s', $sKey, 'ip not available' );
@@ -653,6 +653,22 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isXmlrpcBypass() {
 		return $this->getOptIs( 'enable_xmlrpc_compatibility', 'Y' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTestCronLastRunAt() {
+		return (int)$this->getOpt( 'insights_test_cron_last_run_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function updateTestCronLastRunAt() {
+		$this->setOptInsightsAt( 'test_cron_last_run_at' )
+			 ->savePluginOptions();
+		return $this;
 	}
 
 	/**

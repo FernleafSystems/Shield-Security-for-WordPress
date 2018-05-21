@@ -194,6 +194,18 @@
       "transferable": false,
       "section": "section_non_ui",
       "value": 0
+    },
+    {
+      "key":          "insights_last_transgression_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "insights_last_ip_block_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
     }
   ],
   "definitions": {

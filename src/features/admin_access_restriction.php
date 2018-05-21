@@ -211,7 +211,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
-	protected function hasAccessKey() {
+	public function hasAccessKey() {
 		$sKey = $this->getAccessKeyHash();
 		return !empty( $sKey ) && strlen( $sKey ) == 32;
 	}

@@ -199,4 +199,22 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		$nDays = (int)$this->getOption( 'audit_trail_auto_clean' );
 		return ( $nDays > 0 ) ? ( $nDays*DAY_IN_SECONDS ) : parent::getAutoExpirePeriod();
 	}
+
+	/**
+	 * @return ICWP_WPSF_Query_AuditTrail_Find
+	 */
+	public function getAuditTrailFinder() {
+		require_once( dirname( dirname( __FILE__ ) ).'/query/audittrail_find.php' );
+		$oSearch = new ICWP_WPSF_Query_AuditTrail_Find();
+		return $oSearch->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_AuditTrail_Delete
+	 */
+	public function getAuditTrailDelete() {
+		require_once( dirname( dirname( __FILE__ ) ).'/query/audittrail_delete.php' );
+		$oSearch = new ICWP_WPSF_Query_AuditTrail_Delete();
+		return $oSearch->setTable( $this->getTableName() );
+	}
 }

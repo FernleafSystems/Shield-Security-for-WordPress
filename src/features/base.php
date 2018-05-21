@@ -82,10 +82,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
-	 * @param array                       $aFeatureProperties
+	 * @param array                       $aModProps
 	 * @throws Exception
 	 */
-	public function __construct( $oPluginController, $aFeatureProperties = array() ) {
+	public function __construct( $oPluginController, $aModProps = array() ) {
 		if ( empty( $oPluginController ) ) {
 			throw new Exception();
 		}
@@ -93,18 +93,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			self::$oPluginController = $oPluginController;
 		}
 
-		if ( isset( $aFeatureProperties[ 'storage_key' ] ) ) {
-			$this->sOptionsStoreKey = $aFeatureProperties[ 'storage_key' ];
+		if ( isset( $aModProps[ 'storage_key' ] ) ) {
+			$this->sOptionsStoreKey = $aModProps[ 'storage_key' ];
 		}
 
-		if ( isset( $aFeatureProperties[ 'slug' ] ) ) {
-			$this->sFeatureSlug = $aFeatureProperties[ 'slug' ];
+		if ( isset( $aModProps[ 'slug' ] ) ) {
+			$this->sFeatureSlug = $aModProps[ 'slug' ];
 		}
 
 		// before proceeding, we must now test the system meets the minimum requirements.
 		if ( $this->getModuleMeetRequirements() ) {
 
-			$nRunPriority = isset( $aFeatureProperties[ 'load_priority' ] ) ? $aFeatureProperties[ 'load_priority' ] : 100;
+			$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 			// Handle any upgrades as necessary (only go near this if it's the admin area)
 			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
@@ -117,8 +117,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 			}
 
-			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ) );
-			add_filter( $this->prefix( 'get_feature_summary_data' ), array( $this, 'filter_getFeatureSummaryData' ) );
+			$nMenuPriority = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
+			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ), $nMenuPriority );
+			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ), $nMenuPriority );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
 			add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
@@ -333,6 +334,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpInit() {
 		$this->runWizards();
 		$this->updateHandler();
+
+		// GDPR
+		if ( $this->isPremium() ) {
+			add_filter( $this->prefix( 'wpPrivacyExport' ), array( $this, 'onWpPrivacyExport' ), 10, 3 );
+			add_filter( $this->prefix( 'wpPrivacyErase' ), array( $this, 'onWpPrivacyErase' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -613,7 +620,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aSummaryData
 	 * @return array
 	 */
-	public function filter_getFeatureSummaryData( $aSummaryData ) {
+	public function addModuleSummaryData( $aSummaryData ) {
 		if ( $this->getIfShowModuleLink() ) {
 			$aSummaryData[] = $this->buildSummaryData();
 		}
@@ -1195,7 +1202,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isAdminOptionsPage() {
-		return ( is_admin() && !$this->loadWp()->isAjax() && $this->isModulePage() );
+		return ( is_admin() && !$this->loadWp()->isAjax() && $this->isThisModulePage() );
 	}
 
 	/**
@@ -1306,7 +1313,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function isModulePage() {
+	protected function isThisModulePage() {
 		return $this->loadDP()->query( 'page' ) == $this->getModSlug();
 	}
 
@@ -1321,7 +1328,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isWizardPage() {
-		return ( $this->loadDP()->query( 'shield_action' ) == 'wizard' && $this->isModulePage() );
+		return ( $this->loadDP()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
 	}
 
 	/**
@@ -1387,20 +1394,27 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * Override this to customize anything with the display of the page
+	 * @param array $aData
 	 */
-	protected function displayModulePage() {
-		$this->display();
+	protected function displayModulePage( $aData = array() ) {
+		// Get Base Data
+		$aData = $this->loadDP()->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
+		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
+
+		echo $this->renderTemplate( 'index.php', $aData );
 	}
 
 	protected function displayRestrictedPage() {
-		$this->display(
-			array(
-				'ajax' => array(
-					'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
-				)
-			),
-			'access_restricted.php'
-		);
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive(
+						  $this->getBaseDisplayData( false ),
+						  array(
+							  'ajax' => array(
+								  'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
+							  )
+						  )
+					  );
+		echo $this->renderTemplate( 'access_restricted.php', $aData );
 	}
 
 	/**
@@ -1430,7 +1444,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'width'       => 772,
 				'height'      => 454,
 			),
-			'aSummaryData'    => apply_filters( $this->prefix( 'get_feature_summary_data' ), array() ),
+			'aSummaryData'    => $this->getModulesSummaryData(),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'      => $this->getMainFeatureName(),
@@ -1562,11 +1576,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array[]
+	 */
+	protected function getModulesSummaryData() {
+		return apply_filters( $this->prefix( 'collect_module_summary_data' ), array() );
+	}
+
+	/**
 	 * @uses nonce
 	 * @param string $sWizardSlug
 	 * @return string
 	 */
 	public function getUrl_Wizard( $sWizardSlug ) {
+		$aDef = $this->getWizardDefinition( $sWizardSlug );
+		if ( empty( $aDef[ 'min_user_permissions' ] ) ) { // i.e. no login/minimum perms
+			$sUrl = $this->loadWp()->getHomeUrl();
+		}
+		else {
+			$sUrl = $this->loadWp()->getUrl_WpAdmin( 'admin.php' );
+		}
+
 		return add_query_arg(
 			array(
 				'page'          => $this->getModSlug(),
@@ -1574,7 +1603,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wizard'        => $sWizardSlug,
 				'nonwizard'     => wp_create_nonce( 'wizard'.$sWizardSlug )
 			),
-			$this->loadWp()->getHomeUrl()
+			$sUrl
 		);
 	}
 
@@ -1583,6 +1612,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getUrl_WizardLanding() {
 		return $this->getUrl_Wizard( 'landing' );
+	}
+
+	/**
+	 * @param string $sWizardSlug
+	 * @return array
+	 */
+	public function getWizardDefinition( $sWizardSlug ) {
+		$aDef = null;
+		if ( $this->hasWizardDefinition( $sWizardSlug ) ) {
+			$aW = $this->getWizardDefinitions();
+			$aDef = $aW[ $sWizardSlug ];
+		}
+		return $aDef;
 	}
 
 	/**
@@ -1601,6 +1643,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sWizardSlug
+	 * @return bool
+	 */
+	public function hasWizardDefinition( $sWizardSlug ) {
+		$aW = $this->getWizardDefinitions();
+		return !empty( $aW[ $sWizardSlug ] );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function hasCustomActions() {
@@ -1616,7 +1667,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return string
-	 * @throws Exception
 	 */
 	protected function renderOptionsForm() {
 
@@ -1628,10 +1678,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		// Get the same Base Data as normal display
-		return $this->loadRenderer( self::getConn()->getPath_Templates() )
-					->setTemplate( $sTemplate )
-					->setRenderVars( $this->getBaseDisplayData( true ) )
-					->render();
+		try {
+			return $this->loadRenderer( self::getConn()->getPath_Templates() )
+						->setTemplate( $sTemplate )
+						->setRenderVars( $this->getBaseDisplayData( true ) )
+						->render();
+		}
+		catch ( Exception $oE ) {
+			return 'Error rendering options form';
+		}
 	}
 
 	/**
@@ -1660,28 +1715,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sSubView
 	 */
 	protected function display( $aData = array(), $sSubView = '' ) {
-		$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
-		$oDp = $this->loadDP();
-
-		// Get Base Data
-		$aData = $oDp->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
-		if ( empty( $sSubView ) || !$oRndr->getTemplateExists( $sSubView ) ) {
-			$sModuleView = 'feature-'.$this->getFeatureSlug();
-			$sSubView = $oRndr->getTemplateExists( $sModuleView ) ? $sModuleView : 'feature-default';
-		}
-
-		$aData[ 'sFeatureInclude' ] = $oDp->addExtensionToFilePath( $sSubView, '.php' );
-		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
-		try {
-			echo $oRndr
-				->setTemplate( 'index.php' )
-				->setRenderVars( $aData )
-				->render();
-		}
-		catch ( Exception $oE ) {
-			echo $oE->getMessage();
-			error_log( $oE->getMessage() );
-		}
 	}
 
 	/**
@@ -1721,21 +1754,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sTemplate
 	 * @param array  $aData
+	 * @param bool   $bUseTwig
 	 * @return string
 	 */
-	public function renderTemplate( $sTemplate, $aData = array() ) {
+	public function renderTemplate( $sTemplate, $aData = array(), $bUseTwig = false ) {
 		if ( empty( $aData[ 'unique_render_id' ] ) ) {
 			$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$sOutput = $this
-				->loadRenderer( self::getConn()->getPath_Templates() )
-				->setTemplate( $sTemplate )
-				->setRenderVars( $aData )
-				->render();
+			$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
+			if ( $bUseTwig ) {
+				$oRndr->setTemplateEngineTwig();
+			}
+
+			$sOutput = $oRndr->setTemplate( $sTemplate )
+							 ->setRenderVars( $aData )
+							 ->render();
 		}
 		catch ( Exception $oE ) {
 			$sOutput = $oE->getMessage();
+			error_log( $oE->getMessage() );
 		}
 
 		return $sOutput;
@@ -1786,6 +1824,28 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $aOptionsData;
+	}
+
+	/**
+	 * See plugin controller for the nature of $aData wpPrivacyExport()
+	 * @param array  $aExportItems
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
+		return $aExportItems;
+	}
+
+	/**
+	 * See plugin controller for the nature of $aData wpPrivacyErase()
+	 * @param array  $aData
+	 * @param string $sEmail
+	 * @param int    $nPage
+	 * @return array
+	 */
+	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
+		return $aData;
 	}
 
 	/** Help Video options */

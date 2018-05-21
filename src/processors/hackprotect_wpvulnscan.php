@@ -232,10 +232,12 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	public function cron_dailyWpVulnScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
-		$oFO->setLastScanAt( 'wpv' );
 
 		$this->scanPlugins();
 		$this->scanThemes();
+
+		$this->getHasVulnerablePlugins() ? $oFO->setLastScanProblemAt( 'wpv' ) : $oFO->clearLastScanProblemAt( 'wpv' );
+		$oFO->setLastScanAt( 'wpv' );
 	}
 
 	protected function scanPlugins() {

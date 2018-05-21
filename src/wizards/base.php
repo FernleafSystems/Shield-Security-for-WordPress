@@ -64,6 +64,9 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		return $aResponse;
 	}
 
+	/**
+	 * TODO: does not honour 'min_user_permissions' from the wizard definition
+	 */
 	public function onWpLoaded() {
 		$sWizard = $this->loadDP()->query( 'wizard' );
 		try {
@@ -246,7 +249,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$oFO = $this->getModCon();
 		$aWizards = $oFO->getWizardDefinitions();
 		foreach ( $aWizards as $sKey => &$aWizard ) {
-			$aWizard[ 'has_perm' ] = $this->getUserCan( $aWizard[ 'min_user_permissions' ] );
+			$aWizard[ 'has_perm' ] = empty( $aWizard[ 'min_user_permissions' ] ) || $this->getUserCan( $aWizard[ 'min_user_permissions' ] );
 			$aWizard[ 'url' ] = $oFO->getUrl_Wizard( $sKey );
 			$aWizard[ 'has_premium' ] = isset( $aWizard[ 'has_premium' ] ) && $aWizard[ 'has_premium' ];
 			$aWizard[ 'available' ] = $this->getWizardAvailability( $sKey );
