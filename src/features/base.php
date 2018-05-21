@@ -82,10 +82,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
-	 * @param array                       $aFeatureProperties
+	 * @param array                       $aModProps
 	 * @throws Exception
 	 */
-	public function __construct( $oPluginController, $aFeatureProperties = array() ) {
+	public function __construct( $oPluginController, $aModProps = array() ) {
 		if ( empty( $oPluginController ) ) {
 			throw new Exception();
 		}
@@ -93,18 +93,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			self::$oPluginController = $oPluginController;
 		}
 
-		if ( isset( $aFeatureProperties[ 'storage_key' ] ) ) {
-			$this->sOptionsStoreKey = $aFeatureProperties[ 'storage_key' ];
+		if ( isset( $aModProps[ 'storage_key' ] ) ) {
+			$this->sOptionsStoreKey = $aModProps[ 'storage_key' ];
 		}
 
-		if ( isset( $aFeatureProperties[ 'slug' ] ) ) {
-			$this->sFeatureSlug = $aFeatureProperties[ 'slug' ];
+		if ( isset( $aModProps[ 'slug' ] ) ) {
+			$this->sFeatureSlug = $aModProps[ 'slug' ];
 		}
 
 		// before proceeding, we must now test the system meets the minimum requirements.
 		if ( $this->getModuleMeetRequirements() ) {
 
-			$nRunPriority = isset( $aFeatureProperties[ 'load_priority' ] ) ? $aFeatureProperties[ 'load_priority' ] : 100;
+			$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 			// Handle any upgrades as necessary (only go near this if it's the admin area)
 			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
@@ -117,9 +117,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 			}
 
-			$nMenuPriority = isset( $aFeatureProperties[ 'menu_priority' ] ) ? $aFeatureProperties[ 'menu_priority' ] : 100;
+			$nMenuPriority = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ), $nMenuPriority );
-			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ) );
+			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ), $nMenuPriority );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
 			add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
