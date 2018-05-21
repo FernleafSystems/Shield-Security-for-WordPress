@@ -171,6 +171,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
+		{ // db password strength
+			$nStrength = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ];
+			if ( $nStrength < 4 ) {
+				$aNotices[ 'messages' ][ 'db_strength' ] = array(
+					'title'   => 'DB Password',
+					'message' => _wpsf__( 'DB Password appears to be weak.' ),
+					'href'    => '',
+					'rec'     => _wpsf__( 'The database password should be strong.' )
+				);
+			}
+		}
+
 		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
 		return $aNotices;
 	}
