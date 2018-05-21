@@ -11,7 +11,7 @@
 
 	</div>
 	<div class="card-footer p-0" style="margin-bottom: -1px;">
-		<form class="form-inline" id="NewAdminNote">
+		<form class="form-inline" id="NewAdminNote" action="#" method="post">
 			{% for name,val in ajax.admin_note_new %}
 				<input type="hidden" name="{{ name }}" value="{{ val }}" />
 			{% endfor %}
@@ -24,7 +24,7 @@
 						  placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
 				></textarea>
 				<div class="input-group-append">
-					<button type="submit" class="btn btn-info" style="border-radius: 0" id="SUB"
+					<button type="submit" class="btn btn-info" style="border-radius: 0;" name="subbutt"
 							{% if not flags.can_notes %}disabled="disabled"{% endif %}
 					>Add Note</button>
 				</div>

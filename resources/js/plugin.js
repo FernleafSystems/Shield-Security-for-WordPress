@@ -110,7 +110,7 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 				}
 			}
 		).always( function () {
-			iCWP_WPSF_BodyOverlay.hide();
+				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 	};
@@ -148,6 +148,13 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
+			jQuery( document ).on( "keydown", "form#NewAdminNote", function ( e ) {
+				/* if ( e.ctrlKey && e.keyCode === 13 ) {
+					can't get ctrl+return to submit!
+					console.log( e );
+					submitForm( e );
+				} */
+			} );
 			jQuery( document ).on( "submit", "form#NewAdminNote", submitForm );
 		} );
 	};
