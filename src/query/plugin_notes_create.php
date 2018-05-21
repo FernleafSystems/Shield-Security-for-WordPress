@@ -13,15 +13,12 @@ class ICWP_WPSF_Query_PluginNotes_Create extends ICWP_WPSF_Query_Base {
 	 * @return bool|int
 	 */
 	public function create( $sNote ) {
-		$oDP = $this->loadDP();
 
-		// Add new session entry
-		// set attempts = 1 and then when we know it's a valid login, we zero it.
-		// First set any other entries for the given user to be deleted.
+		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 		$aNewData = array(
-			'note'       => esc_sql( $sNote ),
-			'user_id'    => $this->loadWpUsers()->getCurrentWpUserId(),
-			'created_at' => $oDP->time(),
+			'wp_username' => ( $oUser instanceof WP_User ) ? $oUser->user_login : 'unknown',
+			'note'        => esc_sql( $sNote ),
+			'created_at'  => $this->loadDP()->time(),
 		);
 		$mResult = $this->loadDbProcessor()
 						->insertDataIntoTable( $this->getTable(), $aNewData );

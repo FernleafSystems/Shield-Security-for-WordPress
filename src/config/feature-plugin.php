@@ -402,7 +402,7 @@
     "db_notes_name": "notes",
     "db_notes_table_columns": [
       "id",
-      "user_id",
+      "wp_username",
       "note",
       "created_at",
       "deleted_at"

@@ -25,7 +25,7 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	public function getCreateTableSql() {
 		$sSqlTables = "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			user_id int(11) UNSIGNED NOT NULL DEFAULT 0,
+			wp_username varchar(255) NOT NULL DEFAULT 'none',
 			note TEXT,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
