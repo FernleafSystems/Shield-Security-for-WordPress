@@ -406,7 +406,7 @@
       "note",
       "created_at",
       "deleted_at"
-    ]
+    ],
     "active_plugin_features": [
       {
         "slug":        "insights",

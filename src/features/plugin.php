@@ -675,7 +675,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string
 	 */
 	public function getDbNameNotes() {
-		return $this->getDef( 'notes' );
+		return $this->getDef( 'db_notes_name' );
 	}
 
 	/**

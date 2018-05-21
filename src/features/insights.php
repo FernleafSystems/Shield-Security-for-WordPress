@@ -491,6 +491,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $aNotices;
 	}
 
+	protected function getNotes() {
+		/** @var ICWP_WPSF_Processor_Plugin $oProc */
+		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
+
+		$oRetriever = $oProc->getSubProcessorNotes()
+							->getQueryRetriever();
+		$aNotes = $oRetriever->setLimit( 10 )
+							 ->all();
+
+		var_dump( $aNotes );
+	}
+
 	/**
 	 * @return array[]
 	 */
