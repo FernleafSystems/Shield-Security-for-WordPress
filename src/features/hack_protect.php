@@ -638,6 +638,106 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param array $aAllNotices
+	 * @return array
+	 */
+	public function addInsightsNoticeData( $aAllNotices ) {
+		$aNotices = array(
+			'title'    => _wpsf__( 'Scans' ),
+			'messages' => array()
+		);
+
+		{// Core files
+			if ( !$this->isWcfScanEnabled() ) {
+				$aNotices[ 'messages' ][ 'wcf' ] = array(
+					'title'   => 'WP Core Files',
+					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
+				);
+			}
+			else if ( $this->getScanHasProblem( 'wcf' ) ) {
+				$aNotices[ 'messages' ][ 'wcf' ] = array(
+					'title'   => 'WP Core Files',
+					'message' => _wpsf__( 'Modified WordPress core files found.' ),
+					'href'    => $this->getUrl_Wizard( 'wcf' ),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
+				);
+			}
+		}
+
+		{// Unrecognised
+			if ( !$this->isUfcEnabled() ) {
+				$aNotices[ 'messages' ][ 'ufc' ] = array(
+					'title'   => 'Unrecognised Files',
+					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
+				);
+			}
+			else if ( $this->getScanHasProblem( 'ufc' ) ) {
+				$aNotices[ 'messages' ][ 'ufc' ] = array(
+					'title'   => 'Unrecognised Files',
+					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
+					'href'    => $this->getUrl_Wizard( 'ufc' ),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
+				);
+			}
+		}
+
+		{// Plugin/Theme Guard
+			if ( !$this->isPtgEnabled() ) {
+				$aNotices[ 'messages' ][ 'ptg' ] = array(
+					'title'   => 'Plugin/Theme Guard',
+					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
+				);
+			}
+			else if ( $this->getScanHasProblem( 'ptg' ) ) {
+				$aNotices[ 'messages' ][ 'ptg' ] = array(
+					'title'   => 'Plugin/Theme Guard',
+					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
+					'href'    => $this->getUrl_Wizard( 'ptg' ),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
+				);
+			}
+		}
+
+		{// Vulnerability Scanner
+			if ( !$this->isWpvulnEnabled() ) {
+				$aNotices[ 'messages' ][ 'wpv' ] = array(
+					'title'   => 'Vulnerability Scanner',
+					'message' => _wpsf__( 'Plugin Vulnerability Scanner is not enabled.' ),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Automatic detection of plugin vulnerabilities is recommended.' )
+				);
+			}
+			else if ( $this->getScanHasProblem( 'wpv' ) ) {
+				$aNotices[ 'messages' ][ 'wpv' ] = array(
+					'title'   => 'Vulnerable Plugins',
+					'message' => _wpsf__( 'At least 1 plugin has known vulnerabilities.' ),
+					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Plugins' ) ),
+					'rec'     => _wpsf__( 'Plugins with known vulnerabilities should be updated, removed, or replaced.' )
+				);
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+
+		$aAllNotices[ 'scans' ] = $aNotices;
+		return $aAllNotices;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

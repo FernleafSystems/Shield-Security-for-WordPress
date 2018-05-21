@@ -362,6 +362,38 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @param array $aAllNotices
+	 * @return array
+	 */
+	public function addInsightsNoticeData( $aAllNotices ) {
+
+		$aNotices = array(
+			'title'    => _wpsf__( 'Security Admin Protection' ),
+			'messages' => array()
+		);
+
+		{//sec admin
+			if ( !( $this->isModuleEnabled() && $this->hasAccessKey() ) ) {
+				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
+					'title'   => 'Security Plugin Unprotected',
+					'message' => sprintf(
+						_wpsf__( "The Security Admin protection is not active." ),
+						$this->getConn()->getHumanName()
+					),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Security Admin should be turned-on to protect your security settings.' )
+				);
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+		$aAllNotices[ 'sec_admin' ] = $aNotices;
+
+		return $aAllNotices;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

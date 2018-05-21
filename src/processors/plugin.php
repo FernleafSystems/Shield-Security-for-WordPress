@@ -97,6 +97,19 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_Plugin_Notes
+	 */
+	public function getSubProcessorNotes() {
+		$oProc = $this->getSubProcessor( 'notes' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
+			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $this->getFeature() );
+			$this->aSubProcessors[ 'notes' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
 	 */
 	public function dumpTrackingData() {
 		if ( $this->getController()->getIsValidAdminArea() ) {
