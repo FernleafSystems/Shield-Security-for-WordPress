@@ -292,7 +292,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		// Inactive
 		{
-			$nInactive = count( $oWpT->getThemes() ) - 1;
+			$nInactive = count( $oWpT->getThemes() ) - ( $oWpT->isActiveThemeAChild() ? 2 : 1 );
 			if ( $nInactive > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
