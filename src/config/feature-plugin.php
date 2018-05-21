@@ -403,7 +403,8 @@
       {
         "slug":        "insights",
         "storage_key": "insights",
-        "menu_priority": 5
+        "menu_priority": 5,
+        "min_php": "5.4"
       },
       {
         "slug":          "admin_access_restriction",

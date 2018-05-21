@@ -1626,30 +1626,30 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param array $aFeatureProperties
+	 * @param array $aModProps
 	 * @param bool  $bRecreate
 	 * @param bool  $bFullBuild
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public function loadFeatureHandler( $aFeatureProperties, $bRecreate = false, $bFullBuild = false ) {
+	public function loadFeatureHandler( $aModProps, $bRecreate = false, $bFullBuild = false ) {
 
-		$sFeatureSlug = $aFeatureProperties[ 'slug' ];
+		$sModSlug = $aModProps[ 'slug' ];
 
-		$oHandler = $this->getModule( $sFeatureSlug );
+		$oHandler = $this->getModule( $sModSlug );
 		if ( !empty( $oHandler ) ) {
 			return $oHandler;
 		}
 
-		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sFeatureSlug ) ) );
+		if ( !empty( $aModProps[ 'min_php' ] ) && !$this->loadDP()->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
+			return null;
+		}
+
+		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sModSlug ) ) );
 		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $sFeatureName ); // e.g. oFeatureHandlerPlugin
 
-		$sSourceFile = $this->getPath_SourceFile(
-			sprintf(
-				'features/%s.php',
-				$sFeatureSlug
-			)
-		); // e.g. features/firewall.php
+		// e.g. features/firewall.php
+		$sSourceFile = $this->getPath_SourceFile( sprintf( 'features/%s.php', $sModSlug ) );
 		$sClassName = sprintf(
 			'%s_%s_FeatureHandler_%s',
 			strtoupper( $this->getParentSlug() ),
@@ -1662,19 +1662,19 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$bClassExists = class_exists( $sClassName, false );
 		if ( $bClassExists ) {
 			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
-				$this->{$sOptionsVarName} = new $sClassName( $this, $aFeatureProperties );
+				$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
 			}
 			if ( $bFullBuild ) {
 				$this->{$sOptionsVarName}->buildOptions();
 			}
 		}
 		else {
-			$sMessage = sprintf( 'Source file for feature %s %s. ', $sFeatureSlug, $bIncluded ? 'exists' : 'missing' );
+			$sMessage = sprintf( 'Source file for feature %s %s. ', $sModSlug, $bIncluded ? 'exists' : 'missing' );
 			$sMessage .= sprintf( 'Class "%s" %s', $sClassName, $bClassExists ? 'exists' : 'missing' );
 			throw new Exception( $sMessage );
 		}
 
-		$this->aModules[ $sFeatureSlug ] = $this->{$sOptionsVarName};
+		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
 		return $this->{$sOptionsVarName};
 	}
 
