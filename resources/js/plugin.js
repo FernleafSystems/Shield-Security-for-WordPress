@@ -109,7 +109,11 @@ var iCWP_WPSF_InsightsAdminNoteNew = new function () {
 					location.reload( true );
 				}
 				else {
-					alert( '.' );
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
 					iCWP_WPSF_BodyOverlay.hide();
 				}
 			}

@@ -425,21 +425,21 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'val'     => $aStats[ 'comments.blocked.all' ],
 				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
 			),
-//			'sessions'       => array(
-//				'title'   => _wpsf__( 'Active Sessions' ),
-//				'val'     => count( $oModUsers->getActiveSessionsData() ),
-//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
-//			),
+			'sessions'       => array(
+				'title'   => _wpsf__( 'Active Sessions' ),
+				'val'     => count( $oModUsers->getActiveSessionsData() ),
+				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
 				'val'     => count( $oIPs->getAutoBlacklistData() ),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
-//			'pro'            => array(
-//				'title'   => _wpsf__( 'Pro' ),
-//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-//				'tooltip' => _wpsf__( 'Is this site running Shield Pro' )
-//			),
+			'pro'            => array(
+				'title'   => _wpsf__( 'Pro' ),
+				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
+				'tooltip' => _wpsf__( 'Is this site running Shield Pro' )
+			),
 		);
 	}
 
