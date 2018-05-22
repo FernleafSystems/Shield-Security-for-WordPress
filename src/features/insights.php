@@ -34,7 +34,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				)
 			),
 			'ajax'    => array(
-				'admin_note_new' => $this->getAjaxActionData( 'admin_note_new' ),
+				'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
+				'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
 			),
 			'hrefs'   => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
@@ -55,6 +56,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
 	}
 
+	public function insertCustomJsVars() {
+
+		if ( $this->isThisModulePage() ) {
+			wp_localize_script(
+				$this->prefix( 'plugin' ),
+				'icwp_wpsf_vars_insights',
+				array(
+					'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+				)
+			);
+		}
+	}
+
 	/**
 	 * @param array $aAjaxResponse
 	 * @return array
@@ -66,6 +80,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 				case 'admin_note_new':
 					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
+					break;
+
+				case 'admin_notes_render':
+					$aAjaxResponse = $this->ajaxExec_AdminNotesRender();
 					break;
 
 				default:
@@ -103,6 +121,37 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return array(
 			'success' => $bSuccess,
 			'message' => $sMessage
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_AdminNotesRender() {
+		$oDP = $this->loadDP();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getConn()->getModule( 'plugin' );
+		$sNote = trim( $oDP->post( 'admin_note', '' ) );
+
+		$aNotes = $this->getNotes();
+		$sHtml = $this->renderTemplate(
+			'/wpadmin_pages/insights/admin_notes_table.twig',
+			array(
+				'vars'  => array(
+					'insight_notes' => $aNotes,
+				),
+				'flags' => array(
+					'has_notes' => count( $aNotes ) > 0,
+					'can_notes' => $this->isPremium() //not the way to determine
+				),
+			),
+			true
+		);
+
+		$bSuccess = true;
+		return array(
+			'success' => $bSuccess,
+			'html'    => $sHtml
 		);
 	}
 

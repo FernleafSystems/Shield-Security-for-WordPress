@@ -88,9 +88,32 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	};
 }();
 
-var iCWP_WPSF_InsightsAdminNoteNew = new function () {
+var iCWP_WPSF_InsightsAdminNotes = new function () {
 
 	var bRequestCurrentlyRunning = false;
+
+	/**
+	 */
+	var renderNotes = function ( event ) {
+
+		jQuery.post( ajaxurl, icwp_wpsf_vars_insights.ajax_admin_notes_render,
+			function ( oResponse ) {
+				if ( oResponse.success ) {
+					jQuery( '#AdminNotesContainer' ).html( oResponse.data.html );
+				}
+				else {
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
+				}
+			}
+		).always( function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
 
 	/**
 	 */
@@ -106,10 +129,14 @@ var iCWP_WPSF_InsightsAdminNoteNew = new function () {
 		jQuery.post( ajaxurl, jQuery( this ).serialize(),
 			function ( oResponse ) {
 				if ( oResponse.success ) {
-					location.reload( true );
+					renderNotes(); // this will remove the overlay
 				}
 				else {
-					alert( '.' );
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
 					iCWP_WPSF_BodyOverlay.hide();
 				}
 			}
@@ -121,6 +148,13 @@ var iCWP_WPSF_InsightsAdminNoteNew = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
+			jQuery( document ).on( "keydown", "form#NewAdminNote", function ( e ) {
+				/* if ( e.ctrlKey && e.keyCode === 13 ) {
+					can't get ctrl+return to submit!
+					console.log( e );
+					submitForm( e );
+				} */
+			} );
 			jQuery( document ).on( "submit", "form#NewAdminNote", submitForm );
 		} );
 	};
@@ -128,4 +162,4 @@ var iCWP_WPSF_InsightsAdminNoteNew = new function () {
 
 iCWP_WPSF_OptionsPages.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
-iCWP_WPSF_InsightsAdminNoteNew.initialise();
+iCWP_WPSF_InsightsAdminNotes.initialise();
