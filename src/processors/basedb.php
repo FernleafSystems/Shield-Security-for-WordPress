@@ -293,4 +293,11 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getAutoExpirePeriod() {
 		return null;
 	}
+
+	/**
+	 * @return string
+	 */
+	protected function getQueryDir() {
+		return dirname( dirname( __FILE__ ) ).'/query/';
+	}
 }

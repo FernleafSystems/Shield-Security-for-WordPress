@@ -7,10 +7,10 @@
 
 {% block body_main %}
 	<div class="row">
-		<div class="col-lg-6">
+		<div class="col-6">
 			{% include '/wpadmin_pages/insights/title.twig' %}
 		</div>
-		<div class="col-lg-6">
+		<div class="col-6">
 			{% include '/wpadmin_pages/insights/stats.twig' %}
 		</div>
 	</div>
@@ -19,12 +19,19 @@
 			{% include '/wpadmin_pages/insights/notices.twig' %}
 		</div>
 		<div class="col-lg-5">
+			{% include '/wpadmin_pages/insights/admin_notes.twig' %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-7">
+			{% include '/wpadmin_pages/insights/audit_trail.twig' %}
+		</div>
+		<div class="col-lg-5">
 			{% include '/wpadmin_pages/insights/recent_events.twig' %}
 		</div>
 	</div>
 	<div class="row">
 		<div class="col">
-			{% include '/wpadmin_pages/insights/audit_trail.twig' %}
 		</div>
 	</div>
 {% endblock %}
@@ -60,20 +67,21 @@
 		.overflow_inner dl {
 			margin-bottom: 1px;
 		}
-
 		.title_row th,
 		.title_row td {
 			background-color: #fbfbfb;
 		}
-
 		.message_row th,
 		.message_row td {
 			padding-bottom: 5px;
 			border-top: 1px solid #e9edf1; /** make bootstrap border lighter */
 		}
-
 		.icon-sign {
 			font-size: 14px;
+		}
+
+		#NewAdminNote textarea {
+			height: 64px;
 		}
 
 		#SectionAuditTrail table {
@@ -88,7 +96,7 @@
 		#odp-BodyFoot {
 			position: sticky;
 			bottom: 0;
-			z-index: 1;
+			z-index: 2;
 			margin-top: 30px;
 		}
 		#SectionStats {

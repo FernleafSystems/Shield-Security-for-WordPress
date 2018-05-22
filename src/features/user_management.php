@@ -41,7 +41,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()->time() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
+																												  ->time() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 	}
@@ -201,6 +202,48 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function isPassPreventPwned() {
 		return $this->getOptIs( 'pass_prevent_pwned', 'Y' );
+	}
+
+	/**
+	 * @param array $aAllNotices
+	 * @return array
+	 */
+	public function addInsightsNoticeData( $aAllNotices ) {
+		$oWpUsers = $this->loadWpUsers();
+
+		$aNotices = array(
+			'title'    => _wpsf__( 'Users' ),
+			'messages' => array()
+		);
+
+		{ //admin user
+			$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
+			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
+				$aNotices[ 'messages' ][ 'admin' ] = array(
+					'title'   => 'Admin User',
+					'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
+					'href'    => '',
+					'rec'     => _wpsf__( "Default 'admin' user should be disabled or removed." )
+				);
+			}
+		}
+
+		{//password policies
+			if ( !$this->isPasswordPoliciesEnabled() ) {
+				$aNotices[ 'messages' ][ 'password' ] = array(
+					'title'   => 'Password Policies',
+					'message' => _wpsf__( "Strong password policies are not enforced." ),
+					'href'    => $this->getUrl_AdminPage(),
+					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+					'rec'     => _wpsf__( 'Password policies should be turned-on.' )
+				);
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+
+		$aAllNotices[ 'users' ] = $aNotices;
+		return $aAllNotices;
 	}
 
 	/**

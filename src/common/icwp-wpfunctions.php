@@ -404,7 +404,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function hasCoreUpdate() {
 		$aUpdates = $this->getCoreUpdates();
-		return ( !isset( $aUpdates[ 0 ]->response ) || 'latest' == $aUpdates[ 0 ]->response );
+		return ( isset( $aUpdates[ 0 ]->response ) && 'latest' != $aUpdates[ 0 ]->response );
 	}
 
 	public function redirectHere() {

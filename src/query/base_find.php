@@ -9,11 +9,6 @@ require_once( dirname( __FILE__ ).'/base.php' );
 class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 
 	/**
-	 * @var int
-	 */
-	protected $nLimit = 0;
-
-	/**
 	 * @var string
 	 */
 	protected $sTerm;
@@ -36,27 +31,20 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @return int
+	 * @return array
 	 */
-	public function getLimit() {
-		return max( (int)$this->nLimit, 0 );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasLimit() {
-		return $this->getLimit() > 0;
+	public function getColumns() {
+		if ( empty( $this->aColumns ) || !is_array( $this->aColumns ) ) {
+			$this->aColumns = $this->getDefaultColumns();
+		}
+		return $this->aColumns;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getColumns() {
-		if ( empty( $this->aColumns ) || !is_array( $this->aColumns ) ) {
-			$this->aColumns = array( 'wp_username', 'message' );
-		}
-		return $this->aColumns;
+	protected function getDefaultColumns() {
+		return array( 'wp_username', 'message' );
 	}
 
 	/**
@@ -64,13 +52,6 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	 */
 	public function hasSearchTerm() {
 		return strlen( $this->getTerm() ) > 0;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isResultsAsVo() {
-		return $this->bResultsAsVo;
 	}
 
 	/**
@@ -83,29 +64,11 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @param bool $bResultsAsVo
-	 * @return $this
-	 */
-	public function setResultsAsVo( $bResultsAsVo ) {
-		$this->bResultsAsVo = $bResultsAsVo;
-		return $this;
-	}
-
-	/**
 	 * @param string $sTerm
 	 * @return $this
 	 */
 	public function setTerm( $sTerm ) {
 		$this->sTerm = $sTerm;
-		return $this;
-	}
-
-	/**
-	 * @param int $nLimit
-	 * @return $this
-	 */
-	public function setLimit( $nLimit ) {
-		$this->nLimit = $nLimit;
 		return $this;
 	}
 }

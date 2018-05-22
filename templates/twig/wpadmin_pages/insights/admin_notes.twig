@@ -1,0 +1,34 @@
+<div id="SectionAdminNotes" class="insights_widget card w-100 p-0">
+	<div class="card-header">
+		<h5 class="card-title">Administrator Notes</h5>
+		<h6 class="card-subtitle mb-2 text-muted">All your admin notes</h6>
+	</div>
+	<div class="card-body overflow_container">
+
+		<div id="AdminNotesContainer" class="overflow_inner p-0">
+			{% include '/wpadmin_pages/insights/admin_notes_table.twig' %}
+		</div>
+
+	</div>
+	<div class="card-footer p-0" style="margin-bottom: -1px;">
+		<form class="form-inline" id="NewAdminNote" action="#" method="post">
+			{% for name,val in ajax.admin_note_new %}
+				<input type="hidden" name="{{ name }}" value="{{ val }}" />
+			{% endfor %}
+			<label class="sr-only" for="AdminNote">Note</label>
+			<div class="input-group w-100">
+				<div class="input-group-prepend">
+					<div class="input-group-text" style="border-radius: 0">New Note:</div>
+				</div>
+				<textarea class="form-control" id="AdminNote" name="admin_note" rows="2"
+						  placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
+				></textarea>
+				<div class="input-group-append">
+					<button type="submit" class="btn btn-info" style="border-radius: 0;" name="subbutt"
+							{% if not flags.can_notes %}disabled="disabled"{% endif %}
+					>Add Note</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
