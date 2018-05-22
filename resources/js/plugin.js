@@ -100,6 +100,10 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 			function ( oResponse ) {
 				if ( oResponse.success ) {
 					jQuery( '#AdminNotesContainer' ).html( oResponse.data.html );
+					jQuery( '.cell_delete_note button' ).tooltip( {
+						placement: 'left',
+						trigger: 'hover'
+					} );
 				}
 				else {
 					var sMessage = 'Communications error with site.';
