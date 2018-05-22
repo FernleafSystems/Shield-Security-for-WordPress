@@ -117,6 +117,32 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 
 	/**
 	 */
+	var deleteNote = function ( event ) {
+		iCWP_WPSF_BodyOverlay.show();
+
+		icwp_wpsf_vars_insights.ajax_admin_notes_delete.note_id = jQuery( this ).data( 'note_id' );
+
+		jQuery.post( ajaxurl, icwp_wpsf_vars_insights.ajax_admin_notes_delete,
+			function ( oResponse ) {
+				if ( oResponse.success ) {
+					renderNotes();
+				}
+				else {
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			}
+		).always( function () {
+			}
+		);
+	};
+
+	/**
+	 */
 	var submitForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
@@ -156,6 +182,7 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 				} */
 			} );
 			jQuery( document ).on( "submit", "form#NewAdminNote", submitForm );
+			jQuery( document ).on( "click", ".btn.note_delete", deleteNote );
 		} );
 	};
 }();
