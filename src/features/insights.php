@@ -233,7 +233,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'lockdown'  => array(),
 				),
 				$aAll
-			)
+			),
+			function ( $aSection ) {
+				return !empty( $aSection[ 'count' ] );
+			}
 		);
 	}
 
