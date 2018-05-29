@@ -17,13 +17,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aSecNotices = $this->getNotices();
 		$aNotes = $this->getNotes();
 
+		$nNoticesCount = 0;
+		foreach ( $aSecNotices as $aNoticeSection ) {
+			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
+		}
+
 		$aData = array(
 			'vars'    => array(
 				'summary'               => $this->getInsightsModsSummary(),
 				'audit_trail_recent'    => $aRecentAuditTrail,
 				'insight_events'        => $this->getRecentEvents(),
 				'insight_notices'       => $aSecNotices,
-				'insight_notices_count' => count( $aSecNotices ),
+				'insight_notices_count' => $nNoticesCount,
 				'insight_stats'         => $this->getStats(),
 				'insight_notes'         => $aNotes,
 			),
@@ -206,7 +211,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return string[]
+	 * @return array[]
 	 */
 	protected function getNotices() {
 
