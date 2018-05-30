@@ -109,8 +109,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 						   ->getSessionTerminator();
 
 		$nNow = $this->time();
-		$oTerminator->forExpiredLoginAt( $nNow - $this->getSessionTimeoutInterval() );
-		$oTerminator->forExpiredLoginIdle( $nNow - $this->getSessionIdleTimeoutInterval() );
+		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
+		// And if User Management is active, then it'll draw in that value.
+		$oTerminator->forExpiredLoginAt( $nNow - apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS ) );
+
+		// Default is ZERO, so we don't want to terminate all sessions if it's never set.
+		if ( $oFO->hasSessionIdleTimeout() ) {
+			$oTerminator->forExpiredLoginIdle( $nNow - $oFO->getSessionIdleTimeoutInterval() );
+		}
 	}
 
 	/**
@@ -133,16 +139,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		else {
 			$oSess = $oFO->getSession();
 			$nTime = $this->time();
-			$nTimeout = $this->getSessionTimeoutInterval();
-			$nIdleTimeout = $this->getSessionIdleTimeoutInterval();
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
 			// timeout interval
-			if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
+			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->getLoggedInAt() > $oFO->getSessionTimeoutInterval() ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $nIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nIdleTimeout ) ) {
+			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->getLastActivityAt() > $oFO->getSessionIdleTimeoutInterval() ) ) {
 				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
 				$nForceLogOutCode = 2;
 			} // login ip address lock
@@ -159,22 +163,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 * @return integer
 	 */
 	public function setTimeoutCookieExpiration_Filter( $nTimeout ) {
-		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		return ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout;
-	}
-
-	/**
-	 * @return integer
-	 */
-	protected function getSessionTimeoutInterval() {
-		return $this->getOption( 'session_timeout_interval' )*DAY_IN_SECONDS;
-	}
-
-	/**
-	 * @return integer
-	 */
-	protected function getSessionIdleTimeoutInterval() {
-		return $this->getOption( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->hasSessionTimeoutInterval() ? $oFO->getSessionTimeoutInterval() : $nTimeout;
 	}
 
 	/**

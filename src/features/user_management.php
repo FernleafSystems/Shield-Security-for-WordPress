@@ -78,6 +78,34 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getSessionIdleTimeoutInterval() {
+		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSessionTimeoutInterval() {
+		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasSessionIdleTimeout() {
+		return $this->isModuleEnabled() && ( $this->getSessionIdleTimeoutInterval() > 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasSessionTimeoutInterval() {
+		return $this->isModuleEnabled() && ( $this->getSessionTimeoutInterval() > 0 );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
