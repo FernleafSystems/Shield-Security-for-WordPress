@@ -17,13 +17,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aSecNotices = $this->getNotices();
 		$aNotes = $this->getNotes();
 
+		$nNoticesCount = 0;
+		foreach ( $aSecNotices as $aNoticeSection ) {
+			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
+		}
+
 		$aData = array(
 			'vars'    => array(
 				'summary'               => $this->getInsightsModsSummary(),
 				'audit_trail_recent'    => $aRecentAuditTrail,
 				'insight_events'        => $this->getRecentEvents(),
 				'insight_notices'       => $aSecNotices,
-				'insight_notices_count' => count( $aSecNotices ),
+				'insight_notices_count' => $nNoticesCount,
 				'insight_stats'         => $this->getStats(),
 				'insight_notes'         => $aNotes,
 			),
@@ -36,6 +41,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'ajax'    => array(
 				'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
 				'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+				'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
 			),
 			'hrefs'   => array(
 				'shield_pro_url'           => 'http://icwp.io/shieldpro',
@@ -64,6 +70,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'icwp_wpsf_vars_insights',
 				array(
 					'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+					'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
 				)
 			);
 		}
@@ -80,6 +87,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 				case 'admin_note_new':
 					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
+					break;
+
+				case 'admin_notes_delete':
+					$aAjaxResponse = $this->ajaxExec_AdminNotesDelete();
 					break;
 
 				case 'admin_notes_render':
@@ -111,7 +122,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 		else {
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $this->getConn()->getModule( 'plugin' )->getProcessor();
+			$oP = $oMod->getProcessor();
 			$bSuccess = $oP->getSubProcessorNotes()
 						   ->getQueryCreator()
 						   ->create( $sNote ) !== false;
@@ -127,12 +138,29 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_AdminNotesRender() {
+	protected function ajaxExec_AdminNotesDelete() {
 		$oDP = $this->loadDP();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getConn()->getModule( 'plugin' );
-		$sNote = trim( $oDP->post( 'admin_note', '' ) );
+		/** @var ICWP_WPSF_Processor_Plugin $oP */
+		$oP = $oMod->getProcessor();
 
+		$nNoteId = (int)trim( $oDP->post( 'note_id', 0 ) );
+		if ( $nNoteId >= 0 ) {
+			$oP->getSubProcessorNotes()
+			   ->getQueryDeleter()
+			   ->delete( $nNoteId );
+		}
+
+		return array(
+			'success' => true
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_AdminNotesRender() {
 		$aNotes = $this->getNotes();
 		$sHtml = $this->renderTemplate(
 			'/wpadmin_pages/insights/admin_notes_table.twig',
@@ -183,7 +211,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return string[]
+	 * @return array[]
 	 */
 	protected function getNotices() {
 
@@ -210,7 +238,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'lockdown'  => array(),
 				),
 				$aAll
-			)
+			),
+			function ( $aSection ) {
+				return !empty( $aSection[ 'count' ] );
+			}
 		);
 	}
 

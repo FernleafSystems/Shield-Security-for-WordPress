@@ -73,17 +73,21 @@
 		}
 		.message_row th,
 		.message_row td {
-			padding-bottom: 5px;
 			border-top: 1px solid #e9edf1; /** make bootstrap border lighter */
+		}
+		td.cell_delete_note {
+			max-width: 20px;
 		}
 		.icon-sign {
 			font-size: 14px;
 		}
-
 		#NewAdminNote textarea {
 			height: 64px;
 		}
-
+		.btn.note_delete {
+			padding: 0.1rem 0.3rem 0.3rem;
+			line-height: 9px;
+		}
 		#SectionAuditTrail table {
 			font-size: 12px;
 		}
@@ -182,4 +186,17 @@
 			content: "\f525";
 		}
 	</style>
+
+
+	<script type="text/javascript">
+		jQuery( document ).ready( function () {
+			jQuery( '.stat.card' ).tooltip( {
+				placement: 'bottom',
+				trigger: 'hover'
+			} );
+		} );
+	</script>
+
+
+
 {% endblock %}

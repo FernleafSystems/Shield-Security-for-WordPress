@@ -26,12 +26,17 @@
 					}
 				);
 
-				jQuery( 'input[type=submit]', form ).on( 'click', function( event ) {
-					<?php if ( $invis ) : ?>
-					event.preventDefault();
-					grecaptcha.execute( recaptchaContainerSpec );
-					<?php endif;?>
-				});
+				<?php if ( $invis ) : ?>
+				var aSubmitInputs = document.getElementsByTagName( 'input' );
+				for ( var i = 0; i < aSubmitInputs.length; i++ ) {
+					if ( aSubmitInputs[ i ].type.toLowerCase() === 'submit' ) {
+						aSubmitInputs[ i ].onclick = function ( event ) {
+							event.preventDefault();
+							grecaptcha.execute( recaptchaContainerSpec );
+						};
+					}
+				}
+				<?php endif;?>
 			}
 		};
 

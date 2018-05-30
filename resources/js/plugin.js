@@ -100,6 +100,10 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 			function ( oResponse ) {
 				if ( oResponse.success ) {
 					jQuery( '#AdminNotesContainer' ).html( oResponse.data.html );
+					jQuery( '.cell_delete_note button' ).tooltip( {
+						placement: 'left',
+						trigger: 'hover'
+					} );
 				}
 				else {
 					var sMessage = 'Communications error with site.';
@@ -111,6 +115,32 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 			}
 		).always( function () {
 				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	/**
+	 */
+	var deleteNote = function ( event ) {
+		iCWP_WPSF_BodyOverlay.show();
+
+		icwp_wpsf_vars_insights.ajax_admin_notes_delete.note_id = jQuery( this ).data( 'note_id' );
+
+		jQuery.post( ajaxurl, icwp_wpsf_vars_insights.ajax_admin_notes_delete,
+			function ( oResponse ) {
+				if ( oResponse.success ) {
+					renderNotes();
+				}
+				else {
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			}
+		).always( function () {
 			}
 		);
 	};
@@ -156,6 +186,7 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 				} */
 			} );
 			jQuery( document ).on( "submit", "form#NewAdminNote", submitForm );
+			jQuery( document ).on( "click", ".btn.note_delete", deleteNote );
 		} );
 	};
 }();

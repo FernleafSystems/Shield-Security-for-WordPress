@@ -15,7 +15,12 @@
 				{% for notice_section in vars.insight_notices %}
 					{% if notice_section.count > 0 %}
 						<tr class="title_row">
-							<th colspan="4"><h6 class="m-1">{{ notice_section.title }}</h6></th>
+							<th colspan="4">
+								<h6 class="m-1">
+									{{ notice_section.title }}
+									<span class="text-muted" style="font-size: smaller;">({{ notice_section.count }})</span>
+								</h6>
+							</th>
 						</tr>
 
 						{% for notice in notice_section.messages %}
