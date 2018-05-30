@@ -241,6 +241,7 @@
     }
   ],
   "definitions": {
+    "cron_name_sessionscleanup": "sessionscleanup",
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
     "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range/"
   }

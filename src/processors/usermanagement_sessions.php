@@ -4,11 +4,28 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/cronbase.php' );
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_CronBase {
+
+	/**
+	 * @return callable
+	 */
+	protected function getCronCallback() {
+		return array( $this, 'cron_runSessionsCleanup' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->prefix( $oFO->getDef( 'cron_name_sessionscleanup' ) );
+	}
 
 	public function run() {
+		parent::run();
 		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 		add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
@@ -83,6 +100,24 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 				$oWpUsers->logoutUser();
 			}
 		}
+	}
+
+	public function cleanExpiredSessions() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$oTerminator = $oFO->getSessionsProcessor()
+						   ->getSessionTerminator();
+
+		$nNow = $this->time();
+		$oTerminator->forExpiredLoginAt( $nNow - $this->getSessionTimeoutInterval() );
+		$oTerminator->forExpiredLoginIdle( $nNow - $this->getSessionIdleTimeoutInterval() );
+	}
+
+	/**
+	 * A cron that will automatically cleanout expired/idle sessions.
+	 */
+	public function cron_runSessionsCleanup() {
+		$this->cleanExpiredSessions();
 	}
 
 	/**

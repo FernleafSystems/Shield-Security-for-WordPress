@@ -61,9 +61,18 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @param bool $bCleanFirst
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
-	public function getActiveSessionsData() {
+	public function getActiveSessionsData( $bCleanFirst = true ) {
+		// we first clean the sessions.
+		if ( $bCleanFirst ) {
+			/** @var ICWP_WPSF_Processor_UserManagement $oProc */
+			$oProc = $this->getProcessor();
+			$oProc->getProcessorSessions()
+				  ->cleanExpiredSessions();
+		}
+
 		return $this->getSessionsProcessor()
 					->queryGetActiveSessions();
 	}

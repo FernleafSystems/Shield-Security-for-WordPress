@@ -218,7 +218,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Sessions
 	 */
-	protected function getProcessorSessions() {
+	public function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
 			require_once( dirname( __FILE__ ).'/usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -226,14 +226,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
 		}
 		return $this->oProcessorSessions;
-	}
-
-	/**
-	 * @param string $sWpUsername
-	 * @return array|bool
-	 */
-	public function getActiveUserSessionRecords( $sWpUsername = '' ) {
-		return $this->getProcessorSessions()->getActiveSessionRecordsForUsername( $sWpUsername );
 	}
 
 	/**

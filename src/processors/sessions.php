@@ -242,10 +242,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$this->doStatIncrement( 'user.session.terminate' );
 
-		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_terminate.php' );
-		$oTerminate = new ICWP_WPSF_Query_Sessions_Terminate();
-		return $oTerminate->setTable( $this->getTableName() )
-						  ->forUserSession( $oSession );
+		return $this->getSessionTerminator()
+					->setTable( $this->getTableName() )
+					->forUserSession( $oSession );
 	}
 
 	/**
@@ -264,6 +263,15 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function getSessionRetriever() {
 		require_once( $this->getQueryDir().'sessions_retrieve.php' );
 		$oRetrieve = new ICWP_WPSF_Query_Sessions_Retrieve();
+		return $oRetrieve->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Sessions_Terminate
+	 */
+	public function getSessionTerminator() {
+		require_once( $this->getQueryDir().'sessions_terminate.php' );
+		$oRetrieve = new ICWP_WPSF_Query_Sessions_Terminate();
 		return $oRetrieve->setTable( $this->getTableName() );
 	}
 

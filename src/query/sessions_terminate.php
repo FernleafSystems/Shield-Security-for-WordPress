@@ -25,6 +25,46 @@ class ICWP_WPSF_Query_Sessions_Terminate extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
+	 * @param int $bOlderThan
+	 * @return bool
+	 */
+	public function forExpiredLoginAt( $bOlderThan ) {
+		return $this->query_terminateExpired( $bOlderThan, 'logged_in_at' );
+	}
+
+	/**
+	 * @param int $bOlderThan
+	 * @return bool
+	 */
+	public function forExpiredLoginIdle( $bOlderThan ) {
+		return $this->query_terminateExpired( $bOlderThan, 'last_activity_at' );
+	}
+
+	/**
+	 * @param int    $nOlderThan
+	 * @param string $sColumn
+	 * @return bool
+	 */
+	protected function query_terminateExpired( $nOlderThan, $sColumn = 'logged_in_at' ) {
+
+		$sQuery = "
+			DELETE FROM `%s`
+			WHERE `%s` < %s
+		";
+		$sQuery = sprintf(
+			$sQuery,
+			$this->getTable(),
+			esc_sql( $sColumn ),
+			(int)$nOlderThan
+		);
+
+		$nCount = $this->loadDbProcessor()
+					   ->doSql( $sQuery );
+
+		return is_numeric( $nCount );
+	}
+
+	/**
 	 * @param string $sWpUsername
 	 * @param string $sSessionId
 	 * @return false|int
