@@ -136,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'has_session' => $this->hasSession()
 				),
 				'hrefs'   => array(
-					'aar_forget_key' => 'http://icwp.io/b5',
+					'aar_forget_key' => 'https://icwp.io/b5',
 				)
 			)
 		);

@@ -75,8 +75,8 @@
       "section": "section_enable_plugin_feature_admin_access_restriction",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/40",
-      "link_blog": "http://icwp.io/wpsf02",
+      "link_info": "https://icwp.io/40",
+      "link_blog": "https://icwp.io/wpsf02",
       "name": "Enable Security Admin",
       "summary": "Enforce Security Admin Access Restriction",
       "description": "Enable this with great care and consideration. When this Access Key option is enabled, you must specify a key below and use it to gain access to this plugin."
@@ -87,7 +87,7 @@
       "sensitive": true,
       "default": "",
       "type": "password",
-      "link_info": "http://icwp.io/42",
+      "link_info": "https://icwp.io/42",
       "link_blog": "",
       "name": "Security Admin Access Key",
       "summary": "Provide/Update Security Admin Access Key",
@@ -99,7 +99,7 @@
       "section": "section_admin_access_restriction_settings",
       "default": 30,
       "type": "integer",
-      "link_info": "http://icwp.io/41",
+      "link_info": "https://icwp.io/41",
       "link_blog": "",
       "name": "Security Admin Timeout",
       "summary": "Specify An Automatic Timeout Interval For Security Admin Access",
@@ -110,8 +110,8 @@
       "section": "section_admin_access_restriction_areas",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf32",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf32",
       "name": "Pages",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
@@ -121,7 +121,7 @@
       "section": "section_admin_access_restriction_areas",
       "default": "N",
       "type": "checkbox",
-      "link_info": "http://icwp.io/a0",
+      "link_info": "https://icwp.io/a0",
       "link_blog": "",
       "name": "Admin Users",
       "summary": "Restrict Access To Create/Delete/Modify Other Admin Users",
@@ -150,8 +150,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf21",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Plugin Actions",
       "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
 
@@ -183,8 +183,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf21",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To WordPress Theme Actions",
       "description": "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
@@ -207,8 +207,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf21",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion."
     },
@@ -276,7 +276,7 @@
       "key": "_wl_homeurl",
       "sensitive": true,
       "section": "section_non_ui",
-      "default": "http://icwp.io/home",
+      "default": "https://icwp.io/home",
       "type": "text",
       "link_info": "",
       "link_blog": "",

@@ -44,8 +44,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
 			),
 			'hrefs'   => array(
-				'shield_pro_url'           => 'http://icwp.io/shieldpro',
-				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
+				'shield_pro_url'           => 'https://icwp.io/shieldpro',
+				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
 			),
 			'flags'   => array(
 				'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),

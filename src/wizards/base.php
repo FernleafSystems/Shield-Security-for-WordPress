@@ -288,7 +288,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				),
 				'hrefs'   => array(
 					'dashboard'   => $oFO->getUrl_AdminPage(),
-					'goprofooter' => 'http://icwp.io/goprofooter',
+					'goprofooter' => 'https://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
@@ -353,7 +353,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				),
 				'hrefs'   => array(
 					'dashboard'   => $oFO->getUrl_AdminPage(),
-					'goprofooter' => 'http://icwp.io/goprofooter',
+					'goprofooter' => 'https://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
@@ -448,7 +448,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			),
 			'hrefs' => array(
 				'dashboard' => $oFO->getUrl_AdminPage(),
-				'gopro'     => 'http://icwp.io/ap',
+				'gopro'     => 'https://icwp.io/ap',
 			),
 			'imgs'  => array(),
 			'data'  => array(

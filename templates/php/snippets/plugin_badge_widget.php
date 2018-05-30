@@ -28,7 +28,7 @@
 	}
 </style>
 <div id="icwpWpsfSiteBadge" class="icwp_wpsf_site_badge">
-	<a href="http://icwp.io/wpsecurityfirewall" target="_blank" title="<?php echo $strings['plugin_name']; ?>">
+	<a href="https://icwp.io/wpsecurityfirewall" target="_blank" title="<?php echo $strings['plugin_name']; ?>">
 		<img src="<?php echo $hrefs['img_src']; ?>" alt="<?php echo $strings['plugin_name']; ?> Logo" />
 		<div class="badge-text">
 			This Site Is Protected By <span style="font-style: italic;">The</span><br/><?php echo $strings['plugin_name']; ?> &rarr;

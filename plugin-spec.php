@@ -67,15 +67,15 @@
     "Title": "Shield Security",
     "Author": "One Dollar Plugin",
     "AuthorName": "One Dollar Plugin",
-    "PluginURI": "http://icwp.io/2f",
-    "AuthorURI": "http://icwp.io/bv",
+    "PluginURI": "https://icwp.io/2f",
+    "AuthorURI": "https://icwp.io/bv",
     "icon_url_16x16": "pluginlogo_16x16.png",
     "icon_url_32x32": "pluginlogo_32x32.png"
   },
   "plugin_meta": [
     {
       "name": "5&#10025; Rate This Plugin",
-      "href": "http://icwp.io/wpsf29"
+      "href": "https://icwp.io/wpsf29"
     }
   ],
   "action_links": {

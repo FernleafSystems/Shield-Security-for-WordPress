@@ -254,7 +254,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		);
 
 		$aContent[] = '';
-		$aContent[] = '[ <a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
 
 		$this->getEmailProcessor()
 			 ->sendEmailTo(
@@ -338,7 +338,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		else {
 			$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
 			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
-						  .' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
+						  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
 		}
 
 		return $aContent;

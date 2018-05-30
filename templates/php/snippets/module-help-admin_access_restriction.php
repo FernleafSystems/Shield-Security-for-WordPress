@@ -32,11 +32,11 @@
 		   do the 1st option - which is the recommended.
 		</p>
 		<ol>
-			<li>Follow the guide <a href="http://icwp.io/am" target="_blank">set out here</a>. Once you've
+			<li>Follow the guide <a href="https://icwp.io/am" target="_blank">set out here</a>. Once you've
 				turned off the Shield plugin you can go in and set the access key to whatever you like,
 				and then remove the 'forceoff' file.
 			</li>
-			<li>Follow the guide <a href="http://icwp.io/al" target="_blank">set out here</a> to reset
+			<li>Follow the guide <a href="https://icwp.io/al" target="_blank">set out here</a> to reset
 				your plugin to default settings.
 			</li>
 		</ol>

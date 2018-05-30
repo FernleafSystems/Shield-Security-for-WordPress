@@ -215,7 +215,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->loadWp()->wpDie( sprintf(
 					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
 					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
-						'http://icwp.io/7l',
+						'https://icwp.io/7l',
 						_wpsf__( 'Learn More.' )
 					),
 					$this->getController()->getHumanName()

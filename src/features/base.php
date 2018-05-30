@@ -1481,8 +1481,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'           => array(
-				'go_pro'         => 'http://icwp.io/shieldgoprofeature',
-				'goprofooter'    => 'http://icwp.io/goprofooter',
+				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
+				'goprofooter'    => 'https://icwp.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			),

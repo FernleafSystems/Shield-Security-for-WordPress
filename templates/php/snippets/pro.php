@@ -218,12 +218,12 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 						   $1/month per site ($12/year)</p>
 						<ol>
 							<li>Just grab a new license from the
-								<a href="http://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
+								<a href="https://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
 							<li>Activate your license on your sites using the 'Activate Key' button.</li>
 						</ol>
 
 						<p class="text-center">
-							<a href="http://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
+							<a href="https://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
 							   class="btn btn-large btn-success">
 								Upgrade To Shield Pro Now &rarr;</a>
 						</p>

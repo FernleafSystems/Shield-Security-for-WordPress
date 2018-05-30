@@ -267,7 +267,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				'value'       => '',
 				'placeholder' => _wpsf__( 'Please use your Google Authenticator App to retrieve your code.' ),
 				'text'        => _wpsf__( 'Google Authenticator Code' ),
-				'help_link'   => 'http://icwp.io/wpsf42',
+				'help_link'   => 'https://icwp.io/wpsf42',
 				'extras'      => array(
 					'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
 				)

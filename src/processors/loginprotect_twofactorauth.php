@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 				'value'       => $this->fetchCodeFromRequest(),
 				'placeholder' => _wpsf__( 'This code was just sent to your registered Email address.' ),
 				'text'        => _wpsf__( 'Email OTP' ),
-				'help_link'   => 'http://icwp.io/3t'
+				'help_link'   => 'https://icwp.io/3t'
 			);
 		}
 		return $aFields;
@@ -188,7 +188,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
 			'',
-			sprintf( '- <a href="%s" target="_blank">%s</a>', 'http://icwp.io/96', _wpsf__( 'Why no login link?' ) ),
+			sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) ),
 			''
 		);
 		$sEmailSubject = _wpsf__( 'Two-Factor Login Verification' );

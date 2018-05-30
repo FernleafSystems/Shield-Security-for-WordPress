@@ -803,7 +803,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sSummary = _wpsf__( 'Display Plugin Badge On Your Site' );
 				$sDescription = _wpsf__( 'Enabling this option helps support the plugin by spreading the word about it on your website.' )
 								.' '._wpsf__( 'The plugin badge also lets visitors know your are taking your website security seriously.' )
-								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'http://icwp.io/wpsf20', _wpsf__( 'Read this carefully before enabling this option.' ) );
+								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://icwp.io/wpsf20', _wpsf__( 'Read this carefully before enabling this option.' ) );
 				break;
 
 			case 'delete_on_deactivate' :

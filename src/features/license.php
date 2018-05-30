@@ -57,8 +57,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'connection_debug' => $this->getAjaxActionData( 'connection_debug' )
 			),
 			'aHrefs'  => array(
-				'shield_pro_url'           => 'http://icwp.io/shieldpro',
-				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
+				'shield_pro_url'           => 'https://icwp.io/shieldpro',
+				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
 				'iframe_url'               => $this->getDef( 'landing_page_url' ),
 				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
 			),
