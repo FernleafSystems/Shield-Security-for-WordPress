@@ -61,6 +61,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected static $bForceOffFileExists;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bImportExportWhitelistNotify = false;
+
+	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
 	 */
 	protected static $oEmailHandler;
@@ -907,6 +912,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				 ->setIsPremiumLicensed( $this->isPremium() )
 				 ->setNeedSave( true );
 		}
+
+		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
+		$this->bImportExportWhitelistNotify = $this->getOptionsVo()->getNeedSave();
 		$this->store();
 	}
 
@@ -1298,7 +1306,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				$this->setOpt( $sOptionKey, $sOptionValue );
 			}
 		}
+
 		$this->savePluginOptions();
+
+		// only use this flag when the options are being updated with a MANUAL save.
+		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
+			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
+				wp_schedule_single_event( $this->loadDP()->time() + 15, $this->prefix( 'importexport_notify' ) );
+			}
+		}
 	}
 
 	/**

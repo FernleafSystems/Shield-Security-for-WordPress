@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 			case 'importexport_export':
 			case 'importexport_handshake':
-			case 'importexport_updatenotify':
+			case 'importexport_updatenotified':
 				if ( $oFO->isImportExportPermitted() ) {
 					$this->getSubProcessorImportExport()->runAction();
 				}

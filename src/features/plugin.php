@@ -50,15 +50,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
-	 */
-	protected function getImportProcessor() {
-		/** @var ICWP_WPSF_Processor_Plugin $oP */
-		$oP = $this->getProcessor();
-		return $oP->getSubProcessorImportExport();
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
@@ -428,6 +419,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function hasImportExportWhitelistSites() {
+		return ( count( $this->getImportExportWhitelist() ) > 0 );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getImportExportHandshakeExpiresAt() {
@@ -466,7 +464,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportPermitted() {
-		return $this->getOptIs( 'importexport_enable', 'Y' );
+		return $this->isPremium() && $this->getOptIs( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -675,7 +673,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getCanAdminNotes() {
-		return true||$this->isPremium();
+		return $this->isPremium();
 	}
 
 	/**
