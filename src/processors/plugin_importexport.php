@@ -110,7 +110,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			}
 
 			$this->addToAuditEntry(
-				_wpsf__( 'Received notification that options import required from Master.' ),
+				_wpsf__( 'Received notification that options import required.' )
+				.' '.sprintf( _wpsf__( 'Current master site: %s' ), $oFO->getImportExportMasterImportUrl() ),
 				1,
 				'options_import_notified',
 				$sUrl
