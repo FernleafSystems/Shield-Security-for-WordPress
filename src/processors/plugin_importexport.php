@@ -95,11 +95,25 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 		if ( !wp_next_scheduled( $oFO->prefix( 'importexport_updatenotified' ) ) ) {
-			wp_schedule_single_event( $this->loadDP()->time() + 30, $oFO->prefix( 'importexport_updatenotified' ) );
+
+			wp_schedule_single_event( $this->loadDP()->time() + 2, $oFO->prefix( 'importexport_updatenotified' ) );
+
+			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $this->loadDP()->server( 'HTTP_USER_AGENT' ), $aMatches );
+			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
+				$sUrl = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
+				if ( !empty( $sUrl ) ) {
+					$sUrl = 'Site: '.$sUrl;
+				}
+			}
+			else {
+				$sUrl = '';
+			}
+
 			$this->addToAuditEntry(
 				_wpsf__( 'Received notification that options import required from Master.' ),
 				1,
-				'options_import_notified'
+				'options_import_notified',
+				$sUrl
 			);
 		}
 	}
