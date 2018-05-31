@@ -353,19 +353,11 @@ If you don't want to support the work, no problem! You can still continue to use
 
 You can [go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.7.2 - Current Release =
-*Released: 30th May, 2018* - [Release Notes](https://icwp.io/cx)
+= 6.7.3 - Current Release =
+*Released: 1st June, 2018* - [Release Notes](https://icwp.io/cx)
 
-* **(v.2)**  ADDED:		[**PRO**] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
-* **(v.0)**  UPDATED:	Some translations.
-* **(v.2)**  FIXED:		A few bugs with the Insights Dashboard.
-* **(v.2)**  FIXED:		Removed the dependency on jQuery with Invisible reCAPTCHA.
-
-Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and above.
-
-= 6.8 Series =
-
-* **(v.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
+* **(v.3)**  FIXED:		Several bugs with the automatic import/export system.
+* **(v.3)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
 = 6.7 Series =
 *Released: 21st May, 2018* - [Release Notes](https://icwp.io/cx)
