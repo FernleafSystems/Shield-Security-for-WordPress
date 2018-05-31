@@ -34,6 +34,10 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getTrackingProcessor()->run();
 		}
 
+		if ( $oFO->isImportExportPermitted() ) {
+			$this->getSubProcessorImportExport()->run();
+		}
+
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
 
