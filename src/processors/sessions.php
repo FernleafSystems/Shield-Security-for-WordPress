@@ -19,6 +19,11 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	private $oCurrent;
 
 	/**
+	 * @var int
+	 */
+	private $nSessionAlreadyCreatedUserId = 0;
+
+	/**
 	 * @param ICWP_WPSF_Processor_Sessions $oFeatureOptions
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oFeatureOptions ) {
@@ -27,10 +32,19 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		if ( $this->readyToRun() ) {
+//			add_action( 'set_auth_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); // todo: thorough testing
 			add_action( 'wp_login', array( $this, 'onWpLogin' ), 5, 2 );
 			add_action( 'wp_logout', array( $this, 'onWpLogout' ), 0 );
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
+		}
+	}
+
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+		$oUser = $this->loadWpUsers()
+					  ->getUserById( $nUserId );
+		if ( $oUser instanceof WP_User && !$this->isSessionAlreadyCreatedForUser( $oUser ) ) {
+			$this->activateUserSession( $oUser->user_login, $oUser );
 		}
 	}
 
@@ -66,6 +80,14 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 				$oFO->getConn()->getSessionId( true )
 			);
 		}
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	private function isSessionAlreadyCreatedForUser( $oUser ) {
+		return $this->nSessionAlreadyCreatedUserId > 0 && $this->nSessionAlreadyCreatedUserId == $oUser->ID;
 	}
 
 	/**
@@ -105,12 +127,17 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			return false;
 		}
 
+		if ( $this->isSessionAlreadyCreatedForUser( $oUser ) ) {
+			return true;
+		}
+
 		// If they have a currently active session, terminate it (i.e. we replace it)
 		$oSession = $this->queryGetSession( $sUsername, $this->getSessionId() );
 		if ( !empty( $oSession ) ) {
 			$this->queryTerminateSession( $oSession );
 		}
 		$this->queryCreateSession( $sUsername, $this->getSessionId() );
+		$this->nSessionAlreadyCreatedUserId = $oUser->ID;
 		return true;
 	}
 
