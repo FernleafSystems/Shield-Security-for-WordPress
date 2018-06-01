@@ -19,7 +19,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		add_filter( 'login_form_middle', array( $this, 'provideGaspCheckbox' ) );
 
 		// before username/password check (20)
-		add_filter( 'authenticate', array( $this, 'checkRequestWpLogin' ), 12, 2 );
+		add_filter( 'authenticate', array( $this, 'checkReqWpLogin' ), 12, 2 );
 
 		$b3rdParty = $oFO->getIfSupport3rdParty();
 		if ( $b3rdParty ) {
@@ -39,14 +39,15 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 			add_action( 'lostpassword_post', array( $this, 'checkRequestWpPasswordReset' ), 10 );
 
 			if ( $b3rdParty ) {
-				add_action( 'woocommerce_lostpassword_form', array( $this, 'printGaspCheckbox' ), 10 );
+				// Easy Digital Downloads
 				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printGaspCheckbox' ), 10 );
 
 				// Buddypress custom registration page.
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGaspCheckbox' ), 10 );
 				add_action( 'bp_signup_validate', array( $this, 'checkRequestWpRegistration' ), 10 );
 
-				// Check Woocommerce registrations
+				// Check Woocommerce actions
+				add_action( 'woocommerce_lostpassword_form', array( $this, 'printGaspCheckbox' ), 10 );
 				add_action( 'woocommerce_process_registration_errors', array( $this, 'checkRequestWooRegistration' ), 10, 2 );
 			}
 		}
@@ -70,7 +71,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param string                $sUsername
 	 * @return WP_Error
 	 */
-	public function checkRequestWpLogin( $oUser, $sUsername ) {
+	public function checkReqWpLogin( $oUser, $sUsername ) {
 		if ( $this->loadWp()->isRequestUserLogin() && !empty( $sUsername ) && !is_wp_error( $oUser ) ) {
 
 			try {
