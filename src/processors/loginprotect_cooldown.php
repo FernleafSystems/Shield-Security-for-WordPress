@@ -14,63 +14,34 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	private $bCooldownUpdated = false;
 
 	/**
-	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
-	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
-	 * @param null|WP_User|WP_Error $oUserOrError
-	 * @return WP_User|WP_Error
+	 * @throws Exception
 	 */
-	public function checkReqWpLogin( $oUserOrError ) {
-		if ( $this->loadWp()->isRequestUserLogin() && !$this->isCooldownAlreadyUpdated() ) {
-			$oUserOrError = $this->checkCooldownInterval( $oUserOrError );
-		}
-		return $oUserOrError;
-	}
+	protected function performCheckWithException() {
 
-	/**
-	 * @param WP_Error $oWpError
-	 * @return WP_Error
-	 */
-	public function checkReqWpRegistrationErrors( $oWpError ) {
 		if ( !$this->isCooldownAlreadyUpdated() ) {
-			$oWpError = $this->checkCooldownInterval( $oWpError );
-		}
-		return $oWpError;
-	}
 
-	/**
-	 * @param null|WP_User|WP_Error $oUserOrError
-	 * @return WP_User|WP_Error
-	 */
-	protected function checkCooldownInterval( $oUserOrError ) {
-
-		// If we're outside the interval, let the login process proceed as per normal and
-		// update our last login time.
-		$bWithinCooldownPeriod = $this->getIsWithinCooldownPeriod();
-		if ( !$bWithinCooldownPeriod ) {
+			$bWithinCooldownPeriod = $this->isWithinCooldownPeriod();
 			$this->updateLastLoginTime();
-			$this->doStatIncrement( 'login.cooldown.success' );
-			return $oUserOrError;
+
+			// At this point someone has attempted to login within the previous login wait interval
+			// So we remove WordPress's authentication filter and our own user check authentication
+			// And finally return a WP_Error which will be reflected back to the user.
+			if ( $bWithinCooldownPeriod ) {
+
+				$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
+								.sprintf(
+									_wpsf__( "You must wait %s seconds before attempting this action again." ),
+									$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin()
+								);
+
+				$this->setLoginAsFailed( 'login.cooldown.fail' );
+				$this->addToAuditEntry( _wpsf__( 'Cooldown triggered and request (login/register/lost-password) was blocked.' ) );
+				throw new Exception( $sErrorString );
+			}
+			else {
+				$this->doStatIncrement( 'login.cooldown.success' );
+			}
 		}
-
-		// At this point someone has attempted to login within the previous login wait interval
-		// So we remove WordPress's authentication filter and our own user check authentication
-		// And finally return a WP_Error which will be reflected back to the user.
-
-		$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
-						.sprintf(
-							_wpsf__( "You must wait %s seconds before attempting to %s again." ),
-							$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin(),
-							$this->loadWp()->isRequestUserLogin() ? _wpsf__( 'login' ) : _wpsf__( 'register' )
-						);
-
-		if ( !is_wp_error( $oUserOrError ) ) {
-			$oUserOrError = new WP_Error();
-		}
-
-		$oUserOrError->add( 'wpsf_logininterval', $sErrorString );
-		$this->setLoginAsFailed( 'login.cooldown.fail' );
-
-		return $oUserOrError;
 	}
 
 	/**
@@ -99,19 +70,19 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function updateLastLoginTime() {
 		$this->bCooldownUpdated = true;
+		$this->loadFS()->deleteFile( $this->getLastLoginTimeFilePath() );
 		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function getIsWithinCooldownPeriod() {
+	private function isWithinCooldownPeriod() {
 		// Is there an interval set?
 		$nCooldown = $this->getLoginCooldownInterval();
 		if ( empty( $nCooldown ) || $nCooldown <= 0 ) {
 			return false;
 		}
-
 		return ( $this->getSecondsSinceLastLogin() < $nCooldown );
 	}
 

@@ -15,55 +15,62 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		$oFO = $this->getFeature();
 
 		// Add GASP checking to the login form.
-		add_action( 'login_form', array( $this, 'printGaspCheckbox' ), 100 );
-		add_filter( 'login_form_middle', array( $this, 'provideGaspCheckbox' ) );
+		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
+		add_filter( 'login_form_middle', array( $this, 'provideLoginFormItems' ) );
 
 		// before username/password check (20)
 		add_filter( 'authenticate', array( $this, 'checkReqWpLogin' ), 12, 2 );
 
 		$b3rdParty = $oFO->getIfSupport3rdParty();
 		if ( $b3rdParty ) {
-			add_action( 'woocommerce_login_form', array( $this, 'printGaspCheckbox' ), 10 );
-			add_action( 'woocommerce_register_form', array( $this, 'printGaspCheckbox' ), 10 );
-			add_action( 'edd_login_fields_after', array( $this, 'printGaspCheckbox' ), 10 );
+			add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems' ), 10 );
+			add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
+			add_action( 'edd_login_fields_after', array( $this, 'printLoginFormItems' ), 10 );
 		}
 
 		// apply to user registrations if set to do so.
 		if ( $oFO->getIsCheckingUserRegistrations() ) {
 			//print the checkbox code:
-			add_action( 'register_form', array( $this, 'printGaspCheckbox' ) );
-			add_action( 'lostpassword_form', array( $this, 'printGaspCheckbox' ) );
+			add_action( 'register_form', array( $this, 'printLoginFormItems' ) );
+			add_action( 'lostpassword_form', array( $this, 'printLoginFormItems' ) );
 
 			//verify the checkbox is present:
-			add_action( 'register_post', array( $this, 'checkRequestWpRegistration' ), 10, 1 );
-			add_action( 'lostpassword_post', array( $this, 'checkRequestWpPasswordReset' ), 10 );
+			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
+			add_action( 'lostpassword_post', array( $this, 'checkReqPasswordReset_Wp' ), 10 );
 
 			if ( $b3rdParty ) {
 				// Easy Digital Downloads
-				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printGaspCheckbox' ), 10 );
+				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
 
 				// Buddypress custom registration page.
-				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printGaspCheckbox' ), 10 );
-				add_action( 'bp_signup_validate', array( $this, 'checkRequestWpRegistration' ), 10 );
+				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Wp' ), 10 );
 
 				// Check Woocommerce actions
-				add_action( 'woocommerce_lostpassword_form', array( $this, 'printGaspCheckbox' ), 10 );
+				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
 				add_action( 'woocommerce_process_registration_errors', array( $this, 'checkRequestWooRegistration' ), 10, 2 );
 			}
 		}
 	}
 
 	/**
+	 * @return string
 	 */
-	public function printGaspCheckbox() {
-		echo $this->getGaspLoginHtml();
+	protected function buildLoginFormItems() {
+		return $this->getGaspLoginHtml();
+	}
+
+	/**
+	 */
+	public function printLoginFormItems() {
+		echo $this->buildLoginFormItems();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function provideGaspCheckbox() {
-		return $this->getGaspLoginHtml();
+	public function provideLoginFormItems() {
+		return $this->buildLoginFormItems();
 	}
 
 	/**
@@ -101,7 +108,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param string $sSanitizedUsername
 	 * @return void
 	 */
-	public function checkRequestWpRegistration( $sSanitizedUsername ) {
+	public function checkReqRegistration_Wp( $sSanitizedUsername ) {
 		try {
 			$this->doGaspChecks( $sSanitizedUsername, 'register' );
 		}
@@ -113,7 +120,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return void
 	 */
-	public function checkRequestWpPasswordReset() {
+	public function checkReqPasswordReset_Wp() {
 		$sSanitizedUsername = sanitize_user( $this->loadDP()->post( 'user_login', '' ) );
 		try {
 			$this->doGaspChecks( $sSanitizedUsername, 'reset-password' );
@@ -126,7 +133,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return string
 	 */
-	protected function getGaspLoginHtml() {
+	private function getGaspLoginHtml() {
 
 		$sLabel = $this->getTextImAHuman();
 		$sAlert = $this->getTextPleaseCheckBox();
