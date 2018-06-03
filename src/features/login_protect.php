@@ -345,8 +345,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	public function getIsGoogleRecaptchaEnabled() {
-		return ( $this->getOptIs( 'enable_google_recaptcha_login', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+	public function isGoogleRecaptchaEnabled() {
+		return ( !$this->getOptIs( 'enable_google_recaptcha_login', 'disabled' ) && $this->getIsGoogleRecaptchaReady() );
 	}
 
 	/**

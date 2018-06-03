@@ -116,7 +116,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function checkReqLogin_Wp( $oUserOrError, $sUsername, $sPassword ) {
 		try {
-			if ( !empty( $sUsername ) && !empty( $sPassword ) ) {
+			if ( !is_wp_error( $oUserOrError ) && !empty( $sUsername ) && !empty( $sPassword ) ) {
 				$this->setUserToAudit( $sUsername )
 					 ->setActionToAudit( 'login' )
 					 ->performCheckWithException();
