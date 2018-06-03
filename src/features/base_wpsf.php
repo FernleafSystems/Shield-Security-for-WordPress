@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( !is_array( $aConfig ) ) {
 			$aConfig = array();
 		}
-		return array_merge(
+		$aConfig = array_merge(
 			array(
 				'key'    => '',
 				'secret' => '',
@@ -51,6 +51,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			),
 			$aConfig
 		);
+		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
+			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
+		}
+		return $aConfig;
 	}
 
 	/**

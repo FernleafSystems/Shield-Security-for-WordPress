@@ -219,47 +219,6 @@
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
-      "key":         "enable_google_recaptcha_login",
-      "section":     "section_recaptcha",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://icwp.io/9m",
-      "link_blog":   "https://icwp.io/shld5",
-      "name":        "Google reCAPTCHA",
-      "summary":     "Enable Google reCAPTCHA",
-      "description": "Use Google reCAPTCHA on the login screen."
-    },
-    {
-      "key":           "google_recaptcha_style_login",
-      "section":       "section_recaptcha",
-      "premium":       true,
-      "default":       "default",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "default",
-          "text":      "Default"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
-        }
-      ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "reCAPTCHA Style",
-      "summary":       "How Google reCAPTCHA Will Be Displayed",
-      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
-    },
-    {
       "key":         "enable_login_gasp_check",
       "section":     "section_brute_force_login_protection",
       "default":     "N",
@@ -282,15 +241,74 @@
       "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
     },
     {
-      "key":         "enable_user_register_checking",
+      "key":         "enable_google_recaptcha_login",
       "section":     "section_brute_force_login_protection",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://icwp.io/9p",
-      "link_blog":   "",
-      "name":        "User Registration",
-      "summary":     "Apply Brute Force Protection To User Registration And Lost Passwords",
-      "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "default",
+          "text":      "Default Theme"
+        },
+        {
+          "value_key": "light",
+          "text":      "Light Theme"
+        },
+        {
+          "value_key": "dark",
+          "text":      "Dark Theme"
+        },
+        {
+          "value_key": "invisible",
+          "text":      "Invisible reCAPTCHA"
+        }
+      ],
+      "link_info":   "https://icwp.io/9m",
+      "link_blog":   "https://icwp.io/shld5",
+      "name":        "Google reCAPTCHA",
+      "summary":     "Enable Google reCAPTCHA",
+      "description": "Use Google reCAPTCHA on the login screen."
+    },
+    {
+      "key":           "google_recaptcha_style_login",
+      "section":       "section_non_ui"
+    },
+    {
+      "key":           "bot_protection_locations",
+      "section":       "section_brute_force_login_protection",
+      "type":          "multiple_select",
+      "default":       [ "login" ],
+      "value_options": [
+        {
+          "value_key": "login",
+          "text":      "Login"
+        },
+        {
+          "value_key": "register",
+          "text":      "Register"
+        },
+        {
+          "value_key": "password",
+          "text":      "Lost Password"
+        },
+        {
+          "value_key": "checkout_woo",
+          "text":      "Checkout (WooCommerce)"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Protection Locations",
+      "summary":       "How Google reCAPTCHA Will Be Displayed",
+      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
+    },
+    {
+      "key":         "enable_user_register_checking",
+      "section":     "section_non_ui"
     },
     {
       "key":         "enable_yubikey",
