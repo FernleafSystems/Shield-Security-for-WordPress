@@ -548,7 +548,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_brute_force_login_protection' :
 				$sTitle = _wpsf__( 'Brute Force Login Protection' );
-				$sTitleShort = _wpsf__( 'Bots & reCAPTCHA' );
+				$sTitleShort = _wpsf__( 'reCAPTCHA & Bots' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )

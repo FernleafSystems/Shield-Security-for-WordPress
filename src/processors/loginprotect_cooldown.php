@@ -21,6 +21,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 		if ( !$this->isCooldownAlreadyUpdated() ) {
 
 			$bWithinCooldownPeriod = $this->isWithinCooldownPeriod();
+			$nRemaining = $this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin();
 			$this->updateLastLoginTime();
 
 			// At this point someone has attempted to login within the previous login wait interval
@@ -31,7 +32,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 				$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
 								.sprintf(
 									_wpsf__( "You must wait %s seconds before attempting this action again." ),
-									$this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin()
+									$nRemaining
 								);
 
 				$this->setLoginAsFailed( 'login.cooldown.fail' );
