@@ -50,7 +50,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				// Woocommerce actions
 				add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
-				add_action( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
+				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
 			}
 		}
 	}
@@ -125,12 +125,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param WP_Error $oErrors
+	 * @param WP_Error $oWpError
 	 * @param string   $sUsername
+	 * @return WP_Error
 	 */
-	public function checkReqRegistration_Woo( $oErrors, $sUsername ) {
+	public function checkReqRegistration_Woo( $oWpError, $sUsername ) {
 		//( sanitize_user( $sUsername ), 'woo-register' )
-		return $this->performCheckWithDie();
+		try {
+			$this->performCheckWithException();
+		}
+		catch ( Exception $oE ) {
+			if ( !is_wp_error( $oWpError ) ) {
+				$oWpError = new WP_Error();
+			}
+			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+		}
+		return $oWpError;
 	}
 
 	/**
