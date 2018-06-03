@@ -17,7 +17,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
 		add_filter( 'authenticate', array( $this, 'checkReqLogin_Wp' ), 10, 2 );
 
-//		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
+		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
 		add_filter( 'login_form_middle', array( $this, 'provideLoginFormItems' ), 100 );
 
 		$b3rdParty = $oFO->getIfSupport3rdParty();
