@@ -59,8 +59,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// WooCommerce
 				add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'woocommerce_after_checkout_registration_form',
+					array( $this, 'printRegistrationFormItems_Woo' ), 10 );
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
+				add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkReqCheckout_Woo' ), 10, 2 );
 			}
 		}
 	}
@@ -150,6 +153,24 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * see class-wc-checkout.php
+	 * @param WP_Error $oWpError
+	 * @param array   $aPostedData
+	 * @return WP_Error
+	 */
+	public function checkReqCheckout_Woo( $aPostedData, $oWpError ) {
+		try {
+			$this->setActionToAudit( 'woo-checkout' )
+				 ->performCheckWithException();
+		}
+		catch ( Exception $oE ) {
+			$oWpError = $this->giveMeWpError( $oWpError );
+			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+		}
+		return $oWpError;
+	}
+
+	/**
 	 * @param WP_Error $oWpError
 	 * @param string   $sUsername
 	 * @return WP_Error
@@ -208,6 +229,17 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function printLoginFormItems_Woo() {
 		$this->printLoginFormItems();
+	}
+
+	/**
+	 * see form-billing.php
+	 * @param WP_Checkout $oCheckout
+	 * @return void
+	 */
+	public function printRegistrationFormItems_Woo( $oCheckout ) {
+		if ( $oCheckout instanceof WC_Checkout && $oCheckout->get_checkout_fields( 'account' ) ) {
+			$this->printLoginFormItems();
+		}
 	}
 
 	/**
