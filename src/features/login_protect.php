@@ -147,6 +147,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @deprecated
 	 * @return bool
 	 */
 	public function getIsCheckingUserRegistrations() {
@@ -632,7 +633,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			case 'enable_google_recaptcha_login' :
 				$sName = _wpsf__( 'Google reCAPTCHA' );
 				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
-				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user login and account forms.' );
+				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user login and account forms.' ).'<br />'
+								.sprintf( _wpsf__( 'Use of any theme other than "%s", will require a Pro license.' ), _wpsf__( 'Light Theme' ) );
 				break;
 
 			case 'google_recaptcha_style_login' :
@@ -644,7 +646,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			case 'bot_protection_locations' :
 				$sName = _wpsf__( 'Protection Locations' );
 				$sSummary = _wpsf__( 'Which Forms Should Be Protected' );
-				$sDescription = _wpsf__( 'Choose which forms exactly bot protection measure will be deployed.' );
+				$sDescription = _wpsf__( 'Choose the forms for which bot protection measures will be deployed.' ).'<br />'
+								.sprintf( _wpsf__( 'Note - %s' ), sprintf( _wpsf__( "Use with 3rd party systems such as %s will required a Pro license." ), 'WooCommerce' ) );
 				break;
 
 			case 'enable_login_gasp_check' :
@@ -655,9 +658,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				break;
 
 			case 'login_limit_interval' :
-				$sName = _wpsf__( 'Login Cooldown Interval' );
-				$sSummary = _wpsf__( 'Limit login attempts to every X seconds' );
-				$sDescription = _wpsf__( 'WordPress will process only ONE login attempt for every number of seconds specified.' )
+				$sName = _wpsf__( 'Cooldown Period' );
+				$sSummary = _wpsf__( 'Limit account access requests to every X seconds' );
+				$sDescription = _wpsf__( 'WordPress will process only ONE account access attempt per number of seconds specified.' )
 								.'<br />'._wpsf__( 'Zero (0) turns this off.' )
 								.' '.sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()
 																				->getOptDefault( 'login_limit_interval' ) );

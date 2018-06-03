@@ -219,17 +219,6 @@
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
-      "key":         "enable_login_gasp_check",
-      "section":     "section_brute_force_login_protection",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://icwp.io/3r",
-      "link_blog":   "https://icwp.io/9n",
-      "name":        "Bot Protection",
-      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
-      "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
-    },
-    {
       "key":         "login_limit_interval",
       "section":     "section_brute_force_login_protection",
       "default":     "10",
@@ -239,6 +228,17 @@
       "name":        "Login Cooldown Interval",
       "summary":     "Limit login attempts to every X seconds",
       "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
+    },
+    {
+      "key":         "enable_login_gasp_check",
+      "section":     "section_brute_force_login_protection",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://icwp.io/3r",
+      "link_blog":   "https://icwp.io/9n",
+      "name":        "Bot Protection",
+      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
+      "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {
       "key":         "enable_google_recaptcha_login",
@@ -304,7 +304,7 @@
       "link_blog":     "",
       "name":          "Protection Locations",
       "summary":       "How Google reCAPTCHA Will Be Displayed",
-      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
+      "description":   "Choose for which forms bot protection measures will be deployed."
     },
     {
       "key":         "enable_user_register_checking",
