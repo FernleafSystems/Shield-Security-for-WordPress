@@ -93,8 +93,8 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		$sGaspCheckBox = $oDp->post( $this->getGaspCheckboxName() );
 		$sHoney = $oDp->post( 'icwp_wpsf_login_email' );
 
-		$sActionAttempted = ''; //TODO: login, register
-		$sUsername = 'unknown'; //TODO: login, register
+		$sUsername = $this->getUserToAudit();
+		$sActionAttempted = $this->getActionToAudit();
 
 		$bValid = false;
 		$sError = '';
@@ -119,7 +119,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		else {
 			$bValid = true;
 		}
-		
+
 		if ( !$bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getFeature();

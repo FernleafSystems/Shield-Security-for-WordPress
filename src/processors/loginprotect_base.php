@@ -9,22 +9,32 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
+	 * @var string
+	 */
+	private $sActionToAudit;
+
+	/**
+	 * @var string
+	 */
+	private $sUserToAudit;
+
+	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
+		$b3rdParty = $oFO->getIfSupport3rdParty();
 
 		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
-		add_filter( 'authenticate', array( $this, 'checkReqLogin_Wp' ), 10, 2 );
+		add_filter( 'authenticate', array( $this, 'checkReqLogin_Wp' ), 10, 3 );
 
 		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
 		add_filter( 'login_form_middle', array( $this, 'provideLoginFormItems' ), 100 );
 
-		$b3rdParty = $oFO->getIfSupport3rdParty();
-
 		if ( $b3rdParty ) {
 			add_action( 'edd_login_fields_after', array( $this, 'printLoginFormItems' ), 10 );
 			add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems_Woo' ), 100 );
+			add_filter( 'woocommerce_process_login_errors', array( $this, 'checkReqLogin_Woo' ), 10, 2 );
 		}
 
 		// apply to user registrations if set to do so.
@@ -47,7 +57,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				// Easy Digital Downloads
 				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
 
-				// Woocommerce actions
+				// WooCommerce
 				add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
@@ -62,7 +72,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @return bool
 	 */
 	protected function performCheckWithDie() {
 		try {
@@ -74,24 +83,42 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * @param WP_Error $oWpError
+	 * @param string   $sUsername
+	 * @return WP_Error
+	 */
+	public function checkReqLogin_Woo( $oWpError, $sUsername ) {
+		try {
+			$this->setUserToAudit( $sUsername )
+				 ->setActionToAudit( 'woo-login' )
+				 ->performCheckWithException();
+		}
+		catch ( Exception $oE ) {
+			$oWpError = $this->giveMeWpError( $oWpError );
+			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+		}
+		return $oWpError;
+	}
+
+	/**
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
 	 * @param null|WP_User|WP_Error $oUserOrError
 	 * @param string                $sUsername
+	 * @param string                $sPassword
 	 * @return WP_User|WP_Error
 	 */
-	public function checkReqLogin_Wp( $oUserOrError, $sUsername ) {
-		if ( $this->loadWp()->isRequestUserLogin() ) {
-
-			try {
-				$this->performCheckWithException();
+	public function checkReqLogin_Wp( $oUserOrError, $sUsername, $sPassword ) {
+		try {
+			if ( !empty( $sUsername ) && !empty( $sPassword ) ) {
+				$this->setUserToAudit( $sUsername )
+					 ->setActionToAudit( 'login' )
+					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
-				if ( !is_wp_error( $oUserOrError ) ) {
-					$oUserOrError = new WP_Error();
-				}
-				$oUserOrError->add( $this->prefix( rand() ), $oE->getMessage() );
-			}
+		}
+		catch ( Exception $oE ) {
+			$oUserOrError = $this->giveMeWpError( $oUserOrError );
+			$oUserOrError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oUserOrError;
 	}
@@ -101,27 +128,25 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return WP_Error
 	 */
 	public function checkReqLostPassword_Wp( $oWpError ) {
-		$sSanitizedUsername = sanitize_user( $this->loadDP()->post( 'user_login', '' ) );
-		// TODO: $sSanitizedUsername, 'reset-password'
 		try {
-			$this->performCheckWithException();
+			$this->setUserToAudit( $this->loadDP()->post( 'user_login', '' ) )
+				 ->setActionToAudit( 'reset-password' )
+				 ->performCheckWithException();
 		}
 		catch ( Exception $oE ) {
-			if ( !is_wp_error( $oWpError ) ) {
-				$oWpError = new WP_Error();
-			}
+			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}
 
 	/**
-	 * @param string $sSanitizedUsername
-	 * @return true
+	 * @param string $sUsername
 	 */
-	public function checkReqRegistration_Wp( $sSanitizedUsername ) {
-		//TODO: $sSanitizedUsername, 'register'
-		return $this->performCheckWithDie();
+	public function checkReqRegistration_Wp( $sUsername ) {
+		return $this->setUserToAudit( $sUsername )
+					->setActionToAudit( 'register' )
+					->performCheckWithDie();
 	}
 
 	/**
@@ -130,14 +155,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return WP_Error
 	 */
 	public function checkReqRegistration_Woo( $oWpError, $sUsername ) {
-		//( sanitize_user( $sUsername ), 'woo-register' )
 		try {
-			$this->performCheckWithException();
+			$this->setUserToAudit( $sUsername )
+				 ->setActionToAudit( 'woo-register' )
+				 ->performCheckWithException();
 		}
 		catch ( Exception $oE ) {
-			if ( !is_wp_error( $oWpError ) ) {
-				$oWpError = new WP_Error();
-			}
+			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
@@ -152,9 +176,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$this->performCheckWithException();
 		}
 		catch ( Exception $oE ) {
-			if ( !is_wp_error( $oWpError ) ) {
-				$oWpError = new WP_Error();
-			}
+			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
@@ -212,5 +234,45 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 		$this->doStatIncrement( $sStatToIncrement );
 		$this->setIpTransgressed(); // We now black mark this IP
+	}
+
+	/**
+	 * @param WP_Error $oMaybeWpError
+	 * @return WP_Error
+	 */
+	protected function giveMeWpError( $oMaybeWpError ) {
+		return is_wp_error( $oMaybeWpError ) ? $oMaybeWpError : new WP_Error();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getActionToAudit() {
+		return empty( $this->sActionToAudit ) ? 'unknown-action' : $this->sActionToAudit;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUserToAudit() {
+		return empty( $this->sUserToAudit ) ? 'unknown' : $this->sUserToAudit;
+	}
+
+	/**
+	 * @param string $sActionToAudit
+	 * @return $this
+	 */
+	protected function setActionToAudit( $sActionToAudit ) {
+		$this->sActionToAudit = $sActionToAudit;
+		return $this;
+	}
+
+	/**
+	 * @param string $sUserToAudit
+	 * @return $this
+	 */
+	protected function setUserToAudit( $sUserToAudit ) {
+		$this->sUserToAudit = sanitize_user( $sUserToAudit );
+		return $this;
 	}
 }
