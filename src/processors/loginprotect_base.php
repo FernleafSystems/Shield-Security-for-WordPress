@@ -15,14 +15,15 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		$oFO = $this->getFeature();
 
 		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
-		add_filter( 'authenticate', array( $this, 'checkReqLogin_Wp' ), 10, 1 );
+		add_filter( 'authenticate', array( $this, 'checkReqLogin_Wp' ), 10, 2 );
 
-		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
+//		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
 		add_filter( 'login_form_middle', array( $this, 'provideLoginFormItems' ), 100 );
 
 		$b3rdParty = $oFO->getIfSupport3rdParty();
 
 		if ( $b3rdParty ) {
+			add_action( 'edd_login_fields_after', array( $this, 'printLoginFormItems' ), 10 );
 			add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems_Woo' ), 100 );
 		}
 
@@ -42,6 +43,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			if ( $b3rdParty ) {
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems_Bp' ), 10 );
 				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
+
+				// Easy Digital Downloads
+				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
+
+				// Woocommerce actions
+				add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
 			}
 		}
 	}
@@ -68,11 +77,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
 	 * @param null|WP_User|WP_Error $oUserOrError
+	 * @param string                $sUsername
 	 * @return WP_User|WP_Error
 	 */
-	public function checkReqLogin_Wp( $oUserOrError ) {
-
-		if ( $this->loadWp()->isRequestUserLogin() && !is_wp_error( $oUserOrError ) ) {
+	public function checkReqLogin_Wp( $oUserOrError, $sUsername ) {
+		if ( $this->loadWp()->isRequestUserLogin() ) {
 
 			try {
 				$this->performCheckWithException();
@@ -92,6 +101,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return WP_Error
 	 */
 	public function checkReqLostPassword_Wp( $oWpError ) {
+		$sSanitizedUsername = sanitize_user( $this->loadDP()->post( 'user_login', '' ) );
+		// TODO: $sSanitizedUsername, 'reset-password'
 		try {
 			$this->performCheckWithException();
 		}
@@ -109,6 +120,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return true
 	 */
 	public function checkReqRegistration_Wp( $sSanitizedUsername ) {
+		//TODO: $sSanitizedUsername, 'register'
+		return $this->performCheckWithDie();
+	}
+
+	/**
+	 * @param WP_Error $oErrors
+	 * @param string   $sUsername
+	 */
+	public function checkReqRegistration_Woo( $oErrors, $sUsername ) {
+		//( sanitize_user( $sUsername ), 'woo-register' )
 		return $this->performCheckWithDie();
 	}
 

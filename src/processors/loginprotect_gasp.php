@@ -4,130 +4,15 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/loginprotect_base.php' );
 
-class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf {
-
-	/**
-	 */
-	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-
-		// Add GASP checking to the login form.
-		add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
-		add_filter( 'login_form_middle', array( $this, 'provideLoginFormItems' ) );
-
-		// before username/password check (20)
-		add_filter( 'authenticate', array( $this, 'checkReqWpLogin' ), 12, 2 );
-
-		$b3rdParty = $oFO->getIfSupport3rdParty();
-		if ( $b3rdParty ) {
-			add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems' ), 10 );
-			add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
-			add_action( 'edd_login_fields_after', array( $this, 'printLoginFormItems' ), 10 );
-		}
-
-		// apply to user registrations if set to do so.
-		if ( $oFO->getIsCheckingUserRegistrations() ) {
-			//print the checkbox code:
-			add_action( 'register_form', array( $this, 'printLoginFormItems' ) );
-			add_action( 'lostpassword_form', array( $this, 'printLoginFormItems' ) );
-
-			//verify the checkbox is present:
-			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
-			add_action( 'lostpassword_post', array( $this, 'checkReqPasswordReset_Wp' ), 10 );
-
-			if ( $b3rdParty ) {
-				// Easy Digital Downloads
-				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
-
-				// Buddypress custom registration page.
-				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems' ), 10 );
-				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Wp' ), 10 );
-
-				// Check Woocommerce actions
-				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
-				add_action( 'woocommerce_process_registration_errors', array( $this, 'checkRequestWooRegistration' ), 10, 2 );
-			}
-		}
-	}
+class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
 	 * @return string
 	 */
 	protected function buildLoginFormItems() {
 		return $this->getGaspLoginHtml();
-	}
-
-	/**
-	 */
-	public function printLoginFormItems() {
-		echo $this->buildLoginFormItems();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function provideLoginFormItems() {
-		return $this->buildLoginFormItems();
-	}
-
-	/**
-	 * @param null|WP_User|WP_Error $oUser
-	 * @param string                $sUsername
-	 * @return WP_Error
-	 */
-	public function checkReqWpLogin( $oUser, $sUsername ) {
-		if ( $this->loadWp()->isRequestUserLogin() && !empty( $sUsername ) && !is_wp_error( $oUser ) ) {
-
-			try {
-				$this->doGaspChecks( $sUsername, _wpsf__( 'login' ) );
-			}
-			catch ( Exception $oE ) {
-				$this->loadWp()->wpDie( $oE->getMessage() );
-			}
-		}
-		return $oUser;
-	}
-
-	/**
-	 * @param WP_Error $oErrors
-	 * @param string   $sUsername
-	 */
-	public function checkRequestWooRegistration( $oErrors, $sUsername ) {
-		try {
-			$this->doGaspChecks( sanitize_user( $sUsername ), 'woo-register' );
-		}
-		catch ( Exception $oE ) {
-			$this->loadWp()->wpDie( $oE->getMessage() );
-		}
-	}
-
-	/**
-	 * @param string $sSanitizedUsername
-	 * @return void
-	 */
-	public function checkReqRegistration_Wp( $sSanitizedUsername ) {
-		try {
-			$this->doGaspChecks( $sSanitizedUsername, 'register' );
-		}
-		catch ( Exception $oE ) {
-			$this->loadWp()->wpDie( $oE->getMessage() );
-		}
-	}
-
-	/**
-	 * @return void
-	 */
-	public function checkReqPasswordReset_Wp() {
-		$sSanitizedUsername = sanitize_user( $this->loadDP()->post( 'user_login', '' ) );
-		try {
-			$this->doGaspChecks( $sSanitizedUsername, 'reset-password' );
-		}
-		catch ( Exception $oE ) {
-			$this->loadWp()->wpDie( $oE->getMessage() );
-		}
 	}
 
 	/**
@@ -198,6 +83,50 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_BaseWpsf
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		return $oFO->prefix( $oFO->getGaspKey() );
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	protected function performCheckWithException() {
+		$oDp = $this->loadDP();
+		$sGaspCheckBox = $oDp->post( $this->getGaspCheckboxName() );
+		$sHoney = $oDp->post( 'icwp_wpsf_login_email' );
+
+		$sActionAttempted = ''; //TODO: login, register
+		$sUsername = 'unknown'; //TODO: login, register
+
+		$bValid = false;
+		$sError = '';
+		if ( empty( $sGaspCheckBox ) ) {
+			$sAuditMessage = sprintf(
+								 _wpsf__( 'User "%s" attempted to %s but GASP checkbox was not present.' ),
+								 $sUsername, $sActionAttempted
+							 ).' '._wpsf__( 'Probably a BOT.' );
+			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_checkbox' );
+			$this->setLoginAsFailed( $sActionAttempted.'.gasp.checkbox.fail' );
+			$sError = _wpsf__( "You must check that box to say you're not a bot." );
+		}
+		else if ( !empty( $sHoney ) ) {
+			$sAuditMessage = sprintf(
+								 _wpsf__( 'User "%s" attempted to %s but they were caught by the GASP honeypot.' ),
+								 $sUsername, $sActionAttempted
+							 ).' '._wpsf__( 'Probably a BOT.' );
+			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_honeypot' );
+			$this->setLoginAsFailed( $sActionAttempted.'.gasp.honeypot.fail' );
+			$sError = sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted );
+		}
+		else {
+			$bValid = true;
+		}
+		
+		if ( !$bValid ) {
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getFeature();
+			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
+			$this->setIpTransgressed(); // We now black mark this IP
+			throw new Exception( $sError );
+		}
 	}
 
 	/**

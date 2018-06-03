@@ -24,7 +24,7 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 					$sWpUsername = 'WP Cron';
 				}
 				else {
-					$sWpUsername = 'Unidentified';
+					$sWpUsername = 'unidentified';
 				}
 			}
 			else {
