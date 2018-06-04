@@ -643,13 +643,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
+		$sName = $this->getConn()->getHumanName();
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_license_options' :
 				$sTitle = _wpsf__( 'License Options' );
 				$sTitleShort = _wpsf__( 'License Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Activate Shield Pro Extensions.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Activate %s Pro Extensions.' ), $sName ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'TODO.' ) )
 				);
 				break;

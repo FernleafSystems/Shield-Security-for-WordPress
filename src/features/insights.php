@@ -115,7 +115,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$bSuccess = false;
 		if ( !$oMod->getCanAdminNotes() ) {
-			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Shield Pro.' );
+			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
 		}
 		else if ( empty( $sNote ) ) {
 			$sMessage = _wpsf__( 'Sorry, but it appears your note was empty.' );
@@ -187,12 +187,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
+		$sName = $this->getConn()->getHumanName();
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
-				'recommendation' => ucfirst( _wpsf__( 'recommendation' ) ),
-				'suggestion'     => ucfirst( _wpsf__( 'suggestion' ) ),
-
+				'page_title'          => sprintf( _wpsf__( '%s Security Insights' ), $sName ),
+				'recommendation'      => ucfirst( _wpsf__( 'recommendation' ) ),
+				'suggestion'          => ucfirst( _wpsf__( 'suggestion' ) ),
+				'box_welcome_title'   => sprintf( _wpsf__( 'Welcome To %s Security Insights Dashboard' ), $sName ),
+				'box_receve_subtitle' => sprintf( _wpsf__( 'Some of the most recent %s events' ), $sName )
 			)
 		);
 	}
@@ -518,7 +521,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'pro'            => array(
 				'title'   => _wpsf__( 'Pro' ),
 				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-				'tooltip' => _wpsf__( 'Is this site running Shield Pro' )
+				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
 			),
 		);
 	}
@@ -592,7 +595,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
 			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
 			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'        => _wpsf__( 'Shield Transgression' ),
+			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()->getHumanName() ),
 			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
 		);
 	}

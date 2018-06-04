@@ -690,12 +690,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch ( $sSectionSlug ) {
+		$sName = $this->getConn()->getHumanName();
+		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_global_security_options' :
 				$sTitle = _wpsf__( 'Global Security Plugin Disable' );
-				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $this->getConn()->getHumanName() );
+				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $sName );
 				break;
 
 			case 'section_defaults' :
@@ -724,9 +724,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sTitle = _wpsf__( 'Google' );
 				$sTitleShort = _wpsf__( 'Google' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Setup Google reCAPTCHA for use across Shield.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'Note: you must create your own Google reCAPTCHA API Keys.' ) ),
-					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Invisible Google reCAPTCHA is available with Shield Pro.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), sprintf( _wpsf__( 'Setup Google reCAPTCHA for use across %s.' ), $sName ) ),
+					sprintf( '%s - %s',
+						_wpsf__( 'Recommendation' ),
+						sprintf( _wpsf__( 'Use of this feature is highly recommend.' ).' '
+								 .sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'you must create your own Google reCAPTCHA API Keys.' ) )
+						)
+					),
+					sprintf( '%s - %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'Invisible Google reCAPTCHA is available with %s Pro.' ), $sName ) )
 				);
 				break;
 
@@ -736,7 +741,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
