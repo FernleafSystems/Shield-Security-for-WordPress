@@ -109,7 +109,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
 
 			$bSendSuccess = $this->getEmailProcessor()
-								 ->sendEmailTo( $sRecipient, $sEmailSubject, $this->aEmailContents );
+								 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $this->aEmailContents );
 
 			if ( $bSendSuccess ) {
 				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sRecipient ) );

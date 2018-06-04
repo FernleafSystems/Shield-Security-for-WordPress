@@ -194,7 +194,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$sEmailSubject = _wpsf__( 'Two-Factor Login Verification' );
 
 		$bResult = $this->getEmailProcessor()
-						->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
+						->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 		if ( $bResult ) {
 			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->get( 'user_login' ), $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );

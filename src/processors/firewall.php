@@ -477,7 +477,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$sEmailSubject = _wpsf__( 'Firewall Block Alert' );
 
 		return $this->getEmailProcessor()
-					->sendEmailTo( $sRecipient, $sEmailSubject, $aMessage );
+					->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aMessage );
 	}
 
 	/**

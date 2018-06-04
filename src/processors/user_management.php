@@ -195,7 +195,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		return $this
 			->getFeature()
 			->getEmailProcessor()
-			->sendEmailTo(
+			->sendEmailWithWrap(
 				$this->getOption( 'enable_admin_login_email_notification' ),
 				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage

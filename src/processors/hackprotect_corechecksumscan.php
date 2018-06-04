@@ -257,7 +257,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
 
 		$this->getEmailProcessor()
-			 ->sendEmailTo(
+			 ->sendEmailWithWrap(
 				 $this->getPluginDefaultRecipientAddress(),
 				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
 				 $aContent

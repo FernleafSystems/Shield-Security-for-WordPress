@@ -133,7 +133,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$sEmailSubject = _wpsf__( 'Email Sending Verification' );
 		return $this->getEmailProcessor()
-					->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
+					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 	}
 
 	/**

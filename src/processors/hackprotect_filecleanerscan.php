@@ -241,7 +241,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
 
 		$this->getEmailProcessor()
-			 ->sendEmailTo(
+			 ->sendEmailWithWrap(
 				 $this->getPluginDefaultRecipientAddress(),
 				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
 				 $aContent

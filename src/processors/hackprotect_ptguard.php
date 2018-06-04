@@ -490,7 +490,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		$sRecipient = $this->getPluginDefaultRecipientAddress();
 		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugins/Themes Have Been Altered' ) );
 		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailTo( $sRecipient, $sEmailSubject, $aContent );
+							 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aContent );
 
 		if ( $bSendSuccess ) {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin/Theme Guard email alert to: %s' ), $sRecipient ) );
