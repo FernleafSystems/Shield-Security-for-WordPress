@@ -228,7 +228,6 @@
     {
       "key": "wl_hide_updates",
       "section": "section_whitelabel",
-      "premium": true,
       "default": "Y",
       "type": "checkbox",
       "link_info": "",

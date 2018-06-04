@@ -728,8 +728,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					sprintf( '%s - %s',
 						_wpsf__( 'Recommendation' ),
 						sprintf( _wpsf__( 'Use of this feature is highly recommend.' ).' '
-								 .sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'you must create your own Google reCAPTCHA API Keys.' ) )
+								 .sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You must create your own Google reCAPTCHA API Keys.' ) )
 						)
+						.sprintf( '<br/><a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', _wpsf__( 'API Keys' ) )
 					),
 					sprintf( '%s - %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'Invisible Google reCAPTCHA is available with %s Pro.' ), $sName ) )
 				);
