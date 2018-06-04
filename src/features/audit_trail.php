@@ -162,7 +162,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	protected function getContentCustomActionsData() {
 		$aContexts = array(
 			'all'       => 'All', //special
-			'wpsf'      => 'Shield',
+			'wpsf'      => $this->getConn()->getHumanName(),
 			'wordpress' => 'WordPress',
 			'users'     => 'Users',
 			'posts'     => 'Posts',
@@ -277,7 +277,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				  ->setColumns( array( 'wp_username' ) )
 				  ->setResultsAsVo( false )
 				  ->all();
-			$aData[ 'messages' ][] = 'Shield Security Audit Entries deleted';
+			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );
 		}
 		catch ( Exception $oE ) {
 		}
