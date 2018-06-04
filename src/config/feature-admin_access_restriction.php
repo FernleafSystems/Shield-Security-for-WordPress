@@ -99,6 +99,7 @@
       "section": "section_admin_access_restriction_settings",
       "default": 30,
       "type": "integer",
+      "min": 1,
       "link_info": "https://icwp.io/41",
       "link_blog": "",
       "name": "Security Admin Timeout",
@@ -214,7 +215,7 @@
     },
     {
       "key": "whitelabel_enable",
-      "section": "section_non_ui",
+      "section": "section_whitelabel",
       "premium": true,
       "default": "N",
       "type": "checkbox",
@@ -225,8 +226,8 @@
       "description": "Use this option to turn on/off the whole White Label feature."
     },
     {
-      "key": "_wl_hide_updates",
-      "section": "section_non_ui",
+      "key": "wl_hide_updates",
+      "section": "section_whitelabel",
       "premium": true,
       "default": "Y",
       "type": "checkbox",
@@ -237,10 +238,10 @@
       "description": "Hides the availability of Shield updates from non-security admins."
     },
     {
-      "key": "_wl_namemain",
+      "key": "wl_pluginnamemain",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
-      "default": "Shield Security",
+      "default": "Shield",
       "type": "text",
       "link_info": "",
       "link_blog": "",
@@ -249,10 +250,10 @@
       "description": "The Name Of The Plugin."
     },
     {
-      "key": "_wl_namemenu",
+      "key": "wl_namemenu",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
-      "default": "",
+      "default": "Shield Security",
       "type": "text",
       "link_info": "",
       "link_blog": "",
@@ -261,9 +262,21 @@
       "description": "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
     },
     {
-      "key": "_wl_description",
+      "key": "wl_companyname",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
+      "default": "One Dollar Plugin",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Company Name",
+      "summary": "The Name Of Your Company",
+      "description": "Provide the name of your company."
+    },
+    {
+      "key": "wl_description",
+      "section": "section_whitelabel",
+      "sensitive": true,
       "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
       "type": "text",
       "link_info": "",
@@ -273,9 +286,9 @@
       "description": "The Tag Line Of The Plugin."
     },
     {
-      "key": "_wl_homeurl",
+      "key": "wl_homeurl",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
       "default": "https://icwp.io/home",
       "type": "text",
       "link_info": "",
@@ -285,16 +298,28 @@
       "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
     },
     {
-      "key": "_wl_iconurl",
+      "key": "wl_menuiconurl",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
       "default": "",
       "type": "text",
       "link_info": "",
       "link_blog": "",
-      "name": "Icon URL",
-      "summary": "Plugin Icon URL",
-      "description": "The URL of the icon displayed in the menu and in the admin pages."
+      "name": "Menu Icon",
+      "summary": "Menu Icon URL",
+      "description": "The URL of the icon displayed in the menu."
+    },
+    {
+      "key": "wl_dashboardlogourl",
+      "section": "section_whitelabel",
+      "sensitive": true,
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Dashboard Logo",
+      "summary": "Dashboard Logo URL",
+      "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     }
   ],
   "definitions": {

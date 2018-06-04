@@ -247,12 +247,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function setSaveUserResponse() {
 		if ( $this->isAccessKeyRequest() ) {
 			$bSuccess = $this->doCheckHasPermissionToSubmit();
+
+			$sPluginName = $this->getConn()->getHumanName();
 			if ( $bSuccess ) {
-				$sMessage = sprintf( _wpsf__( '%s Security Admin key accepted.' ), self::getConn()->getHumanName() );
+				$sMessage = sprintf( _wpsf__( '%s Security Admin key accepted.' ), $sPluginName );
 			}
 			else {
-				$sMessage = sprintf( _wpsf__( '%s Security Admin key not accepted.' ), self::getConn()
-																						   ->getHumanName() );
+				$sMessage = sprintf( _wpsf__( '%s Security Admin key not accepted.' ), $sPluginName );
 			}
 			$this->loadAdminNoticesProcessor()
 				 ->addFlashMessage( $sMessage, $bSuccess ? 'updated' : 'error' );
@@ -313,7 +314,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getWhitelabelOptions() {
-		$sMain = $this->getOpt( 'wl_namemain' );
+		$sMain = $this->getOpt( 'wl_pluginnamemain' );
 		$sMenu = $this->getOpt( 'wl_namemenu' );
 		if ( empty( $sMenu ) ) {
 			$sMenu = $sMain;
@@ -324,7 +325,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			'name_menu'   => $sMenu,
 			'description' => $this->getOpt( 'wl_description' ),
 			'url_home'    => $this->getOpt( 'wl_homeurl' ),
-			'url_icon'    => $this->getOpt( 'wl_iconurl' ),
+			'url_icon'    => $this->getOpt( 'wl_menuiconurl' ),
 		);
 	}
 
@@ -401,6 +402,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
+		$sPluginName = $this->getConn()->getHumanName();
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
@@ -437,7 +439,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					sprintf( '%s - %s',
 						_wpsf__( 'Purpose' ),
 						sprintf( _wpsf__( 'Rename and re-brand the %s plugin for your client site installations.' ),
-							$this->getConn()->getHumanName() )
+							$sPluginName )
+					),
+					sprintf( '%s - %s',
+						_wpsf__( 'Important' ),
+						sprintf( _wpsf__( 'The Security Admin system must be active for these settings to apply.' ),
+							$sPluginName )
 					)
 				);
 				$sTitleShort = _wpsf__( 'White Label' );
@@ -460,6 +467,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
+		$sPluginName = $this->getConn()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'enable_admin_access_restriction' :
@@ -535,9 +543,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'wl_hide_updates' :
 				$sName = _wpsf__( 'Hide Updates' );
 				$sSummary = _wpsf__( 'Hide Plugin Updates From Non-Security Admins' );
-				$sDescription = _wpsf__( 'Do not show the availability of updates to non-security administrators.' );
+				$sDescription = sprintf( _wpsf__( 'Hide available %s updates from non-security administrators.' ), $sPluginName );
 				break;
-			case 'wl_namemain' :
+			case 'wl_pluginnamemain' :
 				$sName = _wpsf__( 'Plugin Name' );
 				$sSummary = _wpsf__( 'The Name Of The Plugin' );
 				$sDescription = _wpsf__( 'The name of the plugin that will be displayed to your site users.' );
@@ -546,6 +554,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Menu Title' );
 				$sSummary = _wpsf__( 'The Main Menu Title Of The Plugin' );
 				$sDescription = sprintf( _wpsf__( 'The Main Menu Title Of The Plugin. If left empty, the "%s" will be used.' ), _wpsf__( 'Plugin Name' ) );
+				break;
+			case 'wl_companyname' :
+				$sName = _wpsf__( 'Company Name' );
+				$sSummary = _wpsf__( 'The Name Of Your Company' );
+				$sDescription = _wpsf__( 'Provide the name of your company.' );
 				break;
 			case 'wl_description' :
 				$sName = _wpsf__( 'Description' );
@@ -557,10 +570,17 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sSummary = _wpsf__( 'Plugin Home Page URL' );
 				$sDescription = _wpsf__( "When a user clicks the home link for this plugin, this is where they'll be directed." );
 				break;
-			case 'wl_iconurl' :
-				$sName = _wpsf__( 'Icon URL' );
-				$sSummary = _wpsf__( 'Plugin Icon URL' );
-				$sDescription = _wpsf__( 'The URL of the icon displayed in the menu and in the admin pages.' );
+			case 'wl_menuiconurl' :
+				$sName = _wpsf__( 'Menu Icon' );
+				$sSummary = _wpsf__( 'Menu Icon URL' );
+				$sDescription = _wpsf__( 'The URL of the icon to display in the menu.' )
+								.' '._wpsf__( 'The icon should ideally be square' );
+				break;
+			case 'wl_dashboardlogourl' :
+				$sName = _wpsf__( 'Dashboard Logo' );
+				$sSummary = _wpsf__( 'Dashboard Logo URL' );
+				$sDescription = _wpsf__( 'The URL of the logo to display in the admin pages.' )
+								.' '.sprintf( _wpsf__( 'The logo should measure %s.' ), '128px x 128px' );
 				break;
 
 			default:
@@ -577,10 +597,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-
-		if ( $this->getOpt( 'admin_access_timeout' ) < 1 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'admin_access_timeout' );
-		}
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$aPluginsRestrictions = $this->getAdminAccessArea_Plugins();
@@ -614,6 +630,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'admin_access_restrict_posts',
 				array_unique( array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) ) )
 			);
+		}
+
+		if ( !filter_var( $this->getOpt( 'wl_menuiconurl' ), FILTER_VALIDATE_URL ) ) {
+			$this->setOpt( 'wl_menuiconurl', '' );
+		}
+		if ( !filter_var( $this->getOpt( 'wl_dashboardlogourl' ), FILTER_VALIDATE_URL ) ) {
+			$this->setOpt( 'wl_dashboardlogourl', '' );
 		}
 	}
 }
