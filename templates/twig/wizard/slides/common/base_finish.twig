@@ -1,6 +1,6 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
-{% block slide_header_next %}{% endblock %}
+{% block slide_header_next_top %}{% endblock %}
 
 {% block slide_body_middle %}
 
@@ -49,3 +49,5 @@
 	<a href="{{ hrefs.dashboard }}" class="btn btn-outline-secondary">
 		&#x21d0; Return To The {{ strings.plugin_name }} WordPress Dashboard</a>
 {% endblock %}
+
+{% block slide_header_next_bottom %}{% endblock %}
