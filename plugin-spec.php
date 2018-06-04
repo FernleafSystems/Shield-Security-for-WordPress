@@ -70,7 +70,8 @@
     "PluginURI": "https://icwp.io/2f",
     "AuthorURI": "https://icwp.io/bv",
     "icon_url_16x16": "pluginlogo_16x16.png",
-    "icon_url_32x32": "pluginlogo_32x32.png"
+    "icon_url_32x32": "pluginlogo_32x32.png",
+    "icon_url_128x128": "pluginlogo_128x128.png"
   },
   "plugin_meta": [
     {

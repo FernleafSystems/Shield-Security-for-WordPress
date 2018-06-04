@@ -321,11 +321,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 
 		return array(
-			'name_main'   => $sMain,
-			'name_menu'   => $sMenu,
-			'description' => $this->getOpt( 'wl_description' ),
-			'url_home'    => $this->getOpt( 'wl_homeurl' ),
-			'url_icon'    => $this->getOpt( 'wl_menuiconurl' ),
+			'name_main'            => $sMain,
+			'name_menu'            => $sMenu,
+			'description'          => $this->getOpt( 'wl_description' ),
+			'url_home'             => $this->getOpt( 'wl_homeurl' ),
+			'url_icon'             => $this->getOpt( 'wl_menuiconurl' ),
+			'url_dashboardlogourl' => $this->getOpt( 'wl_dashboardlogourl' ),
 		);
 	}
 

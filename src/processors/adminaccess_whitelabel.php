@@ -62,6 +62,12 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 			$aPluginLabels[ 'icon_url_16x16' ] = $sIconUrl;
 			$aPluginLabels[ 'icon_url_32x32' ] = $sIconUrl;
 		}
+
+		$sLogoUrl = $aWhiteLabels[ 'url_dashboardlogourl' ];
+		if ( !empty( $sLogoUrl ) ) {
+			$aPluginLabels[ 'icon_url_128x128' ] = $sLogoUrl;
+		}
+
 		return $aPluginLabels;
 	}
 
