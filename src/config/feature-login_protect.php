@@ -252,7 +252,7 @@
         },
         {
           "value_key": "default",
-          "text":      "Default Theme"
+          "text":      "Default Style"
         },
         {
           "value_key": "light",
