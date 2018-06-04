@@ -83,6 +83,19 @@
       "description": "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
     },
     {
+      "key": "enable_user_login_email_notification",
+      "section": "section_admin_login_notification",
+      "premium": true,
+      "sensitive": false,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "User Login Notification Email",
+      "summary": "Send Email Notification To Each User Upon Successful Login",
+      "description": "A notification is sent to each users when a successful login occurs to their account."
+    },
+    {
       "key": "session_timeout_interval",
       "section": "section_user_session_management",
       "default": 2,

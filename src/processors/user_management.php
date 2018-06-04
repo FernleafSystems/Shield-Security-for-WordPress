@@ -65,8 +65,11 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getFeature();
-			if ( $oFO->isSendEmailLoginNotification() ) {
-				$this->sendLoginEmailNotification( $oUser );
+			if ( $oFO->isSendAdminEmailLoginNotification() ) {
+				$this->sendAdminLoginEmailNotification( $oUser );
+			}
+			if ( $oFO->isSendUserEmailLoginNotification() ) {
+				$this->sendUserLoginEmailNotification( $oUser );
 			}
 			$this->setUserLastLoginTime( $oUser );
 		}
@@ -139,7 +142,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	protected function sendLoginEmailNotification( $oUser ) {
+	protected function sendAdminLoginEmailNotification( $oUser ) {
 		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
@@ -198,6 +201,38 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->sendEmailWithWrap(
 				$this->getOption( 'enable_admin_login_email_notification' ),
 				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
+				$aMessage
+			);
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function sendUserLoginEmailNotification( $oUser ) {
+
+		$aMessage = array(
+			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getController()->getHumanName() ),
+			'',
+			sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			'',
+			_wpsf__( 'Details for this login are below:' ),
+			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $this->loadWp()->getHomeUrl() ),
+			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
+			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->ip() ),
+			'- '.sprintf( _wpsf__( 'Login Time: %s' ), $this->loadWp()->getTimeStampForDisplay() ),
+			'',
+			_wpsf__( 'If this is unexpected or suspicious, please contact your site administrator immediately.' ),
+			'',
+			_wpsf__( 'Thanks.' )
+		);
+
+		return $this
+			->getFeature()
+			->getEmailProcessor()
+			->sendEmailWithWrap(
+				$oUser->user_email,
+				sprintf( _wpsf__( 'Notice - %s' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
 				$aMessage
 			);
 	}

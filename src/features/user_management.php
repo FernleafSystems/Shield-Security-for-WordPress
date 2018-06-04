@@ -172,8 +172,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function isSendEmailLoginNotification() {
+	public function isSendAdminEmailLoginNotification() {
 		return $this->loadDP()->validEmail( $this->getOpt( 'enable_admin_login_email_notification' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSendUserEmailLoginNotification() {
+		return $this->isPremium() && $this->getOptIs( 'enable_user_login_email_notification', 'Y' );
 	}
 
 	/**
@@ -369,6 +376,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'Send An Notification Email When Administrator Logs In' );
 				$sDescription = _wpsf__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.' )
 								.'<br />'._wpsf__( 'No email address - No Notification.' );
+				break;
+
+			case 'enable_user_login_email_notification' :
+				$sName = _wpsf__( 'User Login Notification Email' );
+				$sSummary = _wpsf__( 'Send Email Notification To Each User Upon Successful Login' );
+				$sDescription = _wpsf__( 'A notification is sent to each users when a successful login occurs to their account.' );
 				break;
 
 			case 'session_timeout_interval' :
