@@ -2,7 +2,7 @@
   "slug": "license",
   "properties": {
     "slug": "license",
-    "name": "Shield Pro",
+    "name": "Pro Security",
     "tagline": "The Best In WordPress Security, Only Better.",
     "auto_enabled": true,
     "show_module_menu_item": true,
