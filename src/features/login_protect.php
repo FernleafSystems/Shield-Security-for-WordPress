@@ -641,9 +641,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'enable_google_recaptcha_login' :
 				$sName = _wpsf__( 'Google reCAPTCHA' );
-				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
-				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user login and account forms.' ).'<br />'
-								.sprintf( _wpsf__( 'Use of any theme other than "%s", requires a Pro license.' ), _wpsf__( 'Light Theme' ) );
+				$sSummary = _wpsf__( 'Protect WordPress Account Access Requests With Google reCAPTCHA' );
+				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user account forms such as login, register, etc.' ).'<br />'
+								.sprintf( _wpsf__( 'Use of any theme other than "%s", requires a Pro license.' ), _wpsf__( 'Light Theme' ) )
+								.'<br/>'.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings." ) );
 				break;
 
 			case 'google_recaptcha_style_login' :
