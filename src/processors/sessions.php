@@ -32,14 +32,19 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		if ( $this->readyToRun() ) {
-//			add_action( 'set_auth_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); // todo: thorough testing
-			add_action( 'wp_login', array( $this, 'onWpLogin' ), 5, 2 );
-			add_action( 'wp_logout', array( $this, 'onWpLogout' ), 0 );
+			add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); //login
+			add_action( 'clear_auth_cookie', array( $this, 'onWpClearAuthCookie' ), 0 ); //logout
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
 		}
 	}
 
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
 		$oUser = $this->loadWpUsers()
 					  ->getUserById( $nUserId );
@@ -49,17 +54,21 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpClearAuthCookie() {
+		$this->terminateCurrentSession();
+	}
+
+	/**
 	 * @param string  $sUsername
 	 * @param WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		$this->activateUserSession( $sUsername, $oUser );
-	}
-
-	/**
-	 */
-	public function onWpLogout() {
-		$this->terminateCurrentSession();
 	}
 
 	/**

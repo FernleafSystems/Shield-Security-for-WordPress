@@ -634,7 +634,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = _wpsf__( 'Google reCAPTCHA' );
 				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
 				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user login and account forms.' ).'<br />'
-								.sprintf( _wpsf__( 'Use of any theme other than "%s", will require a Pro license.' ), _wpsf__( 'Light Theme' ) );
+								.sprintf( _wpsf__( 'Use of any theme other than "%s", requires a Pro license.' ), _wpsf__( 'Light Theme' ) );
 				break;
 
 			case 'google_recaptcha_style_login' :
@@ -647,7 +647,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = _wpsf__( 'Protection Locations' );
 				$sSummary = _wpsf__( 'Which Forms Should Be Protected' );
 				$sDescription = _wpsf__( 'Choose the forms for which bot protection measures will be deployed.' ).'<br />'
-								.sprintf( _wpsf__( 'Note - %s' ), sprintf( _wpsf__( "Use with 3rd party systems such as %s will required a Pro license." ), 'WooCommerce' ) );
+								.sprintf( _wpsf__( 'Note - %s' ), sprintf( _wpsf__( "Use with 3rd party systems such as %s, requires a Pro license." ), 'WooCommerce' ) );
 				break;
 
 			case 'enable_login_gasp_check' :
