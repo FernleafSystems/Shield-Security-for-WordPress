@@ -339,7 +339,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpInit() {
 		$this->runWizards();
-		$this->updateHandler();
+		if ( $this->getIsUpgrading() ) {
+			$this->updateHandler();
+		}
 
 		// GDPR
 		if ( $this->isPremium() ) {

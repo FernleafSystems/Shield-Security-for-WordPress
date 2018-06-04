@@ -90,6 +90,25 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * Should be over-ridden by each new class to handle upgrades.
+	 * Called upon construction and after plugin options are initialized.
+	 */
+	protected function updateHandler() {
+
+		// These can be removed eventually and are used to migrate old recaptcha settings to new structure
+		if ( $this->getOpt( 'enable_google_recaptcha_login' ) == 'Y' ) {
+			$this->setOpt( 'enable_google_recaptcha_login', $this->getOpt( 'google_recaptcha_style_login' ) );
+		}
+		if ( $this->getIsCheckingUserRegistrations() ) {
+			$this->setOpt( 'bot_protection_locations', array_merge( $this->getBotProtectionLocations(), array(
+				'register',
+				'password'
+			) ) )
+				 ->setOpt( 'enable_user_register_checking', 'N' );
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function generateCanSendEmailVerifyLink() {
