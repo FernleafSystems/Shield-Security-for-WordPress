@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getFeature();
-		add_filter( $this->getController()->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
+		add_filter( $oFO->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
 		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates() ) {
 			add_filter( 'site_transient_update_plugins', array( $this, 'hidePluginUpdatesFromUI' ) );
@@ -58,15 +58,10 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 		}
 
 		$sIconUrl = $aWhiteLabels[ 'url_icon' ];
-		if ( !empty( $sIcon16 ) ) {
+		if ( !empty( $sIconUrl ) ) {
 			$aPluginLabels[ 'icon_url_16x16' ] = $sIconUrl;
-		}
-
-		$sIcon32 = $this->getOption( 'icon_url_32x32' );
-		if ( !empty( $sIcon32 ) ) {
 			$aPluginLabels[ 'icon_url_32x32' ] = $sIconUrl;
 		}
-
 		return $aPluginLabels;
 	}
 

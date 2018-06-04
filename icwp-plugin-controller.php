@@ -964,13 +964,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return array|string
 	 */
 	protected function getPluginSpec_Labels( $sKey = '' ) {
+		$oDP = $this->loadDP();
+
 		$oConOptions = $this->getPluginControllerOptions();
 		$aLabels = isset( $oConOptions->plugin_spec[ 'labels' ] ) ? $oConOptions->plugin_spec[ 'labels' ] : array();
 		//Prep the icon urls
-		if ( !empty( $aLabels[ 'icon_url_16x16' ] ) ) {
+		if ( !empty( $aLabels[ 'icon_url_16x16' ] ) && !$oDP->validUrl( $aLabels[ 'icon_url_16x16' ] ) ) {
 			$aLabels[ 'icon_url_16x16' ] = $this->getPluginUrl_Image( $aLabels[ 'icon_url_16x16' ] );
 		}
-		if ( !empty( $aLabels[ 'icon_url_32x32' ] ) ) {
+		if ( !empty( $aLabels[ 'icon_url_32x32' ] ) && !$oDP->validUrl( $aLabels[ 'icon_url_32x32' ] ) ) {
 			$aLabels[ 'icon_url_32x32' ] = $this->getPluginUrl_Image( $aLabels[ 'icon_url_32x32' ] );
 		}
 
