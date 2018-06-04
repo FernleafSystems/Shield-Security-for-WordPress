@@ -59,6 +59,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
 
 				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
 
 				add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
@@ -171,6 +172,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
+	}
+
+	/**
+	 */
+	public function checkReqRegistration_Edd() {
+		try {
+			$this->setActionToAudit( 'edd-register' )
+				 ->performCheckWithException();
+		}
+		catch ( Exception $oE ) {
+			if ( function_exists( 'edd_set_error' ) ) {
+				edd_set_error( $this->prefix( rand() ), $oE->getMessage() );
+			}
+		}
 	}
 
 	/**
