@@ -835,7 +835,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'Master Import Site' );
 				$sSummary = _wpsf__( 'Automatically Import Options From This Site URL' );
 				$sDescription = _wpsf__( "Supplying a site URL here will make this site an 'Options Slave'." )
-								.'<br />'._wpsf__( 'Options will be automatically imported from the Master Import site each day.' )
+								.'<br />'._wpsf__( 'Options will be automatically exported from the Master site each day.' )
 								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.' ) );
 				break;
 

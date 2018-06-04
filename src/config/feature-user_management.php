@@ -71,18 +71,6 @@
       "description": "Un-Checking this option will completely disable the User Management module"
     },
     {
-      "key": "enable_admin_login_email_notification",
-      "section": "section_admin_login_notification",
-      "sensitive": true,
-      "default": "",
-      "type": "email",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Admin Login Notification Email",
-      "summary": "Send An Notification Email When Administrator Logs In",
-      "description": "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
-    },
-    {
       "key": "enable_user_login_email_notification",
       "section": "section_admin_login_notification",
       "premium": true,
@@ -93,7 +81,19 @@
       "link_blog": "",
       "name": "User Login Notification Email",
       "summary": "Send Email Notification To Each User Upon Successful Login",
-      "description": "A notification is sent to each users when a successful login occurs to their account."
+      "description": "A notification is sent to each user when a successful login occurs for their account."
+    },
+    {
+      "key": "enable_admin_login_email_notification",
+      "section": "section_admin_login_notification",
+      "sensitive": true,
+      "default": "",
+      "type": "email",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Admin Login Notification Email",
+      "summary": "Send An Notification Email When Administrator Logs In",
+      "description": "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
     },
     {
       "key": "session_timeout_interval",

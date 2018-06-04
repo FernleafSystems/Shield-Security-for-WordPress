@@ -381,7 +381,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			case 'enable_user_login_email_notification' :
 				$sName = _wpsf__( 'User Login Notification Email' );
 				$sSummary = _wpsf__( 'Send Email Notification To Each User Upon Successful Login' );
-				$sDescription = _wpsf__( 'A notification is sent to each users when a successful login occurs to their account.' );
+				$sDescription = _wpsf__( 'A notification is sent to each user when a successful login occurs for their account.' );
 				break;
 
 			case 'session_timeout_interval' :

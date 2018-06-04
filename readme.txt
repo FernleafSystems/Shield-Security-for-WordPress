@@ -359,6 +359,14 @@ You can [go Pro for just $1/month](https://icwp.io/aa).
 * **(v.3)**  FIXED:		Several bugs with the automatic import/export system.
 * **(v.3)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
+= 6.8 Series =
+*Released: 5th June May, 2018* - [Release Notes](https://icwp.io/cx)
+
+* **(v.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
+* **(v.0)**  IMPROVED:	Completely rebuilt the bot and reCAPTCHA login protection system.
+* **(v.0)**  IMPROVED:	Import/Export system hugely improved with respect to automated push of options from Master sites.
+* **(v.0)**  IMPROVED:	Trying a different approach to sessions management that should handle sessions a bit better.
+
 = 6.7 Series =
 *Released: 21st May, 2018* - [Release Notes](https://icwp.io/cx)
 
