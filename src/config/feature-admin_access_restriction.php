@@ -288,7 +288,7 @@
       "key": "wl_homeurl",
       "section": "section_whitelabel",
       "sensitive": true,
-      "default": "https://icwp.io/home",
+      "default": "https://icwp.io/7f",
       "type": "text",
       "link_info": "",
       "link_blog": "",

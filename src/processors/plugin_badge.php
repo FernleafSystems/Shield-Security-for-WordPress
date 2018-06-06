@@ -34,14 +34,13 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	public function gatherPluginWidgetContent( $aContent ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+		$oCon = $this->getController();
 
-		$sFooter = '';
-		if ( !$oFO->isPremium() ) {
-			$sFooter = sprintf( _wpsf__( '%s is provided by %s' ),
-				$this->getController()->getHumanName(),
-				sprintf( '<a href="%s">One Dollar Plugin</a>', 'https://icwp.io/7f' )
-			);
-		}
+		$aLabels = $oCon->getPluginLabels();
+		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),
+			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
+		);
+
 		$aDisplayData = array(
 			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
 			'sFooter'           => $sFooter,
