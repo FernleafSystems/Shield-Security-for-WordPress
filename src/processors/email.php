@@ -10,8 +10,6 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
 
-	protected $m_sRecipientAddress;
-
 	/**
 	 * @var string
 	 */
@@ -257,17 +255,12 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 	}
 
-	public function setDefaultRecipientAddress( $insEmailAddress ) {
-		$this->m_sRecipientAddress = $insEmailAddress;
-	}
-
 	/**
-	 * @param string $sEmailAddress
+	 * @param string $sEmail
 	 * @return string
 	 */
-	public function verifyEmailAddress( $sEmailAddress = '' ) {
-		return $this->loadDP()
-					->validEmail( $sEmailAddress ) ? $sEmailAddress : $this->getPluginDefaultRecipientAddress();
+	public function verifyEmailAddress( $sEmail = '' ) {
+		return $this->loadDP()->validEmail( $sEmail ) ? $sEmail : $this->loadWp()->getSiteAdminEmail();
 	}
 
 	public function getThrottleLimit() {

@@ -61,18 +61,35 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
 
-			$this->setPasswordStartedAt( $oUser ); // used by Password Policies
-
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
-			if ( $oFO->isSendAdminEmailLoginNotification() ) {
-				$this->sendAdminLoginEmailNotification( $oUser );
-			}
-			if ( $oFO->isSendUserEmailLoginNotification() ) {
-				$this->sendUserLoginEmailNotification( $oUser );
-			}
-			$this->setUserLastLoginTime( $oUser );
+			$this->setPasswordStartedAt( $oUser )// used by Password Policies
+				 ->setUserLastLoginTime( $oUser )
+				 ->sendLoginNotifications( $oUser );
 		}
+	}
+
+	/**
+	 * @param WP_User $oUser - not checking that user is valid
+	 * @return $this
+	 */
+	private function sendLoginNotifications( $oUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$bAdmin = $oFO->isSendAdminEmailLoginNotification();
+		$bUser = $oFO->isSendUserEmailLoginNotification();
+
+		// do some magic logic so we don't send both to the same person (the assumption being that the admin
+		// email recipient is actually an admin (or they'll maybe not get any).
+		if ( $bAdmin && $bUser && ( $oFO->getAdminLoginNotificationEmail() === $oUser->user_email ) ) {
+			$bUser = false;
+		}
+
+		if ( $bAdmin ) {
+			$this->sendAdminLoginEmailNotification( $oUser );
+		}
+		if ( $bUser && !$this->isUserSubjectToLoginIntent( $oUser ) ) {
+			$this->sendUserLoginEmailNotification( $oUser );
+		}
+		return $this;
 	}
 
 	/**
@@ -142,10 +159,12 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	protected function sendAdminLoginEmailNotification( $oUser ) {
+	private function sendAdminLoginEmailNotification( $oUser ) {
 		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
 
 		$aUserCapToRolesMap = array(
 			'network_admin' => 'manage_network',
@@ -199,7 +218,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getFeature()
 			->getEmailProcessor()
 			->sendEmailWithWrap(
-				$this->getOption( 'enable_admin_login_email_notification' ),
+				$oFO->getAdminLoginNotificationEmail(),
 				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);
@@ -209,12 +228,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	protected function sendUserLoginEmailNotification( $oUser ) {
-
+	private function sendUserLoginEmailNotification( $oUser ) {
 		$aMessage = array(
-			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getController()->getHumanName() ),
-			'',
-			sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getController()
+																											 ->getHumanName() ),
 			'',
 			_wpsf__( 'Details for this login are below:' ),
 			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $this->loadWp()->getHomeUrl() ),

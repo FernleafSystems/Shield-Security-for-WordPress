@@ -188,14 +188,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return mixed
-	 */
-	public function getPluginDefaultRecipientAddress() {
-		return apply_filters( $this->getFeature()->prefix( 'report_email_address' ), $this->loadWp()
-																						  ->getSiteAdminEmail() );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_Email
 	 */
 	public function getEmailProcessor() {

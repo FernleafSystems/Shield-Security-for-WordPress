@@ -36,16 +36,15 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param bool $bIsSuccess
+	 * @param WP_User $oUser
+	 * @param bool    $bIsSuccess
 	 */
-	protected function auditLogin( $bIsSuccess ) {
+	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
 				sprintf(
 					_wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ),
-					$this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' )
-				),
-				2, 'login_protect_two_factor_verified'
+					$oUser->user_login ), 2, 'login_protect_two_factor_verified'
 			);
 			$this->doStatIncrement( 'login.twofactor.verified' );
 		}
@@ -53,9 +52,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$this->addToAuditEntry(
 				sprintf(
 					_wpsf__( 'User "%s" failed to verify their identity using Email Two-Factor Authentication.' ),
-					$this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' )
-				),
-				2, 'login_protect_two_factor_failed'
+					$oUser->user_login ), 2, 'login_protect_two_factor_failed'
 			);
 			$this->doStatIncrement( 'login.twofactor.failed' );
 		}
@@ -108,13 +105,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	public function getIsUserSubjectToEmailAuthentication( $oUser ) {
-		$nUserLevel = $oUser->get( 'user_level' );
-
-		$aSubjectedUserLevels = $this->getFeature()->getOpt( 'two_factor_auth_user_roles' );
-		if ( empty( $aSubjectedUserLevels ) || !is_array( $aSubjectedUserLevels ) ) {
-			$aSubjectedUserLevels = array( 1, 2, 3, 8 ); // by default all roles except subscribers!
-		}
+	private function getIsUserSubjectToEmailAuthentication( $oUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		$nUserLevel = $oUser->user_level;
+		$aSubjectedUserLevels = $oFO->getEmail2FaRoles();
 
 		// see: https://codex.wordpress.org/Roles_and_Capabilities#User_Level_to_Role_Conversion
 

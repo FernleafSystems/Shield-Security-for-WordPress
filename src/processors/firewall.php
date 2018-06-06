@@ -277,7 +277,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 			if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
 
-				$sRecipient = $this->getPluginDefaultRecipientAddress();
+				$sRecipient = $oFO->getPluginDefaultRecipientAddress();
 				if ( $this->sendBlockEmail( $sRecipient ) ) {
 					$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
 				}

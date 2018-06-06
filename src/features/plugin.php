@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function doPostConstruction() {
 		add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
-		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
+		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'supplyPluginReportEmail' ) );
 		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
 		$this->setVisitorIp();
@@ -315,15 +315,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param $sEmail
 	 * @return string
 	 */
-	public function getPluginReportEmail( $sEmail ) {
-		$sReportEmail = $this->getOpt( 'block_send_email_address' );
-		if ( $this->loadDataProcessor()->validEmail( $sReportEmail ) ) {
-			$sEmail = $sReportEmail;
-		}
-		return $sEmail;
+	public function supplyPluginReportEmail() {
+		return $this->getOpt( 'block_send_email_address' );
 	}
 
 	/**

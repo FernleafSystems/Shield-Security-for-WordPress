@@ -53,10 +53,11 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		}
 
 		public function cron_dailyPluginVulnerabilitiesScan() {
+			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+			$oFO = $this->getFeature();
 
 			$aPlugins = $this->loadWpPlugins()->getPlugins();
 
-			$sRecipient = $this->getPluginDefaultRecipientAddress();
 			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
 				$aPluginVulnerabilityData = $this->getPluginVulnerabilityData( $sPluginFile, $aPluginData );
 				if ( is_array( $aPluginVulnerabilityData ) ) {
@@ -64,7 +65,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 				}
 			}
 
-			$this->sendVulnerabilityNotification( $sRecipient );
+			$this->sendVulnerabilityNotification( $oFO->getPluginDefaultRecipientAddress() );
 		}
 
 		/**
@@ -215,7 +216,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			$oWp = $this->loadWp();
 			$oFO = $this->getFeature();
 
-			$sSource = $oFO->getDefinition( 'plugin_vulnerabilities_data_source' );
+			$sSource = $oFO->getDef( 'plugin_vulnerabilities_data_source' );
 			$sRawSource = $this->loadFS()->getUrlContent( $sSource );
 			if ( $sRawSource === false ) {
 				return false;
@@ -234,7 +235,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		 */
 		protected function getCronName() {
 			$oFO = $this->getFeature();
-			return $oFO->prefix( $oFO->getDefinition( 'notifications_cron_name' ) );
+			return $oFO->prefix( $oFO->getDef( 'notifications_cron_name' ) );
 		}
 	}
 

@@ -15,6 +15,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return $this->getUserSessionsData();
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getUserSessionsData() {
 		$aActiveSessions = $this->getActiveSessionsData();
 
@@ -75,6 +78,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return $this->getSessionsProcessor()
 					->queryGetActiveSessions();
+	}
+
+	/**
+	 * Should have no default email. If no email is set, no notification is sent.
+	 * @return string
+	 */
+	public function getAdminLoginNotificationEmail() {
+		return $this->getOpt( 'enable_admin_login_email_notification', '' );
 	}
 
 	/**
@@ -173,7 +184,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isSendAdminEmailLoginNotification() {
-		return $this->loadDP()->validEmail( $this->getOpt( 'enable_admin_login_email_notification' ) );
+		return $this->loadDP()->validEmail( $this->getAdminLoginNotificationEmail() );
 	}
 
 	/**

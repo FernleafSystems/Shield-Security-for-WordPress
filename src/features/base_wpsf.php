@@ -104,6 +104,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPluginDefaultRecipientAddress() {
+		return apply_filters( $this->prefix( 'report_email_address' ), $this->loadWp()->getSiteAdminEmail() );
+	}
+
+	/**
 	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */

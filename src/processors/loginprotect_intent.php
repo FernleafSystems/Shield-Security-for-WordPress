@@ -21,6 +21,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 
+		// 100 priority is important as this takes priority
+		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
+
 		if ( $oFO->getIfSupport3rdParty() ) {
 			add_action( 'wc_social_login_before_user_login', array( $this, 'onWcSocialLogin' ) );
 		}
@@ -74,8 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 			// process the current login intent
 			if ( $oWpUsers->isUserLoggedIn() ) {
-
-				if ( $this->isCurrentUserSubjectToLoginIntent() ) {
+				if ( $this->isUserSubjectToLoginIntent() ) {
 					$this->processLoginIntent();
 				}
 				else if ( $this->hasLoginIntent() ) {
@@ -112,6 +114,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 
 				$oLoginTracker = $this->getLoginTrack();
+				// TODO: pass the current user to this filter
 				do_action( $oFO->prefix( 'login-intent-validation' ) );
 				if ( $oFO->isChainedAuth() ) {
 					$bLoginIntentValidated = !$oLoginTracker->hasUnSuccessfulFactorAuth();
@@ -222,13 +225,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
+	 * Must be set with a higher priority than other filters as it will override them
+	 * @param bool    $bIsSubjectTo
+	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	protected function isCurrentUserSubjectToLoginIntent() {
+	public function applyUserCanMfaSkip( $bIsSubjectTo, $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
-		return !$oFO->canUserMfaSkip( $this->loadWpUsers()->getCurrentWpUser() )
-			   && apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false );
+		return $bIsSubjectTo && !$oFO->canUserMfaSkip( $oUser );
 	}
 
 	/**

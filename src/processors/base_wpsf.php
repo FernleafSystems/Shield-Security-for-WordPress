@@ -55,6 +55,23 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	protected function isUserSubjectToLoginIntent( $oUser = null ) {
+		$oWpUsers = $this->loadWpUsers();
+		if ( !is_a( $oUser, 'WP_User' ) ) {
+			if ( $oWpUsers->isUserLoggedIn() ) {
+				$oUser = $oWpUsers->getCurrentWpUser();
+			}
+			else {
+				return false; // If we can't get a valid WP_User, then always false.
+			}
+		}
+		return apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function getRecaptchaTheme() {

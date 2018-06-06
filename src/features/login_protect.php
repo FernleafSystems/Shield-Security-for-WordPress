@@ -62,11 +62,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
 		}
 
-		$aTwoFactorAuthRoles = $this->getOpt( 'two_factor_auth_user_roles' );
-		if ( empty( $aTwoFactorAuthRoles ) || !is_array( $aTwoFactorAuthRoles ) ) {
-			$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
-		}
-
 		$this->cleanLoginUrlPath();
 	}
 
@@ -193,10 +188,22 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param boolean $fAsDefaults
 	 * @return array
 	 */
-	protected function getTwoFactorUserAuthRoles( $fAsDefaults = false ) {
+	public function getEmail2FaRoles() {
+		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', array() );
+		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
+			$aRoles = $this->getOptEmailTwoFactorRolesDefaults();
+			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
+		}
+		return $aRoles;
+	}
+
+	/**
+	 * @param boolean $bAsOptDefaults
+	 * @return array
+	 */
+	protected function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
 		$aTwoAuthRoles = array(
 			'type' => 'multiple_select',
 			0      => _wpsf__( 'Subscribers' ),
@@ -205,7 +212,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			3      => _wpsf__( 'Editors' ),
 			8      => _wpsf__( 'Administrators' )
 		);
-		if ( $fAsDefaults ) {
+		if ( $bAsOptDefaults ) {
 			unset( $aTwoAuthRoles[ 'type' ] );
 			unset( $aTwoAuthRoles[ 0 ] );
 			return array_keys( $aTwoAuthRoles );
