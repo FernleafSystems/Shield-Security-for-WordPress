@@ -39,13 +39,12 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
 		$sServiceName = $aWhiteLabels[ 'name_main' ];
-		if ( !empty( $sServiceName ) ) {
-			$aPluginLabels[ 'Name' ] = $sServiceName;
-			$aPluginLabels[ 'Title' ] = $sServiceName;
-			$aPluginLabels[ 'Author' ] = $sServiceName;
-			$aPluginLabels[ 'AuthorName' ] = $sServiceName;
-			$aPluginLabels[ 'MenuTitle' ] = $aWhiteLabels[ 'name_menu' ];
-		}
+		$aPluginLabels[ 'Name' ] = $sServiceName;
+		$aPluginLabels[ 'Title' ] = $sServiceName;
+		$aPluginLabels[ 'Author' ] = $aWhiteLabels[ 'name_company' ];
+		$aPluginLabels[ 'AuthorName' ] = $aWhiteLabels[ 'name_company' ];
+		$aPluginLabels[ 'MenuTitle' ] = $aWhiteLabels[ 'name_menu' ];
+
 		$sTagLine = $aWhiteLabels[ 'description' ];
 		if ( !empty( $sTagLine ) ) {
 			$aPluginLabels[ 'Description' ] = $sTagLine;
