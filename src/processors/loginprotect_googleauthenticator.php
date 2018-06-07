@@ -212,16 +212,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oLoginTrack = $this->getLoginTrack();
 
 		// Mulifactor or not
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactorAuth();
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactor();
 		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
 		$oLoginTrack->addUnSuccessfulFactor( $this->getStub() );
 
-		if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
+		if ( !$bNeedToCheckThisFactor || !( $oUser instanceof WP_User ) || is_wp_error( $oUser ) ) {
 			return $oUser;
 		}
 
-		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		if ( $bIsUser && $this->hasValidatedProfile( $oUser ) ) {
+		if ( $this->hasValidatedProfile( $oUser ) ) {
 
 			$oError = new WP_Error();
 

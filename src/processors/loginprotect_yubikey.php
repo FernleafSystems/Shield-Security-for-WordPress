@@ -117,7 +117,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$oFO = $this->getFeature();
 		$oLoginTrack = $this->getLoginTrack();
 
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactorAuth();
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactor();
 		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
 		$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 

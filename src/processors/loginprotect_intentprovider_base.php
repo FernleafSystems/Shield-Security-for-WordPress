@@ -41,10 +41,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
+	 * @param WP_User $oUser
 	 */
-	public function validateLoginIntent() {
+	public function validateLoginIntent( $oUser ) {
 		$oLoginTrack = $this->getLoginTrack();
-		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 
 		$sFactor = $this->getStub();
 		if ( !$this->isProfileReady( $oUser ) ) {
