@@ -54,7 +54,7 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 */
 	public function isCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
 
-		if ( !$this->loadDataProcessor()->validEmail( $sAuthorEmail ) ) {
+		if ( !$this->loadDP()->validEmail( $sAuthorEmail ) ) {
 			return false;
 		}
 

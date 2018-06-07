@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		$oWpUsers = $this->loadWpUsers();
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];

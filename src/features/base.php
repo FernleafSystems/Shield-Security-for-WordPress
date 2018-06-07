@@ -260,7 +260,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()
+				$bMeetsReqs = $bMeetsReqs && $this->loadDP()
 												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {

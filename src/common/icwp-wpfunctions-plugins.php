@@ -490,7 +490,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function setActivePluginLoadPosition( $sFile, $nDesiredPosition = 0 ) {
 		$oWp = $this->loadWp();
 
-		$aActive = $this->loadDataProcessor()
+		$aActive = $this->loadDP()
 						->setArrayValueToPosition(
 							$oWp->getOption( 'active_plugins' ),
 							$sFile,
@@ -499,7 +499,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		$oWp->updateOption( 'active_plugins', $aActive );
 
 		if ( $oWp->isMultisite() ) {
-			$aActive = $this->loadDataProcessor()
+			$aActive = $this->loadDP()
 							->setArrayValueToPosition( $oWp->getOption( 'active_sitewide_plugins' ), $sFile, $nDesiredPosition );
 			$oWp->updateOption( 'active_sitewide_plugins', $aActive );
 		}

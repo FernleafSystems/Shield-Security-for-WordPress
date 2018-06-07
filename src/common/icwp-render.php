@@ -176,7 +176,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getTemplate() {
-		$this->sTemplate = $this->loadDataProcessor()
+		$this->sTemplate = $this->loadDP()
 								->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
 		return $this->sTemplate;
 	}
@@ -213,7 +213,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 		if ( empty( $sTemplate ) ) {
 			$sTemplate = $this->getTemplate();
 		}
-		$sTemplate = $this->loadDataProcessor()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
+		$sTemplate = $this->loadDP()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
 		return path_join( $this->getTemplateRoot(), $sTemplate );
 	}
 

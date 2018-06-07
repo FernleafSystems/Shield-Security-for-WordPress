@@ -28,7 +28,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		// Reporting stats run or destroy
-		if ( $this->loadDataProcessor()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
+		if ( $this->loadDP()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
 			$this->getReportingProcessor()
 				 ->run();
 		}

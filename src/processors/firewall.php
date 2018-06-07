@@ -63,7 +63,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getIfPerformFirewallScan() {
 		$bPerformScan = true;
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
@@ -361,7 +361,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			return $this->aPageParams;
 		}
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$this->aPageParams = $this->getRawRequestParams();
 		$aWhitelistPages = $this->getWhitelistPages();
 		$aRequestUriParts = $oDp->getRequestUriParts();
@@ -411,7 +411,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getRawRequestParams() {
 		if ( !isset( $this->aRawRequestParams ) ) {
-			$this->aRawRequestParams = $this->loadDataProcessor()
+			$this->aRawRequestParams = $this->loadDP()
 											->getRawRequestParams( $this->getIsOption( 'include_cookie_checks', 'Y' ) );
 		}
 		return $this->aRawRequestParams;

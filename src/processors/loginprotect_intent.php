@@ -301,7 +301,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'login_intent_flag' => $oFO->getLoginIntentRequestFlag()
 			),
 			'hrefs'   => array(
-				'form_action'   => $this->loadDataProcessor()->getRequestUri(),
+				'form_action'   => $this->loadDP()->getRequestUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
