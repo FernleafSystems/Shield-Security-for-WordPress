@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$this->resetLoginIntent();
+		$this->removeLoginIntent();
 
 		// support for WooCommerce Social Login
 		if ( $oFO->getIfSupport3rdParty() ) {
@@ -310,7 +310,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
 			'flags'   => array(
-				'can_skip_mfa' => $oFO->getMfaSkipEnabled()
+				'can_skip_mfa'      => $oFO->getMfaSkipEnabled(),
+				'show_what_is_this' => !$oFO->isPremium(), // white label mitigation
 			)
 		);
 

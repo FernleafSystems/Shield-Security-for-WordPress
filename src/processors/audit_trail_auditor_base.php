@@ -28,7 +28,7 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 				}
 			}
 			else {
-				$sWpUsername = $oCurrentUser->get( 'user_login' );
+				$sWpUsername = $oCurrentUser->user_login;
 			}
 		}
 
