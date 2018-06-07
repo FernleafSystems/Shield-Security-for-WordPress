@@ -14,6 +14,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	private $oLoginTrack;
 
 	/**
+	 * @var bool
+	 */
+	private $bLoginIntentProcessed;
+
+	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -92,11 +97,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	/**
 	 * hooked to 'init' and only run if a user is logged in
 	 */
-	protected function processLoginIntent() {
+	private function processLoginIntent() {
 		$oWpUsers = $this->loadWpUsers();
-		if ( !$oWpUsers->isUserLoggedIn() ) {
-			return;
-		}
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
@@ -113,17 +115,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					return;
 				}
 
-				$oLoginTracker = $this->getLoginTrack();
-				// TODO: pass the current user to this filter
-				do_action( $oFO->prefix( 'login-intent-validation' ) );
-				if ( $oFO->isChainedAuth() ) {
-					$bLoginIntentValidated = !$oLoginTracker->hasUnSuccessfulFactorAuth();
-				}
-				else {
-					$bLoginIntentValidated = $oLoginTracker->hasSuccessfulFactorAuth();
-				}
-
-				if ( $bLoginIntentValidated ) {
+				if ( $this->getIsLoginIntentValid() ) {
 
 					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
@@ -133,7 +125,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 
-					$oFO->setOptInsightsAt( 'last_idle_logout_at' );
+					$oFO->setOptInsightsAt( 'last_2fa_login_at' );
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
@@ -162,7 +154,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$this->resetLoginIntent();
+		$this->removeLoginIntent();
 
 		// support for WooCommerce Social Login
 		if ( $oFO->getIfSupport3rdParty() ) {
@@ -178,10 +170,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function initLoginIntent( $oUser ) {
 		if ( $oUser instanceof WP_User ) {
 
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeature();
-			if ( !$oFO->canUserMfaSkip( $oUser ) ) {
-				$oF = $this->getFeature();
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
+			$oF = $this->getFeature();
+			if ( !$oF->canUserMfaSkip( $oUser ) ) {
 				$nTimeout = (int)apply_filters(
 					$oF->prefix( 'login_intent_timeout' ),
 					$oF->getDef( 'login_intent_timeout' )
@@ -319,7 +310,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
 			'flags'   => array(
-				'can_skip_mfa' => $oFO->getMfaSkipEnabled()
+				'can_skip_mfa'      => $oFO->getMfaSkipEnabled(),
+				'show_what_is_this' => !$oFO->isPremium(), // white label mitigation
 			)
 		);
 
@@ -369,6 +361,37 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
 		}
 		return $this->oLoginTrack;
+	}
+
+	/**
+	 * assume that a user is logged in.
+	 * @return bool
+	 */
+	private function getIsLoginIntentValid() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
+		if ( !$this->isLoginIntentProcessed() ) {
+			// This action sets up the necessary login tracker info
+			do_action( $oFO->prefix( 'login-intent-validation' ), $this->loadWpUsers()->getCurrentWpUser() );
+			$this->setLoginIntentProcessed();
+		}
+		$oTrk = $this->getLoginTrack();
+		return $oFO->isChainedAuth() ? $oTrk->hasUnSuccessfulFactor() : $oTrk->hasSuccessfulFactor();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLoginIntentProcessed() {
+		return (bool)$this->bLoginIntentProcessed;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setLoginIntentProcessed() {
+		$this->bLoginIntentProcessed = true;
+		return $this;
 	}
 
 	/**

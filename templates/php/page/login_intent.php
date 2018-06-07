@@ -157,14 +157,16 @@
 					</p>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col">
-					<p id="WhatIsThis" class="text-center">
-						<a href="<?php echo $hrefs[ 'what_is_this' ]; ?>" class="btn btn-link"
-						   target="_blank"><?php echo $strings[ 'what_is_this' ]; ?></a>
-					</p>
+			<?php if ( $flags['show_what_is_this'] ) : ?>
+				<div class="row">
+					<div class="col">
+						<p id="WhatIsThis" class="text-center">
+							<a href="<?php echo $hrefs[ 'what_is_this' ]; ?>" class="btn btn-link"
+							   target="_blank"><?php echo $strings[ 'what_is_this' ]; ?></a>
+						</p>
+					</div>
 				</div>
-			</div>
+			<?php endif; ?>
         </div>
     </div>
 </div>

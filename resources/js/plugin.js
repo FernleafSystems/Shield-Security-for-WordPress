@@ -31,6 +31,20 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( document ).on( "click", "a.icwp-carousel-1", moveCarousel1 );
 			jQuery( document ).on( "click", "a.icwp-carousel-2", moveCarousel2 );
 			jQuery( document ).on( "click", "a.icwp-carousel-3", moveCarousel3 );
+
+			/** Track active tab */
+			jQuery( document ).on( "click", "#ModuleOptionsNav a.nav-link", function ( e ) {
+				e.preventDefault();
+				jQuery( this ).tab( 'show' );
+			} );
+			jQuery( document ).on( "shown.bs.tab", "#ModuleOptionsNav a.nav-link", function ( e ) {
+				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
+			} );
+
+			var sActiveTabHash = window.location.hash;
+			if ( sActiveTabHash ) {
+				jQuery( '#ModuleOptionsNav a[href="' + window.location.hash + '"]' ).tab( 'show' );
+			}
 		} );
 	};
 
@@ -70,13 +84,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				else {
 					sMessage = oResponse.data.message;
 				}
-				/** TODO: div#icwpOptionsFormContainer no longer exists */
-				jQuery( 'div#icwpOptionsFormContainer' ).html( oResponse.data.options_form );
 				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 			}
 		).always( function () {
 				bRequestCurrentlyRunning = false;
-				iCWP_WPSF_BodyOverlay.hide();
+				location.reload( true );
 			}
 		);
 	};
