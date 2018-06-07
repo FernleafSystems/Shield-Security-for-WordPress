@@ -133,7 +133,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 
-					$oFO->setOptInsightsAt( 'last_idle_logout_at' );
+					$oFO->setOptInsightsAt( 'last_2fa_login_at' );
 				}
 				else {
 					$this->loadAdminNoticesProcessor()->addFlashMessage(
@@ -178,10 +178,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function initLoginIntent( $oUser ) {
 		if ( $oUser instanceof WP_User ) {
 
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeature();
-			if ( !$oFO->canUserMfaSkip( $oUser ) ) {
-				$oF = $this->getFeature();
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
+			$oF = $this->getFeature();
+			if ( !$oF->canUserMfaSkip( $oUser ) ) {
 				$nTimeout = (int)apply_filters(
 					$oF->prefix( 'login_intent_timeout' ),
 					$oF->getDef( 'login_intent_timeout' )
