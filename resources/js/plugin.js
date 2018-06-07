@@ -70,13 +70,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				else {
 					sMessage = oResponse.data.message;
 				}
-				/** TODO: div#icwpOptionsFormContainer no longer exists */
-				jQuery( 'div#icwpOptionsFormContainer' ).html( oResponse.data.options_form );
 				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 			}
 		).always( function () {
 				bRequestCurrentlyRunning = false;
-				iCWP_WPSF_BodyOverlay.hide();
+				location.reload( true );
 			}
 		);
 	};
