@@ -36,6 +36,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( document ).on( "click", "#ModuleOptionsNav a.nav-link", function ( e ) {
 				e.preventDefault();
 				jQuery( this ).tab( 'show' );
+				jQuery( 'html,body' ).scrollTop( 0 );
 			} );
 			jQuery( document ).on( "shown.bs.tab", "#ModuleOptionsNav a.nav-link", function ( e ) {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
