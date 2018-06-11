@@ -9,7 +9,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Base
 	 */
-	protected $oFeatureOptions;
+	protected $oModCon;
 
 	/**
 	 * @var int
@@ -22,17 +22,14 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected $aSubProcessors;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 */
-	public function __construct( $oFeatureOptions ) {
-		$this->oFeatureOptions = $oFeatureOptions;
-		add_action( $oFeatureOptions->prefix( 'plugin_shutdown' ), array(
-			$this,
-			'action_doFeatureProcessorShutdown'
-		) );
-		add_action( $oFeatureOptions->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+	public function __construct( $oModCon ) {
+		$this->oModCon = $oModCon;
+		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
+		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 		if ( method_exists( $this, 'addToAdminNotices' ) ) {
-			add_action( $oFeatureOptions->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+			add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 		}
 		$this->init();
 	}
@@ -109,7 +106,13 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		return true;
 	}
 
+	/**
+	 * @deprecated remove next release
+	 */
 	public function action_doFeatureProcessorShutdown() {
+	}
+
+	public function onModuleShutdown() {
 	}
 
 	/**
@@ -120,7 +123,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function readyToRun() {
+	public function isReadyToRun() {
 		return true;
 	}
 
@@ -141,7 +144,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$bCantDismiss = isset( $aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ] )
-					   && !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
+						&& !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
 
 		$oNotices = $this->loadAdminNoticesProcessor();
 		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) || $bCantDismiss ) {
@@ -198,7 +201,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getFeature() {
-		return $this->oFeatureOptions;
+		return $this->oModCon;
 	}
 
 	/**

@@ -394,7 +394,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @uses die()
 	 */
 	private function downloadOptionsExport() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		if ( $oDp->query( 'icwp_shield_export' ) == 1 ) {
 			$aExportOptions = apply_filters( $this->prefix( 'gather_options_for_export' ), array() );
 			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
@@ -492,7 +492,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 			if ( $this->getPluginSpec_Menu( 'has_submenu' ) ) {
 
-				$aPluginMenuItems = apply_filters( $this->prefix( 'filter_plugin_submenu_items' ), array() );
+				$aPluginMenuItems = apply_filters( $this->prefix( 'submenu_items' ), array() );
 				if ( !empty( $aPluginMenuItems ) ) {
 					foreach ( $aPluginMenuItems as $sMenuTitle => $aMenu ) {
 						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack, $bShowItem ) = $aMenu;
@@ -714,7 +714,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$oConOptions->update_first_detected = array();
 				}
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
-					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDataProcessor()->time();
+					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDP()->time();
 				}
 
 				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
@@ -768,18 +768,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
-						$nTimeUpdateAvailable = $this->loadDataProcessor()->time() - $nFirstDetected;
+						$nTimeUpdateAvailable = $this->loadDP()->time() - $nFirstDetected;
 						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS*$nAutoupdateDays ) );
 					}
 					break;
 
 				case 'pass' :
-					// Add block to version 6.0 if PHP < 5.3
-					$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
-					if ( version_compare( $sNewVersion, '6.0.0', '>=' ) && !$this->loadDataProcessor()
-																				 ->getPhpVersionIsAtLeast( '5.3.0' ) ) {
-						$bDoAutoUpdate = false;
-					}
 					break;
 
 				default:
@@ -1112,7 +1106,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$aFormSubmitOptions = array( 'plugin_form_submit', 'icwp_link_action' );
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		foreach ( $aFormSubmitOptions as $sOption ) {
 			if ( !is_null( $oDp->request( $sOption, false ) ) ) {
 				return true;
@@ -1450,6 +1444,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isRelabelled() {
+		return apply_filters( $this->prefix( 'is_relabelled' ), false );
+	}
+
+	/**
 	 */
 	protected function saveCurrentPluginControllerOptions() {
 		$oOptions = $this->getPluginControllerOptions();
@@ -1531,7 +1532,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getUniqueRequestId( $bSetSessionIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->loadIpService()
 																					 ->getRequestIp().$oDp->time() );
 		}

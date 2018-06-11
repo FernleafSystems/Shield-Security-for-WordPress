@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param int $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		// Can only edit other users if you're admin/security-admin
 		if ( $this->getController()->getHasPermissionToManage() ) {
@@ -288,7 +288,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
 
 		$sRecipient = $oUser->get( 'user_email' );
-		if ( $this->loadDataProcessor()->validEmail( $sRecipient ) ) {
+		if ( $this->loadDP()->validEmail( $sRecipient ) ) {
 			$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
 			$bSendSuccess = $this->getEmailProcessor()
 								 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aEmailContent );

@@ -94,9 +94,15 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runOptionsUpdateNotified() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
-		if ( !wp_next_scheduled( $oFO->prefix( 'importexport_updatenotified' ) ) ) {
 
-			wp_schedule_single_event( $this->loadDP()->time() + 2, $oFO->prefix( 'importexport_updatenotified' ) );
+		$sCronHook = $oFO->prefix( 'importexport_updatenotified' );
+		if ( wp_next_scheduled( $sCronHook ) ) {
+			wp_clear_scheduled_hook( $sCronHook );
+		}
+
+		if ( !wp_next_scheduled( $sCronHook ) ) {
+
+			wp_schedule_single_event( $this->loadDP()->time() + 12, $sCronHook );
 
 			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $this->loadDP()->server( 'HTTP_USER_AGENT' ), $aMatches );
 			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {

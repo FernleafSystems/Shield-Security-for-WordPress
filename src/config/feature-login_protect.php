@@ -219,6 +219,35 @@
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
+      "key":           "bot_protection_locations",
+      "section":       "section_brute_force_login_protection",
+      "type":          "multiple_select",
+      "default":       [ "login" ],
+      "value_options": [
+        {
+          "value_key": "login",
+          "text":      "Login"
+        },
+        {
+          "value_key": "register",
+          "text":      "Register"
+        },
+        {
+          "value_key": "password",
+          "text":      "Lost Password"
+        },
+        {
+          "value_key": "checkout_woo",
+          "text":      "Checkout (WooCommerce)"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Protection Locations",
+      "summary":       "How Google reCAPTCHA Will Be Displayed",
+      "description":   "Choose for which forms bot protection measures will be deployed."
+    },
+    {
       "key":         "login_limit_interval",
       "section":     "section_brute_force_login_protection",
       "default":     "10",
@@ -276,35 +305,6 @@
     {
       "key":           "google_recaptcha_style_login",
       "section":       "section_non_ui"
-    },
-    {
-      "key":           "bot_protection_locations",
-      "section":       "section_brute_force_login_protection",
-      "type":          "multiple_select",
-      "default":       [ "login" ],
-      "value_options": [
-        {
-          "value_key": "login",
-          "text":      "Login"
-        },
-        {
-          "value_key": "register",
-          "text":      "Register"
-        },
-        {
-          "value_key": "password",
-          "text":      "Lost Password"
-        },
-        {
-          "value_key": "checkout_woo",
-          "text":      "Checkout (WooCommerce)"
-        }
-      ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Protection Locations",
-      "summary":       "How Google reCAPTCHA Will Be Displayed",
-      "description":   "Choose for which forms bot protection measures will be deployed."
     },
     {
       "key":         "enable_user_register_checking",

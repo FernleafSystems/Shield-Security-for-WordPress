@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		$oWpUsers = $this->loadWpUsers();
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -324,9 +324,20 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getFeature();
+		$oDp = $this->loadDP();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
+
+		// special case for plugin info thickbox for changelog
+		$bIsChangelog = defined( 'IFRAME_REQUEST' )
+						&& ( $sRequestedCapability === 'install_plugins' )
+						&& ( $oDp->query( 'section' ) == 'changelog' )
+						&& $oDp->query( 'plugin' );
+		if ( $bIsChangelog ) {
+			return $aAllCaps;
+		}
+
 		$aEditCapabilities = array( 'activate_plugins', 'delete_plugins', 'install_plugins', 'update_plugins' );
 
 		if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
@@ -450,7 +461,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			'js_snippets' => array(
 				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
 			),
-			'ajax' => array(
+			'ajax'        => array(
 				'sec_admin_login_box' => $oFO->getAjaxActionData( 'sec_admin_login_box', true )
 			)
 		);

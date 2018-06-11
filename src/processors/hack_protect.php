@@ -15,7 +15,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getFeature();
 
-		$sPath = $this->loadDataProcessor()->getRequestPath();
+		$sPath = $this->loadDP()->getRequestPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
 			$this->revSliderPatch_LFI();
 			$this->revSliderPatch_AFU();
@@ -160,7 +160,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_LFI() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$sAction = $oDp->query( 'action', '' );
 		$sFileExt = strtolower( $oDp->getExtension( $oDp->query( 'img', '' ) ) );
@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_AFU() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		$sAction = strtolower( $oDp->request( 'action', '' ) );
 		$sClientAction = strtolower( $oDp->request( 'client_action', '' ) );

@@ -98,7 +98,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 * @return array
 	 */
 	protected function getBaseTrackingData() {
-		$oDP = $this->loadDataProcessor();
+		$oDP = $this->loadDP();
 		$oWP = $this->loadWp();
 		$oWpPlugins = $this->loadWpPlugins();
 		return array(

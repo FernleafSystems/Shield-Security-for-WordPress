@@ -25,14 +25,14 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getAuditTrailTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getAuditTrailTableName() );
 	}
 
-	public function action_doFeatureProcessorShutdown() {
-		parent::action_doFeatureProcessorShutdown();
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
 		if ( !$this->getFeature()->isPluginDeleting() ) {
 			$this->commitAuditTrial();
 		}
@@ -41,7 +41,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	public function run() {
-		if ( !$this->readyToRun() ) {
+		if ( !$this->isReadyToRun() ) {
 			return;
 		}
 

@@ -183,9 +183,13 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
 			sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
 			'',
-			sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) ),
-			''
 		);
+
+		if ( !$this->getController()->isRelabelled() ) {
+			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) );
+			$aContent[] = '';
+		}
+
 		$sEmailSubject = _wpsf__( 'Two-Factor Login Verification' );
 
 		$bResult = $this->getEmailProcessor()

@@ -304,14 +304,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', $this->loadDataProcessor()->time() );
+		return $this->setOpt( 'tracking_last_sent_at', $this->loadDP()->time() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function readyToSendTrackingData() {
-		return ( ( $this->loadDataProcessor()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
+		return ( ( $this->loadDP()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -328,11 +328,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$nInstalledAt = $this->getPluginInstallationTime();
 		if ( empty( $nInstalledAt ) || $nInstalledAt <= 0 ) {
-			$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
+			$this->setOpt( 'installation_time', $this->loadDP()->time() );
 		}
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
-			$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
+			$this->setOpt( 'tracking_permission_set_at', $this->loadDP()->time() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -570,7 +570,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$aMap = array();
 		$aEmpties = array();
 		foreach ( $aValueOptions as $aOptionValue ) {

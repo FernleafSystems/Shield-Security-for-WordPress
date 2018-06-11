@@ -123,7 +123,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 
 			$nMenuPriority = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ), $nMenuPriority );
+			add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPriority );
 			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ), $nMenuPriority );
 			add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
@@ -260,7 +260,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()
+				$bMeetsReqs = $bMeetsReqs && $this->loadDP()
 												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {
@@ -574,7 +574,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aItems
 	 * @return array
 	 */
-	public function filter_addPluginSubMenuItem( $aItems ) {
+	public function supplySubMenuItem( $aItems ) {
 		$sMenuTitleName = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
 		if ( is_null( $sMenuTitleName ) ) {
 			$sMenuTitleName = $this->getMainFeatureName();

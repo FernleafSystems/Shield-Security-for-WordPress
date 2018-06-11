@@ -125,7 +125,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 	protected function doExtraSubmitProcessing() {
 		$sAdminEmail = $this->getOpt( 'enable_admin_login_email_notification' );
-		if ( !$this->loadDataProcessor()->validEmail( $sAdminEmail ) ) {
+		if ( !$this->loadDP()->validEmail( $sAdminEmail ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
 		}
 

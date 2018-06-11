@@ -26,7 +26,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			return $fIfDoCheck;
 		}
 
-		$oWpComments = $this->loadWpCommentsProcessor();
+		$oWpComments = $this->loadWpComments();
 
 		// 1st are comments enabled on this post?
 		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			$aCommentData[ 'comment_author_url' ],
 			$aCommentData[ 'comment_content' ],
 			$this->ip(),
-			substr( $this->loadDataProcessor()->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
+			substr( $this->loadDP()->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
 		);
 	}
 

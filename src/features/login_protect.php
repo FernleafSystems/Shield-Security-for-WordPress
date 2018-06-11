@@ -427,7 +427,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function setIfCanSendEmail( $bCan ) {
 		$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
 		if ( $bCan ) {
-			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadDataProcessor()->time() : $nCurrentDateAt;
+			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadDP()->time() : $nCurrentDateAt;
 		}
 		else {
 			$nDateAt = 0;

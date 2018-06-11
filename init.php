@@ -39,8 +39,12 @@ class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 		return self::$oPluginController;
 	}
 
+	/**
+	 * @param string $sMessage
+	 * @return string
+	 */
 	public function getPluginsListUpdateMessage( $sMessage ) {
-		return _wpsf__( 'Upgrade Now To Keep Your Firewall Up-To-Date With The Latest Features.' );
+		return _wpsf__( 'Upgrade Now To Keep Your Security Up-To-Date With The Latest Features.' );
 	}
 
 	/**

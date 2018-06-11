@@ -94,13 +94,6 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_DataProcessor
-	 */
-	static public function loadDataProcessor() {
-		return self::loadDP();
-	}
-
-	/**
 	 * @return ICWP_WPSF_WpFilesystem
 	 */
 	static public function loadFS() {
@@ -308,7 +301,7 @@ class ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_WpComments
 	 */
-	static public function loadWpCommentsProcessor() {
+	static public function loadWpComments() {
 		if ( !isset( self::$oWpComments ) ) {
 			self::requireCommonLib( 'wp-comments.php' );
 			self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
@@ -338,5 +331,21 @@ class ICWP_WPSF_Foundation {
 	 */
 	static public function requireCommonLib( $sFile ) {
 		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.$sFile );
+	}
+
+	/**
+	 * @deprecated
+	 * @return ICWP_WPSF_WpComments
+	 */
+	static public function loadWpCommentsProcessor() {
+		return self::loadWpComments();
+	}
+
+	/**
+	 * @deprecated
+	 * @return ICWP_WPSF_DataProcessor
+	 */
+	static public function loadDataProcessor() {
+		return self::loadDP();
 	}
 }
