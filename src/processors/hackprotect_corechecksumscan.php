@@ -253,8 +253,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
 		);
 
-		$aContent[] = '';
-		$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		if ( !$oFO->getConn()->isRelabelled() ) {
+			$aContent[] = '';
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		}
 
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()

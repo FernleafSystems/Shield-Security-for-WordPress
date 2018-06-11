@@ -13,6 +13,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getFeature();
+		add_filter( $this->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $oFO->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
 		add_action( 'init', array( $this, 'onWpInit' ) );

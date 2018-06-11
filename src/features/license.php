@@ -562,7 +562,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return boolean
 	 */
 	public function getIfShowModuleMenuItem() {
-		return parent::getIfShowModuleMenuItem() && self::getConn()->isPremiumExtensionsEnabled();
+		return parent::getIfShowModuleMenuItem() && self::getConn()->isPremiumExtensionsEnabled()
+			   && $this->getConn()->getHasPermissionToManage();
 	}
 
 	/**

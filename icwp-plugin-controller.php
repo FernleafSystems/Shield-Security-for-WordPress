@@ -492,7 +492,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 			if ( $this->getPluginSpec_Menu( 'has_submenu' ) ) {
 
-				$aPluginMenuItems = apply_filters( $this->prefix( 'filter_plugin_submenu_items' ), array() );
+				$aPluginMenuItems = apply_filters( $this->prefix( 'submenu_items' ), array() );
 				if ( !empty( $aPluginMenuItems ) ) {
 					foreach ( $aPluginMenuItems as $sMenuTitle => $aMenu ) {
 						list( $sMenuItemText, $sMenuItemId, $aMenuCallBack, $bShowItem ) = $aMenu;
@@ -1441,6 +1441,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function isPremiumExtensionsEnabled() {
 		return (bool)$this->getPluginSpec_Property( 'enable_premium' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRelabelled() {
+		return apply_filters( $this->prefix( 'is_relabelled' ), false );
 	}
 
 	/**
