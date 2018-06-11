@@ -71,17 +71,19 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 								<?php echo $flags[ 'button_enabled_check' ] ? '' : 'disabled="disabled"'; ?> >
 								Check License
 							</button>
-							<span class="form-text text-muted">
+
+
+							<div class="form-text text-muted">
+								<p class="font-weight-bold"><br/>Be sure to have first activated your URL in your
+								<a target="_blank" href="<?php echo $aHrefs[ 'keyless_cp' ]; ?>">Keyless Activation control panel</a>.</p>
 								<ul>
 									<li>URL To Activate: <?php echo $vars[ 'activation_url' ]; ?></li>
 									<li>Licenses may only be checked once in 20 seconds. Checks more frequent than this will
 								automatically be skipped</li>
 								</ul>
-							</span>
+							</div>
 						</div>
 					</form>
-					<p class="font-weight-bold">Be sure to have first activated your URL in your
-						<a target="_blank" href="<?php echo $aHrefs[ 'keyless_cp' ]; ?>">Keyless Activation control panel</a>.</p>
 
 					<form method="post" id="ConnectionDebug">
 						<?php foreach ( $ajax[ 'connection_debug' ] as $sAjKey => $sAjVal ) : ?>
