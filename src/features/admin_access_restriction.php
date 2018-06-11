@@ -576,13 +576,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Menu Icon' );
 				$sSummary = _wpsf__( 'Menu Icon URL' );
 				$sDescription = _wpsf__( 'The URL of the icon to display in the menu.' )
-								.' '._wpsf__( 'The icon should ideally be square' );
+								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'icon' ), '32px x 32px' );
 				break;
 			case 'wl_dashboardlogourl' :
 				$sName = _wpsf__( 'Dashboard Logo' );
 				$sSummary = _wpsf__( 'Dashboard Logo URL' );
 				$sDescription = _wpsf__( 'The URL of the logo to display in the admin pages.' )
-								.' '.sprintf( _wpsf__( 'The logo should measure %s.' ), '128px x 128px' );
+								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'logo' ), '128px x 128px' );
 				break;
 
 			default:
