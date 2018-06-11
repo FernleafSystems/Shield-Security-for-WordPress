@@ -36,10 +36,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	private $aRawCommentData;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_CommentsFilter $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getCommentsFilterTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getCommentsFilterTableName() );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 */
 	public function run() {
-		if ( !$this->readyToRun() ) {
+		if ( !$this->isReadyToRun() ) {
 			return;
 		}
 

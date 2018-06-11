@@ -41,10 +41,10 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $bEmailIsThrottled;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Email $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Email $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Email $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions );
+	public function __construct( ICWP_WPSF_FeatureHandler_Email $oModCon ) {
+		parent::__construct( $oModCon );
 	}
 
 	public function init() {

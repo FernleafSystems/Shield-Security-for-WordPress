@@ -25,12 +25,12 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $nAutoExpirePeriod = null;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Base $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 * @param string                        $sTableName
 	 * @throws Exception
 	 */
-	public function __construct( $oFeatureOptions, $sTableName = null ) {
-		parent::__construct( $oFeatureOptions );
+	public function __construct( $oModCon, $sTableName = null ) {
+		parent::__construct( $oModCon );
 		$this->setTableName( $sTableName );
 		$this->createCleanupCron();
 		$this->initializeTable();
@@ -40,8 +40,8 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	protected function readyToRun() {
-		return ( parent::readyToRun() && $this->getTableExists() );
+	public function isReadyToRun() {
+		return ( parent::isReadyToRun() && $this->getTableExists() );
 	}
 
 	/**
@@ -280,8 +280,8 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * 1 in 10 page loads will clean the databases. This ensures that even if the crons don't run
 	 * correctly, we'll keep it trim.
 	 */
-	public function action_doFeatureProcessorShutdown() {
-		parent::action_doFeatureProcessorShutdown();
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
 		if ( rand( 1, 10 ) === 1 ) {
 			$this->cleanupDatabase();
 		}

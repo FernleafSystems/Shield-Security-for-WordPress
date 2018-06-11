@@ -14,16 +14,16 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	private $oReportingProcessor;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Statistics $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getStatisticsTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getStatisticsTableName() );
 	}
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 		$oFO = $this->getFeature();
-		if ( $this->readyToRun() ) {
+		if ( $this->isReadyToRun() ) {
 			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
 
@@ -325,8 +325,8 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		return $this->query_selectAll( array( 'stat_key', 'tally' ) );
 	}
 
-	public function action_doFeatureProcessorShutdown() {
-		parent::action_doFeatureProcessorShutdown();
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
 		if ( !$this->getFeature()->isPluginDeleting() ) {
 			$this->commit();
 		}
@@ -336,7 +336,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDefinition( 'statistics_table_columns' );
+		$aDef = $this->getFeature()->getDef( 'statistics_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

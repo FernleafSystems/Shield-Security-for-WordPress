@@ -25,11 +25,22 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	}
 
 	public function run() {
-		parent::run();
-		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-		add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
-		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+		if ( $this->isReadyToRun() ) {
+			parent::run();
+			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
+			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
+			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
+			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isReadyToRun() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return ( parent::isReadyToRun() && $oFO->getSessionsProcessor()->isReadyToRun() );
 	}
 
 	/**

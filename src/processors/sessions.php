@@ -24,14 +24,14 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	private $nSessionAlreadyCreatedUserId = 0;
 
 	/**
-	 * @param ICWP_WPSF_Processor_Sessions $oFeatureOptions
+	 * @param ICWP_WPSF_Processor_Sessions $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getSessionsTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getSessionsTableName() );
 	}
 
 	public function run() {
-		if ( $this->readyToRun() ) {
+		if ( $this->isReadyToRun() ) {
 			add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); //login
 			add_action( 'clear_auth_cookie', array( $this, 'onWpClearAuthCookie' ), 0 ); //logout
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );

@@ -19,23 +19,23 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	protected $bVisitorIsWhitelisted;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Ips $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Ips $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Ips $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getIpListsTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_Ips $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getIpListsTableName() );
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function readyToRun() {
-		return ( parent::readyToRun() && $this->loadIpService()->isValidIp_PublicRemote( $this->ip() ) );
+	public function isReadyToRun() {
+		return ( parent::isReadyToRun() && $this->loadIpService()->isValidIp_PublicRemote( $this->ip() ) );
 	}
 
 	/**
 	 */
 	public function run() {
-		if ( !$this->readyToRun() ) {
+		if ( !$this->isReadyToRun() ) {
 			return;
 		}
 
