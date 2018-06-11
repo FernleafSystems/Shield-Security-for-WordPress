@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.7.2
+Stable tag: 6.8.0
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -354,7 +354,7 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://icwp.io/aa).
 
 = 6.8.0 - Current Release =
-*Released: 11th June, 2018* - [Release Notes](https://icwp.io/cx)
+*Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
 
 * **(v.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
 * **(v.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
@@ -364,7 +364,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
 = 6.8 Series =
-*Released: 11th June, 2018* - [Release Notes](https://icwp.io/cx)
+*Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
 
 * **(v.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
 * **(v.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
