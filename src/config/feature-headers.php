@@ -51,8 +51,8 @@
       "section": "section_enable_plugin_feature_headers",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/7c",
-      "link_blog": "http://icwp.io/7c",
+      "link_info": "https://icwp.io/7c",
+      "link_blog": "https://icwp.io/7c",
       "name": "Enable HTTP Headers",
       "summary": "Enable (or Disable) The HTTP Headers module",
       "description": "Un-Checking this option will completely disable the HTTP Headers module"
@@ -76,8 +76,8 @@
           "text": "On: Block All iFrames"
         }
       ],
-      "link_info": "http://icwp.io/78",
-      "link_blog": "http://icwp.io/7c",
+      "link_info": "https://icwp.io/78",
+      "link_blog": "https://icwp.io/7c",
       "name": "Block iFrames",
       "summary": "Block Remote iFrames Of This Site",
       "description": "The setting prevents any external website from embedding your site in an iFrame. This is useful for preventing so-called ClickJack attacks."
@@ -87,8 +87,8 @@
       "section": "section_security_headers",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/79",
-      "link_blog": "http://icwp.io/7c",
+      "link_info": "https://icwp.io/79",
+      "link_blog": "https://icwp.io/7c",
       "name": "XSS Protection",
       "summary": "Employ Built-In Browser XSS Protection",
       "description": "Directs compatible browsers to block what they detect as Reflective XSS attacks."
@@ -98,8 +98,8 @@
       "section": "section_security_headers",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/7a",
-      "link_blog": "http://icwp.io/7c",
+      "link_info": "https://icwp.io/7a",
+      "link_blog": "https://icwp.io/7c",
       "name": "Prevent Mime-Sniff",
       "summary": "Turn-Off Browser Mime-Sniff",
       "description": "Reduces visitor exposure to malicious user-uploaded content."
@@ -152,7 +152,7 @@
           "text": "Don't Send This Header"
         }
       ],
-      "link_info": "http://icwp.io/a5",
+      "link_info": "https://icwp.io/a5",
       "link_blog": "",
       "name": "Referrer Policy",
       "summary": "Referrer Policy Header",
@@ -163,8 +163,8 @@
       "section": "section_content_security_policy",
       "default": "N",
       "type": "checkbox",
-      "link_info": "http://icwp.io/7d",
-      "link_blog": "http://icwp.io/7c",
+      "link_info": "https://icwp.io/7d",
+      "link_blog": "https://icwp.io/7c",
       "name": "Enable Content Security Policy",
       "summary": "Enable (or Disable) The Content Security Policy module",
       "description": "Allows for permission and restriction of all resources loaded on your site."

@@ -127,7 +127,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'help'          => _wpsf__( 'Dropping support for PHP 5.2 and 5.3' )
 			),
 			'hrefs'             => array(
-				'help' => 'http://icwp.io/aq',
+				'help' => 'https://icwp.io/aq',
 			)
 		);
 		$this->insertAdminNotice( $aRenderData );

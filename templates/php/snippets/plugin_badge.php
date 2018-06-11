@@ -82,7 +82,7 @@
 </style>
 <div id="icwpWpsfSiteBadge">
 	<a id="icwpWpsfCloseButton">x</a>
-	<a href="http://icwp.io/wpsecurityfirewall" target="_blank"
+	<a href="https://icwp.io/wpsecurityfirewall" target="_blank"
 	   title="This site is protected by the Shield Security plugin."
 	   %s>
 		<img src="%s" alt="%s Logo" />

@@ -36,10 +36,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	private $aRawCommentData;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_CommentsFilter $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getCommentsFilterTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getCommentsFilterTableName() );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return $fIfDoCheck;
 		}
 
-		$oWpComments = $this->loadWpCommentsProcessor();
+		$oWpComments = $this->loadWpComments();
 
 		// 1st are comments enabled on this post?
 		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 */
 	public function run() {
-		if ( !$this->readyToRun() ) {
+		if ( !$this->isReadyToRun() ) {
 			return;
 		}
 
@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$sStatKey = '';
 		$sExplanation = '';
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$sFieldCheckboxName = $oDp->FetchPost( 'cb_nombre' );
 		$sFieldHoney = $oDp->FetchPost( 'sugar_sweet_email' );
 		$sFieldCommentToken = $oDp->FetchPost( 'comment_token' );
@@ -231,7 +231,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 		else if ( function_exists( 'WPWall_Init' ) ) {
 			// Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
-			if ( !is_null( $this->loadDataProcessor()->FetchPost( 'submit_wall_post' ) ) ) {
+			if ( !is_null( $this->loadDP()->FetchPost( 'submit_wall_post' ) ) ) {
 				$bCheck = false;
 			}
 		}
@@ -244,7 +244,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function getUniqueFormId() {
 		if ( !isset( $this->sFormId ) ) {
-			$oDp = $this->loadDataProcessor();
+			$oDp = $this->loadDP();
 			$sId = $oDp->GenerateRandomLetter().$oDp->GenerateRandomString( rand( 7, 23 ), 7 );
 			$this->sFormId = preg_replace(
 				'#[^a-zA-Z0-9]#', '',

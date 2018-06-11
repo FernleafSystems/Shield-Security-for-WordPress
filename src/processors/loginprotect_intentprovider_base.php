@@ -29,7 +29,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		}
 
 		// Necessary so we don't show user intent to people without it
-		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'userSubjectToLoginIntent_Filter' ) );
+		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'filterUserSubjectToIntent' ), 10, 2 );
 
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
@@ -41,10 +41,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
+	 * @param WP_User $oUser
 	 */
-	public function validateLoginIntent() {
+	public function validateLoginIntent( $oUser ) {
 		$oLoginTrack = $this->getLoginTrack();
-		$oUser = $this->loadWpUsers()->getCurrentWpUser();
 
 		$sFactor = $this->getStub();
 		if ( !$this->isProfileReady( $oUser ) ) {
@@ -53,11 +53,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		else {
 			if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
 				$oLoginTrack->addSuccessfulFactor( $sFactor );
-				$this->auditLogin( true );
+				$this->auditLogin( $oUser, true );
 			}
 			else {
 				$oLoginTrack->addUnSuccessfulFactor( $sFactor );
-				$this->auditLogin( false );
+				$this->auditLogin( $oUser, false );
 			}
 		}
 	}
@@ -74,6 +74,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return bool
 	 */
 	protected function hasValidatedProfile( $oUser ) {
+		if ( !( $oUser instanceof WP_User ) ) {
+			return false;
+		}
+
 		$oWpUsers = $this->loadWpUsers();
 
 		$sKey = $this->getStub().'_validated';
@@ -251,9 +255,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	abstract public function addLoginIntentField( $aFields );
 
 	/**
-	 * @param bool $bIsSuccess
+	 * @param WP_User $oUser
+	 * @param bool    $bIsSuccess
 	 */
-	abstract protected function auditLogin( $bIsSuccess );
+	abstract protected function auditLogin( $oUser, $bIsSuccess );
 
 	/**
 	 * @return string
@@ -270,11 +275,12 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param bool $bIsSubjectTo
+	 * @param bool    $bIsSubjectTo
+	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	public function userSubjectToLoginIntent_Filter( $bIsSubjectTo ) {
-		return ( $bIsSubjectTo || $this->getCurrentUserHasValidatedProfile() );
+	public function filterUserSubjectToIntent( $bIsSubjectTo, $oUser ) {
+		return ( $bIsSubjectTo || $this->hasValidatedProfile( $oUser ) );
 	}
 
 	/**

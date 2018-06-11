@@ -61,15 +61,35 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		if ( $oUser instanceof WP_User ) {
 
-			$this->setPasswordStartedAt( $oUser ); // used by Password Policies
-
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
-			if ( $oFO->isSendEmailLoginNotification() ) {
-				$this->sendLoginEmailNotification( $oUser );
-			}
-			$this->setUserLastLoginTime( $oUser );
+			$this->setPasswordStartedAt( $oUser )// used by Password Policies
+				 ->setUserLastLoginTime( $oUser )
+				 ->sendLoginNotifications( $oUser );
 		}
+	}
+
+	/**
+	 * @param WP_User $oUser - not checking that user is valid
+	 * @return $this
+	 */
+	private function sendLoginNotifications( $oUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$bAdmin = $oFO->isSendAdminEmailLoginNotification();
+		$bUser = $oFO->isSendUserEmailLoginNotification();
+
+		// do some magic logic so we don't send both to the same person (the assumption being that the admin
+		// email recipient is actually an admin (or they'll maybe not get any).
+		if ( $bAdmin && $bUser && ( $oFO->getAdminLoginNotificationEmail() === $oUser->user_email ) ) {
+			$bUser = false;
+		}
+
+		if ( $bAdmin ) {
+			$this->sendAdminLoginEmailNotification( $oUser );
+		}
+		if ( $bUser && !$this->isUserSubjectToLoginIntent( $oUser ) ) {
+			$this->sendUserLoginEmailNotification( $oUser );
+		}
+		return $this;
 	}
 
 	/**
@@ -139,10 +159,12 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	protected function sendLoginEmailNotification( $oUser ) {
+	private function sendAdminLoginEmailNotification( $oUser ) {
 		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
 
 		$aUserCapToRolesMap = array(
 			'network_admin' => 'manage_network',
@@ -195,9 +217,39 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		return $this
 			->getFeature()
 			->getEmailProcessor()
-			->sendEmailTo(
-				$this->getOption( 'enable_admin_login_email_notification' ),
+			->sendEmailWithWrap(
+				$oFO->getAdminLoginNotificationEmail(),
 				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
+				$aMessage
+			);
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	private function sendUserLoginEmailNotification( $oUser ) {
+		$aMessage = array(
+			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getController()
+																											 ->getHumanName() ),
+			'',
+			_wpsf__( 'Details for this login are below:' ),
+			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $this->loadWp()->getHomeUrl() ),
+			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
+			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->ip() ),
+			'- '.sprintf( _wpsf__( 'Login Time: %s' ), $this->loadWp()->getTimeStampForDisplay() ),
+			'',
+			_wpsf__( 'If this is unexpected or suspicious, please contact your site administrator immediately.' ),
+			'',
+			_wpsf__( 'Thanks.' )
+		);
+
+		return $this
+			->getFeature()
+			->getEmailProcessor()
+			->sendEmailWithWrap(
+				$oUser->user_email,
+				sprintf( _wpsf__( 'Notice - %s' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
 				$aMessage
 			);
 	}
@@ -218,7 +270,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Sessions
 	 */
-	protected function getProcessorSessions() {
+	public function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
 			require_once( dirname( __FILE__ ).'/usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -226,14 +278,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
 		}
 		return $this->oProcessorSessions;
-	}
-
-	/**
-	 * @param string $sWpUsername
-	 * @return array|bool
-	 */
-	public function getActiveUserSessionRecords( $sWpUsername = '' ) {
-		return $this->getProcessorSessions()->getActiveSessionRecordsForUsername( $sWpUsername );
 	}
 
 	/**

@@ -15,7 +15,7 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sWpUsername
 	 */
 	public function add( $sContext, $sEvent, $nCategory, $sMessage = '', $sWpUsername = '' ) {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		if ( empty( $sWpUsername ) ) {
 			$oCurrentUser = $this->loadWpUsers()->getCurrentWpUser();
@@ -24,11 +24,11 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 					$sWpUsername = 'WP Cron';
 				}
 				else {
-					$sWpUsername = 'Unidentified';
+					$sWpUsername = 'unidentified';
 				}
 			}
 			else {
-				$sWpUsername = $oCurrentUser->get( 'user_login' );
+				$sWpUsername = $oCurrentUser->user_login;
 			}
 		}
 

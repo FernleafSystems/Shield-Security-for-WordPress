@@ -6,12 +6,12 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-6">
-				{% block slide_header_previous %}
+				{% block slide_header_previous_top %}
 					<button class="btn btn-outline-secondary btn-block ButtonPreviousSlide">&larr; Previous Step </button>
 				{% endblock %}
 				</div>
 				<div class="col-6">
-				{% block slide_header_next %}
+				{% block slide_header_next_top %}
 					<button class="btn btn-info btn-block ButtonNextSlide">Next Step &rarr;</button>
 				{% endblock %}
 				</div>
@@ -31,9 +31,25 @@
 	<div class="slide-footer">
 	{% block slide_footer %}
 		<hr />
-		<p>Click 'Next Step' at the top to continue.
-		   Or <a href="{{ hrefs.dashboard }}" style="color: inherit; text-decoration: underline;">go back</a>
-		   to Shield Dashboard</p>
+		<div class="row">
+			<div class="col">
+				<p>Click 'Next Step' at the top to continue.
+				   Or <a href="{{ hrefs.dashboard }}" style="color: inherit; text-decoration: underline;">go back</a>
+				   to {{ strings.plugin_name }} Dashboard</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6">
+				{% block slide_header_previous_bottom %}
+					<button class="btn btn-outline-secondary btn-block ButtonPreviousSlide">&larr; Previous Step </button>
+				{% endblock %}
+			</div>
+			<div class="col-6">
+				{% block slide_header_next_top_bottom %}
+					<button class="btn btn-info btn-block ButtonNextSlide">Next Step &rarr;</button>
+				{% endblock %}
+			</div>
+		</div>
 	{% endblock %}
 	</div>
 </div>

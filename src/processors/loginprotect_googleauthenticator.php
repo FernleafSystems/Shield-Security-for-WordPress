@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param int $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 
 		// Can only edit other users if you're admin/security-admin
 		if ( $this->getController()->getHasPermissionToManage() ) {
@@ -212,16 +212,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oLoginTrack = $this->getLoginTrack();
 
 		// Mulifactor or not
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactorAuth();
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactor();
 		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
 		$oLoginTrack->addUnSuccessfulFactor( $this->getStub() );
 
-		if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
+		if ( !$bNeedToCheckThisFactor || !( $oUser instanceof WP_User ) || is_wp_error( $oUser ) ) {
 			return $oUser;
 		}
 
-		$bIsUser = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		if ( $bIsUser && $this->hasValidatedProfile( $oUser ) ) {
+		if ( $this->hasValidatedProfile( $oUser ) ) {
 
 			$oError = new WP_Error();
 
@@ -267,7 +266,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				'value'       => '',
 				'placeholder' => _wpsf__( 'Please use your Google Authenticator App to retrieve your code.' ),
 				'text'        => _wpsf__( 'Google Authenticator Code' ),
-				'help_link'   => 'http://icwp.io/wpsf42',
+				'help_link'   => 'https://icwp.io/wpsf42',
 				'extras'      => array(
 					'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
 				)
@@ -289,10 +288,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
 
 		$sRecipient = $oUser->get( 'user_email' );
-		if ( $this->loadDataProcessor()->validEmail( $sRecipient ) ) {
+		if ( $this->loadDP()->validEmail( $sRecipient ) ) {
 			$sEmailSubject = _wpsf__( 'Google Authenticator Removal Confirmation' );
 			$bSendSuccess = $this->getEmailProcessor()
-								 ->sendEmailTo( $sRecipient, $sEmailSubject, $aEmailContent );
+								 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aEmailContent );
 		}
 		return $bSendSuccess;
 	}
@@ -342,16 +341,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
-	 * @param bool $bIsSuccess
+	 * @param WP_User $oUser
+	 * @param bool    $bIsSuccess
 	 */
-	protected function auditLogin( $bIsSuccess ) {
+	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
 				sprintf(
 					_wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ),
-					$this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' )
-				),
-				2, 'login_protect_ga_verified'
+					$oUser->user_login ), 2, 'login_protect_ga_verified'
 			);
 			$this->doStatIncrement( 'login.googleauthenticator.verified' );
 		}
@@ -359,9 +357,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$this->addToAuditEntry(
 				sprintf(
 					_wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ),
-					$this->loadWpUsers()->getCurrentWpUser()->get( 'user_login' )
-				),
-				2, 'login_protect_ga_failed'
+					$oUser->user_login ), 2, 'login_protect_ga_failed'
 			);
 			$this->doStatIncrement( 'login.googleauthenticator.fail' );
 		}

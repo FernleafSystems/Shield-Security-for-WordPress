@@ -12,6 +12,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
 
+		add_action( $this->prefix( 'importexport_notify' ), array( $this, 'runWhitelistNotify' ) );
+
 		if ( $oFO->hasImportExportMasterImportUrl() ) {
 			try {
 				$this->setupCronImport();
@@ -19,6 +21,31 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			catch ( Exception $oE ) {
 				error_log( $oE->getMessage() );
 			}
+		}
+	}
+
+	public function runWhitelistNotify() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+
+		if ( $oFO->hasImportExportWhitelistSites() ) {
+
+			$oFs = $this->loadFS();
+			foreach ( $oFO->getImportExportWhitelist() as $sUrl ) {
+				$oFs->getUrl(
+					$sUrl,
+					array(
+						'blocking' => false,
+						'body'     => array( 'shield_action' => 'importexport_updatenotified' )
+					)
+				);
+			}
+
+			$this->addToAuditEntry(
+				_wpsf__( 'Sent notifications to whitelisted sites for required options import.' ),
+				1,
+				'options_import_notify'
+			);
 		}
 	}
 
@@ -34,8 +61,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				add_action( 'init', array( $this, 'runOptionsExportHandshake' ) );
 				break;
 
-			case 'importexport_updatenotify':
-				add_action( 'init', array( $this, 'runOptionsUpdateNotify' ) );
+			case 'importexport_updatenotified':
+				add_action( 'init', array( $this, 'runOptionsUpdateNotified' ) );
 				break;
 
 			default:
@@ -62,11 +89,40 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * TODO: set a cron to run in a minute to push out notifications to whitelisted sites.
+	 * We've been notified that there's an update to pull in from the master site so we set a cron to do this.
 	 */
-	public function runOptionsUpdateNotify() {
+	public function runOptionsUpdateNotified() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getFeature();
+
+		$sCronHook = $oFO->prefix( 'importexport_updatenotified' );
+		if ( wp_next_scheduled( $sCronHook ) ) {
+			wp_clear_scheduled_hook( $sCronHook );
+		}
+
+		if ( !wp_next_scheduled( $sCronHook ) ) {
+
+			wp_schedule_single_event( $this->loadDP()->time() + 12, $sCronHook );
+
+			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $this->loadDP()->server( 'HTTP_USER_AGENT' ), $aMatches );
+			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
+				$sUrl = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
+				if ( !empty( $sUrl ) ) {
+					$sUrl = 'Site: '.$sUrl;
+				}
+			}
+			else {
+				$sUrl = '';
+			}
+
+			$this->addToAuditEntry(
+				_wpsf__( 'Received notification that options import required.' )
+				.' '.sprintf( _wpsf__( 'Current master site: %s' ), $oFO->getImportExportMasterImportUrl() ),
+				1,
+				'options_import_notified',
+				$sUrl
+			);
+		}
 	}
 
 	/**
@@ -163,9 +219,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * @throws Exception
 	 */
 	protected function setupCronImport() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
 		$this->loadWpCronProcessor()
 			 ->setNextRun( strtotime( 'tomorrow 1am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
 			 ->createCronJob( $this->getCronName(), array( $this, 'cron_autoImport' ) );
+		// For auto update whitelist notifications:
+		add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'cron_autoImport' ) );
 		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
@@ -256,6 +316,11 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 							'options_imported'
 						);
 						$oFO->setImportExportLastImportHash( md5( serialize( $aParts[ 'data' ] ) ) );
+
+						// Fix for the overwriting of the Master Site URL with an empty string.
+						if ( !$oFO->hasImportExportMasterImportUrl() ) {
+							$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
+						}
 					}
 
 					// if it's network enabled, we save the new master URL.

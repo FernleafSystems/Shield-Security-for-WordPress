@@ -408,7 +408,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	public function redirectHere() {
-		$this->doRedirect( $this->loadDataProcessor()->getRequestUri() );
+		$this->doRedirect( $this->loadDP()->getRequestUri() );
 	}
 
 	/**
@@ -853,7 +853,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			}
 		}
 
-		$nTime = is_null( $nTime ) ? $this->loadDataProcessor()->time() : $nTime;
+		$nTime = is_null( $nTime ) ? $this->loadDP()->time() : $nTime;
 		return $nTime + ( $nTimezoneOffset*HOUR_IN_SECONDS );
 	}
 

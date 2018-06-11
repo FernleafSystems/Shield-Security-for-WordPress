@@ -117,8 +117,8 @@
       "section":     "section_enable_plugin_feature_login_protection",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/51",
-      "link_blog":   "http://icwp.io/wpsf03",
+      "link_info":   "https://icwp.io/51",
+      "link_blog":   "https://icwp.io/wpsf03",
       "name":        "Enable Login Guard",
       "summary":     "Enable (or Disable) The Login Guard Module",
       "description": "Un-Checking this option will completely disable the Login Guard module"
@@ -129,8 +129,8 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "http://icwp.io/5q",
-      "link_blog":   "http://icwp.io/5r",
+      "link_info":   "https://icwp.io/5q",
+      "link_blog":   "https://icwp.io/5r",
       "name":        "Hide Login Page",
       "summary":     "Rename The WordPress Login Page",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
@@ -140,8 +140,8 @@
       "section":     "section_multifactor_authentication",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/9r",
-      "link_blog":   "http://icwp.io/84",
+      "link_info":   "https://icwp.io/9r",
+      "link_blog":   "https://icwp.io/84",
       "name":        "Multi-Factor Authentication",
       "summary":     "Require All Active Authentication Factors",
       "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
@@ -152,7 +152,7 @@
       "premium":     true,
       "default":     0,
       "type":        "integer",
-      "link_info":   "http://icwp.io/b1",
+      "link_info":   "https://icwp.io/b1",
       "link_blog":   "",
       "name":        "Multi-Factor By-Pass",
       "summary":     "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days",
@@ -163,8 +163,8 @@
       "section":     "section_2fa_ga",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/shld7",
-      "link_blog":   "http://icwp.io/shld6",
+      "link_info":   "https://icwp.io/shld7",
+      "link_blog":   "https://icwp.io/shld6",
       "name":        "Enable Google Authenticator",
       "summary":     "Allow Users To Use Google Authenticator",
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
@@ -174,8 +174,8 @@
       "section":     "section_2fa_email",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/3t",
-      "link_blog":   "http://icwp.io/9q",
+      "link_info":   "https://icwp.io/3t",
+      "link_blog":   "https://icwp.io/9q",
       "name":        "Enable Email Authentication",
       "summary":     "Two-Factor Login Authentication By Email",
       "description": "All users will be required to verify their login by email-based two-factor authentication."
@@ -212,33 +212,76 @@
           "text":      "Administrators"
         }
       ],
-      "link_info":     "http://icwp.io/4v",
+      "link_info":     "https://icwp.io/4v",
       "link_blog":     "",
       "name":          "Enforce - Email Authentication",
       "summary":       "All User Roles Subject To Email Authentication",
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
-      "key":         "enable_google_recaptcha_login",
-      "section":     "section_recaptcha",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "http://icwp.io/9m",
-      "link_blog":   "http://icwp.io/shld5",
-      "name":        "Google reCAPTCHA",
-      "summary":     "Enable Google reCAPTCHA",
-      "description": "Use Google reCAPTCHA on the login screen."
+      "key":           "bot_protection_locations",
+      "section":       "section_brute_force_login_protection",
+      "type":          "multiple_select",
+      "default":       [ "login" ],
+      "value_options": [
+        {
+          "value_key": "login",
+          "text":      "Login"
+        },
+        {
+          "value_key": "register",
+          "text":      "Register"
+        },
+        {
+          "value_key": "password",
+          "text":      "Lost Password"
+        },
+        {
+          "value_key": "checkout_woo",
+          "text":      "Checkout (WooCommerce)"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Protection Locations",
+      "summary":       "How Google reCAPTCHA Will Be Displayed",
+      "description":   "Choose for which forms bot protection measures will be deployed."
     },
     {
-      "key":           "google_recaptcha_style_login",
-      "section":       "section_recaptcha",
-      "premium":       true,
-      "default":       "default",
+      "key":         "login_limit_interval",
+      "section":     "section_brute_force_login_protection",
+      "default":     "10",
+      "type":        "integer",
+      "link_info":   "https://icwp.io/3q",
+      "link_blog":   "https://icwp.io/9o",
+      "name":        "Login Cooldown Interval",
+      "summary":     "Limit login attempts to every X seconds",
+      "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
+    },
+    {
+      "key":         "enable_login_gasp_check",
+      "section":     "section_brute_force_login_protection",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://icwp.io/3r",
+      "link_blog":   "https://icwp.io/9n",
+      "name":        "Bot Protection",
+      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
+      "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
+    },
+    {
+      "key":         "enable_google_recaptcha_login",
+      "section":     "section_brute_force_login_protection",
+      "default":       "disabled",
       "type":          "select",
       "value_options": [
         {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
           "value_key": "default",
-          "text":      "Default"
+          "text":      "Default Style"
         },
         {
           "value_key": "light",
@@ -253,52 +296,27 @@
           "text":      "Invisible reCAPTCHA"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "reCAPTCHA Style",
-      "summary":       "How Google reCAPTCHA Will Be Displayed",
-      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
+      "link_info":   "https://icwp.io/9m",
+      "link_blog":   "https://icwp.io/shld5",
+      "name":        "Google reCAPTCHA",
+      "summary":     "Enable Google reCAPTCHA",
+      "description": "Use Google reCAPTCHA on the login screen."
     },
     {
-      "key":         "enable_login_gasp_check",
-      "section":     "section_brute_force_login_protection",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "http://icwp.io/3r",
-      "link_blog":   "http://icwp.io/9n",
-      "name":        "Bot Protection",
-      "summary":     "Protect WP Login From Automated Login Attempts By Bots",
-      "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
-    },
-    {
-      "key":         "login_limit_interval",
-      "section":     "section_brute_force_login_protection",
-      "default":     "10",
-      "type":        "integer",
-      "link_info":   "http://icwp.io/3q",
-      "link_blog":   "http://icwp.io/9o",
-      "name":        "Login Cooldown Interval",
-      "summary":     "Limit login attempts to every X seconds",
-      "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
+      "key":           "google_recaptcha_style_login",
+      "section":       "section_non_ui"
     },
     {
       "key":         "enable_user_register_checking",
-      "section":     "section_brute_force_login_protection",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "http://icwp.io/9p",
-      "link_blog":   "",
-      "name":        "User Registration",
-      "summary":     "Apply Brute Force Protection To User Registration And Lost Passwords",
-      "description": "When enabled, settings in this section will also apply to new user registration and users trying to reset passwords."
+      "section":     "section_non_ui"
     },
     {
       "key":         "enable_yubikey",
       "section":     "section_yubikey_authentication",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/4f",
-      "link_blog":   "http://icwp.io/9t",
+      "link_info":   "https://icwp.io/4f",
+      "link_blog":   "https://icwp.io/9t",
       "name":        "Enable Yubikey Authentication",
       "summary":     "Turn On / Off Yubikey Authentication On This Site",
       "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
@@ -309,7 +327,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "http://icwp.io/4g",
+      "link_info":   "https://icwp.io/4g",
       "link_blog":   "",
       "name":        "Yubikey App ID",
       "summary":     "Your Unique Yubikey App ID",
@@ -321,7 +339,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "http://icwp.io/4g",
+      "link_info":   "https://icwp.io/4g",
       "link_blog":   "",
       "name":        "Yubikey API Key",
       "summary":     "Your Unique Yubikey App API Key",

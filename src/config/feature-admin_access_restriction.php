@@ -75,8 +75,8 @@
       "section": "section_enable_plugin_feature_admin_access_restriction",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/40",
-      "link_blog": "http://icwp.io/wpsf02",
+      "link_info": "https://icwp.io/40",
+      "link_blog": "https://icwp.io/wpsf02",
       "name": "Enable Security Admin",
       "summary": "Enforce Security Admin Access Restriction",
       "description": "Enable this with great care and consideration. When this Access Key option is enabled, you must specify a key below and use it to gain access to this plugin."
@@ -87,7 +87,7 @@
       "sensitive": true,
       "default": "",
       "type": "password",
-      "link_info": "http://icwp.io/42",
+      "link_info": "https://icwp.io/42",
       "link_blog": "",
       "name": "Security Admin Access Key",
       "summary": "Provide/Update Security Admin Access Key",
@@ -99,7 +99,8 @@
       "section": "section_admin_access_restriction_settings",
       "default": 30,
       "type": "integer",
-      "link_info": "http://icwp.io/41",
+      "min": 1,
+      "link_info": "https://icwp.io/41",
       "link_blog": "",
       "name": "Security Admin Timeout",
       "summary": "Specify An Automatic Timeout Interval For Security Admin Access",
@@ -110,8 +111,8 @@
       "section": "section_admin_access_restriction_areas",
       "default": "Y",
       "type": "checkbox",
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf32",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf32",
       "name": "Pages",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
@@ -121,7 +122,7 @@
       "section": "section_admin_access_restriction_areas",
       "default": "N",
       "type": "checkbox",
-      "link_info": "http://icwp.io/a0",
+      "link_info": "https://icwp.io/a0",
       "link_blog": "",
       "name": "Admin Users",
       "summary": "Restrict Access To Create/Delete/Modify Other Admin Users",
@@ -150,8 +151,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf21",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Plugin Actions",
       "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
 
@@ -183,8 +184,8 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf21",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To WordPress Theme Actions",
       "description": "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
@@ -207,14 +208,14 @@
           "text": "Delete"
         }
       ],
-      "link_info": "http://icwp.io/a0",
-      "link_blog": "http://icwp.io/wpsf21",
+      "link_info": "https://icwp.io/a0",
+      "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion."
     },
     {
       "key": "whitelabel_enable",
-      "section": "section_non_ui",
+      "section": "section_whitelabel",
       "premium": true,
       "default": "N",
       "type": "checkbox",
@@ -225,9 +226,8 @@
       "description": "Use this option to turn on/off the whole White Label feature."
     },
     {
-      "key": "_wl_hide_updates",
-      "section": "section_non_ui",
-      "premium": true,
+      "key": "wl_hide_updates",
+      "section": "section_whitelabel",
       "default": "Y",
       "type": "checkbox",
       "link_info": "",
@@ -237,10 +237,10 @@
       "description": "Hides the availability of Shield updates from non-security admins."
     },
     {
-      "key": "_wl_namemain",
+      "key": "wl_pluginnamemain",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
-      "default": "Shield Security",
+      "default": "Shield",
       "type": "text",
       "link_info": "",
       "link_blog": "",
@@ -249,10 +249,10 @@
       "description": "The Name Of The Plugin."
     },
     {
-      "key": "_wl_namemenu",
+      "key": "wl_namemenu",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
-      "default": "",
+      "default": "Shield Security",
       "type": "text",
       "link_info": "",
       "link_blog": "",
@@ -261,9 +261,21 @@
       "description": "The Main Menu Title Of The Plugin. If left empty, the Plugin Name will be used."
     },
     {
-      "key": "_wl_description",
+      "key": "wl_companyname",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
+      "default": "One Dollar Plugin",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Company Name",
+      "summary": "The Name Of Your Company",
+      "description": "Provide the name of your company."
+    },
+    {
+      "key": "wl_description",
+      "section": "section_whitelabel",
+      "sensitive": true,
       "default": "Secure Your Sites With The World's Most Powerful WordPress Security Plugin",
       "type": "text",
       "link_info": "",
@@ -273,10 +285,10 @@
       "description": "The Tag Line Of The Plugin."
     },
     {
-      "key": "_wl_homeurl",
+      "key": "wl_homeurl",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
-      "default": "http://icwp.io/home",
+      "default": "https://icwp.io/7f",
       "type": "text",
       "link_info": "",
       "link_blog": "",
@@ -285,16 +297,28 @@
       "description": "When a user clicks the home link for this plugin, this is where they'll be directed."
     },
     {
-      "key": "_wl_iconurl",
+      "key": "wl_menuiconurl",
+      "section": "section_whitelabel",
       "sensitive": true,
-      "section": "section_non_ui",
       "default": "",
       "type": "text",
       "link_info": "",
       "link_blog": "",
-      "name": "Icon URL",
-      "summary": "Plugin Icon URL",
-      "description": "The URL of the icon displayed in the menu and in the admin pages."
+      "name": "Menu Icon",
+      "summary": "Menu Icon URL",
+      "description": "The URL of the icon displayed in the menu."
+    },
+    {
+      "key": "wl_dashboardlogourl",
+      "section": "section_whitelabel",
+      "sensitive": true,
+      "default": "",
+      "type": "text",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Dashboard Logo",
+      "summary": "Dashboard Logo URL",
+      "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     }
   ],
   "definitions": {

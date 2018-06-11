@@ -57,8 +57,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'connection_debug' => $this->getAjaxActionData( 'connection_debug' )
 			),
 			'aHrefs'  => array(
-				'shield_pro_url'           => 'http://icwp.io/shieldpro',
-				'shield_pro_more_info_url' => 'http://icwp.io/shld1',
+				'shield_pro_url'           => 'https://icwp.io/shieldpro',
+				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
 				'iframe_url'               => $this->getDef( 'landing_page_url' ),
 				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
 			),
@@ -562,7 +562,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return boolean
 	 */
 	public function getIfShowModuleMenuItem() {
-		return parent::getIfShowModuleMenuItem() && self::getConn()->isPremiumExtensionsEnabled();
+		return parent::getIfShowModuleMenuItem() && self::getConn()->isPremiumExtensionsEnabled()
+			   && $this->getConn()->getHasPermissionToManage();
 	}
 
 	/**
@@ -643,13 +644,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
+		$sName = $this->getConn()->getHumanName();
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_license_options' :
 				$sTitle = _wpsf__( 'License Options' );
 				$sTitleShort = _wpsf__( 'License Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Activate Shield Pro Extensions.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Activate %s Pro Extensions.' ), $sName ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'TODO.' ) )
 				);
 				break;

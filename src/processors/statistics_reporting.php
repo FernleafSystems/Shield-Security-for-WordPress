@@ -14,10 +14,10 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	private $oConsolidation;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Statistics $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions, $oFeatureOptions->getReportingTableName() );
+	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getReportingTableName() );
 	}
 
 	public function run() {
@@ -71,8 +71,8 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 		return (bool)$mResult;
 	}
 
-	public function action_doFeatureProcessorShutdown() {
-		parent::action_doFeatureProcessorShutdown();
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
 		if ( !$this->getFeature()->isPluginDeleting() ) {
 			$this->commit();
 		}

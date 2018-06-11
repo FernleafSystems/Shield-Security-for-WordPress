@@ -15,6 +15,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return $this->getUserSessionsData();
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getUserSessionsData() {
 		$aActiveSessions = $this->getActiveSessionsData();
 
@@ -61,11 +64,56 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @param bool $bCleanFirst
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
-	public function getActiveSessionsData() {
+	public function getActiveSessionsData( $bCleanFirst = true ) {
+		// we first clean the sessions.
+		if ( $bCleanFirst ) {
+			/** @var ICWP_WPSF_Processor_UserManagement $oProc */
+			$oProc = $this->getProcessor();
+			$oProc->getProcessorSessions()
+				  ->cleanExpiredSessions();
+		}
+
 		return $this->getSessionsProcessor()
 					->queryGetActiveSessions();
+	}
+
+	/**
+	 * Should have no default email. If no email is set, no notification is sent.
+	 * @return string
+	 */
+	public function getAdminLoginNotificationEmail() {
+		return $this->getOpt( 'enable_admin_login_email_notification', '' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSessionIdleTimeoutInterval() {
+		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSessionTimeoutInterval() {
+		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasSessionIdleTimeout() {
+		return $this->isModuleEnabled() && ( $this->getSessionIdleTimeoutInterval() > 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasSessionTimeoutInterval() {
+		return $this->isModuleEnabled() && ( $this->getSessionTimeoutInterval() > 0 );
 	}
 
 	/**
@@ -77,7 +125,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 	protected function doExtraSubmitProcessing() {
 		$sAdminEmail = $this->getOpt( 'enable_admin_login_email_notification' );
-		if ( !$this->loadDataProcessor()->validEmail( $sAdminEmail ) ) {
+		if ( !$this->loadDP()->validEmail( $sAdminEmail ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
 		}
 
@@ -135,8 +183,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function isSendEmailLoginNotification() {
-		return $this->loadDP()->validEmail( $this->getOpt( 'enable_admin_login_email_notification' ) );
+	public function isSendAdminEmailLoginNotification() {
+		return $this->loadDP()->validEmail( $this->getAdminLoginNotificationEmail() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSendUserEmailLoginNotification() {
+		return $this->isPremium() && $this->getOptIs( 'enable_user_login_email_notification', 'Y' );
 	}
 
 	/**
@@ -332,6 +387,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'Send An Notification Email When Administrator Logs In' );
 				$sDescription = _wpsf__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.' )
 								.'<br />'._wpsf__( 'No email address - No Notification.' );
+				break;
+
+			case 'enable_user_login_email_notification' :
+				$sName = _wpsf__( 'User Login Notification Email' );
+				$sSummary = _wpsf__( 'Send Email Notification To Each User Upon Successful Login' );
+				$sDescription = _wpsf__( 'A notification is sent to each user when a successful login occurs for their account.' );
 				break;
 
 			case 'session_timeout_interval' :

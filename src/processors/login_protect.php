@@ -29,11 +29,11 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorGasp()->run();
 		}
 
-		if ( $this->getOption( 'login_limit_interval' ) > 0 && ( $oWp->isRequestUserLogin() || $oWp->isRequestUserRegister() ) ) {
+		if ( $oFO->isCooldownEnabled() && $this->loadDP()->isMethodPost() ) {
 			$this->getProcessorCooldown()->run();
 		}
 
-		if ( $oFO->getIsGoogleRecaptchaEnabled() && $oFO->getIsGoogleRecaptchaReady() ) {
+		if ( $oFO->isGoogleRecaptchaEnabled() ) {
 			$this->getProcessorGoogleRecaptcha()->run();
 		}
 

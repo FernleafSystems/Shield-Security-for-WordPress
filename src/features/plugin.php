@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function doPostConstruction() {
 		add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
-		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'getPluginReportEmail' ) );
+		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'supplyPluginReportEmail' ) );
 		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
 		$this->setVisitorIp();
@@ -47,15 +47,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'phpversion' => $this->loadDP()->getPhpVersion(),
 			)
 		);
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
-	 */
-	protected function getImportProcessor() {
-		/** @var ICWP_WPSF_Processor_Plugin $oP */
-		$oP = $this->getProcessor();
-		return $oP->getSubProcessorImportExport();
 	}
 
 	/**
@@ -313,26 +304,21 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', $this->loadDataProcessor()->time() );
+		return $this->setOpt( 'tracking_last_sent_at', $this->loadDP()->time() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function readyToSendTrackingData() {
-		return ( ( $this->loadDataProcessor()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
+		return ( ( $this->loadDP()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
 	}
 
 	/**
-	 * @param $sEmail
 	 * @return string
 	 */
-	public function getPluginReportEmail( $sEmail ) {
-		$sReportEmail = $this->getOpt( 'block_send_email_address' );
-		if ( $this->loadDataProcessor()->validEmail( $sReportEmail ) ) {
-			$sEmail = $sReportEmail;
-		}
-		return $sEmail;
+	public function supplyPluginReportEmail() {
+		return $this->getOpt( 'block_send_email_address' );
 	}
 
 	/**
@@ -342,11 +328,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$nInstalledAt = $this->getPluginInstallationTime();
 		if ( empty( $nInstalledAt ) || $nInstalledAt <= 0 ) {
-			$this->setOpt( 'installation_time', $this->loadDataProcessor()->time() );
+			$this->setOpt( 'installation_time', $this->loadDP()->time() );
 		}
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
-			$this->setOpt( 'tracking_permission_set_at', $this->loadDataProcessor()->time() );
+			$this->setOpt( 'tracking_permission_set_at', $this->loadDP()->time() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -428,6 +414,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function hasImportExportWhitelistSites() {
+		return ( count( $this->getImportExportWhitelist() ) > 0 );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getImportExportHandshakeExpiresAt() {
@@ -466,7 +459,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportPermitted() {
-		return $this->getOptIs( 'importexport_enable', 'Y' );
+		return $this->isPremium() && $this->getOptIs( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -577,7 +570,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$aMap = array();
 		$aEmpties = array();
 		foreach ( $aValueOptions as $aOptionValue ) {
@@ -675,7 +668,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getCanAdminNotes() {
-		return true||$this->isPremium();
+		return $this->isPremium();
 	}
 
 	/**
@@ -692,12 +685,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch ( $sSectionSlug ) {
+		$sName = $this->getConn()->getHumanName();
+		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_global_security_options' :
 				$sTitle = _wpsf__( 'Global Security Plugin Disable' );
-				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $this->getConn()->getHumanName() );
+				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $sName );
 				break;
 
 			case 'section_defaults' :
@@ -726,9 +719,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sTitle = _wpsf__( 'Google' );
 				$sTitleShort = _wpsf__( 'Google' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Setup Google reCAPTCHA for use across Shield.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'Note: you must create your own Google reCAPTCHA API Keys.' ) ),
-					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Invisible Google reCAPTCHA is available with Shield Pro.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), sprintf( _wpsf__( 'Setup Google reCAPTCHA for use across %s.' ), $sName ) ),
+					sprintf( '%s - %s',
+						_wpsf__( 'Recommendation' ),
+						sprintf( _wpsf__( 'Use of this feature is highly recommend.' ).' '
+								 .sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You must create your own Google reCAPTCHA API Keys.' ) )
+						)
+						.sprintf( '<br/><a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', _wpsf__( 'API Keys' ) )
+					),
+					sprintf( '%s - %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'Invisible Google reCAPTCHA is available with %s Pro.' ), $sName ) )
 				);
 				break;
 
@@ -738,7 +737,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -803,7 +802,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sSummary = _wpsf__( 'Display Plugin Badge On Your Site' );
 				$sDescription = _wpsf__( 'Enabling this option helps support the plugin by spreading the word about it on your website.' )
 								.' '._wpsf__( 'The plugin badge also lets visitors know your are taking your website security seriously.' )
-								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'http://icwp.io/wpsf20', _wpsf__( 'Read this carefully before enabling this option.' ) );
+								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://icwp.io/wpsf20', _wpsf__( 'Read this carefully before enabling this option.' ) );
 				break;
 
 			case 'delete_on_deactivate' :
@@ -837,7 +836,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sName = _wpsf__( 'Master Import Site' );
 				$sSummary = _wpsf__( 'Automatically Import Options From This Site URL' );
 				$sDescription = _wpsf__( "Supplying a site URL here will make this site an 'Options Slave'." )
-								.'<br />'._wpsf__( 'Options will be automatically imported from the Master Import site each day.' )
+								.'<br />'._wpsf__( 'Options will be automatically exported from the Master site each day.' )
 								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.' ) );
 				break;
 

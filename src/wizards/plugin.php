@@ -197,7 +197,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'ip_detect':
 					$aAdditional = array(
 						'hrefs' => array(
-							'visitor_ip' => 'http://icwp.io/visitorip',
+							'visitor_ip' => 'https://icwp.io/visitorip',
 						)
 					);
 					break;
@@ -206,7 +206,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'import':
 					$aAdditional = array(
 						'hrefs' => array(
-							'blog_importexport' => 'http://icwp.io/av'
+							'blog_importexport' => 'https://icwp.io/av'
 						),
 						'imgs'  => array(
 							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
@@ -281,7 +281,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'import':
 					$aAdditional = array(
 						'hrefs' => array(
-							'blog_importexport' => 'http://icwp.io/av'
+							'blog_importexport' => 'https://icwp.io/av'
 						),
 						'imgs'  => array(
 							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),

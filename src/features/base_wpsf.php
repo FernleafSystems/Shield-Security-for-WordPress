@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( !is_array( $aConfig ) ) {
 			$aConfig = array();
 		}
-		return array_merge(
+		$aConfig = array_merge(
 			array(
 				'key'    => '',
 				'secret' => '',
@@ -51,6 +51,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			),
 			$aConfig
 		);
+		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
+			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
+		}
+		return $aConfig;
 	}
 
 	/**
@@ -100,6 +104,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPluginDefaultRecipientAddress() {
+		return apply_filters( $this->prefix( 'report_email_address' ), $this->loadWp()->getSiteAdminEmail() );
+	}
+
+	/**
 	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
@@ -136,7 +147,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'has_session' => $this->hasSession()
 				),
 				'hrefs'   => array(
-					'aar_forget_key' => 'http://icwp.io/b5',
+					'aar_forget_key' => 'https://icwp.io/b5',
 				)
 			)
 		);

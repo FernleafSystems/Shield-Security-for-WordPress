@@ -288,7 +288,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				),
 				'hrefs'   => array(
 					'dashboard'   => $oFO->getUrl_AdminPage(),
-					'goprofooter' => 'http://icwp.io/goprofooter',
+					'goprofooter' => 'https://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
@@ -307,7 +307,8 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$oCon = $this->getModCon()->getConn();
 		return array(
 			'strings' => array(
-				'page_title' => 'Twig Page'
+				'page_title'  => 'Twig Page',
+				'plugin_name' => $oCon->getHumanName()
 			),
 			'data'    => array(),
 			'hrefs'   => array(
@@ -338,13 +339,15 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getRenderData_PageWizard() {
+		$oCon = $this->getModCon()->getConn();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getModCon();
 		return $this->loadDP()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
 			array(
 				'strings' => array(
-					'page_title' => $this->getPageTitle()
+					'page_title'  => $this->getPageTitle(),
+					'plugin_name' => $oCon->getHumanName()
 				),
 				'data'    => array(
 					'wizard_slug'       => $this->getWizardSlug(),
@@ -353,7 +356,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				),
 				'hrefs'   => array(
 					'dashboard'   => $oFO->getUrl_AdminPage(),
-					'goprofooter' => 'http://icwp.io/goprofooter',
+					'goprofooter' => 'https://icwp.io/goprofooter',
 				),
 				'ajax'    => array(
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
@@ -440,18 +443,22 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRenderData_SlideBase() {
 		$oFO = $this->getModCon();
+		$oCon = $this->getModCon()->getConn();
 		$aWizards = $this->getModuleWizardsForRender();
 		return array(
-			'flags' => array(
+			'strings' => array(
+				'plugin_name' => $oCon->getHumanName()
+			),
+			'flags'   => array(
 				'is_premium'        => $oFO->isPremium(),
 				'has_other_wizards' => false
 			),
-			'hrefs' => array(
+			'hrefs'   => array(
 				'dashboard' => $oFO->getUrl_AdminPage(),
-				'gopro'     => 'http://icwp.io/ap',
+				'gopro'     => 'https://icwp.io/ap',
 			),
-			'imgs'  => array(),
-			'data'  => array(
+			'imgs'    => array(),
+			'data'    => array(
 				'mod_wizards_count' => count( $aWizards ),
 				'mod_wizards'       => $aWizards
 			),

@@ -10,8 +10,6 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
 
-	protected $m_sRecipientAddress;
-
 	/**
 	 * @var string
 	 */
@@ -43,10 +41,10 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $bEmailIsThrottled;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Email $oFeatureOptions
+	 * @param ICWP_WPSF_FeatureHandler_Email $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Email $oFeatureOptions ) {
-		parent::__construct( $oFeatureOptions );
+	public function __construct( ICWP_WPSF_FeatureHandler_Email $oModCon ) {
+		parent::__construct( $oModCon );
 	}
 
 	public function init() {
@@ -86,27 +84,38 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * Wraps up a message with header and footer
 	 * @param string $sAddress
 	 * @param string $sSubject
 	 * @param array  $aMessage
 	 * @return boolean
-	 * @uses wp_mail
 	 */
-	public function sendEmailTo( $sAddress = '', $sSubject = '', $aMessage = array() ) {
+	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = array() ) {
+		return $this->send(
+			$sAddress,
+			$sSubject,
+			'<html>'.implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) ).'</html>'
+		);
+	}
 
+	/**
+	 * @uses wp_mail
+	 * @param string $sAddress
+	 * @param string $sSubject
+	 * @param string $sMessageBody
+	 * @return bool
+	 */
+	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) {
 		$this->updateEmailThrottle();
-		// We make it appear to have "succeeded" if the throttle is applied.
 		if ( $this->bEmailIsThrottled ) {
 			return true;
 		}
-
-		$aMessage = array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() );
 
 		$this->emailFilters( true );
 		$bSuccess = wp_mail(
 			$this->verifyEmailAddress( $sAddress ),
 			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),
-			'<html>'.implode( "<br />", $aMessage ).'</html>'
+			$sMessageBody
 		);
 		$this->emailFilters( false );
 
@@ -185,7 +194,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function sendEmail( $sEmailSubject, $aMessage ) {
-		return $this->sendEmailTo( null, $sEmailSubject, $aMessage );
+		return $this->sendEmailWithWrap( null, $sEmailSubject, $aMessage );
 	}
 
 	/**
@@ -246,17 +255,12 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 	}
 
-	public function setDefaultRecipientAddress( $insEmailAddress ) {
-		$this->m_sRecipientAddress = $insEmailAddress;
-	}
-
 	/**
-	 * @param string $sEmailAddress
+	 * @param string $sEmail
 	 * @return string
 	 */
-	public function verifyEmailAddress( $sEmailAddress = '' ) {
-		return $this->loadDP()
-					->validEmail( $sEmailAddress ) ? $sEmailAddress : $this->getPluginDefaultRecipientAddress();
+	public function verifyEmailAddress( $sEmail = '' ) {
+		return $this->loadDP()->validEmail( $sEmail ) ? $sEmail : $this->loadWp()->getSiteAdminEmail();
 	}
 
 	public function getThrottleLimit() {

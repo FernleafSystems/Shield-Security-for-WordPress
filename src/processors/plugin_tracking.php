@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 				'hrefs'             => array(
 					'learn_more'       => 'http://translate.icontrolwp.com',
 					'link_to_see'      => $oFO->getLinkToTrackingDataDump(),
-					'link_to_moreinfo' => 'http://icwp.io/shieldtrackinginfo',
+					'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
 
 				)
 			);
@@ -98,7 +98,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 * @return array
 	 */
 	protected function getBaseTrackingData() {
-		$oDP = $this->loadDataProcessor();
+		$oDP = $this->loadDP();
 		$oWP = $this->loadWp();
 		$oWpPlugins = $this->loadWpPlugins();
 		return array(

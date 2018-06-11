@@ -5,6 +5,6 @@
 	WordPress community.
 	<br/><span style="text-decoration: underline">We simply need your help help to reach others</span>...</p>
 <p>
-	<a href="http://icwp.io/wpsfreview" class="button button-primary" target="_blank">
+	<a href="https://icwp.io/wpsfreview" class="button button-primary" target="_blank">
 		Please, could you leave us a review on WordPress.org?</a>
 </p>

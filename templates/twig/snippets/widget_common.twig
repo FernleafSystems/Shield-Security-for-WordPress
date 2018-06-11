@@ -13,13 +13,13 @@
 		<div class="row">
 			<div class="span6">
 				<ul>
-					<li><a href="http://icwp.io/2b" target="_blank"><strong>Manage <u>All</u> Your WordPress Sites In 1 Place!</strong></a></li>
-					<li><a href="http://icwp.io/2c" target="_blank">Check out all our other WordPress Plugins</a></li>
+					<li><a href="https://icwp.io/2b" target="_blank"><strong>Manage <u>All</u> Your WordPress Sites In 1 Place!</strong></a></li>
+					<li><a href="https://icwp.io/2c" target="_blank">Check out all our other WordPress Plugins</a></li>
 				</ul>
 			</div>
 			<div class="span5">
 				<ul>
-					<li><a href="http://icwp.io/2d" target="_blank"><strong>Visit the plugin Help & Support page</strong></a>.</li>
+					<li><a href="https://icwp.io/2d" target="_blank"><strong>Visit the plugin Help & Support page</strong></a>.</li>
 					<li><a href="http://wordpress.org/extend/plugins/wp-simple-firewall/" target="_blank">Show some love, and give this a 5 star rating on WordPress.org.</a></li>
 				</ul>
 			</div>

@@ -32,7 +32,9 @@ abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return string
 	 */
 	protected function getCronRecurrence() {
-		return $this->prefix( sprintf( 'per-day-%s', $this->getCronFrequency() ) );
+		$sFreq = $this->getCronFrequency();
+		$aStdIntervals = array_keys( wp_get_schedules() );
+		return in_array( $sFreq, $aStdIntervals ) ? $sFreq : $this->prefix( sprintf( 'per-day-%s', $sFreq ) );
 	}
 
 	/**
@@ -41,9 +43,11 @@ abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function getCronCallback();
 
 	/**
-	 * @return int
+	 * @return int|string
 	 */
-	abstract protected function getCronFrequency();
+	protected function getCronFrequency() {
+		return 'daily';
+	}
 
 	/**
 	 * @return string

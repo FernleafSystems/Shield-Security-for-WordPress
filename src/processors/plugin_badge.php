@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function includeJquery() {
-		wp_enqueue_script( 'jquery', null, array(), false, true  );
+		wp_enqueue_script( 'jquery', null, array(), false, true );
 	}
 
 	/**
@@ -32,11 +32,15 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function gatherPluginWidgetContent( $aContent ) {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getFeature();
+		$oCon = $this->getController();
 
-		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ),
-			$this->getController()->getHumanName(),
-			sprintf( '<a href="%s">One Dollar Plugin</a>', 'http://icwp.io/7f' )
+		$aLabels = $oCon->getPluginLabels();
+		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),
+			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
 		);
+
 		$aDisplayData = array(
 			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
 			'sFooter'           => $sFooter,
@@ -46,8 +50,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !is_array( $aContent ) ) {
 			$aContent = array();
 		}
-		$aContent[] = $this->getFeature()
-						   ->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
+		$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
 		return $aContent;
 	}
 

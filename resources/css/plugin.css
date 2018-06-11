@@ -666,6 +666,7 @@ input:checked + .icwp-slider:before {
 
 	height: 128px;
 	width: 128px;
+	background-size: 128px 128px;
 
 	margin-bottom: 7px;
 	position: relative;

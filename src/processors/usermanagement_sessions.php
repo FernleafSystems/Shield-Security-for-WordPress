@@ -4,15 +4,43 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/cronbase.php' );
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_CronBase {
+
+	/**
+	 * @return callable
+	 */
+	protected function getCronCallback() {
+		return array( $this, 'cron_runSessionsCleanup' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->prefix( $oFO->getDef( 'cron_name_sessionscleanup' ) );
+	}
 
 	public function run() {
-		add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-		add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
-		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+		if ( $this->isReadyToRun() ) {
+			parent::run();
+			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
+			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
+			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
+			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isReadyToRun() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return ( parent::isReadyToRun() && $oFO->getSessionsProcessor()->isReadyToRun() );
 	}
 
 	/**
@@ -85,6 +113,30 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		}
 	}
 
+	public function cleanExpiredSessions() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		$oTerminator = $oFO->getSessionsProcessor()
+						   ->getSessionTerminator();
+
+		$nNow = $this->time();
+		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
+		// And if User Management is active, then it'll draw in that value.
+		$oTerminator->forExpiredLoginAt( $nNow - apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS ) );
+
+		// Default is ZERO, so we don't want to terminate all sessions if it's never set.
+		if ( $oFO->hasSessionIdleTimeout() ) {
+			$oTerminator->forExpiredLoginIdle( $nNow - $oFO->getSessionIdleTimeoutInterval() );
+		}
+	}
+
+	/**
+	 * A cron that will automatically cleanout expired/idle sessions.
+	 */
+	public function cron_runSessionsCleanup() {
+		$this->cleanExpiredSessions();
+	}
+
 	/**
 	 * @return int
 	 */
@@ -98,16 +150,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		else {
 			$oSess = $oFO->getSession();
 			$nTime = $this->time();
-			$nTimeout = $this->getSessionTimeoutInterval();
-			$nIdleTimeout = $this->getSessionIdleTimeoutInterval();
 
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
 			// timeout interval
-			if ( $nTimeout > 0 && ( $nTime - $oSess->getLoggedInAt() > $nTimeout ) ) {
+			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->getLoggedInAt() > $oFO->getSessionTimeoutInterval() ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $nIdleTimeout > 0 && ( ( $nTime - $oSess->getLastActivityAt() ) > $nIdleTimeout ) ) {
+			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->getLastActivityAt() > $oFO->getSessionIdleTimeoutInterval() ) ) {
 				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
 				$nForceLogOutCode = 2;
 			} // login ip address lock
@@ -124,22 +174,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @return integer
 	 */
 	public function setTimeoutCookieExpiration_Filter( $nTimeout ) {
-		$nSessionTimeoutInterval = $this->getSessionTimeoutInterval();
-		return ( $nSessionTimeoutInterval > 0 ) ? $nSessionTimeoutInterval : $nTimeout;
-	}
-
-	/**
-	 * @return integer
-	 */
-	protected function getSessionTimeoutInterval() {
-		return $this->getOption( 'session_timeout_interval' )*DAY_IN_SECONDS;
-	}
-
-	/**
-	 * @return integer
-	 */
-	protected function getSessionIdleTimeoutInterval() {
-		return $this->getOption( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->hasSessionTimeoutInterval() ? $oFO->getSessionTimeoutInterval() : $nTimeout;
 	}
 
 	/**

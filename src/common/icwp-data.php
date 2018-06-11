@@ -243,10 +243,19 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sEmail
 	 * @return boolean
 	 */
 	public function validEmail( $sEmail ) {
 		return ( !empty( $sEmail ) && function_exists( 'is_email' ) && is_email( $sEmail ) );
+	}
+
+	/**
+	 * @param string $sUrl
+	 * @return bool
+	 */
+	public function validUrl( $sUrl ) {
+		return filter_var( $sUrl, FILTER_VALIDATE_URL );
 	}
 
 	/**

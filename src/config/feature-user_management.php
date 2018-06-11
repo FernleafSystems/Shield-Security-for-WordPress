@@ -71,6 +71,19 @@
       "description": "Un-Checking this option will completely disable the User Management module"
     },
     {
+      "key": "enable_user_login_email_notification",
+      "section": "section_admin_login_notification",
+      "premium": true,
+      "sensitive": false,
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "User Login Notification Email",
+      "summary": "Send Email Notification To Each User Upon Successful Login",
+      "description": "A notification is sent to each user when a successful login occurs for their account."
+    },
+    {
       "key": "enable_admin_login_email_notification",
       "section": "section_admin_login_notification",
       "sensitive": true,
@@ -131,7 +144,7 @@
       "section": "section_passwords",
       "type": "checkbox",
       "default": "N",
-      "link_info": "http://icwp.io/c4",
+      "link_info": "https://icwp.io/c4",
       "link_blog": "",
       "name": "Enable Password Policies",
       "summary": "Enable The Password Policies Below",
@@ -142,7 +155,7 @@
       "section": "section_passwords",
       "type": "checkbox",
       "default": "Y",
-      "link_info": "http://icwp.io/by",
+      "link_info": "https://icwp.io/by",
       "link_blog": "",
       "name": "Prevent Pwned Passwords",
       "summary": "Prevent Use Of Pwned Passwords",
@@ -241,6 +254,7 @@
     }
   ],
   "definitions": {
+    "cron_name_sessionscleanup": "sessionscleanup",
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
     "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range/"
   }

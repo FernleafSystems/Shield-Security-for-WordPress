@@ -94,8 +94,8 @@
       "section":     "section_enable_plugin_feature_hack_protection_tools",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/wpsf38",
-      "link_blog":   "http://icwp.io/9x",
+      "link_info":   "https://icwp.io/wpsf38",
+      "link_blog":   "https://icwp.io/9x",
       "name":        "Enable Hack Guard",
       "summary":     "Enable (or Disable) The Hack Guard Module",
       "description": "Un-Checking this option will completely disable the Hack Guard module"
@@ -120,7 +120,7 @@
           "text":      "Enabled - No Email Notification"
         }
       ],
-      "link_info":     "http://icwp.io/ah",
+      "link_info":     "https://icwp.io/ah",
       "link_blog":     "",
       "name":          "Vulnerability Scanner",
       "summary":       "Enable The Vulnerability Scanner",
@@ -168,8 +168,8 @@
       "section":     "section_core_file_integrity_scan",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/wpsf36",
-      "link_blog":   "http://icwp.io/wpsf37",
+      "link_info":   "https://icwp.io/wpsf36",
+      "link_blog":   "https://icwp.io/wpsf37",
       "name":        "Core File Scanner",
       "summary":     "Scans WordPress Core Files For Alterations",
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
@@ -179,8 +179,8 @@
       "section":     "section_core_file_integrity_scan",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/wpsf36",
-      "link_blog":   "http://icwp.io/wpsf37",
+      "link_info":   "https://icwp.io/wpsf36",
+      "link_blog":   "https://icwp.io/wpsf37",
       "name":        "Auto Repair",
       "summary":     "Automatically Repair WordPress Core Files That Have Been Altered",
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
@@ -225,7 +225,7 @@
           "text":      "24 Times (scan every hour)"
         }
       ],
-      "link_info":   "http://icwp.io/b2",
+      "link_info":   "https://icwp.io/b2",
       "link_blog":   "",
       "name":        "Scan Frequency",
       "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
@@ -254,8 +254,8 @@
           "text":      "Auto Delete Files and Email Report"
         }
       ],
-      "link_info":     "http://icwp.io/9y",
-      "link_blog":     "http://icwp.io/95",
+      "link_info":     "https://icwp.io/9y",
+      "link_blog":     "https://icwp.io/95",
       "name":          "Unrecognised Files Scanner",
       "summary":       "Scans Core Directories For Unrecognised Files",
       "description":   "Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation."
@@ -265,7 +265,7 @@
       "section":     "section_unrecognised_file_scan",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "http://icwp.io/95",
+      "link_info":   "https://icwp.io/95",
       "link_blog":   "",
       "name":        "Scan Uploads",
       "summary":     "Scan Uploads Folder For PHP and Javascript",
@@ -285,8 +285,8 @@
         "mail.log"
       ],
       "type":        "array",
-      "link_info":   "http://icwp.io/9z",
-      "link_blog":   "http://icwp.io/95",
+      "link_info":   "https://icwp.io/9z",
+      "link_blog":   "https://icwp.io/95",
       "name":        "File Exclusions",
       "summary":     "Provide A List Of Files To Be Excluded From The Scan",
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
@@ -329,8 +329,8 @@
           "text":      "Scan Enabled"
         }
       ],
-      "link_info":     "http://icwp.io/bl",
-      "link_blog":     "http://icwp.io/bm",
+      "link_info":     "https://icwp.io/bl",
+      "link_blog":     "https://icwp.io/bm",
       "name": "Enable/Disable Guard",
       "summary": "Enable The Guard For Plugin And Theme Files",
       "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
@@ -341,8 +341,8 @@
       "type": "integer",
       "default": 1,
       "min": 0,
-      "link_info": "http://icwp.io/bn",
-      "link_blog": "http://icwp.io/bm",
+      "link_info": "https://icwp.io/bn",
+      "link_blog": "https://icwp.io/bm",
       "name": "Guard/Scan Depth",
       "summary": "How Deep Into The Plugin Directories To Scan And Guard",
       "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
@@ -358,7 +358,7 @@
         "htaccess"
       ],
       "type":        "array",
-      "link_info":   "http://icwp.io/bo",
+      "link_info":   "https://icwp.io/bo",
       "link_blog":   "",
       "name":        "File Types",
       "summary":     "The File Types Included In The Scan",
@@ -369,7 +369,7 @@
       "section":     "section_pluginthemes_guard",
       "type":		 "checkbox",
       "default":	 "Y",
-      "link_info":   "http://icwp.io/bp",
+      "link_info":   "https://icwp.io/bp",
       "link_blog":   "",
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",

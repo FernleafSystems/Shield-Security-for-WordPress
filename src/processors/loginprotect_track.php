@@ -108,14 +108,14 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	/**
 	 * @return bool
 	 */
-	public function hasSuccessfulFactorAuth() {
+	public function hasSuccessfulFactor() {
 		return ( $this->getCountFactorsSuccessful() > 0 );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function hasUnSuccessfulFactorAuth() {
+	public function hasUnSuccessfulFactor() {
 		return ( $this->getCountFactorsUnsuccessful() > 0 );
 	}
 

@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return bool
 	 */
 	protected function checkForUnsupportedConfiguration() {
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$aRequestParts =  $oDp->getRequestUriParts();
 		if ( $aRequestParts === false || empty( $aRequestParts['path'] ) )  {
 
@@ -108,7 +108,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
-			$sPath = trim( $this->loadDataProcessor()->getRequestPath(), '/' );
+			$sPath = trim( $this->loadDP()->getRequestPath(), '/' );
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return string
 	 */
 	public function blockRegisterUrlRedirect( $sUrl ) {
-		$aParts = $this->loadDataProcessor()->getRequestUriParts();
+		$aParts = $this->loadDP()->getRequestUriParts();
 		if ( is_array( $aParts ) && !empty( $aParts[ 'path' ] ) && strpos( $aParts[ 'path' ], 'wp-register.php' ) ) {
 			$this->doWpLoginFailedRedirect404();
 			die();

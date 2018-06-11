@@ -62,11 +62,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
 		}
 
-		$aTwoFactorAuthRoles = $this->getOpt( 'two_factor_auth_user_roles' );
-		if ( empty( $aTwoFactorAuthRoles ) || !is_array( $aTwoFactorAuthRoles ) ) {
-			$this->setOpt( 'two_factor_auth_user_roles', $this->getTwoFactorUserAuthRoles( true ) );
-		}
-
 		$this->cleanLoginUrlPath();
 	}
 
@@ -74,6 +69,27 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$nSkipDays = $this->getMfaSkip();
 		if ( !is_numeric( $nSkipDays ) || $nSkipDays < 0 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'mfa_skip' );
+		}
+
+		$this->updateHandler();
+	}
+
+	/**
+	 */
+	protected function updateHandler() {
+
+		// v6.8.0: reCAPTCHA options restructure
+
+		// These can be removed eventually and are used to migrate old recaptcha settings to new structure
+		if ( $this->getOpt( 'enable_google_recaptcha_login' ) == 'Y' ) {
+			$this->setOpt( 'enable_google_recaptcha_login', $this->getOpt( 'google_recaptcha_style_login' ) );
+		}
+		if ( $this->getIsCheckingUserRegistrations() ) {
+			$this->setOpt( 'bot_protection_locations', array_merge( $this->getBotProtectionLocations(), array(
+				'register',
+				'password'
+			) ) )
+				 ->setOpt( 'enable_user_register_checking', 'N' );
 		}
 	}
 
@@ -121,7 +137,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$sEmailSubject = _wpsf__( 'Email Sending Verification' );
 		return $this->getEmailProcessor()
-					->sendEmailTo( $sEmail, $sEmailSubject, $aMessage );
+					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 	}
 
 	/**
@@ -135,6 +151,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @deprecated
 	 * @return bool
 	 */
 	public function getIsCheckingUserRegistrations() {
@@ -142,10 +159,51 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param boolean $fAsDefaults
+	 * @return bool
+	 */
+	public function isProtectLogin() {
+		return $this->isProtect( 'login' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectLostPassword() {
+		return $this->isProtect( 'password' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectRegister() {
+		return $this->isProtect( 'register' );
+	}
+
+	/**
+	 * @param string $sLocationKey - see config for keys, e.g. login, register, password, checkout_woo
+	 * @return bool
+	 */
+	public function isProtect( $sLocationKey ) {
+		return in_array( $sLocationKey, $this->getBotProtectionLocations() );
+	}
+
+	/**
 	 * @return array
 	 */
-	protected function getTwoFactorUserAuthRoles( $fAsDefaults = false ) {
+	public function getEmail2FaRoles() {
+		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', array() );
+		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
+			$aRoles = $this->getOptEmailTwoFactorRolesDefaults();
+			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
+		}
+		return $aRoles;
+	}
+
+	/**
+	 * @param boolean $bAsOptDefaults
+	 * @return array
+	 */
+	protected function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
 		$aTwoAuthRoles = array(
 			'type' => 'multiple_select',
 			0      => _wpsf__( 'Subscribers' ),
@@ -154,7 +212,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			3      => _wpsf__( 'Editors' ),
 			8      => _wpsf__( 'Administrators' )
 		);
-		if ( $fAsDefaults ) {
+		if ( $bAsOptDefaults ) {
 			unset( $aTwoAuthRoles[ 'type' ] );
 			unset( $aTwoAuthRoles[ 0 ] );
 			return array_keys( $aTwoAuthRoles );
@@ -303,8 +361,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	public function getIsGoogleRecaptchaEnabled() {
-		return ( $this->getOptIs( 'enable_google_recaptcha_login', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+	public function isGoogleRecaptchaEnabled() {
+		return ( !$this->getOptIs( 'enable_google_recaptcha_login', 'disabled' ) && $this->getIsGoogleRecaptchaReady() );
 	}
 
 	/**
@@ -333,6 +391,21 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getBotProtectionLocations() {
+		$aLocs = $this->getOpt( 'bot_protection_locations' );
+		return is_array( $aLocs ) ? $aLocs : $this->getOptionsVo()->getOptDefault( 'bot_protection_locations' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCooldownEnabled() {
+		return $this->getOpt( 'login_limit_interval' ) > 0;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isChainedAuth() {
@@ -354,7 +427,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function setIfCanSendEmail( $bCan ) {
 		$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
 		if ( $bCan ) {
-			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadDataProcessor()->time() : $nCurrentDateAt;
+			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadDP()->time() : $nCurrentDateAt;
 		}
 		else {
 			$nDateAt = 0;
@@ -491,7 +564,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_brute_force_login_protection' :
 				$sTitle = _wpsf__( 'Brute Force Login Protection' );
-				$sTitleShort = _wpsf__( 'Brute Force' );
+				$sTitleShort = _wpsf__( 'reCAPTCHA & Bots' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -575,14 +648,23 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'enable_google_recaptcha_login' :
 				$sName = _wpsf__( 'Google reCAPTCHA' );
-				$sSummary = _wpsf__( 'Enable Google reCAPTCHA' );
-				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the login screen.' );
+				$sSummary = _wpsf__( 'Protect WordPress Account Access Requests With Google reCAPTCHA' );
+				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user account forms such as login, register, etc.' ).'<br />'
+								.sprintf( _wpsf__( 'Use of any theme other than "%s", requires a Pro license.' ), _wpsf__( 'Light Theme' ) )
+								.'<br/>'.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings." ) );
 				break;
 
 			case 'google_recaptcha_style_login' :
 				$sName = _wpsf__( 'reCAPTCHA Style' );
 				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed' );
 				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
+				break;
+
+			case 'bot_protection_locations' :
+				$sName = _wpsf__( 'Protection Locations' );
+				$sSummary = _wpsf__( 'Which Forms Should Be Protected' );
+				$sDescription = _wpsf__( 'Choose the forms for which bot protection measures will be deployed.' ).'<br />'
+								.sprintf( _wpsf__( 'Note - %s' ), sprintf( _wpsf__( "Use with 3rd party systems such as %s, requires a Pro license." ), 'WooCommerce' ) );
 				break;
 
 			case 'enable_login_gasp_check' :
@@ -593,9 +675,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				break;
 
 			case 'login_limit_interval' :
-				$sName = _wpsf__( 'Login Cooldown Interval' );
-				$sSummary = _wpsf__( 'Limit login attempts to every X seconds' );
-				$sDescription = _wpsf__( 'WordPress will process only ONE login attempt for every number of seconds specified.' )
+				$sName = _wpsf__( 'Cooldown Period' );
+				$sSummary = _wpsf__( 'Limit account access requests to every X seconds' );
+				$sDescription = _wpsf__( 'WordPress will process only ONE account access attempt per number of seconds specified.' )
 								.'<br />'._wpsf__( 'Zero (0) turns this off.' )
 								.' '.sprintf( _wpsf__( 'Default: "%s".' ), $this->getOptionsVo()
 																				->getOptDefault( 'login_limit_interval' ) );

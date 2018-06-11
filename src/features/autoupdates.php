@@ -237,6 +237,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
+		$sPlugName = $this->getConn()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'enable_autoupdates' :
@@ -309,7 +310,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'update_delay' :
 				$sName = _wpsf__( 'Update Delay' );
 				$sSummary = _wpsf__( 'Delay Automatic Updates For Period Of Stability' );
-				$sDescription = _wpsf__( 'Shield will delay upgrades until the new update has been available for the set number of days.' )
+				$sDescription = sprintf( _wpsf__( '%s will delay upgrades until the new update has been available for the set number of days.' ), $sPlugName )
 								.'<br />'._wpsf__( "This helps ensure updates are more stable before they're automatically applied to your site." );
 				break;
 

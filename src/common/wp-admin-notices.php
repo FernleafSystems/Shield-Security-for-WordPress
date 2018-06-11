@@ -233,7 +233,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 */
 	public function flushFlashMessage() {
 
-		$oDp = $this->loadDataProcessor();
+		$oDp = $this->loadDP();
 		$sCookieName = $this->getActionPrefix().'flash';
 		$this->sFlashMessage = $oDp->FetchCookie( $sCookieName, '' );
 		if ( !empty( $this->sFlashMessage ) ) {

@@ -16,7 +16,7 @@
 		   public IP address.
 		</p>
 		<p>Don't know your IP address? Go here:
-			(<a href="http://icwp.io/an" target="_blank">We've done it for you</a> ;)
+			(<a href="https://icwp.io/an" target="_blank">We've done it for you</a> ;)
 		</p>
 		<p>With this result, you should be able to select the correct item from the list. The higher up the
 		   list the better, with <code>REMOTE_ADDR</code> being the #1 preferred, if possible.</p>

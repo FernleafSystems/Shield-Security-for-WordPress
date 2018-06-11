@@ -71,17 +71,19 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 								<?php echo $flags[ 'button_enabled_check' ] ? '' : 'disabled="disabled"'; ?> >
 								Check License
 							</button>
-							<span class="form-text text-muted">
+
+
+							<div class="form-text text-muted">
+								<p class="font-weight-bold"><br/>Be sure to have first activated your URL in your
+								<a target="_blank" href="<?php echo $aHrefs[ 'keyless_cp' ]; ?>">Keyless Activation control panel</a>.</p>
 								<ul>
 									<li>URL To Activate: <?php echo $vars[ 'activation_url' ]; ?></li>
 									<li>Licenses may only be checked once in 20 seconds. Checks more frequent than this will
 								automatically be skipped</li>
 								</ul>
-							</span>
+							</div>
 						</div>
 					</form>
-					<p class="font-weight-bold">Be sure to have first activated your URL in your
-						<a target="_blank" href="<?php echo $aHrefs[ 'keyless_cp' ]; ?>">Keyless Activation control panel</a>.</p>
 
 					<form method="post" id="ConnectionDebug">
 						<?php foreach ( $ajax[ 'connection_debug' ] as $sAjKey => $sAjVal ) : ?>
@@ -218,12 +220,12 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 						   $1/month per site ($12/year)</p>
 						<ol>
 							<li>Just grab a new license from the
-								<a href="http://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
+								<a href="https://icwp.io/buyshieldpro" target="_blank">One Dollar Plugin here</a>.</li>
 							<li>Activate your license on your sites using the 'Activate Key' button.</li>
 						</ol>
 
 						<p class="text-center">
-							<a href="http://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
+							<a href="https://icwp.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
 							   class="btn btn-large btn-success">
 								Upgrade To Shield Pro Now &rarr;</a>
 						</p>

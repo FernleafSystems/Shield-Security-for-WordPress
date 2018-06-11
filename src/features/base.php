@@ -61,6 +61,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected static $bForceOffFileExists;
 
 	/**
+	 * @var boolean
+	 */
+	protected $bImportExportWhitelistNotify = false;
+
+	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
 	 */
 	protected static $oEmailHandler;
@@ -118,7 +123,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 
 			$nMenuPriority = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-			add_filter( $this->prefix( 'filter_plugin_submenu_items' ), array( $this, 'filter_addPluginSubMenuItem' ), $nMenuPriority );
+			add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPriority );
 			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ), $nMenuPriority );
 			add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
@@ -255,7 +260,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDataProcessor()
+				$bMeetsReqs = $bMeetsReqs && $this->loadDP()
 												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {
@@ -334,7 +339,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpInit() {
 		$this->runWizards();
-		$this->updateHandler();
+		if ( $this->getIsUpgrading() ) {
+			$this->updateHandler();
+		}
 
 		// GDPR
 		if ( $this->isPremium() ) {
@@ -567,7 +574,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aItems
 	 * @return array
 	 */
-	public function filter_addPluginSubMenuItem( $aItems ) {
+	public function supplySubMenuItem( $aItems ) {
 		$sMenuTitleName = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
 		if ( is_null( $sMenuTitleName ) ) {
 			$sMenuTitleName = $this->getMainFeatureName();
@@ -907,6 +914,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				 ->setIsPremiumLicensed( $this->isPremium() )
 				 ->setNeedSave( true );
 		}
+
+		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
+		$this->bImportExportWhitelistNotify = $this->getOptionsVo()->getNeedSave();
 		$this->store();
 	}
 
@@ -1298,7 +1308,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				$this->setOpt( $sOptionKey, $sOptionValue );
 			}
 		}
+
 		$this->savePluginOptions();
+
+		// only use this flag when the options are being updated with a MANUAL save.
+		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
+			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
+				wp_schedule_single_event( $this->loadDP()->time() + 15, $this->prefix( 'importexport_notify' ) );
+			}
+		}
 	}
 
 	/**
@@ -1481,8 +1499,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'           => array(
-				'go_pro'         => 'http://icwp.io/shieldgoprofeature',
-				'goprofooter'    => 'http://icwp.io/goprofooter',
+				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
+				'goprofooter'    => 'https://icwp.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			),

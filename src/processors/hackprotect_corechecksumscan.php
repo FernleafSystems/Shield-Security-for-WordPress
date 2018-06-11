@@ -253,18 +253,21 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
 		);
 
-		$aContent[] = '';
-		$aContent[] = '[ <a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		if ( !$oFO->getConn()->isRelabelled() ) {
+			$aContent[] = '';
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		}
 
+		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
-			 ->sendEmailTo(
-				 $this->getPluginDefaultRecipientAddress(),
+			 ->sendEmailWithWrap(
+				 $sTo,
 				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
 				 $aContent
 			 );
 
 		$this->addToAuditEntry(
-			sprintf( _wpsf__( 'Sent Checksum Scan Notification email alert to: %s' ), $this->getPluginDefaultRecipientAddress() )
+			sprintf( _wpsf__( 'Sent Checksum Scan Notification email alert to: %s' ), $sTo )
 		);
 	}
 
@@ -338,7 +341,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		else {
 			$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
 			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
-						  .' [<a href="http://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
+						  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
 		}
 
 		return $aContent;

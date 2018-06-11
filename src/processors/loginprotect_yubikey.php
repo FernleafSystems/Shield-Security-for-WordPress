@@ -29,13 +29,14 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 		$oCon = $this->getController();
+		$oWpUsers = $this->loadWpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
 			'has_validated_profile' => $bValidatedProfile,
-			'is_my_user_profile'    => ( $oUser->ID == $this->loadWpUsers()->getCurrentWpUserId() ),
+			'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
 			'i_am_valid_admin'      => $oCon->getHasPermissionToManage(),
-			'user_to_edit_is_admin' => $this->loadWpUsers()->isUserAdmin( $oUser ),
+			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
 			'strings'               => array(
 				'description_otp_code' => _wpsf__( 'This is your unique Yubikey Device ID.' ),
 				'description_otp'      => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
@@ -116,7 +117,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$oFO = $this->getFeature();
 		$oLoginTrack = $this->getLoginTrack();
 
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactorAuth();
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactor();
 		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
 		$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 
@@ -208,24 +209,21 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @param bool $bIsSuccess
+	 * @param WP_User $oUser
+	 * @param bool    $bIsSuccess
 	 */
-	protected function auditLogin( $bIsSuccess ) {
+	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" successfully logged in using a validated Yubikey One Time Password.' ), $this->loadWpUsers()
-																														  ->getCurrentWpUser()
-																														  ->get( 'user_login' ) ),
-				2, 'login_protect_yubikey_login_success'
+				sprintf( _wpsf__( 'User "%s" successfully logged in using a validated Yubikey One Time Password.' ),
+					$oUser->user_login ), 2, 'login_protect_yubikey_login_success'
 			);
 			$this->doStatIncrement( 'login.yubikey.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ), $this->loadWpUsers()
-																													   ->getCurrentWpUser()
-																													   ->get( 'user_login' ) ),
-				2, 'login_protect_yubikey_failed'
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using Yubikey One Time Password.' ),
+					$oUser->user_login ), 2, 'login_protect_yubikey_failed'
 			);
 			$this->doStatIncrement( 'login.yubikey.failed' );
 		}
@@ -243,7 +241,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				'placeholder' => _wpsf__( 'Use your Yubikey to generate a new code.' ),
 				'value'       => '',
 				'text'        => _wpsf__( 'Yubikey OTP' ),
-				'help_link'   => 'http://icwp.io/4i'
+				'help_link'   => 'https://icwp.io/4i'
 			);
 		}
 		return $aFields;

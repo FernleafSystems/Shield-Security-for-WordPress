@@ -1,6 +1,6 @@
 === Shield Security for WordPress ===
 Contributors: onedollarplugin, paultgoodchild
-Donate link: http://icwp.io/bw
+Donate link: https://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, scan, firewall, two factor authentication, spam, wordfence, cerber, ithemes
@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.7.2
+Stable tag: 6.8.0
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -95,9 +95,9 @@ From November 2017, Shield Security now has a Pro version for those that need to
 ### Dedicated Premium Support
 
 The Shield Security team prioritises email technical support over the WordPress.org forums.
-Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](http://icwp.io/ab).
+Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://icwp.io/ab).
 
-Learn more on going Pro at [our One Dollar Plugin store](http://icwp.io/ab).
+Learn more on going Pro at [our One Dollar Plugin store](https://icwp.io/ab).
 
 = Our Mission =
 
@@ -124,19 +124,19 @@ downloading and installing Shield now
 * Exclusive membership to a private security group where you can learn more about WordPress security.
 
 = Super Admin Security Protection =
-The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](http://icwp.io/wpsf05)
+The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](https://icwp.io/wpsf05)
 
 = Audit Trail Activity Monitor =
 With the Audit Trail you can review all major actions that have taken place on your WordPress site, by all users.
 
 = Firewall Protection =
-Blocks all web requests to the site that violate the firewall security rules! [more info](http://icwp.io/wpsf06)
+Blocks all web requests to the site that violate the firewall security rules! [more info](https://icwp.io/wpsf06)
 
 = Brute Force Login Guard and Two-Factor Authentication =
-Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](http://icwp.io/wpsf07)
+Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](https://icwp.io/wpsf07)
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
-Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](http://icwp.io/wpsf08)
+Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](https://icwp.io/wpsf08)
 
 = FABLE - Fully Automatic Black Listing Engine =
 No more manual IP Black lists. This plugin handles the blocking of IP addresses for hosts that are naughty.
@@ -160,9 +160,9 @@ and force users to verify themselves when they login.
 
 Three core security features provide layers to protect the WordPress Login system.
 
-1.	[Email-based 2-Factor Login Authentication](http://icwp.io/2v) based on IP address! (prevents brute force login attacks)
-1.	[Login Cooldown Interval](http://icwp.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
-1.	[GASP Anti-Bot Login Form Protection](http://icwp.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
+1.	[Email-based 2-Factor Login Authentication](https://icwp.io/2v) based on IP address! (prevents brute force login attacks)
+1.	[Login Cooldown Interval](https://icwp.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
+1.	[GASP Anti-Bot Login Form Protection](https://icwp.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
 
 These options alone will protect and secure your WordPress sites from nearly all forms of Brute Force login attacks.
 
@@ -215,7 +215,7 @@ A new menu item will appear on the left-hand side called 'Shield'.
 
 == Frequently Asked Questions ==
 
-Please see the dedicated [help centre](http://icwp.io/firewallhelp) for details on features and some FAQs.
+Please see the dedicated [help centre](https://icwp.io/firewallhelp) for details on features and some FAQs.
 
 = How does the Shield compare with other WordPress Security Plugins? =
 
@@ -306,15 +306,15 @@ When enabled the plugin will prevent more than 1 login attempt to your site ever
 of 60 seconds, only 1 login attempt will be processed every 60 seconds.  If you login incorrectly, you wont be able to attempt another
 login for a further 60 seconds.
 
-More Info: http://icwp.io/2t
+More Info: https://icwp.io/2t
 
 = How does the GASP Login Guard work? =
 
-This is best [described on the blog](http://icwp.io/2u)
+This is best [described on the blog](https://icwp.io/2u)
 
 = How does the 2-factor authentication work? =
 
-[2-Factor Authentication is best described here](http://icwp.io/2v).
+[2-Factor Authentication is best described here](https://icwp.io/2v).
 
 = I'm getting an update message although I have auto update enabled? =
 
@@ -346,28 +346,38 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 == Changelog ==
 
 Our policy was to never restrict security features to Pro upgrades.
-[This has now changed](http://icwp.io/bs).
+[This has now changed](https://icwp.io/bs).
 
 Shield Pro brings exclusive features to the serious webmaster to maximise site security. You'll also have access to our email technical support team.
-If you don't want to support the work, no problem! You can still continue to use Shield Security and its free features in-full.
+You will always be able to use Shield Security and its free features in-full.
 
-You can [go Pro for just $1/month](http://icwp.io/aa).
+[Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.7.2 - Current Release =
-*Released: 30th May, 2018* - [Release Notes](http://icwp.io/cx)
+= 6.8.0 - Current Release =
+*Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
 
-* **(v.2)**  ADDED:		[**PRO**] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
-* **(v.0)**  UPDATED:	Some translations.
-* **(v.2)**  FIXED:		A few bugs with the Insights Dashboard.
-* **(v.2)**  FIXED:		Removed the dependency on jQuery with Invisible reCAPTCHA.
+* **(v.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
+* **(v.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
+* **(v.0)**  IMPROVED:	Completely rebuilt the bot and reCAPTCHA login protection system.
+* **(v.0)**  IMPROVED:	Import/Export system hugely improved with respect to automated push of options from Master sites.
+* **(v.0)**  IMPROVED:	A different approach to sessions management that should handle sessions a bit better.
+* **(v.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
-Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and above.
+= 6.8 Series =
+*Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
+
+* **(v.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
+* **(v.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
+* **(v.0)**  IMPROVED:	Completely rebuilt the bot and reCAPTCHA login protection system.
+* **(v.0)**  IMPROVED:	Import/Export system hugely improved with respect to automated push of options from Master sites.
+* **(v.0)**  IMPROVED:	A different approach to sessions management that should handle sessions a bit better.
+* **(v.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
 = 6.7 Series =
-*Released: 21st May, 2018* - [Release Notes](http://icwp.io/cx)
+*Released: 21st May, 2018* - [Release Notes](https://icwp.io/cx)
 
 * **(v.2)**  ADDED:		[**PRO**] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
-* **(v.0)**  UPDATED:	Some translations.
+* **(v.2)**  UPDATED:	Some translations.
 * **(v.2)**  FIXED:		A few bugs with the Insights Dashboard.
 * **(v.2)**  FIXED:		Removed the dependency on jQuery with Invisible reCAPTCHA.
 * **(v.1)**  FIXED:		A few bugs with the Insights Dashboard
@@ -382,7 +392,7 @@ Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and abov
 * **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
 
 = 6.6 Series =
-*Released: 19th March, 2018* - [Release Notes](http://icwp.io/c3)
+*Released: 19th March, 2018* - [Release Notes](https://icwp.io/c3)
 
 * **(v.7)**  IMPROVED:	reCAPTCHA JS is only included on pages where it's actually used by Shield.
 * **(v.7)**  IMPROVED:	Upgrade Bootstrap library to 4.1.0.
@@ -392,17 +402,17 @@ Note: The Insights Dashboard is only available on sites with PHP v5.4.0 and abov
 * **(v.6)**  ADDED:		Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
 * **(v.1-4)**  FIXED:	Various small fixes and improvements
 * **(v.4)**  FIXED:		PHP Fatal Error on wp object cache.
-* **(v.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](http://icwp.io/c1).
-* **(v.0)**  ADDED:		[WordPress Password Policies](http://icwp.io/c2).
+* **(v.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](https://icwp.io/c1).
+* **(v.0)**  ADDED:		[WordPress Password Policies](https://icwp.io/c2).
 * **(v.0)**  ADDED:		Pwned Passwords Detection.
 * **(v.0)**  IMPROVED:	Major rewrite of plugin AJAX handling.
 * **(v.0)**  IMPROVED:	Notices to indicate the time of the last scans.
 * **(v.0)**  FIXED:		A few bugs
 
 = 6.5 Series =
-*Released: 5th March, 2018* - [Release Notes](http://icwp.io/bu)
+*Released: 5th March, 2018* - [Release Notes](https://icwp.io/bu)
 
-* **(v.0)**  IMPROVED:	[Plugin Guard](http://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
+* **(v.0)**  IMPROVED:	[Plugin Guard](https://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
 * **(v.0)**  IMPROVED:	Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
 * **(v.0)**  IMPROVED:	Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
 * **(v.0)**  ADDED:		[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
