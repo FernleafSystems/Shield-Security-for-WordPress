@@ -85,10 +85,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$this->setOpt( 'enable_google_recaptcha_login', $this->getOpt( 'google_recaptcha_style_login' ) );
 		}
 		if ( $this->getIsCheckingUserRegistrations() ) {
-			$this->setOpt( 'bot_protection_locations', array_merge( $this->getBotProtectionLocations(), array(
-				'register',
-				'password'
-			) ) )
+			$this->setOpt( 'bot_protection_locations', array_merge(
+				$this->getBotProtectionLocations(), array( 'register', 'password' ) ) )
 				 ->setOpt( 'enable_user_register_checking', 'N' );
 		}
 	}
@@ -395,7 +393,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getBotProtectionLocations() {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );
-		return is_array( $aLocs ) ? $aLocs : $this->getOptionsVo()->getOptDefault( 'bot_protection_locations' );
+		return is_array( $aLocs ) ? $aLocs : (array)$this->getOptionsVo()->getOptDefault( 'bot_protection_locations' );
 	}
 
 	/**
