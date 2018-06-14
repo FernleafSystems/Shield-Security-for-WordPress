@@ -21,13 +21,18 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @throws Exception
 	 */
 	protected function performCheckWithException() {
-		try {
-			$this->checkRequestRecaptcha();
-			$this->doStatIncrement( 'login.recaptcha.verified' );
-		}
-		catch ( Exception $oE ) {
-			$this->setLoginAsFailed( 'login.recaptcha.fail' );
-			throw $oE;
+
+		if ( !$this->isFactorTested() ) {
+
+			$this->setFactorTested( true );
+			try {
+				$this->checkRequestRecaptcha();
+				$this->doStatIncrement( 'login.recaptcha.verified' );
+			}
+			catch ( Exception $oE ) {
+				$this->setLoginAsFailed( 'login.recaptcha.fail' );
+				throw $oE;
+			}
 		}
 	}
 
