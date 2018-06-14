@@ -19,11 +19,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	private $sUserToAudit;
 
 	/**
+	 * @var bool
+	 */
+	private $bFactorTested;
+
+	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$b3rdParty = $oFO->getIfSupport3rdParty();
+
+		$this->setFactorTested( false );
 
 		if ( $oFO->isProtectLogin() ) {
 			// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
@@ -312,11 +319,27 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isFactorTested() {
+		return (bool)$this->bFactorTested;
+	}
+
+	/**
 	 * @param string $sActionToAudit
 	 * @return $this
 	 */
 	protected function setActionToAudit( $sActionToAudit ) {
 		$this->sActionToAudit = $sActionToAudit;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bFactorTested
+	 * @return $this
+	 */
+	public function setFactorTested( $bFactorTested ) {
+		$this->bFactorTested = $bFactorTested;
 		return $this;
 	}
 

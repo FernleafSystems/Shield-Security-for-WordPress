@@ -81,9 +81,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		// v6.8.0: reCAPTCHA options restructure
 
 		// These can be removed eventually and are used to migrate old recaptcha settings to new structure
-		if ( $this->getOpt( 'enable_google_recaptcha_login' ) == 'Y' ) {
+		$sRecap = $this->getOpt( 'enable_google_recaptcha_login' );
+		if ( $sRecap == 'Y' ) {
 			$this->setOpt( 'enable_google_recaptcha_login', $this->getOpt( 'google_recaptcha_style_login' ) );
 		}
+		else if ( $sRecap == 'N' ) {
+			$this->setOpt( 'enable_google_recaptcha_login', 'disabled' );
+		}
+
 		if ( $this->getIsCheckingUserRegistrations() ) {
 			$this->setOpt( 'bot_protection_locations', array_merge(
 				$this->getBotProtectionLocations(), array( 'register', 'password' ) ) )

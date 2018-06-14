@@ -9,20 +9,16 @@ require_once( dirname( __FILE__ ).'/loginprotect_base.php' );
 class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
-	 * @var bool
-	 */
-	private $bCooldownUpdated = false;
-
-	/**
 	 * @throws Exception
 	 */
 	protected function performCheckWithException() {
 
-		if ( !$this->isCooldownAlreadyUpdated() ) {
+		if ( !$this->isFactorTested() ) {
 
 			$bWithinCooldownPeriod = $this->isWithinCooldownPeriod();
 			$nRemaining = $this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin();
-			$this->updateLastLoginTime();
+			$this->updateLastLoginTime()
+				 ->setFactorTested( true );
 
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
@@ -68,11 +64,12 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	}
 
 	/**
+	 * @return $this
 	 */
 	protected function updateLastLoginTime() {
-		$this->bCooldownUpdated = true;
 		$this->loadFS()->deleteFile( $this->getLastLoginTimeFilePath() );
 		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
+		return $this;
 	}
 
 	/**
@@ -92,12 +89,5 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function getSecondsSinceLastLogin() {
 		return ( $this->time() - $this->getLastLoginTime() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isCooldownAlreadyUpdated() {
-		return (bool)$this->bCooldownUpdated;
 	}
 }
