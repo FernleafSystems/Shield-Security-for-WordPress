@@ -764,7 +764,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				break;
 
 			case 'email':
-				$bValid = $this->loadDP()->validEmail( $mPotentialValue );
+				$bValid = empty( $mPotentialValue) || $this->loadDP()->validEmail( $mPotentialValue );
 				break;
 		}
 		return $bValid;
