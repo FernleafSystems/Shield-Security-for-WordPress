@@ -311,7 +311,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 					header( "Location: ".$oWp->getHomeUrl() );
 					break;
 				case 'redirect_404':
-					header( "Location: ".$oWp->getHomeUrl().'/404' );
+					header( "Location: ".$oWp->getHomeUrl( '404' ) );
 					break;
 				default:
 					break;

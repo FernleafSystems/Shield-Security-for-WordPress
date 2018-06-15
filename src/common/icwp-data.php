@@ -225,6 +225,14 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sUrl
+	 * @return string
+	 */
+	public function urlStripSchema( $sUrl ) {
+		return preg_replace( '#^((http|https):)?\/\/#i', '', $sUrl );
+	}
+
+	/**
 	 * Will strip everything from a URL except Scheme+Host and requires that Scheme+Host be present
 	 * @return string|false
 	 */
