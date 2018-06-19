@@ -500,6 +500,40 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSectionSlug ) {
+		$aWarnings = array();
+
+		if ( $sSectionSlug == 'section_brute_force_login_protection' && !$this->isPremium() ) {
+			$sIntegration = $this->getPremiumOnlyIntegration();
+			if ( !empty( $sIntegration ) ) {
+				$aWarnings[] = sprintf( _wpsf__( 'Support for login protection with %s is a Pro-only feature.' ), $sIntegration );
+			}
+		}
+
+		return $aWarnings;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getPremiumOnlyIntegration() {
+		$sIntegration = '';
+		if ( class_exists( 'WooCommerce' ) ) {
+			$sIntegration = 'WooCommerce';
+		}
+		else if ( class_exists( 'Easy_Digital_Downloads' ) ) {
+			$sIntegration = 'Easy Digital Downloads';
+		}
+		else if ( class_exists( 'BuddyPress' ) ) {
+			$sIntegration = 'BuddyPress ';
+		}
+		return $sIntegration;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
