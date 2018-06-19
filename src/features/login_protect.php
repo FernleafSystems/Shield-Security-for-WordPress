@@ -520,15 +520,18 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	protected function getPremiumOnlyIntegration() {
+		$aIntegrations = array(
+			'WooCommerce'            => 'WooCommerce',
+			'Easy_Digital_Downloads' => 'Easy Digital Downloads',
+			'BuddyPress'             => 'BuddyPress',
+		);
+
 		$sIntegration = '';
-		if ( class_exists( 'WooCommerce' ) ) {
-			$sIntegration = 'WooCommerce';
-		}
-		else if ( class_exists( 'Easy_Digital_Downloads' ) ) {
-			$sIntegration = 'Easy Digital Downloads';
-		}
-		else if ( class_exists( 'BuddyPress' ) ) {
-			$sIntegration = 'BuddyPress ';
+		foreach ( $aIntegrations as $sInt => $sName ) {
+			if ( class_exists( $sInt ) ) {
+				$sIntegration = $sName;
+				break;
+			}
 		}
 		return $sIntegration;
 	}
