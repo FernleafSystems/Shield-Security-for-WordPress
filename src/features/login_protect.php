@@ -386,7 +386,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	public function getGoogleRecaptchaStyle() {
-		$sStyle = $this->getOpt( 'google_recaptcha_style_login' );
+		$sStyle = $this->getOpt( 'enable_google_recaptcha_login' );
 		if ( $sStyle == 'default' ) {
 			$sStyle = parent::getGoogleRecaptchaStyle();
 		}
@@ -694,7 +694,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 								.'<br/>'.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings." ) );
 				break;
 
-			case 'google_recaptcha_style_login' :
+			case 'google_recaptcha_style_login' : // Unused
 				$sName = _wpsf__( 'reCAPTCHA Style' );
 				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed' );
 				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
