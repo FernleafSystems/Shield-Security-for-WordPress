@@ -138,9 +138,14 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @throws Exception
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+
 		$this->testPasswordMeetsMinimumLength( $sPassword );
 		$this->testPasswordMeetsMinimumStrength( $sPassword );
-		$this->sendRequestToPwnedRange( $sPassword );
+		if ( $oFO->isPassPreventPwned() ) {
+			$this->sendRequestToPwnedRange( $sPassword );
+		}
 	}
 
 	/**
