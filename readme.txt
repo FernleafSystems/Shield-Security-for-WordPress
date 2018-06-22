@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.8.1
+Stable tag: 6.8.2
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,15 +353,21 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.8.1 - Current Release =
-*Released: 14th June, 2018* - [Release Notes](https://icwp.io/d4)
+= 6.8.2 - Current Release =
+*Released: 22nd June, 2018* - [Release Notes](https://icwp.io/d4)
 
-* **(v.1)**  FIXED:		A couple of bugs with WooCommerce reCAPTCHA processing.
-* **(v.1)**  FIXED:		A bug with user sessions cleaning
+* **(v.2)**  FIXED:		Bug with multi-factor authentication verification.
+* **(v.2)**  FIXED:		Bug with chosen reCAPTCHA style not being honoured on login pages
+* **(v.2)**  FIXED:		Bug with Invisible reCAPTCHA + WooCommerce
+* **(v.2)**  FIXED:		Bug with Pwned passwords always being checked even if setting turned off.
 
 = 6.8 Series =
 *Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
 
+* **(v.2)**  FIXED:		Bug with multi-factor authentication verification.
+* **(v.2)**  FIXED:		Bug with chosen reCAPTCHA style not being honoured on login pages
+* **(v.2)**  FIXED:		Bug with Invisible reCAPTCHA + WooCommerce
+* **(v.2)**  FIXED:		Bug with Pwned passwords always being checked even if setting turned off.
 * **(v.1)**  FIXED:		A couple of bugs with WooCommerce reCAPTCHA processing.
 * **(v.1)**  FIXED:		A bug with user sessions cleaning
 * **(v.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
