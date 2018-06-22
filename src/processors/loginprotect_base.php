@@ -68,7 +68,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
 				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
 
-				add_action( 'woocommerce_register_form', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
 			}
 		}
@@ -256,6 +256,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printLoginFormItems_Woo() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printRegisterFormItems_Woo() {
 		$this->printLoginFormItems();
 	}
 

@@ -60,6 +60,30 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	}
 
 	/**
+	 * We add the hidden input because the WooCommerce login processing doesn't fire unless
+	 * $_POST['login'] is set. But this is put on the form button and so doesn't get submitted using JQuery
+	 * @return void
+	 */
+	public function printLoginFormItems_Woo() {
+		parent::printLoginFormItems_Woo();
+		if ( $this->isRecaptchaInvisible() ) {
+			echo '<input type="hidden" name="login" value="Log in" />';
+		}
+	}
+
+	/**
+	 * We add the hidden input because the WooCommerce register processing doesn't fire unless
+	 * $_POST['register'] is set. But this is put on the form button and so doesn't get submitted using JQuery
+	 * @return void
+	 */
+	public function printRegisterFormItems_Woo() {
+		parent::printRegisterFormItems_Woo();
+		if ( $this->isRecaptchaInvisible() ) {
+			echo '<input type="hidden" name="register" value="Register" />';
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	private function getGoogleRecaptchaHtml() {
