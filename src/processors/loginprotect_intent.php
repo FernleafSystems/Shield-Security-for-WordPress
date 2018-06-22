@@ -376,7 +376,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$this->setLoginIntentProcessed();
 		}
 		$oTrk = $this->getLoginTrack();
-		return $oFO->isChainedAuth() ? $oTrk->hasUnSuccessfulFactor() : $oTrk->hasSuccessfulFactor();
+		return $oFO->isChainedAuth() ? !$oTrk->hasUnSuccessfulFactor() : $oTrk->hasSuccessfulFactor();
 	}
 
 	/**

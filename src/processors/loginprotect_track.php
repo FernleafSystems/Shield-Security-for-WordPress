@@ -77,7 +77,6 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	/**
 	 * Works by using array_filter() with no callback, so only those values in the
 	 * array that don't evaluate as false are returned. #SuperOmgElegant :)
-	 *
 	 * @return int
 	 */
 	public function getCountFactorsSuccessful() {
@@ -140,14 +139,13 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	/**
 	 * Also remove remaining factors to track
 	 * @param string $sFactor
-	 * @param bool $bState
+	 * @param bool   $bState
 	 * @return $this
 	 */
 	protected function setFactorState( $sFactor, $bState ) {
 		$aFactors = $this->getAuthFactorsTracked();
 		$aFactors[ $sFactor ] = $bState;
 		$this->aFactorsTracked = $aFactors;
-		unset( $this->aFactorsToTrack[ $sFactor ] );
-		return $this;
+		return $this->removeFactorToTrack( $sFactor );
 	}
 }
