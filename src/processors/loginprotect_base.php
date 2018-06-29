@@ -70,6 +70,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
+
+				// MemberPress
+				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MemberPress' ), 10, 2 );
 			}
 		}
 
@@ -211,6 +214,24 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
+	}
+
+	/**
+	 * Errors are passed about here using an array of strings.
+	 * @param string[] $aErrors
+	 * @return string[]
+	 */
+	public function checkReqRegistration_MemberPress( $aErrors ) {
+		if ( !empty( $aErrors ) ) {
+			try {
+				$this->setActionToAudit( 'memberpress-register' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				$aErrors[] = $oE->getMessage();
+			}
+		}
+		return $aErrors;
 	}
 
 	/**
