@@ -46,7 +46,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_filter( 'woocommerce_process_login_errors', array( $this, 'checkReqLogin_Woo' ), 10, 2 );
 
 				// MemberPress
-				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MemberPress' ), 100 );
+				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MePr' ), 100 );
 			}
 		}
 
@@ -58,7 +58,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
 
 				// MemberPress
-				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MemberPress' ), 100 );
+				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
 			}
 		}
 
@@ -78,8 +78,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
 
 				// MemberPress - Checkout == Registration
-				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MemberPress' ), 10 );
-				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MemberPress' ), 10, 2 );
+				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MePr' ), 10 );
+				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MePr' ), 10, 2 );
 			}
 		}
 
@@ -228,7 +228,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @param string[] $aErrors
 	 * @return string[]
 	 */
-	public function checkReqRegistration_MemberPress( $aErrors ) {
+	public function checkReqRegistration_MePr( $aErrors ) {
 		if ( !empty( $aErrors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-register' )
@@ -283,14 +283,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	/**
 	 * @return void
 	 */
-	public function printLoginFormItems_MemberPress() {
+	public function printLoginFormItems_MePr() {
 		$this->printLoginFormItems();
 	}
 
 	/**
 	 * @return void
 	 */
-	public function printRegisterFormItems_MemberPress() {
+	public function printRegisterFormItems_MePr() {
 		$this->printLoginFormItems();
 	}
 
