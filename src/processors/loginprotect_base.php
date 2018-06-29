@@ -44,6 +44,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems_Woo' ), 100 );
 				add_filter( 'woocommerce_process_login_errors', array( $this, 'checkReqLogin_Woo' ), 10, 2 );
+
+				// MemberPress
+				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MemberPress' ), 100 );
 			}
 		}
 
@@ -53,6 +56,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
+
+				// MemberPress
+				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MemberPress' ), 100 );
 			}
 		}
 
@@ -71,7 +77,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
 
-				// MemberPress
+				// MemberPress - Checkout == Registration
+				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MemberPress' ), 10 );
 				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MemberPress' ), 10, 2 );
 			}
 		}
@@ -271,6 +278,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function printLoginFormItems() {
 		echo $this->buildLoginFormItems();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printLoginFormItems_MemberPress() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printRegisterFormItems_MemberPress() {
+		$this->printLoginFormItems();
 	}
 
 	/**
