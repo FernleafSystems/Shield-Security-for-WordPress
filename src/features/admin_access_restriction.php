@@ -8,6 +8,8 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
+
 	private $bHasPermissionToSubmit;
 
 	/**
@@ -365,6 +367,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return $this
+	 */
+	protected function clearAdminAccessKey() {
+		return $this->setIsMainFeatureEnabled( false )
+					->setOpt( 'admin_access_key', '' );
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
@@ -482,7 +492,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Security Admin Access Key' );
 				$sSummary = _wpsf__( 'Provide/Update Security Admin Access Key' );
 				$sDescription = sprintf( _wpsf__( 'Careful: %s' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
-								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>';
+								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>'
+								.( $this->hasAccessKey() ? '<br/>'.sprintf( _wpsf__( 'To delete the access key, type exactly "%s" and save.' ), 'DELETE' ) : '' );
 				break;
 
 			case 'admin_access_timeout' :
@@ -599,6 +610,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
+
+		if ( $this->getAccessKeyHash() == self::HASH_DELETE ) {
+			$this->clearAdminAccessKey();
+		}
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$aPluginsRestrictions = $this->getAdminAccessArea_Plugins();
