@@ -1,7 +1,6 @@
 <form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
-    <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />
 
 	<?php foreach ( $ajax[ 'mod_options' ] as $sAjKey => $sAjVal ) : ?>

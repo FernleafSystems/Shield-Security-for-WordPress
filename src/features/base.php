@@ -1126,6 +1126,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array - map of each option to its option type
+	 */
+	protected function getAllFormOptionsAndTypes() {
+		$aOpts = array();
+
+		foreach ( $this->buildOptions() as $aOptionsSection ) {
+			if ( !empty( $aOptionsSection ) ) {
+				foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
+					$aOpts[ $aOption[ 'key' ] ] = $aOption[ 'type' ];
+				}
+			}
+		}
+
+		return $aOpts;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function ajaxExec_ModOptions() {
@@ -1200,10 +1217,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return void
 	 */
 	protected function doSaveStandardOptions() {
-		$sAllOptions = $this->loadDP()->post( 'all_options_input' );
-		if ( !empty( $sAllOptions ) ) {
-			$this->updatePluginOptionsFromSubmit( $sAllOptions );
-		}
+		$this->updatePluginOptionsFromSubmit();
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -1251,19 +1265,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sAllOptionsInput - comma separated list of all the input keys to be processed from the $_POST
 	 * @return void
 	 */
-	protected function updatePluginOptionsFromSubmit( $sAllOptionsInput ) {
-		if ( empty( $sAllOptionsInput ) ) {
-			return;
-		}
+	protected function updatePluginOptionsFromSubmit() {
 		$oDp = $this->loadDP();
 
-		$aAllInputOptions = explode( self::CollateSeparator, $sAllOptionsInput );
-		foreach ( $aAllInputOptions as $sInputKey ) {
-			$aInput = explode( ':', $sInputKey );
-			list( $sOptionType, $sOptionKey ) = $aInput;
+		foreach ( $this->getAllFormOptionsAndTypes() as $sOptionKey => $sOptionType ) {
 
 			$sOptionValue = $oDp->post( $sOptionKey );
 			if ( is_null( $sOptionValue ) ) {
