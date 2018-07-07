@@ -450,7 +450,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( empty( $aUpdateResults ) || !is_array( $aUpdateResults ) ) {
 			return;
 		}
-		var_dump( $aUpdateResults );
+		
 		// Are there really updates?
 		$bReallyUpdates = false;
 
@@ -463,7 +463,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		$aTrkd = $this->getTrackedAssetsVersions();
-		var_dump( $aTrkd );
 
 		if ( !empty( $aUpdateResults[ 'plugin' ] ) && is_array( $aUpdateResults[ 'plugin' ] ) ) {
 			$bHasPluginUpdates = false;
@@ -532,8 +531,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 		}
 
-		var_dump( $aTempContent );
-		var_dump( $bReallyUpdates );
 		if ( !$bReallyUpdates ) {
 			return;
 		}
