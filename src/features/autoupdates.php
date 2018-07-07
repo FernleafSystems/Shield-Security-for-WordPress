@@ -96,6 +96,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSendAutoupdatesNotificationEmail() {
+		return $this->getOptIs( 'enable_upgrade_notification_email', 'Y' );
+	}
+
+	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
