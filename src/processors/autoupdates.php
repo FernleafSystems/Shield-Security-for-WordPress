@@ -85,8 +85,8 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
-		foreach ( $this->loadWpPlugins()->getUpdates() as $sFile => $aPlug ) {
-			$aAssVers[ 'plugins' ][ $sFile ] = isset( $aPlug[ 'Version' ] ) ? $aPlug[ 'Version' ] : '';
+		foreach ( $this->loadWpPlugins()->getUpdates() as $sFile => $oPlug ) {
+			$aAssVers[ 'plugins' ][ $sFile ] = isset( $oPlug->Version ) ? $oPlug->Version : '';
 		}
 		foreach ( $this->loadWpThemes()->getThemes() as $sFile => $oT ) {
 			$aAssVers[ 'themes' ][ $sFile ] = $oT->get( 'Version' );
@@ -450,7 +450,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( empty( $aUpdateResults ) || !is_array( $aUpdateResults ) ) {
 			return;
 		}
-		
+
 		// Are there really updates?
 		$bReallyUpdates = false;
 
