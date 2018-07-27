@@ -717,7 +717,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 			$sRestPath = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
 			$sRequestPath = trim( $this->loadDP()->getRequestPath(), '/' );
-			$bIsRest = ( strpos( $sRequestPath, $sRestPath ) === 0 );
+			$bIsRest = !empty( $sRequestPath ) && !empty( $sRestPath )
+					   && ( strpos( $sRequestPath, $sRestPath ) === 0 );
 		}
 		return $bIsRest;
 	}
