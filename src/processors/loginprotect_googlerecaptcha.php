@@ -24,9 +24,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 
 		if ( !$this->isFactorTested() ) {
 
-			$this->setFactorTested( true );
 			try {
 				$this->checkRequestRecaptcha();
+				$this->setFactorTested( true );
 				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
 			catch ( Exception $oE ) {

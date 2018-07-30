@@ -59,6 +59,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		if ( $oFO->isProtectRegister() ) {
 			add_action( 'register_form', array( $this, 'printLoginFormItems' ) );
 //			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
+			add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
 			add_filter( 'registration_errors', array( $this, 'checkReqRegistrationErrors_Wp' ), 10, 2 );
 
 			if ( $b3rdParty ) {
@@ -152,6 +153,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
+	}
+
+	/**
+	 * @param array $aData
+	 * @return array
+	 */
+	public function checkPreUserInsert_Wp( $aData ) {
+		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadDP()->isMethodPost() ) {
+			$this->setActionToAudit( 'register' )
+				 ->performCheckWithDie();
+		}
+		return $aData;
 	}
 
 	/**
