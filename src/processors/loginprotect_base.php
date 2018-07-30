@@ -77,6 +77,15 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 
 		if ( $b3rdParty && $oFO->isProtect( 'checkout_woo' ) ) {
+			add_action( 'init', array( $this, 'addWooCheckoutHooks' ) );
+		}
+	}
+
+	/**
+	 * This is added to 'init' so we can test for is logged-in.
+	 */
+	public function addWooCheckoutHooks() {
+		if ( !$this->loadWpUsers()->isUserLoggedIn() ) {
 			add_action( 'woocommerce_after_checkout_registration_form', array( $this, 'printRegistrationFormItems_Woo' ), 10 );
 			add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkReqCheckout_Woo' ), 10, 2 );
 		}
@@ -287,7 +296,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printRegistrationFormItems_Woo( $oCheckout ) {
-		if ( $oCheckout instanceof WC_Checkout && $oCheckout->get_checkout_fields( 'account' ) ) {
+		if ( $oCheckout instanceof WC_Checkout && $oCheckout->is_registration_enabled() ) {
 			$this->printLoginFormItems();
 		}
 	}
