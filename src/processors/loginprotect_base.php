@@ -59,10 +59,12 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		if ( $oFO->isProtectRegister() ) {
 			add_action( 'register_form', array( $this, 'printLoginFormItems' ) );
 //			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
-			add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
 			add_filter( 'registration_errors', array( $this, 'checkReqRegistrationErrors_Wp' ), 10, 2 );
 
 			if ( $b3rdParty ) {
+				// A bit of a catch-all:
+				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
+
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems_Bp' ), 10 );
 				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
 
