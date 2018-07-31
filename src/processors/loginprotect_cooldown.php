@@ -20,7 +20,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 			// And finally return a WP_Error which will be reflected back to the user.
 			if ( $this->isWithinCooldownPeriod() ) {
 
-				$nRemaining = $this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin();
+				$nRemaining = $this->getCooldownInterval() - $this->getSecondsSinceLastLogin();
 				$sErrorString = _wpsf__( "Request Cooldown in effect." ).' '
 								.sprintf(
 									_wpsf__( "You must wait %s seconds before attempting this action again." ),
@@ -42,7 +42,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	/**
 	 * @return int
 	 */
-	protected function getLoginCooldownInterval() {
+	protected function getCooldownInterval() {
 		return (int)$this->getOption( 'login_limit_interval' );
 	}
 
@@ -75,7 +75,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	private function isWithinCooldownPeriod() {
 		// Is there an interval set?
-		$nCooldown = $this->getLoginCooldownInterval();
+		$nCooldown = $this->getCooldownInterval();
 		if ( empty( $nCooldown ) || $nCooldown <= 0 ) {
 			return false;
 		}
