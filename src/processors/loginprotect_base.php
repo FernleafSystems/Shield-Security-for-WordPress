@@ -346,6 +346,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		return $this->buildLoginFormItems();
 	}
 
+	/**
+	 * @param string $sStatToIncrement
+	 * @return $this
+	 */
 	protected function setLoginAsFailed( $sStatToIncrement ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
@@ -355,7 +359,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
 
 		$this->doStatIncrement( $sStatToIncrement );
-		$this->setIpTransgressed(); // We now black mark this IP
+		return $this->setIpTransgressed(); // We now black mark this IP
 	}
 
 	/**
