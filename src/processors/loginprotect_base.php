@@ -26,11 +26,21 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	/**
 	 */
 	public function run() {
+		$this->setFactorTested( false );
+		add_action( 'init', array( $this, 'addHooks' ) );
+	}
+
+	/**
+	 * Hooked to INIT so we can test for logged-in. We don't process for logged-in users.
+	 */
+	public function addHooks() {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			return;
+		}
+
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getFeature();
 		$b3rdParty = $oFO->getIfSupport3rdParty();
-
-		$this->setFactorTested( false );
 
 		if ( $oFO->isProtectLogin() ) {
 			// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
@@ -77,15 +87,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 
 		if ( $b3rdParty && $oFO->isProtect( 'checkout_woo' ) ) {
-			add_action( 'init', array( $this, 'addWooCheckoutHooks' ) );
-		}
-	}
-
-	/**
-	 * This is added to 'init' so we can test for is logged-in.
-	 */
-	public function addWooCheckoutHooks() {
-		if ( !$this->loadWpUsers()->isUserLoggedIn() ) {
 			add_action( 'woocommerce_after_checkout_registration_form', array( $this, 'printRegistrationFormItems_Woo' ), 10 );
 			add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkReqCheckout_Woo' ), 10, 2 );
 		}
@@ -94,8 +95,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	/**
 	 * @throws Exception
 	 */
-	protected function performCheckWithException() {
-	}
+	abstract protected function performCheckWithException();
 
 	/**
 	 */
