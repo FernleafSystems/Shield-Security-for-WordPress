@@ -39,9 +39,16 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	/**
 	 * @return string
 	 */
-	public function provideLoginFormItems() {
+	protected function buildFormItems() {
+		return $this->getGoogleRecaptchaHtml();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printFormItems() {
 		$this->setRecaptchaToEnqueue();
-		return parent::provideLoginFormItems();
+		parent::printFormItems();
 	}
 
 	/**
@@ -55,8 +62,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	/**
 	 * @return string
 	 */
-	protected function buildLoginFormItems() {
-		return $this->getGoogleRecaptchaHtml();
+	public function provideLoginFormItems() {
+		$this->setRecaptchaToEnqueue();
+		return parent::provideLoginFormItems();
 	}
 
 	/**

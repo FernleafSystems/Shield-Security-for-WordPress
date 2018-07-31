@@ -24,6 +24,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	private $bFactorTested;
 
 	/**
+	 * We assume that any given page will have at most 1 login form.
+	 * @var int
+	 */
+	private $nLoginFormCountMax = 1;
+
+	/**
+	 * Track the number of times a login form element has been printed.
+	 * @var int
+	 */
+	private $nLoginFormPrintCount = 0;
+
+	/**
 	 */
 	public function run() {
 		$this->setFactorTested( false );
@@ -58,16 +70,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 
 		if ( $oFO->isProtectLostPassword() ) {
-			add_action( 'lostpassword_form', array( $this, 'printLoginFormItems' ) );
+			add_action( 'lostpassword_form', array( $this, 'printFormItems' ) );
 			add_action( 'lostpassword_post', array( $this, 'checkReqLostPassword_Wp' ), 10, 1 );
 
 			if ( $b3rdParty ) {
-				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'woocommerce_lostpassword_form', array( $this, 'printFormItems' ), 10 );
 			}
 		}
 
 		if ( $oFO->isProtectRegister() ) {
-			add_action( 'register_form', array( $this, 'printLoginFormItems' ) );
+			add_action( 'register_form', array( $this, 'printFormItems' ) );
 //			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
 			add_filter( 'registration_errors', array( $this, 'checkReqRegistrationErrors_Wp' ), 10, 2 );
 
@@ -78,7 +90,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems_Bp' ), 10 );
 				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
 
-				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printFormItems' ), 10 );
 				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
 
 				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
@@ -265,8 +277,27 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	/**
 	 * @return string
 	 */
-	protected function buildLoginFormItems() {
+	protected function buildFormItems() {
 		return '';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function buildLoginFormItems() {
+		$sItems = '';
+		if ( $this->canPrintLoginFormElement() ) {
+			$this->incrementLoginFormPrintCount();
+			$sItems = $this->buildFormItems();
+		}
+		return $sItems;
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printFormItems() {
+		echo $this->buildFormItems();
 	}
 
 	/**
@@ -287,7 +318,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printRegisterFormItems_Woo() {
-		$this->printLoginFormItems();
+		$this->printFormItems();
 	}
 
 	/**
@@ -297,7 +328,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function printRegistrationFormItems_Woo( $oCheckout ) {
 		if ( $oCheckout instanceof WC_Checkout && $oCheckout->is_registration_enabled() ) {
-			$this->printLoginFormItems();
+			$this->printFormItems();
 		}
 	}
 
@@ -336,10 +367,31 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * @return bool
+	 */
+	protected function canPrintLoginFormElement() {
+		return $this->getLoginFormPrintCount() < $this->getLoginFormCountMax();
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getActionToAudit() {
 		return empty( $this->sActionToAudit ) ? 'unknown-action' : $this->sActionToAudit;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLoginFormCountMax() {
+		return $this->nLoginFormCountMax;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLoginFormPrintCount() {
+		return max( 0, (int)$this->nLoginFormPrintCount );
 	}
 
 	/**
@@ -362,6 +414,23 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	protected function setActionToAudit( $sActionToAudit ) {
 		$this->sActionToAudit = $sActionToAudit;
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function incrementLoginFormPrintCount() {
+		$this->nLoginFormPrintCount = $this->getLoginFormPrintCount() + 1;
+		return $this;
+	}
+
+	/**
+	 * @param int $nMax
+	 * @return $this
+	 */
+	public function setLoginFormCountMax( $nMax ) {
+		$this->nLoginFormCountMax = $nMax;
 		return $this;
 	}
 

@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 			// And finally return a WP_Error which will be reflected back to the user.
 			if ( $bWithinCooldownPeriod ) {
 
-				$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
+				$sErrorString = _wpsf__( "Request Cooldown in effect." ).' '
 								.sprintf(
 									_wpsf__( "You must wait %s seconds before attempting this action again." ),
 									$nRemaining
