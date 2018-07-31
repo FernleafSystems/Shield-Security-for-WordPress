@@ -19,61 +19,22 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @return string
 	 */
 	private function getGaspLoginHtml() {
-
-		$sLabel = $this->getTextImAHuman();
-		$sAlert = $this->getTextPleaseCheckBox();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getFeature();
 
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
-		$sUniqElem = 'icwp_wpsf_login_p'.$sUniqId;
 
-		$sStyles = '
-			<style>
-				#'.$sUniqElem.' {
-					clear:both;
-					border: 1px solid #dddddd;
-					padding: 6px 8px 4px 10px;
-					margin: 0 0 12px !important;
-					border-radius: 2px;
-					background-color: #f9f9f9;
-				}
-				#'.$sUniqElem.' input {
-					margin-right: 5px;
-				}
-				#'.$sUniqElem.' label {
-					display: block;
-				}
-			</style>
-		';
-		$sHtml =
-			$sStyles.
-			'<p id="'.$sUniqElem.'" class="icwpImHuman_'.$sUniqId.'"></p>
-			<script type="text/javascript">
-				var icwp_wpsf_login_p'.$sUniqId.'		= document.getElementById("'.$sUniqElem.'");
-				var icwp_wpsf_login_cb'.$sUniqId.'		= document.createElement("input");
-				var icwp_wpsf_login_lb'.$sUniqId.'		= document.createElement("label");
-				var icwp_wpsf_login_text'.$sUniqId.'	= document.createTextNode(" '.$sLabel.'");
-				icwp_wpsf_login_cb'.$sUniqId.'.type		= "checkbox";
-				icwp_wpsf_login_cb'.$sUniqId.'.id		= "'.$this->getGaspCheckboxName().'";
-				icwp_wpsf_login_cb'.$sUniqId.'.name		= "'.$this->getGaspCheckboxName().'";
-				icwp_wpsf_login_p'.$sUniqId.'.appendChild( icwp_wpsf_login_lb'.$sUniqId.' );
-				icwp_wpsf_login_lb'.$sUniqId.'.appendChild( icwp_wpsf_login_cb'.$sUniqId.' );
-				icwp_wpsf_login_lb'.$sUniqId.'.appendChild( icwp_wpsf_login_text'.$sUniqId.' );
-				var frm = icwp_wpsf_login_cb'.$sUniqId.'.form;
-
-				frm.onsubmit = icwp_wpsf_login_it'.$sUniqId.';
-				function icwp_wpsf_login_it'.$sUniqId.'() {
-					if( icwp_wpsf_login_cb'.$sUniqId.'.checked != true ){
-						alert( "'.$sAlert.'" );
-						return false;
-					}
-					return true;
-				}
-			</script>
-			<noscript>'._wpsf__( 'You MUST enable Javascript to be able to login' ).'</noscript>
-			<input type="hidden" id="icwp_wpsf_login_email" name="icwp_wpsf_login_email" value="" />
-		';
-
-		return $sHtml;
+		return $oFO->renderTemplate(
+			'snippets/gasp_js.php',
+			array(
+				'sCbName'   => $this->getGaspCheckboxName(),
+				'sLabel'    => $this->getTextImAHuman(),
+				'sAlert'    => $this->getTextPleaseCheckBox(),
+				'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
+				'sUniqId'   => $sUniqId,
+				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId
+			)
+		);
 	}
 
 	/**
