@@ -38,9 +38,11 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * Used to mark an IP address for transgression/black-mark
+	 * @return $this
 	 */
 	public function setIpTransgressed() {
 		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+		return $this;
 	}
 
 	/**
@@ -183,6 +185,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * @param string $sStatKey
+	 * @return $this
 	 */
 	private function stats_Increment( $sStatKey ) {
 		$aStats = $this->stats_Get();
@@ -191,6 +194,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		}
 		$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
 		$this->aStatistics = $aStats;
+		return $this;
 	}
 
 	/**
@@ -207,10 +211,13 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
 	 * @param string $sStatKey
 	 * @param string $sParentStatKey
+	 * @return $this
 	 */
 	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-		$this->stats_Increment( $sStatKey.':'.( empty( $sParentStatKey ) ? $this->getFeature()
-																				->getFeatureSlug() : $sParentStatKey ) );
+		if ( empty( $sParentStatKey ) ) {
+			$sParentStatKey = $this->getFeature()->getFeatureSlug();
+		}
+		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
 	}
 
 	/**
@@ -232,6 +239,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @param int    $nCategory
 	 * @param string $sEvent
 	 * @param string $sWpUsername
+	 * @return $this
 	 */
 	protected function addToAuditEntry( $sAdditionalMessage = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
 		if ( !isset( $this->aAuditEntry ) ) {
@@ -264,6 +272,8 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		if ( !empty( $sEvent ) ) {
 			$this->aAuditEntry[ 'event' ] = $sEvent;
 		}
+
+		return $this;
 	}
 
 	/**
