@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.8.2
+Stable tag: 6.8.3
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,13 +353,14 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.8.2 - Current Release =
-*Released: 22nd June, 2018* - [Release Notes](https://icwp.io/d4)
+= 6.8.3 - Current Release =
+*Released: 7th August, 2018* - [Release Notes](https://icwp.io/d4)
 
-* **(v.2)**  FIXED:		Bug with multi-factor authentication verification.
-* **(v.2)**  FIXED:		Bug with chosen reCAPTCHA style not being honoured on login pages
-* **(v.2)**  FIXED:		Bug with Invisible reCAPTCHA + WooCommerce
-* **(v.2)**  FIXED:		Bug with Pwned passwords always being checked even if setting turned off.
+* **(v.3)**  ADDED:		Ability to delete the Security Admin Access Key
+* **(v.3)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
+* **(v.3)**  IMPROVED:	Refined Cooldown timing system
+* **(v.3)**  IMPROVED:	Refined Bot checkbox Javascript
+* **(v.3)**  FIXED:		PHP Warning
 
 = 6.8 Series =
 *Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
