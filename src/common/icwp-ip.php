@@ -162,6 +162,13 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSupportedIpv6() {
+		return ( extension_loaded( 'sockets' ) && defined( 'AF_INET6' ) ) || @inet_pton( '::1' );
+	}
+
+	/**
 	 * @param string $sIp
 	 * @param bool   $flags
 	 * @return boolean
