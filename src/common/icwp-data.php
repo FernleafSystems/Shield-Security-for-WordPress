@@ -309,10 +309,18 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getRequestMethod() {
+		$sRequestMethod = self::FetchServer( 'REQUEST_METHOD' );
+		return ( empty( $sRequestMethod ) ? 'get' : strtolower( $sRequestMethod ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isMethodPost() {
-		return ( self::GetRequestMethod() == 'post' );
+		return ( $this->getRequestMethod() == 'post' );
 	}
 
 	/**
@@ -372,15 +380,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 		$sAtoZ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		$nRandomInt = rand( 0, ( strlen( $sAtoZ ) - 1 ) );
 		return $sAtoZ[ $nRandomInt ];
-	}
-
-	/**
-	 * Returns the current request method as an all-lower-case string
-	 * @return bool|string
-	 */
-	static public function GetRequestMethod() {
-		$sRequestMethod = self::FetchServer( 'REQUEST_METHOD' );
-		return ( empty( $sRequestMethod ) ? false : strtolower( $sRequestMethod ) );
 	}
 
 	/**
