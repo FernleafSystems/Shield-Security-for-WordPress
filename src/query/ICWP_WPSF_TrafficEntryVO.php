@@ -14,7 +14,7 @@
  * @property int    created_at
  * @property int    deleted_at
  */
-class ICWP_WPSF_LiveTrafficEntryVO {
+class ICWP_WPSF_TrafficEntryVO {
 
 	use \FernleafSystems\Utilities\Data\Adapter\StdClassAdapter {
 		__get as __parentGet;
@@ -25,8 +25,6 @@ class ICWP_WPSF_LiveTrafficEntryVO {
 	 * @return mixed
 	 */
 	public function __get( $sProperty ) {
-
-		$mVal = null;
 		switch ( $sProperty ) {
 
 			case 'ip':
@@ -54,6 +52,6 @@ class ICWP_WPSF_LiveTrafficEntryVO {
 	 * @return array
 	 */
 	public function getPayload() {
-		return json_decode( $this->getParam( 'ip' ), true );
+		return json_decode( $this->getParam( 'payload' ), true );
 	}
 }

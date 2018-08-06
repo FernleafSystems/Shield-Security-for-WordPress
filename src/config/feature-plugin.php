@@ -420,6 +420,10 @@
         "load_priority": 20
       },
       {
+        "slug":          "traffic",
+        "storage_key":   "traffic"
+      },
+      {
         "slug":        "hack_protect",
         "storage_key": "hack_protect"
       },
