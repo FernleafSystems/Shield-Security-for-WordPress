@@ -34,27 +34,47 @@
 			return;
 		}
 		bRun<?php echo $sUniqElem; ?> = true;
-		var icwp_wpsf_login_p<?php echo $sUniqId; ?> = document.getElementById( "<?php echo $sUniqElem; ?>" );
-		var icwp_wpsf_login_cb<?php echo $sUniqId; ?> = document.createElement( "input" );
-		var icwp_wpsf_login_lb<?php echo $sUniqId; ?> = document.createElement( "label" );
-		var icwp_wpsf_login_text<?php echo $sUniqId; ?> = document.createTextNode( " <?php echo $sLabel; ?>" );
-		icwp_wpsf_login_cb<?php echo $sUniqId; ?>.type = "checkbox";
-		icwp_wpsf_login_cb<?php echo $sUniqId; ?>.id = "_<?php echo $sCbName; ?>";
-		icwp_wpsf_login_cb<?php echo $sUniqId; ?>.name = "<?php echo $sCbName; ?>";
-		icwp_wpsf_login_p<?php echo $sUniqId; ?>.appendChild( icwp_wpsf_login_lb<?php echo $sUniqId; ?> );
-		icwp_wpsf_login_lb<?php echo $sUniqId; ?>.appendChild( icwp_wpsf_login_cb<?php echo $sUniqId; ?> );
-		icwp_wpsf_login_lb<?php echo $sUniqId; ?>.appendChild( icwp_wpsf_login_text<?php echo $sUniqId; ?> );
 
-		icwp_wpsf_login_cb<?php echo $sUniqId; ?>.form.onsubmit = function () {
-			if ( icwp_wpsf_login_cb<?php echo $sUniqId; ?>.checked !== true ) {
+		var the_p<?php echo $sUniqId; ?> = document.getElementById( "<?php echo $sUniqElem; ?>" );
+
+		var hon<?php echo $sUniqId; ?> = document.createElement( "input" );
+		hon<?php echo $sUniqId; ?>.type = "hidden";
+		hon<?php echo $sUniqId; ?>.name = "icwp_wpsf_login_email";
+		the_p<?php echo $sUniqId; ?>.appendChild( hon<?php echo $sUniqId; ?> );
+
+		{ /* Prevent multiple checkboxes within the same form */
+			var oThisForm = hon<?php echo $sUniqId; ?>.form;
+			var nHoneyCount = 0;
+			Array.prototype.forEach.call( oThisForm.elements, function ( element ) {
+				if ( element.type === 'hidden' && element.name === 'icwp_wpsf_login_email' ) {
+					nHoneyCount++;
+				}
+			} );
+
+			if ( nHoneyCount > 1 ) {
+				oThisForm.removeChild( the_p<?php echo $sUniqId; ?>);
+				return;
+			}
+		}
+
+		var the_cb<?php echo $sUniqId; ?> = document.createElement( "input" );
+		var the_lab<?php echo $sUniqId; ?> = document.createElement( "label" );
+		var the_txt<?php echo $sUniqId; ?> = document.createTextNode( " <?php echo $sLabel; ?>" );
+		the_cb<?php echo $sUniqId; ?>.type = "checkbox";
+		the_cb<?php echo $sUniqId; ?>.id = "_<?php echo $sCbName; ?>";
+		the_cb<?php echo $sUniqId; ?>.name = "<?php echo $sCbName; ?>";
+		the_p<?php echo $sUniqId; ?>.appendChild( the_lab<?php echo $sUniqId; ?> );
+		the_lab<?php echo $sUniqId; ?>.appendChild( the_cb<?php echo $sUniqId; ?> );
+		the_lab<?php echo $sUniqId; ?>.appendChild( the_txt<?php echo $sUniqId; ?> );
+
+		oThisForm.onsubmit = function () {
+			if ( the_cb<?php echo $sUniqId; ?>.checked !== true ) {
 				alert( "<?php echo $sAlert; ?>" );
 				return false;
 			}
 			return true;
-		}
+		};
 	}, false );
 
 </script>
 <noscript><?php echo $sMustJs; ?></noscript>
-<input type="hidden" id="icwp_wpsf_login_email" name="icwp_wpsf_login_email" value="" />
-
