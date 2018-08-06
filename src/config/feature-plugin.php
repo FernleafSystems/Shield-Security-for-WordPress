@@ -420,10 +420,6 @@
         "load_priority": 20
       },
       {
-        "slug":          "traffic",
-        "storage_key":   "traffic"
-      },
-      {
         "slug":        "hack_protect",
         "storage_key": "hack_protect"
       },
@@ -477,6 +473,10 @@
         "storage_key":   "audit_trail",
         "load_priority": 11,
         "hidden":        false
+      },
+      {
+        "slug":          "traffic",
+        "storage_key":   "traffic"
       },
       {
         "slug":          "license",

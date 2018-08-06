@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_TrafficEntry_Retrieve extends ICWP_WPSF_Query_Base {
 	}
 
 	/**
-	 * @return ICWP_WPSF_NoteVO[]|stdClass[]
+	 * @return ICWP_WPSF_TrafficEntryVO[]|stdClass[]
 	 */
 	public function all() {
 		return $this->query_retrieve();
@@ -52,7 +52,7 @@ class ICWP_WPSF_Query_TrafficEntry_Retrieve extends ICWP_WPSF_Query_Base {
 					  ->selectCustom( $sQuery, OBJECT_K );
 
 		if ( $this->isResultsAsVo() ) {
-			array_map(
+			$aData = array_map(
 				function ( $oResult ) {
 					return ( new ICWP_WPSF_TrafficEntryVO() )->setRawData( $oResult );
 				},
