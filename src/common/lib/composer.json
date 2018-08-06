@@ -20,7 +20,7 @@
   },
   "require":      {
     "fernleafsystems/utilities": "^1.0",
-    "nesbot/carbon":             "^1.22.0",
+    "nesbot/carbon":             "^1.32.0",
     "twig/twig":                 "^1.0",
     "bjeavons/zxcvbn-php":       "^0.3"
   },
