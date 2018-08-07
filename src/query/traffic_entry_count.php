@@ -1,12 +1,16 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Retrieve', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Count', false ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/traffic_entry_base.php' );
 
-class ICWP_WPSF_Query_TrafficEntry_Retrieve extends ICWP_WPSF_Query_TrafficEntry_Base {
+class ICWP_WPSF_Query_TrafficEntry_Count extends ICWP_WPSF_Query_TrafficEntry_Base {
+
+	public function __construct() {
+		$this->init();
+	}
 
 	/**
 	 * @return ICWP_WPSF_TrafficEntryVO[]|stdClass[]
@@ -57,5 +61,9 @@ class ICWP_WPSF_Query_TrafficEntry_Retrieve extends ICWP_WPSF_Query_TrafficEntry
 			);
 		}
 		return $aData;
+	}
+
+	protected function init() {
+		require_once( dirname( __FILE__ ).'/ICWP_WPSF_TrafficEntryVO.php' );
 	}
 }

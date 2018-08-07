@@ -98,7 +98,6 @@
       "ip",
       "path",
       "code",
-      "ref",
       "ua",
       "verb",
       "trans",

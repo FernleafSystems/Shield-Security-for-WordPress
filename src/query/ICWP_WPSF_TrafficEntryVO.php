@@ -7,7 +7,6 @@
  * @property string ip
  * @property string path
  * @property string code
- * @property string ref
  * @property string ua
  * @property string verb
  * @property bool   trans

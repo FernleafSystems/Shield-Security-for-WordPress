@@ -29,8 +29,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	public function onWpShutdown() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getFeature();
 		if ( $this->getIfLogRequest() ) {
 			$this->logTraffic();
 		}
@@ -171,7 +169,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->verb = $oDP->getRequestMethod();
 		$oEntry->path = $oDP->getRequestPath();
 		$oEntry->code = http_response_code();
-		$oEntry->ref = (string)$oDP->FetchServer( 'HTTP_REFERER' );
 		$oEntry->ua = (string)$oDP->FetchServer( 'HTTP_USER_AGENT' );
 		$oEntry->payload = json_encode( $this->getRequestPayload() );
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
@@ -229,10 +226,9 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 			ip varbinary(16) DEFAULT NULL,
 			path text NOT NULL DEFAULT '',
 			code int(5) NOT NULL DEFAULT '200',
-			ref text NOT NULL DEFAULT '',
-			ua text NOT NULL DEFAULT '',
 			verb varchar(10) NOT NULL DEFAULT 'get',
-			payload text NOT NULL DEFAULT '[]',
+			ua text,
+			payload text,
 			trans tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,

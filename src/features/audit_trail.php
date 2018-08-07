@@ -113,7 +113,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return int
 	 */
 	protected function getDefaultPerPage() {
-		return $this->getDefinition( 'audit_trail_default_per_page' );
+		return $this->getDef( 'audit_trail_default_per_page' );
 	}
 
 	/**
