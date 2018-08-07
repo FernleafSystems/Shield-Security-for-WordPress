@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	public function onWpInit() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
 			$oT = $this->getTrafficEntryRetrieve()
-					   ->retrieveById( 26 );
+					   ->retrieveById( 128 );
 		}
 	}
 
@@ -32,10 +32,124 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getFeature();
 
-		$bIsLog = $this->getIfLogRequest() && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() );
+		$bIsLog = $this->getIfLogRequest()
+				  && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() );
 		if ( $bIsLog ) {
 			$this->logTraffic();
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getIfLogRequest() {
+		$sIp = $this->ip();
+		return parent::getIfLogRequest()
+			   && !$this->isIp_Statuscake( $sIp )
+			   && !$this->isIp_Cloudflare( $sIp )
+			   && !$this->isIp_GoogleBot( $sIp, (string)$this->loadDP()->FetchServer( 'HTTP_USER_AGENT' ) )
+			   && !$this->isIp_UptimeRobot( $sIp )
+			   && !$this->isIp_Pingdom( $sIp );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	protected function isIp_Cloudflare( $sIp ) {
+		return $this->loadIpService()->isCloudFlareIp( $sIp );
+	}
+
+	/**
+	 * https://support.google.com/webmasters/answer/80553?hl=en
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	protected function isIp_GoogleBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_googlebot' ) );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpGoogleBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_googlebot' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	protected function isIp_Statuscake( $sIp ) {
+		return in_array( $sIp, $this->getIpsStatuscake() );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	protected function isIp_Pingdom( $sIp ) {
+		return in_array( $sIp, $this->getIpsPingdom()[ $this->loadIpService()->getIpVersion( $sIp ) ] );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	protected function isIp_UptimeRobot( $sIp ) {
+		return in_array( $sIp, $this->getIpsUptimeRobot()[ $this->loadIpService()->getIpVersion( $sIp ) ] );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getIpsStatuscake() {
+		$oWp = $this->loadWp();
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_statuscake' ) );
+		if ( empty( $aIps ) ) {
+			$aIps = $this->loadIpService()->getServiceIps_StatusCake();
+			$oWp->setTransient( $this->prefix( 'serviceips_statuscake' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+		return $aIps;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getIpsUptimeRobot() {
+		$oWp = $this->loadWp();
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_uptimerobot' ) );
+		if ( empty( $aIps ) ) {
+			$aIps = array(
+				4 => $this->loadIpService()->getServiceIps_UptimeRobot( 4 ),
+				6 => $this->loadIpService()->getServiceIps_UptimeRobot( 6 )
+			);
+			$oWp->setTransient( $this->prefix( 'serviceips_uptimerobot' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+		return $aIps;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getIpsPingdom() {
+		$oWp = $this->loadWp();
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_pingdom' ) );
+		if ( empty( $aIps ) ) {
+			var_dump( $aIps );
+			$aIps = array(
+				4 => $this->loadIpService()->getServiceIps_Pingdom( 4 ),
+				6 => $this->loadIpService()->getServiceIps_Pingdom( 6 )
+			);
+			$oWp->setTransient( $this->prefix( 'serviceips_pingdom' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+		return $aIps;
 	}
 
 	protected function logTraffic() {

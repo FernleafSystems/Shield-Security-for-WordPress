@@ -123,7 +123,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
-		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : true;
+		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !$this->loadWp()->isCron();
 	}
 
 	/**
