@@ -163,7 +163,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	protected function getCreateTableSql() {
 		$sSqlTables = "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				ip varchar(40) NOT NULL DEFAULT '0',
+				ip varchar(40) NOT NULL DEFAULT 0,
 				wp_username varchar(255) NOT NULL DEFAULT 'none',
 				context varchar(32) NOT NULL DEFAULT 'none',
 				event varchar(50) NOT NULL DEFAULT 'none',

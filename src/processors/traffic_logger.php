@@ -232,7 +232,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 			ref text NOT NULL DEFAULT '',
 			ua text NOT NULL DEFAULT '',
 			verb varchar(10) NOT NULL DEFAULT 'get',
-			payload text NOT NULL DEFAULT '',
+			payload text NOT NULL DEFAULT '[]',
 			trans tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
