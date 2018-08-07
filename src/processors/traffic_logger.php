@@ -31,10 +31,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	public function onWpShutdown() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getFeature();
-
-		$bIsLog = $this->getIfLogRequest()
-				  && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() );
-		if ( $bIsLog ) {
+		if ( $this->getIfLogRequest() ) {
 			$this->logTraffic();
 		}
 	}
@@ -43,13 +40,26 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
-		$sIp = $this->ip();
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getFeature();
 		return parent::getIfLogRequest()
-			   && !$this->isIp_Statuscake( $sIp )
-			   && !$this->isIp_Cloudflare( $sIp )
-			   && !$this->isIp_GoogleBot( $sIp, (string)$this->loadDP()->FetchServer( 'HTTP_USER_AGENT' ) )
-			   && !$this->isIp_UptimeRobot( $sIp )
-			   && !$this->isIp_Pingdom( $sIp );
+			   && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() )
+			   && !$this->isServiceIp();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isServiceIp() {
+		$sIp = $this->ip();
+		return !$this->loadWpUsers()->isUserLoggedIn() &&
+			   (
+				   $this->isIp_Statuscake( $sIp )
+				   || $this->isIp_Cloudflare( $sIp )
+				   || $this->isIp_UptimeRobot( $sIp )
+				   || $this->isIp_Pingdom( $sIp )
+				   || $this->isIp_GoogleBot( $sIp, (string)$this->loadDP()->FetchServer( 'HTTP_USER_AGENT' ) )
+			   );
 	}
 
 	/**
