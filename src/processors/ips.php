@@ -270,7 +270,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
 
-		if ( apply_filters( $oFO->prefix( 'ip_black_mark' ), false ) ) {
+		if ( $this->getIfIpTransgressed() ) {
 
 			// Never black mark IPs that are on the whitelist
 			$oIP = $this->loadIpService();

@@ -26,6 +26,11 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	private static $bRecaptchaEnqueue = false;
 
 	/**
+	 * @var bool
+	 */
+	private $bLogRequest;
+
+	/**
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
@@ -34,15 +39,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		add_filter( $oFO->prefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
-	}
-
-	/**
-	 * Used to mark an IP address for transgression/black-mark
-	 * @return $this
-	 */
-	public function setIpTransgressed() {
-		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
-		return $this;
 	}
 
 	/**
@@ -114,6 +110,38 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getIfIpTransgressed() {
+		return apply_filters( $this->getFeature()->prefix( 'ip_black_mark' ), false );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function getIfLogRequest() {
+		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : true;
+	}
+
+	/**
+	 * @param bool $bLog
+	 * @return $this
+	 */
+	protected function setIfLogRequest( $bLog ) {
+		$this->bLogRequest = $bLog;
+		return $this;
+	}
+
+	/**
+	 * Used to mark an IP address for transgression/black-mark
+	 * @return $this
+	 */
+	public function setIpTransgressed() {
+		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+		return $this;
 	}
 
 	/**

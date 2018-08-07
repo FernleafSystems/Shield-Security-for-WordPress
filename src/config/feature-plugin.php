@@ -476,7 +476,8 @@
       },
       {
         "slug":          "traffic",
-        "storage_key":   "traffic"
+        "storage_key":   "traffic",
+        "load_priority": 12
       },
       {
         "slug":          "license",

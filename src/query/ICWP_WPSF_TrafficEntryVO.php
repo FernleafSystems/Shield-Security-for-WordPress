@@ -10,6 +10,7 @@
  * @property string ref
  * @property string ua
  * @property string verb
+ * @property bool   trans
  * @property array  payload
  * @property array  payload_get
  * @property array  payload_post

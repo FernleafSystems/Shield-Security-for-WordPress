@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Traffic', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_TrafficLogger', false ) ) {
 	return;
 }
 
@@ -13,11 +13,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Traffic $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getTrafficTableName() );
+		$this->loadAutoload();
 	}
-
-	/**
-	 * Override to set what this processor does when it's "run"
-	 */
 
 	public function run() {
 		add_action( 'init', array( $this, 'onWpInit' ) );
@@ -26,21 +23,22 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	public function onWpInit() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			$oT = $this->getTrafficEntryRetrieve()
+					   ->retrieveById( 26 );
 		}
 	}
 
 	public function onWpShutdown() {
-		$this->logTraffic();
+		if ( $this->getIfLogRequest() ) {
+			$this->logTraffic();
+		}
 	}
 
 	protected function logTraffic() {
-		$oUsers = $this->loadWpUsers();
 		$oDP = $this->loadDP();
 
-		$oCreator = $this->getTrafficEntryCreator();
 		$oEntry = $this->getTrafficEntryVO();
-
-		$oEntry->uid = $oUsers->getCurrentWpUserId();
+		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
 		$oEntry->verb = $oDP->getRequestMethod();
 		$oEntry->path = $oDP->getRequestPath();
@@ -48,8 +46,9 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->ref = (string)$oDP->FetchServer( 'HTTP_REFERER' );
 		$oEntry->ua = (string)$oDP->FetchServer( 'HTTP_USER_AGENT' );
 		$oEntry->payload = json_encode( $this->getRequestPayload() );
+		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
-		$oCreator->create( $oEntry );
+		$this->getTrafficEntryCreator()->create( $oEntry );
 	}
 
 	/**
@@ -99,13 +98,14 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$sSqlTables = "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			uid int(11) UNSIGNED NOT NULL DEFAULT 0,
-			ip VARBINARY(16) DEFAULT NULL,
+			ip varbinary(16) DEFAULT NULL,
 			path text NOT NULL DEFAULT '',
 			code int(5) NOT NULL DEFAULT '200',
 			ref text NOT NULL DEFAULT '',
 			ua text NOT NULL DEFAULT '',
 			verb varchar(10) NOT NULL DEFAULT 'get',
 			payload text NOT NULL DEFAULT '',
+			trans tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
