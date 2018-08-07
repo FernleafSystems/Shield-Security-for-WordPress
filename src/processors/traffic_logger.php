@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		add_action( 'init', array( $this, 'onWpInit' ) );
-		add_action( 'shutdown', array( $this, 'onWpShutdown' ) );
+		add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'onWpShutdown' ) );
 	}
 
 	public function onWpInit() {
@@ -29,7 +29,11 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	public function onWpShutdown() {
-		if ( $this->getIfLogRequest() ) {
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getFeature();
+
+		$bIsLog = $this->getIfLogRequest() && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() );
+		if ( $bIsLog ) {
 			$this->logTraffic();
 		}
 	}

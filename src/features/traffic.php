@@ -9,6 +9,45 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getAutoCleanAge() {
+		$nAutoDays = $this->getOpt( 'auto_clean' );
+		if ( $nAutoDays < 1 ) {
+			$this->getOptionsVo()->resetOptToDefault( 'auto_clean' );
+			$nAutoDays = $this->getOpt( 'auto_clean' );
+		}
+		return $nAutoDays;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getDefaultMaxEntries() {
+		return $this->getDef( 'default_max_entries' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMaxEntries() {
+		$nMax = (int)$this->getOpt( 'max_entries' );
+		if ( $nMax < 0 ) {
+			$this->getOptionsVo()
+				 ->setOpt( 'max_entries', $this->getDefaultMaxEntries() );
+			$nMax = $this->getOpt( 'max_entries' );
+		}
+		return $nMax;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTrafficTableName() {
@@ -18,13 +57,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return bool
 	 */
-	public function isAutoAddSessions() {
-		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
-		if ( $nStartedAt < 1 ) {
-			$nStartedAt = $this->loadDP()->time();
-			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
-		}
-		return ( $this->loadDP()->time() - $nStartedAt ) < 20;
+	public function isLogUsers() {
+		return $this->getOptIs( 'log_users', 'Y' );
 	}
 
 	/**
@@ -52,7 +86,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Provides finer control over the live traffic system.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'These settings are dependent on your requirements.' ), _wpsf__( 'User Management' ) ) )
 				);
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				$sTitleShort = _wpsf__( 'Traffic Logging Options' );
 				break;
 
 			default:
@@ -78,6 +112,24 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				break;
+
+			case 'log_users' :
+				$sName = _wpsf__( 'Include Users' );
+				$sSummary = _wpsf__( 'Include Traffic From Logged-In Users' );
+				$sDescription = _wpsf__( 'Check this option on to include traffic requests from logged-in users.' );
+				break;
+
+			case 'auto_clean' :
+				$sName = _wpsf__( 'Auto Clean' );
+				$sSummary = _wpsf__( 'Enable Traffic Log Auto Cleaning' );
+				$sDescription = _wpsf__( 'Requests older than the number of days specified will be automatically cleaned from the database.' );
+				break;
+
+			case 'max_entries' :
+				$sName = _wpsf__( 'Max Log Length' );
+				$sSummary = _wpsf__( 'Maximum Traffic Log Length To Keep' );
+				$sDescription = _wpsf__( 'Automatically remove any traffic log entries when this limit is exceeded.' );
 				break;
 
 			default:

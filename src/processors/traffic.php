@@ -18,14 +18,14 @@ class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_TrafficLogger
 	 */
 	protected function getProcessorLogger() {
-		$oProc = $this->getSubProcessor( 'traffic_logger' );
-		if ( is_null( $oProc ) ) {
+		$oPro = $this->getSubProcessor( 'traffic_logger' );
+		if ( is_null( $oPro ) ) {
 			/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 			$oFO = $this->getFeature();
 			require_once( dirname( __FILE__ ).'/traffic_logger.php' );
-			$oProc = new ICWP_WPSF_Processor_TrafficLogger( $oFO );
-			$this->aSubProcessors[ 'traffic_logger' ] = $oProc;
+			$oPro = new ICWP_WPSF_Processor_TrafficLogger( $oFO );
+			$this->aSubProcessors[ 'traffic_logger' ] = $oPro;
 		}
-		return $oProc;
+		return $oPro;
 	}
 }

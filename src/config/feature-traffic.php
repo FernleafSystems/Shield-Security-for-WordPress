@@ -53,12 +53,44 @@
       "name": "Enable Live Traffic",
       "summary": "Enable (or Disable) The Live Traffic Module",
       "description": "Un-Checking this option will completely disable the Live Traffic module"
-
+    },
+    {
+      "key": "log_users",
+      "section": "section_traffic_options",
+      "default": "N",
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Include Users",
+      "summary": "Include Traffic From Logged-In Users",
+      "description": "Check this option on to include traffic requests from logged-in users."
+    },
+    {
+      "key": "auto_clean",
+      "section": "section_traffic_options",
+      "default": 3,
+      "type": "integer",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Auto Clean",
+      "summary": "Enable Traffic Log Auto Cleaning",
+      "description": "Requests older than the number of days specified will be automatically cleaned from the database."
+    },
+    {
+      "key": "max_entries",
+      "section": "section_traffic_options",
+      "default": 1000,
+      "type": "integer",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Max Log Length",
+      "summary": "Maximum Traffic Log Length To Keep",
+      "description": "Automatically remove any traffic log entries when this limit is exceeded."
     }
   ],
   "definitions": {
-    "audit_trail_default_per_page": 25,
-    "audit_trail_default_max_entries": 50,
+    "default_per_page": 25,
+    "default_max_entries": 1000,
     "traffic_table_name": "traffic",
     "traffic_table_columns": [
       "id",
