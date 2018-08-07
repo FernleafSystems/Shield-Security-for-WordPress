@@ -47,9 +47,23 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->code = http_response_code();
 		$oEntry->ref = (string)$oDP->FetchServer( 'HTTP_REFERER' );
 		$oEntry->ua = (string)$oDP->FetchServer( 'HTTP_USER_AGENT' );
-		$oEntry->payload = $oDP->isMethodPost() ? json_encode( $_POST ) : '';
+		$oEntry->payload = json_encode( $this->getRequestPayload() );
 
 		$oCreator->create( $oEntry );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getRequestPayload() {
+		$aP = array();
+		if ( !empty( $_GET ) ) {
+			$aP[ 'get' ] = $_GET;
+		}
+		if ( !empty( $_POST ) ) {
+			$aP[ 'post' ] = $_POST;
+		}
+		return $aP;
 	}
 
 	/**

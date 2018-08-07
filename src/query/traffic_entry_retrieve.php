@@ -21,10 +21,11 @@ class ICWP_WPSF_Query_TrafficEntry_Retrieve extends ICWP_WPSF_Query_Base {
 
 	/**
 	 * @param int $nId
-	 * @return ICWP_WPSF_TrafficEntryVO[]|stdClass[]
+	 * @return ICWP_WPSF_TrafficEntryVO|stdClass
 	 */
 	public function retrieveById( $nId ) {
-		return $this->query_retrieve( $nId );
+		$aItems = $this->query_retrieve( $nId );
+		return array_shift( $aItems );
 	}
 
 	/**
