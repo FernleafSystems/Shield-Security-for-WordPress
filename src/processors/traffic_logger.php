@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	public function onWpInit() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
 			$oT = $this->getTrafficEntryRetrieve()
-					   ->retrieveById( 128 );
+					   ->byId( 128 );
 		}
 	}
 
@@ -197,6 +197,14 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	public function getTrafficEntryCreator() {
 		require_once( $this->getQueryDir().'traffic_entry_create.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Create() )->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_TrafficEntry_Count
+	 */
+	public function getTrafficEntryCounter() {
+		require_once( $this->getQueryDir().'traffic_entry_count.php' );
+		return ( new ICWP_WPSF_Query_TrafficEntry_Count() )->setTable( $this->getTableName() );
 	}
 
 	/**

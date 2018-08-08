@@ -62,6 +62,79 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getContentCustomActionsData() {
+
+		return array(
+			'sLiveTrafficTable' => $this->renderLiveTraffic(),
+			'sTitle'            => _wpsf__( 'Audit Trail Viewer' ),
+			'ajax'              => array(
+				'render_audit_table' => $this->getAjaxActionData( 'render_audit_table', true )
+			)
+		);
+	}
+
+	/**
+	 * @param string $sContext
+	 * @param array  $aParams
+	 * @return string
+	 */
+	protected function renderLiveTraffic( $aParams = array() ) {
+		$oTable = $this->getTableRenderer();
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9_]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
+		$oAuditTrail = $this->loadProcessor();
+		$aEntries = $oAuditTrail->getAuditEntriesForContext(
+			$sContext,
+			$aParams[ 'orderby' ],
+			$aParams[ 'order' ],
+			$nPage,
+			$this->getDefaultPerPage()
+		);
+
+		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+			   ->setPerPage( $this->getDefaultPerPage() )
+			   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * @return LiveTrafficTable
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
+		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
+		$oTrafficPro = $this->loadProcessor();
+		$nCount = $oTrafficPro->getProcessorLogger()
+							  ->getTrafficEntryCounter()
+							  ->addWhere( '`id` > 5' )
+							  ->all();
+		var_dump( $nCount );
+		die();
+		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
