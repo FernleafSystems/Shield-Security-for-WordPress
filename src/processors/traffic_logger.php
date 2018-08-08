@@ -164,6 +164,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oDP = $this->loadDP();
 
 		$oEntry = $this->getTrafficEntryVO();
+		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
 		$oEntry->verb = $oDP->getRequestMethod();
@@ -222,6 +223,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function getCreateTableSql() {
 		$sSqlTables = "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			rid varchar(10) NOT NULL DEFAULT '',
 			uid int(11) UNSIGNED NOT NULL DEFAULT 0,
 			ip varbinary(16) DEFAULT NULL,
 			path text NOT NULL DEFAULT '',

@@ -3,6 +3,7 @@
 /**
  * Class ICWP_WPSF_LiveTrafficEntryVO
  * @property string id
+ * @property string rid
  * @property int    uid
  * @property string ip
  * @property string path

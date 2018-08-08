@@ -167,6 +167,7 @@
     "audit_trail_table_name": "audit_trail",
     "audit_trail_table_columns": [
       "id",
+      "rid",
       "wp_username",
       "ip",
       "context",

@@ -146,6 +146,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
+		$sReqId = $this->getController()->getShortRequestId();
 		foreach ( $aEntries as $aEntry ) {
 			if ( empty( $aEntry[ 'ip' ] ) ) {
 				$aEntry[ 'ip' ] = $this->ip();
@@ -153,6 +154,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			if ( is_array( $aEntry[ 'message' ] ) ) {
 				$aEntry[ 'message' ] = implode( ' ', $aEntry[ 'message' ] );
 			}
+			$aEntry[ 'rid' ] = $sReqId;
 			$this->insertData( $aEntry );
 		}
 	}
@@ -162,18 +164,19 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getCreateTableSql() {
 		$sSqlTables = "CREATE TABLE %s (
-				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				ip varchar(40) NOT NULL DEFAULT 0,
-				wp_username varchar(255) NOT NULL DEFAULT 'none',
-				context varchar(32) NOT NULL DEFAULT 'none',
-				event varchar(50) NOT NULL DEFAULT 'none',
-				category int(3) UNSIGNED NOT NULL DEFAULT 0,
-				message text,
-				immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
-				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				PRIMARY KEY  (id)
-			) %s;";
+			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			rid varchar(10) NOT NULL DEFAULT '',
+			ip varchar(40) NOT NULL DEFAULT 0,
+			wp_username varchar(255) NOT NULL DEFAULT 'none',
+			context varchar(32) NOT NULL DEFAULT 'none',
+			event varchar(50) NOT NULL DEFAULT 'none',
+			category int(3) UNSIGNED NOT NULL DEFAULT 0,
+			message text,
+			immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY  (id)
+		) %s;";
 		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 

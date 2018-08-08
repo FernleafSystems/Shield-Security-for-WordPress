@@ -94,6 +94,7 @@
     "traffic_table_name": "traffic",
     "traffic_table_columns": [
       "id",
+      "rid",
       "uid",
       "ip",
       "path",
