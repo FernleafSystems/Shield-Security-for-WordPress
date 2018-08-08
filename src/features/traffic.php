@@ -73,7 +73,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		return array(
 			'sLiveTrafficTable' => $this->renderLiveTraffic(),
-			'sTitle'            => _wpsf__( 'Audit Trail Viewer' ),
+			'sTitle'            => _wpsf__( 'Live Traffic Viewer' ),
 			'ajax'              => array(
 				'render_audit_table' => $this->getAjaxActionData( 'render_audit_table', true )
 			)
@@ -135,9 +135,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			foreach ( $aEntries as $nKey => $oEntry ) {
 
 				$aEntry = $oEntry->getRawDataAsArray();
+				$aPost = $oEntry->payload_post;
 
 				$aEntry[ 'ip' ] = $oEntry->ip;
-				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
+				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
+				$aEntry[ 'path' ] .= http_build_query( $oEntry->payload_get );
+				$aEntry[ 'payload' ] = empty( $aPost ) ? 'none' : var_export( $aPost );
 				if ( $aEntry[ 'ip' ] == $sYou ) {
 					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
 				}
