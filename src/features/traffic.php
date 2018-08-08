@@ -8,6 +8,11 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		parent::doPostConstruction();
+		$this->loadAutoload();
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -100,15 +105,15 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		);
 		$nPage = (int)$aParams[ 'paged' ];
 
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadProcessor();
-		$aEntries = $oAuditTrail->getAuditEntriesForContext(
-			$sContext,
-			$aParams[ 'orderby' ],
-			$aParams[ 'order' ],
-			$nPage,
-			$this->getDefaultPerPage()
-		);
+		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
+		$oTrafficPro = $this->loadProcessor();
+		$aEntries = $oTrafficPro->getProcessorLogger()
+								->getTrafficEntryRetriever()
+								->setPage( $nPage )
+								->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+								->setLimit( $this->getDefaultPerPage() )
+								->setResultsAsVo( true )
+								->query();
 
 		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
 			   ->setPerPage( $this->getDefaultPerPage() )
@@ -119,19 +124,48 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * Move to table
+	 * @param ICWP_WPSF_TrafficEntryVO[] $aEntries
+	 * @return array
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		$sYou = $this->loadIpService()->getRequestIp();
+
+		if ( is_array( $aEntries ) ) {
+			foreach ( $aEntries as $nKey => $oEntry ) {
+
+				$aEntry = $oEntry->getRawDataAsArray();
+
+				$aEntry[ 'ip' ] = $oEntry->ip;
+				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
+				if ( $aEntry[ 'ip' ] == $sYou ) {
+					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
+				}
+
+				$aEntries[ $nKey ] = $aEntry;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
 	 * @return LiveTrafficTable
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
+		$this->requireCommonLib( 'Components/Tables/LiveTrafficTable.php' );
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
 		$nCount = $oTrafficPro->getProcessorLogger()
 							  ->getTrafficEntryCounter()
-							  ->addWhere( '`id` > 5' )
 							  ->all();
-		var_dump( $nCount );
-		die();
 		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getDefaultPerPage() {
+		return $this->getDef( 'default_per_page' );
 	}
 
 	/**

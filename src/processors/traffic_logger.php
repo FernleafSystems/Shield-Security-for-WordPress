@@ -13,7 +13,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Traffic $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getTrafficTableName() );
-		$this->loadAutoload();
 	}
 
 	public function run() {
@@ -23,7 +22,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	public function onWpInit() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-			$oT = $this->getTrafficEntryRetrieve()
+			$oT = $this->getTrafficEntryRetriever()
 					   ->byId( 128 );
 		}
 	}
@@ -210,7 +209,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Retrieve
 	 */
-	public function getTrafficEntryRetrieve() {
+	public function getTrafficEntryRetriever() {
 		require_once( $this->getQueryDir().'traffic_entry_retrieve.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Retrieve() )
 			->setTable( $this->getTableName() )

@@ -6,7 +6,7 @@ if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Count', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base.php' );
 
-class ICWP_WPSF_Query_TrafficEntry_Count extends ICWP_WPSF_Query_Base {
+class ICWP_WPSF_Query_TrafficEntry_Count extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
 	 * @return int

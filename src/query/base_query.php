@@ -1,10 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Base', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_BaseQuery', false ) ) {
 	return;
 }
 
-class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
+abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @var bool
@@ -49,7 +49,7 @@ class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function addWhere( $sColumn, $mValue, $sOperator = '=' ) {
 		$aWhere = $this->getWheres();
-		$aWhere[] = sprintf( '`%s`%s"%s"', esc_sql( $sColumn ), esc_sql( $mValue ), $sOperator );
+		$aWhere[] = sprintf( '`%s`%s"%s"', esc_sql( $sColumn ), $sOperator, esc_sql( $mValue ) );
 		return $this->setWheres( $aWhere );
 	}
 
@@ -131,6 +131,11 @@ class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return mixed
+	 */
+	abstract public function query();
+
+	/**
 	 * @return int
 	 */
 	public function getLimit() {
@@ -158,7 +163,7 @@ class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getOrderBy() {
-		return isset( $this->sOrderBy ) ? $this->sOrderBy : 'ORDER BY `created_at` DESC';
+		return !empty( $this->sOrderBy ) ? $this->sOrderBy : 'ORDER BY `created_at` DESC';
 	}
 
 	/**
@@ -232,7 +237,12 @@ class ICWP_WPSF_Query_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function setOrderBy( $sOrderByColumn, $sOrder = 'DESC' ) {
-		$this->sOrderBy = sprintf( 'ORDER BY `%s` %s', $sOrderByColumn, $sOrder );
+		if ( empty( $sOrderByColumn ) ) {
+			$this->sOrderBy = '';
+		}
+		else {
+			$this->sOrderBy = sprintf( 'ORDER BY `%s` %s', esc_sql( $sOrderByColumn ), esc_sql( $sOrder ) );
+		}
 		return $this;
 	}
 
