@@ -135,12 +135,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			foreach ( $aEntries as $nKey => $oEntry ) {
 
 				$aEntry = $oEntry->getRawDataAsArray();
+				$aGet = $oEntry->payload_get;
 				$aPost = $oEntry->payload_post;
-
 				$aEntry[ 'ip' ] = $oEntry->ip;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
-				$aEntry[ 'path' ] .= http_build_query( $oEntry->payload_get );
-				$aEntry[ 'payload' ] = empty( $aPost ) ? 'none' : var_export( $aPost );
+				$aEntry[ 'path' ] .= !empty( $aGet ) ? '?'.http_build_query( $oEntry->payload_get ) : '';
+				$aEntry[ 'payload' ] = $oEntry->payload_post;
 				if ( $aEntry[ 'ip' ] == $sYou ) {
 					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
 				}
