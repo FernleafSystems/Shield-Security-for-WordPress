@@ -72,11 +72,39 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getContentCustomActionsData() {
 
 		return array(
-			'sLiveTrafficTable' => $this->renderLiveTraffic(),
+			'sLiveTrafficTable' => $this->renderLiveTrafficTable(),
 			'sTitle'            => _wpsf__( 'Live Traffic Viewer' ),
 			'ajax'              => array(
-				'render_audit_table' => $this->getAjaxActionData( 'render_audit_table', true )
+				'render_table' => $this->getAjaxActionData( 'render_traffic_table', true )
 			)
+		);
+	}
+
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'render_traffic_table':
+					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	protected function ajaxExec_RenderAuditTable() {
+		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
+		return array(
+			'success' => true,
+			'html'    => $this->renderLiveTrafficTable( $aParams )
 		);
 	}
 
@@ -85,7 +113,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @param array  $aParams
 	 * @return string
 	 */
-	protected function renderLiveTraffic( $aParams = array() ) {
+	protected function renderLiveTrafficTable( $aParams = array() ) {
 		$oTable = $this->getTableRenderer();
 
 		// clean any params of nonsense
@@ -114,7 +142,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 								->setLimit( $this->getDefaultPerPage() )
 								->setResultsAsVo( true )
 								->query();
-
 		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
 			   ->setPerPage( $this->getDefaultPerPage() )
 			   ->prepare_items();

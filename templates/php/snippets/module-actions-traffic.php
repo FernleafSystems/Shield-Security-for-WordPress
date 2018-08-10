@@ -37,8 +37,7 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 		$oMainContainer.html( '' );
 
-		var requestData = <?php echo $ajax['render_audit_table']; ?>;
-		requestData[ 'auditcontext' ] = $oMainContainer.data( 'auditcontext' );
+		var requestData = <?php echo $ajax['render_table']; ?>;
 
 		jQuery.post( ajaxurl, jQuery.extend( aTableRequestParams, requestData ),
 			function ( oResponse ) {
@@ -110,10 +109,6 @@ var iCWP_WPSF_AuditTrailTable = new function () {
 		jQuery( document ).ready( setHandlers );
 	};
 }();
-
-jQuery( function () {
-	jQuery( '#AuditTrailTabs > ul a:first' ).tab( 'show' );
-} );
 
 iCWP_WPSF_AuditTrailTable.initialise();
 
