@@ -204,8 +204,13 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function formatEntriesForDisplay( $aEntries ) {
 
 		if ( is_array( $aEntries ) ) {
+			$oWpUsers = $this->loadWpUsers();
+			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();
-			$sHome = $this->loadWp()->getHomeUrl();
+
+			$aUsers = array( _wpsf__( 'No' ) );
+			$aIpTrans = array( 0 );
+
 			foreach ( $aEntries as $nKey => $oEntry ) {
 
 				$aEntry = $oEntry->getRawDataAsArray();
@@ -217,6 +222,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				if ( $aEntry[ 'ip' ] == $sYou ) {
 					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
 				}
+
+				if ( $oEntry->uid > 0 ) {
+					if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
+						$aUsers[ $oEntry->uid ] = $oWpUsers->getUserById( $oEntry->uid )->user_login;
+					}
+				}
+
+				$sCountry = $oGeo->country( $oEntry->ip );
+				$aDetails = array(
+					sprintf( '%s - %s', _wpsf__( 'IP' ), $oEntry->ip ),
+					sprintf( '%s - %s', _wpsf__( 'Location' ), empty( $sCountry ) ? _wpsf__( 'Unknown' ) : $sCountry ),
+					sprintf( '%s - %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] )
+				);
+				$aEntry[ 'visitor' ] = implode( '<br/>', $aDetails );
 
 				$aEntries[ $nKey ] = $aEntry;
 			}

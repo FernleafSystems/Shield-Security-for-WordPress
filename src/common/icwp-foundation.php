@@ -81,6 +81,10 @@ class ICWP_WPSF_Foundation {
 	 * @var ICWP_WPSF_WpUpgrades
 	 */
 	private static $oUpgrades;
+	/**
+	 * @var ICWP_WPSF_GeoIp2
+	 */
+	private static $oGeoIp2;
 
 	/**
 	 * @return ICWP_WPSF_DataProcessor
@@ -307,6 +311,17 @@ class ICWP_WPSF_Foundation {
 			self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
 		}
 		return self::$oWpComments;
+	}
+
+	/**
+	 * @return ICWP_WPSF_GeoIp2
+	 */
+	static public function loadGeoIp2() {
+		if ( !isset( self::$oGeoIp2 ) ) {
+			self::requireCommonLib( 'icwp-geoip2.php' );
+			self::$oGeoIp2 = ICWP_WPSF_GeoIp2::GetInstance();
+		}
+		return self::$oGeoIp2;
 	}
 
 	/**
