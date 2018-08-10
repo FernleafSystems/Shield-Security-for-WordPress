@@ -155,7 +155,6 @@
       "link_blog": "https://icwp.io/wpsf21",
       "summary": "Restrict Access To Key WordPress Plugin Actions",
       "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
-
     },
     {
       "key": "admin_access_restrict_themes",

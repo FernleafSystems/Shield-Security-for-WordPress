@@ -39,25 +39,47 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function getIfLogRequest() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getFeature();
+		$oWp = $this->loadWp();
+		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
-			   && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() )
-			   && $this->loadIpService()->isValidIp_PublicRange( $this->ip() )
-			   && !$this->isServiceIp();
+			   && ( $oFO->isIncluded_LoggedInUser() || !$bLoggedIn )
+			   && ( $oFO->isIncluded_Ajax() || !$oWp->isAjax() )
+			   && ( $oFO->isIncluded_Cron() || !$oWp->isCron() )
+			   && (
+				   $bLoggedIn || // only run these service IP checks if not logged in.
+				   (
+					   ( $oFO->isIncluded_Search() || !$this->isServiceIp_Search() )
+					   && ( $oFO->isIncluded_Uptime() || !$this->isServiceIp_Uptime() )
+				   )
+			   );
 	}
 
 	/**
+	 * Best to check for logged-in status before using this
 	 * @return bool
 	 */
 	protected function isServiceIp() {
+		return ( $this->isServiceIp_Uptime() || $this->isServiceIp_Search() );
+	}
+
+	/**
+	 * TODO: Other search engines
+	 * @return bool
+	 */
+	protected function isServiceIp_Search() {
 		$sIp = $this->ip();
-		return !$this->loadWpUsers()->isUserLoggedIn() &&
-			   (
-				   $this->isIp_Statuscake( $sIp )
-				   || $this->isIp_Cloudflare( $sIp )
-				   || $this->isIp_UptimeRobot( $sIp )
-				   || $this->isIp_Pingdom( $sIp )
-				   || $this->isIp_GoogleBot( $sIp, (string)$this->loadDP()->FetchServer( 'HTTP_USER_AGENT' ) )
-			   );
+		return $this->isIp_GoogleBot( $sIp, (string)$this->loadDP()->FetchServer( 'HTTP_USER_AGENT' ) );
+	}
+
+	/**
+	 * TODO: Other search engines
+	 * @return bool
+	 */
+	protected function isServiceIp_Uptime() {
+		$sIp = $this->ip();
+		return $this->isIp_Statuscake( $sIp )
+			   || $this->isIp_UptimeRobot( $sIp )
+			   || $this->isIp_Pingdom( $sIp );
 	}
 
 	/**

@@ -17,7 +17,10 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
+		$oIp = $this->loadIpService();
+		return parent::isReadyToExecute()
+			   && $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
+			   && !$this->isVisitorWhitelisted();
 	}
 
 	/**
@@ -37,6 +40,49 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getDefaultMaxEntries() {
 		return $this->getDef( 'default_max_entries' );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getExclusions() {
+		$aEx = $this->getOpt( 'type_exclusions' );
+		return is_array( $aEx ) ? $aEx : array();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncluded_Ajax() {
+		return !in_array( 'ajax', $this->getExclusions() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncluded_Cron() {
+		return !in_array( 'cron', $this->getExclusions() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncluded_LoggedInUser() {
+		return !in_array( 'logged_in', $this->getExclusions() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncluded_Search() {
+		return !in_array( 'search', $this->getExclusions() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncluded_Uptime() {
+		return !in_array( 'uptime', $this->getExclusions() );
 	}
 
 	/**
@@ -63,7 +109,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	public function isLogUsers() {
-		return $this->getOptIs( 'log_users', 'Y' );
+		return $this->isIncluded_LoggedInUser();
 	}
 
 	/**
@@ -156,18 +202,18 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	public function formatEntriesForDisplay( $aEntries ) {
-		$sYou = $this->loadIpService()->getRequestIp();
 
 		if ( is_array( $aEntries ) ) {
+			$sYou = $this->loadIpService()->getRequestIp();
+			$sHome = $this->loadWp()->getHomeUrl();
 			foreach ( $aEntries as $nKey => $oEntry ) {
 
 				$aEntry = $oEntry->getRawDataAsArray();
-				$aGet = $oEntry->payload_get;
-				$aPost = $oEntry->payload_post;
+
+				$aEntry[ 'path' ] = strtoupper( $oEntry->verb ).': '.esc_url( $oEntry->path );
+
 				$aEntry[ 'ip' ] = $oEntry->ip;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
-				$aEntry[ 'path' ] .= !empty( $aGet ) ? '?'.http_build_query( $oEntry->payload_get ) : '';
-				$aEntry[ 'payload' ] = $oEntry->payload_post;
 				if ( $aEntry[ 'ip' ] == $sYou ) {
 					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
 				}
@@ -251,10 +297,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
 				break;
 
-			case 'log_users' :
-				$sName = _wpsf__( 'Include Users' );
-				$sSummary = _wpsf__( 'Include Traffic From Logged-In Users' );
-				$sDescription = _wpsf__( 'Check this option on to include traffic requests from logged-in users.' );
+			case 'type_exclusions' :
+				$sName = _wpsf__( 'Traffic Log Exclusions' );
+				$sSummary = _wpsf__( 'Select Which Types Of Requests To Exclude' );
+				$sDescription = _wpsf__( "Select request types that you don't want to appear in the traffic viewer." )
+								.'<br/>'._wpsf__( 'If a request matches any exclusion rule, it will not show on the traffic viewer.' );
 				break;
 
 			case 'auto_clean' :

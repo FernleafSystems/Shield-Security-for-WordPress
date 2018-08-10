@@ -55,15 +55,41 @@
       "description": "Un-Checking this option will completely disable the Live Traffic module"
     },
     {
-      "key": "log_users",
+      "key": "type_exclusions",
       "section": "section_traffic_options",
-      "default": "N",
-      "type": "checkbox",
+      "type": "multiple_select",
+      "default": [ "logged_in", "cron", "search", "uptime" ],
+      "value_options": [
+        {
+          "value_key": "api",
+          "text": "REST API"
+        },
+        {
+          "value_key": "ajax",
+          "text": "AJAX"
+        },
+        {
+          "value_key": "logged_in",
+          "text": "Logged-In Users"
+        },
+        {
+          "value_key": "cron",
+          "text": "WP CRON"
+        },
+        {
+          "value_key": "search",
+          "text": "Google Bot"
+        },
+        {
+          "value_key": "uptime",
+          "text": "Uptime Monitoring Services (e.g. Pingdom)"
+        }
+      ],
       "link_info": "",
       "link_blog": "",
-      "name": "Include Users",
-      "summary": "Include Traffic From Logged-In Users",
-      "description": "Check this option on to include traffic requests from logged-in users."
+      "name": "Traffic Log Exclusions",
+      "summary": "Select Which Types Of Requests To Exclude",
+      "description": "Deselect any requests that you don't want to appear in the traffic viewer."
     },
     {
       "key": "auto_clean",
