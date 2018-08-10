@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseRetrieve', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_BaseSelect', false ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/base_query.php' );
 
-class ICWP_WPSF_Query_BaseRetrieve extends ICWP_WPSF_Query_BaseQuery {
+class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
 	 * @return stdClass[]

@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Retrieve', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Select', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_retrieve.php' );
+require_once( dirname( __FILE__ ).'/base_select.php' );
 
-class ICWP_WPSF_Query_TrafficEntry_Retrieve extends ICWP_WPSF_Query_BaseRetrieve {
+class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	public function __construct() {
 		require_once( dirname( __FILE__ ).'/ICWP_WPSF_TrafficEntryVO.php' );
