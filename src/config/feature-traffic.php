@@ -102,7 +102,6 @@
       "ua",
       "verb",
       "trans",
-      "payload",
       "created_at",
       "deleted_at"
     ]

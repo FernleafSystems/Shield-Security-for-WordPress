@@ -41,6 +41,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getFeature();
 		return parent::getIfLogRequest()
 			   && ( $oFO->isLogUsers() || !$this->loadWpUsers()->isUserLoggedIn() )
+			   && $this->loadIpService()->isValidIp_PublicRange( $this->ip() )
 			   && !$this->isServiceIp();
 	}
 
@@ -149,7 +150,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oWp = $this->loadWp();
 		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_pingdom' ) );
 		if ( empty( $aIps ) ) {
-			var_dump( $aIps );
 			$aIps = array(
 				4 => $this->loadIpService()->getServiceIps_Pingdom( 4 ),
 				6 => $this->loadIpService()->getServiceIps_Pingdom( 6 )
@@ -161,33 +161,17 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	protected function logTraffic() {
 		$oDP = $this->loadDP();
-
 		$oEntry = $this->getTrafficEntryVO();
 		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
 		$oEntry->verb = $oDP->getRequestMethod();
-		$oEntry->path = $oDP->getRequestPath();
+		$oEntry->path = $oDP->getRequestPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
 		$oEntry->ua = (string)$oDP->FetchServer( 'HTTP_USER_AGENT' );
-		$oEntry->payload = json_encode( $this->getRequestPayload() );
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
 		$this->getTrafficEntryCreator()->create( $oEntry );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getRequestPayload() {
-		$aP = array();
-		if ( !empty( $_GET ) ) {
-			$aP[ 'get' ] = $_GET;
-		}
-		if ( !empty( $_POST ) ) {
-			$aP[ 'post' ] = $_POST;
-		}
-		return $aP;
 	}
 
 	/**
@@ -237,7 +221,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 			code int(5) NOT NULL DEFAULT '200',
 			verb varchar(10) NOT NULL DEFAULT 'get',
 			ua text,
-			payload text,
 			trans tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
