@@ -14,6 +14,16 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * We clean the database after saving.
+	 */
+	protected function doPrePluginOptionsSave() {
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getProcessorLogger()
+			 ->cleanupDatabase();
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
@@ -26,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return int
 	 */
-	protected function getAutoCleanAge() {
+	public function getAutoCleanDays() {
 		$nAutoDays = $this->getOpt( 'auto_clean' );
 		if ( $nAutoDays < 1 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'auto_clean' );

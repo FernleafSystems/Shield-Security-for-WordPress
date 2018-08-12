@@ -86,7 +86,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function buildOffsetPhrase() {
+	protected function buildOffsetPhrase() {
 		return $this->hasLimit() ? sprintf( 'OFFSET %s', $this->getOffset() ) : '';
 	}
 

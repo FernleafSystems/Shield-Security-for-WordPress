@@ -33,6 +33,27 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		}
 	}
 
+	public function cleanupDatabase() {
+		parent::cleanupDatabase(); // Deletes based on time.
+		$this->trimTable();
+	}
+
+	protected function trimTable() {
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getFeature();
+		try {
+			$nCount = $this->getTrafficEntryCounter()
+						   ->all();
+			$nToDelete = $nCount - $oFO->getMaxEntries();
+			if ( $nToDelete > 0 ) {
+				$this->getTrafficEntryDeleter()
+					 ->deleteExcess( $nToDelete );
+			}
+		}
+		catch ( Exception $oE ) {
+		}
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -72,7 +93,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * TODO: Other search engines
 	 * @return bool
 	 */
 	protected function isServiceIp_Uptime() {
@@ -213,6 +233,14 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Query_TrafficEntry_Delete
+	 */
+	public function getTrafficEntryDeleter() {
+		require_once( $this->getQueryDir().'traffic_entry_delete.php' );
+		return ( new ICWP_WPSF_Query_TrafficEntry_Delete() )->setTable( $this->getTableName() );
+	}
+
+	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Select
 	 */
 	public function getTrafficEntrySelector() {
@@ -228,6 +256,15 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function getTrafficEntryVO() {
 		require_once( $this->getQueryDir().'ICWP_WPSF_TrafficEntryVO.php' );
 		return new ICWP_WPSF_TrafficEntryVO();
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getAutoExpirePeriod() {
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
 	}
 
 	/**
