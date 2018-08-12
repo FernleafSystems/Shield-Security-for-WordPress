@@ -213,12 +213,13 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$aIpTrans = array( 0 );
 
 			foreach ( $aEntries as $nKey => $oEntry ) {
+				$sIp = $oEntry->ip;
 
 				$aEntry = $oEntry->getRawDataAsArray();
 
 				$aEntry[ 'path' ] = strtoupper( $oEntry->verb ).': '.esc_url( $oEntry->path );
 
-				$aEntry[ 'ip' ] = $oEntry->ip;
+				$aEntry[ 'ip' ] = $sIp;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
 				if ( $aEntry[ 'ip' ] == $sYou ) {
 					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
@@ -230,16 +231,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					}
 				}
 
-				$sCountry = $oGeo->countryName( $oEntry->ip );
+				$sCountry = $oGeo->countryName( $sIp );
 				if ( empty( $sCountry ) ) {
 					$sCountry = _wpsf__( 'Unknown' );
 				}
 				else {
-					$sFlag = $oCon->getPluginUrl_Image( 'flags/'.strtolower( $oGeo->countryIso( $oEntry->ip ) ).'.png' );
+					$sFlag = $oCon->getPluginUrl_Image( 'flags/'.strtolower( $oGeo->countryIso( $sIp ) ).'.png' );
 					$sCountry = sprintf( '<img class="icon-flag" src="%s"/> %s', $sFlag, $sCountry );
 				}
+
+				$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>',
+					$this->getIpWhoisLookup( $sIp ), $sIp );
+
 				$aDetails = array(
-					sprintf( '%s - %s', _wpsf__( 'IP' ), $oEntry->ip ),
+					sprintf( '%s - %s', _wpsf__( 'IP' ), $sIpLink ),
 					sprintf( '%s - %s', _wpsf__( 'Location' ), $sCountry ),
 					sprintf( '%s - %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] )
 				);
@@ -249,6 +254,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			}
 		}
 		return $aEntries;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return string
+	 */
+	protected function getIpWhoisLookup( $sIp ) {
+		return sprintf( 'https://apps.db.ripe.net/db-web-ui/#/query?bflag&searchtext=%s#resultsSection', $sIp );
 	}
 
 	/**
