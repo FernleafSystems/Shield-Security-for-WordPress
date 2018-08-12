@@ -3,6 +3,21 @@
 		<?php echo $sLiveTrafficTable; ?>
 	</div>
 
+<style>
+	th.column-created_at {
+		width: 130px;
+	}
+	th.column-path {
+		width: 200px;
+	}
+	th.column-trans {
+		width: 130px;
+	}
+	th.column-code {
+		width: 100px;
+	}
+</style>
+
 <script>
 
 var iCWP_WPSF_AuditTrailTable = new function () {

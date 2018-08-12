@@ -23,7 +23,7 @@ class LiveTrafficTable extends ICWP_BaseTable {
 			'created_at' => 'Date',
 			'visitor'    => 'Visitor Details',
 			'path'       => 'Page',
-			'code'       => 'Response Code',
+			'code'       => 'Response',
 			'trans'      => 'Transgression',
 		);
 	}

@@ -217,8 +217,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 				$aEntry = $oEntry->getRawDataAsArray();
 
-				$aEntry[ 'path' ] = strtoupper( $oEntry->verb ).': '.esc_url( $oEntry->path );
-
+				$aEntry[ 'path' ] = strtoupper( $oEntry->verb ).': <span>'.esc_url( $oEntry->path ).'</span>';
+				$aEntry[ 'trans' ] = $oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' );
 				$aEntry[ 'ip' ] = $sIp;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
 				if ( $aEntry[ 'ip' ] == $sYou ) {
@@ -245,8 +245,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 				$aDetails = array(
 					sprintf( '%s - %s', _wpsf__( 'IP' ), $sIpLink ),
+					sprintf( '%s - %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
 					sprintf( '%s - %s', _wpsf__( 'Location' ), $sCountry ),
-					sprintf( '%s - %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] )
+					esc_html( esc_js( sprintf( '%s - %s', _wpsf__( 'User Agent' ), $oEntry->ua ) ) )
 				);
 				$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
