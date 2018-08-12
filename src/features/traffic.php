@@ -204,6 +204,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function formatEntriesForDisplay( $aEntries ) {
 
 		if ( is_array( $aEntries ) ) {
+			$oCon = $this->getController();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();
@@ -229,13 +230,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					}
 				}
 
-				$sCountry = $oGeo->country( $oEntry->ip );
+				$sCountry = $oGeo->countryName( $oEntry->ip );
+				if ( empty( $sCountry ) ) {
+					$sCountry = _wpsf__( 'Unknown' );
+				}
+				else {
+					$sFlag = $oCon->getPluginUrl_Image( 'flags/'.strtolower( $oGeo->countryIso( $oEntry->ip ) ).'.png' );
+					$sCountry = sprintf( '<img class="icon-flag" src="%s"/> %s', $sFlag, $sCountry );
+				}
 				$aDetails = array(
 					sprintf( '%s - %s', _wpsf__( 'IP' ), $oEntry->ip ),
-					sprintf( '%s - %s', _wpsf__( 'Location' ), empty( $sCountry ) ? _wpsf__( 'Unknown' ) : $sCountry ),
+					sprintf( '%s - %s', _wpsf__( 'Location' ), $sCountry ),
 					sprintf( '%s - %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] )
 				);
-				$aEntry[ 'visitor' ] = implode( '<br/>', $aDetails );
+				$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
 				$aEntries[ $nKey ] = $aEntry;
 			}

@@ -32,19 +32,44 @@ class ICWP_WPSF_GeoIp2 extends ICWP_WPSF_Foundation {
 	 * @param string $sIP
 	 * @return string
 	 */
-	public function country( $sIP ) {
+	public function countryName( $sIP ) {
 		$sCountry = '';
+		$oCountry = $this->getRegisteredCountry( $sIP );
+		if ( !is_null( $oCountry ) ) {
+			$sLoc = explode( '-', $this->loadWp()->getLocale() )[ 0 ];
+			$sCountry = isset( $oCountry->names[ $sLoc ] ) ? $oCountry->names[ $sLoc ] : $oCountry->name;
+		}
+		return $sCountry;
+	}
+
+	/**
+	 * @param string $sIP
+	 * @return string
+	 */
+	public function countryIso( $sIP ) {
+		$sIso = '';
+		$oCountry = $this->getRegisteredCountry( $sIP );
+		if ( !is_null( $oCountry ) ) {
+			$sIso = $oCountry->isoCode;
+		}
+		return $sIso;
+	}
+
+	/**
+	 * @param string $sIP
+	 * @return \GeoIp2\Record\Country|null
+	 */
+	public function getRegisteredCountry( $sIP ) {
+		$oCountry = null;
 		if ( $this->isReady() ) {
 			try {
 				$oCountry = $this->getReader()
 								 ->country( $sIP )->registeredCountry;
-				$sLoc = explode( '-', $this->loadWp()->getLocale() )[ 0 ];
-				$sCountry = isset( $oCountry->names[ $sLoc ] ) ? $oCountry->names[ $sLoc ] : $oCountry->name;
 			}
 			catch ( Exception $oe ) {
 			}
 		}
-		return $sCountry;
+		return $oCountry;
 	}
 
 	/**
