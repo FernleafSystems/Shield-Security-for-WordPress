@@ -212,9 +212,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 				/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 				$oFO = $this->getFeature();
 				$oSessProcessor = $oFO->getSessionsProcessor();
-
-				for ( $nCount = 0 ; $nCount < $nSessionsToKill ; $nCount++ ) {
-					$oSessProcessor->queryTerminateSession( $aSessions[ $nCount ] );
+				$nCount = 0;
+				foreach ( $aSessions as $oSession ) {
+					if ( $nCount < $nSessionsToKill ) {
+						$oSessProcessor->queryTerminateSession( $oSession );
+					}
+					$nCount++;
 				}
 			}
 		}

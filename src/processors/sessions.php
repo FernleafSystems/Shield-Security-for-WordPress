@@ -54,10 +54,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
 	 */
 	public function onWpClearAuthCookie() {
 		$this->terminateCurrentSession();

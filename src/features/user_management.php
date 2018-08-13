@@ -123,6 +123,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
+	protected function doPrePluginOptionsSave() {
+		if ( $this->getSessionIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
+			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
+		}
+	}
+
 	protected function doExtraSubmitProcessing() {
 		$sAdminEmail = $this->getOpt( 'enable_admin_login_email_notification' );
 		if ( !$this->loadDP()->validEmail( $sAdminEmail ) ) {

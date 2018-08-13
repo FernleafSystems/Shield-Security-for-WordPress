@@ -109,7 +109,7 @@
     {
       "key": "session_idle_timeout_interval",
       "section": "section_user_session_management",
-      "default": 0,
+      "default": 48,
       "type": "integer",
       "link_info": "",
       "link_blog": "",
