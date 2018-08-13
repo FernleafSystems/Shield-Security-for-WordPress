@@ -673,7 +673,7 @@ input:checked + .icwp-slider:before {
 	left: 1px;
 }
 #ColumnModules {
-	max-width: 130px;
+	max-width: 128px;
 	border-right: 1px solid #ccc;
 }
 #ColumnOptions {
@@ -695,7 +695,7 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module {
 	font-size: 15px;
-	padding: 0.7rem 1.1rem 0.7rem 1.2rem;
+	padding: 0.7rem 0.9rem 0.7rem 1.2rem;
 	color: #222222;
 	font-weight: bolder;
 	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
