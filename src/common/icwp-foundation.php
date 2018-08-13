@@ -200,7 +200,7 @@ class ICWP_WPSF_Foundation {
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::requireCommonLib( $sKey.'.php' );
 			$oR = ICWP_WPSF_Render::GetInstance()
-								  ->setAutoloaderPath( dirname( __FILE__ ).'/Twig'.DIRECTORY_SEPARATOR.'Autoloader.php' );
+								  ->setAutoloaderPath( dirname( __FILE__ ).'/Twig/Autoloader.php' );
 			self::setService( $sKey, $oR );
 		}
 

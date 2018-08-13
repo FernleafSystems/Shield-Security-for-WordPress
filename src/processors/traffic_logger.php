@@ -16,15 +16,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	public function run() {
-		add_action( 'init', array( $this, 'onWpInit' ) );
 		add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'onWpShutdown' ) );
-	}
-
-	public function onWpInit() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-			$oT = $this->getTrafficEntrySelector()
-					   ->byId( 128 );
-		}
 	}
 
 	public function onWpShutdown() {
@@ -63,6 +55,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oWp = $this->loadWp();
 		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
+			   && ( $oFO->getMaxEntries() > 0 )
 			   && ( $oFO->isIncluded_LoggedInUser() || !$bLoggedIn )
 			   && ( $oFO->isIncluded_Ajax() || !$oWp->isAjax() )
 			   && ( $oFO->isIncluded_Cron() || !$oWp->isCron() )
@@ -108,6 +101,28 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function isIp_Cloudflare( $sIp ) {
 		return $this->loadIpService()->isCloudFlareIp( $sIp );
+	}
+
+	/**
+	 * https://support.google.com/webmasters/answer/80553?hl=en
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	protected function isIp_BingBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_bingbot' ) );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpBingBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_bingbot' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
 	}
 
 	/**

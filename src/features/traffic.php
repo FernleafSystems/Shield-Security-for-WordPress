@@ -43,6 +43,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( !$this->isPremium() ) {
 			$aWarnings[] = sprintf( _wpsf__( '%s is a Pro-only feature.' ), _wpsf__( 'Traffic Watch' ) );
 		}
+		else {
+			$oIp = $this->loadIpService();
+			if ( $this->loadIpService()->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
+				$aWarnings[] = _wpsf__( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.' );
+			}
+		}
 
 		return $aWarnings;
 	}
@@ -51,19 +57,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return int
 	 */
 	public function getAutoCleanDays() {
-		$nAutoDays = $this->getOpt( 'auto_clean' );
-		if ( $nAutoDays < 1 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'auto_clean' );
-			$nAutoDays = $this->getOpt( 'auto_clean' );
-		}
-		return $nAutoDays;
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getDefaultMaxEntries() {
-		return $this->getDef( 'default_max_entries' );
+		return (int)$this->getOpt( 'auto_clean' );
 	}
 
 	/**
@@ -72,6 +66,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getExclusions() {
 		$aEx = $this->getOpt( 'type_exclusions' );
 		return is_array( $aEx ) ? $aEx : array();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMaxEntries() {
+		return (int)$this->getOpt( 'max_entries' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTrafficTableName() {
+		return $this->prefix( $this->getDef( 'traffic_table_name' ), '_' );
 	}
 
 	/**
@@ -107,26 +115,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function isIncluded_Uptime() {
 		return !in_array( 'uptime', $this->getExclusions() );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getMaxEntries() {
-		$nMax = (int)$this->getOpt( 'max_entries' );
-		if ( $nMax < 0 ) {
-			$this->getOptionsVo()
-				 ->setOpt( 'max_entries', $this->getDefaultMaxEntries() );
-			$nMax = $this->getOpt( 'max_entries' );
-		}
-		return $nMax;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTrafficTableName() {
-		return $this->prefix( $this->getDef( 'traffic_table_name' ), '_' );
 	}
 
 	/**

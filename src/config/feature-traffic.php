@@ -95,6 +95,7 @@
       "key": "auto_clean",
       "section": "section_traffic_options",
       "default": 3,
+      "min": 1,
       "type": "integer",
       "link_info": "",
       "link_blog": "",
@@ -106,6 +107,7 @@
       "key": "max_entries",
       "section": "section_traffic_options",
       "default": 1000,
+      "min": 0,
       "type": "integer",
       "link_info": "",
       "link_blog": "",
@@ -116,7 +118,6 @@
   ],
   "definitions": {
     "default_per_page": 25,
-    "default_max_entries": 1000,
     "traffic_table_name": "traffic",
     "traffic_table_columns": [
       "id",

@@ -419,14 +419,34 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @param string $sUserAgent
 	 * @return bool
 	 */
+	public function isIpBingBot( $sIp, $sUserAgent = '' ) {
+		$bIsGBot = false;
+
+		// We check the useragent if available
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'bingbot' ) !== false ) {
+			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
+			if ( !empty( $sHost ) && ( $sHost != $sIp )
+				 && preg_match( '#.*\.search\.msn\.com\.?$#i', $sHost )
+				 && gethostbyname( $sHost ) === $sIp ) {
+				$bIsGBot = true;
+			}
+		}
+		return $bIsGBot;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
 	public function isIpGoogleBot( $sIp, $sUserAgent = '' ) {
 		$bIsGBot = false;
 
 		// We check the useragent if available
-		if ( is_null( $sUserAgent ) || strpos( $sUserAgent, 'Googlebot' ) !== false ) {
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'Googlebot' ) !== false ) {
 			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
 			if ( !empty( $sHost ) && ( $sHost != $sIp )
-				 && preg_match( '#google(bot)?\.com\.$#i', $sHost )
+				 && preg_match( '#.*\.google(bot)?\.com\.$#i', $sHost )
 				 && gethostbyname( $sHost ) === $sIp ) {
 				$bIsGBot = true;
 			}
