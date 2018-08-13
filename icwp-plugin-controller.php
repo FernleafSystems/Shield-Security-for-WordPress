@@ -1518,25 +1518,35 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
 			self::$sSessionId = $this->loadDP()->FetchCookie( $this->getPluginPrefix(), '' );
-			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
+			if ( empty( self::$sSessionId ) ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
-				$this->setSessionCookie();
+				if ( $bSetIfNeeded ) {
+					$this->setSessionCookie();
+				}
 			}
 		}
 		return self::$sSessionId;
 	}
 
 	/**
-	 * @param bool $bSetSessionIfNeeded
+	 * @param bool $bSetIfNeeded
 	 * @return string
 	 */
-	public function getUniqueRequestId( $bSetSessionIfNeeded = true ) {
+	public function getUniqueRequestId( $bSetIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			$oDp = $this->loadDP();
-			self::$sRequestId = md5( $this->getSessionId( $bSetSessionIfNeeded ).$oDp->loadIpService()
-																					 ->getRequestIp().$oDp->time() );
+			self::$sRequestId = md5(
+				$this->getSessionId( $bSetIfNeeded ).$this->loadIpService()->getRequestIp().$oDp->time().wp_rand()
+			);
 		}
 		return self::$sRequestId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getShortRequestId() {
+		return substr( $this->getUniqueRequestId( false ), 0, 10 );
 	}
 
 	/**

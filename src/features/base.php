@@ -325,9 +325,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * functionality of the plugin.
 	 */
 	protected function isReadyToExecute() {
-		$oProcessor = $this->getProcessor();
-		return ( is_object( $oProcessor ) && $oProcessor instanceof ICWP_WPSF_Processor_Base )
-			   && !self::getConn()->getIfForceOffActive();
+		$bReady = !self::getConn()->getIfForceOffActive();
+		if ( $bReady ) {
+			$oProcessor = $this->getProcessor();
+			$bReady = $bReady && ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
+		}
+		return $bReady;
 	}
 
 	protected function doExecuteProcessor() {
@@ -511,14 +514,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isModuleEnabled() {
+		$oOpts = $this->getOptionsVo();
 
 		$bEnabled = $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' )
 					|| $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true );
 
-		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true ) {
+		if ( $oOpts->getFeatureProperty( 'auto_enabled' ) === true ) {
 			$bEnabled = true;
 		}
 		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+			$bEnabled = false;
+		}
+		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
 

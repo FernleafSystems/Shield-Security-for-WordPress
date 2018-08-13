@@ -19,11 +19,6 @@ class ICWP_WPSF_Query_Base_Find extends ICWP_WPSF_Query_Base {
 	protected $aColumns;
 
 	/**
-	 * @var bool
-	 */
-	protected $bResultsAsVo;
-
-	/**
 	 * @return string
 	 */
 	public function getTerm() {

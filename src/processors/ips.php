@@ -230,8 +230,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		if ( $bKill ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connection was killed.' ), $sIp );
-			$this->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
-			$this->doStatIncrement( 'ip.connection.killed' );
+			$this->setIfLogRequest( false )// don't log traffic from killed requests
+				 ->doStatIncrement( 'ip.connection.killed' )
+				 ->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 			$oFO->setOptInsightsAt( 'last_ip_block_at' );
 
 			$this->query_updateLastAccessForAutoBlackListIp( $sIp );
@@ -270,7 +271,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getFeature();
 
-		if ( apply_filters( $oFO->prefix( 'ip_black_mark' ), false ) ) {
+		if ( $this->getIfIpTransgressed() ) {
 
 			// Never black mark IPs that are on the whitelist
 			$oIP = $this->loadIpService();

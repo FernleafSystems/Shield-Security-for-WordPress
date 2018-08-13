@@ -188,6 +188,20 @@ class ICWP_WPSF_WpDb {
 	}
 
 	/**
+	 * @param string $sQuery
+	 * @param string $nTotalCountKey
+	 * @return array|boolean
+	 */
+	public function selectCount( $sQuery, $nTotalCountKey = 'total' ) {
+		$nCount = -1;
+		$aResult = $this->selectCustom( $sQuery, ARRAY_A );
+		if ( is_array( $aResult ) ) {
+			$nCount = (int)$aResult[ 0 ][ $nTotalCountKey ];
+		}
+		return $nCount;
+	}
+
+	/**
 	 * @param        $sQuery
 	 * @param string $nFormat
 	 * @return null|object|array

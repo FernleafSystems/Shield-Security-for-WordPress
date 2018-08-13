@@ -570,7 +570,9 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function setDeleteCookie( $sKey ) {
-		unset( $_COOKIE[ $sKey ] );
+		if ( isset( $_COOKIE[ $sKey ] ) ) {
+			unset( $_COOKIE[ $sKey ] );
+		}
 		return $this->setCookie( $sKey, '', -3600 );
 	}
 
