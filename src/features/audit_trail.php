@@ -128,11 +128,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function getMaxEntries() {
 		$nCustom = (int)$this->getOpt( 'audit_trail_max_entries' );
-		if ( $nCustom < 0 ) {
-			$this->getOptionsVo()
-				 ->resetOptToDefault( 'audit_trail_max_entries' );
-			$nCustom = $this->getOpt( 'audit_trail_max_entries' );
-		}
 		return $this->isPremium() ? $nCustom : $this->getDefaultMaxEntries();
 	}
 

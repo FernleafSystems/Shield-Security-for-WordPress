@@ -104,7 +104,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * https://support.google.com/webmasters/answer/80553?hl=en
 	 * @param string $sIp
 	 * @param string $sUserAgent
 	 * @return bool

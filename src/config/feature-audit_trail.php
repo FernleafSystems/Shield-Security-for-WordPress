@@ -76,6 +76,7 @@
       "section": "section_audit_trail_options",
       "premium": true,
       "default": 1000,
+      "min": 0,
       "type": "integer",
       "link_info": "",
       "link_blog": "",
