@@ -282,7 +282,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( rand( 1, 20 ) === 1 ) {
+		if ( rand( 1, 20 ) === 2 ) {
 			$this->cleanupDatabase();
 		}
 	}
