@@ -6,164 +6,92 @@ if ( class_exists( 'ICWP_WPSF_Foundation', false ) ) {
 class ICWP_WPSF_Foundation {
 
 	/**
-	 * @var ICWP_WPSF_DataProcessor
+	 * @var array
 	 */
-	private static $oDp;
-	/**
-	 * @var ICWP_WPSF_WpFilesystem
-	 */
-	private static $oFs;
-	/**
-	 * @var ICWP_WPSF_WpCron
-	 */
-	private static $oWpCron;
-	/**
-	 * @var ICWP_WPSF_WpFunctions
-	 */
-	private static $oWp;
-	/**
-	 * @var ICWP_WPSF_WpFunctions_Plugins
-	 */
-	private static $oWpPlugins;
-	/**
-	 * @var ICWP_WPSF_WpFunctions_Themes
-	 */
-	private static $oWpThemes;
-	/**
-	 * @var ICWP_WPSF_WpDb
-	 */
-	private static $oWpDb;
-	/**
-	 * @var ICWP_WPSF_Render
-	 */
-	private static $oRender;
-	/**
-	 * @var ICWP_WPSF_YamlProcessor
-	 */
-	private static $oYaml;
-	/**
-	 * @var ICWP_WPSF_Ip
-	 */
-	private static $oIp;
-	/**
-	 * @var ICWP_WPSF_Ssl
-	 */
-	private static $oSsl;
-	/**
-	 * @var ICWP_WPSF_GoogleAuthenticator
-	 */
-	private static $oGA;
-	/**
-	 * @var ICWP_WPSF_WpAdminNotices
-	 */
-	private static $oAdminNotices;
-	/**
-	 * @var ICWP_WPSF_WpUsers
-	 */
-	private static $oWpUsers;
-	/**
-	 * @var ICWP_WPSF_WpComments
-	 */
-	private static $oWpComments;
-	/**
-	 * @var ICWP_WPSF_GoogleRecaptcha
-	 */
-	private static $oGR;
-	/**
-	 * @var ICWP_WPSF_WpTrack
-	 */
-	private static $oTrack;
-	/**
-	 * @var ICWP_WPSF_Edd
-	 */
-	private static $oEdd;
-	/**
-	 * @var ICWP_WPSF_WpUpgrades
-	 */
-	private static $oUpgrades;
-	/**
-	 * @var ICWP_WPSF_GeoIp2
-	 */
-	private static $oGeoIp2;
+	private static $aDic;
 
 	/**
 	 * @return ICWP_WPSF_DataProcessor
 	 */
 	static public function loadDP() {
-		if ( !isset( self::$oDp ) ) {
-			self::requireCommonLib( 'icwp-data.php' );
-			self::$oDp = ICWP_WPSF_DataProcessor::GetInstance();
+		$sKey = 'icwp-data';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_DataProcessor::GetInstance() );
 		}
-		return self::$oDp;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpFilesystem
 	 */
 	static public function loadFS() {
-		if ( !isset( self::$oFs ) ) {
-			self::requireCommonLib( 'icwp-wpfilesystem.php' );
-			self::$oFs = ICWP_WPSF_WpFilesystem::GetInstance();
+		$sKey = 'icwp-wpfilesystem';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpFilesystem::GetInstance() );
 		}
-		return self::$oFs;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions
 	 */
 	static public function loadWp() {
-		if ( !isset( self::$oWp ) ) {
-			self::requireCommonLib( 'icwp-wpfunctions.php' );
-			self::$oWp = ICWP_WPSF_WpFunctions::GetInstance();
+		$sKey = 'icwp-wpfunctions';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpFunctions::GetInstance() );
 		}
-		return self::$oWp;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Plugins
 	 */
 	public function loadWpPlugins() {
-		if ( ! isset( self::$oWpPlugins ) ) {
-			self::requireCommonLib( 'icwp-wpfunctions-plugins.php' );
-			self::$oWpPlugins = ICWP_WPSF_WpFunctions_Plugins::GetInstance();
+		$sKey = 'icwp-wpfunctions-plugins';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpFunctions_Plugins::GetInstance() );
 		}
-
-		return self::$oWpPlugins;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Themes
 	 */
 	public function loadWpThemes() {
-		if ( ! isset( self::$oWpThemes ) ) {
-			self::requireCommonLib( 'icwp-wpfunctions-themes.php' );
-			self::$oWpThemes = ICWP_WPSF_WpFunctions_Themes::GetInstance();
+		$sKey = 'icwp-wpfunctions-themes';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpFunctions_Themes::GetInstance() );
 		}
-
-		return self::$oWpThemes;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpCron
 	 */
 	static public function loadWpCronProcessor() {
-		if ( !isset( self::$oWpCron ) ) {
-			self::requireCommonLib( 'icwp-wpcron.php' );
-			self::$oWpCron = ICWP_WPSF_WpCron::GetInstance();
+		$sKey = 'icwp-wpcron';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpCron::GetInstance() );
 		}
-		return self::$oWpCron;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpUpgrades
 	 */
 	static public function loadWpUpgrades() {
-		if ( ! isset( self::$oUpgrades ) ) {
-			self::requireCommonLib( 'icwp-wpupgrades.php' );
-			self::$oUpgrades = ICWP_WPSF_WpUpgrades::GetInstance();
+		$sKey = 'icwp-wpupgrades';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpUpgrades::GetInstance() );
 		}
-
-		return self::$oUpgrades;
+		return self::getService( $sKey );
 	}
 
 	/**
@@ -177,74 +105,84 @@ class ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_WpDb
 	 */
 	static public function loadDbProcessor() {
-		if ( !isset( self::$oWpDb ) ) {
-			self::requireCommonLib( 'icwp-wpdb.php' );
-			self::$oWpDb = ICWP_WPSF_WpDb::GetInstance();
+		$sKey = 'icwp-wpdb';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpDb::GetInstance() );
 		}
-		return self::$oWpDb;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Ip
 	 */
 	static public function loadIpService() {
-		if ( !isset( self::$oIp ) ) {
-			self::requireCommonLib( 'icwp-ip.php' );
-			self::$oIp = ICWP_WPSF_Ip::GetInstance();
+		$sKey = 'icwp-ip';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_Ip::GetInstance() );
 		}
-		return self::$oIp;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Ssl
 	 */
 	public function loadSslService() {
-		if ( !isset( self::$oSsl ) ) {
-			self::requireCommonLib( 'icwp-ssl.php' );
-			self::$oSsl = ICWP_WPSF_Ssl::GetInstance();
+		$sKey = 'icwp-ssl';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_Ssl::GetInstance() );
 		}
-		return self::$oSsl;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_GoogleAuthenticator
 	 */
 	static public function loadGoogleAuthenticatorProcessor() {
-		if ( !isset( self::$oGA ) ) {
-			self::requireCommonLib( 'icwp-googleauthenticator.php' );
-			self::$oGA = ICWP_WPSF_GoogleAuthenticator::GetInstance();
+		$sKey = 'icwp-googleauthenticator';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_GoogleAuthenticator::GetInstance() );
 		}
-		return self::$oGA;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_GoogleRecaptcha
 	 */
 	static public function loadGoogleRecaptcha() {
-		if ( !isset( self::$oGR ) ) {
-			self::requireCommonLib( 'icwp-googlearecaptcha.php' );
-			self::$oGR = ICWP_WPSF_GoogleRecaptcha::GetInstance();
+		$sKey = 'icwp-googlearecaptcha';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_GoogleRecaptcha::GetInstance() );
 		}
-		return self::$oGR;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpIncludes
 	 */
 	static public function loadWpIncludes() {
-		self::requireCommonLib( 'icwp-wpincludes.php' );
-		return ICWP_WPSF_WpIncludes::GetInstance();
+		$sKey = 'icwp-wpincludes';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpIncludes::GetInstance() );
+		}
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpTrack
 	 */
 	static public function loadWpTrack() {
-		if ( !isset( self::$oTrack ) ) {
-			self::requireCommonLib( 'wp-track.php' );
-			self::$oTrack = ICWP_WPSF_WpTrack::GetInstance();
+		$sKey = 'wp-track';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpTrack::GetInstance() );
 		}
-		return self::$oTrack;
+		return self::getService( $sKey );
 	}
 
 	/**
@@ -258,81 +196,91 @@ class ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Render
 	 */
 	static public function loadRenderer( $sTemplatePath = '' ) {
-		if ( !isset( self::$oRender ) ) {
-			self::requireCommonLib( 'icwp-render.php' );
-			self::$oRender = ICWP_WPSF_Render::GetInstance()
-											 ->setAutoloaderPath( dirname( __FILE__ ).'/Twig'.DIRECTORY_SEPARATOR.'Autoloader.php' );
+		$sKey = 'icwp-render';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			$oR = ICWP_WPSF_Render::GetInstance()
+								  ->setAutoloaderPath( dirname( __FILE__ ).'/Twig'.DIRECTORY_SEPARATOR.'Autoloader.php' );
+			self::setService( $sKey, $oR );
 		}
+
+		$oR = self::getService( $sKey );
 		if ( !empty( $sTemplatePath ) ) {
-			self::$oRender->setTemplateRoot( $sTemplatePath );
+			$oR->setTemplateRoot( $sTemplatePath );
 		}
-		return ( clone self::$oRender );
+		return ( clone $oR );
 	}
 
 	/**
 	 * @return ICWP_WPSF_YamlProcessor
 	 */
 	static public function loadYamlProcessor() {
-		if ( !isset( self::$oYaml ) ) {
-			self::requireCommonLib( 'icwp-yaml.php' );
-			self::$oYaml = ICWP_WPSF_YamlProcessor::GetInstance();
+		$sKey = 'icwp-yaml';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_YamlProcessor::GetInstance() );
 		}
-		return self::$oYaml;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpAdminNotices
 	 */
 	static public function loadAdminNoticesProcessor() {
-		if ( !isset( self::$oAdminNotices ) ) {
-			self::requireCommonLib( 'wp-admin-notices.php' );
-			self::$oAdminNotices = ICWP_WPSF_WpAdminNotices::GetInstance();
+		$sKey = 'wp-admin-notices';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpAdminNotices::GetInstance() );
 		}
-		return self::$oAdminNotices;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpUsers
 	 */
 	static public function loadWpUsers() {
-		if ( !isset( self::$oWpUsers ) ) {
-			self::requireCommonLib( 'wp-users.php' );
-			self::$oWpUsers = ICWP_WPSF_WpUsers::GetInstance();
+		$sKey = 'wp-users';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpUsers::GetInstance() );
 		}
-		return self::$oWpUsers;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_WpComments
 	 */
 	static public function loadWpComments() {
-		if ( !isset( self::$oWpComments ) ) {
-			self::requireCommonLib( 'wp-comments.php' );
-			self::$oWpComments = ICWP_WPSF_WpComments::GetInstance();
+		$sKey = 'wp-comments';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_WpComments::GetInstance() );
 		}
-		return self::$oWpComments;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_GeoIp2
 	 */
-	static public function loadGeoIp2() {
-		if ( !isset( self::$oGeoIp2 ) ) {
-			self::requireCommonLib( 'icwp-geoip2.php' );
-			self::$oGeoIp2 = ICWP_WPSF_GeoIp2::GetInstance();
+	static protected function loadGeoIp2() {
+		$sKey = 'icwp-geoip2';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_GeoIp2::GetInstance() );
 		}
-		return self::$oGeoIp2;
+		return self::getService( $sKey );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Edd
 	 */
 	static public function loadEdd() {
-		if ( !isset( self::$oEdd ) ) {
-			self::requireCommonLib( 'icwp-edd.php' );
-			self::$oEdd = ICWP_WPSF_Edd::GetInstance();
+		$sKey = 'icwp-edd';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_Edd::GetInstance() );
 		}
-		return self::$oEdd;
+		return self::getService( $sKey );
 	}
 
 	/**
@@ -349,18 +297,40 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_WpComments
+	 * @return array
 	 */
-	static public function loadWpCommentsProcessor() {
-		return self::loadWpComments();
+	static private function getDic() {
+		if ( !is_array( self::$aDic ) ) {
+			self::$aDic = array();
+		}
+		return self::$aDic;
 	}
 
 	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_DataProcessor
+	 * @param string $sService
+	 * @return mixed
 	 */
-	static public function loadDataProcessor() {
-		return self::loadDP();
+	static private function getService( $sService ) {
+		$aDic = self::getDic();
+		return $aDic[ $sService ];
+	}
+
+	/**
+	 * @param string $sService
+	 * @return bool
+	 */
+	static private function isServiceReady( $sService ) {
+		$aDic = self::getDic();
+		return !empty( $aDic[ $sService ] );
+	}
+
+	/**
+	 * @param string $sServiceKey
+	 * @param mixed  $oService
+	 */
+	static private function setService( $sServiceKey, $oService ) {
+		$aDic = self::getDic();
+		$aDic[ $sServiceKey ] = $oService;
+		self::$aDic = $aDic;
 	}
 }
