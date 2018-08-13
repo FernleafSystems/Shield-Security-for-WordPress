@@ -673,7 +673,7 @@ input:checked + .icwp-slider:before {
 	left: 1px;
 }
 #ColumnModules {
-	max-width: 128px;
+	max-width: 130px;
 	border-right: 1px solid #ccc;
 }
 #ColumnOptions {
@@ -811,7 +811,7 @@ input:checked + .icwp-slider:before {
 
 @media (max-width: 848px) {
 	#ColumnModules {
-		max-width: 76px;
+		max-width: 81px;
 	}
 	#TopPluginIcon {
 		height: 76px;

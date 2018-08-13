@@ -34,6 +34,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSectionSlug ) {
+		$aWarnings = array();
+
+		if ( !$this->isPremium() ) {
+			$aWarnings[] = sprintf( _wpsf__( '%s is a Pro-only feature.' ), _wpsf__( 'Traffic Watch' ) );
+		}
+
+		return $aWarnings;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getAutoCleanDays() {
@@ -126,10 +140,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	protected function getContentCustomActionsData() {
-
 		return array(
 			'sLiveTrafficTable' => $this->renderLiveTrafficTable(),
-			'sTitle'            => _wpsf__( 'Live Traffic Viewer' ),
+			'sTitle'            => _wpsf__( 'Traffic Watch Viewer' ),
 			'ajax'              => array(
 				'render_table' => $this->getAjaxActionData( 'render_traffic_table', true )
 			)
@@ -308,16 +321,16 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			case 'section_enable_plugin_feature_traffic' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Creates and Manages User Sessions.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Monitor and review all requests to your site.' ) ),
+					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Required only if you need to review and investigate and monitor requests to your site' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_traffic_options' :
-				$sTitle = _wpsf__( 'Live Traffic Options' );
+				$sTitle = _wpsf__( 'Traffic Watch Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Provides finer control over the live traffic system.' ) ),
+					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Provides finer control over the Traffic Watch system.' ) ),
 					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'These settings are dependent on your requirements.' ), _wpsf__( 'User Management' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Traffic Logging Options' );

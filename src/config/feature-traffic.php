@@ -2,13 +2,13 @@
   "slug": "traffic",
   "properties": {
     "slug": "traffic",
-    "name": "Live Traffic",
+    "name": "Traffic Watch",
     "show_module_menu_item": true,
     "storage_key": "traffic",
     "tagline": "Watch All Requests To Your Site",
     "show_central": true,
     "access_restricted": true,
-    "premium": false,
+    "premium": true,
     "has_custom_actions": true,
     "order": 110
   },
@@ -21,7 +21,7 @@
     {
       "slug": "section_traffic_options",
       "primary": true,
-      "title": "Live Traffic Options",
+      "title": "Traffic Watch Options",
       "title_short": "Options",
       "summary": [
         "Purpose - Provides finer control over the live traffic system.",
@@ -30,11 +30,11 @@
     },
     {
       "slug": "section_enable_plugin_feature_traffic",
-      "title": "Enable Module: Live Traffic",
+      "title": "Enable Module: Traffic Watch",
       "title_short": "Disable Module",
       "summary": [
-        "Purpose - The Live Traffic system is so you can review requests to your site.",
-        "Recommendation - Turn on live traffic only if you need to review and investigate traffic."
+        "Purpose - The Traffic Watch module lets you monitor and review all requests to your site.",
+        "Recommendation - Required only if you need to review and investigate and monitor requests to your site."
       ]
     },
     {
@@ -50,9 +50,9 @@
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",
-      "name": "Enable Live Traffic",
-      "summary": "Enable (or Disable) The Live Traffic Module",
-      "description": "Un-Checking this option will completely disable the Live Traffic module"
+      "name": "Enable Traffic Watch",
+      "summary": "Enable (or Disable) The Traffic Watch Module",
+      "description": "Un-Checking this option will completely disable the Traffic Watch module."
     },
     {
       "key": "type_exclusions",
