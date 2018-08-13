@@ -19,16 +19,17 @@ class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @param int $nLimit
+	 * @param int  $nLimit
+	 * @param bool $bDeleteOldestEntries
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function deleteExcess( $nLimit ) {
+	public function deleteExcess( $nLimit, $bDeleteOldestEntries = true ) {
 		if ( is_null( $nLimit ) ) {
-			throw new Exception( 'Limit not specified for table delete' );
+			throw new Exception( 'Limit not specified for table excess delete' );
 		}
 		return $this->reset()
-					->setOrderBy( 'created_at', 'ASC' )
+					->setOrderBy( 'created_at', $bDeleteOldestEntries ? 'ASC' : 'DESC' )
 					->setLimit( $nLimit )
 					->query();
 	}
@@ -53,6 +54,7 @@ class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * Offset never applies to DELETE
 	 * @return string
 	 */
 	protected function buildOffsetPhrase() {

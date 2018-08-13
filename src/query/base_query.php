@@ -48,8 +48,16 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function addWhere( $sColumn, $mValue, $sOperator = '=' ) {
+		if ( !$this->isValidComparisonOperator( $sOperator ) ) {
+			return $this; // Exception?
+		}
+
+		if ( is_string( $mValue ) ) {
+			$mValue = sprintf( "'%s'", $mValue );
+		}
+
 		$aWhere = $this->getWheres();
-		$aWhere[] = sprintf( '`%s`%s"%s"', esc_sql( $sColumn ), $sOperator, esc_sql( $mValue ) );
+		$aWhere[] = sprintf( '`%s` %s %s', esc_sql( $sColumn ), $sOperator, esc_sql( $mValue ) );
 		return $this->setWheres( $aWhere );
 	}
 
@@ -278,5 +286,14 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	public function setTable( $sTable ) {
 		$this->sTable = $sTable;
 		return $this;
+	}
+
+	/**
+	 * Very basic
+	 * @param string $sOp
+	 * @return bool
+	 */
+	protected function isValidComparisonOperator( $sOp ) {
+		return in_array( $sOp, [ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', ] );
 	}
 }
