@@ -43,17 +43,15 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		$this->trimTable();
 	}
 
+	/**
+	 * ABstract this and move it into base DB class
+	 */
 	protected function trimTable() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getFeature();
 		try {
-			$nCount = $this->getAuditTrailCounter()
-						   ->all();
-			$nToDelete = $nCount - $oFO->getMaxEntries();
-			if ( $nToDelete > 0 ) {
-				$this->getAuditTrailDelete()
-					 ->deleteExcess( $nToDelete );
-			}
+			$this->getAuditTrailDelete()
+				 ->deleteExcess( $oFO->getMaxEntries() );
 		}
 		catch ( Exception $oE ) {
 		}
@@ -233,20 +231,20 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_AuditTrail_Find
-	 */
-	public function getAuditTrailFinder() {
-		require_once( $this->getQueryDir().'audittrail_find.php' );
-		$oSearch = new ICWP_WPSF_Query_AuditTrail_Find();
-		return $oSearch->setTable( $this->getTableName() );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Delete
 	 */
 	public function getAuditTrailDelete() {
 		require_once( $this->getQueryDir().'audittrail_delete.php' );
 		$oSearch = new ICWP_WPSF_Query_AuditTrail_Delete();
+		return $oSearch->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_AuditTrail_Select
+	 */
+	public function getAuditTrailSelector() {
+		require_once( $this->getQueryDir().'audittrail_select.php' );
+		$oSearch = new ICWP_WPSF_Query_AuditTrail_Select();
 		return $oSearch->setTable( $this->getTableName() );
 	}
 }

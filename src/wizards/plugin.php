@@ -754,14 +754,19 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function runGdprSearch() {
 		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
 		$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-		$oFinder = $oProc->getAuditTrailFinder();
+		$oFinder = $oProc->getAuditTrailSelector()
+						 ->setResultsAsVo( false );
 
 		$aItems = array();
 		foreach ( $this->getGdprSearchItems() as $sItem ) {
 			try {
-				$aResults = $oFinder->setTerm( $sItem )
-									->setResultsAsVo( false )
-									->all();
+				$aResults = $oFinder->reset()
+									->addWhereSearch( 'wp_username', $sItem )
+									->query()
+							+
+							$oFinder->reset()
+									->addWhereSearch( 'message', $sItem )
+									->query();
 			}
 			catch ( Exception $oE ) {
 				$aResults = array();

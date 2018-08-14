@@ -229,13 +229,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		try {
-			$oFinder = $oProc->getAuditTrailFinder()
-							 ->setTerm( $oUser->user_login )
-							 ->setColumns( array( 'wp_username' ) )
+			$oFinder = $oProc->getAuditTrailSelector()
+							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
 			$oWp = $this->loadWp();
-			foreach ( $oFinder->all() as $oEntry ) {
+			foreach ( $oFinder->query() as $oEntry ) {
 				$aExportItem[ 'data' ][] = array(
 					$sTimeStamp = $oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
 					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),

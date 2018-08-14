@@ -34,13 +34,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getFeature();
 		try {
-			$nCount = $this->getTrafficEntryCounter()
-						   ->all();
-			$nToDelete = $nCount - $oFO->getMaxEntries();
-			if ( $nToDelete > 0 ) {
-				$this->getTrafficEntryDeleter()
-					 ->deleteExcess( $nToDelete );
-			}
+			$this->getTrafficEntryDeleter()
+				 ->deleteExcess( $oFO->getMaxEntries() );
 		}
 		catch ( Exception $oE ) {
 		}
@@ -231,11 +226,11 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_TrafficEntry_Create
+	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
 	 */
 	public function getTrafficEntryCreator() {
-		require_once( $this->getQueryDir().'traffic_entry_create.php' );
-		return ( new ICWP_WPSF_Query_TrafficEntry_Create() )->setTable( $this->getTableName() );
+		require_once( $this->getQueryDir().'traffic_entry_insert.php' );
+		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
 	}
 
 	/**

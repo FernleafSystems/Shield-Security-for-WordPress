@@ -8,8 +8,8 @@ require_once( dirname( __FILE__ ).'/base_select.php' );
 
 class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
 
-	public function __construct() {
-		require_once( dirname( __FILE__ ).'/ICWP_WPSF_TrafficEntryVO.php' );
+	protected function customInit() {
+		require_once( __DIR__.'/ICWP_WPSF_TrafficEntryVO.php' );
 	}
 
 	/**

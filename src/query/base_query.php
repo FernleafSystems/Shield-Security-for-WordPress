@@ -41,6 +41,16 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 */
 	protected $sTable;
 
+	public function __construct() {
+		$this->customInit();
+	}
+
+	/**
+	 * override to add custom init actions
+	 */
+	protected function customInit() {
+	}
+
 	/**
 	 * @param string $sColumn
 	 * @param string $mValue

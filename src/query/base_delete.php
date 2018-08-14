@@ -6,7 +6,12 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseDelete', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_query.php' );
 
-class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
+abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
+
+	/**
+	 * @return ICWP_WPSF_Query_BaseCount
+	 */
+	abstract protected function getCounter();
 
 	/**
 	 * @return bool
@@ -27,19 +32,27 @@ class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @param int  $nLimit
-	 * @param bool $bDeleteOldestEntries
-	 * @return bool
+	 * @param int  $nMaxEntries
+	 * @param bool $bOldestEntriesFirst
+	 * @return int
 	 * @throws Exception
 	 */
-	public function deleteExcess( $nLimit, $bDeleteOldestEntries = true ) {
-		if ( is_null( $nLimit ) ) {
-			throw new Exception( 'Limit not specified for table excess delete' );
+	public function deleteExcess( $nMaxEntries, $bOldestEntriesFirst = true ) {
+		if ( is_null( $nMaxEntries ) ) {
+			throw new Exception( 'Max Entries not specified for table excess delete.' );
 		}
-		return $this->reset()
-					->setOrderBy( 'created_at', $bDeleteOldestEntries ? 'ASC' : 'DESC' )
-					->setLimit( $nLimit )
-					->query();
+
+		$nEntriesDeleted = 0;
+
+		$nToDelete = $this->getCounter()->all() - $nMaxEntries;
+		if ( $nToDelete > 0 ) {
+			$nEntriesDeleted = $this->reset()
+									->setOrderBy( 'created_at', $bOldestEntriesFirst ? 'ASC' : 'DESC' )
+									->setLimit( $nToDelete )
+									->query();
+		}
+
+		return $nEntriesDeleted;
 	}
 
 	/**
