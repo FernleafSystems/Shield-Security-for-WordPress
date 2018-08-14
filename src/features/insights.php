@@ -112,7 +112,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getConn()->getModule( 'plugin' );
 		$sNote = trim( $oDP->post( 'admin_note', '' ) );
-
 		$bSuccess = false;
 		if ( !$oMod->getCanAdminNotes() ) {
 			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
@@ -149,7 +148,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		if ( $nNoteId >= 0 ) {
 			$oP->getSubProcessorNotes()
 			   ->getQueryDeleter()
-			   ->delete( $nNoteId );
+			   ->deleteById( $nNoteId );
 		}
 
 		return array(
@@ -453,14 +452,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
 
 		$oRetriever = $oProc->getSubProcessorNotes()
-							->getQueryRetriever();
+							->getQuerySelector();
 		$aNotes = $oRetriever->setLimit( 10 )
 							 ->setResultsAsVo( false )
-							 ->all();
+							 ->query();
 
 		$oWP = $this->loadWp();
 		foreach ( $aNotes as $oItem ) {
-			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
+			$oItem->created_at = $oWP->getTimeStampForDisplay( $oItem->created_at );
 			$oItem->note = stripslashes( sanitize_text_field( $oItem->note ) );
 			$oItem->wp_username = sanitize_text_field( $oItem->wp_username );
 		}

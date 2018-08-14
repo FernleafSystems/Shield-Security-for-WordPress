@@ -4,16 +4,16 @@ if ( class_exists( 'ICWP_WPSF_Query_PluginNotes_Delete', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( dirname( __FILE__ ).'/base_delete.php' );
 
-class ICWP_WPSF_Query_PluginNotes_Delete extends ICWP_WPSF_Query_Base {
+class ICWP_WPSF_Query_PluginNotes_Delete extends ICWP_WPSF_Query_BaseDelete {
 
 	/**
-	 * @param int $nId
-	 * @return bool|int
+	 * @return ICWP_WPSF_Query_PluginNotes_Count
 	 */
-	public function delete( $nId ) {
-		return $this->loadDbProcessor()
-					->deleteRowsFromTableWhere( $this->getTable(), array( 'id' => (int)$nId ) );
+	protected function getCounter() {
+		require_once( dirname( __FILE__ ).'/plugin_notes_count.php' );
+		$oCounter = new ICWP_WPSF_Query_PluginNotes_Count();
+		return $oCounter->setTable( $this->getTable() );
 	}
 }
