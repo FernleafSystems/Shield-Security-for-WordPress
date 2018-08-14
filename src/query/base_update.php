@@ -1,18 +1,66 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseDelete', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_BaseUpdate', false ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/base_query.php' );
 
-abstract class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
+class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
-	 * @return string
+	 * @var array
 	 */
-	protected function getBaseQuery() {
-		return "UPDATE `%s` WHERE %s %s";
+	protected $aUpdateData;
+
+	/**
+	 * @var array
+	 */
+	protected $aUpdateWheres;
+
+	/**
+	 * @return array
+	 */
+	public function getUpdateWheres() {
+		return is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : array();
+	}
+
+	/**
+	 * @param array $aUpdateWheres
+	 * @return $this
+	 */
+	public function setUpdateWheres( $aUpdateWheres ) {
+		$this->aUpdateWheres = $aUpdateWheres;
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getUpdateData() {
+		return is_array( $this->aUpdateData ) ? $this->aUpdateData : array();
+	}
+
+	/**
+	 * @param array $aSetData
+	 * @return $this
+	 */
+	public function setUpdateData( $aSetData ) {
+		$this->aUpdateData = $aSetData;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function query() {
+		$mResult = $this->loadDbProcessor()
+						->updateRowsFromTableWhere(
+							$this->getTable(),
+							$this->getUpdateData(),
+							$this->getUpdateWheres()
+						);
+		return is_numeric( $mResult );
 	}
 
 	/**

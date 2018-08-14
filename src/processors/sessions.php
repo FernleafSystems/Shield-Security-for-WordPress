@@ -72,7 +72,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function onWpLoaded() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRest() ) {
 			$this->autoAddSession();
-			$this->queryUpdateSessionLastActivity();
+
+			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+			$oFO = $this->getFeature();
+			if ( $oFO->hasSession() ) {
+				$this->getQueryUpdater()
+					 ->updateLastActivity( $this->getCurrentSession() );
+			}
 		}
 	}
 
@@ -213,36 +219,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * Checks for and gets a user session.
-	 * @param string $sUsername
-	 * @param string $sSessionId
-	 * @return ICWP_WPSF_SessionVO|null
-	 */
-	protected function queryGetSession( $sUsername, $sSessionId ) {
-		return $this->getQuerySelector()
-					->setResultsAsVo( true )
-					->retrieveUserSession( $sUsername, $sSessionId );
-	}
-
-	/**
-	 * @param string $sUsername
-	 * @param string $sSessionId
-	 * @return bool
-	 */
-	public function queryCreateSession( $sUsername, $sSessionId ) {
-		if ( empty( $sUsername ) ) {
-			return null;
-		}
-
-		$bSuccess = $this->getQueryCreator()
-						 ->create( $sUsername, $sSessionId );
-		if ( $bSuccess ) {
-			$this->doStatIncrement( 'user.session.start' );
-		}
-		return $bSuccess;
-	}
-
-	/**
 	 * @return ICWP_WPSF_Query_Sessions_Insert
 	 */
 	public function getQueryCreator() {
@@ -270,6 +246,45 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Query_Sessions_Update
+	 */
+	public function getQueryUpdater() {
+		require_once( $this->getQueryDir().'sessions_update.php' );
+		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
+		return $oUpdate->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @param string $sUsername
+	 * @param string $sSessionId
+	 * @return bool
+	 */
+	protected function queryCreateSession( $sUsername, $sSessionId ) {
+		if ( empty( $sUsername ) ) {
+			return null;
+		}
+
+		$bSuccess = $this->getQueryCreator()
+						 ->create( $sUsername, $sSessionId );
+		if ( $bSuccess ) {
+			$this->doStatIncrement( 'user.session.start' );
+		}
+		return $bSuccess;
+	}
+
+	/**
+	 * Checks for and gets a user session.
+	 * @param string $sUsername
+	 * @param string $sSessionId
+	 * @return ICWP_WPSF_SessionVO|null
+	 */
+	protected function queryGetSession( $sUsername, $sSessionId ) {
+		return $this->getQuerySelector()
+					->setResultsAsVo( true )
+					->retrieveUserSession( $sUsername, $sSessionId );
+	}
+
+	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @return bool|int
 	 */
@@ -281,25 +296,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 		return $this->getQueryDeleter()
 					->deleteById( $oSession->getId() );
-	}
-
-	/**
-	 */
-	protected function queryUpdateSessionLastActivity() {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->hasSession() ) {
-			$this->getSessionUpdater()->updateLastActivity( $this->getCurrentSession() );
-		}
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Sessions_Update
-	 */
-	public function getSessionUpdater() {
-		require_once( $this->getQueryDir().'sessions_update.php' );
-		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
-		return $oUpdate->setTable( $this->getTableName() );
 	}
 
 	/**

@@ -4,16 +4,19 @@ if ( class_exists( 'ICWP_WPSF_Query_Sessions_Update', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( dirname( __FILE__ ).'/base_update.php' );
 
-class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_Base {
+class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @return bool
 	 */
 	public function startSecurityAdmin( $oSession ) {
-		return $this->querySecurityAdmin( $oSession, true );
+		return $this->updateSession(
+			$oSession,
+			array( 'secadmin_at' => $this->loadDP()->time() )
+		);
 	}
 
 	/**
@@ -21,50 +24,46 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_Base {
 	 * @return bool
 	 */
 	public function terminateSecurityAdmin( $oSession ) {
-		return $this->querySecurityAdmin( $oSession, false );
+		return $this->updateSession(
+			$oSession,
+			array( 'secadmin_at' => 0 )
+		);
 	}
 
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @return bool|int
-	 */
-	public function updateLastActivity( $oSession ) {
-
-		$oDP = $this->loadDP();
-		return $this->loadDbProcessor()
-					->updateRowsFromTableWhere(
-						$this->getTable(),
-						array(
-							'last_activity_at'  => $oDP->time(),
-							'last_activity_uri' => $oDP->FetchServer( 'REQUEST_URI' )
-						),
-						array(
-							'session_id'  => $oSession->getId(),
-							'wp_username' => $oSession->getUsername(),
-							'deleted_at'  => 0
-						)
-					);
-	}
-
-	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @param bool                $bStart - true to start, false to terminate
 	 * @return bool
 	 */
-	private function querySecurityAdmin( $oSession, $bStart ) {
+	public function updateLastActivity( $oSession ) {
+		$oDP = $this->loadDP();
+		return $this->updateSession(
+			$oSession,
+			array(
+				'last_activity_at'  => $oDP->time(),
+				'last_activity_uri' => $oDP->server( 'REQUEST_URI' )
+			)
+		);
+	}
+
+	/**
+	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param array               $aUpdateData
+	 * @return bool
+	 */
+	public function updateSession( $oSession, $aUpdateData = array() ) {
 		$mResult = false;
-		if ( $oSession instanceof ICWP_WPSF_SessionVO ) {
-			$mResult = $this->loadDbProcessor()
-							->updateRowsFromTableWhere(
-								$this->getTable(),
-								array( 'secadmin_at' => $bStart ? $this->loadDP()->time() : 0 ),
-								array(
-									'session_id'  => $oSession->getId(),
-									'wp_username' => $oSession->getUsername(),
-									'deleted_at'  => 0
-								)
-							);
+		if ( !empty( $aUpdateData ) && $oSession instanceof ICWP_WPSF_SessionVO ) {
+			$mResult = $this
+				->setUpdateData( $aUpdateData )
+				->setUpdateWheres(
+					array(
+						'session_id'  => $oSession->getId(),
+						'wp_username' => $oSession->getUsername(),
+						'deleted_at'  => 0
+					)
+				)
+				->query();
 		}
-		return ( is_numeric( $mResult ) ) && $mResult == 1;
+		return is_numeric( $mResult ) && $mResult === 1;
 	}
 }

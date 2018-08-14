@@ -219,23 +219,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function startSecurityAdmin() {
-		return $this->getSessionsProcessor()
-					->getSessionUpdater()
-					->startSecurityAdmin( $this->getSession() );
-	}
-
-	/**
-	 */
-	protected function terminateSecurityAdmin() {
-		return $this->getSessionsProcessor()
-					->getSessionUpdater()
-					->terminateSecurityAdmin( $this->getSession() );
-	}
-
-	/**
 	 */
 	protected function doExtraSubmitProcessing() {
 		// We should only use setPermissionToSubmit() here, before any headers elsewhere are sent out.
@@ -278,11 +261,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param bool $fPermission
+	 * @param bool $bPermission
 	 * @return bool
 	 */
-	public function setPermissionToSubmit( $fPermission = false ) {
-		return $fPermission ? $this->startSecurityAdmin() : $this->terminateSecurityAdmin();
+	public function setPermissionToSubmit( $bPermission = false ) {
+		$oSession = $this->getSession();
+		$oUpdater = $this->getSessionsProcessor()
+						 ->getQueryUpdater();
+		return $bPermission ? $oUpdater->startSecurityAdmin( $oSession ) : $oUpdater->terminateSecurityAdmin( $oSession );
 	}
 
 	/**

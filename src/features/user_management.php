@@ -77,6 +77,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return $this->getSessionsProcessor()
 					->getQuerySelector()
+					->setResultsAsVo( true )
 					->all();
 	}
 
