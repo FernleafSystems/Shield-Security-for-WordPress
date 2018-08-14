@@ -77,6 +77,15 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sColumn
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	public function addWhereSearch( $sColumn, $mValue ) {
+		return $this->addWhere( $sColumn, $mValue, 'LIKE' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function buildExtras() {
@@ -128,12 +137,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function buildQuery() {
-		$sQuery = sprintf( $this->getBaseQuery(),
-			$this->getTable(),
-			$this->buildWhere(),
-			$this->buildExtras()
-		);
-		return sprintf( $sQuery,
+		return sprintf( $this->getBaseQuery(),
 			$this->getTable(),
 			$this->buildWhere(),
 			$this->buildExtras()
@@ -144,17 +148,16 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getBaseQuery() {
-		return "
-			SELECT * FROM `%s`
-			WHERE %s
-			%s
-		";
+		return "SELECT * FROM `%s` WHERE %s %s";
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	abstract public function query();
+	public function query() {
+		$mResult = $this->loadDbProcessor()->doSql( $this->buildQuery() );
+		return ( $mResult === false ) ? false : $mResult > 0;
+	}
 
 	/**
 	 * @return int
@@ -204,15 +207,15 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function isResultsAsVo() {
-		return $this->bResultsAsVo;
+	public function isExcludeDeleted() {
+		return isset( $this->bExcludeDeleted ) ? (bool)$this->bExcludeDeleted : true;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isExcludeDeleted() {
-		return isset( $this->bExcludeDeleted ) ? (bool)$this->bExcludeDeleted : true;
+	public function isResultsAsVo() {
+		return $this->bResultsAsVo;
 	}
 
 	/**
@@ -223,15 +226,6 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 					->setWheres( array() )
 					->setPage( 1 )
 					->setOrderBy( '' );
-	}
-
-	/**
-	 * @param array $aWheres
-	 * @return $this
-	 */
-	public function setWheres( $aWheres ) {
-		$this->aWheres = $aWheres;
-		return $this;
 	}
 
 	/**
@@ -291,6 +285,15 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 */
 	public function setTable( $sTable ) {
 		$this->sTable = $sTable;
+		return $this;
+	}
+
+	/**
+	 * @param array $aWheres
+	 * @return $this
+	 */
+	public function setWheres( $aWheres ) {
+		$this->aWheres = $aWheres;
 		return $this;
 	}
 

@@ -20,11 +20,7 @@ class ICWP_WPSF_Query_BaseCount extends ICWP_WPSF_Query_BaseQuery {
 	 * @return string
 	 */
 	protected function getBaseQuery() {
-		return "
-			SELECT COUNT(*) FROM `%s`
-			WHERE %s
-			%s
-		";
+		return "SELECT COUNT(*) FROM `%s` WHERE %s %s";
 	}
 
 	/**

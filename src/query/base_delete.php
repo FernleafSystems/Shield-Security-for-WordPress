@@ -9,12 +9,20 @@ require_once( dirname( __FILE__ ).'/base_query.php' );
 class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
+	 * @return bool
+	 */
+	public function all() {
+		return $this->query();
+	}
+
+	/**
 	 * @param int $nId
 	 * @return bool|int
 	 */
 	public function deleteById( $nId ) {
 		return $this->reset()
 					->addWhereEquals( 'id', (int)$nId )
+					->setLimit( 1 )//perhaps an unnecessary precaution
 					->query();
 	}
 
@@ -38,19 +46,7 @@ class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	 * @return string
 	 */
 	protected function getBaseQuery() {
-		return "
-			DELETE FROM `%s`
-			WHERE %s
-			%s
-		";
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function query() {
-		$mResult = $this->loadDbProcessor()->doSql( $this->buildQuery() );
-		return ( $mResult === false ) ? false : $mResult > 0;
+		return "DELETE FROM `%s` WHERE %s %s";
 	}
 
 	/**

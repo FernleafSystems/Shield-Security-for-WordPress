@@ -15,11 +15,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return int
 	 */
-	public function doPrePluginOptionsSave() {
-		if ( $this->getOpt( 'audit_trail_auto_clean' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'audit_trail_auto_clean' );
-		}
+	public function getAutoCleanDays() {
+		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
 
 	/**
@@ -267,10 +266,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$oProc = $this->getProcessor();
 
 		try {
+			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
 			$oProc->getAuditTrailDelete()
-				  ->setTerm( $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login )
-				  ->setColumns( array( 'wp_username' ) )
-				  ->setResultsAsVo( false )
+				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
 			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );
 		}

@@ -38,6 +38,27 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		}
 	}
 
+	public function cleanupDatabase() {
+		parent::cleanupDatabase(); // Deletes based on time.
+		$this->trimTable();
+	}
+
+	protected function trimTable() {
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getFeature();
+		try {
+			$nCount = $this->getAuditTrailCounter()
+						   ->all();
+			$nToDelete = $nCount - $oFO->getMaxEntries();
+			if ( $nToDelete > 0 ) {
+				$this->getAuditTrailDelete()
+					 ->deleteExcess( $nToDelete );
+			}
+		}
+		catch ( Exception $oE ) {
+		}
+	}
+
 	/**
 	 */
 	public function run() {
@@ -198,16 +219,24 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return int|null
 	 */
 	protected function getAutoExpirePeriod() {
-		// Auto delete db entries
-		$nDays = (int)$this->getOption( 'audit_trail_auto_clean' );
-		return ( $nDays > 0 ) ? ( $nDays*DAY_IN_SECONDS ) : parent::getAutoExpirePeriod();
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getFeature();
+		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_AuditTrail_Count
+	 */
+	public function getAuditTrailCounter() {
+		require_once( $this->getQueryDir().'audittrail_count.php' );
+		return ( new ICWP_WPSF_Query_AuditTrail_Count() )->setTable( $this->getTableName() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Find
 	 */
 	public function getAuditTrailFinder() {
-		require_once( dirname( dirname( __FILE__ ) ).'/query/audittrail_find.php' );
+		require_once( $this->getQueryDir().'audittrail_find.php' );
 		$oSearch = new ICWP_WPSF_Query_AuditTrail_Find();
 		return $oSearch->setTable( $this->getTableName() );
 	}
@@ -216,7 +245,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_AuditTrail_Delete
 	 */
 	public function getAuditTrailDelete() {
-		require_once( dirname( dirname( __FILE__ ) ).'/query/audittrail_delete.php' );
+		require_once( $this->getQueryDir().'audittrail_delete.php' );
 		$oSearch = new ICWP_WPSF_Query_AuditTrail_Delete();
 		return $oSearch->setTable( $this->getTableName() );
 	}

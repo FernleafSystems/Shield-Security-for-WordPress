@@ -64,6 +64,7 @@
       "key": "audit_trail_auto_clean",
       "section": "section_audit_trail_options",
       "default": 14,
+      "min": 1,
       "type": "integer",
       "link_info": "https://icwp.io/a2",
       "link_blog": "https://icwp.io/a1",
