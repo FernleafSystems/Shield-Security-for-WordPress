@@ -68,7 +68,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function getActiveSessionsData( $bCleanFirst = true ) {
-		// we first clean the sessions.
 		if ( $bCleanFirst ) {
 			/** @var ICWP_WPSF_Processor_UserManagement $oProc */
 			$oProc = $this->getProcessor();
@@ -77,7 +76,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		}
 
 		return $this->getSessionsProcessor()
-					->queryGetActiveSessions();
+					->getQuerySelector()
+					->all();
 	}
 
 	/**

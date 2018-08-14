@@ -87,6 +87,24 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param int    $nNewerThanTimeStamp
+	 * @param string $sColumn
+	 * @return $this
+	 */
+	public function addWhereNewerThan( $nNewerThanTimeStamp, $sColumn = 'created_at' ) {
+		return $this->addWhere( $sColumn, $nNewerThanTimeStamp, '>' );
+	}
+
+	/**
+	 * @param int    $nOlderThanTimeStamp
+	 * @param string $sColumn
+	 * @return $this
+	 */
+	public function addWhereOlderThan( $nOlderThanTimeStamp, $sColumn = 'created_at' ) {
+		return $this->addWhere( $sColumn, $nOlderThanTimeStamp, '<' );
+	}
+
+	/**
 	 * @param string $sColumn
 	 * @param mixed  $mValue
 	 * @return $this

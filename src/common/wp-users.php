@@ -122,8 +122,15 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 */
 	public function getCurrentWpUserId() {
 		$oUser = $this->getCurrentWpUser();
-		$nId = is_null( $oUser ) ? 0 : $oUser->ID;
-		return $nId;
+		return is_null( $oUser ) ? 0 : $oUser->ID;
+	}
+
+	/**
+	 * @return null|string
+	 */
+	public function getCurrentWpUsername() {
+		$oUser = $this->getCurrentWpUser();
+		return is_null( $oUser ) ? null : $oUser->user_login;
 	}
 
 	/**

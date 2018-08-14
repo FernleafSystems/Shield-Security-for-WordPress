@@ -117,12 +117,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 		$oTerminator = $oFO->getSessionsProcessor()
-						   ->getSessionTerminator();
+						   ->getQueryDeleter();
 
 		$nNow = $this->time();
 		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
 		// And if User Management is active, then it'll draw in that value.
-		$oTerminator->forExpiredLoginAt( $nNow - apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS, 0, false ) );
+		$nExpiredAtTime = $nNow - apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS, 0, false );
+		$oTerminator->forExpiredLoginAt( $nExpiredAtTime );
 
 		// Default is ZERO, so we don't want to terminate all sessions if it's never set.
 		if ( $oFO->hasSessionIdleTimeout() ) {
@@ -187,7 +188,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 		return $oFO->getSessionsProcessor()
-				   ->queryGetActiveSessionsForUsername( $sWpUsername );
+				   ->getQuerySelector()
+				   ->allForUsername( $sWpUsername );
 	}
 
 	/**
