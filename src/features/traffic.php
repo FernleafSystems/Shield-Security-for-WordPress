@@ -45,7 +45,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 		else {
 			$oIp = $this->loadIpService();
-			if ( $this->loadIpService()->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
+			if ( !$this->loadIpService()->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
 				$aWarnings[] = _wpsf__( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.' );
 			}
 		}
