@@ -57,7 +57,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 				->setUpdateData( $aUpdateData )
 				->setUpdateWheres(
 					array(
-						'session_id'  => $oSession->getId(),
+						'session_id'  => $oSession->getSessionId(),
 						'wp_username' => $oSession->getUsername(),
 						'deleted_at'  => 0
 					)

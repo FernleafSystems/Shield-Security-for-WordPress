@@ -181,18 +181,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
-	 * @param string $sWpUsername
-	 * @return ICWP_WPSF_SessionVO[]
-	 */
-	public function getActiveSessionRecordsForUsername( $sWpUsername ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
-		return $oFO->getSessionsProcessor()
-				   ->getQuerySelector()
-				   ->allForUsername( $sWpUsername );
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function isLockToIp() {
@@ -206,21 +194,15 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 
 		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
 		if ( $nSessionLimit > 0 ) {
-
-			$aSessions = $this->getActiveSessionRecordsForUsername( $sUsername );
-			$nSessionsToKill = count( $aSessions ) - $nSessionLimit;
-			if ( $nSessionsToKill > 0 ) {
-
-				/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-				$oFO = $this->getFeature();
-				$oSessProcessor = $oFO->getSessionsProcessor();
-				$nCount = 0;
-				foreach ( $aSessions as $oSession ) {
-					if ( $nCount < $nSessionsToKill ) {
-						$oSessProcessor->queryTerminateSession( $oSession );
-					}
-					$nCount++;
-				}
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getFeature();
+			try {
+				$oFO->getSessionsProcessor()
+					->getQueryDeleter()
+					->addWhere( 'wp_username', $sUsername )
+					->deleteExcess( $nSessionLimit, 'last_activity_at', true );
+			}
+			catch ( Exception $oE ) {
 			}
 		}
 	}

@@ -146,7 +146,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		$oSession = $this->queryGetSession( $sUsername, $this->getSessionId() );
 		if ( !empty( $oSession ) ) {
 			$this->queryTerminateSession( $oSession );
+			$this->oCurrent = null;
 		}
+
 		$this->queryCreateSession( $sUsername, $this->getSessionId() );
 		$this->nSessionAlreadyCreatedUserId = $oUser->ID;
 		return true;
@@ -169,6 +171,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 		$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
 		$this->getController()->clearSession();
+		$this->oCurrent = null;
 		return $mResult;
 	}
 
@@ -242,7 +245,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function getQuerySelector() {
 		require_once( $this->getQueryDir().'sessions_select.php' );
 		$oQ = new ICWP_WPSF_Query_Sessions_Select();
-		return $oQ->setTable( $this->getTableName() );
+		return $oQ->setTable( $this->getTableName() )->setResultsAsVo( true );
 	}
 
 	/**
@@ -280,7 +283,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function queryGetSession( $sUsername, $sSessionId ) {
 		return $this->getQuerySelector()
-					->setResultsAsVo( true )
 					->retrieveUserSession( $sUsername, $sSessionId );
 	}
 

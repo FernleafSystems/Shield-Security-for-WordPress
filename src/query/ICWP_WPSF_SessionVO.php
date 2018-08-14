@@ -27,12 +27,11 @@ class ICWP_WPSF_SessionVO {
 	public function getBrowser() {
 		return $this->getRowData()->browser;
 	}
-
 	/**
 	 * @return int
 	 */
 	public function getId() {
-		return $this->getRowData()->session_id;
+		return $this->getRowData()->id;
 	}
 
 	/**
@@ -59,8 +58,8 @@ class ICWP_WPSF_SessionVO {
 	/**
 	 * @return int
 	 */
-	public function getUsername() {
-		return $this->getRowData()->wp_username;
+	public function getSessionId() {
+		return $this->getRowData()->session_id;
 	}
 
 	/**
@@ -68,6 +67,13 @@ class ICWP_WPSF_SessionVO {
 	 */
 	public function getSecAdminAt() {
 		return $this->getRowData()->secadmin_at;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getUsername() {
+		return $this->getRowData()->wp_username;
 	}
 
 	/**

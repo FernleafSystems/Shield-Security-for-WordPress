@@ -51,16 +51,15 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return bool
+	 * @return int|false
 	 */
 	public function query() {
-		$mResult = $this->loadDbProcessor()
-						->updateRowsFromTableWhere(
-							$this->getTable(),
-							$this->getUpdateData(),
-							$this->getUpdateWheres()
-						);
-		return is_numeric( $mResult );
+		return $this->loadDbProcessor()
+					->updateRowsFromTableWhere(
+						$this->getTable(),
+						$this->getUpdateData(),
+						$this->getUpdateWheres()
+					);
 	}
 
 	/**
