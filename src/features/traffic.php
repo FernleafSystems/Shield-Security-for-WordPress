@@ -357,15 +357,15 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				break;
 
 			case 'auto_clean' :
-				$sName = _wpsf__( 'Auto Clean' );
-				$sSummary = _wpsf__( 'Enable Traffic Log Auto Cleaning' );
-				$sDescription = _wpsf__( 'Requests older than the number of days specified will be automatically cleaned from the database.' );
+				$sName = _wpsf__( 'Auto Expiry Cleaning' );
+				$sSummary = _wpsf__( 'Enable Traffic Log Auto Expiry' );
+				$sDescription = _wpsf__( 'DB cleanup will delete logs older than this maximum value (in days).' );
 				break;
 
 			case 'max_entries' :
 				$sName = _wpsf__( 'Max Log Length' );
 				$sSummary = _wpsf__( 'Maximum Traffic Log Length To Keep' );
-				$sDescription = _wpsf__( 'Automatically remove any traffic log entries when this limit is exceeded.' );
+				$sDescription = _wpsf__( 'DB cleanup will delete logs to maintain this maximum number of records.' );
 				break;
 
 			default:

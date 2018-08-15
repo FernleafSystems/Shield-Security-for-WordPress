@@ -99,9 +99,9 @@
       "type": "integer",
       "link_info": "",
       "link_blog": "",
-      "name": "Auto Clean",
-      "summary": "Enable Traffic Log Auto Cleaning",
-      "description": "Requests older than the number of days specified will be automatically cleaned from the database."
+      "name": "Auto Expiry Cleaning",
+      "summary": "Enable Traffic Log Auto Expiry",
+      "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
     },
     {
       "key": "max_entries",
@@ -113,7 +113,7 @@
       "link_blog": "",
       "name": "Max Log Length",
       "summary": "Maximum Traffic Log Length To Keep",
-      "description": "Automatically remove any traffic log entries when this limit is exceeded."
+      "description": "Automated DB cleanup will delete logs to maintain this maximum number of records."
     }
   ],
   "definitions": {
