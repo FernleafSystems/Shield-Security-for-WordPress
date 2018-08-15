@@ -4,14 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseUpdate', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_query.php' );
+require_once( dirname( __FILE__ ).'/base_insert.php' );
 
-class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
-
-	/**
-	 * @var array
-	 */
-	protected $aUpdateData;
+class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 
 	/**
 	 * @var array
@@ -21,8 +16,23 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
 	/**
 	 * @return array
 	 */
+	public function getUpdateData() {
+		return $this->getInsertData();
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getUpdateWheres() {
 		return is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : array();
+	}
+
+	/**
+	 * @param array $aSetData
+	 * @return $this
+	 */
+	public function setUpdateData( $aSetData ) {
+		return $this->setInsertData( $aSetData );
 	}
 
 	/**
@@ -31,22 +41,6 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	public function setUpdateWheres( $aUpdateWheres ) {
 		$this->aUpdateWheres = $aUpdateWheres;
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getUpdateData() {
-		return is_array( $this->aUpdateData ) ? $this->aUpdateData : array();
-	}
-
-	/**
-	 * @param array $aSetData
-	 * @return $this
-	 */
-	public function setUpdateData( $aSetData ) {
-		$this->aUpdateData = $aSetData;
 		return $this;
 	}
 
@@ -60,13 +54,5 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseQuery {
 						$this->getUpdateData(),
 						$this->getUpdateWheres()
 					);
-	}
-
-	/**
-	 * Offset never applies to DELETE
-	 * @return string
-	 */
-	protected function buildOffsetPhrase() {
-		return '';
 	}
 }

@@ -30,11 +30,21 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return bool
+	 * @return false|int
 	 */
 	public function query() {
-		$mResult = $this->loadDbProcessor()
-						->insertDataIntoTable( $this->getTable(), $this->getInsertData() );
-		return ( $mResult === false ) ? false : $mResult > 0;
+		return $this->loadDbProcessor()
+					->insertDataIntoTable(
+						$this->getTable(),
+						$this->getInsertData()
+					);
+	}
+
+	/**
+	 * Offset never applies
+	 * @return string
+	 */
+	protected function buildOffsetPhrase() {
+		return '';
 	}
 }

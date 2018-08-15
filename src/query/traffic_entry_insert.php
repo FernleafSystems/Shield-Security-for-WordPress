@@ -16,7 +16,6 @@ class ICWP_WPSF_Query_TrafficEntry_Insert extends ICWP_WPSF_Query_BaseInsert {
 		if ( $oEntry->created_at < 1 ) {
 			$oEntry->created_at = $this->loadDP()->time();
 		}
-		return $this->setInsertData( $oEntry->getRawDataAsArray() )
-					->query();
+		return $this->setInsertData( $oEntry->getRawDataAsArray() )->query() === 1;
 	}
 }

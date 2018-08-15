@@ -10,7 +10,7 @@ class ICWP_WPSF_Query_PluginNotes_Insert extends ICWP_WPSF_Query_BaseInsert {
 
 	/**
 	 * @param string $sNote
-	 * @return bool|int
+	 * @return bool
 	 */
 	public function create( $sNote ) {
 		$oUser = $this->loadWpUsers()->getCurrentWpUser();
@@ -19,7 +19,6 @@ class ICWP_WPSF_Query_PluginNotes_Insert extends ICWP_WPSF_Query_BaseInsert {
 			'note'        => esc_sql( $sNote ),
 			'created_at'  => $this->loadDP()->time(),
 		);
-		return $this->setInsertData( $aData )
-					->query();
+		return $this->setInsertData( $aData )->query() === 1;
 	}
 }

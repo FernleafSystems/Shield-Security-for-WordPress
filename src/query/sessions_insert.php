@@ -11,7 +11,7 @@ class ICWP_WPSF_Query_Sessions_Insert extends ICWP_WPSF_Query_BaseInsert {
 	/**
 	 * @param string $sUsername
 	 * @param string $sSessionId
-	 * @return bool|int
+	 * @return bool
 	 */
 	public function create( $sUsername, $sSessionId ) {
 		$oDP = $this->loadDP();
@@ -27,7 +27,6 @@ class ICWP_WPSF_Query_Sessions_Insert extends ICWP_WPSF_Query_BaseInsert {
 			'last_activity_at'  => $nTimeStamp,
 			'last_activity_uri' => $oDP->server( 'REQUEST_URI' ),
 		);
-		return $this->setInsertData( $aData )
-					->query();
+		return $this->setInsertData( $aData )->query() === 1;
 	}
 }
