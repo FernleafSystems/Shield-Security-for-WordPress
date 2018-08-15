@@ -164,7 +164,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	protected function buildQuery() {
+	public function buildQuery() {
 		return sprintf( $this->getBaseQuery(),
 			$this->getTable(),
 			$this->buildWhere(),

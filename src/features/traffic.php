@@ -158,7 +158,22 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	protected function ajaxExec_RenderAuditTable() {
-		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
+		$oDP = $this->loadDP();
+		parse_str( $oDP->post( 'filters', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fIp',
+				'fPage',
+				'fResponse',
+				'fUsername',
+				'fLoggedIn',
+				'fTransgression'
+			) )
+		);
 		return array(
 			'success' => true,
 			'html'    => $this->renderLiveTrafficTable( $aParams )
@@ -171,20 +186,24 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return string
 	 */
 	protected function renderLiveTrafficTable( $aParams = array() ) {
-		$oTable = $this->getTableRenderer();
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9_]#i', $sValue ) ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
 				unset( $aParams[ $sKey ] );
 			}
 		}
-
 		$aParams = array_merge(
 			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
+				'orderby'        => 'created_at',
+				'order'          => 'DESC',
+				'paged'          => 1,
+				'fIp'            => '',
+				'fUsername'      => '',
+				'fLoggedIn'      => '',
+				'fPage'          => '',
+				'fTransgression' => '',
+				'fResponse'      => '',
 			),
 			$aParams
 		);
@@ -192,16 +211,45 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
-		$aEntries = $oTrafficPro->getProcessorLogger()
-								->getTrafficEntrySelector()
-								->setPage( $nPage )
-								->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-								->setLimit( $this->getDefaultPerPage() )
-								->setResultsAsVo( true )
-								->query();
-		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-			   ->setPerPage( $this->getDefaultPerPage() )
-			   ->prepare_items();
+		$oSelector = $oTrafficPro->getProcessorLogger()
+								 ->getTrafficEntrySelector()
+								 ->setPage( $nPage )
+								 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+								 ->setLimit( $this->getDefaultPerPage() )
+								 ->setResultsAsVo( true );
+		// Process Filters
+		if ( $this->loadIpService()->isValidIp( $aParams[ 'fIp' ] ) ) {
+			$oSelector->addWhere( 'ip', inet_pton( $aParams[ 'fIp' ] ) );
+		}
+
+		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
+		if ( !empty( $aParams[ 'fUsername' ] ) ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
+			if ( !empty( $oUser ) ) {
+				$oSelector->addWhereEquals( 'uid', $oUser->ID );
+			}
+		}
+		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+			$oSelector->addWhere( 'uid', 0, $aParams[ 'fLoggedIn' ] ? '>' : '=' );
+		}
+
+		if ( !empty( $aParams[ 'fPage' ] ) ) {
+			$oSelector->addWhereSearch( 'path', $aParams[ 'fPage' ] );
+		}
+
+		if ( $aParams[ 'fTransgression' ] >= 0 ) {
+			$oSelector->addWhereEquals( 'trans', $aParams[ 'fTransgression' ] );
+		}
+
+		if ( !empty( $aParams[ 'fResponse' ] ) ) {
+			$oSelector->addWhereEquals( 'code', $aParams[ 'fResponse' ] );
+		}
+
+		$aEntries = $oSelector->query();
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( $this->getDefaultPerPage() )
+					   ->prepare_items();
 		ob_start();
 		$oTable->display();
 		return ob_get_clean();
