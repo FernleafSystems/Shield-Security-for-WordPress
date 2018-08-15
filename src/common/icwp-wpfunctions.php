@@ -602,6 +602,13 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getAuthCookieExpiration() {
+		return (int)apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS, 0, false );
+	}
+
+	/**
 	 * @param $sTermSlug
 	 * @return bool
 	 */

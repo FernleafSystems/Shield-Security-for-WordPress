@@ -474,6 +474,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oConn = $this->getConn();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oConn->getModule( 'user_management' );
+		/** @var ICWP_WPSF_Processor_UserManagement $oProUsers */
+		$oProUsers = $oModUsers->getProcessor();
 		/** @var ICWP_WPSF_Processor_Statistics $oStats */
 		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
 
@@ -509,7 +511,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'sessions'       => array(
 				'title'   => _wpsf__( 'Active Sessions' ),
-				'val'     => count( $oModUsers->getActiveSessionsData() ),
+				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
 				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			),
 			'blackips'       => array(

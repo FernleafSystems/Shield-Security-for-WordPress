@@ -68,16 +68,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function getActiveSessionsData( $bCleanFirst = true ) {
+		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
+		$oPro = $this->getProcessor();
+		$oSessions = $oPro->getProcessorSessions();
 		if ( $bCleanFirst ) {
-			/** @var ICWP_WPSF_Processor_UserManagement $oProc */
-			$oProc = $this->getProcessor();
-			$oProc->getProcessorSessions()
-				  ->cleanExpiredSessions();
+			$oSessions->cleanExpiredSessions();
 		}
-
-		return $this->getSessionsProcessor()
-					->getQuerySelector()
-					->all();
+		return $oSessions->getActiveSessions();
 	}
 
 	/**

@@ -8,6 +8,16 @@ require_once( dirname( __FILE__ ).'/cronbase.php' );
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_CronBase {
 
+	public function run() {
+		if ( $this->isReadyToRun() ) {
+			parent::run();
+			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
+			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
+			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
+			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+		}
+	}
+
 	/**
 	 * @return callable
 	 */
@@ -22,16 +32,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getFeature();
 		return $oFO->prefix( $oFO->getDef( 'cron_name_sessionscleanup' ) );
-	}
-
-	public function run() {
-		if ( $this->isReadyToRun() ) {
-			parent::run();
-			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
-			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
-			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
-		}
 	}
 
 	/**
@@ -119,16 +119,55 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		$oTerminator = $oFO->getSessionsProcessor()
 						   ->getQueryDeleter();
 
-		$nNow = $this->time();
 		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
 		// And if User Management is active, then it'll draw in that value.
-		$nExpiredAtTime = $nNow - apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS, 0, false );
-		$oTerminator->forExpiredLoginAt( $nExpiredAtTime );
+		$oTerminator->forExpiredLoginAt( $this->getLoginExpiredBoundary() );
 
 		// Default is ZERO, so we don't want to terminate all sessions if it's never set.
 		if ( $oFO->hasSessionIdleTimeout() ) {
-			$oTerminator->forExpiredLoginIdle( $nNow - $oFO->getSessionIdleTimeoutInterval() );
+			$oTerminator->forExpiredLoginIdle( $this->getLoginIdleExpiredBoundary() );
 		}
+	}
+
+	/**
+	 * @return ICWP_WPSF_SessionVO[]
+	 */
+	public function getActiveSessions() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+
+		$oQ = $oFO->getSessionsProcessor()
+				  ->getQuerySelector();
+		if ( $oFO->hasSessionTimeoutInterval() ) {
+			$oQ->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
+		}
+		if ( $oFO->hasSessionIdleTimeout() ) {
+			$oQ->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
+		}
+		return $oQ->query();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCountActiveSessions() {
+		return count( $this->getActiveSessions() );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLoginExpiredBoundary() {
+		return $this->time() - $this->loadWp()->getAuthCookieExpiration();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLoginIdleExpiredBoundary() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getFeature();
+		return $this->time() - $oFO->getSessionIdleTimeoutInterval();
 	}
 
 	/**

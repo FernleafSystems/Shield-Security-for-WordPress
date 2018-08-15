@@ -245,7 +245,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function getQuerySelector() {
 		require_once( $this->getQueryDir().'sessions_select.php' );
 		$oQ = new ICWP_WPSF_Query_Sessions_Select();
-		return $oQ->setTable( $this->getTableName() )->setResultsAsVo( true );
+		return $oQ->setTable( $this->getTableName() )
+				  ->setResultsAsVo( true );
 	}
 
 	/**

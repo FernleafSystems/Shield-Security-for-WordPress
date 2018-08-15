@@ -52,10 +52,25 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
+	 * @param int $nExpiredBoundary
+	 * @return $this
+	 */
+	public function filterByLoginNotExpired( $nExpiredBoundary ) {
+		return $this->addWhereNewerThan( $nExpiredBoundary, 'logged_in_at' );
+	}
+
+	/**
+	 * @param int $nExpiredBoundary
+	 * @return $this
+	 */
+	public function filterByLoginNotIdleExpired( $nExpiredBoundary ) {
+		return $this->addWhereNewerThan( $nExpiredBoundary, 'last_activity_at' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_SessionVO[]|stdClass[]
 	 */
 	public function query() {
-
 		$aData = parent::query();
 
 		if ( $this->isResultsAsVo() ) {
