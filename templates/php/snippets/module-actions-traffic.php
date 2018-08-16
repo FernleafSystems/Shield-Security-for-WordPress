@@ -42,12 +42,25 @@
 						<option value="0">No</option>
 					</select>
 				</div>
-				<div class="col-1">
-					<a id="ClearForm" href="#" class="">Clear Form</a>
+			</div>
+			<div class="form-group row">
+				<div class="col-4">
+					<input type="checkbox" id="_fYou" name="fYou" value="Y"
+						   class="form-control" />
+					<label class="form-check-label" for="_fYou">
+						Exclude Your Current IP?</label>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-6">
+					<p>Now click 'Refresh' below...</p>
+				</div>
+				<div class="offset-4 col-2">
+					<a id="ClearForm" href="#" class="btn btn-outline-danger">Clear Filters</a>
 				</div>
 			</div>
 		</form>
-		<p>Now click 'Refresh' below...</p>
+		<p></p>
 	</div>
 </div>
 
@@ -185,6 +198,9 @@
 			} );
 			jQuery( 'select', $oForm ).each( function () {
 				jQuery( this ).prop( 'selectedIndex', 0 );
+			} );
+			jQuery( 'input[type=checkbox]', $oForm ).each( function () {
+				jQuery( this ).prop( 'checked', false );
 			} );
 		};
 		var setHandlers = function () {

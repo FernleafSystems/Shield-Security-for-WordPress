@@ -171,7 +171,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'fResponse',
 				'fUsername',
 				'fLoggedIn',
-				'fTransgression'
+				'fTransgression',
+				'fYou'
 			) )
 		);
 		return array(
@@ -204,6 +205,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'fPage'          => '',
 				'fTransgression' => '',
 				'fResponse'      => '',
+				'fYou'           => '',
 			),
 			$aParams
 		);
@@ -217,32 +219,39 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 								 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
 								 ->setLimit( $this->getDefaultPerPage() )
 								 ->setResultsAsVo( true );
-		// Process Filters
-		if ( $this->loadIpService()->isValidIp( $aParams[ 'fIp' ] ) ) {
-			$oSelector->addWhere( 'ip', inet_pton( $aParams[ 'fIp' ] ) );
-		}
-
-		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-		if ( !empty( $aParams[ 'fUsername' ] ) ) {
-			$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
-			if ( !empty( $oUser ) ) {
-				$oSelector->addWhereEquals( 'uid', $oUser->ID );
+		// Filters
+		{
+			$oIp = $this->loadIpService();
+			// If an IP is specified, it takes priority
+			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
+				$oSelector->addWhere( 'ip', inet_pton( $aParams[ 'fIp' ] ) );
 			}
-		}
-		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-			$oSelector->addWhere( 'uid', 0, $aParams[ 'fLoggedIn' ] ? '>' : '=' );
-		}
+			else if ( $aParams[ 'fYou' ] == 'Y' ) {
+				$oSelector->addWhere( 'ip', inet_pton( $oIp->getRequestIp() ), '!=' );
+			}
 
-		if ( !empty( $aParams[ 'fPage' ] ) ) {
-			$oSelector->addWhereSearch( 'path', $aParams[ 'fPage' ] );
-		}
+			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
+			if ( !empty( $aParams[ 'fUsername' ] ) ) {
+				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
+				if ( !empty( $oUser ) ) {
+					$oSelector->addWhereEquals( 'uid', $oUser->ID );
+				}
+			}
+			else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+				$oSelector->addWhere( 'uid', 0, $aParams[ 'fLoggedIn' ] ? '>' : '=' );
+			}
 
-		if ( $aParams[ 'fTransgression' ] >= 0 ) {
-			$oSelector->addWhereEquals( 'trans', $aParams[ 'fTransgression' ] );
-		}
+			if ( !empty( $aParams[ 'fPage' ] ) ) {
+				$oSelector->addWhereSearch( 'path', $aParams[ 'fPage' ] );
+			}
 
-		if ( !empty( $aParams[ 'fResponse' ] ) ) {
-			$oSelector->addWhereEquals( 'code', $aParams[ 'fResponse' ] );
+			if ( $aParams[ 'fTransgression' ] >= 0 ) {
+				$oSelector->addWhereEquals( 'trans', $aParams[ 'fTransgression' ] );
+			}
+
+			if ( !empty( $aParams[ 'fResponse' ] ) ) {
+				$oSelector->addWhereEquals( 'code', $aParams[ 'fResponse' ] );
+			}
 		}
 
 		$aEntries = $oSelector->query();
@@ -269,8 +278,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$sYou = $this->loadIpService()->getRequestIp();
 
 			$aUsers = array( _wpsf__( 'No' ) );
-			$aIpTrans = array( 0 );
-
 			foreach ( $aEntries as $nKey => $oEntry ) {
 				$sIp = $oEntry->ip;
 
@@ -280,9 +287,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$aEntry[ 'trans' ] = $oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' );
 				$aEntry[ 'ip' ] = $sIp;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
-				if ( $aEntry[ 'ip' ] == $sYou ) {
-					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'You' ).')</div>';
-				}
+				$aEntry[ 'is_you' ] = $sIp == $sYou;
 
 				if ( $oEntry->uid > 0 ) {
 					if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
@@ -299,8 +304,10 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$sCountry = sprintf( '<img class="icon-flag" src="%s"/> %s', $sFlag, $sCountry );
 				}
 
-				$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>',
-					$this->getIpWhoisLookup( $sIp ), $sIp );
+				$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
+					$this->getIpWhoisLookup( $sIp ), $sIp,
+					$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('._wpsf__( 'You' ).')</span>' : ''
+				);
 
 				$aDetails = array(
 					sprintf( '%s - %s', _wpsf__( 'IP' ), $sIpLink ),
