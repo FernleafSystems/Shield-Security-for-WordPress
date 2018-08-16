@@ -38,12 +38,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function insertCustomJsVars() {
 		parent::insertCustomJsVars();
 
-		if ( $this->isThisModulePage() && $this->getSecAdminTimeLeft() > 0 ) {
+		$nSecTimeout = $this->isThisModulePage() ? $this->getSecAdminTimeLeft() : 0;
+		if ( $nSecTimeout > 0 ) {
 			wp_localize_script(
 				$this->prefix( 'plugin' ),
 				'icwp_wpsf_vars_secadmin',
 				array(
-					'timeleft' => $this->getSecAdminTimeLeft()*1000 // milliseconds
+					'timeleft' => $nSecTimeout*1000 // JS uses milliseconds
 				)
 			);
 		}
