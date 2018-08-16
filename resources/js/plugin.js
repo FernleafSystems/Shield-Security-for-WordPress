@@ -101,6 +101,19 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	};
 }();
 
+var iCWP_WPSF_SecurityAdminTimeout = new function () {
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
+				setTimeout( function () {
+					iCWP_WPSF_BodyOverlay.show();
+					window.location.reload( 1 );
+				}, parseInt( icwp_wpsf_vars_secadmin.timeleft ) );
+			}
+		} );
+	};
+}();
+
 var iCWP_WPSF_InsightsAdminNotes = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -204,6 +217,7 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 	};
 }();
 
+iCWP_WPSF_SecurityAdminTimeout.initialise();
 iCWP_WPSF_OptionsPages.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
 iCWP_WPSF_InsightsAdminNotes.initialise();

@@ -63,6 +63,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	public function insertCustomJsVars() {
+		parent::insertCustomJsVars();
 
 		if ( $this->isThisModulePage() ) {
 			wp_localize_script(

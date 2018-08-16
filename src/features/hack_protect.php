@@ -556,6 +556,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	public function insertCustomJsVars() {
+		parent::insertCustomJsVars();
 
 		if ( $this->loadWp()->getCurrentPage() == 'plugins.php' && $this->isPtgReinstallLinks() ) {
 			wp_localize_script(

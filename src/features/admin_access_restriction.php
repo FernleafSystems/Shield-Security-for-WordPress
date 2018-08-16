@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && $this->hasAccessKey() && !$this->isVisitorWhitelisted();
+		return $this->hasAccessKey() && !$this->isVisitorWhitelisted() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -249,15 +249,28 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getSecAdminTimeout() {
+		return (int)$this->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSecAdminTimeLeft() {
+		$nLeft = 0;
+		if ( $this->isReadyToExecute() && $this->hasSession() ) {
+			$nLeft = $this->getSecAdminTimeout() - ( $this->loadDP()->time() - $this->getSession()->getSecAdminAt() );
+		}
+		return max( 0, $nLeft );
+	}
+
+	/**
 	 * @return bool
 	 */
-	protected function isSecAdminSessionValid() {
-		$bValid = false;
-		if ( $this->hasSession() ) {
-			$nStartedAt = $this->getSession()->getSecAdminAt();
-			$bValid = ( $this->loadDP()->time() - $nStartedAt ) < $this->getOpt( 'admin_access_timeout' )*60;
-		}
-		return $bValid;
+	public function isSecAdminSessionValid() {
+		return ( $this->getSecAdminTimeLeft() > 0 );
 	}
 
 	/**
