@@ -252,7 +252,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * License check normally only happens when the verification_at expires (~3 days) for a currently valid license.
+	 * License check normally only happens when the verification_at expires (~3 days)
+	 * for a currently valid license.
 	 * @param bool $bForceCheck
 	 * @return $this
 	 */
@@ -260,13 +261,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$nNow = $this->loadDP()->time();
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
-		$bCheck = $bForceCheck || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-									&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 ) );
+		$bCheck = $bForceCheck ||
+				  ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
+					&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 )
+				  );
 
-		// No more than 1 check in 20 seconds
-		$bCheck = $bCheck && ( $nNow - $this->getLicenseLastRequestAt() > 20 );
-
-		if ( $bCheck ) {
+		// 1 check in 20 seconds
+		if ( $bCheck && ( $nNow - $this->getLicenseLastRequestAt() > 20 ) ) {
 			$this->setLicenseLastCheckedAt()
 				 ->setLicenseLastRequestedAt()
 				 ->savePluginOptions();
@@ -274,7 +275,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oLicense = $this->retrieveLicense();
 			try {
 				$this->storeLicense( $oLicense )
-					 ->setLicenseVerifiedAt( $nNow );
+					 ->setLicenseVerifiedAt( $nNow )
+					 ->savePluginOptions();
+
+				/** @var ICWP_WPSF_Processor_License $oPro */
+				$oPro = $this->getProcessor();
+				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
 				$bSuccess = true;
 			}
 			catch ( Exception $oE ) {
@@ -282,12 +288,44 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$bSuccess = false;
 			}
 
-			if ( !$bSuccess && ( $bForceCheck || $this->isLastVerifiedGraceExpired() ) ) {
-				$this->deactivate();
+			if ( !$bSuccess ) {
+
+				if ( !$bForceCheck && $this->isWithinVerifiedGraceExpired() ) {
+					$this->sendLicenseWarningEmail();
+				}
+				else if ( $bForceCheck || $this->isLastVerifiedGraceExpired() ) {
+					/** @var ICWP_WPSF_Processor_License $oPro */
+					$oPro = $this->getProcessor();
+					$oPro->addToAuditEntry(
+						'Attempted to check for license and it failed. Deactivating Pro.',
+						3,
+						'license_check_failed'
+					);
+					$this->deactivate();
+				}
 			}
 		}
 
 		return $this;
+	}
+
+	protected function sendLicenseWarningEmail() {
+		$nNow = $this->loadDP()->time();
+		$bCanSend = $nNow - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
+
+		if ( $bCanSend ) {
+			$aMessage = array(
+				_wpsf__( 'Attempts to verify Shield Pro license has just failed.' ),
+				sprintf( _wpsf__( 'Please check your license on-site: %s' ), $this->getUrl_AdminPage() ),
+				sprintf( _wpsf__( 'If this problem persists, please contact support: %s' ), 'https://support.onedollarplugin.com/' )
+			);
+			$this->getEmailProcessor()
+				 ->sendEmailWithWrap(
+					 $this->getPluginDefaultRecipientAddress(),
+					 'Pro License Check Has Failed',
+					 $aMessage
+				 );
+		}
 	}
 
 	/**
@@ -472,12 +510,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * Expires between 2 and 3 days.
+	 * Expires in 3 days.
 	 * @return bool
 	 */
 	protected function isLastVerifiedExpired() {
-		return ( $this->loadDP()->time() - $this->getLicenseVerifiedAt()
-				 > $this->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS );
+		return ( $this->loadDP()->time() - $this->getLicenseVerifiedAt() )
+			   > $this->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS;
 	}
 
 	/**
@@ -487,6 +525,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$nGracePeriod = ( $this->getDef( 'lic_verify_expire_days' ) + $this->getDef( 'lic_verify_expire_grace_days' ) )
 						*DAY_IN_SECONDS;
 		return $this->loadDP()->time() - $this->getLicenseVerifiedAt() > $nGracePeriod;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isWithinVerifiedGraceExpired() {
+		return $this->isLastVerifiedExpired() && !$this->isLastVerifiedGraceExpired();
 	}
 
 	/**

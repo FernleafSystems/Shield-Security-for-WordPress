@@ -269,7 +269,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @param string $sWpUsername
 	 * @return $this
 	 */
-	protected function addToAuditEntry( $sAdditionalMessage = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
+	public function addToAuditEntry( $sAdditionalMessage = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
 		if ( !isset( $this->aAuditEntry ) ) {
 
 			if ( empty( $sWpUsername ) ) {
