@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.8.3
+Stable tag: 6.9.0
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,14 +353,19 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.8.3 - Current Release =
-*Released: 7th August, 2018* - [Release Notes](https://icwp.io/d4)
+= 6.9.0 - Current Release =
+*Released: 21st August, 2018* - [Release Notes](https://icwp.io/d4)
 
-* **(v.3)**  ADDED:		Ability to delete the Security Admin Access Key
-* **(v.3)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
-* **(v.3)**  IMPROVED:	Refined Cooldown timing system
-* **(v.3)**  IMPROVED:	Refined Bot checkbox Javascript
-* **(v.3)**  FIXED:		PHP Warning
+* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
+* **(v.0)**  IMPROVED:	Major database code refactoring and improvements.
+* **(v.0)**  IMPROVED:	User sessions handling.
+* **(v.0)**  IMPROVED:	Security Admin UX - automatic checking with notification and automatic page reload.
+* **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
+* **(v.0)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
+* **(v.0)**  IMPROVED:	Refined Cooldown timing system
+* **(v.0)**  IMPROVED:	Refined Bot checkbox Javascript
+* **(v.0)**  UPDATED:	Bootstrap libraries
+* **(v.0)**  FIXED:		PHP Warning(s)
 
 = 6.8 Series =
 *Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
