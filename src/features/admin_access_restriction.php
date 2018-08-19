@@ -28,6 +28,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadDP()->request( 'exec' ) ) {
 
+				case 'sec_admin_check':
+					$aAjaxResponse = $this->ajaxExec_SecAdminCheck();
+					break;
 				case 'sec_admin_login':
 				case 'restricted_access':
 					$aAjaxResponse = $this->ajaxExec_SecAdminLogin();
@@ -44,6 +47,16 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_SecAdminCheck() {
+		return array(
+			'timeleft' => $this->getSecAdminTimeLeft(),
+			'success'  => $this->isSecAdminSessionValid()
+		);
 	}
 
 	/**
@@ -256,6 +269,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * Only returns greater than 0 if you have a valid Sec admin session
 	 * @return int
 	 */
 	public function getSecAdminTimeLeft() {

@@ -38,13 +38,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function insertCustomJsVars() {
 		parent::insertCustomJsVars();
 
-		$nSecTimeout = $this->isThisModulePage() ? $this->getSecAdminTimeLeft() : 0;
-		if ( $nSecTimeout > 0 ) {
+		$nSecTimeLeft = $this->isThisModulePage() ? $this->getSecAdminTimeLeft() : 0;
+		if ( $nSecTimeLeft > 0 ) {
 			wp_localize_script(
 				$this->prefix( 'plugin' ),
 				'icwp_wpsf_vars_secadmin',
 				array(
-					'timeleft' => $nSecTimeout*1000 // JS uses milliseconds
+					'reqajax'      => $this->getSecAdminCheckAjaxData(),
+					'is_sec_admin' => true, // if $nSecTimeLeft > 0
+					'timeleft'     => $nSecTimeLeft // JS uses milliseconds
 				)
 			);
 		}
@@ -123,6 +125,16 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	protected function getSecAdminLoginAjaxData() {
 		// We set a custom mod_slug so that this module handles the ajax request
 		$aAjaxData = $this->getAjaxActionData( 'sec_admin_login' );
+		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $aAjaxData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSecAdminCheckAjaxData() {
+		// We set a custom mod_slug so that this module handles the ajax request
+		$aAjaxData = $this->getAjaxActionData( 'sec_admin_check' );
 		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
 		return $aAjaxData;
 	}

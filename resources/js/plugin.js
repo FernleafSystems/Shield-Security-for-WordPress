@@ -101,15 +101,55 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	};
 }();
 
-var iCWP_WPSF_SecurityAdminTimeout = new function () {
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
-				setTimeout( function () {
+var iCWP_WPSF_SecurityAdminCheck = new function () {
+
+	var bCheckInPlace = false;
+	var bWarningShown = false;
+	var nIntervalTimeout = (icwp_wpsf_vars_secadmin.timeleft / 2) * 1000;
+
+	/**
+	 */
+	var checkSecAdmin = function () {
+
+		bCheckInPlace = false;
+
+		jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.reqajax,
+			function ( oResponse ) {
+				if ( oResponse.data.success ) {
+					var nLeft = oResponse.data.timeleft;
+					nIntervalTimeout = Math.max( 3, (nLeft / 2) ) * 1000;
+
+					if ( !bWarningShown && nLeft < 20 && nLeft > 8 ) {
+						bWarningShown = true;
+						iCWP_WPSF_Growl.showMessage( 'Security Admin Timed-Out. Reloading soon...', false );
+					}
+				}
+				else {
+					iCWP_WPSF_Growl.showMessage( 'Security Admin Timed-Out...', oResponse.success );
 					iCWP_WPSF_BodyOverlay.show();
 					window.location.reload( 1 );
-				}, parseInt( icwp_wpsf_vars_secadmin.timeleft ) );
+				}
 			}
+		).always( function () {
+				scheduleSecAdminCheck();
+			}
+		);
+	};
+
+	/**
+	 */
+	var scheduleSecAdminCheck = function () {
+		if ( !bCheckInPlace ) {
+			setTimeout( function () {
+				checkSecAdmin();
+			}, nIntervalTimeout );
+			bCheckInPlace = true;
+		}
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			scheduleSecAdminCheck();
 		} );
 	};
 }();
@@ -217,7 +257,9 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 	};
 }();
 
-iCWP_WPSF_SecurityAdminTimeout.initialise();
+if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
+	iCWP_WPSF_SecurityAdminCheck.initialise();
+}
 iCWP_WPSF_OptionsPages.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
 iCWP_WPSF_InsightsAdminNotes.initialise();
