@@ -82,7 +82,7 @@
         },
         {
           "value_key": "uptime",
-          "text": "Uptime Monitoring Services (e.g. Pingdom)"
+          "text": "Uptime Monitoring Services (i.e. StatusCake, Pingdom, UptimeRobot)"
         }
       ],
       "link_info": "",
