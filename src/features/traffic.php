@@ -129,6 +129,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getContentCustomActionsData() {
 		return array(
+			'sYourIp'           => $this->loadIpService()->getRequestIp(),
 			'sLiveTrafficTable' => $this->renderLiveTrafficTable(),
 			'sTitle'            => _wpsf__( 'Traffic Watch Viewer' ),
 			'ajax'              => array(

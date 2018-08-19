@@ -47,7 +47,7 @@
 				<div class="col-4">
 					<input type="checkbox" id="_fYou" name="fYou" value="Y"
 						   class="form-control" />
-					<label class="form-check-label" for="_fYou">
+					<label class="form-check-label" for="_fYou" title="<?php echo $sYourIp; ?>">
 						Exclude Your Current IP?</label>
 				</div>
 			</div>
