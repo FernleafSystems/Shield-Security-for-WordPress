@@ -77,7 +77,10 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function isServiceIp_Search() {
 		$sIp = $this->ip();
-		return $this->isIp_GoogleBot( $sIp, (string)$this->loadDP()->FetchServer( 'HTTP_USER_AGENT' ) );
+		$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+		return $this->isIp_GoogleBot( $sIp, $sAgent )
+			   || $this->isIp_BingBot( $sIp, $sAgent )
+			   || $this->isIp_DuckDuckGoBot( $sIp, $sAgent );
 	}
 
 	/**
@@ -117,6 +120,15 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	protected function isIp_DuckDuckGoBot( $sIp, $sUserAgent ) {
+		return $this->loadIpService()->isIpDuckDuckGoBot( $sIp, $sUserAgent );
 	}
 
 	/**

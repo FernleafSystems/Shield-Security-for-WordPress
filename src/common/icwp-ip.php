@@ -435,6 +435,22 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * https://duckduckgo.com/duckduckbot
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIpDuckDuckGoBot( $sIp, $sUserAgent = '' ) {
+		$bIsBot = false;
+
+		// We check the useragent if available
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'DuckDuckBot' ) !== false ) {
+			$bIsBot = in_array( $sIp, array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' ) );
+		}
+		return $bIsBot;
+	}
+
+	/**
 	 * @param string $sIp
 	 * @param string $sUserAgent
 	 * @return bool

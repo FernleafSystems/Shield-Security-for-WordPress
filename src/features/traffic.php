@@ -213,12 +213,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'order',
 				'orderby',
 				'fIp',
-				'fPage',
+				'fPath',
 				'fResponse',
 				'fUsername',
 				'fLoggedIn',
 				'fTransgression',
-				'fYou'
+				'fExludeYou'
 			) )
 		);
 		return array(
@@ -247,11 +247,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'paged'          => 1,
 				'fIp'            => '',
 				'fUsername'      => '',
-				'fLoggedIn'      => '',
-				'fPage'          => '',
-				'fTransgression' => '',
+				'fLoggedIn'      => -1,
+				'fPath'          => '',
+				'fTransgression' => -1,
 				'fResponse'      => '',
-				'fYou'           => '',
+				'fExludeYou'     => '',
 			),
 			$aParams
 		);
@@ -272,7 +272,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 				$oSelector->addWhere( 'ip', inet_pton( $aParams[ 'fIp' ] ) );
 			}
-			else if ( $aParams[ 'fYou' ] == 'Y' ) {
+			else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
 				$oSelector->addWhere( 'ip', inet_pton( $oIp->getRequestIp() ), '!=' );
 			}
 
@@ -287,8 +287,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$oSelector->addWhere( 'uid', 0, $aParams[ 'fLoggedIn' ] ? '>' : '=' );
 			}
 
-			if ( !empty( $aParams[ 'fPage' ] ) ) {
-				$oSelector->addWhereSearch( 'path', $aParams[ 'fPage' ] );
+			if ( !empty( $aParams[ 'fPath' ] ) ) {
+				$oSelector->addWhereSearch( 'path', $aParams[ 'fPath' ] );
 			}
 
 			if ( $aParams[ 'fTransgression' ] >= 0 ) {
@@ -301,6 +301,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		$aEntries = $oSelector->query();
+
 		$oTable = $this->getTableRenderer()
 					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
 					   ->setPerPage( $this->getDefaultPerPage() )

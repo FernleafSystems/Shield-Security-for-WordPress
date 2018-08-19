@@ -173,12 +173,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$sExplanation = '';
 
 		$oDp = $this->loadDP();
-		$sFieldCheckboxName = $oDp->FetchPost( 'cb_nombre' );
-		$sFieldHoney = $oDp->FetchPost( 'sugar_sweet_email' );
-		$sFieldCommentToken = $oDp->FetchPost( 'comment_token' );
+		$sFieldCheckboxName = $oDp->post( 'cb_nombre' );
+		$sFieldHoney = $oDp->post( 'sugar_sweet_email' );
+		$sFieldCommentToken = $oDp->post( 'comment_token' );
 
 		// we have the cb name, is it set?
-		if ( !$sFieldCheckboxName || !$oDp->FetchPost( $sFieldCheckboxName ) ) {
+		if ( !$sFieldCheckboxName || !$oDp->post( $sFieldCheckboxName ) ) {
 			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'checkbox' ) );
 			$sStatKey = 'checkbox';
 		}
@@ -231,7 +231,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 		else if ( function_exists( 'WPWall_Init' ) ) {
 			// Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
-			if ( !is_null( $this->loadDP()->FetchPost( 'submit_wall_post' ) ) ) {
+			if ( !is_null( $this->loadDP()->post( 'submit_wall_post' ) ) ) {
 				$bCheck = false;
 			}
 		}

@@ -14,7 +14,7 @@
 						   class="form-control-plaintext" />
 				</div>
 				<div class="col-5">
-					<input type="text" id="_fPage" name="fPage" placeholder="Page/Path Contains..."
+					<input type="text" id="_fPath" name="fPath" placeholder="Page/Path Contains..."
 						   class="form-control-plaintext" />
 				</div>
 				<div class="col-2">
@@ -45,9 +45,9 @@
 			</div>
 			<div class="form-group row">
 				<div class="col-4">
-					<input type="checkbox" id="_fYou" name="fYou" value="Y"
+					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
 						   class="form-control" />
-					<label class="form-check-label" for="_fYou" title="<?php echo $sYourIp; ?>">
+					<label class="form-check-label" for="_fExludeYou" title="<?php echo $sYourIp; ?>">
 						Exclude Your Current IP?</label>
 				</div>
 			</div>
