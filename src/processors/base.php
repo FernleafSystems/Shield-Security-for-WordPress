@@ -53,13 +53,13 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
 	public function getController() {
-		return $this->getFeature()->getConn();
+		return $this->getMod()->getConn();
 	}
 
 	public function autoAddToAdminNotices() {
 		$oCon = $this->getController();
 
-		foreach ( $this->getFeature()->getAdminNotices() as $sNoticeId => $aAttrs ) {
+		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;
@@ -149,7 +149,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$oNotices = $this->loadAdminNoticesProcessor();
 		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) || $bCantDismiss ) {
 
-			$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
+			$sRenderedNotice = $this->getMod()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {
 				$oNotices->addAdminNotice(
 					$sRenderedNotice,
@@ -168,7 +168,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return mixed
 	 */
 	public function getOption( $sOptionKey, $mDefault = false ) {
-		return $this->getFeature()->getOpt( $sOptionKey, $mDefault );
+		return $this->getMod()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**
@@ -194,14 +194,22 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Email
 	 */
 	public function getEmailProcessor() {
-		return $this->getFeature()->getEmailProcessor();
+		return $this->getMod()->getEmailProcessor();
 	}
 
 	/**
 	 * @return ICWP_WPSF_FeatureHandler_Base
 	 */
-	protected function getFeature() {
+	protected function getMod() {
 		return $this->oModCon;
+	}
+
+	/**
+	 * @deprecated
+	 * @return ICWP_WPSF_FeatureHandler_Base
+	 */
+	protected function getFeature() {
+		return $this->getMod();
 	}
 
 	/**
@@ -227,7 +235,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_UserMeta
 	 */
 	protected function getCurrentUserMeta() {
-		return $this->getFeature()->getCurrentUserMeta();
+		return $this->getMod()->getCurrentUserMeta();
 	}
 
 	/**
@@ -237,7 +245,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getFeature()->prefix( $sSuffix, $sGlue );
+		return $this->getMod()->prefix( $sSuffix, $sGlue );
 	}
 
 	/**

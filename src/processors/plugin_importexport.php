@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		add_action( $this->prefix( 'importexport_notify' ), array( $this, 'runWhitelistNotify' ) );
 
@@ -26,7 +26,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 	public function runWhitelistNotify() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->hasImportExportWhitelistSites() ) {
 
@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function runOptionsExportHandshake() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isPremium() && $oFO->isImportExportPermitted() &&
 			 ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
 			echo json_encode( array( 'success' => true ) );
@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function runOptionsUpdateNotified() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sCronHook = $oFO->prefix( 'importexport_updatenotified' );
 		if ( wp_next_scheduled( $sCronHook ) ) {
@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function runOptionsExport() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
 
 		$sSecretKey = $oDP->query( 'secret', '' );
@@ -191,7 +191,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function isUrlOnWhitelist( $sUrl ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return !empty( $sUrl ) && in_array( $sUrl, $oFO->getImportExportWhitelist() );
 	}
 
@@ -220,13 +220,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function setupCronImport() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$this->loadWpCronProcessor()
 			 ->setNextRun( strtotime( 'tomorrow 1am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
 			 ->createCronJob( $this->getCronName(), array( $this, 'cron_autoImport' ) );
 		// For auto update whitelist notifications:
 		add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'cron_autoImport' ) );
-		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
@@ -238,7 +238,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = false, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
 
 		$aParts = parse_url( $sMasterSiteUrl );
@@ -343,7 +343,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 	public function cron_autoImport() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$this->runImport( $oFO->getImportExportMasterImportUrl() );
 	}
 
@@ -355,7 +355,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * @return string
 	 */
 	protected function getCronName() {
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefixOptionKey( $oFO->getDefinition( 'importexport_cron_name' ) );
 	}
 }

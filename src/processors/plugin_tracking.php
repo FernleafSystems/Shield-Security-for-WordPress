@@ -8,7 +8,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->isTrackingEnabled() ) {
 			$this->createTrackingCollectionCron();
@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	protected function addNotice_allow_tracking( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
 			$oCon = $this->getController();
 			$aRenderData = array(
@@ -56,7 +56,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	public function sendTrackingData() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->isTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
 			return false;
 		}
@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	public function collectTrackingData() {
 		$aData = apply_filters(
-			$this->getFeature()->prefix( 'collect_tracking_data' ),
+			$this->getMod()->prefix( 'collect_tracking_data' ),
 			$this->getBaseTrackingData()
 		);
 		return is_array( $aData ) ? $aData : array();
@@ -124,7 +124,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	protected function createTrackingCollectionCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$sFullHookName = $this->getCronName();
 		$this->loadWpCronProcessor()
 			 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 * @return string
 	 */
 	public function getCronName() {
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefix( $oFO->getDefinition( 'tracking_cron_handle' ) );
 	}
 }

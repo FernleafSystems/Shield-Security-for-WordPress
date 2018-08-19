@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'db_notes_table_columns' );
+		$aDef = $this->getMod()->getDef( 'db_notes_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

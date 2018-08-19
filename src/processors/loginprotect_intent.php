@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 
@@ -39,7 +39,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function onWcSocialLogin( $nUserId ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$oUser = new WP_User( $nUserId );
 		if ( $oUser->ID != 0 ) { // i.e. said user id exists.
@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 	protected function setupLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oWpUsers = $this->loadWpUsers();
 
 		$oLoginTracker = $this->getLoginTrack();
@@ -101,7 +101,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oWpUsers = $this->loadWpUsers();
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
 			$oDp = $this->loadDP();
@@ -152,7 +152,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function onWpLogout() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$this->removeLoginIntent();
 
@@ -171,7 +171,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		if ( $oUser instanceof WP_User ) {
 
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
-			$oF = $this->getFeature();
+			$oF = $this->getMod();
 			if ( !$oF->canUserMfaSkip( $oUser ) ) {
 				$nTimeout = (int)apply_filters(
 					$oF->prefix( 'login_intent_timeout' ),
@@ -223,7 +223,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function applyUserCanMfaSkip( $bIsSubjectTo, $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $bIsSubjectTo && !$oFO->canUserMfaSkip( $oUser );
 	}
 
@@ -253,7 +253,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oCon = $this->getController();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
@@ -329,7 +329,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	protected function getProcessorTwoFactor() {
 		require_once( dirname( __FILE__ ).'/loginprotect_twofactorauth.php' );
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
@@ -339,7 +339,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getProcessorYubikey() {
 		require_once( dirname( __FILE__ ).'/loginprotect_yubikey.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getFeature() );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getMod() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
@@ -348,7 +348,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function getProcessorGoogleAuthenticator() {
 		require_once( dirname( __FILE__ ).'/loginprotect_googleauthenticator.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getFeature() );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getMod() );
 		return $oProc->setLoginTrack( $this->getLoginTrack() );
 	}
 
@@ -369,7 +369,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	private function getIsLoginIntentValid() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$this->isLoginIntentProcessed() ) {
 			// This action sets up the necessary login tracker info
 			do_action( $oFO->prefix( 'login-intent-validation' ), $this->loadWpUsers()->getCurrentWpUser() );

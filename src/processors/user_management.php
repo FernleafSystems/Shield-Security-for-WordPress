@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function sendLoginNotifications( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$bAdmin = $oFO->isSendAdminEmailLoginNotification();
 		$bUser = $oFO->isSendUserEmailLoginNotification();
 
@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	private function setPasswordStartedAt( $oUser ) {
-		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+		$oMeta = $this->getMod()->getUserMeta( $oUser );
 
 		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 6, 4 );
 		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
@@ -112,7 +112,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+		$oMeta = $this->getMod()->getUserMeta( $oUser );
 		$oMeta->last_login_at = $this->time();
 		return $this;
 	}
@@ -164,7 +164,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aUserCapToRolesMap = array(
 			'network_admin' => 'manage_network',
@@ -175,7 +175,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'subscriber'    => 'read',
 		);
 
-		$sRoleToCheck = strtolower( apply_filters( $this->getFeature()
+		$sRoleToCheck = strtolower( apply_filters( $this->getMod()
 														->prefix( 'login-notification-email-role' ), 'administrator' ) );
 		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
 			$sRoleToCheck = 'administrator';
@@ -215,7 +215,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		return $this
-			->getFeature()
+			->getMod()
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oFO->getAdminLoginNotificationEmail(),
@@ -245,7 +245,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		return $this
-			->getFeature()
+			->getMod()
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oUser->user_email,
@@ -261,7 +261,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$oProc = $this->getSubProcessor( 'passwords' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/usermanagement_passwords.php' );
-			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getMod() );
 			$this->aSubProcessors[ 'passwords' ] = $oProc;
 		}
 		return $oProc;
@@ -274,7 +274,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !isset( $this->oProcessorSessions ) ) {
 			require_once( dirname( __FILE__ ).'/usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
 		}
 		return $this->oProcessorSessions;

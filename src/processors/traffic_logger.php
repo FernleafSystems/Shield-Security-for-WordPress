@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	protected function trimTable() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		try {
 			$this->getTrafficEntryDeleter()
 				 ->deleteExcess( $oFO->getMaxEntries() );
@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getIfLogRequest() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oWp = $this->loadWp();
 		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
@@ -284,7 +284,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getAutoExpirePeriod() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
 	}
 
@@ -313,7 +313,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'traffic_table_columns' );
+		$aDef = $this->getMod()->getDef( 'traffic_table_columns' );
 		return is_array( $aDef ) ? $aDef : array();
 	}
 }

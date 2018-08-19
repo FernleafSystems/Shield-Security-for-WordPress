@@ -19,7 +19,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	public function processLoginAttempt_Filter( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$bLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
 		if ( $bLoginSuccess && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
@@ -95,7 +95,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	public function hasValidatedProfile( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
 		return ( $oFO->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
 	}
@@ -107,7 +107,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	private function getIsUserSubjectToEmailAuthentication( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$nUserLevel = $oUser->user_level;
 		$aSubjectedUserLevels = $oFO->getEmail2FaRoles();
 
@@ -133,7 +133,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	protected function genSessionHash() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return hash_hmac(
 			'sha1',
 			$this->getController()->getUniqueRequestId(),
@@ -234,7 +234,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			//TODO: Make email authentication a per-user setting
 		);
 
-		echo $this->getFeature()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
+		echo $this->getMod()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
 	}
 
 	/**
@@ -248,6 +248,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return string
 	 */
 	protected function get2FaCodeUserMetaKey() {
-		return $this->getFeature()->prefix( 'tfaemail_reqid' );
+		return $this->getMod()->prefix( 'tfaemail_reqid' );
 	}
 }

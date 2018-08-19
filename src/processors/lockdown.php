@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->getOptIs( 'disable_file_editing', 'Y' ) ) {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function disableXmlrpc() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'xml_block_at' );
 		$this->setIpTransgressed();
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function isRestApiAccessAllowed() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->isRestApiAnonymousAccessAllowed()
 			   || $this->loadWpUsers()->isUserLoggedIn()
 			   || in_array( $this->loadWp()->getRestNamespace(), $oFO->getRestApiAnonymousExclusions() );
@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
 
 			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( 'restapi_block_at' );
 		}
 		return $mCurrentStatus;
@@ -122,7 +122,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getFeature()->getFeatureSlug();
+		$sSlug = $this->getMod()->getFeatureSlug();
 		$aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ]
 			= empty( $aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
 		return $aData;

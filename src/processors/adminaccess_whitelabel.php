@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		add_filter( $this->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $oFO->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 
 	public function onWpInit() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oCon = $this->getController();
 
 		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates()
@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 */
 	public function doRelabelPlugin( $aPluginLabels ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aWhiteLabels = $oFO->getWhitelabelOptions();
 

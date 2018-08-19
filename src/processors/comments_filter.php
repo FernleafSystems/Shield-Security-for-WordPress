@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		if ( $oFO->isEnabledGaspCheck() ) {
@@ -87,7 +87,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function doSetCommentStatus( $sApprovalStatus ) {
-		$sStatus = apply_filters( $this->getFeature()->prefix( 'cf_status' ), '' );
+		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
 		return empty( $sStatus ) ? $sApprovalStatus : $sStatus;
 	}
 
@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function doInsertCommentStatusExplanation( $sCommentContent ) {
 
-		$sExplanation = apply_filters( $this->getFeature()->prefix( 'cf_status_expl' ), '' );
+		$sExplanation = apply_filters( $this->getMod()->prefix( 'cf_status_expl' ), '' );
 
 		// If either spam filtering process left an explanation, we add it here
 		if ( !empty( $sExplanation ) ) {
@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function doClearCommentNotificationEmail_Filter( $aEmails ) {
-		$sStatus = apply_filters( $this->getFeature()->prefix( 'cf_status' ), '' );
+		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
 		if ( in_array( $sStatus, array( 'reject', 'trash' ) ) ) {
 			$aEmails = array();
 		}

@@ -35,7 +35,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	public function init() {
 		parent::init();
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
@@ -45,7 +45,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return int
 	 */
 	protected function getInstallationDays() {
-		$nTimeInstalled = $this->getFeature()->getPluginInstallationTime();
+		$nTimeInstalled = $this->getMod()->getPluginInstallationTime();
 		if ( empty( $nTimeInstalled ) ) {
 			return 0;
 		}
@@ -74,7 +74,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getRecaptchaTheme() {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $this->isRecaptchaInvisible() ? 'light' : $oFO->getGoogleRecaptchaStyle();
 	}
 
@@ -91,7 +91,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function checkRequestRecaptcha() {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sCaptchaResponse = $this->getRecaptchaResponse();
 
@@ -116,7 +116,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getIfIpTransgressed() {
-		return apply_filters( $this->getFeature()->prefix( 'ip_black_mark' ), false );
+		return apply_filters( $this->getMod()->prefix( 'ip_black_mark' ), false );
 	}
 
 	/**
@@ -140,7 +140,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return $this
 	 */
 	public function setIpTransgressed() {
-		add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+		add_filter( $this->getMod()->prefix( 'ip_black_mark' ), '__return_true' );
 		return $this;
 	}
 
@@ -149,7 +149,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function isRecaptchaInvisible() {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return ( $oFO->getGoogleRecaptchaStyle() == 'invisible' );
 	}
 
@@ -190,7 +190,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		if ( !is_array( $aData ) ) {
 			$aData = array();
 		}
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
 		return $aData;
 	}
@@ -243,7 +243,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
 		if ( empty( $sParentStatKey ) ) {
-			$sParentStatKey = $this->getFeature()->getFeatureSlug();
+			$sParentStatKey = $this->getMod()->getFeatureSlug();
 		}
 		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
 	}
@@ -335,7 +335,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			echo $this->loadRenderer( $this->getController()->getPath_Templates() )
 					  ->setTemplateEnginePhp()
 					  ->setRenderVars(

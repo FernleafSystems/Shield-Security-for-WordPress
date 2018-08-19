@@ -31,7 +31,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 
 	protected function setupChecksumCron() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$this->loadWpCronProcessor()
 			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getScanFrequency() ) ) )
 			 ->createCronJob(
@@ -45,7 +45,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	public function deleteCron() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$this->loadWpCronProcessor()->deleteCronJob( $oFO->getUfcCronName() );
 	}
 
@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->clearLastScanProblemAt( 'ufc' );
 	}
 
@@ -139,7 +139,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	protected function isExcluded( $oFile ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFS = $this->loadFS();
 
 		$sFileName = $oFile->getFilename();
@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 			return;
 		}
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isUfcEnabled() ) {
 			try {
 				$this->runScan(); // The file scanning part can exception with permission & exists
@@ -187,7 +187,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	public function runScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aDiscoveredFiles = $this->discoverFiles();
 		if ( !empty( $aDiscoveredFiles ) ) {
@@ -205,7 +205,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	public function discoverFiles() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aDiscovered = $this->scanCore();
 		if ( $oFO->isUfsScanUploads() ) {
@@ -223,7 +223,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	protected function emailResults( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sName = $this->getController()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
@@ -262,7 +262,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	private function buildEmailBody( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
 
 		$aContent = array();
@@ -294,7 +294,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 */
 	private function buildEmailBody_Legacy( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
 
 		$aContent = array();
@@ -336,7 +336,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 				$this->loadWp()->getUrl_WpAdmin()
 			),
 			_wpsf__( 'Repair file now' ),
-			$this->getFeature()->getDef( 'url_wordress_core_svn' )
+			$this->getMod()->getDef( 'url_wordress_core_svn' )
 			.'tags/'.$this->loadWp()->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);

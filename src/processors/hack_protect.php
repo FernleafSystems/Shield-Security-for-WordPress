@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sPath = $this->loadDP()->getRequestPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function runPluginVulnerabilities() {
 		require_once( dirname( __FILE__ ).'/hackprotect_pluginvulnerabilities.php' );
-		$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getFeature() );
+		$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getMod() );
 		$oPv->run();
 	}
 
@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oProc = $this->getSubProcessor( 'checksum' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_corechecksumscan.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getMod() );
 			$this->aSubProcessors[ 'checksum' ] = $oProc;
 		}
 		return $oProc;
@@ -104,7 +104,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oProc = $this->getSubProcessor( 'cleaner' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_filecleanerscan.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getMod() );
 			$this->aSubProcessors[ 'cleaner' ] = $oProc;
 		}
 		return $oProc;
@@ -115,7 +115,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProcessorIntegrity() {
 		require_once( dirname( __FILE__ ).'/hackprotect_integrity.php' );
-		$oProc = new ICWP_WPSF_Processor_HackProtect_Integrity( $this->getFeature() );
+		$oProc = new ICWP_WPSF_Processor_HackProtect_Integrity( $this->getMod() );
 		return $oProc;
 	}
 
@@ -126,7 +126,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oProc = $this->getSubProcessor( 'ptguard' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_ptguard.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_PTGuard( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_PTGuard( $this->getMod() );
 			$this->aSubProcessors[ 'ptguard' ] = $oProc;
 		}
 		return $oProc;
@@ -139,7 +139,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oProc = $this->getSubProcessor( 'vuln' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_wpvulnscan.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getMod() );
 			$this->aSubProcessors[ 'vuln' ] = $oProc;
 		}
 		return $oProc;

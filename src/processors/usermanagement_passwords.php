@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oMeta = $oFO->getCurrentUserMeta();
 
 		$nExpireTimeout = $oFO->getPassExpireTimeout();
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 	private function processFailedCheckPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oMeta = $oFO->getCurrentUserMeta();
 
 		$bPassCheckFailed = false;
@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$this->loadWp()
 			 ->doRedirect(
 				 self_admin_url( 'profile.php' ),
-				 array( $this->getFeature()->prefix( 'force-user-password' ) => 1 )
+				 array( $this->getMod()->prefix( 'force-user-password' ) => 1 )
 			 );
 	}
 
@@ -119,7 +119,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					$oErrors->add( 'shield_password_policy', $sMessage );
 
 					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-					$oFO = $this->getFeature();
+					$oFO = $this->getMod();
 					$oFO->setOptInsightsAt( 'last_password_block_at' );
 
 					$this->addToAuditEntry(
@@ -139,7 +139,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$this->testPasswordMeetsMinimumLength( $sPassword );
 		$this->testPasswordMeetsMinimumStrength( $sPassword );
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	protected function testPasswordMeetsMinimumStrength( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$nMin = $oFO->getPassMinStrength();
 
 		$oStengther = new \ZxcvbnPhp\Zxcvbn();
@@ -176,7 +176,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	protected function testPasswordMeetsMinimumLength( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$nMin = $oFO->getPassMinLength();
 		$nLength = strlen( $sPassword );
 		if ( $nMin > 0 && $nLength < $nMin ) {
@@ -205,7 +205,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	protected function sendRequestToPwned( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oConn = $oFO->getConn();
 
 		$aResponse = $this->loadFS()->requestUrl(
@@ -267,7 +267,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	protected function sendRequestToPwnedRange( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oConn = $oFO->getConn();
 
 		$sPassHash = strtoupper( hash( 'sha1', $sPass ) );
@@ -340,7 +340,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return $this
 	 */
 	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
-		$oMeta = $this->getFeature()->getUserMeta( $oUser );
+		$oMeta = $this->getMod()->getUserMeta( $oUser );
 		$oMeta->pass_check_failed_at = $bFailed ? $this->time() : 0;
 		return $this;
 	}

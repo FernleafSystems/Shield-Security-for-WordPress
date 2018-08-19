@@ -42,7 +42,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$this->processBlacklist();
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
 
 		if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
@@ -58,7 +58,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 	public function doTrack404() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->is404Tracking() && is_404() ) {
 			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
 				$this->setIpTransgressed(); // We now black mark this IP
@@ -77,8 +77,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function addLoginFailedWarningMessage( $oUserOrError ) {
 		if ( $this->loadWp()->isRequestUserLogin() && is_wp_error( $oUserOrError ) ) {
 			$oUserOrError->add(
-				$this->getFeature()->prefix( 'transgression-warning' ),
-				$this->getFeature()->getTextOpt( 'text_loginfailed' )
+				$this->getMod()->prefix( 'transgression-warning' ),
+				$this->getMod()->getTextOpt( 'text_loginfailed' )
 			);
 		}
 		return $oUserOrError;
@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	private function getTextOfRemainingTransgressions() {
 		return sprintf(
-			$this->getFeature()->getTextOpt( 'text_remainingtrans' ),
+			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
 			$this->getRemainingTransgressionsForIp() - 1 // we take one off because it hasn't been incremented at this stage
 		);
 	}
@@ -192,7 +192,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getRemainingTransgressionsForIp( $sIp = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( empty( $sIp ) ) {
 			$sIp = $this->ip();
 		}
@@ -219,7 +219,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$sIp = $this->ip();
 		$bKill = false; // Manual black list first.
 
@@ -256,7 +256,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	protected function getIsVisitorWhitelisted() {
-		return apply_filters( $this->getFeature()->prefix( 'visitor_is_whitelisted' ), false );
+		return apply_filters( $this->getMod()->prefix( 'visitor_is_whitelisted' ), false );
 	}
 
 	/**
@@ -269,7 +269,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function blackMarkCurrentVisitor() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $this->getIfIpTransgressed() ) {
 
@@ -289,7 +289,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function blackMarkIp( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'last_transgression_at' );
 		$this->doStatIncrement( 'ip.transgression.incremented' );
 
@@ -374,7 +374,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getIsIpAutoBlackListed( $sIp, $bReturnListData = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
 		$nTransgressions = $oFO->getOptTransgressionLimit();
@@ -391,7 +391,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getIpHasTransgressions( $sIp, $bReturnListData = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$nSinceTimeToConsider = $this->time() - $oFO->getAutoExpireTime();
 
@@ -672,7 +672,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDefinition( 'ip_list_table_columns' );
+		$aDef = $this->getMod()->getDefinition( 'ip_list_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -700,7 +700,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getAutoExpirePeriod() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getAutoExpireTime();
 	}
 }
