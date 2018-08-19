@@ -114,6 +114,23 @@
       "name": "Max Log Length",
       "summary": "Maximum Traffic Log Length To Keep",
       "description": "Automated DB cleanup will delete logs to maintain this maximum number of records."
+    },
+    {
+      "key": "auto_disable",
+      "section": "section_traffic_options",
+      "default": "N",
+      "min": 0,
+      "type": "checkbox",
+      "link_info": "",
+      "link_blog": "",
+      "name": "Auto Disable",
+      "summary": "Auto Disable Traffic Logging After 1 Week",
+      "description": "Turn on to prevent unnecessary long-term traffic logging. Timer resets each time you save."
+    },
+    {
+      "key":          "autodisable_at",
+      "transferable": false,
+      "section":      "section_non_ui"
     }
   ],
   "definitions": {

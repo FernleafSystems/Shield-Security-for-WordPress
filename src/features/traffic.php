@@ -14,6 +14,28 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * Hooked to the plugin's main plugin_shutdown action
+	 */
+	public function action_doFeatureShutdown() {
+		if ( $this->isAutoDisable() && $this->loadDP()->time() - $this->getAutoDisableAt() > 0 ) {
+			$this->setOpt( 'auto_disable', 'N' )
+				 ->setOpt( 'autodisable_at', 0 )
+				 ->setIsMainFeatureEnabled( false );
+		}
+		parent::action_doFeatureShutdown();
+	}
+
+	/**
+	 * We clean the database after saving.
+	 */
+	protected function doPrePluginOptionsSave() {
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getProcessorLogger()
+			 ->cleanupDatabase();
+	}
+
+	/**
 	 * We clean the database after saving.
 	 */
 	protected function doExtraSubmitProcessing() {
@@ -21,6 +43,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oPro = $this->getProcessor();
 		$oPro->getProcessorLogger()
 			 ->cleanupDatabase();
+
+		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? $this->loadDP()->time() + WEEK_IN_SECONDS : 0 );
 	}
 
 	/**
@@ -76,10 +100,31 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getAutoDisableAt() {
+		return (int)$this->getOpt( 'autodisable_at' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getAutoDisableTimestamp() {
+		return $this->loadWp()->getTimeStampForDisplay( $this->getAutoDisableAt() );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTrafficTableName() {
 		return $this->prefix( $this->getDef( 'traffic_table_name' ), '_' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoDisable() {
+		return $this->getOptIs( 'auto_disable', 'Y' );
 	}
 
 	/**
@@ -422,6 +467,21 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$sName = _wpsf__( 'Max Log Length' );
 				$sSummary = _wpsf__( 'Maximum Traffic Log Length To Keep' );
 				$sDescription = _wpsf__( 'DB cleanup will delete logs to maintain this maximum number of records.' );
+				break;
+
+			case 'auto_disable' :
+				$sName = _wpsf__( 'Auto Disable' );
+				$sSummary = _wpsf__( 'Auto Disable Traffic Logging After 1 Week' );
+
+				if ( $this->isAutoDisable() ) {
+					$sTimestamp = '<br/>'.sprintf( _wpsf__( 'Auto Disable At: %s' ), $this->getAutoDisableTimestamp() );
+				}
+				else {
+					$sTimestamp = '';
+				}
+				$sDescription = _wpsf__( 'Turn on to prevent unnecessary long-term traffic logging.' )
+								.'<br />'._wpsf__( 'Timer resets after options save.' )
+								.$sTimestamp;
 				break;
 
 			default:
