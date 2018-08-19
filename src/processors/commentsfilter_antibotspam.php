@@ -278,10 +278,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$oFO = $this->getFeature();
 
 		$sId = $this->getUniqueFormId();
-		$sConfirm = stripslashes( $oFO->getTextOpt( 'custom_message_checkbox' ) );
-		$sAlert = stripslashes( $oFO->getTextOpt( 'custom_message_alert' ) );
-		$sCommentWait = stripslashes( $oFO->getTextOpt( 'custom_message_comment_wait' ) );
-		$sCommentReload = stripslashes( $oFO->getTextOpt( 'custom_message_comment_reload' ) );
+		$sConfirm = $oFO->getTextOpt( 'custom_message_checkbox' );
+		$sAlert = $oFO->getTextOpt( 'custom_message_alert' );
+		$sCommentWait = $oFO->getTextOpt( 'custom_message_comment_wait' );
+		$sCommentReload = $oFO->getTextOpt( 'custom_message_comment_reload' );
 
 		$nCooldown = $this->getOption( 'comments_cooldown_interval' );
 		$nExpire = $this->getOption( 'comments_token_expire_interval' );
