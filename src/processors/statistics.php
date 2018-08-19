@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 				$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
 			}
 		}
-		$aData[ $this->getMod()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
+		$aData[ $this->getMod()->getSlug() ][ 'stats' ] = $aTallyTracking;
 		return $aData;
 	}
 

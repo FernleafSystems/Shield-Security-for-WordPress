@@ -53,7 +53,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	protected $sFeatureSlug;
+	protected $sModSlug;
 
 	/**
 	 * @var boolean
@@ -103,7 +103,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( isset( $aModProps[ 'slug' ] ) ) {
-			$this->sFeatureSlug = $aModProps[ 'slug' ];
+			$this->sModSlug = $aModProps[ 'slug' ];
 		}
 
 		// before proceeding, we must now test the system meets the minimum requirements.
@@ -377,7 +377,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			include_once( self::getConn()
-							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getFeatureSlug() ) ) );
+							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
@@ -393,7 +393,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getProcessorClassName() {
 		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Processor_'.
-			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
+			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) );
 	}
 
 	/**
@@ -402,7 +402,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getWizardClassName() {
 		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Wizard_'.
-			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getFeatureSlug() ) ) );
+			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) );
 	}
 
 	/**
@@ -413,7 +413,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$oCon = self::getConn();
 			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
 			$this->oOptions
-				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getFeatureSlug() ) )
+				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
 				->setIsPremiumLicensed( $this->isPremium() )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
@@ -507,7 +507,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( $bEnable ) {
-		return $this->setOpt( 'enable_'.$this->getFeatureSlug(), $bEnable ? 'Y' : 'N' );
+		return $this->setOpt( 'enable_'.$this->getSlug(), $bEnable ? 'Y' : 'N' );
 	}
 
 	/**
@@ -516,8 +516,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function isModuleEnabled() {
 		$oOpts = $this->getOptionsVo();
 
-		$bEnabled = $this->getOptIs( 'enable_'.$this->getFeatureSlug(), 'Y' )
-					|| $this->getOptIs( 'enable_'.$this->getFeatureSlug(), true, true );
+		$bEnabled = $this->getOptIs( 'enable_'.$this->getSlug(), 'Y' )
+					|| $this->getOptIs( 'enable_'.$this->getSlug(), true, true );
 
 		if ( $oOpts->getFeatureProperty( 'auto_enabled' ) === true ) {
 			$bEnabled = true;
@@ -543,21 +543,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getFeatureSlug() {
-		if ( !isset( $this->sFeatureSlug ) ) {
-			$this->sFeatureSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );
-		}
-		return $this->sFeatureSlug;
-	}
-
-	/**
 	 * @param bool $bWithPrefix
 	 * @return string
 	 */
 	public function getModSlug( $bWithPrefix = true ) {
-		return $bWithPrefix ? $this->prefix( $this->getFeatureSlug() ) : $this->getFeatureSlug();
+		return $bWithPrefix ? $this->prefix( $this->getSlug() ) : $this->getSlug();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSlug() {
+		if ( !isset( $this->sModSlug ) ) {
+			$this->sModSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );
+		}
+		return $this->sModSlug;
 	}
 
 	/**
@@ -664,8 +664,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aSummary = array(
 			'enabled'    => $this->isModuleEnabled(),
-			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getFeatureSlug(),
-			'slug'       => $this->getFeatureSlug(),
+			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getSlug(),
+			'slug'       => $this->getSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
@@ -898,7 +898,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
-			include_once( self::getConn()->getPath_SourceFile( sprintf( 'wizards/%s.php', $this->getFeatureSlug() ) ) );
+			include_once( self::getConn()->getPath_SourceFile( sprintf( 'wizards/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getWizardClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
@@ -1471,7 +1471,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getBaseDisplayData( $bRenderEmbeddedContent = false ) {
 		$oCon = self::getConn();
-		self::$sActivelyDisplayedModuleOptions = $this->getFeatureSlug();
+		self::$sActivelyDisplayedModuleOptions = $this->getSlug();
 
 		$aData = array(
 			'sPluginName'     => $oCon->getHumanName(),
@@ -1485,7 +1485,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'help_video'      => array(
 				'auto_show'   => $this->getIfAutoShowHelpVideo(),
 				'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),
-				'display_id'  => 'ShieldHelpVideo'.$this->getFeatureSlug(),
+				'display_id'  => 'ShieldHelpVideo'.$this->getSlug(),
 				'options'     => $this->getHelpVideoOptions(),
 				'displayable' => $this->isHelpVideoDisplayable(),
 				'show'        => $this->isHelpVideoDisplayable() && !$this->getHelpVideoHasBeenClosed(),
@@ -1896,11 +1896,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $aData;
 	}
 
-	/** Help Video options */
-
 	/**
 	 * @return array
 	 */
+
+	/** Help Video options */
+
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', array() );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
@@ -1913,7 +1914,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		return $aOptions;
 	}
-
 	/**
 	 * @return bool
 	 */
@@ -2020,5 +2020,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function setOptAt( $sOpt, $nAt = null ) {
 		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadDP()->time() : max( 0, (int)$nAt ) );
+	}
+
+	/**
+	 * @deprecated
+	 * @return string
+	 */
+	public function getFeatureSlug() {
+		return $this->getSlug();
 	}
 }

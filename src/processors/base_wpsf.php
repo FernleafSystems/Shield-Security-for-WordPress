@@ -191,7 +191,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			$aData = array();
 		}
 		$oFO = $this->getMod();
-		$aData[ $oFO->getFeatureSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
+		$aData[ $oFO->getSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
 		return $aData;
 	}
 
@@ -243,7 +243,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
 		if ( empty( $sParentStatKey ) ) {
-			$sParentStatKey = $this->getMod()->getFeatureSlug();
+			$sParentStatKey = $this->getMod()->getSlug();
 		}
 		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
 	}

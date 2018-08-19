@@ -122,7 +122,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getMod()->getFeatureSlug();
+		$sSlug = $this->getMod()->getSlug();
 		$aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ]
 			= empty( $aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
 		return $aData;

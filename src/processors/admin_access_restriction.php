@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getMod()->getFeatureSlug();
+		$sSlug = $this->getMod()->getSlug();
 
 		$aKeysToBoolean = array(
 			'admin_access_restrict_plugins',
