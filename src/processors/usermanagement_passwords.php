@@ -85,14 +85,14 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	private function redirectToProfile( $sMessage ) {
+		$oWp = $this->loadWp();
 		$this->loadAdminNoticesProcessor()
-			 ->addFlashMessage( $sMessage.'<br/>'._wpsf__( 'Please update your password.' ) );
+			 ->addFlashMessage( $sMessage.' '._wpsf__( 'Please update your password.' ) );
 
-		$this->loadWp()
-			 ->doRedirect(
-				 self_admin_url( 'profile.php' ),
-				 array( $this->getMod()->prefix( 'force-user-password' ) => 1 )
-			 );
+		$oWp->doRedirect(
+			self_admin_url( 'profile.php' ),
+			array( $this->getMod()->prefix( 'force-user-password' ) => 1 )
+		);
 	}
 
 	/**

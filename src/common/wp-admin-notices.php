@@ -235,7 +235,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 		$oDp = $this->loadDP();
 		$sCookieName = $this->getActionPrefix().'flash';
-		$this->sFlashMessage = $oDp->FetchCookie( $sCookieName, '' );
+		$this->sFlashMessage = $oDp->cookie( $sCookieName, '' );
 		if ( !empty( $this->sFlashMessage ) ) {
 			$this->sFlashMessage = sanitize_text_field( $this->sFlashMessage );
 		}
