@@ -34,6 +34,7 @@
         "featherlight"
       ],
       "js": [
+        "jquery",
         "global-plugin",
         "featherlight"
       ]
@@ -45,6 +46,7 @@
       ],
       "js": [
         "bootstrap4.bundle.min",
+        "jquery",
         "plugin"
       ]
     },
