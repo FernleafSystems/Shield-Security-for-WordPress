@@ -257,7 +257,7 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 	};
 }();
 
-if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
+if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.timeleft > 0 ) {
 	iCWP_WPSF_SecurityAdminCheck.initialise();
 }
 iCWP_WPSF_OptionsPages.initialise();
