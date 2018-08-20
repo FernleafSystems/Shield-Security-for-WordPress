@@ -23,13 +23,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					$sMd5FilePath = urldecode( esc_url( $sPath ) );
 					if ( !empty( $sMd5FilePath ) ) {
 						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
-							$this->loadAdminNoticesProcessor()
+							$this->loadWpNotices()
 								 ->addFlashMessage(
 									 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
 								 );
 						}
 						else {
-							$this->loadAdminNoticesProcessor()
+							$this->loadWpNotices()
 								 ->addFlashMessage(
 									 _wpsf__( 'File was not replaced' )
 								 );
@@ -41,7 +41,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 
 	protected function setupChecksumCron() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$this->loadWpCronProcessor()
 			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getScanFrequency() ) ) )
 			 ->createCronJob(
@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	public function deleteCron() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$this->loadWpCronProcessor()->deleteCronJob( $oFO->getWcfCronName() );
 	}
 
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	public function doChecksumScan( $bAutoRepair ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aChecksumData = $this->loadWp()->getCoreChecksums();
 
@@ -78,7 +78,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			'missing'           => array(),
 		);
 
-		$aAutoFixIndexFiles = $this->getFeature()->getDefinition( 'corechecksum_autofix' );
+		$aAutoFixIndexFiles = $this->getMod()->getDefinition( 'corechecksum_autofix' );
 		if ( empty( $aAutoFixIndexFiles ) ) {
 			$aAutoFixIndexFiles = array();
 		}
@@ -159,7 +159,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	protected function getFullExclusions() {
-		$aExclusions = $this->getFeature()->getDef( 'corechecksum_exclusions' );
+		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions' );
 		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 			$aExclusions = array();
 		}
@@ -180,7 +180,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	protected function getMissingOnlyExclusions() {
-		$aExclusions = $this->getFeature()->getDef( 'corechecksum_exclusions_missing_only' );
+		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions_missing_only' );
 		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
 			$aExclusions = array();
 		}
@@ -199,10 +199,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$sLocale = $this->loadWp()->getLocale( true );
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 		if ( $bUseInternational ) {
-			$sRootUrl = $this->getFeature()->getDef( 'url_wordress_core_svn_il8n' ).$sLocale;
+			$sRootUrl = $this->getMod()->getDef( 'url_wordress_core_svn_il8n' ).$sLocale;
 		}
 		else {
-			$sRootUrl = $this->getFeature()->getDef( 'url_wordress_core_svn' );
+			$sRootUrl = $this->getMod()->getDef( 'url_wordress_core_svn' );
 		}
 		$sFileUrl = sprintf(
 			'%s/tags/%s/%s',
@@ -239,7 +239,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	protected function emailResults( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sName = $this->getController()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
@@ -277,7 +277,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	private function buildEmailBody( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
 
 		$aContent = array();
@@ -361,7 +361,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 				$this->loadWp()->getUrl_WpAdmin()
 			),
 			_wpsf__( 'Repair file now' ),
-			$this->getFeature()->getDef( 'url_wordress_core_svn' )
+			$this->getMod()->getDef( 'url_wordress_core_svn' )
 			.'tags/'.$this->loadWp()->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
@@ -371,7 +371,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return string
 	 */
 	protected function getCronName() {
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefixOptionKey( $oFO->getDef( 'corechecksum_cron_name' ) );
 	}
 

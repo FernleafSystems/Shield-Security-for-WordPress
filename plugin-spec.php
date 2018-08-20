@@ -1,6 +1,6 @@
 {
   "properties": {
-    "version": "6.8.3",
+    "version": "6.9.0",
     "release_timestamp": 1529653373,
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
@@ -34,6 +34,7 @@
         "featherlight"
       ],
       "js": [
+        "jquery",
         "global-plugin",
         "featherlight"
       ]
@@ -45,6 +46,7 @@
       ],
       "js": [
         "bootstrap4.bundle.min",
+        "jquery",
         "plugin"
       ]
     },

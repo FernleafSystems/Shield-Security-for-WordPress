@@ -1,8 +1,8 @@
 <h2 style="margin: 0 0 20px">
 	<?php echo $sTitle; ?>
-	<a class="btn btn-light" data-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
+	<a class="btn btn-info" data-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
 	   aria-controls="collapseExample">
-    Filter Traffic Log
+   &darr; Filter Traffic Log &darr;
   </a>
 </h2>
 <div class="collapse" id="collapseFilters">

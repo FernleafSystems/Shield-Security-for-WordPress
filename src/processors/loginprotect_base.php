@@ -51,7 +51,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$b3rdParty = $oFO->getIfSupport3rdParty();
 
 		if ( $oFO->isProtectLogin() ) {
@@ -394,7 +394,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	protected function setLoginAsFailed( $sStatToIncrement ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'last_login_block_at' );
 
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php

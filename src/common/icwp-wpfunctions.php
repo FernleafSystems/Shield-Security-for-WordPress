@@ -445,7 +445,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 				return;
 			}
 			else {
-				$oDp->setCookie( 'icwp-isredirect', 'yes', 2 );
+				$oDp->setCookie( 'icwp-isredirect', 'yes', 5 );
 			}
 		}
 

@@ -15,7 +15,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 		$this->setupSnapshots();
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isIcUsersEnabled() ) {
 			add_action( 'user_register', array( $this, 'snapshotUsers' ) );
 			add_action( 'profile_update', array( $this, 'snapshotUsers' ) );
@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 
 	protected function verifyUsers() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->isIcUsersEnabled() ) {
 			return;
 		}
@@ -117,7 +117,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 	 */
 	public function snapshotUsers( $bUpdate = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->isIcUsersEnabled() && ( $bUpdate || !$this->hasSnapshotUsers() ) ) {
 
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 	 */
 	protected function getCronFrequency() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getScanFrequency();
 	}
 
@@ -164,7 +164,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 	 */
 	protected function getCronName() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getIcCronName();
 	}
 }

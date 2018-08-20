@@ -23,7 +23,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	protected $sActionPrefix = '';
+	protected $sPrefix = '';
 
 	/**
 	 * @return ICWP_WPSF_WpAdminNotices
@@ -58,7 +58,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	protected function ajaxExec_DismissAdminNotice() {
 		// Get all notices and if this notice exists, we set it to "hidden"
 		$sNoticeId = sanitize_key( $this->loadDP()->query( 'notice_id', '' ) );
-		$aNotices = apply_filters( $this->getActionPrefix().'register_admin_notices', array() );
+		$aNotices = apply_filters( $this->getPrefix().'register_admin_notices', array() );
 		if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
 			$this->setMeta( $aNotices[ $sNoticeId ][ 'id' ] );
 		}
@@ -66,11 +66,12 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpAdminNotices() {
-		do_action( $this->getActionPrefix().'generate_admin_notices' );
+		do_action( $this->getPrefix().'generate_admin_notices' );
 		foreach ( $this->getNotices() as $sKey => $sAdminNoticeContent ) {
 			echo $sAdminNoticeContent;
 		}
 		$this->flashNotice();
+		$this->flashUserNotice();
 	}
 
 	/**
@@ -89,7 +90,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	public function getMeta( $sNoticeId ) {
 		$mValue = array();
 
-		$oMeta = $this->loadWpUsers()->metaVoForUser( rtrim( $this->getActionPrefix(), '-' ) );
+		$oMeta = $this->getCurrentUserMeta();
 
 		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
 		if ( isset( $oMeta->{$sCleanNotice} ) && is_array( $oMeta->{$sCleanNotice} ) ) {
@@ -97,6 +98,13 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		}
 
 		return $mValue;
+	}
+
+	/**
+	 * @return ICWP_UserMeta
+	 */
+	protected function getCurrentUserMeta() {
+		return $this->loadWpUsers()->metaVoForUser( rtrim( $this->getPrefix(), '-' ) );
 	}
 
 	/**
@@ -108,7 +116,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 			$aMeta = array();
 		}
 
-		$oMeta = $this->loadWpUsers()->metaVoForUser( rtrim( $this->getActionPrefix(), '-' ) );
+		$oMeta = $this->getCurrentUserMeta();
 		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
 		$oMeta->{$sCleanNotice} = array_merge( array( 'time' => $this->loadDP()->time() ), $aMeta );
 		return;
@@ -117,16 +125,16 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getActionPrefix() {
-		return $this->sActionPrefix;
+	public function getPrefix() {
+		return $this->sPrefix;
 	}
 
 	/**
 	 * @param string $sPrefix
 	 * @return $this
 	 */
-	public function setActionPrefix( $sPrefix ) {
-		$this->sActionPrefix = rtrim( $sPrefix, '-' ).'-';
+	public function setPrefix( $sPrefix ) {
+		$this->sPrefix = rtrim( $sPrefix, '-' ).'-';
 		return $this;
 	}
 
@@ -204,19 +212,47 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @deprecated use addFlashUserMessage()
 	 * @param string $sMessage
 	 * @param string $sType
 	 */
 	public function addFlashMessage( $sMessage, $sType = 'updated' ) {
 		$this->loadDP()->setCookie(
-			$this->getActionPrefix().'flash', $sType.'::'.esc_attr( $sMessage )
+			$this->getPrefix().'flash', $sType.'::'.esc_attr( $sMessage )
 		);
+	}
+
+	/**
+	 * @param string $sMessage
+	 * @param string $sType
+	 * @return $this
+	 */
+	public function addFlashUserMessage( $sMessage, $sType = 'updated' ) {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			$this->getCurrentUserMeta()->flash_msg = $sType
+													 .'::'.esc_attr( $sMessage )
+													 .'::'.( $this->loadDP()->time() + 300 );
+		}
+		return $this;
 	}
 
 	protected function flashNotice() {
 		if ( !empty( $this->sFlashMessage ) ) {
 			$aParts = explode( '::', $this->sFlashMessage, 2 );
 			echo $this->wrapAdminNoticeHtml( $aParts[ 1 ], $aParts[ 0 ] );
+		}
+	}
+
+	protected function flashUserNotice() {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			$oMeta = $this->getCurrentUserMeta();
+			if ( !empty( $oMeta->flash_msg ) ) {
+				$aParts = explode( '::', $oMeta->flash_msg, 3 );
+				if ( empty( $aParts[ 2 ] ) || $this->loadDP()->time() < $aParts[ 2 ] ) {
+					echo $this->wrapAdminNoticeHtml( $aParts[ 1 ], $aParts[ 0 ] );
+				}
+				unset( $oMeta->flash_msg );
+			}
 		}
 	}
 
@@ -234,8 +270,8 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	public function flushFlashMessage() {
 
 		$oDp = $this->loadDP();
-		$sCookieName = $this->getActionPrefix().'flash';
-		$this->sFlashMessage = $oDp->FetchCookie( $sCookieName, '' );
+		$sCookieName = $this->getPrefix().'flash';
+		$this->sFlashMessage = $oDp->cookie( $sCookieName, '' );
 		if ( !empty( $this->sFlashMessage ) ) {
 			$this->sFlashMessage = sanitize_text_field( $this->sFlashMessage );
 		}

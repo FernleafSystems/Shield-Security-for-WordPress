@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		parent::run();
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isPtgReadyToScan() ) {
 			add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
 			add_action( 'activated_plugin', array( $this, 'onActivatePlugin' ), 10 );
@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			),
 			'js_snippets' => array()
 		);
-		echo $this->getFeature()
+		echo $this->getMod()
 				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
 	}
 
@@ -369,7 +369,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	private function hashFilesInDir( $sDir ) {
 		$aSnaps = array();
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$nDepth = $oFO->getPtgDepth();
 		foreach ( $this->loadFS()->getFilesInDir( $sDir, $nDepth, $this->getIterator( $sDir ) ) as $oFile ) {
@@ -384,7 +384,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	private function getIterator( $sDir ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oIt = new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
 		return $oIt->setExtensions( $oFO->getPtgFileExtensions() );
 	}
@@ -421,7 +421,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	protected function emailResults( $aResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		// Plugins
 		$aAllPlugins = array();
@@ -514,7 +514,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	private function getResultsHashTime( $sResultHash ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aTracking = $oFO->getPtgEmailTrackData();
 
@@ -552,7 +552,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$bProblemDiscovered = false;
 		$aResults = array();
@@ -621,7 +621,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	protected function getCronFrequency() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getScanFrequency();
 	}
 
@@ -630,7 +630,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	protected function getCronName() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getPtgCronName();
 	}
 
@@ -639,7 +639,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	private function getSnapsBaseDir() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getPtgSnapsBaseDir();
 	}
 }

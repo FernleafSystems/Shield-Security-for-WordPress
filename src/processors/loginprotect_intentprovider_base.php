@@ -17,7 +17,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->getIfUseLoginIntentPage() ) {
 			add_filter( $oFO->prefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
@@ -89,7 +89,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 			$bValidated = ( $bValidated == 'Y' );
 		}
 		else if ( is_null( $bValidated ) ) {
-			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
+			$sOldMetaKey = $this->getMod()->prefixOptionKey( $sKey );
 			// look for the old style meta
 			$bValidated = ( $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID ) == 'Y' );
 			if ( $bValidated ) {
@@ -117,7 +117,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		// fallback to old meta
 		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
 		if ( !$this->isSecretValid( $sSecret ) ) {
-			$sOldMetaKey = $this->getFeature()->prefixOptionKey( $sKey );
+			$sOldMetaKey = $this->getMod()->prefixOptionKey( $sKey );
 			$sSecret = $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID );
 			$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
 
@@ -264,7 +264,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return string
 	 */
 	protected function getLoginFormParameter() {
-		return $this->getFeature()->prefixOptionKey( $this->getStub().'_otp' );
+		return $this->getMod()->prefixOptionKey( $this->getStub().'_otp' );
 	}
 
 	/**

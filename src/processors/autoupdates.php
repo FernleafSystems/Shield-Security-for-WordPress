@@ -29,14 +29,14 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function getIfForceRunAutoupdates() {
-		return apply_filters( $this->getFeature()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
+		return apply_filters( $this->getMod()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
 	}
 
 	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$nFilterPriority = $this->getHookPriority();
 		add_filter( 'allow_minor_auto_core_updates', array( $this, 'autoupdate_core_minor' ), $nFilterPriority );
@@ -114,7 +114,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
 			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 
 			$aTk = $oFO->getDelayTracking();
 			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : array();
@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->response ) && is_array( $oUpdates->response ) ) {
 			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 
 			$aTk = $oFO->getDelayTracking();
 			foreach ( $oUpdates->response as $sSlug => $oUpdate ) {
@@ -192,7 +192,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_core_major( $bUpdate ) {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( !$oFO->isDelayUpdates() ) {
 			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
@@ -215,7 +215,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_core_minor( $bUpdate ) {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( !$oFO->isDelayUpdates() ) {
 			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
@@ -259,7 +259,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 
@@ -326,7 +326,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		$bDelayed = false;
 
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isDelayUpdates() ) {
 
 			$aTk = $oFO->getDelayTracking();
@@ -374,7 +374,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_send_email( $bSendEmail ) {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->isSendAutoupdatesNotificationEmail();
 	}
 
@@ -436,7 +436,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			return;
 		}
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$bUpdate = $this->loadWp()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
 //		$bUpdate = in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
@@ -586,6 +586,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return int
 	 */
 	protected function getHookPriority() {
-		return $this->getFeature()->getDefinition( 'action_hook_priority' );
+		return $this->getMod()->getDefinition( 'action_hook_priority' );
 	}
 }

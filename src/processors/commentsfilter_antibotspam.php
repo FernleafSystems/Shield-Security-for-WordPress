@@ -83,15 +83,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getMod()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.
 		add_action( 'comment_form', array( $this, 'printGaspFormHook_Action' ), 1 );
 		add_action( 'comment_form', array( $this, 'printGaspFormParts_Action' ), 2 );
 		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
 
-		add_filter( $this->getFeature()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeature()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getMod()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getMod()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$this->aRawCommentData = $aCommentData;
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -166,7 +166,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$bIsSpam = true;
 		$sStatKey = '';
@@ -275,7 +275,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	protected function getGaspCommentsHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sId = $this->getUniqueFormId();
 		$sConfirm = $oFO->getTextOpt( 'custom_message_checkbox' );
@@ -438,7 +438,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'spambot_comments_filter_table_columns' );
+		$aDef = $this->getMod()->getDef( 'spambot_comments_filter_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

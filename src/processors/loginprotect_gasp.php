@@ -20,7 +20,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 */
 	private function getGaspLoginHtml() {
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
-		return $this->getFeature()->renderTemplate(
+		return $this->getMod()->renderTemplate(
 			'snippets/gasp_js.php',
 			array(
 				'sCbName'   => $this->getGaspCheckboxName(),
@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 */
 	protected function getGaspCheckboxName() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefix( $oFO->getGaspKey() );
 	}
 
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 
 		if ( !$bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
 			$this->setIpTransgressed(); // We now black mark this IP
 			throw new Exception( $sError );
@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 
 		if ( !$bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
 			$this->setIpTransgressed(); // We now black mark this IP
 			throw new Exception( $sDieMessage );
@@ -136,13 +136,13 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @return string
 	 */
 	protected function getTextImAHuman() {
-		return $this->getFeature()->getTextOpt( 'text_imahuman' );
+		return $this->getMod()->getTextOpt( 'text_imahuman' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getTextPleaseCheckBox() {
-		return $this->getFeature()->getTextOpt( 'text_pleasecheckbox' );
+		return $this->getMod()->getTextOpt( 'text_pleasecheckbox' );
 	}
 }

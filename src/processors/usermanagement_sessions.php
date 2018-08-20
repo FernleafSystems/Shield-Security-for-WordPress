@@ -30,7 +30,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	protected function getCronName() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefix( $oFO->getDef( 'cron_name_sessionscleanup' ) );
 	}
 
@@ -39,7 +39,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function isReadyToRun() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return ( parent::isReadyToRun() && $oFO->getSessionsProcessor()->isReadyToRun() );
 	}
 
@@ -115,7 +115,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 
 	public function cleanExpiredSessions() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oTerminator = $oFO->getSessionsProcessor()
 						   ->getQueryDeleter();
 
@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function getActiveSessions() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$oQ = $oFO->getSessionsProcessor()
 				  ->getQuerySelector();
@@ -166,7 +166,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function getLoginIdleExpiredBoundary() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $this->time() - $oFO->getSessionIdleTimeoutInterval();
 	}
 
@@ -182,7 +182,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	protected function assessCurrentSession() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( !$oFO->hasSession() ) {
 			$nForceLogOutCode = 4;
@@ -215,7 +215,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function setTimeoutCookieExpiration_Filter( $nTimeout ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->hasSessionTimeoutInterval() ? $oFO->getSessionTimeoutInterval() : $nTimeout;
 	}
 
@@ -223,7 +223,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 * @return bool
 	 */
 	protected function isLockToIp() {
-		return $this->getFeature()->getOptIs( 'session_lock_location', 'Y' );
+		return $this->getMod()->getOptIs( 'session_lock_location', 'Y' );
 	}
 
 	/**
@@ -234,7 +234,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
 		if ( $nSessionLimit > 0 ) {
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			try {
 				$oFO->getSessionsProcessor()
 					->getQueryDeleter()

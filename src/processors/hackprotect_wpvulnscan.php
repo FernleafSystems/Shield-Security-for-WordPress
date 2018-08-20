@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		add_action( 'load-plugins.php', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), PHP_INT_MAX, 2 );
 		}
@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 	public function addPluginVulnerabilityRows() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->getHasVulnerablePlugins() ) {
 			// These 3 add the 'Vulnerable' plugin status view.
@@ -149,7 +149,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 				'vulns'    => $aVuln,
 				'nColspan' => $this->nColumnsCount
 			);
-			echo $this->getFeature()
+			echo $this->getMod()
 					  ->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
 		}
 	}
@@ -165,7 +165,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->isWpvulnIdAlreadyNotified( $oVuln->getId() ) ) {
 
 			$oFO->addWpvulnNotifiedId( $oVuln->getId() );
@@ -203,7 +203,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			return true;
 		}
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oWp = $this->loadWp();
 		$oConn = $this->getController();
 
@@ -233,7 +233,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 	public function cron_dailyWpVulnScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$this->scanPlugins();
 		$this->scanThemes();
@@ -251,7 +251,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnSendEmail() ) {
 			$this->sendVulnerabilityNotification();
 		}
@@ -340,7 +340,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	protected function getVulnerabilityDataForPlugin( $sSlug ) {
 
 		$oWp = $this->loadWp();
-		$sTransientKey = $this->getFeature()->prefixOptionKey( 'wpvulnplugin-'.$sSlug );
+		$sTransientKey = $this->getMod()->prefixOptionKey( 'wpvulnplugin-'.$sSlug );
 
 		$sFullContent = $oWp->getTransient( $sTransientKey );
 		if ( $sFullContent === false ) {
@@ -371,7 +371,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 
 		$sSlug = $oTheme->get_stylesheet();
 		$oWp = $this->loadWp();
-		$sTransientKey = $this->getFeature()->prefixOptionKey( 'wpvulntheme-'.$sSlug );
+		$sTransientKey = $this->getMod()->prefixOptionKey( 'wpvulntheme-'.$sSlug );
 
 		$sFullContent = $oWp->getTransient( $sTransientKey );
 		if ( empty( $sFullContent ) ) {
@@ -396,7 +396,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	protected function setupVulnScanCron() {
 		$this->loadWpCronProcessor()
 			 ->createCronJob( $this->getCronName(), array( $this, 'cron_dailyWpVulnScan' ) );
-		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
@@ -404,7 +404,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function getApiRootUrl() {
 		if ( empty( $this->sApiRootUrl ) ) {
-			$this->sApiRootUrl = rtrim( $this->getFeature()->getDefinition( 'wpvulndb_api_url_root' ), '/' ).'/';
+			$this->sApiRootUrl = rtrim( $this->getMod()->getDefinition( 'wpvulndb_api_url_root' ), '/' ).'/';
 		}
 		return $this->sApiRootUrl;
 	}
@@ -413,7 +413,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 * @return string
 	 */
 	protected function getCronName() {
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefixOptionKey( $oFO->getDefinition( 'wpvulnscan_cron_name' ) );
 	}
 }

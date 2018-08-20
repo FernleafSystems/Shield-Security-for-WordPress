@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $this->isReadyToRun() ) {
 			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 				$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
 			}
 		}
-		$aData[ $this->getFeature()->getFeatureSlug() ][ 'stats' ] = $aTallyTracking;
+		$aData[ $this->getMod()->getSlug() ][ 'stats' ] = $aTallyTracking;
 		return $aData;
 	}
 
@@ -142,7 +142,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 
 	public function gatherStatsSummaryWidgetContent( $aContent ) {
 		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$aAllStats = $this->getAllTallys();
 		$nTotalCommentSpamBlocked = 0;
@@ -327,7 +327,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getFeature()->isPluginDeleting() ) {
+		if ( !$this->getMod()->isPluginDeleting() ) {
 			$this->commit();
 		}
 	}
@@ -336,7 +336,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'statistics_table_columns' );
+		$aDef = $this->getMod()->getDef( 'statistics_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -360,7 +360,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	protected function commit() {
-		$aEntries = apply_filters( $this->getFeature()->prefix( 'collect_stats' ), array() );
+		$aEntries = apply_filters( $this->getMod()->prefix( 'collect_stats' ), array() );
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 			return;
 		}
@@ -403,7 +403,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	protected function getReportingProcessor() {
 		if ( !isset( $this->oReportingProcessor ) ) {
 			require_once( dirname(__FILE__ ).'/statistics_reporting.php' );
-			$this->oReportingProcessor = new ICWP_WPSF_Processor_Statistics_Reporting( $this->getFeature() );
+			$this->oReportingProcessor = new ICWP_WPSF_Processor_Statistics_Reporting( $this->getMod() );
 		}
 		return $this->oReportingProcessor;
 	}

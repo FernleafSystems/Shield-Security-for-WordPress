@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 */
 	public function run() {
 		parent::run();
-		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getMod()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 	}
 
 	/**
@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		parent::doCommentChecking( $aCommentData );
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -121,7 +121,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		foreach ( $aItemsToCheck as $sKey => $sItem ) {
 			foreach ( $aWords as $sWord ) {
 				if ( stripos( $sItem, $sWord ) !== false ) {
@@ -217,6 +217,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function getSpamBlacklistFile() {
-		return $this->getFeature()->getResourcesDir().'spamblacklist.txt';
+		return $this->getMod()->getResourcesDir().'spamblacklist.txt';
 	}
 }

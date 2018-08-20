@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_License $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oDp = $this->loadDP();
 
 		// performs the license check

@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function setReferrerPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$sValue = null;
 		if ( $oFO->isReferrerPolicyEnabled() ) {
 			$sValue = $oFO->getReferrerPolicyValue();
@@ -110,7 +110,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function setContentSecurityPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->getIsContentSecurityPolicyEnabled() ) {
 			return null;
 		}
@@ -147,7 +147,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function gatherSecurityHeaders() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$this->addHeader( $this->setReferrerPolicyHeader() );
 		$this->addHeader( $this->setXFrameHeader() );

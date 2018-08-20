@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			$this->autoAddSession();
 
 			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			if ( $oFO->hasSession() ) {
 				$this->getQueryUpdater()
 					 ->updateLastActivity( $this->getCurrentSession() );
@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	private function autoAddSession() {
 		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
 			$this->queryCreateSession(
 				$this->loadWpUsers()->getCurrentWpUsername(),
@@ -112,7 +112,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( $oWpUsers->isUserLoggedIn() ) {
 			$oUser = $oWpUsers->getCurrentWpUser();
 			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			if ( $oFO->hasSession() ) {
 				$sMessage = sprintf(
 								'<p class="message">%s<br />%s</p>',
@@ -305,7 +305,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'sessions_table_columns' );
+		$aDef = $this->getMod()->getDef( 'sessions_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

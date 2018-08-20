@@ -307,8 +307,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
-			$oNofics = $this->loadAdminNoticesProcessor();
-			$oNofics->setActionPrefix( $this->prefix() );
+			$oNofics = $this->loadWpNotices();
+			$oNofics->setPrefix( $this->prefix() );
 			add_filter( $this->prefix( 'ajaxAuthAction' ), array( $oNofics, 'handleAuthAjax' ) );
 		}
 	}
@@ -607,18 +607,19 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpEnqueueAdminJs() {
+		$sVers = $this->getVersion();
 
 		if ( $this->getIsValidAdminArea() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-				$sDependent = false;
+				$sDep = false;
 				foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
 					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->prefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
+						wp_register_script( $sUnique, $sUrl, $sDep ? array( $sDep ) : array(), $sVers );
 						wp_enqueue_script( $sUnique );
-						$sDependent = $sUnique;
+						$sDep = $sUnique;
 					}
 				}
 			}
@@ -627,14 +628,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-				$sDependent = false;
-				foreach ( $aAdminJs[ 'js' ] as $sJsAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sJsAsset.'.js' );
+				$sDep = false;
+				foreach ( $aAdminJs[ 'js' ] as $sAsset ) {
+
+					// Built-in handles
+					if ( in_array( $sAsset, array( 'jquery' ) ) ) {
+						if ( wp_script_is( $sAsset, 'registered' ) ) {
+							wp_enqueue_script( $sAsset );
+							$sDep = $sAsset;
+						}
+						continue;
+					}
+
+					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
 					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sJsAsset );
-						wp_register_script( $sUnique, $sUrl, $sDependent, $this->getVersion() );
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script( $sUnique, $sUrl, $sDep ? array( $sDep ) : array(), $sVers );
 						wp_enqueue_script( $sUnique );
-						$sDependent = $sUnique;
+						$sDep = $sUnique;
 					}
 				}
 			}
@@ -1689,6 +1700,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
 		return $this->{$sOptionsVarName};
+	}
+
+	/**
+	 * @return ICWP_UserMeta
+	 */
+	public function getCurrentUserMeta() {
+		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
+	}
+
+	/**
+	 * @param $oUser WP_User
+	 * @return ICWP_UserMeta
+	 */
+	public function getUserMeta( $oUser ) {
+		return $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
 	}
 
 	/**

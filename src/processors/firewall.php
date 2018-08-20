@@ -233,7 +233,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallPatterns( $sKey = null ) {
 		if ( !isset( $this->aPatterns ) ) {
-			$this->aPatterns = $this->getFeature()->getDefinition( 'firewall_patterns' );
+			$this->aPatterns = $this->getMod()->getDefinition( 'firewall_patterns' );
 		}
 		if ( !empty( $sKey ) ) {
 			return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
@@ -255,7 +255,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $this->getIfDoFirewallBlock() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 
 			switch ( $oFO->getBlockResponse() ) {
 				case 'redirect_die':
@@ -298,7 +298,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $this->getIfDoFirewallBlock() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$oWp = $this->loadWp();
 
 			switch ( $oFO->getBlockResponse() ) {
@@ -325,7 +325,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallDieMessage() {
 		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
-			$this->aDieMessage = array( $this->getFeature()->getTextOpt( 'text_firewalldie' ) );
+			$this->aDieMessage = array( $this->getMod()->getTextOpt( 'text_firewalldie' ) );
 		}
 		return $this->aDieMessage;
 	}
@@ -334,7 +334,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getFirewallDieMessageForDisplay() {
-		$aMessages = apply_filters( $this->getFeature()
+		$aMessages = apply_filters( $this->getMod()
 										 ->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
 		if ( !is_array( $aMessages ) ) {
 			$aMessages = array();
@@ -451,7 +451,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			);
 
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$aCustomWhitelistPageParams = $oFO->getPageParamWhitelist();
 			$this->aWhitelistPages = array_merge_recursive( $aDefaultWlPages, $aCustomWhitelistPageParams );
 		}

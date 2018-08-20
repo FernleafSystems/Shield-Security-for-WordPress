@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getFeature()->isPluginDeleting() ) {
+		if ( !$this->getMod()->isPluginDeleting() ) {
 			$this->commitAuditTrial();
 		}
 	}
@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function trimTable() {
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		try {
 			$this->getAuditTrailDelete()
 				 ->deleteExcess( $oFO->getMaxEntries() );
@@ -158,7 +158,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function commitAuditTrial() {
 		$aEntries = apply_filters(
-			$this->getFeature()->prefix( 'collect_audit_trail' ),
+			$this->getMod()->prefix( 'collect_audit_trail' ),
 			$this->getBaseAuditor()->getAuditTrailEntries( true )
 		);
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
@@ -203,7 +203,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'audit_trail_table_columns' );
+		$aDef = $this->getMod()->getDef( 'audit_trail_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -218,7 +218,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getAutoExpirePeriod() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
 	}
 

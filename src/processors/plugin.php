@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function run() {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
 
 		$this->removePluginConflicts();
@@ -71,7 +71,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function getBadgeProcessor() {
 		if ( !isset( $this->oBadgeProcessor ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_badge.php' );
-			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getFeature() );
+			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getMod() );
 		}
 		return $this->oBadgeProcessor;
 	}
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function getTrackingProcessor() {
 		if ( !isset( $this->oTrackingProcessor ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_tracking.php' );
-			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeature() );
+			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getMod() );
 		}
 		return $this->oTrackingProcessor;
 	}
@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oProc = $this->getSubProcessor( 'importexport' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_importexport.php' );
-			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getMod() );
 			$this->aSubProcessors[ 'importexport' ] = $oProc;
 		}
 		return $oProc;
@@ -107,7 +107,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oProc = $this->getSubProcessor( 'notes' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
-			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $this->getMod() );
 			$this->aSubProcessors[ 'notes' ] = $oProc;
 		}
 		return $oProc;
@@ -127,7 +127,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	public function printTrackingDataBox() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( !$this->getController()->getIsValidAdminArea() ) {
 			return;
@@ -159,7 +159,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	public function cron_TestCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->updateTestCronLastRunAt();
 	}
 
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
-		$oModCon = $this->getFeature();
+		$oModCon = $this->getMod();
 		$sName = $this->getController()->getHumanName();
 
 		$nDays = $this->getInstallationDays();

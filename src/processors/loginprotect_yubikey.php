@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			)
 		);
 
-		echo $this->getFeature()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
+		echo $this->getMod()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
 	}
 
 	/**
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 		$oWpUsers = $this->loadWpUsers();
-		$oWpNotices = $this->loadAdminNoticesProcessor();
+		$oWpNotices = $this->loadWpNotices();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
@@ -114,7 +114,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	public function processLoginAttempt_Filter( $oUser ) {
 		return $oUser;
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oLoginTrack = $this->getLoginTrack();
 
 		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactor();
