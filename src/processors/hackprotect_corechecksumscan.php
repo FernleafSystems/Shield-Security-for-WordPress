@@ -23,13 +23,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					$sMd5FilePath = urldecode( esc_url( $sPath ) );
 					if ( !empty( $sMd5FilePath ) ) {
 						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
-							$this->loadAdminNoticesProcessor()
+							$this->loadWpNotices()
 								 ->addFlashMessage(
 									 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
 								 );
 						}
 						else {
-							$this->loadAdminNoticesProcessor()
+							$this->loadWpNotices()
 								 ->addFlashMessage(
 									 _wpsf__( 'File was not replaced' )
 								 );

@@ -81,7 +81,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function getIfDisplayAdminNotice( $aAttrs ) {
-		$oWpNotices = $this->loadAdminNoticesProcessor();
+		$oWpNotices = $this->loadWpNotices();
 
 		if ( empty( $aAttrs[ 'schedule' ] )
 			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version', 'never' ) ) ) {
@@ -146,7 +146,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$bCantDismiss = isset( $aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ] )
 						&& !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
 
-		$oNotices = $this->loadAdminNoticesProcessor();
+		$oNotices = $this->loadWpNotices();
 		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) || $bCantDismiss ) {
 
 			$sRenderedNotice = $this->getMod()->renderAdminNotice( $aNoticeData );
@@ -235,7 +235,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_UserMeta
 	 */
 	protected function getCurrentUserMeta() {
-		return $this->getMod()->getCurrentUserMeta();
+		return $this->getController()->getCurrentUserMeta();
 	}
 
 	/**

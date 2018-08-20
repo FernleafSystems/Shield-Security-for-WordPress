@@ -307,8 +307,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		// outsource the collection of admin notices
 		if ( is_admin() ) {
-			$oNofics = $this->loadAdminNoticesProcessor();
-			$oNofics->setActionPrefix( $this->prefix() );
+			$oNofics = $this->loadWpNotices();
+			$oNofics->setPrefix( $this->prefix() );
 			add_filter( $this->prefix( 'ajaxAuthAction' ), array( $oNofics, 'handleAuthAjax' ) );
 		}
 	}
@@ -1689,6 +1689,21 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
 		return $this->{$sOptionsVarName};
+	}
+
+	/**
+	 * @return ICWP_UserMeta
+	 */
+	public function getCurrentUserMeta() {
+		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
+	}
+
+	/**
+	 * @param $oUser WP_User
+	 * @return ICWP_UserMeta
+	 */
+	public function getUserMeta( $oUser ) {
+		return $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
 	}
 
 	/**

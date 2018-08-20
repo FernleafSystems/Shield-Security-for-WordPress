@@ -107,13 +107,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 				if ( $bPermissionToRemoveGa ) {
 					$this->processRemovalFromAccount( $oSavingUser );
-					$this->loadAdminNoticesProcessor()
+					$this->loadWpNotices()
 						 ->addFlashMessage(
 							 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
 						 );
 				}
 				else {
-					$this->loadAdminNoticesProcessor()
+					$this->loadWpNotices()
 						 ->addFlashErrorMessage(
 							 _wpsf__( 'Google Authenticator could not be removed from the account - ensure your code is correct.' )
 						 );
@@ -143,7 +143,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 		$oWpUsers = $this->loadWpUsers();
-		$oWpNotices = $this->loadAdminNoticesProcessor();
+		$oWpNotices = $this->loadWpNotices();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
@@ -158,7 +158,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 			if ( $bValidOtp ) {
 				$this->processRemovalFromAccount( $oSavingUser );
-				$this->loadAdminNoticesProcessor()
+				$this->loadWpNotices()
 					 ->addFlashMessage(
 						 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
 					 );
@@ -312,7 +312,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		$this->processRemovalFromAccount( $oWpCurrentUser );
-		$this->loadAdminNoticesProcessor()
+		$this->loadWpNotices()
 			 ->addFlashMessage( _wpsf__( 'Google Authenticator was successfully removed from this account.' ) );
 		$this->loadWp()->redirectToAdmin();
 	}

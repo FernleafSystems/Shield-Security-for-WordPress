@@ -226,7 +226,7 @@ class ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_WpAdminNotices
 	 */
-	static public function loadAdminNoticesProcessor() {
+	static public function loadWpNotices() {
 		$sKey = 'wp-admin-notices';
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::requireCommonLib( $sKey.'.php' );
@@ -332,5 +332,13 @@ class ICWP_WPSF_Foundation {
 		$aDic = self::getDic();
 		$aDic[ $sServiceKey ] = $oService;
 		self::$aDic = $aDic;
+	}
+
+	/**
+	 * @deprecated
+	 * @return ICWP_WPSF_WpAdminNotices
+	 */
+	static public function loadAdminNoticesProcessor() {
+		return self::loadWpNotices();
 	}
 }

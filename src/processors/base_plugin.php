@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 		$oPlugin = $this->getController();
-		$oNotices = $this->loadAdminNoticesProcessor();
+		$oNotices = $this->loadWpNotices();
 
 		if ( $oNotices->isDismissed( 'plugin-update-available' ) ) {
 			$aMeta = $oNotices->getMeta( 'plugin-update-available' );

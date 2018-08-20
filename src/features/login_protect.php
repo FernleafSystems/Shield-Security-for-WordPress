@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
 
-				$oNoticer = $this->loadAdminNoticesProcessor();
+				$oNoticer = $this->loadWpNotices();
 				if ( $this->getIfCanSendEmailVerified() ) {
 					$oNoticer->addFlashMessage(
 						_wpsf__( 'Email verification completed successfully.' )
@@ -281,7 +281,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
-			$oMeta = $this->getUserMeta( $oUser );
+			$oMeta = $this->getController()->getUserMeta( $oUser );
 			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
 		}
 		return $bCanSkip;
@@ -295,7 +295,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oDp = $this->loadDP();
 		$aHashes = $this->getMfaLoginHashes( $oUser );
 		$aHashes[ md5( $oDp->getUserAgent() ) ] = $oDp->time();
-		$this->getCurrentUserMeta()->hash_loginmfa = $aHashes;
+		$this->getController()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
 		return $this;
 	}
 
@@ -304,7 +304,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getMfaLoginHashes( $oUser ) {
-		$oMeta = $this->getUserMeta( $oUser );
+		$oMeta = $this->getController()->getUserMeta( $oUser );
 		$aHashes = $oMeta->hash_loginmfa;
 		if ( !is_array( $aHashes ) ) {
 			$aHashes = array();

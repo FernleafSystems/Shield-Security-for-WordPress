@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oMeta = $oFO->getCurrentUserMeta();
+		$oMeta = $this->getController()->getCurrentUserMeta();
 
 		$nExpireTimeout = $oFO->getPassExpireTimeout();
 		if ( $nExpireTimeout > 0 && $oMeta->pass_started_at > 0 ) {
@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	private function processFailedCheckPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oMeta = $oFO->getCurrentUserMeta();
+		$oMeta = $this->getController()->getCurrentUserMeta();
 
 		$bPassCheckFailed = false;
 		if ( $oFO->isPassForceUpdateExisting() ) {
@@ -86,8 +86,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 	private function redirectToProfile( $sMessage ) {
 		$oWp = $this->loadWp();
-		$this->loadAdminNoticesProcessor()
-			 ->addFlashMessage( $sMessage.' '._wpsf__( 'Please update your password.' ) );
+
+		$this->loadWpNotices()
+			 ->addFlashUserMessage( $sMessage.' '._wpsf__( 'Please update your password in the section below.' ) );
 
 		$oWp->doRedirect(
 			self_admin_url( 'profile.php' ),
@@ -340,7 +341,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return $this
 	 */
 	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
-		$oMeta = $this->getMod()->getUserMeta( $oUser );
+		$oMeta = $this->getController()->getUserMeta( $oUser );
 		$oMeta->pass_check_failed_at = $bFailed ? $this->time() : 0;
 		return $this;
 	}

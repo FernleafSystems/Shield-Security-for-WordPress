@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	private function setPasswordStartedAt( $oUser ) {
-		$oMeta = $this->getMod()->getUserMeta( $oUser );
+		$oMeta = $this->getController()->getUserMeta( $oUser );
 
 		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 6, 4 );
 		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
@@ -112,7 +112,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->getMod()->getUserMeta( $oUser );
+		$oMeta = $this->getController()->getUserMeta( $oUser );
 		$oMeta->last_login_at = $this->time();
 		return $this;
 	}

@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		$oUser = new WP_User( $nUserId );
 		if ( $oUser->ID != 0 ) { // i.e. said user id exists.
-			$oMeta = $oFO->getUserMeta( $oUser );
+			$oMeta = $this->getController()->getUserMeta( $oUser );
 			$oMeta->wc_social_login_valid = true;
 		}
 	}
@@ -122,13 +122,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					}
 
 					$this->removeLoginIntent();
-					$this->loadAdminNoticesProcessor()->addFlashMessage(
+					$this->loadWpNotices()->addFlashUserMessage(
 						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
 
 					$oFO->setOptInsightsAt( 'last_2fa_login_at' );
 				}
 				else {
-					$this->loadAdminNoticesProcessor()->addFlashMessage(
+					$this->loadWpNotices()->addFlashMessage(
 						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
 				}
 				$this->loadWp()->redirectHere();
@@ -158,7 +158,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		// support for WooCommerce Social Login
 		if ( $oFO->getIfSupport3rdParty() ) {
-			$oFO->getCurrentUserMeta()->wc_social_login_valid = false;
+			$this->getController()->getCurrentUserMeta()->wc_social_login_valid = false;
 		}
 	}
 
@@ -261,7 +261,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			return false; // a final guard against displaying an empty form.
 		}
 
-		$sMessage = $this->loadAdminNoticesProcessor()
+		$sMessage = $this->loadWpNotices()
 						 ->flushFlashMessage()
 						 ->getRawFlashMessageText();
 

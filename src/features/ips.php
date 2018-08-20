@@ -415,7 +415,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			$oProcessor = $this->getProcessor();
 			if ( count( $oProcessor->getWhitelistData() ) > 0 ) {
 				$this->setIsMainFeatureEnabled( true );
-				$this->loadAdminNoticesProcessor()->addFlashMessage(
+				$this->loadWpNotices()->addFlashMessage(
 					sprintf( _wpsf__( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List' ), $this->getMainFeatureName() )
 				);
 			}

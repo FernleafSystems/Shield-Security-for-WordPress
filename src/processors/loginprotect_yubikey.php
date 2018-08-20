@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 		$oWpUsers = $this->loadWpUsers();
-		$oWpNotices = $this->loadAdminNoticesProcessor();
+		$oWpNotices = $this->loadWpNotices();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
