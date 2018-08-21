@@ -424,7 +424,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	protected function buildSummaryData() {
 		$aSummary = parent::buildSummaryData();
-		$aSummary[ 'enabled' ] = $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
+		$aSummary[ 'enabled' ] = $aSummary[ 'enabled' ]
+								 && $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
 		return $aSummary;
 	}
 

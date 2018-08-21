@@ -1291,6 +1291,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				else if ( $sOptionType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
+				else if ( $sOptionType == 'multiple_select' ) {
+					$sOptionValue = array();
+				}
 			}
 			else { //handle any pre-processing we need to.
 
