@@ -248,17 +248,15 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function verifyLicense( $bForceCheck = true ) {
 		$nNow = $this->loadDP()->time();
+		$oCurrent = $this->loadLicense();
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
-		$bCheck = $bForceCheck ||
-				  ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-					&& ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 )
+		$bCheck = $bForceCheck || ( $this->isLicenseActive() && !$oCurrent->isReady() )
+				  || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
+					   && ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 )
 				  );
 
 		// 1 check in 20 seconds
-		// Update the currently stored license.
-		$oCurrent = $this->loadLicense();
-
 		if ( $bCheck && ( $nNow - $this->getLicenseLastCheckedAt() > 20 ) ) {
 
 			$this->setLicenseLastCheckedAt()
