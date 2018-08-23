@@ -638,6 +638,14 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param stdClass $oStdClass
+	 * @return array
+	 */
+	public function convertStdClassToArray( $oStdClass ) {
+		return json_decode( json_encode( $oStdClass ), true );
+	}
+
+	/**
 	 * @param array $aSubjectArray
 	 * @param mixed $mValue
 	 * @param int   $nDesiredPosition

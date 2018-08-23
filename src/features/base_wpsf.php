@@ -38,18 +38,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function insertCustomJsVars() {
 		parent::insertCustomJsVars();
 
-		$nSecTimeLeft = $this->isThisModulePage() ? $this->getSecAdminTimeLeft() : 0;
-		if ( $nSecTimeLeft > 0 ) {
-			wp_localize_script(
-				$this->prefix( 'plugin' ),
-				'icwp_wpsf_vars_secadmin',
-				array(
-					'reqajax'      => $this->getSecAdminCheckAjaxData(),
-					'is_sec_admin' => true, // if $nSecTimeLeft > 0
-					'timeleft'     => $nSecTimeLeft // JS uses milliseconds
-				)
-			);
-		}
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_secadmin',
+			array(
+				'reqajax'      => $this->getSecAdminCheckAjaxData(),
+				'is_sec_admin' => true, // if $nSecTimeLeft > 0
+				'timeleft'     => $this->getSecAdminTimeLeft() // JS uses milliseconds
+			)
+		);
 	}
 
 	/**

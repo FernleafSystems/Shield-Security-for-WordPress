@@ -22,28 +22,35 @@ class ICWP_EDD_LicenseVO {
 	 * @return int
 	 */
 	public function getActivationsLeft() {
-		return $this->getRaw()->activations_left;
+		return $this->getRawKey( 'activations_left' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getCustomerEmail() {
-		return $this->getRaw()->customer_email;
+		return $this->getRawKey( 'customer_email' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getChecksum() {
+		return $this->getRawKey( 'checksum' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getCustomerName() {
-		return $this->getRaw()->customer_name;
+		return $this->getRawKey( 'customer_name' );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getExpiresAt() {
-		$sTime = $this->getRaw()->expires;
+		$sTime = $this->getRawKey( 'expires' );
 		return ( $sTime == 'lifetime' ) ? PHP_INT_MAX : strtotime( $sTime );
 	}
 
@@ -51,56 +58,104 @@ class ICWP_EDD_LicenseVO {
 	 * @return string
 	 */
 	public function getItemName() {
-		return $this->getRaw()->item_name;
+		return $this->raw()->item_name;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLastRequestAt() {
+		return (int)$this->getRawKey( 'last_request_at', 0 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLastVerifiedAt() {
+		return (int)$this->getRawKey( 'last_verified_at', 0 );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getLicenseLimit() {
-		return $this->getRaw()->license_limit;
+		return $this->getRawKey( 'license_limit' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getLicenseStatus() {
-		return $this->getRaw()->license;
+		return $this->getRawKey( 'license' );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getPaymentId() {
-		return $this->getRaw()->payment_id;
+		return $this->getRawKey( 'payment_id' );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getSiteCount() {
-		return $this->getRaw()->site_count;
+		return $this->getRawKey( 'site_count' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isShieldCentral() {
-		$oRaw = $this->getRaw();
-		return isset( $oRaw->is_central ) && $oRaw->is_central;
+	public function isCentral() {
+		return (bool)$this->getRawKey( 'is_central' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isSuccess() {
-		return $this->getRaw()->success;
+		return (bool)$this->getRawKey( 'success' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isExpired() {
+		return ( $this->getExpiresAt() < time() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isValid() {
+		return ( $this->isReady() && $this->isSuccess() && !$this->isExpired() && $this->getLicenseStatus() == 'valid' );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param mixed  $mDefault
+	 * @return mixed
+	 */
+	protected function getRawKey( $sKey, $mDefault = null ) {
+		$oRaw = $this->raw();
+		return isset( $oRaw->{$sKey} ) ? $oRaw->{$sKey} : $mDefault;
+	}
+
+	/**
+	 * IMPORTANT: uses clone
+	 * @return stdClass
+	 */
+	public function getRaw() {
+		return ( clone $this->raw() );
 	}
 
 	/**
 	 * @return stdClass
 	 */
-	private function getRaw() {
+	private function raw() {
+		if ( !is_object( $this->oRaw ) ) {
+			$this->oRaw = new stdClass();
+		}
 		return $this->oRaw;
 	}
 
@@ -108,20 +163,47 @@ class ICWP_EDD_LicenseVO {
 	 * @return bool
 	 */
 	public function hasError() {
-		return isset( $this->oRaw->error );
+		$sE = $this->getRawKey( 'error' );
+		return !empty( $sE );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function hasChecksum() {
-		return isset( $this->oRaw->checksum );
+		$sC = $this->getChecksum();
+		return !empty( $sC );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isReady() {
-		return isset( $this->oRaw ) && is_object( $this->oRaw ) && $this->hasChecksum();
+		return $this->hasChecksum();
+	}
+
+	/**
+	 * @param int $nAt
+	 * @return $this
+	 */
+	public function setLastRequestAt( $nAt ) {
+		return $this->setRawKey( 'last_request_at', $nAt );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function updateLastVerifiedAt() {
+		return $this->setRawKey( 'last_verified_at', $this->getLastRequestAt() );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	protected function setRawKey( $sKey, $mValue ) {
+		$this->raw()->{$sKey} = $mValue;
+		return $this;
 	}
 }

@@ -663,7 +663,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aSummary = array(
-			'enabled'    => $this->isModuleEnabled(),
+			'enabled'    => $this->isEnabledForUiSummary(),
 			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getSlug(),
 			'slug'       => $this->getSlug(),
 			'name'       => $this->getMainFeatureName(),
@@ -673,6 +673,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		);
 		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
 		return $aSummary;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isEnabledForUiSummary() {
+		return $this->isModuleEnabled();
 	}
 
 	/**
@@ -1290,6 +1297,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				}
 				else if ( $sOptionType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
+				}
+				else if ( $sOptionType == 'multiple_select' ) {
+					$sOptionValue = array();
 				}
 			}
 			else { //handle any pre-processing we need to.

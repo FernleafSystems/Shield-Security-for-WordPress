@@ -128,6 +128,13 @@
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
+    },
+    {
+      "key": "license_data",
+      "sensitive": true,
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {

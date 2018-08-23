@@ -420,6 +420,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
+	 */
+	protected function isEnabledForUiSummary() {
+		return parent::isEnabledForUiSummary() && $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
