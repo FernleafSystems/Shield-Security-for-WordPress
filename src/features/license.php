@@ -9,6 +9,7 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+		$this->verifyLicense( false );
 		add_filter( $this->getPremiumLicenseFilterName(), array( $this, 'hasValidWorkingLicense' ), PHP_INT_MAX );
 	}
 
@@ -625,20 +626,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * Hooked to the plugin's main plugin_shutdown action
+	 * @return bool
 	 */
-	public function action_doFeatureShutdown() {
-		$this->verifyLicense( false );
-		parent::action_doFeatureShutdown();
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function buildSummaryData() {
-		$aSummary = parent::buildSummaryData();
-		$aSummary[ 'enabled' ] = $this->hasValidWorkingLicense();
-		return $aSummary;
+	protected function isEnabledForUiSummary() {
+		return $this->hasValidWorkingLicense();
 	}
 
 	/**
