@@ -14,6 +14,11 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	protected $aColumnsToSelect;
 
 	/**
+	 * @var array
+	 */
+	protected $aColumnsDefinition;
+
+	/**
 	 * @param string $sCol
 	 * @return $this
 	 */
@@ -84,6 +89,13 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getColumnsDefinition() {
+		return is_array( $this->aColumnsDefinition ) ? $this->aColumnsDefinition : array();
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function hasColumnsToSelect() {
@@ -99,15 +111,29 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * Verifies the given columns are valid and unique
 	 * @param string[] $aColumns
 	 * @return $this
 	 */
 	public function setColumnsToSelect( $aColumns ) {
 		if ( is_array( $aColumns ) ) {
 			$this->aColumnsToSelect = array_unique( array_filter(
-				array_map( 'trim', $aColumns )
+				array_map( 'trim', $aColumns ),
+				function ( $sCol ) {
+					$aDef = $this->getColumnsDefinition();
+					return !empty( $sCol ) && ( empty( $aDef ) || in_array( $sCol, $aDef ) );
+				}
 			) );
 		}
+		return $this;
+	}
+
+	/**
+	 * @param string[] $aColumns
+	 * @return $this
+	 */
+	public function setColumnsDefinition( $aColumns ) {
+		$this->aColumnsDefinition = $aColumns;
 		return $this;
 	}
 }

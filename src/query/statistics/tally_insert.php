@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Statistics_Insert', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_Tally_Insert', false ) ) {
 	return;
 }
 
 require_once( dirname( __DIR__ ).'/base_insert.php' );
 
-class ICWP_WPSF_Query_Statistics_Insert extends ICWP_WPSF_Query_BaseInsert {
+class ICWP_WPSF_Query_Tally_Insert extends ICWP_WPSF_Query_BaseInsert {
 
 	/**
 	 * @param string sStatKey

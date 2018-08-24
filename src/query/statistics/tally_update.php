@@ -1,19 +1,19 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Statistics_Update', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_Tally_Update', false ) ) {
 	return;
 }
 
 require_once( dirname( __DIR__ ).'/base_update.php' );
 
-class ICWP_WPSF_Query_Statistics_Update extends ICWP_WPSF_Query_BaseUpdate {
+class ICWP_WPSF_Query_Tally_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
 	 * @param ICWP_WPSF_TallyVO $oStat
 	 * @param int               $nAdditional
 	 * @return bool
 	 */
-	public function updateTally( $oStat, $nAdditional ) {
+	public function incrementTally( $oStat, $nAdditional ) {
 		return $this->updateStat( $oStat, array( 'tally' => $oStat->tally + $nAdditional, ) );
 	}
 

@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Statistics_Select', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_Tally_Select', false ) ) {
 	return;
 }
 
 require_once( dirname( __DIR__ ).'/base_select.php' );
 
-class ICWP_WPSF_Query_Statistics_Select extends ICWP_WPSF_Query_BaseSelect {
+class ICWP_WPSF_Query_Tally_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
 	 * @param string $sKey

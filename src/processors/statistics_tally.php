@@ -19,29 +19,38 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Statistics_Insert
+	 * @return ICWP_WPSF_Query_Tally_Delete
+	 */
+	public function getDeleter() {
+		require_once( $this->getQueryDir().'tally_delete.php' );
+		return ( new ICWP_WPSF_Query_Tally_Delete() )->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Tally_Insert
 	 */
 	public function getInsertor() {
 		require_once( $this->getQueryDir().'tally_insert.php' );
-		return ( new ICWP_WPSF_Query_Statistics_Insert() )->setTable( $this->getTableName() );
+		return ( new ICWP_WPSF_Query_Tally_Insert() )->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Statistics_Update
+	 * @return ICWP_WPSF_Query_Tally_Update
 	 */
 	public function getUpdater() {
 		require_once( $this->getQueryDir().'tally_update.php' );
-		return ( new ICWP_WPSF_Query_Statistics_Update() )->setTable( $this->getTableName() );
+		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Statistics_Select
+	 * @return ICWP_WPSF_Query_Tally_Select
 	 */
 	public function getSelector() {
 		require_once( $this->getQueryDir().'tally_select.php' );
-		return ( new ICWP_WPSF_Query_Statistics_Select() )
+		return ( new ICWP_WPSF_Query_Tally_Select() )
 			->setTable( $this->getTableName() )
-			->setResultsAsVo( true );
+			->setResultsAsVo( true )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() );
 	}
 
 	public function onModuleShutdown() {
@@ -77,11 +86,11 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 				$oStat = $this->getSelector()
 							  ->retrieveStat( $sStatKey, $sParentStatKey );
 
-				if ( empty( $oStat ) ) {
+				if ( true || empty( $oStat ) ) {
 					$this->getInsertor()->insert( $sStatKey, $nTally, $sParentStatKey );
 				}
 				else {
-					$this->getUpdater()->updateTally( $oStat, $nTally );
+					$this->getUpdater()->incrementTally( $oStat, $nTally );
 				}
 			}
 		}
@@ -102,6 +111,52 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 				PRIMARY KEY  (id)
 			) %s;";
 		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
+	}
+
+	/**
+	 */
+	public function cleanupDatabase() {
+		$this->consolidateDuplicateKeys();
+	}
+
+	/**
+	 * Will consolidate multiple rows with the same stat_key into 1 row
+	 */
+	protected function consolidateDuplicateKeys() {
+		/** @var ICWP_WPSF_TallyVO[] $aAll */
+		$aAll = $this->getSelector()
+					 ->all();
+
+		$aKeys = array();
+		foreach ( $aAll as $oTally ) {
+			if ( !isset( $aKeys[ $oTally->stat_key ] ) ) {
+				$aKeys[ $oTally->stat_key ] = 0;
+			}
+			$aKeys[ $oTally->stat_key ]++;
+		}
+
+		$aKeys = array_keys( array_filter(
+			$aKeys,
+			function ( $nCount ) {
+				return $nCount > 1;
+			}
+		) );
+
+		foreach ( $aKeys as $sKey ) {
+			/** @var ICWP_WPSF_TallyVO[] $aAll */
+			$aAll = $this->getSelector()
+						 ->filterByStatKey( $sKey )
+						 ->query();
+			$oPrimary = array_pop( $aAll );
+
+			$nAdditionalTally = 0;
+			foreach ( $aAll as $oTally ) {
+				$nAdditionalTally += $oTally->tally;
+				$this->getDeleter()->deleteById( $oTally->id );
+			}
+
+			$this->getUpdater()->incrementTally( $oPrimary, $nAdditionalTally );
+		}
 	}
 
 	/**

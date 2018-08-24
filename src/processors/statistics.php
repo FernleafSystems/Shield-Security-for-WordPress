@@ -14,19 +14,12 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $this->isReadyToRun() ) {
 			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
+		$this->getTallyProcessor()
+			 ->run();
 
 		// Reporting stats run or destroy
-		if ( $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' ) ) {
-			$this->getReportingProcessor()
-				 ->run();
-			$this->getTallyProcessor()
-				 ->run();
-		}
-		else { // delete the table for any site that had it running previously
-			// TODO: Delete this block after a while.
-			$oDb = $this->loadDbProcessor();
-			$oDb->doDropTable( $oFO->getFullReportingTableName() );
-		}
+//			$this->getReportingProcessor()
+//				 ->run();
 	}
 
 	/**
