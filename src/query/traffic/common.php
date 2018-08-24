@@ -51,7 +51,10 @@ trait ICWP_WPSF_Query_TrafficEntry_Common {
 	 * @return $this
 	 */
 	public function filterByPathContains( $sTerm ) {
-		return $this->addWhereSearch( 'path', $sTerm );
+		if ( !empty( $sTerm ) ) {
+			$this->addWhereSearch( 'path', $sTerm );
+		}
+		return $this;
 	}
 
 	/**
@@ -59,7 +62,10 @@ trait ICWP_WPSF_Query_TrafficEntry_Common {
 	 * @return $this
 	 */
 	public function filterByUserId( $nId ) {
-		return $this->addWhereEquals( 'uid', (int)$nId );
+		if ( $nId > 0 ) {
+			$this->addWhereEquals( 'uid', (int)$nId );
+		}
+		return $this;
 	}
 
 	/**

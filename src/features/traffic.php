@@ -287,17 +287,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 			}
 
-			if ( !empty( $aParams[ 'fPath' ] ) ) {
-				$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
-			}
-
 			if ( $aParams[ 'fTransgression' ] >= 0 ) {
 				$oSelector->filterByIsTransgression( $aParams[ 'fTransgression' ] );
 			}
 
-			if ( !empty( $aParams[ 'fResponse' ] ) ) {
-				$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
-			}
+			$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
+			$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
 		}
 
 		$aEntries = $oSelector->query();
