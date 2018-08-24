@@ -4,12 +4,12 @@ if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Select', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_select.php' );
+require_once( dirname( dirname( __FILE__ ) ).'/base_select.php' );
 
 class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	protected function customInit() {
-		require_once( __DIR__.'/ICWP_WPSF_AuditTrailEntryVO.php' );
+		require_once( dirname( __FILE__ ).'/ICWP_WPSF_AuditTrailEntryVO.php' );
 	}
 
 	/**

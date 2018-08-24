@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_Sessions_Select', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_select.php' );
+require_once( dirname( dirname( __FILE__ ) ).'/base_select.php' );
 
 class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 
@@ -72,13 +72,11 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	 */
 	public function query() {
 		$aData = parent::query();
-
 		if ( $this->isResultsAsVo() ) {
 			foreach ( $aData as $nKey => $oSess ) {
 				$aData[ $nKey ] = new ICWP_WPSF_SessionVO( $oSess );
 			}
 		}
-
 		return $aData;
 	}
 

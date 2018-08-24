@@ -9,10 +9,18 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' )
+			   && parent::isReadyToExecute();
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getReportingTableName() {
-		return $this->prefix( $this->getDefinition( 'reporting_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'reporting_table_name' ), '_' );
 	}
 
 	/**
@@ -26,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return string
 	 */
 	public function getStatisticsTableName() {
-		return $this->prefix( $this->getDefinition( 'statistics_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'statistics_table_name' ), '_' );
 	}
 
 	/**

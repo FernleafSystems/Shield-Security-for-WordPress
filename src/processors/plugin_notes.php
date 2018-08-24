@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_PluginNotes_Insert
 	 */
 	public function getQueryCreator() {
-		require_once( $this->getQueryDir().'plugin_notes_insert.php' );
+		require_once( $this->getQueryDir().'insert.php' );
 		$oQ = new ICWP_WPSF_Query_PluginNotes_Insert();
 		return $oQ->setTable( $this->getTableName() );
 	}
@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_PluginNotes_Delete
 	 */
 	public function getQueryDeleter() {
-		require_once( $this->getQueryDir().'plugin_notes_delete.php' );
+		require_once( $this->getQueryDir().'delete.php' );
 		$oQ = new ICWP_WPSF_Query_PluginNotes_Delete();
 		return $oQ->setTable( $this->getTableName() );
 	}
@@ -64,8 +64,15 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_PluginNotes_Select
 	 */
 	public function getQuerySelector() {
-		require_once( $this->getQueryDir().'plugin_notes_select.php' );
+		require_once( $this->getQueryDir().'select.php' );
 		$oQ = new ICWP_WPSF_Query_PluginNotes_Select();
 		return $oQ->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getQueryDir() {
+		return parent::getQueryDir().'notes/';
 	}
 }

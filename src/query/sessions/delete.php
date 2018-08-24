@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_Sessions_Delete', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_delete.php' );
+require_once( dirname( dirname( __FILE__ ) ).'/base_delete.php' );
 
 class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 
@@ -42,7 +42,7 @@ class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 	 * @return ICWP_WPSF_Query_Sessions_Count
 	 */
 	protected function getCounter() {
-		require_once( dirname( __FILE__ ).'/sessions_count.php' );
+		require_once( dirname( __FILE__ ).'/count.php' );
 		$oCounter = new ICWP_WPSF_Query_Sessions_Count();
 		return $oCounter->setTable( $this->getTable() );
 	}

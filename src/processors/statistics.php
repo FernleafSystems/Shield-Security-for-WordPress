@@ -4,21 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_Statistics', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'basedb.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
-class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
-
-	/**
-	 * @var ICWP_WPSF_Processor_Statistics_Reporting
-	 */
-	private $oReportingProcessor;
-
-	/**
-	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getStatisticsTableName() );
-	}
+class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
@@ -26,17 +14,12 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		if ( $this->isReadyToRun() ) {
 			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
 		}
+		$this->getTallyProcessor()
+			 ->run();
 
 		// Reporting stats run or destroy
-		if ( $this->loadDP()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
-			$this->getReportingProcessor()
-				 ->run();
-		}
-		else { // delete the table for any site that had it running previously
-			// TODO: Delete this block after a while.
-			$oDb = $this->loadDbProcessor();
-			$oDb->doDropTable( $oFO->getFullReportingTableName() );
-		}
+//			$this->getReportingProcessor()
+//				 ->run();
 	}
 
 	/**
@@ -48,10 +31,10 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		$aData = parent::tracking_DataCollect( $aData );
 		$aTallys = $this->getAllTallys();
 		$aTallyTracking = array();
-		foreach ( $aTallys as $aTally ) {
-			$sKey = preg_replace( '#[^_a-z]#', '', str_replace( '.', '_', $aTally[ 'stat_key' ] ) );
+		foreach ( $aTallys as $oTally ) {
+			$sKey = preg_replace( '#[^_a-z]#', '', str_replace( '.', '_', $oTally->stat_key ) );
 			if ( strpos( $sKey, '_' ) ) {
-				$aTallyTracking[ $sKey ] = (int)$aTally[ 'tally' ];
+				$aTallyTracking[ $sKey ] = (int)$oTally->tally;
 			}
 		}
 		$aData[ $this->getMod()->getSlug() ][ 'stats' ] = $aTallyTracking;
@@ -62,7 +45,8 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	public function getInsightsStats() {
-		$aAllStats = $this->getAllTallys();
+		$aAllTallys = $this->getAllTallys();
+		$aAllStats = array();
 
 		$aSpamCommentKeys = array(
 			'spam.gasp.checkbox',
@@ -99,9 +83,10 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 		$aAllStats[ 'login.verified.all' ] = 0;
 		$aAllStats[ 'login.verified.all' ] = 0;
 
-		foreach ( $aAllStats as $aStat ) {
-			$sStatKey = $aStat[ 'stat_key' ];
-			$nTally = $aStat[ 'tally' ];
+		foreach ( $aAllTallys as $oStat ) {
+			$sStatKey = $oStat->stat_key;
+			$nTally = $oStat->tally;
+
 			if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
 				$aAllStats[ 'comments.blocked.all' ] += $nTally;
 			}
@@ -180,17 +165,18 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 			'login.recaptcha.verified',
 			'login.twofactor.verified'
 		);
-		foreach ( $aAllStats as $aStat ) {
-			$sStatKey = $aStat[ 'stat_key' ];
-			$nTally = $aStat[ 'tally' ];
+		foreach ( $aAllStats as $oStat ) {
+			$sStatKey = $oStat->stat_key;
+			$nTally = $oStat->tally;
+
 			if ( in_array( $sStatKey, $aSpamCommentKeys ) ) {
-				$nTotalCommentSpamBlocked = $nTotalCommentSpamBlocked + $nTally;
+				$nTotalCommentSpamBlocked += $nTally;
 			}
 			else if ( strpos( $sStatKey, 'firewall.blocked.' ) !== false ) {
-				$nTotalFirewallBlocked = $nTotalFirewallBlocked + $nTally;
+				$nTotalFirewallBlocked += $nTally;
 			}
 			else if ( in_array( $sStatKey, $aLoginFailKeys ) ) {
-				$nTotalLoginBlocked = $nTotalLoginBlocked + $nTally;
+				$nTotalLoginBlocked += $nTally;
 			}
 			else if ( $sStatKey == 'ip.connection.killed' ) {
 				$nTotalConnectionKilled = $nTally;
@@ -205,7 +191,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 				$nTotalUserSessionsStarted = $nTally;
 			}
 			else if ( in_array( $sStatKey, $aLoginVerifiedKeys ) ) {
-				$nTotalLoginVerified = $nTotalLoginVerified + $nTally;
+				$nTotalLoginVerified += $nTally;
 			}
 		}
 
@@ -233,178 +219,43 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param string $sStatKey
-	 * @param int    $nTally
-	 * @param string $sParentStat
-	 * @return bool|int
-	 */
-	protected function query_addNewStatEntry( $sStatKey, $nTally, $sParentStat = '' ) {
-		if ( empty( $sStatKey ) || empty( $nTally ) || !is_numeric( $nTally ) || $nTally < 0 ) {
-			return false;
-		}
-
-		// Now add new entry
-		$aNewData = array();
-		$aNewData[ 'stat_key' ] = $sStatKey;
-		$aNewData[ 'parent_stat_key' ] = $sParentStat;
-		$aNewData[ 'tally' ] = $nTally;
-		$aNewData[ 'modified_at' ] = $this->time();
-		$aNewData[ 'created_at' ] = $this->time();
-
-		$mResult = $this->insertData( $aNewData );
-		return $mResult ? $aNewData : $mResult;
-	}
-
-	/**
-	 * @param string $sStatKey
-	 * @param string $sParentStat
-	 * @param int    $nNewTally
-	 * @return bool|int
-	 */
-	protected function query_updateTallyForStat( $sStatKey, $nNewTally, $sParentStat = '' ) {
-		if ( empty( $sStatKey ) || empty( $nNewTally ) || !is_numeric( $nNewTally ) || $nNewTally < 0 ) {
-			return false;
-		}
-
-		$aCurrentData = array(
-			'stat_key'        => $sStatKey,
-			'parent_stat_key' => $sParentStat,
-		);
-		$aUpdated = array(
-			'tally'       => $nNewTally,
-			'modified_at' => $this->time()
-		);
-		return $this->updateRowsWhere( $aUpdated, $aCurrentData );
-	}
-
-	/**
-	 * @param string $sStatKey
-	 * @param string $sParentStatKey
-	 * @return array|bool|mixed
-	 */
-	protected function query_getStatData( $sStatKey, $sParentStatKey = '' ) {
-
-		$sStatKey = esc_sql( $sStatKey ); //just in-case someones tries to get all funky up in it
-		if ( empty( $sStatKey ) ) {
-			return false;
-		}
-
-		// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
-		$sQuery = "
-				SELECT *
-					FROM `%s`
-				WHERE
-					`stat_key`				= '%s'
-					AND `parent_stat_key`	= '%s'
-					AND `deleted_at`		= 0
-			";
-		$sQuery = sprintf( $sQuery,
-			$this->getTableName(),
-			$sStatKey,
-			$sParentStatKey
-		);
-		$mResult = $this->selectCustom( $sQuery );
-		return ( is_array( $mResult ) && isset( $mResult[ 0 ] ) ) ? $mResult[ 0 ] : array();
-	}
-
-	/**
-	 * @return array|bool
-	 */
-	protected function query_deleteInvalidStatKeys() {
-		$sQuery = "
-				DELETE FROM `%s`
-				WHERE `stat_key` NOT LIKE '%%.%%'
-			";
-		return $this->selectCustom( sprintf( $sQuery, $this->getTableName() ) );
-	}
-
-	/**
-	 * @return array
+	 * @return ICWP_WPSF_TallyVO[]
 	 */
 	protected function getAllTallys() {
-		return $this->query_selectAll( array( 'stat_key', 'tally' ) );
+		return $this->getTallyProcessor()
+					->getSelector()
+					->setResultsAsVo( true )
+					->setColumnsToSelect( array( 'stat_key', 'tally' ) )
+					->query();
 	}
-
-	public function onModuleShutdown() {
-		parent::onModuleShutdown();
-		if ( !$this->getMod()->isPluginDeleting() ) {
-			$this->commit();
-		}
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDef( 'statistics_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : array() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
-				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				stat_key varchar(100) NOT NULL DEFAULT 0,
-				parent_stat_key varchar(100) NOT NULL DEFAULT '',
-				tally int(11) UNSIGNED NOT NULL DEFAULT 0,
-				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				modified_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				PRIMARY KEY  (id)
-			) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
-	}
-
-	/**
-	 */
-	protected function commit() {
-		$aEntries = apply_filters( $this->getMod()->prefix( 'collect_stats' ), array() );
-		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
-			return;
-		}
-		foreach ( $aEntries as $aCollection ) {
-			foreach ( $aCollection as $sStatKey => $nTally ) {
-
-				$sParentStatKey = '-';
-				if ( strpos( $sStatKey, ':' ) > 0 ) {
-					list( $sStatKey, $sParentStatKey ) = explode( ':', $sStatKey, 2 );
-				}
-
-				$aCurrentData = $this->query_getStatData( $sStatKey, $sParentStatKey );
-				if ( empty( $aCurrentData ) ) {
-					$this->query_addNewStatEntry( $sStatKey, $nTally, $sParentStatKey );
-				}
-				else {
-					$this->query_updateTallyForStat( $sStatKey, $aCurrentData[ 'tally' ] + $nTally, $sParentStatKey );
-				}
-			}
-		}
-	}
-
-	/**
-	 * We override this to clean out any strange statistics entries (Human spam words mostly)
-	 * @return bool|int
-	 */
-	public function cleanupDatabase() {
-		parent::cleanupDatabase();
-		return $this->query_deleteInvalidStatKeys();
-	}
-
-	/**
-	 * override and do not delete
-	 */
-	public function deleteTable() {}
 
 	/**
 	 * @return ICWP_WPSF_Processor_Statistics_Reporting
 	 */
 	protected function getReportingProcessor() {
-		if ( !isset( $this->oReportingProcessor ) ) {
-			require_once( dirname(__FILE__ ).'/statistics_reporting.php' );
-			$this->oReportingProcessor = new ICWP_WPSF_Processor_Statistics_Reporting( $this->getMod() );
+		$oProc = $this->getSubProcessor( 'reporting' );
+		if ( is_null( $oProc ) ) {
+			require_once( __DIR__.'/statistics_reporting.php' );
+			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
+			$oMod = $this->getMod();
+			$oProc = new ICWP_WPSF_Processor_Statistics_Reporting( $oMod );
+			$this->aSubProcessors[ 'reporting' ] = $oProc;
 		}
-		return $this->oReportingProcessor;
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Statistics_Tally
+	 */
+	protected function getTallyProcessor() {
+		$oProc = $this->getSubProcessor( 'tally' );
+		if ( is_null( $oProc ) ) {
+			require_once( __DIR__.'/statistics_tally.php' );
+			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
+			$oMod = $this->getMod();
+			$oProc = new ICWP_WPSF_Processor_Statistics_Tally( $oMod );
+			$this->aSubProcessors[ 'tally' ] = $oProc;
+		}
+		return $oProc;
 	}
 }
