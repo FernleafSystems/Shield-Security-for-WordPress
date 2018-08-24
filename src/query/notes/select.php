@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_PluginNotes_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return ICWP_WPSF_AuditTrailEntryVO[]|stdClass[]
+	 * @return ICWP_WPSF_NoteVO[]|stdClass[]
 	 */
 	public function query() {
 
