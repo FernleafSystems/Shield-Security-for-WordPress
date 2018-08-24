@@ -72,13 +72,11 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	 */
 	public function query() {
 		$aData = parent::query();
-
 		if ( $this->isResultsAsVo() ) {
 			foreach ( $aData as $nKey => $oSess ) {
 				$aData[ $nKey ] = new ICWP_WPSF_SessionVO( $oSess );
 			}
 		}
-
 		return $aData;
 	}
 

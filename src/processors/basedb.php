@@ -27,7 +27,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 * @param string                        $sTableName
-	 * @throws Exception
 	 */
 	public function __construct( $oModCon, $sTableName = null ) {
 		parent::__construct( $oModCon );
