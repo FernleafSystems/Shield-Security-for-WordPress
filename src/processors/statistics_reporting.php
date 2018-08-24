@@ -83,7 +83,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	protected function getConsolidation() {
 		if ( !isset( $this->oConsolidation ) ) {
-			include( dirname( dirname( __FILE__ ) ).'/query/statistics_consolidation.php' );
+			require_once( $this->getQueryDir().'consolidation.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 			$oFO = $this->getMod();
 			$this->oConsolidation = new ICWP_WPSF_Query_Statistics_Consolidation();
@@ -97,14 +97,14 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	protected function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'reporting_consolidation_cron_name' ) );
+		return $oFO->prefixOptionKey( $oFO->getDef( 'reporting_consolidation_cron_name' ) );
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDefinition( 'reporting_table_columns' );
+		$aDef = $this->getMod()->getDef( 'reporting_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -160,4 +160,11 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	public function deleteTable() {
 	} //override and do not delete
+
+	/**
+	 * @return string
+	 */
+	protected function getQueryDir() {
+		return parent::getQueryDir().'statistics/';
+	}
 }

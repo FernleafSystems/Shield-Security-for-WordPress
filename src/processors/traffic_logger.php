@@ -234,13 +234,13 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->ua = (string)$oDP->FetchServer( 'HTTP_USER_AGENT' );
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
-		$this->getTrafficEntryCreator()->create( $oEntry );
+		$this->getTrafficInsertor()->insert( $oEntry );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
 	 */
-	public function getTrafficEntryCreator() {
+	public function getTrafficInsertor() {
 		require_once( $this->getQueryDir().'insert.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
 	}

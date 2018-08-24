@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_TrafficEntry_Insert extends ICWP_WPSF_Query_BaseInsert {
 	 * @param ICWP_WPSF_TrafficEntryVO $oEntry
 	 * @return bool
 	 */
-	public function create( $oEntry ) {
+	public function insert( $oEntry ) {
 		if ( $oEntry->created_at < 1 ) {
 			$oEntry->created_at = $this->loadDP()->time();
 		}
