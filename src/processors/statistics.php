@@ -226,7 +226,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_StatVO[]
+	 * @return ICWP_WPSF_TallyVO[]
 	 */
 	protected function getAllTallys() {
 		return $this->getTallyProcessor()
@@ -252,15 +252,15 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Statistics_Tracking
+	 * @return ICWP_WPSF_Processor_Statistics_Tally
 	 */
 	protected function getTallyProcessor() {
 		$oProc = $this->getSubProcessor( 'tally' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/statistics_tracking.php' );
+			require_once( __DIR__.'/statistics_tally.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
 			$oMod = $this->getMod();
-			$oProc = new ICWP_WPSF_Processor_Statistics_Tracking( $oMod );
+			$oProc = new ICWP_WPSF_Processor_Statistics_Tally( $oMod );
 			$this->aSubProcessors[ 'tally' ] = $oProc;
 		}
 		return $oProc;

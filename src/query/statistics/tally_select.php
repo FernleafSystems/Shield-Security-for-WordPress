@@ -27,7 +27,7 @@ class ICWP_WPSF_Query_Statistics_Select extends ICWP_WPSF_Query_BaseSelect {
 	/**
 	 * @param string $sStatKey
 	 * @param string $sParentStatKey
-	 * @return ICWP_WPSF_StatVO|stdClass|null
+	 * @return ICWP_WPSF_TallyVO|stdClass|null
 	 */
 	public function retrieveStat( $sStatKey, $sParentStatKey = '' ) {
 		if ( !empty( $sParentStatKey ) ) {
@@ -40,14 +40,14 @@ class ICWP_WPSF_Query_Statistics_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return ICWP_WPSF_StatVO[]|stdClass[]
+	 * @return ICWP_WPSF_TallyVO[]|stdClass[]
 	 */
 	public function query() {
 		$aData = parent::query();
 		if ( $this->isResultsAsVo() ) {
 			$aData = array_map(
 				function ( $oResult ) {
-					return ( new ICWP_WPSF_StatVO() )->setRawData( $oResult );
+					return ( new ICWP_WPSF_TallyVO() )->setRawData( $oResult );
 				},
 				$aData
 			);
@@ -56,6 +56,6 @@ class ICWP_WPSF_Query_Statistics_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	protected function customInit() {
-		require_once( dirname( __FILE__ ).'/ICWP_WPSF_StatVO.php' );
+		require_once( dirname( __FILE__ ).'/ICWP_WPSF_TallyVO.php' );
 	}
 }

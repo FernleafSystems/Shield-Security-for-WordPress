@@ -1,12 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Statistics_Tracking', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_Statistics_Tally', false ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/basedb.php' );
 
-class ICWP_WPSF_Processor_Statistics_Tracking extends ICWP_WPSF_BaseDbProcessor {
+class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_Statistics_Tracking extends ICWP_WPSF_BaseDbProcessor 
 	 * @return ICWP_WPSF_Query_Statistics_Insert
 	 */
 	public function getInsertor() {
-		require_once( $this->getQueryDir().'insert.php' );
+		require_once( $this->getQueryDir().'tally_insert.php' );
 		return ( new ICWP_WPSF_Query_Statistics_Insert() )->setTable( $this->getTableName() );
 	}
 
@@ -30,7 +30,7 @@ class ICWP_WPSF_Processor_Statistics_Tracking extends ICWP_WPSF_BaseDbProcessor 
 	 * @return ICWP_WPSF_Query_Statistics_Update
 	 */
 	public function getUpdater() {
-		require_once( $this->getQueryDir().'update.php' );
+		require_once( $this->getQueryDir().'tally_update.php' );
 		return ( new ICWP_WPSF_Query_Statistics_Update() )->setTable( $this->getTableName() );
 	}
 
@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_Statistics_Tracking extends ICWP_WPSF_BaseDbProcessor 
 	 * @return ICWP_WPSF_Query_Statistics_Select
 	 */
 	public function getSelector() {
-		require_once( $this->getQueryDir().'select.php' );
+		require_once( $this->getQueryDir().'tally_select.php' );
 		return ( new ICWP_WPSF_Query_Statistics_Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );

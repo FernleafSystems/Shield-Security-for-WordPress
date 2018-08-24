@@ -9,8 +9,8 @@ require_once( dirname( __DIR__ ).'/base_update.php' );
 class ICWP_WPSF_Query_Statistics_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
-	 * @param ICWP_WPSF_StatVO $oStat
-	 * @param int              $nAdditional
+	 * @param ICWP_WPSF_TallyVO $oStat
+	 * @param int               $nAdditional
 	 * @return bool
 	 */
 	public function updateTally( $oStat, $nAdditional ) {
@@ -18,13 +18,13 @@ class ICWP_WPSF_Query_Statistics_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_StatVO $oStat
-	 * @param array            $aUpdateData
+	 * @param ICWP_WPSF_TallyVO $oStat
+	 * @param array             $aUpdateData
 	 * @return bool
 	 */
 	public function updateStat( $oStat, $aUpdateData = array() ) {
 		$mResult = false;
-		if ( !empty( $aUpdateData ) && $oStat instanceof ICWP_WPSF_StatVO ) {
+		if ( !empty( $aUpdateData ) && $oStat instanceof ICWP_WPSF_TallyVO ) {
 			$mResult = $this
 				->setUpdateData( $aUpdateData )
 				->setUpdateWheres(
