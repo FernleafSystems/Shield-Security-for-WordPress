@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Insert', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_insert.php' );
+require_once( dirname( __DIR__ ).'/base_insert.php' );
 
 class ICWP_WPSF_Query_TrafficEntry_Insert extends ICWP_WPSF_Query_BaseInsert {
 

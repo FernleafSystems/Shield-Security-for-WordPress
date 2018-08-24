@@ -270,33 +270,33 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oIp = $this->loadIpService();
 			// If an IP is specified, it takes priority
 			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
-				$oSelector->addWhere( 'ip', inet_pton( $aParams[ 'fIp' ] ) );
+				$oSelector->filterByIp( inet_pton( $aParams[ 'fIp' ] ) );
 			}
 			else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
-				$oSelector->addWhere( 'ip', inet_pton( $oIp->getRequestIp() ), '!=' );
+				$oSelector->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
 			}
 
 			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
 			if ( !empty( $aParams[ 'fUsername' ] ) ) {
 				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
 				if ( !empty( $oUser ) ) {
-					$oSelector->addWhereEquals( 'uid', $oUser->ID );
+					$oSelector->filterByUserId( $oUser->ID );
 				}
 			}
 			else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-				$oSelector->addWhere( 'uid', 0, $aParams[ 'fLoggedIn' ] ? '>' : '=' );
+				$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 			}
 
 			if ( !empty( $aParams[ 'fPath' ] ) ) {
-				$oSelector->addWhereSearch( 'path', $aParams[ 'fPath' ] );
+				$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
 			}
 
 			if ( $aParams[ 'fTransgression' ] >= 0 ) {
-				$oSelector->addWhereEquals( 'trans', $aParams[ 'fTransgression' ] );
+				$oSelector->filterByIsTransgression( $aParams[ 'fTransgression' ] );
 			}
 
 			if ( !empty( $aParams[ 'fResponse' ] ) ) {
-				$oSelector->addWhereEquals( 'code', $aParams[ 'fResponse' ] );
+				$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
 			}
 		}
 

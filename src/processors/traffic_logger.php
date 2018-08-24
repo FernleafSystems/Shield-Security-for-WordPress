@@ -241,7 +241,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
 	 */
 	public function getTrafficEntryCreator() {
-		require_once( $this->getQueryDir().'traffic_entry_insert.php' );
+		require_once( $this->getQueryDir().'insert.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
 	}
 
@@ -249,7 +249,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Count
 	 */
 	public function getTrafficEntryCounter() {
-		require_once( $this->getQueryDir().'traffic_entry_count.php' );
+		require_once( $this->getQueryDir().'count.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Count() )->setTable( $this->getTableName() );
 	}
 
@@ -257,7 +257,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Delete
 	 */
 	public function getTrafficEntryDeleter() {
-		require_once( $this->getQueryDir().'traffic_entry_delete.php' );
+		require_once( $this->getQueryDir().'delete.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Delete() )->setTable( $this->getTableName() );
 	}
 
@@ -265,7 +265,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Select
 	 */
 	public function getTrafficEntrySelector() {
-		require_once( $this->getQueryDir().'traffic_entry_select.php' );
+		require_once( $this->getQueryDir().'select.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );
@@ -315,5 +315,12 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'traffic_table_columns' );
 		return is_array( $aDef ) ? $aDef : array();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getQueryDir() {
+		return parent::getQueryDir().'traffic/';
 	}
 }
