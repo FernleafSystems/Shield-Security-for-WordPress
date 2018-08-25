@@ -14,7 +14,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
-			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+
+//			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
+			add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); //login
 		}
 	}
 
@@ -48,6 +50,19 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function onWpLogin( $sUsername ) {
 		$this->enforceSessionLimits( $sUsername );
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+		$oUser = $this->loadWpUsers()->getUserById( $nUserId );
+		if ( $oUser instanceof WP_User ) {
+			$this->enforceSessionLimits( $oUser->user_login );
+		}
 	}
 
 	/**
