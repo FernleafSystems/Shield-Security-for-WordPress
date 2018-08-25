@@ -65,7 +65,7 @@
   },
   "labels":       {
     "Name":             "Shield",
-    "Description":      "Ultimate Security For Your Sites With The Highest Rated WordPress Security Plugin",
+    "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Audit Trail, Security Admin, and so much more.",
     "Title":            "Shield Security",
     "Author":           "One Dollar Plugin",
     "AuthorName":       "One Dollar Plugin",
