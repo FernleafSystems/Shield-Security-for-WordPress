@@ -239,20 +239,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function hasValidPremiumLicense() {
-		return apply_filters( $this->getPremiumLicenseFilterName(), false );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getPremiumLicenseFilterName() {
-		return $this->prefix( 'license_is_valid'.self::getConn()->getUniqueRequestId( false ) );
-	}
-
-	/**
-	 * @return bool
-	 */
 	protected function verifyModuleMeetRequirements() {
 		$bMeetsReqs = true;
 
@@ -1256,7 +1242,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPremium() {
-		return $this->hasValidPremiumLicense();
+		return $this->getConn()->isPremiumActive();
 	}
 
 	/**

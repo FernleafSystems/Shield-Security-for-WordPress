@@ -86,7 +86,14 @@
     "add": [
       {
         "name": "Dashboard",
-        "url_method_name": "getPluginUrl_AdminMainPage"
+        "url_method_name": "getPluginUrl_AdminMainPage",
+        "show": "always"
+      },
+      {
+        "name": "&uarr; Go Pro &uarr;",
+        "href": "https://icwp.io/d8",
+        "highlight": true,
+        "show": "free"
       }
     ]
   }

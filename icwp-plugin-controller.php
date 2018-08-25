@@ -558,31 +558,40 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->getIsValidAdminArea() ) {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
-			if ( !empty( $aLinksToAdd ) && is_array( $aLinksToAdd ) ) {
+			if ( is_array( $aLinksToAdd ) ) {
 
 				$sLinkTemplate = '<a href="%s" target="%s">%s</a>';
+				$bPro = $this->isPremiumActive();
 				foreach ( $aLinksToAdd as $aLink ) {
 					if ( empty( $aLink[ 'name' ] ) || ( empty( $aLink[ 'url_method_name' ] ) && empty( $aLink[ 'href' ] ) ) ) {
 						continue;
 					}
+					$aLink = array_merge(
+						array(
+							'highlight' => false,
+							'show'      => 'always'
+						),
+						$aLink
+					);
 
-					if ( !empty( $aLink[ 'url_method_name' ] ) ) {
-						$sMethod = $aLink[ 'url_method_name' ];
-						if ( method_exists( $this, $sMethod ) ) {
-							$sSettingsLink = sprintf( $sLinkTemplate, $this->{$sMethod}(), "_top", $aLink[ 'name' ] );;
-							$aActionLinks = array_merge(
-								array(
-									$this->prefix( 'dashboard' ) => $sSettingsLink
-								),
-								$aActionLinks
-							);
-						}
+					$sLink = '';
+					if ( !empty( $aLink[ 'url_method_name' ] ) && method_exists( $this, $aLink[ 'url_method_name' ] ) ) {
+						$sLink = sprintf( $sLinkTemplate, $this->{$aLink[ 'url_method_name' ]}(), "_top", $aLink[ 'name' ] );;
 					}
 					else if ( !empty( $aLink[ 'href' ] ) ) {
-						$sSettingsLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], "_blank", $aLink[ 'name' ] );
+						$sLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], "_blank", $aLink[ 'name' ] );
+					}
+
+					$sShow = $aLink[ 'show' ];
+					$bShow = ( $sShow == 'always' ) || ( $bPro && $sShow == 'pro' ) || ( !$bPro && $sShow == 'free' );
+
+					if ( !empty( $sLink ) && $bShow ) {
+						if ( $aLink[ 'highlight' ] ) {
+							$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );
+						}
 						$aActionLinks = array_merge(
 							array(
-								$this->prefix( 'dashboard' ) => $sSettingsLink
+								$this->prefix( sanitize_key( $aLink[ 'name' ] ) ) => $sLink
 							),
 							$aActionLinks
 						);
@@ -1457,6 +1466,20 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
+	public function isPremiumActive() {
+		return apply_filters( $this->getPremiumLicenseFilterName(), false );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPremiumLicenseFilterName() {
+		return $this->prefix( 'license_is_valid'.$this->getUniqueRequestId( false ) );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isRelabelled() {
 		return apply_filters( $this->prefix( 'is_relabelled' ), false );
 	}
@@ -1665,7 +1688,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return $oHandler;
 		}
 
-		if ( !empty( $aModProps[ 'min_php' ] ) && !$this->loadDP()->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
+		if ( !empty( $aModProps[ 'min_php' ] ) && !$this->loadDP()
+														->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
 			return null;
 		}
 
