@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_Sessions_Delete', false ) ) {
 	return;
 }
 
-require_once( dirname( dirname( __FILE__ ) ).'/base_delete.php' );
+require_once( dirname( dirname( __FILE__ ) ).'/base/delete.php' );
 
 class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 
