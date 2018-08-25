@@ -46,25 +46,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$oUser = $this->loadWpUsers()
-					  ->getUserById( $nUserId );
-		if ( $oUser instanceof WP_User && !$this->isSessionAlreadyCreatedForUser( $oUser ) ) {
-			$this->activateUserSession( $oUser->user_login, $oUser );
-		}
+		$this->activateUserSession( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
 	 */
 	public function onWpClearAuthCookie() {
 		$this->terminateCurrentSession();
-	}
-
-	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
-	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		$this->activateUserSession( $sUsername, $oUser );
 	}
 
 	/**
@@ -129,27 +117,25 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param string  $sUsername
 	 * @param WP_User $oUser
 	 * @return boolean
 	 */
-	private function activateUserSession( $sUsername, $oUser ) {
-		if ( !is_a( $oUser, 'WP_User' ) ) {
+	private function activateUserSession( $oUser ) {
+		if ( !( $oUser instanceof WP_User ) ) {
 			return false;
 		}
-
 		if ( $this->isSessionAlreadyCreatedForUser( $oUser ) ) {
 			return true;
 		}
 
 		// If they have a currently active session, terminate it (i.e. we replace it)
-		$oSession = $this->queryGetSession( $sUsername, $this->getSessionId() );
+		$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
 		if ( !empty( $oSession ) ) {
 			$this->queryTerminateSession( $oSession );
 			$this->oCurrent = null;
 		}
 
-		$this->queryCreateSession( $sUsername, $this->getSessionId() );
+		$this->queryCreateSession( $oUser->user_login, $this->getSessionId() );
 		$this->nSessionAlreadyCreatedUserId = $oUser->ID;
 		return true;
 	}

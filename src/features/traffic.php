@@ -333,7 +333,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 				if ( $oEntry->uid > 0 ) {
 					if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
-						$aUsers[ $oEntry->uid ] = $oWpUsers->getUserById( $oEntry->uid )->user_login;
+						$oUser = $oWpUsers->getUserById( $oEntry->uid );
+						$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) : $oUser->user_login;
 					}
 				}
 

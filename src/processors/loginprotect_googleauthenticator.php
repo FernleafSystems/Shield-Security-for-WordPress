@@ -92,23 +92,20 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$oWpUsers = $this->loadWpUsers();
 			$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
-			$sShieldTurnOff = $oDp->FetchPost( 'shield_turn_off_google_authenticator' );
+			$sShieldTurnOff = $oDp->post( 'shield_turn_off_google_authenticator' );
 			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
 
 				$bPermissionToRemoveGa = true;
 				// if the current user has Google Authenticator on THEIR account, process their OTP.
 				$oCurrentUser = $oWpUsers->getCurrentWpUser();
 				if ( $this->hasValidatedProfile( $oCurrentUser ) ) {
-					$bPermissionToRemoveGa = $this->processOtp(
-						$oCurrentUser,
-						$this->fetchCodeFromRequest()
-					);
+					$bPermissionToRemoveGa = $this->processOtp( $oCurrentUser, $this->fetchCodeFromRequest() );
 				}
 
 				if ( $bPermissionToRemoveGa ) {
 					$this->processRemovalFromAccount( $oSavingUser );
 					$this->loadWpNotices()
-						 ->addFlashMessage(
+						 ->addFlashUserMessage(
 							 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
 						 );
 				}
@@ -159,7 +156,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			if ( $bValidOtp ) {
 				$this->processRemovalFromAccount( $oSavingUser );
 				$this->loadWpNotices()
-					 ->addFlashMessage(
+					 ->addFlashUserMessage(
 						 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
 					 );
 			}
@@ -167,7 +164,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				// send email to confirm
 				$bEmailSuccess = $this->sendEmailConfirmationGaRemoval( $oSavingUser );
 				if ( $bEmailSuccess ) {
-					$oWpNotices->addFlashMessage( _wpsf__( 'An email has been sent to you in order to confirm Google Authenticator removal' ) );
+					$oWpNotices->addFlashUserMessage( _wpsf__( 'An email has been sent to you in order to confirm Google Authenticator removal' ) );
 				}
 				else {
 					$oWpNotices->addFlashErrorMessage( _wpsf__( 'We tried to send an email for you to confirm Google Authenticator removal but it failed.' ) );
@@ -189,7 +186,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 			if ( $bValidOtp ) {
 				$this->setProfileValidated( $oSavingUser );
-				$oWpNotices->addFlashMessage(
+				$oWpNotices->addFlashUserMessage(
 					sprintf( _wpsf__( '%s was successfully added to your account.' ),
 						_wpsf__( 'Google Authenticator' )
 					)

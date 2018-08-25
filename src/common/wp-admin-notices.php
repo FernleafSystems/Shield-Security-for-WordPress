@@ -208,7 +208,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @param string $sMessage
 	 */
 	public function addFlashErrorMessage( $sMessage ) {
-		$this->addFlashMessage( $sMessage, 'error' );
+		$this->addFlashUserMessage( $sMessage, 'error' );
 	}
 
 	/**
