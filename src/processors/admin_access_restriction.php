@@ -141,9 +141,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 			// Find the WP_User for the POST
 			$oPostUser = false;
-			$sPostUserlogin = $oDp->FetchPost( 'user_login' );
+			$sPostUserlogin = $oDp->post( 'user_login' );
 			if ( empty( $sPostUserlogin ) ) {
-				$nPostUserId = $oDp->FetchPost( 'user_id' );
+				$nPostUserId = $oDp->post( 'user_id' );
 				if ( !empty( $nPostUserId ) ) {
 					$oPostUser = $oWpUsers->getUserById( $nPostUserId );
 				}

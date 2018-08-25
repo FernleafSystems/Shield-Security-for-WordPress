@@ -138,7 +138,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return WP_User|null
 	 */
 	public function getUserByEmail( $sEmail ) {
-		return function_exists( 'get_user_by' ) ? get_user_by( 'email', $sEmail ) : null;
+		return $this->getUserBy( 'email', $sEmail );
 	}
 
 	/**
@@ -146,7 +146,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return WP_User|null
 	 */
 	public function getUserById( $nId ) {
-		return function_exists( 'get_user_by' ) ? get_user_by( 'id', $nId ) : null;
+		return $this->getUserBy( 'id', $nId );
 	}
 
 	/**
@@ -154,7 +154,17 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return null|WP_User
 	 */
 	public function getUserByUsername( $sUsername ) {
-		return function_exists( 'get_user_by' ) ? get_user_by( 'login', $sUsername ) : null;
+		return $this->getUserBy( 'login', $sUsername );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param mixed  $mValue
+	 * @return null|WP_User
+	 */
+	public function getUserBy( $sKey, $mValue ) {
+		$oU = function_exists( 'get_user_by' ) ? get_user_by( $sKey, $mValue ) : null;
+		return empty( $oU ) ? null : $oU;
 	}
 
 	/**
