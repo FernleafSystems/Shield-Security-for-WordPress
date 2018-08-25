@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_Sessions_Select', false ) ) {
 	return;
 }
 
-require_once( dirname( dirname( __FILE__ ) ).'/base_select.php' );
+require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
 
 class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 

@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseDelete', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_query.php' );
+require_once( dirname( __FILE__ ).'/query.php' );
 
 abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 
