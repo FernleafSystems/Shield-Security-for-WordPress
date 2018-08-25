@@ -560,42 +560,42 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( is_array( $aLinksToAdd ) ) {
 
-				$sLinkTemplate = '<a href="%s" target="%s">%s</a>';
 				$bPro = $this->isPremiumActive();
+				$oDP = $this->loadDP();
+				$sLinkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
 				foreach ( $aLinksToAdd as $aLink ) {
-					if ( empty( $aLink[ 'name' ] ) || ( empty( $aLink[ 'url_method_name' ] ) && empty( $aLink[ 'href' ] ) ) ) {
-						continue;
-					}
 					$aLink = array_merge(
 						array(
 							'highlight' => false,
-							'show'      => 'always'
+							'show'      => 'always',
+							'name'      => '',
+							'title'     => '',
+							'href'      => '',
+							'target'    => '_top',
 						),
 						$aLink
 					);
 
-					$sLink = '';
-					if ( !empty( $aLink[ 'url_method_name' ] ) && method_exists( $this, $aLink[ 'url_method_name' ] ) ) {
-						$sLink = sprintf( $sLinkTemplate, $this->{$aLink[ 'url_method_name' ]}(), "_top", $aLink[ 'name' ] );;
-					}
-					else if ( !empty( $aLink[ 'href' ] ) ) {
-						$sLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], "_blank", $aLink[ 'name' ] );
-					}
-
 					$sShow = $aLink[ 'show' ];
 					$bShow = ( $sShow == 'always' ) || ( $bPro && $sShow == 'pro' ) || ( !$bPro && $sShow == 'free' );
-
-					if ( !empty( $sLink ) && $bShow ) {
-						if ( $aLink[ 'highlight' ] ) {
-							$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );
-						}
-						$aActionLinks = array_merge(
-							array(
-								$this->prefix( sanitize_key( $aLink[ 'name' ] ) ) => $sLink
-							),
-							$aActionLinks
-						);
+					if ( !$oDP->validUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
+						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
 					}
+
+					if ( !$bShow || !$oDP->validUrl( $aLink[ 'href' ] )
+						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
+						continue;
+					}
+
+					$sLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], $aLink[ 'target' ], $aLink[ 'title' ], $aLink[ 'name' ] );
+					if ( $aLink[ 'highlight' ] ) {
+						$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );
+					}
+
+					$aActionLinks = array_merge(
+						array( $this->prefix( sanitize_key( $aLink[ 'name' ] ) ) => $sLink ),
+						$aActionLinks
+					);
 				}
 			}
 		}
@@ -971,8 +971,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_ActionLinks( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'action_links' ][ $sKey ] : null;
+		$oOpts = $this->getPluginControllerOptions();
+		return isset( $oOpts->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oOpts->plugin_spec[ 'action_links' ][ $sKey ] : array();
 	}
 
 	/**
