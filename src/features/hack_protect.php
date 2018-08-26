@@ -910,7 +910,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			case 'ufc_scan_uploads' :
 				$sName = _wpsf__( 'Scan Uploads' );
 				$sSummary = _wpsf__( 'Scan Uploads Folder For PHP and Javascript' );
-				$sDescription = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Take care when turning on this option - if you are unsure, leave it disabled.' ) )
+				$sDescription = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Take care when turning on this option - if you are unsure, leave it disabled.' ) )
 								.'<br />'._wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
 				break;
 
@@ -934,8 +934,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sSummary = _wpsf__( 'Scans For Critical Changes Made To User Accounts' );
 				$sDescription = sprintf( _wpsf__( 'Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system.' ), 'author=' )
 								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
-								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
-								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'This option may cause critial problem with 3rd party plugins that manage user accounts.' ) );
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'This option may cause critical problem with 3rd party plugins that manage user accounts.' ) );
 				break;
 
 			case 'ptg_enable' :

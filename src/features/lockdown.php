@@ -185,7 +185,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sName = _wpsf__( 'Mask WordPress Version' );
 				$sSummary = _wpsf__( 'Prevents Public Display Of Your WordPress Version' );
 				$sDescription = _wpsf__( 'Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature.' )
-								.'<br />'._wpsf__( 'Warning: This may interfere with WordPress plugins that rely on the $wp_version variable.' );
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'This may interfere with WordPress plugins that rely on the $wp_version variable.' ) );
 				break;
 
 			case 'hide_wordpress_generator_tag' :
@@ -198,7 +198,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sName = _wpsf__( 'Block Username Fishing' );
 				$sSummary = _wpsf__( 'Block the ability to discover WordPress usernames based on author IDs' );
 				$sDescription = sprintf( _wpsf__( 'When enabled, any URL requests containing "%s" will be killed.' ), 'author=' )
-								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option may interfere with expected operations of your site.' ) );
+								.'<br />'.sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Enabling this option may interfere with expected operations of your site.' ) );
 				break;
 
 			default:

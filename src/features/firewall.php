@@ -177,7 +177,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sName = _wpsf__( 'Aggressive Scan' );
 				$sSummary = _wpsf__( 'Aggressively Block Data' );
 				$sDescription = _wpsf__( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.' )
-								.'<br />'.sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'May cause an increase in false-positive firewall blocks.' ) );
+								.'<br />'.sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'May cause an increase in false-positive firewall blocks.' ) );
 				break;
 
 			case 'block_response' :

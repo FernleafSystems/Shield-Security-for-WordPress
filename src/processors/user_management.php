@@ -219,7 +219,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oFO->getAdminLoginNotificationEmail(),
-				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
+				sprintf( '%s - %s', _wpsf__( 'Notice' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);
 	}
@@ -249,7 +249,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oUser->user_email,
-				sprintf( _wpsf__( 'Notice - %s' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
+				sprintf( '%s - %s', _wpsf__( 'Notice' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
 				$aMessage
 			);
 	}

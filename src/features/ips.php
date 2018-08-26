@@ -260,15 +260,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $sOptKey ) {
 
 			case 'text_loginfailed':
-				$sText = sprintf(
-					_wpsf__( 'Warning: %s' ),
+				$sText = sprintf( '%s: %s',
+					_wpsf__( 'Warning' ),
 					_wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' )
 				);
 				break;
 
 			case 'text_remainingtrans':
-				$sText = sprintf(
-					_wpsf__( 'Warning: %s' ),
+				$sText = sprintf( '%s: %s',
+					_wpsf__( 'Warning' ),
 					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' )
 					.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
 				);
