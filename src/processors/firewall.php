@@ -469,7 +469,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$aMessage = array(
 			sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()->getHumanName() ),
 			_wpsf__( 'Log details for this visitor are below:' ),
-			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $sIp )
+			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIp )
 		);
 		$aMessage = array_merge( $aMessage, $this->getRawAuditMessage( '- ' ) );
 		// TODO: Get audit trail messages

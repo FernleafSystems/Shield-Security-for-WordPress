@@ -91,8 +91,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_enable_plugin_feature_wordpress_lockdown' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Lockdown' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Lockdown' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -100,8 +100,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_apixml' :
 				$sTitle = _wpsf__( 'API & XML-RPC' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
 				);
 				$sTitleShort = _wpsf__( 'API & XML-RPC' );
 				break;
@@ -109,8 +109,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_permission_access_options' :
 				$sTitle = _wpsf__( 'Permissions and Access Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Provides finer control of certain WordPress permissions.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Only enable SSL if you have a valid certificate installed.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control of certain WordPress permissions.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Only enable SSL if you have a valid certificate installed.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Permissions' );
 				break;
@@ -118,8 +118,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_wordpress_obscurity_options' :
 				$sTitle = _wpsf__( 'WordPress Obscurity Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Obscures certain WordPress settings from public view.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Obscurity is not true security and so these settings are down to your personal tastes.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Obscures certain WordPress settings from public view.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Obscurity is not true security and so these settings are down to your personal tastes.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Obscurity' );
 				break;
