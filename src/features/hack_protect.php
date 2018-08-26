@@ -103,7 +103,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isIncludeFileLists() {
-		return $this->getOptIs( 'email_files_list', 'Y' );
+		return $this->isPremium() && $this->getOptIs( 'email_files_list', 'Y' );
 	}
 
 	/**

@@ -225,29 +225,12 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$sName = $this->getController()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
-
-		$aContent = array_merge(
-			array(
-				sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
-				sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-				''
-			),
-			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
-		);
-
-		if ( !$oFO->getConn()->isRelabelled() ) {
-			$aContent[] = '';
-			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
-		}
-
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
-				 $aContent
+				 sprintf( '[%s] %s', _wpsf__( 'Warning' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
+				 $this->buildEmailBodyFromFiles( $aFiles )
 			 );
 
 		$this->addToAuditEntry(
@@ -260,52 +243,43 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	 * @param string[] $aFiles
 	 * @return string[]
 	 */
-	private function buildEmailBody( $aFiles ) {
+	private function buildEmailBodyFromFiles( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array();
+		$aContent = array(
+			sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
+			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			''
+		);
 
-		if ( $oFO->isUfcDeleteFiles() ) {
-			$aContent[] = 'Files that were discovered:';
+		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
+			$aContent[] = _wpsf__( 'Files that were discovered' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
 			$aContent[] = '';
-			$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
+
+			if ( $oFO->isUfcDeleteFiles() ) {
+				$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
+				$aContent[] = '';
+			}
+		}
+
+		if ( $oFO->canRunWizards() ) {
+			$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
+				$oFO->getUrl_Wizard( 'ufc' ),
+				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
+				_wpsf__( 'Run Scanner' )
+			);
 			$aContent[] = '';
 		}
 
-		$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-			$oFO->getUrl_Wizard( 'ufc' ),
-			'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-			_wpsf__( 'Run Scanner' )
-		);
-
-		return $aContent;
-	}
-
-	/**
-	 * Assumes cannot run wizard
-	 * The older approach was to always enumerate files regardless of whether they were deleted
-	 * @param string[] $aFiles
-	 * @return string[]
-	 */
-	private function buildEmailBody_Legacy( $aFiles ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$sName = $this->getController()->getHumanName();
-
-		$aContent = array();
-		$aContent[] = 'Files that were discovered:';
-		foreach ( $aFiles as $sFile ) {
-			$aContent[] = ' - '.$sFile;
-		}
-
-		if ( $oFO->isUfcDeleteFiles() ) {
-			$aContent[] = '';
-			$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
+		if ( !$oFO->getConn()->isRelabelled() ) {
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
 		}
 
 		return $aContent;

@@ -243,29 +243,12 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$sName = $this->getController()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
-
-		$aContent = array_merge(
-			array(
-				sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
-				sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-				''
-			),
-			( $oFO->canRunWizards() && !$oFO->isIncludeFileLists() ) ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
-		);
-
-		if ( !$oFO->getConn()->isRelabelled() ) {
-			$aContent[] = '';
-			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
-		}
-
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
 				 sprintf( '[%s] %s', _wpsf__( 'Warning' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
-				 $aContent
+				 $this->buildEmailBodyFromFiles( $aFiles )
 			 );
 
 		$this->addToAuditEntry(
@@ -277,26 +260,47 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @param array $aFiles
 	 * @return array
 	 */
-	private function buildEmailBody( $aFiles ) {
+	private function buildEmailBodyFromFiles( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array();
+		$aContent = array(
+			sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
+			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			''
+		);
 
-		if ( $oFO->isWcfScanAutoRepair() ) {
+		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
 			$aContent = $this->buildListOfFilesForEmail( $aFiles );
-			$aContent[] = '<strong>'.sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName ).'</strong>'
-						  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
+			$aContent[] = '';
+
+			if ( $oFO->isWcfScanAutoRepair() ) {
+				$aContent[] = '<strong>'.sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName ).'</strong>'
+							  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
+			}
+			else {
+				$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
+				$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
+							  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
+			}
 			$aContent[] = '';
 		}
 
-		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site:' );
-		$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-			$oFO->getUrl_Wizard( 'wcf' ),
-			'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-			_wpsf__( 'Run Scanner' )
-		);
+		if ( $oFO->canRunWizards() ) {
+			$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
+				$oFO->getUrl_Wizard( 'wcf' ),
+				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
+				_wpsf__( 'Run Scanner' )
+			);
+			$aContent[] = '';
+		}
+
+		if ( !$oFO->getConn()->isRelabelled() ) {
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		}
 
 		return $aContent;
 	}
@@ -311,17 +315,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$sName = $this->getController()->getHumanName();
 
 		$aContent = $this->buildListOfFilesForEmail( $aFiles );
+		$aContent[] = '';
 
 		$aContent[] = '';
-		if ( $oFO->isWcfScanAutoRepair() ) {
-			$aContent[] = '<strong>'.sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName ).'</strong>'
-						  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
-		}
-		else {
-			$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
-			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
-						  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
-		}
 
 		return $aContent;
 	}
