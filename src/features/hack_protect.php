@@ -100,6 +100,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isIncludeFileLists() {
+		return $this->getOptIs( 'email_files_list', 'Y' );
+	}
+
+	/**
 	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return $this
 	 */
@@ -748,9 +755,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
 		switch ( $sSectionSlug ) {
 
-			case 'section_scan_schedule' :
-				$sTitle = _wpsf__( 'Scan Schedule' );
-				$sTitleShort = _wpsf__( 'Scan Schedule' );
+			case 'section_scan_options' :
+				$sTitle = _wpsf__( 'Scan Options' );
+				$sTitleShort = _wpsf__( 'Scan Options' );
 				$aSummary = array(
 					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Set how frequently the Hack Guard scans will run.' ) )
 				);
@@ -849,6 +856,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Daily Scan Frequency' );
 				$sSummary = _wpsf__( 'Number Of Times To Automatically Run File Scan In 24hrs' );
 				$sDescription = _wpsf__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.' );
+				break;
+
+			case 'email_files_list' :
+				$sName = _wpsf__( 'Email Files List' );
+				$sSummary = _wpsf__( 'Scan Notification Emails Should Include Full Listing Of Files' );
+				$sDescription = _wpsf__( 'Scanner notification emails will include a summary list of all affected files.' );
 				break;
 
 			case 'enable_plugin_vulnerabilities_scan' :
