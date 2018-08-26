@@ -206,10 +206,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
 			'',
 			_wpsf__( 'Details for this user are below:' ),
-			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $sHomeUrl ),
-			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
-			'- '.sprintf( _wpsf__( 'User Email: %s' ), $oUser->get( 'user_email' ) ),
-			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->ip() ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Site URL' ), $sHomeUrl ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Email' ), $oUser->user_email ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
 			'',
 			_wpsf__( 'Thanks.' )
 		);
@@ -219,7 +219,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oFO->getAdminLoginNotificationEmail(),
-				sprintf( _wpsf__( 'Notice - %s' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
+				sprintf( '%s - %s', _wpsf__( 'Notice' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);
 	}
@@ -234,10 +234,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 																											 ->getHumanName() ),
 			'',
 			_wpsf__( 'Details for this login are below:' ),
-			'- '.sprintf( _wpsf__( 'Site URL: %s' ), $this->loadWp()->getHomeUrl() ),
-			'- '.sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
-			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $this->ip() ),
-			'- '.sprintf( _wpsf__( 'Login Time: %s' ), $this->loadWp()->getTimeStampForDisplay() ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Site URL' ), $this->loadWp()->getHomeUrl() ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Time' ), $this->loadWp()->getTimeStampForDisplay() ),
 			'',
 			_wpsf__( 'If this is unexpected or suspicious, please contact your site administrator immediately.' ),
 			'',
@@ -249,7 +249,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oUser->user_email,
-				sprintf( _wpsf__( 'Notice - %s' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
+				sprintf( '%s - %s', _wpsf__( 'Notice' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
 				$aMessage
 			);
 	}

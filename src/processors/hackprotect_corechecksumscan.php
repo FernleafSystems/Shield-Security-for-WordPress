@@ -12,6 +12,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	public function run() {
 		$this->setupChecksumCron();
+//		$this->cron_dailyChecksumScan();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oDp = $this->loadDP();
@@ -24,13 +25,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					if ( !empty( $sMd5FilePath ) ) {
 						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
 							$this->loadWpNotices()
-								 ->addFlashMessage(
+								 ->addFlashUserMessage(
 									 _wpsf__( 'File was successfully replaced with an original from WordPress.org' )
 								 );
 						}
 						else {
 							$this->loadWpNotices()
-								 ->addFlashMessage(
+								 ->addFlashUserMessage(
 									 _wpsf__( 'File was not replaced' )
 								 );
 						}
@@ -63,7 +64,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @param bool $bAutoRepair
 	 * @return array
 	 */
-	public function doChecksumScan( $bAutoRepair ) {
+	public function doChecksumScan( $bAutoRepair = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
@@ -78,7 +79,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			'missing'           => array(),
 		);
 
-		$aAutoFixIndexFiles = $this->getMod()->getDefinition( 'corechecksum_autofix' );
+		$aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
 		if ( empty( $aAutoFixIndexFiles ) ) {
 			$aAutoFixIndexFiles = array();
 		}
@@ -145,9 +146,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
 			return;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
 
-		$bOptionRepair = $this->getIsOption( 'attempt_auto_file_repair', 'Y' )
-						 || ( $this->loadDP()->query( 'checksum_repair' ) == 1 );
+		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadDP()->query( 'checksum_repair' ) == 1 );
 
 		$aFiles = $this->doChecksumScan( $bOptionRepair );
 		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {
@@ -241,29 +243,12 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$sName = $this->getController()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
-
-		$aContent = array_merge(
-			array(
-				sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
-				sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-				''
-			),
-			$oFO->canRunWizards() ? $this->buildEmailBody( $aFiles ) : $this->buildEmailBody_Legacy( $aFiles )
-		);
-
-		if ( !$oFO->getConn()->isRelabelled() ) {
-			$aContent[] = '';
-			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
-		}
-
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
-				 $aContent
+				 sprintf( '[%s] %s', _wpsf__( 'Warning' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
+				 $this->buildEmailBodyFromFiles( $aFiles )
 			 );
 
 		$this->addToAuditEntry(
@@ -275,39 +260,47 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @param array $aFiles
 	 * @return array
 	 */
-	private function buildEmailBody( $aFiles ) {
+	private function buildEmailBodyFromFiles( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
+		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array();
+		$aContent = array(
+			sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
+			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			''
+		);
 
-		if ( $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
-			$aContent[] = sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName );
+		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
+			$aContent = $this->buildListOfFilesForEmail( $aFiles );
+			$aContent[] = '';
 
-			if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
-				$aContent[] = '';
-				$aContent[] = _wpsf__( "The contents of the core files listed below don't match official WordPress files:" );
-				foreach ( $aFiles[ 'checksum_mismatch' ] as $sFile ) {
-					$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
-				}
+			if ( $oFO->isWcfScanAutoRepair() ) {
+				$aContent[] = '<strong>'.sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName ).'</strong>'
+							  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
 			}
-			if ( !empty( $aFiles[ 'missing' ] ) ) {
-				$aContent[] = '';
-				$aContent[] = _wpsf__( 'The WordPress Core Files listed below are missing:' );
-				foreach ( $aFiles[ 'missing' ] as $sFile ) {
-					$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
-				}
+			else {
+				$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
+				$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
+							  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
 			}
+			$aContent[] = '';
 		}
 
-		$aContent[] = '';
-		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site:' );
-		$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-			$oFO->getUrl_Wizard( 'wcf' ),
-			'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-			_wpsf__( 'Run Scanner' )
-		);
+		if ( $oFO->canRunWizards() ) {
+			$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
+				$oFO->getUrl_Wizard( 'wcf' ),
+				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
+				_wpsf__( 'Run Scanner' )
+			);
+			$aContent[] = '';
+		}
+
+		if ( !$oFO->getConn()->isRelabelled() ) {
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+		}
 
 		return $aContent;
 	}
@@ -317,7 +310,23 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return array
 	 */
 	private function buildEmailBody_Legacy( $aFiles ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		$sName = $this->getController()->getHumanName();
 
+		$aContent = $this->buildListOfFilesForEmail( $aFiles );
+		$aContent[] = '';
+
+		$aContent[] = '';
+
+		return $aContent;
+	}
+
+	/**
+	 * @param array $aFiles
+	 * @return array
+	 */
+	private function buildListOfFilesForEmail( $aFiles ) {
 		$aContent = array();
 
 		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
@@ -332,18 +341,6 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}
-
-		$aContent[] = '';
-		if ( $this->getIsOption( 'attempt_auto_file_repair', 'Y' ) ) {
-			$aContent[] = _wpsf__( 'We have already attempted to repair these files based on your current settings.' )
-						  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
-		}
-		else {
-			$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
-			$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
-						  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
-		}
-
 		return $aContent;
 	}
 

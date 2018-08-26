@@ -126,8 +126,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			case 'section_enable_plugin_feature_headers' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -135,8 +135,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			case 'section_security_headers' :
 				$sTitle = _wpsf__( 'Advanced Security Headers' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Security Headers' );
 				break;
@@ -144,8 +144,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			case 'section_content_security_policy' :
 				$sTitle = _wpsf__( 'Content Security Policy' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Content Security Policy' );
 				break;
@@ -243,7 +243,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$sDescription = _wpsf__( 'You can explicitly state which hosts/domain from which content may be loaded.' )
 								.' '._wpsf__( 'Take great care and test your site as you may block legitimate resources.' )
 								.'<br />- '._wpsf__( 'If in-doubt, leave blank or use "*" only.' )
-								.'<br />- '.sprintf( _wpsf__( 'Note: %s' ), _wpsf__( 'You can force only HTTPS for a given domain by prefixing it with "https://".' ) );
+								.'<br />- '.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You can force only HTTPS for a given domain by prefixing it with "https://".' ) );
 				break;
 
 			default:

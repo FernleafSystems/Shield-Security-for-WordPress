@@ -217,7 +217,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			'ajax'         => $this->getAjaxDataSets(),
 			'list_id'      => $sListToRender,
 			'bIsWhiteList' => $sListToRender == self::LIST_MANUAL_WHITE,
-			'time_now'     => sprintf( _wpsf__( 'now: %s' ), $this->loadWp()->getTimeStringForDisplay() ),
+			'time_now'     => sprintf( '%s: %s', _wpsf__( 'now' ), $this->loadWp()->getTimeStringForDisplay() ),
 			'sTableId'     => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
 		);
 
@@ -260,15 +260,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $sOptKey ) {
 
 			case 'text_loginfailed':
-				$sText = sprintf(
-					_wpsf__( 'Warning: %s' ),
+				$sText = sprintf( '%s: %s',
+					_wpsf__( 'Warning' ),
 					_wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' )
 				);
 				break;
 
 			case 'text_remainingtrans':
-				$sText = sprintf(
-					_wpsf__( 'Warning: %s' ),
+				$sText = sprintf( '%s: %s',
+					_wpsf__( 'Warning' ),
 					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' )
 					.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
 				);
@@ -293,8 +293,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'section_enable_plugin_feature_ips' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
 					.'<br />'._wpsf__( 'You should also carefully review the automatic black list settings.' )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
@@ -303,8 +303,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'section_auto_black_list' :
 				$sTitle = _wpsf__( 'Automatic IP Black List' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Auto Black List' );
 				break;
@@ -313,8 +313,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sTitle = _wpsf__( 'Bad Request Tracking' );
 				$sTitleShort = _wpsf__( 'Request Tracking' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Track strange behaviour to determine whether visitors are legitimate.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( "These aren't security issues in their own right, but may indicate probing bots." ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Track strange behaviour to determine whether visitors are legitimate.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( "These aren't security issues in their own right, but may indicate probing bots." ) )
 				);
 				break;
 

@@ -457,7 +457,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'You will receive only 1 email notification about these changes in a 1 week period.' ) ),
 			'',
-			sprintf( _wpsf__( 'Site URL - %s' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',
 			_wpsf__( 'Details of the problem items are below:' ),
 		);
@@ -488,7 +488,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		}
 
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugins/Themes Have Been Altered' ) );
+		$sEmailSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugins/Themes Have Been Altered' ) );
 		$bSendSuccess = $this->getEmailProcessor()
 							 ->sendEmailWithWrap( $sTo, $sEmailSubject, $aContent );
 

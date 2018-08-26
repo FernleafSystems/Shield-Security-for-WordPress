@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
 			sprintf( _wpsf__( 'URL: %s' ), $oWp->getHomeUrl() ),
 			sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
-			sprintf( _wpsf__( 'IP Address: %s' ), $sIpAddress ),
+			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
 			'',
 		);
 

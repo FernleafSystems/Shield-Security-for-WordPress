@@ -107,7 +107,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			$this->aEmailContents = array_merge( $aPreamble, $this->aEmailContents );
 			$this->aEmailContents[ ] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
 
-			$sEmailSubject = sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
+			$sEmailSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
 
 			$bSendSuccess = $this->getEmailProcessor()
 								 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $this->aEmailContents );
