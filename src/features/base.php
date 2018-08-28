@@ -139,6 +139,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 			}
 
+			if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
+				$this->loadProcessor();
+			}
+
 			$this->doPostConstruction();
 		}
 	}
