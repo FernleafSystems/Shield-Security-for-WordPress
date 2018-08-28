@@ -151,6 +151,7 @@
       "section":     "section_multifactor_authentication",
       "premium":     true,
       "default":     0,
+      "min":         0,
       "type":        "integer",
       "link_info":   "https://icwp.io/b1",
       "link_blog":   "",
@@ -185,30 +186,30 @@
       "section":       "section_2fa_email",
       "type":          "multiple_select",
       "default":       [
-        1,
-        2,
-        3,
-        8
+        "contributor",
+        "author",
+        "editor",
+        "administrator"
       ],
       "value_options": [
         {
-          "value_key": 0,
+          "value_key": "subscriber",
           "text":      "Subscribers"
         },
         {
-          "value_key": 1,
+          "value_key": "contributor",
           "text":      "Contributors"
         },
         {
-          "value_key": 2,
+          "value_key": "author",
           "text":      "Authors"
         },
         {
-          "value_key": 3,
+          "value_key": "editor",
           "text":      "Editors"
         },
         {
-          "value_key": 8,
+          "value_key": "administrator",
           "text":      "Administrators"
         }
       ],

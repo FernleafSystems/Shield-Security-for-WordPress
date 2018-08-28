@@ -331,6 +331,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
+		$oUser = $this->loadWpUsers()->getUserById(10);
+//		var_dump($oUser->roles);
+//		die( 0 );
+
+
 		$this->runWizards();
 		if ( $this->getIsUpgrading() ) {
 			$this->updateHandler();

@@ -65,35 +65,25 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$this->cleanLoginUrlPath();
 	}
 
-	public function doPrePluginOptionsSave() {
-		$nSkipDays = $this->getMfaSkip();
-		if ( !is_numeric( $nSkipDays ) || $nSkipDays < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'mfa_skip' );
-		}
-
-		$this->updateHandler();
-	}
-
 	/**
 	 */
 	protected function updateHandler() {
 
-		// v6.8.0: reCAPTCHA options restructure
-
-		// These can be removed eventually and are used to migrate old recaptcha settings to new structure
-		$sRecap = $this->getOpt( 'enable_google_recaptcha_login' );
-		if ( $sRecap == 'Y' ) {
-			$this->setOpt( 'enable_google_recaptcha_login', $this->getOpt( 'google_recaptcha_style_login' ) );
+		// Move from levels to roles
+		$aEmailLoginLevels = $this->getEmail2FaRoles();
+		$aMap = array(
+			0 => 'subscriber',
+			1 => 'contributor',
+			2 => 'author',
+			3 => 'editor',
+			8 => 'administrator'
+		);
+		foreach ( $aMap as $nLevel => $sRole ) {
+			if ( in_array( $nLevel, $aEmailLoginLevels ) ) {
+				$aEmailLoginLevels[] = $sRole;
+			}
 		}
-		else if ( $sRecap == 'N' ) {
-			$this->setOpt( 'enable_google_recaptcha_login', 'disabled' );
-		}
-
-		if ( $this->getIsCheckingUserRegistrations() ) {
-			$this->setOpt( 'bot_protection_locations', array_merge(
-				$this->getBotProtectionLocations(), array( 'register', 'password' ) ) )
-				 ->setOpt( 'enable_user_register_checking', 'N' );
-		}
+		$this->setOpt( 'two_factor_auth_user_roles', $aEmailLoginLevels );
 	}
 
 	/**
