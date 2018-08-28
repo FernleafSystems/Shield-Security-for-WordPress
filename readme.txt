@@ -357,10 +357,11 @@ You will always be able to use Shield Security and its free features in-full.
 *Released: 21st August, 2018* - [Release Notes](https://icwp.io/d4)
 
 * **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
-* **(v.0)**  IMPROVED:	Major database code refactoring and improvements.
+* **(v.0)**  IMPROVED:	Major database code refactoring and other code improvements.
 * **(v.0)**  IMPROVED:	User sessions handling.
-* **(v.0)**  IMPROVED:	Security Admin UX - automatic checking with notification and automatic page reload.
+* **(v.0)**  IMPROVED:	Security Admin UX - automatic checking with notification and auto page reload.
 * **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
+* **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting
 * **(v.0)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
 * **(v.0)**  IMPROVED:	Refined Cooldown timing system
 * **(v.0)**  IMPROVED:	Refined Bot checkbox Javascript

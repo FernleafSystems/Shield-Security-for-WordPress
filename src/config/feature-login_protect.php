@@ -214,11 +214,23 @@
         },
         {
           "value_key": "customer",
-          "text":      "[Woo/EDD] Customer"
+          "text":      "[Woo] Customer"
         },
         {
           "value_key": "shop_manager",
-          "text":      "[Woo] Shop Manager"
+          "text":      "[Woo/EDD] Shop Manager"
+        },
+        {
+          "value_key": "shop_accountant",
+          "text":      "[EDD] Shop Accountant"
+        },
+        {
+          "value_key": "shop_worker",
+          "text":      "[EDD] Shop Worker"
+        },
+        {
+          "value_key": "edd_subscriber",
+          "text":      "[EDD] Customer"
         }
       ],
       "link_info":     "https://icwp.io/4v",
