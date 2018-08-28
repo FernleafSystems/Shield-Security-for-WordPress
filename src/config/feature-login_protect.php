@@ -211,6 +211,14 @@
         {
           "value_key": "administrator",
           "text":      "Administrators"
+        },
+        {
+          "value_key": "customer",
+          "text":      "[Woo/EDD] Customer"
+        },
+        {
+          "value_key": "shop_manager",
+          "text":      "[Woo] Shop Manager"
         }
       ],
       "link_info":     "https://icwp.io/4v",
