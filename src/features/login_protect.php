@@ -69,21 +69,15 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	protected function updateHandler() {
 
-		// Move from levels to roles
-		$aEmailLoginLevels = $this->getEmail2FaRoles();
-		$aMap = array(
-			0 => 'subscriber',
-			1 => 'contributor',
-			2 => 'author',
-			3 => 'editor',
-			8 => 'administrator'
-		);
-		foreach ( $aMap as $nLevel => $sRole ) {
-			if ( in_array( $nLevel, $aEmailLoginLevels ) ) {
-				$aEmailLoginLevels[] = $sRole;
+		// Migrate from levels to roles
+		$aNew = array();
+		foreach ( $this->loadWpUsers()->getLevelToRoleMap() as $nLevel => $sRole ) {
+			if ( in_array( $nLevel, $this->getEmail2FaRoles() ) ) {
+				$aNew[] = $sRole;
 			}
 		}
-		$this->setOpt( 'two_factor_auth_user_roles', $aEmailLoginLevels );
+		$this->setOpt( 'two_factor_auth_user_roles', $aNew )
+			 ->savePluginOptions();
 	}
 
 	/**

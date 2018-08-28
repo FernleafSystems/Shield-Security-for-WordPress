@@ -1,4 +1,4 @@
-<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate">
+<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate" autocomplete="off">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />

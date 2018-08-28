@@ -139,6 +139,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 			}
 
+			if ( $this->getIsUpgrading() ) {
+				$this->updateHandler();
+			}
+
 			if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
 				$this->loadProcessor();
 			}
@@ -337,9 +341,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 
 		$this->runWizards();
-		if ( $this->getIsUpgrading() ) {
-			$this->updateHandler();
-		}
 
 		// GDPR
 		if ( $this->isPremium() ) {
@@ -430,7 +431,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsUpgrading() {
 //			return $this->getVersion() != self::getController()->getVersion();
-		return self::getConn()->getIsRebuildOptionsFromFile();
+		return self::getConn()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
 	}
 
 	/**
@@ -793,14 +794,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getVersion() {
-		$sVersion = $this->getOpt( self::PluginVersionKey );
-		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
-	}
-
-	/**
 	 * @param array|string $mErrors
 	 * @return $this
 	 */
@@ -917,7 +910,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function savePluginOptions() {
 		$this->doPrePluginOptionsSave();
-		$this->updateOptionsVersion();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptionsVo()
 				 ->setIsPremiumLicensed( $this->isPremium() )
@@ -933,13 +925,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
 		$this->getOptionsVo()->doOptionsSave( self::getConn()->getIsResetPlugin() );
 		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
-	}
-
-	protected function updateOptionsVersion() {
-		if ( $this->getIsUpgrading() || self::getConn()->getIsRebuildOptionsFromFile() ) {
-			$this->setOpt( self::PluginVersionKey, self::getConn()->getVersion() );
-			$this->getOptionsVo()->cleanTransientStorage();
-		}
 	}
 
 	/**
@@ -2035,5 +2020,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getCurrentUserMeta() {
 		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
+	}
+
+	/**
+	 * @deprecated
+	 * @return string
+	 */
+	public function getVersion() {
+		$sVersion = $this->getOpt( self::PluginVersionKey );
+		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
 	}
 }
