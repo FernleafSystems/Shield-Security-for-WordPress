@@ -246,15 +246,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( $this->isAccessKeyRequest() ) {
 			$bSuccess = $this->doCheckHasPermissionToSubmit();
 
-			$sPluginName = $this->getConn()->getHumanName();
 			if ( $bSuccess ) {
-				$sMessage = sprintf( _wpsf__( '%s Security Admin key accepted.' ), $sPluginName );
+				$sMessage = _wpsf__( 'Security Admin key accepted.' );
 			}
 			else {
-				$sMessage = sprintf( _wpsf__( '%s Security Admin key not accepted.' ), $sPluginName );
+				$sMessage = _wpsf__( 'Security Admin key not accepted.' );
 			}
-			$this->loadWpNotices()
-				 ->addFlashUserMessage( $sMessage, $bSuccess ? 'updated' : 'error' );
+			$this->setFlashAdminNotice( $sMessage, $bSuccess );
 		}
 		else {
 			parent::setSaveUserResponse();

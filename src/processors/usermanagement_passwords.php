@@ -90,8 +90,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	private function redirectToProfile( $sMessage ) {
 		$sExtra = _wpsf__( 'For your security, please use the password section below to update your password.' );
-		$this->loadWpNotices()
-			 ->addFlashUserMessage( $sMessage.' '.$sExtra );
+		$this->getMod()
+			 ->setFlashAdminNotice( $sMessage.' '.$sExtra );
 
 		$this->loadWp()
 			 ->doRedirect(

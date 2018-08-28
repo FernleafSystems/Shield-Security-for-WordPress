@@ -21,16 +21,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
 
-				$oNoticer = $this->loadWpNotices();
 				if ( $this->getIfCanSendEmailVerified() ) {
-					$oNoticer->addFlashMessage(
-						_wpsf__( 'Email verification completed successfully.' )
-					);
+					$this->setFlashAdminNotice( _wpsf__( 'Email verification completed successfully.' ) );
 				}
 				else {
-					$oNoticer->addFlashErrorMessage(
-						_wpsf__( 'Email verification could not be completed.' )
-					);
+					$this->setFlashAdminNotice( _wpsf__( 'Email verification could not be completed.' ), true );
 				}
 
 				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );

@@ -335,11 +335,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
-		$oUser = $this->loadWpUsers()->getUserById(10);
-//		var_dump($oUser->roles);
-//		die( 0 );
-
-
 		$this->runWizards();
 
 		// GDPR
@@ -1219,10 +1214,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	protected function setSaveUserResponse() {
 		if ( $this->isAdminOptionsPage() ) {
-			$this->loadWpNotices()
-				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
-																									   ->getHumanName() ) );
+			$this->setFlashAdminNotice( _wpsf__( 'Plugin options updated successfully.' ) );
 		}
+	}
+
+	/**
+	 * @param string $sMsg
+	 * @param bool   $bError
+	 * @return $this
+	 */
+	public function setFlashAdminNotice( $sMsg, $bError = false ) {
+		$this->loadWpNotices()
+			 ->addFlashUserMessage( sprintf( '[%s] %s', self::getConn()->getHumanName(), $sMsg ), $bError );
+		return $this;
 	}
 
 	/**

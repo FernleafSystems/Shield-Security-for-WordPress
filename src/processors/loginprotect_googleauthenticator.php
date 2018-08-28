@@ -104,17 +104,12 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 				if ( $bPermissionToRemoveGa ) {
 					$this->processRemovalFromAccount( $oSavingUser );
-					$this->loadWpNotices()
-						 ->addFlashUserMessage(
-							 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
-						 );
+					$sMsg = _wpsf__( 'Google Authenticator was successfully removed from the account.' );
 				}
 				else {
-					$this->loadWpNotices()
-						 ->addFlashErrorMessage(
-							 _wpsf__( 'Google Authenticator could not be removed from the account - ensure your code is correct.' )
-						 );
+					$sMsg = _wpsf__( 'Google Authenticator could not be removed from the account - ensure your code is correct.' );
 				}
+				$this->getMod()->setFlashAdminNotice( $sMsg, $bPermissionToRemoveGa );
 			}
 		}
 		else {
@@ -140,7 +135,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 		$oWpUsers = $this->loadWpUsers();
-		$oWpNotices = $this->loadWpNotices();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
@@ -153,26 +147,26 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$sShieldTurnOff = $this->loadDP()->post( 'shield_turn_off_google_authenticator' );
 		if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
 
+			$bError = false;
 			if ( $bValidOtp ) {
 				$this->processRemovalFromAccount( $oSavingUser );
-				$this->loadWpNotices()
-					 ->addFlashUserMessage(
-						 _wpsf__( 'Google Authenticator was successfully removed from the account.' )
-					 );
+				$sFlash = _wpsf__( 'Google Authenticator was successfully removed from the account.' );
 			}
 			else if ( empty( $sOtp ) ) {
-				// send email to confirm
-				$bEmailSuccess = $this->sendEmailConfirmationGaRemoval( $oSavingUser );
-				if ( $bEmailSuccess ) {
-					$oWpNotices->addFlashUserMessage( _wpsf__( 'An email has been sent to you in order to confirm Google Authenticator removal' ) );
+
+				if ( $this->sendEmailConfirmationGaRemoval( $oSavingUser ) ) {
+					$sFlash = _wpsf__( 'An email has been sent to you in order to confirm Google Authenticator removal' );
 				}
 				else {
-					$oWpNotices->addFlashErrorMessage( _wpsf__( 'We tried to send an email for you to confirm Google Authenticator removal but it failed.' ) );
+					$bError = true;
+					$sFlash = _wpsf__( 'We tried to send an email for you to confirm Google Authenticator removal but it failed.' );
 				}
 			}
 			else {
-				$oWpNotices->addFlashErrorMessage( $sMessageOtpInvalid );
+				$bError = true;
+				$sFlash = $sMessageOtpInvalid;
 			}
+			$this->getMod()->setFlashAdminNotice( $sFlash, $bError );
 			return;
 		}
 
@@ -186,16 +180,16 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 			if ( $bValidOtp ) {
 				$this->setProfileValidated( $oSavingUser );
-				$oWpNotices->addFlashUserMessage(
-					sprintf( _wpsf__( '%s was successfully added to your account.' ),
-						_wpsf__( 'Google Authenticator' )
-					)
+				$sFlash = sprintf(
+					_wpsf__( '%s was successfully added to your account.' ),
+					_wpsf__( 'Google Authenticator' )
 				);
 			}
 			else {
 				$this->resetSecret( $oSavingUser );
-				$oWpNotices->addFlashErrorMessage( $sMessageOtpInvalid );
+				$sFlash = $sMessageOtpInvalid;
 			}
+			$this->getMod()->setFlashAdminNotice( $sFlash, !$bValidOtp );
 		}
 	}
 
@@ -309,8 +303,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		$this->processRemovalFromAccount( $oWpCurrentUser );
-		$this->loadWpNotices()
-			 ->addFlashMessage( _wpsf__( 'Google Authenticator was successfully removed from this account.' ) );
+		$this->getMod()
+			 ->setFlashAdminNotice( _wpsf__( 'Google Authenticator was successfully removed from this account.' ) );
 		$this->loadWp()->redirectToAdmin();
 	}
 

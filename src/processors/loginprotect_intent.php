@@ -122,14 +122,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					}
 
 					$this->removeLoginIntent();
-					$this->loadWpNotices()->addFlashUserMessage(
-						_wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) );
-
-					$oFO->setOptInsightsAt( 'last_2fa_login_at' );
+					$oFO->setFlashAdminNotice( _wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) )
+						->setOptInsightsAt( 'last_2fa_login_at' );
 				}
 				else {
-					$this->loadWpNotices()->addFlashMessage(
-						_wpsf__( 'One or more of your authentication codes failed or was missing' ) );
+					$oFO->setFlashAdminNotice( _wpsf__( 'One or more of your authentication codes failed or was missing' ), true );
 				}
 				$this->loadWp()->redirectHere();
 			}
@@ -262,8 +259,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		$sMessage = $this->loadWpNotices()
-						 ->flushFlashMessage()
-						 ->getRawFlashMessageText();
+						 ->flushFlash()
+						 ->getFlashText();
 
 		if ( empty( $sMessage ) ) {
 			if ( $oFO->isChainedAuth() ) {

@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		}
 
 		if ( !$bValidOtp ) {
-			$oWpNotices->addFlashErrorMessage( $sMessageOtpInvalid );
+			$this->getMod()->setFlashAdminNotice( $sMessageOtpInvalid, true );
 			return;
 		}
 
@@ -90,20 +90,18 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 			$this->setSecret( $oSavingUser, substr( $sOtp, 0, $this->getSecretLength() ) )
 				 ->setProfileValidated( $oSavingUser );
-			$oWpNotices->addFlashMessage(
-				sprintf( _wpsf__( '%s was successfully added to your account.' ),
-					_wpsf__( 'Yubikey' )
-				)
-			);
+			$this->getMod()
+				 ->setFlashAdminNotice(
+					 sprintf( _wpsf__( '%s was successfully added to your account.' ), _wpsf__( 'Yubikey' ) )
+				 );
 		}
 		else {
 			$this->setProfileValidated( $oSavingUser, false )
 				 ->resetSecret( $oSavingUser );
-			$oWpNotices->addFlashMessage(
-				sprintf( _wpsf__( '%s was successfully removed from your account.' ),
-					_wpsf__( 'Yubikey' )
-				)
-			);
+			$this->getMod()
+				 ->setFlashAdminNotice(
+					 sprintf( _wpsf__( '%s was successfully removed from your account.' ), _wpsf__( 'Yubikey' ) )
+				 );
 		}
 	}
 
