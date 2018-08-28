@@ -179,6 +179,26 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'delete_forceoff':
+					$aAjaxResponse = $this->ajaxExec_DeleteForceOff();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function ajaxExec_PluginBadgeClose() {
@@ -201,6 +221,19 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function ajaxExec_SetPluginTrackingPerm() {
 		$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
 		return array( 'success' => true );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_DeleteForceOff() {
+		$bStillActive = $this->getConn()
+							 ->deleteForceOffFile()
+							 ->getIfForceOffActive();
+		if ( $bStillActive ) {
+			$this->setFlashAdminNotice( _wpsf__( 'File could not be automatically removed.' ), true );
+		}
+		return array( 'success' => !$bStillActive );
 	}
 
 	/**
