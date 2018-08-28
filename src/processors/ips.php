@@ -26,13 +26,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isReadyToRun() {
-		return ( parent::isReadyToRun() && $this->loadIpService()->isValidIp_PublicRemote( $this->ip() ) );
-	}
-
-	/**
 	 */
 	public function run() {
 		if ( !$this->isReadyToRun() ) {

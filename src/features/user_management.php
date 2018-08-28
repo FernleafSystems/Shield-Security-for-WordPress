@@ -113,13 +113,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return $this->isModuleEnabled() && ( $this->getSessionTimeoutInterval() > 0 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
-	}
-
 	protected function doPrePluginOptionsSave() {
 		if ( $this->getSessionIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
 			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );

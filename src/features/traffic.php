@@ -52,9 +52,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function isReadyToExecute() {
 		$oIp = $this->loadIpService();
-		return parent::isReadyToExecute()
-			   && $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
-			   && !$this->isVisitorWhitelisted();
+		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
 	}
 
 	/**

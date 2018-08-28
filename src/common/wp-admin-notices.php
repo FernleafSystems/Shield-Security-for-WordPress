@@ -36,9 +36,9 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	}
 
 	protected function __construct() {
+		$this->sFlashMessage = '';
 		add_action( 'admin_notices', array( $this, 'onWpAdminNotices' ) );
 		add_action( 'network_admin_notices', array( $this, 'onWpAdminNotices' ) );
-		add_action( 'wp_loaded', array( $this, 'flushFlashMessage' ) );
 	}
 
 	/**
@@ -70,8 +70,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		foreach ( $this->getNotices() as $sKey => $sAdminNoticeContent ) {
 			echo $sAdminNoticeContent;
 		}
-		$this->flashNotice();
-		$this->flashUserNotice();
+		$this->flashUserAdminNotice();
 	}
 
 	/**
@@ -193,7 +192,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @return boolean|string
 	 */
 	protected function wrapAdminNoticeHtml( $sNotice = '', $sMessageClass = 'updated', $bPrint = false ) {
-		$sWrapper = '<div class="%s icwp-admin-notice">%s</div>';
+		$sWrapper = '<div class="%s odp-admin-notice">%s</div>';
 		$sFullNotice = sprintf( $sWrapper, $sMessageClass, $sNotice );
 		if ( $bPrint ) {
 			echo $sFullNotice;
@@ -206,52 +205,24 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sMessage
-	 */
-	public function addFlashErrorMessage( $sMessage ) {
-		$this->addFlashUserMessage( $sMessage, 'error' );
-	}
-
-	/**
-	 * @deprecated use addFlashUserMessage()
-	 * @param string $sMessage
-	 * @param string $sType
-	 */
-	public function addFlashMessage( $sMessage, $sType = 'updated' ) {
-		$this->loadDP()->setCookie(
-			$this->getPrefix().'flash', $sType.'::'.esc_attr( $sMessage )
-		);
-	}
-
-	/**
-	 * @param string $sMessage
-	 * @param string $sType
+	 * @param bool   $bError
 	 * @return $this
 	 */
-	public function addFlashUserMessage( $sMessage, $sType = 'updated' ) {
+	public function addFlashUserMessage( $sMessage, $bError = false ) {
 		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-			$this->getCurrentUserMeta()->flash_msg = $sType
-													 .'::'.esc_attr( $sMessage )
+			$this->getCurrentUserMeta()->flash_msg = ( $bError ? 'error' : 'updated' )
+													 .'::'.sanitize_text_field( $sMessage )
 													 .'::'.( $this->loadDP()->time() + 300 );
 		}
 		return $this;
 	}
 
-	protected function flashNotice() {
-		if ( !empty( $this->sFlashMessage ) ) {
-			$aParts = explode( '::', $this->sFlashMessage, 2 );
-			echo $this->wrapAdminNoticeHtml( $aParts[ 1 ], $aParts[ 0 ] );
-		}
-	}
-
-	protected function flashUserNotice() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-			$oMeta = $this->getCurrentUserMeta();
-			if ( !empty( $oMeta->flash_msg ) ) {
-				$aParts = explode( '::', $oMeta->flash_msg, 3 );
-				if ( empty( $aParts[ 2 ] ) || $this->loadDP()->time() < $aParts[ 2 ] ) {
-					echo $this->wrapAdminNoticeHtml( $aParts[ 1 ], $aParts[ 0 ] );
-				}
-				unset( $oMeta->flash_msg );
+	protected function flashUserAdminNotice() {
+		$this->flushFlash();
+		if ( $this->hasFlash() ) {
+			$aParts = $this->getFlashParts();
+			if ( empty( $aParts[ 2 ] ) || $this->loadDP()->time() < $aParts[ 2 ] ) {
+				echo $this->wrapAdminNoticeHtml( '<p>'.$aParts[ 1 ].'</p>', $aParts[ 0 ] );
 			}
 		}
 	}
@@ -259,23 +230,45 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getRawFlashMessageText() {
-		$aParts = explode( '::', $this->sFlashMessage, 2 );
+	protected function getFlash() {
+		return $this->sFlashMessage;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getFlashParts() {
+		return explode( '::', $this->getFlash(), 3 );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFlashText() {
+		$aParts = $this->getFlashParts();
 		return isset( $aParts[ 1 ] ) ? $aParts[ 1 ] : '';
+	}
+
+	/**
+	 * Requires that the flash has been flushed
+	 * @return bool
+	 */
+	public function hasFlash() {
+		$sFlash = $this->getFlash();
+		return !empty( $sFlash );
 	}
 
 	/**
 	 * @return $this
 	 */
-	public function flushFlashMessage() {
-
-		$oDp = $this->loadDP();
-		$sCookieName = $this->getPrefix().'flash';
-		$this->sFlashMessage = $oDp->cookie( $sCookieName, '' );
-		if ( !empty( $this->sFlashMessage ) ) {
-			$this->sFlashMessage = sanitize_text_field( $this->sFlashMessage );
+	public function flushFlash() {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			$oMeta = $this->getCurrentUserMeta();
+			if ( isset( $oMeta->flash_msg ) ) {
+				$this->sFlashMessage = (string)$oMeta->flash_msg;
+				unset( $oMeta->flash_msg );
+			}
 		}
-		$oDp->setDeleteCookie( $sCookieName );
 		return $this;
 	}
 }

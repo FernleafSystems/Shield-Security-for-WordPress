@@ -139,6 +139,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 			}
 
+			if ( $this->getIsUpgrading() ) {
+				$this->updateHandler();
+			}
+
 			$this->doPostConstruction();
 		}
 	}
@@ -273,6 +277,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->getOptionsVo()
 			 ->setIsPremiumLicensed( $this->isPremium() );
 
+		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
+			$this->loadProcessor();
+		}
 		if ( $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
 		}
@@ -311,12 +318,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * functionality of the plugin.
 	 */
 	protected function isReadyToExecute() {
-		$bReady = !self::getConn()->getIfForceOffActive();
-		if ( $bReady ) {
-			$oProcessor = $this->getProcessor();
-			$bReady = $bReady && ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
-		}
-		return $bReady;
+		$oProcessor = $this->getProcessor();
+		return ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
 	}
 
 	protected function doExecuteProcessor() {
@@ -328,9 +331,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpInit() {
 		$this->runWizards();
-		if ( $this->getIsUpgrading() ) {
-			$this->updateHandler();
-		}
 
 		// GDPR
 		if ( $this->isPremium() ) {
@@ -421,7 +421,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsUpgrading() {
 //			return $this->getVersion() != self::getController()->getVersion();
-		return self::getConn()->getIsRebuildOptionsFromFile();
+		return self::getConn()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
 	}
 
 	/**
@@ -505,10 +505,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$bEnabled = $this->getOptIs( 'enable_'.$this->getSlug(), 'Y' )
 					|| $this->getOptIs( 'enable_'.$this->getSlug(), true, true );
 
-		if ( $oOpts->getFeatureProperty( 'auto_enabled' ) === true ) {
+		if ( $this->isAutoEnabled() ) {
 			$bEnabled = true;
 		}
 		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+			$bEnabled = false;
+		}
+		else if ( self::getConn()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
 		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
@@ -516,6 +519,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		return $bEnabled;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAutoEnabled() {
+		return ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 	}
 
 	/**
@@ -784,14 +794,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getVersion() {
-		$sVersion = $this->getOpt( self::PluginVersionKey );
-		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
-	}
-
-	/**
 	 * @param array|string $mErrors
 	 * @return $this
 	 */
@@ -908,7 +910,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function savePluginOptions() {
 		$this->doPrePluginOptionsSave();
-		$this->updateOptionsVersion();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptionsVo()
 				 ->setIsPremiumLicensed( $this->isPremium() )
@@ -924,13 +925,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
 		$this->getOptionsVo()->doOptionsSave( self::getConn()->getIsResetPlugin() );
 		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
-	}
-
-	protected function updateOptionsVersion() {
-		if ( $this->getIsUpgrading() || self::getConn()->getIsRebuildOptionsFromFile() ) {
-			$this->setOpt( self::PluginVersionKey, self::getConn()->getVersion() );
-			$this->getOptionsVo()->cleanTransientStorage();
-		}
 	}
 
 	/**
@@ -1225,10 +1219,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	protected function setSaveUserResponse() {
 		if ( $this->isAdminOptionsPage() ) {
-			$this->loadWpNotices()
-				 ->addFlashMessage( sprintf( _wpsf__( '%s Plugin options updated successfully.' ), self::getConn()
-																									   ->getHumanName() ) );
+			$this->setFlashAdminNotice( _wpsf__( 'Plugin options updated successfully.' ) );
 		}
+	}
+
+	/**
+	 * @param string $sMsg
+	 * @param bool   $bError
+	 * @return $this
+	 */
+	public function setFlashAdminNotice( $sMsg, $bError = false ) {
+		$this->loadWpNotices()
+			 ->addFlashUserMessage( sprintf( '[%s] %s', self::getConn()->getHumanName(), $sMsg ), $bError );
+		return $this;
 	}
 
 	/**
@@ -2026,5 +2029,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getCurrentUserMeta() {
 		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
+	}
+
+	/**
+	 * @deprecated
+	 * @return string
+	 */
+	public function getVersion() {
+		$sVersion = $this->getOpt( self::PluginVersionKey );
+		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
 	}
 }

@@ -764,7 +764,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				break;
 
 			case 'email':
-				$bValid = empty( $mPotentialValue) || $this->loadDP()->validEmail( $mPotentialValue );
+				$bValid = empty( $mPotentialValue ) || $this->loadDP()->validEmail( $mPotentialValue );
 				break;
 		}
 		return $bValid;
@@ -856,11 +856,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
 				$aConfig[ 'meta_modts' ] = 0;
 			}
-			$bRebuild = $this->getConfigModTime() != $aConfig[ 'meta_modts' ];
+			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
 		}
 
 		if ( $bRebuild ) {
-
 			try {
 				$aConfig = $this->readConfigurationJson();
 			}
@@ -873,6 +872,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
 			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 		}
+
+		$this->setRebuildFromFile( $bRebuild );
 		return $aConfig;
 	}
 

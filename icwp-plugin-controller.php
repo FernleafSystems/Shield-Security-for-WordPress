@@ -44,9 +44,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $bRebuildOptions;
 
 	/**
-	 * @var boolean
+	 * @var string
 	 */
-	protected $bForceOffState;
+	protected $sForceOffFile;
 
 	/**
 	 * @var boolean
@@ -1536,13 +1536,34 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function deleteForceOffFile() {
+		if ( $this->getIfForceOffActive() ) {
+			$this->loadFS()->deleteFile( $this->getForceOffFilePath() );
+			$this->sForceOffFile = null;
+			clearstatcache();
+		}
+		return $this;
+	}
+
+	/**
 	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
 	 */
 	public function getIfForceOffActive() {
-		if ( !isset( $this->bForceOffState ) ) {
-			$this->bForceOffState = $this->loadFS()->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
+		return ( $this->getForceOffFilePath() !== false );
+	}
+
+	/**
+	 * @return null|string
+	 */
+	protected function getForceOffFilePath() {
+		if ( !isset( $this->sForceOffFile ) ) {
+			$oFs = $this->loadFS();
+			$sFile = $oFs->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
+			$this->sForceOffFile = ( !is_null( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
 		}
-		return $this->bForceOffState;
+		return $this->sForceOffFile;
 	}
 
 	/**

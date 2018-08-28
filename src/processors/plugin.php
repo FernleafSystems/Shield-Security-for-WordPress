@@ -193,6 +193,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_override_forceoff( $aNoticeAttributes ) {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getMod();
 
 		$oCon = $this->getController();
 		if ( $oCon->getIfForceOffActive() ) {
@@ -204,7 +206,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 						_wpsf__( 'Please delete the "%s" file to reactivate the %s protection' ),
 						'forceOff',
 						$oCon->getHumanName()
-					)
+					),
+					'delete' => _wpsf__( 'Click here to automatically delete the file' )
+				),
+				'ajax' => array(
+					'delete_forceoff' => $oFO->getAjaxActionData( 'delete_forceoff', true )
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );

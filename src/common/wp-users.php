@@ -85,6 +85,28 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getLevelToRoleMap() {
+		return array(
+			0 => 'subscriber',
+			1 => 'contributor',
+			2 => 'author',
+			3 => 'editor',
+			8 => 'administrator'
+		);
+	}
+
+	/**
+	 * @param bool $bSlugsOnly
+	 * @return string[]|array[]
+	 */
+	public function getUserRoles( $bSlugsOnly = true ) {
+		require_once( ABSPATH.'wp-admin/includes/user.php' );
+		return $bSlugsOnly ? array_keys( get_editable_roles() ) : get_editable_roles();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function canSaveMeta() {

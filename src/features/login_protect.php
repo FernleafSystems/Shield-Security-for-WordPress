@@ -21,16 +21,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
 
-				$oNoticer = $this->loadWpNotices();
 				if ( $this->getIfCanSendEmailVerified() ) {
-					$oNoticer->addFlashMessage(
-						_wpsf__( 'Email verification completed successfully.' )
-					);
+					$this->setFlashAdminNotice( _wpsf__( 'Email verification completed successfully.' ) );
 				}
 				else {
-					$oNoticer->addFlashErrorMessage(
-						_wpsf__( 'Email verification could not be completed.' )
-					);
+					$this->setFlashAdminNotice( _wpsf__( 'Email verification could not be completed.' ), true );
 				}
 
 				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
@@ -65,35 +60,19 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$this->cleanLoginUrlPath();
 	}
 
-	public function doPrePluginOptionsSave() {
-		$nSkipDays = $this->getMfaSkip();
-		if ( !is_numeric( $nSkipDays ) || $nSkipDays < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'mfa_skip' );
-		}
-
-		$this->updateHandler();
-	}
-
 	/**
 	 */
 	protected function updateHandler() {
 
-		// v6.8.0: reCAPTCHA options restructure
-
-		// These can be removed eventually and are used to migrate old recaptcha settings to new structure
-		$sRecap = $this->getOpt( 'enable_google_recaptcha_login' );
-		if ( $sRecap == 'Y' ) {
-			$this->setOpt( 'enable_google_recaptcha_login', $this->getOpt( 'google_recaptcha_style_login' ) );
+		// Migrate from levels to roles
+		$aNew = array();
+		foreach ( $this->loadWpUsers()->getLevelToRoleMap() as $nLevel => $sRole ) {
+			if ( in_array( $nLevel, $this->getEmail2FaRoles() ) ) {
+				$aNew[] = $sRole;
+			}
 		}
-		else if ( $sRecap == 'N' ) {
-			$this->setOpt( 'enable_google_recaptcha_login', 'disabled' );
-		}
-
-		if ( $this->getIsCheckingUserRegistrations() ) {
-			$this->setOpt( 'bot_protection_locations', array_merge(
-				$this->getBotProtectionLocations(), array( 'register', 'password' ) ) )
-				 ->setOpt( 'enable_user_register_checking', 'N' );
-		}
+		$this->setOpt( 'two_factor_auth_user_roles', $aNew )
+			 ->savePluginOptions();
 	}
 
 	/**
@@ -105,13 +84,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			'shield_action' => 'emailsendverify'
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	/**
