@@ -87,13 +87,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
-	}
-
-	/**
 	 * @param string $sEmail
 	 * @param bool   $bSendAsLink
 	 * @return boolean

@@ -1,4 +1,4 @@
-<div class="error icwp-admin-notice">
+<div class="error odp-admin-notice">
 	<ul style="list-style: inside none disc;">
 		<?php foreach ( $strings['requirements'] as $req ) : ?>
 			<li><?php echo $req; ?></li>

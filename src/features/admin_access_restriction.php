@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return $this->hasAccessKey() && !$this->isVisitorWhitelisted() && parent::isReadyToExecute();
+		return $this->hasAccessKey() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -522,7 +522,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 								.sprintf(
 									'%s: %s',
 									_wpsf__( 'Default' ),
-									sprintf( '%s minutes' , $this->getOptionsVo()->getOptDefault( 'admin_access_timeout' ) )
+									sprintf( '%s minutes', $this->getOptionsVo()
+																->getOptDefault( 'admin_access_timeout' ) )
 								);
 				break;
 

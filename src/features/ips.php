@@ -13,6 +13,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_AUTO_BLACK = 'AB';
 
 	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		$oIp = $this->loadIpService();
+		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
@@ -392,7 +400,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function action_doFeatureShutdown() {
 		if ( !$this->isPluginDeleting() ) {
 			$this->addFilterIpsToWhiteList();
-			$this->ensureFeatureEnabled();
 		}
 		parent::action_doFeatureShutdown(); //save
 	}

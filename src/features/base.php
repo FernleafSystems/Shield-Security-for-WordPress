@@ -143,10 +143,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				$this->updateHandler();
 			}
 
-			if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
-				$this->loadProcessor();
-			}
-
 			$this->doPostConstruction();
 		}
 	}
@@ -281,6 +277,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->getOptionsVo()
 			 ->setIsPremiumLicensed( $this->isPremium() );
 
+		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
+			$this->loadProcessor();
+		}
 		if ( $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
 		}
@@ -319,12 +318,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * functionality of the plugin.
 	 */
 	protected function isReadyToExecute() {
-		$bReady = !self::getConn()->getIfForceOffActive();
-		if ( $bReady ) {
-			$oProcessor = $this->getProcessor();
-			$bReady = $bReady && ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
-		}
-		return $bReady;
+		$oProcessor = $this->getProcessor();
+		return ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
 	}
 
 	protected function doExecuteProcessor() {
@@ -510,10 +505,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$bEnabled = $this->getOptIs( 'enable_'.$this->getSlug(), 'Y' )
 					|| $this->getOptIs( 'enable_'.$this->getSlug(), true, true );
 
-		if ( $oOpts->getFeatureProperty( 'auto_enabled' ) === true ) {
+		if ( $this->isAutoEnabled() ) {
 			$bEnabled = true;
 		}
 		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+			$bEnabled = false;
+		}
+		else if ( self::getConn()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
 		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
@@ -521,6 +519,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		return $bEnabled;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAutoEnabled() {
+		return ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 	}
 
 	/**
