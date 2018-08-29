@@ -18,6 +18,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
+		add_filter( 'login_message', array( $this, 'addPasswordResetMessage' ) );
 		$this->loadAutoload();
 	}
 
@@ -47,6 +48,20 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 	}
 
+	/**
+	 * @param string $sMessage
+	 * @return string
+	 */
+	public function addPasswordResetMessage( $sMessage = '' ) {
+		$sFlushed = $this->loadWpNotices()
+						 ->flushFlash()
+						 ->getFlashText();
+		if ( !empty( $sFlushed ) ) {
+			$sMessage = '<p class="message">'.$sFlushed.'</p>';
+		}
+		return $sMessage;
+	}
+
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
@@ -56,7 +71,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		if ( $nExpireTimeout > 0 && $oMeta->pass_started_at > 0 ) {
 			if ( $this->time() - $oMeta->pass_started_at > $nExpireTimeout ) {
 				$this->addToAuditEntry( _wpsf__( 'Forcing user to update expired password.' ) );
-				$this->redirectToProfile(
+				$this->redirectToResetPassword(
 					sprintf( _wpsf__( 'Your password has expired (%s days).' ), $oFO->getPassExpireDays() )
 				);
 			}
@@ -78,7 +93,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 				_wpsf__( 'Forcing user to update password that fails to meet policies.' ),
 				'1', 'um_password_force_update'
 			);
-			$this->redirectToProfile(
+			$this->redirectToResetPassword(
 				_wpsf__( "Your password doesn't meet requirements set by your security administrator." )
 			);
 		}
@@ -98,6 +113,26 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 				 self_admin_url( 'profile.php' ),
 				 array( $this->getMod()->prefix( 'force-user-password' ) => 1 )
 			 );
+	}
+
+	/**
+	 * @uses wp_redirect()
+	 * @param string $sMessage
+	 */
+	private function redirectToResetPassword( $sMessage ) {
+
+		$oWp = $this->loadWp();
+		$oWpUsers = $this->loadWpUsers();
+		$sAction = $this->loadDP()->query( 'action' );
+		$oUser = $oWpUsers->getCurrentWpUser();
+		if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, array( 'rp', 'resetpass' ) ) ) ) {
+
+			$sMessage .= ' '._wpsf__( 'For your security, please use the password section below to update your password.' );
+			$this->getMod()
+				 ->setFlashAdminNotice( $sMessage );
+
+			$oWp->doRedirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
+		}
 	}
 
 	/**

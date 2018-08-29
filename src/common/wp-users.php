@@ -210,6 +210,29 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @see wp-login.php
+	 * @param WP_User $oUser
+	 * @return string|null
+	 */
+	public function getPasswordResetUrl( $oUser ) {
+		$sUrl = null;
+
+		$sResetKey = get_password_reset_key( $oUser );
+		if ( !is_wp_error( $sResetKey ) ) {
+			$sUrl = add_query_arg(
+				array(
+					'action' => 'rp',
+					'key'    => $sResetKey,
+					'login'  => $oUser->user_login,
+				),
+				wp_login_url()
+			);
+		}
+
+		return $sUrl;
+	}
+
+	/**
 	 * @param WP_User|null $oUser
 	 * @return bool
 	 */

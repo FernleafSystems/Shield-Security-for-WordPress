@@ -76,8 +76,12 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			add_action( 'lostpassword_form', array( $this, 'printFormItems' ) );
 			add_action( 'lostpassword_post', array( $this, 'checkReqLostPassword_Wp' ), 10, 1 );
 
+			add_action( 'resetpass_form', array( $this, 'printFormItems' ) );
+			add_action( 'validate_password_reset', array( $this, 'checkReqResetPassword_Wp' ), 10, 1 );
+
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printFormItems' ), 10 );
+				add_action( 'woocommerce_resetpassword_form', array( $this, 'printFormItems' ), 10 );
 
 				// MemberPress
 				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
@@ -180,6 +184,28 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$this->setUserToAudit( $this->loadDP()->post( 'user_login', '' ) )
 				 ->setActionToAudit( 'reset-password' )
 				 ->performCheckWithException();
+		}
+		catch ( Exception $oE ) {
+			$oWpError = $this->giveMeWpError( $oWpError );
+			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+		}
+		return $oWpError;
+	}
+
+	/**
+	 * This is for the request where the User actually enters their new password
+	 * @param WP_Error $oWpError
+	 * @return WP_Error
+	 */
+	public function checkReqResetPassword_Wp( $oWpError ) {
+		try {
+			$oDP = $this->loadDP();
+			if ( $oDP->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
+				list( $sUser, $null ) = explode( ':', wp_unslash( $oDP->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
+				$this->setUserToAudit( $sUser )
+					 ->setActionToAudit( 'set-password' )
+					 ->performCheckWithException();
+			}
 		}
 		catch ( Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );

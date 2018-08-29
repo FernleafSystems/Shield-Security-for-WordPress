@@ -96,22 +96,21 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws Exception
 	 */
 	public function printLinkToAdmin( $sMessage = '' ) {
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+		$oFO = $this->getMod();
 		$oWpUsers = $this->loadWpUsers();
-		if ( $oWpUsers->isUserLoggedIn() ) {
-			$oUser = $oWpUsers->getCurrentWpUser();
-			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-			$oFO = $this->getMod();
-			if ( $oFO->hasSession() ) {
-				$sMessage = sprintf(
-								'<p class="message">%s<br />%s</p>',
-								_wpsf__( "You're already logged-in." ).sprintf(
-									' <span style="white-space: nowrap">(%s)</span>',
-									$oUser->get( 'user_login' ) ),
-								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
-									$this->loadWp()->getUrl_WpAdmin(),
-									_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
-							.$sMessage;
-			}
+		$sAction = $this->loadDP()->query( 'action' );
+
+		if ( $oWpUsers->isUserLoggedIn() && $oFO->hasSession() && ( empty( $sAction ) || $sAction == 'login' ) ) {
+			$sMessage = sprintf(
+							'<p class="message">%s<br />%s</p>',
+							_wpsf__( "You're already logged-in." ).sprintf(
+								' <span style="white-space: nowrap">(%s)</span>',
+								$oWpUsers->getCurrentWpUsername() ),
+							( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
+								$this->loadWp()->getUrl_WpAdmin(),
+								_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
+						.$sMessage;
 		}
 		return $sMessage;
 	}
