@@ -630,13 +630,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $sSection
 	 * @return array
 	 */
-	protected function getSectionWarnings( $sSectionSlug ) {
+	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = array();
 
-		if ( $sSectionSlug == 'section_pluginthemes_guard' ) {
+		if ( $sSection == 'section_pluginthemes_guard' ) {
 			if ( !$this->canPtgWriteToDisk() ) {
 				$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
 			}

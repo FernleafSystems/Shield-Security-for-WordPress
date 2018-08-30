@@ -472,13 +472,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $sSection
 	 * @return array
 	 */
-	protected function getSectionWarnings( $sSectionSlug ) {
+	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = array();
 
-		if ( $sSectionSlug == 'section_brute_force_login_protection' && !$this->isPremium() ) {
+		if ( $sSection == 'section_brute_force_login_protection' && !$this->isPremium() ) {
 			$sIntegration = $this->getPremiumOnlyIntegration();
 			if ( !empty( $sIntegration ) ) {
 				$aWarnings[] = sprintf( _wpsf__( 'Support for login protection with %s is a Pro-only feature.' ), $sIntegration );

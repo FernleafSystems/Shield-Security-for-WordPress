@@ -26,7 +26,8 @@
     {
       "slug": "section_passwords",
       "reqs" : {
-        "php_min": "5.4"
+        "php_min": "5.4",
+        "wp_min": "4.4"
       },
       "title": "Password Policies",
       "title_short": "Password Policies",

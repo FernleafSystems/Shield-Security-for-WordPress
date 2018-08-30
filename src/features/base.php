@@ -975,7 +975,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 				$aWarnings = array();
 				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = _wpsf__( 'Unfortunately your PHP version is too low to support this feature.' );
+					$aWarnings[] = _wpsf__( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.' );
 				}
 				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
 					$aWarnings,
@@ -997,10 +997,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $sSection
 	 * @return array
 	 */
-	protected function getSectionWarnings( $sSectionSlug ) {
+	protected function getSectionWarnings( $sSection ) {
 		return array();
 	}
 
