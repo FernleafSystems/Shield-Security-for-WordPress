@@ -815,7 +815,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep the Plugins/Theme Guard feature turned on.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Requirements' ), sprintf( 'PHP v%s+', '5.4.0' ) ),
 				);
 				break;
 

@@ -322,7 +322,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Have full control over passwords used by users on the site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Requirements' ), sprintf( 'PHP v%s+', '5.4.0' ).' ; '.sprintf( 'WordPress v%s+', '4.4.0' ) ),
 				);
 				break;
 
