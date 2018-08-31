@@ -263,7 +263,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$aSection = $this->getSection( $sSlug );
 		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : array();
 		return array_merge(
-			array( 'php_min' => '5.2.4' ),
+			array(
+				'php_min' => '5.2.4',
+				'wp_min'  => '3.5.0',
+			),
 			$aReqs
 		);
 	}
@@ -283,7 +286,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function isSectionReqsMet( $sSectionSlug ) {
 		$aReqs = $this->getSection_Requirements( $sSectionSlug );
-		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] );
+		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
+				&& $this->loadWp()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
 		return $bMet;
 	}
 

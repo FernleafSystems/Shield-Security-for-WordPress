@@ -56,10 +56,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$sFlushed = $this->loadWpNotices()
 						 ->flushFlash()
 						 ->getFlashText();
-		if ( !empty( $sFlushed ) ) {
-			$sMessage = '<p class="message">'.$sFlushed.'</p>';
-		}
-		return $sMessage;
+		// we overwrite rather than augment the message
+		return empty( $sFlushed ) ? $sMessage : sprintf( '<p class="message">%s</p>', $sFlushed );
 	}
 
 	private function processExpiredPassword() {
@@ -83,10 +81,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$oFO = $this->getMod();
 		$oMeta = $this->getController()->getCurrentUserMeta();
 
-		$bPassCheckFailed = false;
-		if ( $oFO->isPassForceUpdateExisting() ) {
-			$bPassCheckFailed = isset( $oMeta->pass_check_failed_at ) ? $oMeta->pass_check_failed_at > 0 : false;
-		}
+		$bPassCheckFailed = $oFO->isPassForceUpdateExisting()
+							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
 			$this->addToAuditEntry(
