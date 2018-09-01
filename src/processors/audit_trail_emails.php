@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 				sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmail[ 'subject' ] ),
 			);
 			if ( !empty( $aBacktrace ) ) {
-				$aMsg[] = sprintf( _wpsf__( 'The "%s" function was called from the file "%s" on line "%s".' ),
+				$aMsg[] = sprintf( _wpsf__( 'The "%s" function was called from the file "%s" on line %s.' ),
 					'wp_mail',
 					$aBacktrace[ 'file' ],
 					$aBacktrace[ 'line' ]
