@@ -44,7 +44,12 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			array(
 				'reqajax'      => $this->getSecAdminCheckAjaxData(),
 				'is_sec_admin' => true, // if $nSecTimeLeft > 0
-				'timeleft'     => $this->getSecAdminTimeLeft() // JS uses milliseconds
+				'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
+				'strings'      => array(
+					'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
+					'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
+					'expired' => _wpsf__( 'Security Admin session has timed-out.' )
+				)
 			)
 		);
 	}
