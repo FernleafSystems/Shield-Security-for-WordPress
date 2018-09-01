@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 	public function auditDeletedPost( $nPostId ) {
 
 		$oPost = get_post( $nPostId );
-		if ( ( $oPost instanceof WP_Post ) && ( !$this->getIsIgnoredPostType( $oPost ) ) ) {
+		if ( $oPost instanceof WP_Post && !$this->isIgnoredPostType( $oPost ) ) {
 			$this->add( 'posts', 'post_deleted', 2,
 				sprintf( _wpsf__( 'WordPress Post entitled "%s" was permanently deleted from trash.' ), $oPost->post_title )
 			);
@@ -35,10 +35,8 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 	 */
 	public function auditPostStatus( $sNewStatus, $sOldStatus, $oPost ) {
 
-		if ( !( $oPost instanceof WP_Post ) || ( $this->getIsIgnoredPostType( $oPost ) ) || in_array( $sNewStatus, array(
-				'auto-draft',
-				'inherit'
-			) ) ) {
+		if ( ! $oPost instanceof WP_Post || $this->isIgnoredPostType( $oPost )
+			 || in_array( $sNewStatus, array( 'auto-draft', 'inherit' ) ) ) {
 			return;
 		}
 
@@ -51,8 +49,15 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 			$sHumanEvent = _wpsf__( 'recovered from trash' );
 		}
 		else if ( in_array( $sNewStatus, array( 'publish', 'private' ) ) ) {
-			$sEvent = 'post_published';
-			$sHumanEvent = _wpsf__( 'published' );
+
+			if ( in_array( $sOldStatus, array( 'publish', 'private' )  )) {
+				$sEvent = 'post_updated';
+				$sHumanEvent = _wpsf__( 'updated' );
+			}
+			else {
+				$sEvent = 'post_published';
+				$sHumanEvent = _wpsf__( 'published' );
+			}
 		}
 		else if ( in_array( $sOldStatus, array( 'publish', 'private' ) ) && $sNewStatus == 'draft' ) {
 			$sEvent = 'post_unpublished';
@@ -63,16 +68,19 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 			$sHumanEvent = _wpsf__( 'updated' );
 		}
 
-		$this->add( 'posts', $sEvent, 1,
-			sprintf( _wpsf__( 'Post entitled "%s" was %s.' ), $oPost->post_title, $sHumanEvent )
+		$aMsg = array(
+			sprintf( _wpsf__( 'Post entitled "%s" was %s.' ), $oPost->post_title, $sHumanEvent ),
+			sprintf( '%s: %s', _wpsf__( 'Post Type' ), $oPost->post_type ),
 		);
+
+		$this->add( 'posts', $sEvent, 1, implode( " ", $aMsg ) );
 	}
 
 	/**
 	 * @param WP_Post $oPost
 	 * @return bool
 	 */
-	protected function getIsIgnoredPostType( $oPost ) {
+	protected function isIgnoredPostType( $oPost ) {
 		return
 			( $oPost->post_status == 'auto-draft' )
 			||

@@ -863,3 +863,10 @@ input:checked + .icwp-slider:before {
 	border: 1px solid black;
 	vertical-align: unset;
 }
+
+td.column-message textarea {
+	width: 100%;
+	background: transparent;
+	box-shadow: none;
+	border-color: rgba(0,0,0,0.05);
+}
