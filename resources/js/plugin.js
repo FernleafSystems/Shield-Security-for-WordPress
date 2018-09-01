@@ -213,7 +213,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 		var bCheckInPlace = false;
 		var bWarningShown = false;
-		var nIntervalTimeout = (icwp_wpsf_vars_secadmin.timeleft / 2) * 1000;
+		var nIntervalTimeout = 500 * icwp_wpsf_vars_secadmin.timeleft;
 
 		/**
 		 */
@@ -229,17 +229,27 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 						if ( !bWarningShown && nLeft < 20 && nLeft > 8 ) {
 							bWarningShown = true;
-							iCWP_WPSF_Growl.showMessage( 'Security Admin Timed-Out. Reloading soon...', false );
+							iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
 						}
+
+						scheduleSecAdminCheck();
 					}
 					else {
-						iCWP_WPSF_Growl.showMessage( 'Security Admin Timed-Out...', oResponse.success );
 						iCWP_WPSF_BodyOverlay.show();
-						window.location.reload( 1 );
+						setTimeout( function () {
+							if ( confirm( icwp_wpsf_vars_secadmin.strings.confirm ) ) {
+								window.location.reload( true );
+							}
+							else {
+								iCWP_WPSF_BodyOverlay.hide();
+								// Do nothing!
+							}
+						}, 1500 );
+						iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
 					}
+
 				}
 			).always( function () {
-					scheduleSecAdminCheck();
 				}
 			);
 		};

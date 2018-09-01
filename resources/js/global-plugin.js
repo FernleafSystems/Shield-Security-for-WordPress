@@ -195,11 +195,12 @@ var iCWP_WPSF_Growl = new function () {
 		}, 380 );
 		setTimeout( function () {
 			$oDiv.css( 'width', 0 );
+			
+			setTimeout( function () {
+				$oDiv.html( '' )
+					 .fadeOut();
+			}, 500 );
 		}, 4000 );
-		setTimeout( function () {
-			$oDiv.html( '' )
-				 .fadeOut();
-		}, 4500 );
 	};
 
 	/**
