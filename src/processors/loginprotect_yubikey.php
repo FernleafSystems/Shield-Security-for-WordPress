@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	/**
 	 * @const string
 	 */
-	const YubikeyVerifyApiUrl = 'https://api.yubico.com/wsapi/2.0/verify?id=%s&otp=%s&nonce=%s';
+	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	/**
 	 */
@@ -65,7 +65,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 		$oWpUsers = $this->loadWpUsers();
-		$oWpNotices = $this->loadWpNotices();
 
 		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
@@ -190,20 +189,22 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	protected function processOtp( $oUser, $sOneTimePassword ) {
 
-		$sNonce = md5( uniqid( rand() ) );
-		$sUrl = sprintf( self::YubikeyVerifyApiUrl,
-			$this->getOption( 'yubikey_app_id' ),
-			$sOneTimePassword,
-			$sNonce
+		$aParts = array(
+			'otp'   => $sOneTimePassword,
+			'nonce' => md5( uniqid( rand() ) ),
+			'id'    => $this->getOption( 'yubikey_app_id' )
 		);
-		$sRawYubiRequest = $this->loadFS()->getUrlContent( $sUrl );
+		$sYubiResponse = trim( $this->loadFS()->getUrlContent( add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY ) ) );
 
-		$bMatchOtpAndNonce = preg_match( '/otp='.$sOneTimePassword.'/', $sRawYubiRequest, $aMatches )
-							 && preg_match( '/nonce='.$sNonce.'/', $sRawYubiRequest, $aMatches );
+		unset( $aParts[ 'id' ] );
+		$aParts[ 'status' ] = 'OK';
 
-		return $bMatchOtpAndNonce
-			   && preg_match( '/status=([a-zA-Z0-9_]+)/', $sRawYubiRequest, $aMatchesStatus )
-			   && ( $aMatchesStatus[ 1 ] == 'OK' ); // TODO: in preg_match
+		$bSuccess = true;
+		foreach ( $aParts as $sKey => $mVal ) {
+			$bSuccess = $bSuccess && preg_match( sprintf( '#%s=%s#', $sKey, $mVal ), $sYubiResponse );
+		}
+
+		return $bSuccess;
 	}
 
 	/**

@@ -107,7 +107,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oProc = $this->getSubProcessor( 'notes' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
-			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $this->getMod() );
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+			$oMod = $this->getMod();
+			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $oMod );
 			$this->aSubProcessors[ 'notes' ] = $oProc;
 		}
 		return $oProc;
