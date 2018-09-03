@@ -70,66 +70,27 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
+	 * @since 6.9.0 removed fallback to old user meta
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
 	protected function hasValidatedProfile( $oUser ) {
-		if ( !( $oUser instanceof WP_User ) ) {
-			return false;
-		}
-
-		$oWpUsers = $this->loadWpUsers();
-
 		$sKey = $this->getStub().'_validated';
-		$bValidated = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
-
-		// fallback to old meta
-		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
-		if ( is_string( $bValidated ) ) {
-			$bValidated = ( $bValidated == 'Y' );
-		}
-		else if ( is_null( $bValidated ) ) {
-			$sOldMetaKey = $this->getMod()->prefixOptionKey( $sKey );
-			// look for the old style meta
-			$bValidated = ( $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID ) == 'Y' );
-			if ( $bValidated ) {
-				$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
-			}
-		}
-		$bValidated = $bValidated && $this->hasValidSecret( $oUser );
-		$this->setProfileValidated( $oUser, $bValidated );
-
-		return $bValidated;
+		return ( $oUser instanceof WP_User )
+			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
 	}
 
 	/**
+	 * @since 6.9.0 removed fallback to old user meta
 	 * @param WP_User $oUser
 	 * @return string
 	 */
 	protected function getSecret( WP_User $oUser ) {
-		$oWpUsers = $this->loadWpUsers();
-
 		$sKey = $this->getStub().'_secret';
-		$oMeta = $oWpUsers->metaVoForUser( $this->prefix(), $oUser->ID );
-
+		$oMeta = $this->loadWpUsers()
+					  ->metaVoForUser( $this->prefix(), $oUser->ID );
 		$sSecret = $oMeta->{$sKey};
-
-		// fallback to old meta
-		// 2018-01: needs to be left here for a long time for ensure all users update to new meta.
-		if ( !$this->isSecretValid( $sSecret ) ) {
-			$sOldMetaKey = $this->getMod()->prefixOptionKey( $sKey );
-			$sSecret = $oWpUsers->getUserMeta( $sOldMetaKey, $oUser->ID );
-			$oWpUsers->deleteUserMeta( $sOldMetaKey, $oUser->ID );
-
-			if ( $this->isSecretValid( $sSecret ) ) {
-				$this->setSecret( $oUser, $sSecret );
-			}
-			else {
-				$sSecret = $this->resetSecret( $oUser );
-			}
-		}
-
-		return $sSecret;
+		return empty( $sSecret ) ? '' : $oMeta->{$sKey};
 	}
 
 	/**
@@ -180,7 +141,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 
 	/**
 	 * @param WP_User $oUser
-	 * @param         $sNewSecret
+	 * @param string  $sNewSecret
 	 * @return $this
 	 */
 	protected function setSecret( $oUser, $sNewSecret ) {

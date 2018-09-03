@@ -28,6 +28,8 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
 		$oCon = $this->getController();
 		$oWpUsers = $this->loadWpUsers();
 
@@ -38,16 +40,21 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			'i_am_valid_admin'      => $oCon->getHasPermissionToManage(),
 			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
 			'strings'               => array(
-				'description_otp_code' => _wpsf__( 'This is your unique Yubikey Device ID.' ),
-				'description_otp'      => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
-				'description_otp_ext'  => $bValidatedProfile ? _wpsf__( 'This will remove Yubikey Authentication from your account.' ) : _wpsf__( 'This will add Yubikey Authentication to your account.' ),
-				'label_enter_code'     => _wpsf__( 'Yubikey ID' ),
-				'label_enter_otp'      => _wpsf__( 'Yubikey OTP' ),
-				'title'                => _wpsf__( 'Yubikey Authentication' ),
-				'cant_add_other_user'  => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
-				'cant_remove_admins'   => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
-				'provided_by'          => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
-				'remove_more_info'     => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
+				'description_otp_code'  => _wpsf__( 'This is your unique Yubikey Device ID.' ),
+				'description_otp'       => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
+				'description_otp_ext'   => $bValidatedProfile ?
+					_wpsf__( 'This will remove Yubikey Authentication from your account.' )
+					: _wpsf__( 'This will add Yubikey Authentication to your account.' ),
+				'description_otp_ext_2' => $bValidatedProfile && $oFO->isPremium() ?
+					_wpsf__( 'If you provide a OTP from an alternative Yubikey device, it will add it to your account also.' )
+					: '',
+				'label_enter_code'      => _wpsf__( 'Yubikey ID' ),
+				'label_enter_otp'       => _wpsf__( 'Yubikey OTP' ),
+				'title'                 => _wpsf__( 'Yubikey Authentication' ),
+				'cant_add_other_user'   => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
+				'cant_remove_admins'    => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
+				'provided_by'           => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
+				'remove_more_info'      => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
 			),
 			'data'                  => array(
 				'otp_field_name' => $this->getLoginFormParameter(),
@@ -64,122 +71,76 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
-		$oWpUsers = $this->loadWpUsers();
-
-		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
 		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
 		$sOtp = $this->fetchCodeFromRequest();
-		$bValidOtp = $this->processOtp( $oSavingUser, $sOtp );
-
-		$sMessageOtpInvalid = _wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' );
 
 		// At this stage, if the OTP was empty, then we have no further processing to do.
 		if ( empty( $sOtp ) ) {
 			return;
 		}
 
-		if ( !$bValidOtp ) {
-			$this->getMod()->setFlashAdminNotice( $sMessageOtpInvalid, true );
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+
+		if ( !$this->sendYubiOtpRequest( $sOtp ) ) {
+			$oFO->setFlashAdminNotice(
+				_wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' ),
+				true
+			);
 			return;
 		}
 
-		// We're trying to validate our OTP to activate
-		if ( !$this->hasValidatedProfile( $oSavingUser ) ) {
+		/*
+		 * How we proceed depends on :
+		 * 1) Is the OTP for a registered secret - if so, remove it; If not, add it;
+		 * 2) Is this a premium Shield installation - if so, multiple yubikeys are permitted
+		 */
 
-			$this->setSecret( $oSavingUser, substr( $sOtp, 0, $this->getSecretLength() ) )
-				 ->setProfileValidated( $oSavingUser );
-			$this->getMod()
-				 ->setFlashAdminNotice(
-					 sprintf( _wpsf__( '%s was successfully added to your account.' ), _wpsf__( 'Yubikey' ) )
-				 );
+		$oSavingUser = $this->loadWpUsers()->getUserById( $nSavingUserId );
+		$sYubiKey = $this->getYubiKeyFromOtp( $sOtp );
+
+		$bError = false;
+		if ( $this->hasYubiKeyInProfile( $oSavingUser, $sYubiKey ) ) {
+			$this->removeYubiKeyFromProfile( $oSavingUser, $sYubiKey );
+			$sMsg = sprintf( _wpsf__( '%s was successfully removed from your account.' ), _wpsf__( 'Yubikey' ) );
+		}
+		else if ( !$this->hasValidSecret( $oSavingUser ) || $oFO->isPremium() ) {
+			$this->addYubiKeyToProfile( $oSavingUser, $sYubiKey );
+			$sMsg = sprintf( _wpsf__( '%s was successfully added to your account.' ), _wpsf__( 'Yubikey' ) );
 		}
 		else {
-			$this->setProfileValidated( $oSavingUser, false )
-				 ->resetSecret( $oSavingUser );
-			$this->getMod()
-				 ->setFlashAdminNotice(
-					 sprintf( _wpsf__( '%s was successfully removed from your account.' ), _wpsf__( 'Yubikey' ) )
-				 );
+			$bError = true;
+			$sMsg = _wpsf__( 'No changes were made to your Yubikey configuration' );
 		}
+
+		$this->setProfileValidated( $oSavingUser, $this->hasValidSecret( $oSavingUser ) );
+		$oFO->setFlashAdminNotice( $sMsg, $bError );
 	}
 
 	/**
 	 * @param WP_User $oUser
-	 * @return WP_User|WP_Error
+	 * @return array
 	 */
-	public function processLoginAttempt_Filter( $oUser ) {
-		return $oUser;
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		$oLoginTrack = $this->getLoginTrack();
+	protected function getYubiKeys( WP_User $oUser ) {
+		return explode( ',', parent::getSecret( $oUser ) );
+	}
 
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactor();
-		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
-		$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+	/**
+	 * @param string $sOTP
+	 * @return string
+	 */
+	protected function getYubiKeyFromOtp( $sOTP ) {
+		return substr( $sOTP, 0, $this->getYubiKeyLength() );
+	}
 
-		if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
-			return $oUser;
-		}
-
-		$oError = new WP_Error();
-		$sUsername = $oUser->get( 'user_login' );
-
-		$sOneTimePassword = $this->fetchCodeFromRequest();
-//			$sApiKey = $this->getOption('yubikey_api_key');
-
-		// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
-		$sYubikey12 = substr( $sOneTimePassword, 0, $this->getSecretLength() );
-		$fUsernameFound = false; // if username is never found, it means there's no yubikey specified which means we can bypass this authentication method.
-		$fFoundMatch = false;
-		foreach ( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
-			if ( isset( $aUsernameYubikeyPair[ $sUsername ] ) ) {
-				$fUsernameFound = true;
-				if ( $aUsernameYubikeyPair[ $sUsername ] == $sYubikey12 ) {
-					$fFoundMatch = true;
-					break;
-				}
-			}
-		}
-
-		// If no yubikey-username pair found for given username, we by-pass Yubikey auth.
-		if ( !$fUsernameFound ) {
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" logged in without a Yubikey One Time Password because no username-yubikey pair was found for this user.' ), $sUsername );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_bypass' );
-			return $oUser;
-		}
-
-		// Username was found in the list of key pairs, but the yubikey provided didn't match that username.
-		if ( !$fFoundMatch ) {
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to login but Yubikey ID "%s" used was not in list of authorised keys.' ), $sUsername, $sYubikey12 );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_permitted_id' );
-
-			if ( $bErrorOnFailure ) {
-				$oError->add(
-					'yubikey_not_allowed',
-					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey provided is not on the list of permitted keys for this user.' ) )
-				);
-				return $oError;
-			}
-		}
-
-		if ( $this->processOtp( null, $sOneTimePassword ) ) {
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" successfully logged in using a validated Yubikey One Time Password.' ), $sUsername );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
-			$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
-		}
-		else {
-
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response.".' ), $sUsername );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
-
-			$oError->add(
-				'yubikey_validate_fail',
-				sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey authentication was not validated successfully.' ) )
-			);
-		}
-
-		return $bErrorOnFailure ? $oError : $oUser;
+	/**
+	 * @param WP_User $oUser
+	 * @param string  $sKey
+	 * @return bool
+	 */
+	protected function hasYubiKeyInProfile( WP_User $oUser, $sKey ) {
+		return in_array( $sKey, $this->getYubiKeys( $oUser ) );
 	}
 
 	/**
@@ -188,23 +149,86 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOneTimePassword ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+		$bSuccess = false;
 
-		$aParts = array(
-			'otp'   => $sOneTimePassword,
-			'nonce' => md5( uniqid( rand() ) ),
-			'id'    => $this->getOption( 'yubikey_app_id' )
-		);
-		$sYubiResponse = trim( $this->loadFS()->getUrlContent( add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY ) ) );
+		$aYubiKeys = $this->getYubiKeys( $oUser );
 
-		unset( $aParts[ 'id' ] );
-		$aParts[ 'status' ] = 'OK';
+		// Only process the 1st secret if premium
+		if ( !$oFO->isPremium() ) {
+			$aYubiKeys = array_slice( $aYubiKeys, 0, 1 );
+		}
 
-		$bSuccess = true;
-		foreach ( $aParts as $sKey => $mVal ) {
-			$bSuccess = $bSuccess && preg_match( sprintf( '#%s=%s#', $sKey, $mVal ), $sYubiResponse );
+		foreach ( $aYubiKeys as $sKey ) {
+			$bSuccess = strpos( $sOneTimePassword, $sKey ) === 0
+						&& $this->sendYubiOtpRequest( $sOneTimePassword );
+			if ( $bSuccess ) {
+				break;
+			}
 		}
 
 		return $bSuccess;
+	}
+
+	/**
+	 * @param string $sOTP
+	 * @return bool
+	 */
+	private function sendYubiOtpRequest( $sOTP ) {
+		$sOTP = trim( $sOTP );
+		$bSuccess = preg_match( '#^[a-z]{44}$#', $sOTP );
+
+		if ( $bSuccess ) {
+			$aParts = array(
+				'otp'   => $sOTP,
+				'nonce' => md5( uniqid( rand() ) ),
+				'id'    => $this->getOption( 'yubikey_app_id' )
+			);
+			$sYubiResponse = trim( $this->loadFS()
+										->getUrlContent( add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY ) ) );
+
+			unset( $aParts[ 'id' ] );
+			$aParts[ 'status' ] = 'OK';
+
+			$bSuccess = true;
+			foreach ( $aParts as $sKey => $mVal ) {
+				$bSuccess = $bSuccess && preg_match( sprintf( '#%s=%s#', $sKey, $mVal ), $sYubiResponse );
+			}
+		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param string  $sNewKey
+	 * @return $this
+	 */
+	protected function addYubiKeyToProfile( $oUser, $sNewKey ) {
+		$aKeys = $this->getYubiKeys( $oUser );
+		$aKeys[] = $sNewKey;
+		return $this->storeYubiKeysInProfile( $oUser, $aKeys );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param string  $sKey
+	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
+	 */
+	protected function removeYubiKeyFromProfile( $oUser, $sKey ) {
+		$aKeys = $this->loadDP()->removeFromArrayByValue( $this->getYubiKeys( $oUser ), $sKey );
+		return $this->storeYubiKeysInProfile( $oUser, $aKeys );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param array   $aKeys
+	 * @return $this
+	 */
+	private function storeYubiKeysInProfile( $oUser, $aKeys ) {
+		parent::setSecret( $oUser, implode( ',', array_unique( array_filter( $aKeys ) ) ) );
+		return $this;
 	}
 
 	/**
@@ -268,13 +292,91 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	protected function isSecretValid( $sSecret ) {
 		return parent::isSecretValid( $sSecret )
-			   && preg_match( sprintf( '#^[a-z]{%s}$#i', $this->getSecretLength() ), $sSecret );
+			   && preg_match( sprintf( '#^[a-z]{%s},?#i', $this->getYubiKeyLength() ), $sSecret );
 	}
 
 	/**
 	 * @return int
 	 */
-	protected function getSecretLength() {
+	protected function getYubiKeyLength() {
 		return self::SECRET_LENGTH;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return WP_User|WP_Error
+	 */
+	public function processLoginAttempt_Filter( $oUser ) {
+		return $oUser;
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+		$oLoginTrack = $this->getLoginTrack();
+
+		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$oLoginTrack->hasSuccessfulFactor();
+		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
+		$oLoginTrack->addUnSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+
+		if ( !$bNeedToCheckThisFactor || empty( $oUser ) || is_wp_error( $oUser ) ) {
+			return $oUser;
+		}
+
+		$oError = new WP_Error();
+		$sUsername = $oUser->get( 'user_login' );
+
+		$sOneTimePassword = $this->fetchCodeFromRequest();
+//			$sApiKey = $this->getOption('yubikey_api_key');
+
+		// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
+		$sYubikey12 = $this->getYubiKeyFromOtp( $sOneTimePassword );
+		$fUsernameFound = false; // if username is never found, it means there's no yubikey specified which means we can bypass this authentication method.
+		$fFoundMatch = false;
+		foreach ( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
+			if ( isset( $aUsernameYubikeyPair[ $sUsername ] ) ) {
+				$fUsernameFound = true;
+				if ( $aUsernameYubikeyPair[ $sUsername ] == $sYubikey12 ) {
+					$fFoundMatch = true;
+					break;
+				}
+			}
+		}
+
+		// If no yubikey-username pair found for given username, we by-pass Yubikey auth.
+		if ( !$fUsernameFound ) {
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" logged in without a Yubikey One Time Password because no username-yubikey pair was found for this user.' ), $sUsername );
+			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_bypass' );
+			return $oUser;
+		}
+
+		// Username was found in the list of key pairs, but the yubikey provided didn't match that username.
+		if ( !$fFoundMatch ) {
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to login but Yubikey ID "%s" used was not in list of authorised keys.' ), $sUsername, $sYubikey12 );
+			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_permitted_id' );
+
+			if ( $bErrorOnFailure ) {
+				$oError->add(
+					'yubikey_not_allowed',
+					sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey provided is not on the list of permitted keys for this user.' ) )
+				);
+				return $oError;
+			}
+		}
+
+		if ( $this->processOtp( null, $sOneTimePassword ) ) {
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" successfully logged in using a validated Yubikey One Time Password.' ), $sUsername );
+			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_login_success' );
+			$this->getLoginTrack()->addSuccessfulFactor( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+		}
+		else {
+
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" attempted to login but Yubikey One Time Password failed to validate due to invalid Yubi API response.".' ), $sUsername );
+			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_yubikey_fail_invalid_api_response' );
+
+			$oError->add(
+				'yubikey_validate_fail',
+				sprintf( _wpsf__( 'ERROR: %s' ), _wpsf__( 'The Yubikey authentication was not validated successfully.' ) )
+			);
+		}
+
+		return $bErrorOnFailure ? $oError : $oUser;
 	}
 }

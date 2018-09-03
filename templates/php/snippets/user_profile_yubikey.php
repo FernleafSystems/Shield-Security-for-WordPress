@@ -28,16 +28,18 @@
                         <p class="description"><?php echo $strings['description_otp_code']; ?></p>
                     </td>
                 </tr>
-                <tr>
-                    <th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_otp']; ?></label></th>
+
+				<tr>
+                    <th><label for="<?php echo $data[ 'otp_field_name' ]; ?>"><?php echo $strings[ 'label_enter_otp' ]; ?></label></th>
                     <td>
                         <input class="regular-text"
-                               type="text"
-                               id="<?php echo $data['otp_field_name']; ?>"
-                               name="<?php echo $data['otp_field_name']; ?>"
-                               value="" autocomplete="off" />
-                        <p class="description"><?php echo $strings['description_otp']; ?>
-                            <br/><?php echo $strings['description_otp_ext']; ?>
+							   type="text"
+							   id="<?php echo $data[ 'otp_field_name' ]; ?>"
+							   name="<?php echo $data[ 'otp_field_name' ]; ?>"
+							   value="" autocomplete="off" />
+                        <p class="description"><?php echo $strings[ 'description_otp' ]; ?>
+							<br /><?php echo $strings[ 'description_otp_ext' ]; ?>
+							<br /><?php echo $strings[ 'description_otp_ext_2' ]; ?>
                         </p>
                     </td>
                 </tr>
