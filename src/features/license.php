@@ -270,7 +270,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			if ( $oLookupLicense->isValid() ) {
 				$oCurrent = $oLookupLicense;
 				$oLookupLicense->updateLastVerifiedAt();
-				$this->activateLicense();
+				$this->activateLicense()
+					 ->clearLastErrors();
 				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
 			}
 			else {
