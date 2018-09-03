@@ -76,12 +76,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			add_action( 'lostpassword_form', array( $this, 'printFormItems' ) );
 			add_action( 'lostpassword_post', array( $this, 'checkReqLostPassword_Wp' ), 10, 1 );
 
-			add_action( 'resetpass_form', array( $this, 'printFormItems' ) );
-			add_action( 'validate_password_reset', array( $this, 'checkReqResetPassword_Wp' ), 10, 1 );
+			//No need to really cover this form
+//			add_action( 'resetpass_form', array( $this, 'printFormItems' ) );
+//			add_action( 'validate_password_reset', array( $this, 'checkReqResetPassword_Wp' ), 10, 1 );
+//			add_action( 'woocommerce_resetpassword_form', array( $this, 'printFormItems' ), 10 );
 
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form', array( $this, 'printFormItems' ), 10 );
-				add_action( 'woocommerce_resetpassword_form', array( $this, 'printFormItems' ), 10 );
 
 				// MemberPress
 				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );

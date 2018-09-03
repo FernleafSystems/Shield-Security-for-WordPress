@@ -678,6 +678,33 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * note: employs strict search comparison
+	 * @param array $aArray
+	 * @param mixed $mValue
+	 * @param bool  $bFirstOnly - set true to only remove the first element found of this value
+	 * @return array
+	 */
+	public function removeFromArrayByValue( $aArray, $mValue, $bFirstOnly = false ) {
+		$aKeys = array();
+
+		if ( $bFirstOnly ) {
+			$mKey = array_search( $mValue, $aArray, true );
+			if ( $mKey !== false ) {
+				$aKeys[] = $mKey;
+			}
+		}
+		else {
+			$aKeys = array_keys( $aArray, $mValue, true );
+		}
+
+		foreach ( $aKeys as $mKey ) {
+			unset( $aArray[ $mKey ] );
+		}
+
+		return $aArray;
+	}
+
+	/**
 	 * Taken from: http://stackoverflow.com/questions/1755144/how-to-validate-domain-name-in-php
 	 * @param string $sDomainName
 	 * @return bool

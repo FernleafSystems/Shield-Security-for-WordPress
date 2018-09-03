@@ -293,7 +293,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'ignore':
 					if ( empty( $mAsset ) ) {
-						$oGuard->deleteItemFromSnapshot( $sSlug );
+						$oGuard->deleteItemFromSnapshot( $sSlug, $sContext );
 					}
 					else {
 						$oGuard->updateItemInSnapshot( $sSlug, $sContext );

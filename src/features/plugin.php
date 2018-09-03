@@ -270,7 +270,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function getActivePluginFeatures() {
-		$aActiveFeatures = $this->getDefinition( 'active_plugin_features' );
+		$aActiveFeatures = $this->getDef( 'active_plugin_features' );
 
 		$aPluginFeatures = array();
 		if ( !empty( $aActiveFeatures ) && is_array( $aActiveFeatures ) ) {

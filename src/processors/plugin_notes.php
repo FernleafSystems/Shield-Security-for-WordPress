@@ -10,7 +10,6 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Plugin $oModCon
-	 * @throws Exception
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Plugin $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDbNameNotes() );

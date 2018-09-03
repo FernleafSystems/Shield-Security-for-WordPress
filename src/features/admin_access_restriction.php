@@ -381,8 +381,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return $this
 	 */
 	protected function clearAdminAccessKey() {
-		return $this->setIsMainFeatureEnabled( false )
-					->setOpt( 'admin_access_key', '' );
+		return $this->setOpt( 'admin_access_key', '' );
 	}
 
 	/**
@@ -635,7 +634,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function doPrePluginOptionsSave() {
 
 		if ( $this->getAccessKeyHash() == self::HASH_DELETE ) {
-			$this->clearAdminAccessKey();
+			$this->clearAdminAccessKey()
+				 ->setPermissionToSubmit( false );
 		}
 
 		// Restricting Activate Plugins also means restricting the rest.

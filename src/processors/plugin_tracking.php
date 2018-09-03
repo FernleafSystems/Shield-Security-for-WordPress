@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 		}
 
 		$mResult = $this->loadFS()->requestUrl(
-			$oFO->getDefinition( 'tracking_post_url' ),
+			$oFO->getDef( 'tracking_post_url' ),
 			array(
 				'method'      => 'POST',
 				'timeout'     => 20,
@@ -123,8 +123,6 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 * @throws Exception
 	 */
 	protected function createTrackingCollectionCron() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
 		$sFullHookName = $this->getCronName();
 		$this->loadWpCronProcessor()
 			 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
@@ -141,6 +139,6 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	public function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDefinition( 'tracking_cron_handle' ) );
+		return $oFO->prefix( $oFO->getDef( 'tracking_cron_handle' ) );
 	}
 }

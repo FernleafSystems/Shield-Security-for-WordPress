@@ -25,7 +25,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			add_action( 'switch_theme', array( $this, 'onActivateTheme' ), 10, 0 );
 		}
 		else if ( $oFO->isPtgBuildRequired() ) {
-			$this->rebuildSnapshots(); // TODO: Consider if we can't write to disk - we do this forever.
+			$this->rebuildSnapshots();
 			if ( $this->storeExists( self::CONTEXT_PLUGINS ) && $this->storeExists( self::CONTEXT_THEMES ) ) {
 				$oFO->setPtgLastBuildAt();
 			}

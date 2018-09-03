@@ -665,7 +665,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDefinition( 'ip_list_table_columns' );
+		$aDef = $this->getMod()->getDef( 'ip_list_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

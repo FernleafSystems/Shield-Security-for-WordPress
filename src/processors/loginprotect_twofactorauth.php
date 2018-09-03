@@ -8,10 +8,6 @@ require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
-	public function run() {
-		parent::run();
-	}
-
 	/**
 	 * @param WP_User|WP_Error|null $oUser
 	 * @return WP_Error|WP_User|null    - WP_User when the login success AND the IP is authenticated. null when login

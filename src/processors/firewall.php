@@ -233,7 +233,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallPatterns( $sKey = null ) {
 		if ( !isset( $this->aPatterns ) ) {
-			$this->aPatterns = $this->getMod()->getDefinition( 'firewall_patterns' );
+			$this->aPatterns = $this->getMod()->getDef( 'firewall_patterns' );
 		}
 		if ( !empty( $sKey ) ) {
 			return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;

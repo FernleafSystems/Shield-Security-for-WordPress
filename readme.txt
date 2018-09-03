@@ -357,23 +357,24 @@ You will always be able to use Shield Security and its free features in-full.
 *Released: 5th September, 2018* - [Release Notes](https://icwp.io/dc)
 
 * **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
-* **(v.0)**  IMPROVED:	Major database code refactoring and other code improvements.
-* **(v.0)**  IMPROVED:	User sessions handling.
-* **(v.0)**  IMPROVED:	Security Admin UX - ajax session checking, with admin notifications and auto-page reload.
 * **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
 * **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
 * **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
 * **(v.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
 * **(v.0)**  CHANGED:	Password Policies now requires minimum WordPress v4.4.
-* **(v.0)**  IMPROVED:	Password expiration now redirect to the 'set password' screen, instead of the user profile.
+* **(v.0)**  IMPROVED:	Password expiration now redirects to the 'set password' screen, instead of the user profile.
 * **(v.0)**  IMPROVED:	You can now delete the 'forceoff' file from inside the WP Admin.
 * **(v.0)**  IMPROVED:	Audit Trail entries for emails will identify the file that's calling the `wp_mail` function.
 * **(v.0)**  IMPROVED:	Audit Trail entries for post editing will identify the post type wherever possible.
 * **(v.0)**  IMPROVED:	Audit Trail entries will try to display all message text correctly.
 * **(v.0)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
+* **(v.0)**  IMPROVED:	Major database code refactoring and other code improvements.
+* **(v.0)**  IMPROVED:	User sessions handling.
+* **(v.0)**  IMPROVED:	Security Admin UX - ajax session checking, with admin notifications and auto-page reload.
 * **(v.0)**  IMPROVED:	Refined Cooldown timing system.
 * **(v.0)**  IMPROVED:	Refined Bot checkbox Javascript.
 * **(v.0)**  UPDATED:	Bootstrap libraries to latest release v4.1.3.
+* **(v.0)**  FIXED:		Potential bug with Plugin/Themes guard scanning.
 * **(v.0)**  FIXED:		PHP Warning(s).
 
 #### [Full Changelog](https://ps.w.org/wp-simple-firewall/trunk/changelog.html)

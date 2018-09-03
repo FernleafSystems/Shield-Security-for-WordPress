@@ -586,6 +586,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return int
 	 */
 	protected function getHookPriority() {
-		return $this->getMod()->getDefinition( 'action_hook_priority' );
+		return $this->getMod()->getDef( 'action_hook_priority' );
 	}
 }

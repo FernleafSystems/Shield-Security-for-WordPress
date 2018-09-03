@@ -404,7 +404,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function getApiRootUrl() {
 		if ( empty( $this->sApiRootUrl ) ) {
-			$this->sApiRootUrl = rtrim( $this->getMod()->getDefinition( 'wpvulndb_api_url_root' ), '/' ).'/';
+			$this->sApiRootUrl = rtrim( $this->getMod()->getDef( 'wpvulndb_api_url_root' ), '/' ).'/';
 		}
 		return $this->sApiRootUrl;
 	}
@@ -414,6 +414,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'wpvulnscan_cron_name' ) );
+		return $oFO->prefixOptionKey( $oFO->getDef( 'wpvulnscan_cron_name' ) );
 	}
 }
