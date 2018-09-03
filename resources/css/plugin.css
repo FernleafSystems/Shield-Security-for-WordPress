@@ -284,7 +284,6 @@ p.code-description {
 	width: 100%;
 }
 .option_section input[type=checkbox] {
-	margin-right: 5px;
 }
 .option_section label {
 	background-color: transparent;
@@ -599,7 +598,7 @@ label.forcheckbox .summary {
 }
 /* Hide default HTML checkbox */
 .icwp-switch input {
-	display: none;
+	opacity: 0;
 }
 /* The slider */
 .icwp-slider {

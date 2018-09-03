@@ -183,14 +183,15 @@
 						<div class="option_section <?php echo ( $mOptValue == 'Y' ) ? 'selected_item' : ''; ?>"
 							 id="option_section_<?php echo $sOptKey; ?>">
 
-							<label class="for<?php echo $sOptType; ?>">
+							<label id="Label-<?php echo $sOptKey ?>" class="for<?php echo $sOptType; ?>"
+								   for="<?php echo $sOptKey; ?>">
 
 								<?php if ( $sOptType == 'checkbox' ) : ?>
 									<span class="icwp-switch">
 										<input type="checkbox"
-											   name="<?php echo $sOptKey; ?>"
-											   id="<?php echo $sOptKey; ?>"
+											   name="<?php echo $sOptKey; ?>" id="<?php echo $sOptKey; ?>"
 											   value="Y" <?php echo ( $mOptValue == 'Y' ) ? 'checked="checked"' : ''; ?>
+											   aria-labelledby="Label-<?php echo $sOptKey ?>"
 											<?php echo $sDisabledText; ?> />
 										<span class="icwp-slider round"></span>
 									</span>
