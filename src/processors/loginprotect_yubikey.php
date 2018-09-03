@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 					_wpsf__( 'This will remove the Yubikey Device ID from your profile.' )
 					: _wpsf__( 'This will add the Yubikey Device ID to your profile.' ),
 				'description_otp_ext_2'    => $bValidatedProfile ?
-					'['._wpsf__( 'Pro Only' ).'] '._wpsf__( 'If you provide a OTP from an alternative Yubikey device, it will add it to your account also.' )
+					'['._wpsf__( 'Pro Only' ).'] '._wpsf__( 'If you provide a OTP from an alternative Yubikey device, it will also be added to your profile.' )
 					: '',
 				'label_enter_code'         => _wpsf__( 'Yubikey ID' ),
 				'label_enter_otp'          => _wpsf__( 'Yubikey OTP' ),
