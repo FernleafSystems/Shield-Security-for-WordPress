@@ -28,8 +28,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
 		$oCon = $this->getController();
 		$oWpUsers = $this->loadWpUsers();
 
@@ -40,25 +38,27 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			'i_am_valid_admin'      => $oCon->getHasPermissionToManage(),
 			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
 			'strings'               => array(
-				'description_otp_code'  => _wpsf__( 'This is your unique Yubikey Device ID.' ),
-				'description_otp'       => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
-				'description_otp_ext'   => $bValidatedProfile ?
-					_wpsf__( 'This will remove Yubikey Authentication from your account.' )
-					: _wpsf__( 'This will add Yubikey Authentication to your account.' ),
-				'description_otp_ext_2' => $bValidatedProfile && $oFO->isPremium() ?
-					_wpsf__( 'If you provide a OTP from an alternative Yubikey device, it will add it to your account also.' )
+				'description_otp_code'     => _wpsf__( 'This is your unique Yubikey Device ID.' ),
+				'description_otp_code_ext' => '['._wpsf__( 'Pro Only' ).'] '
+											  ._wpsf__( 'Multiple Yubikey Device IDs are separated by a comma.' ),
+				'description_otp'          => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
+				'description_otp_ext'      => $bValidatedProfile ?
+					_wpsf__( 'This will remove the Yubikey Device ID from your profile.' )
+					: _wpsf__( 'This will add the Yubikey Device ID to your profile.' ),
+				'description_otp_ext_2'    => $bValidatedProfile ?
+					'['._wpsf__( 'Pro Only' ).'] '._wpsf__( 'If you provide a OTP from an alternative Yubikey device, it will add it to your account also.' )
 					: '',
-				'label_enter_code'      => _wpsf__( 'Yubikey ID' ),
-				'label_enter_otp'       => _wpsf__( 'Yubikey OTP' ),
-				'title'                 => _wpsf__( 'Yubikey Authentication' ),
-				'cant_add_other_user'   => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
-				'cant_remove_admins'    => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
-				'provided_by'           => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
-				'remove_more_info'      => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
+				'label_enter_code'         => _wpsf__( 'Yubikey ID' ),
+				'label_enter_otp'          => _wpsf__( 'Yubikey OTP' ),
+				'title'                    => _wpsf__( 'Yubikey Authentication' ),
+				'cant_add_other_user'      => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
+				'cant_remove_admins'       => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
+				'provided_by'              => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
+				'remove_more_info'         => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
 			),
 			'data'                  => array(
 				'otp_field_name' => $this->getLoginFormParameter(),
-				'secret'         => $this->getSecret( $oUser ),
+				'secret'         => str_replace( ',', ', ', $this->getSecret( $oUser ) ),
 			)
 		);
 
@@ -98,16 +98,22 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		 */
 
 		$oSavingUser = $this->loadWpUsers()->getUserById( $nSavingUserId );
-		$sYubiKey = $this->getYubiKeyFromOtp( $sOtp );
+		$sYubiId = $this->getYubiIdFromOtp( $sOtp );
 
 		$bError = false;
-		if ( $this->hasYubiKeyInProfile( $oSavingUser, $sYubiKey ) ) {
-			$this->removeYubiKeyFromProfile( $oSavingUser, $sYubiKey );
-			$sMsg = sprintf( _wpsf__( '%s was successfully removed from your account.' ), _wpsf__( 'Yubikey' ) );
+		if ( $this->hasYubiIdInProfile( $oSavingUser, $sYubiId ) ) {
+			$this->removeYubiIdFromProfile( $oSavingUser, $sYubiId );
+			$sMsg = sprintf(
+				_wpsf__( '%s was removed from your profile.' ),
+				_wpsf__( 'Yubikey Device' ).sprintf( ' "%s"', $sYubiId )
+			);
 		}
 		else if ( !$this->hasValidSecret( $oSavingUser ) || $oFO->isPremium() ) {
-			$this->addYubiKeyToProfile( $oSavingUser, $sYubiKey );
-			$sMsg = sprintf( _wpsf__( '%s was successfully added to your account.' ), _wpsf__( 'Yubikey' ) );
+			$this->addYubiIdToProfile( $oSavingUser, $sYubiId );
+			$sMsg = sprintf(
+				_wpsf__( '%s was added to your profile.' ),
+				_wpsf__( 'Yubikey Device' ).sprintf( ' (%s)', $sYubiId )
+			);
 		}
 		else {
 			$bError = true;
@@ -122,7 +128,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 * @return array
 	 */
-	protected function getYubiKeys( WP_User $oUser ) {
+	protected function getYubiIds( WP_User $oUser ) {
 		return explode( ',', parent::getSecret( $oUser ) );
 	}
 
@@ -130,8 +136,8 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param string $sOTP
 	 * @return string
 	 */
-	protected function getYubiKeyFromOtp( $sOTP ) {
-		return substr( $sOTP, 0, $this->getYubiKeyLength() );
+	protected function getYubiIdFromOtp( $sOTP ) {
+		return substr( $sOTP, 0, $this->getYubiOtpLength() );
 	}
 
 	/**
@@ -139,8 +145,8 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param string  $sKey
 	 * @return bool
 	 */
-	protected function hasYubiKeyInProfile( WP_User $oUser, $sKey ) {
-		return in_array( $sKey, $this->getYubiKeys( $oUser ) );
+	protected function hasYubiIdInProfile( WP_User $oUser, $sKey ) {
+		return in_array( $sKey, $this->getYubiIds( $oUser ) );
 	}
 
 	/**
@@ -153,7 +159,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$oFO = $this->getMod();
 		$bSuccess = false;
 
-		$aYubiKeys = $this->getYubiKeys( $oUser );
+		$aYubiKeys = $this->getYubiIds( $oUser );
 
 		// Only process the 1st secret if premium
 		if ( !$oFO->isPremium() ) {
@@ -205,20 +211,20 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param string  $sNewKey
 	 * @return $this
 	 */
-	protected function addYubiKeyToProfile( $oUser, $sNewKey ) {
-		$aKeys = $this->getYubiKeys( $oUser );
+	protected function addYubiIdToProfile( $oUser, $sNewKey ) {
+		$aKeys = $this->getYubiIds( $oUser );
 		$aKeys[] = $sNewKey;
-		return $this->storeYubiKeysInProfile( $oUser, $aKeys );
+		return $this->storeYubiIdInProfile( $oUser, $aKeys );
 	}
 
 	/**
 	 * @param WP_User $oUser
 	 * @param string  $sKey
-	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
+	 * @return $this
 	 */
-	protected function removeYubiKeyFromProfile( $oUser, $sKey ) {
-		$aKeys = $this->loadDP()->removeFromArrayByValue( $this->getYubiKeys( $oUser ), $sKey );
-		return $this->storeYubiKeysInProfile( $oUser, $aKeys );
+	protected function removeYubiIdFromProfile( $oUser, $sKey ) {
+		$aKeys = $this->loadDP()->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
+		return $this->storeYubiIdInProfile( $oUser, $aKeys );
 	}
 
 	/**
@@ -226,7 +232,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param array   $aKeys
 	 * @return $this
 	 */
-	private function storeYubiKeysInProfile( $oUser, $aKeys ) {
+	private function storeYubiIdInProfile( $oUser, $aKeys ) {
 		parent::setSecret( $oUser, implode( ',', array_unique( array_filter( $aKeys ) ) ) );
 		return $this;
 	}
@@ -292,13 +298,13 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	protected function isSecretValid( $sSecret ) {
 		return parent::isSecretValid( $sSecret )
-			   && preg_match( sprintf( '#^[a-z]{%s},?#i', $this->getYubiKeyLength() ), $sSecret );
+			   && preg_match( sprintf( '#^[a-z]{%s},?#i', $this->getYubiOtpLength() ), $sSecret );
 	}
 
 	/**
 	 * @return int
 	 */
-	protected function getYubiKeyLength() {
+	protected function getYubiOtpLength() {
 		return self::SECRET_LENGTH;
 	}
 
@@ -327,7 +333,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 //			$sApiKey = $this->getOption('yubikey_api_key');
 
 		// check that if we have a list of permitted keys, that the one used is on that list connected with the username.
-		$sYubikey12 = $this->getYubiKeyFromOtp( $sOneTimePassword );
+		$sYubikey12 = $this->getYubiIdFromOtp( $sOneTimePassword );
 		$fUsernameFound = false; // if username is never found, it means there's no yubikey specified which means we can bypass this authentication method.
 		$fFoundMatch = false;
 		foreach ( $this->getOption( 'yubikey_unique_keys' ) as $aUsernameYubikeyPair ) {
