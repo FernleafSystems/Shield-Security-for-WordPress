@@ -365,7 +365,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
 * **(v.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
 * **(v.0)**  CHANGED:	Password Policies now requires minimum WordPress v4.4.
-* **(v.0)**  IMPROVED:	Password expiration now redirect to the 'set password' screen, instead of the user profile.
+* **(v.0)**  IMPROVED:	Password expiration now redirects to the 'set password' screen, instead of the user profile.
 * **(v.0)**  IMPROVED:	You can now delete the 'forceoff' file from inside the WP Admin.
 * **(v.0)**  IMPROVED:	Audit Trail entries for emails will identify the file that's calling the `wp_mail` function.
 * **(v.0)**  IMPROVED:	Audit Trail entries for post editing will identify the post type wherever possible.
