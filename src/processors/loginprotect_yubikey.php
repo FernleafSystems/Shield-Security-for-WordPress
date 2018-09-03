@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 		/*
 		 * How we proceed depends on :
-		 * 1) Is the OTP for a registered secret - if so, remove it; If not, add it;
+		 * 1) Is the OTP for a registered ID - if so, remove it; If not, add it;
 		 * 2) Is this a premium Shield installation - if so, multiple yubikeys are permitted
 		 */
 
@@ -108,7 +108,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				_wpsf__( 'Yubikey Device' ).sprintf( ' "%s"', $sYubiId )
 			);
 		}
-		else if ( !$this->hasValidSecret( $oSavingUser ) || $oFO->isPremium() ) {
+		else if ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $oFO->isPremium() ) {
 			$this->addYubiIdToProfile( $oSavingUser, $sYubiId );
 			$sMsg = sprintf(
 				_wpsf__( '%s was added to your profile.' ),

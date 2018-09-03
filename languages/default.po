@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2018-09-03 14:21+0100\n"
-"PO-Revision-Date: 2018-09-03 14:22+0100\n"
+"POT-Creation-Date: 2018-09-03 17:36+0100\n"
+"PO-Revision-Date: 2018-09-03 17:36+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -69,9 +69,9 @@ msgstr ""
 
 #: src/features/admin_access_restriction.php:407
 #: src/features/audit_trail.php:304 src/features/base_wpsf.php:169
-#: src/features/base_wpsf.php:207 src/features/hack_protect.php:664
-#: src/features/hack_protect.php:685 src/features/hack_protect.php:706
-#: src/features/hack_protect.php:727 src/features/insights.php:438
+#: src/features/base_wpsf.php:207 src/features/hack_protect.php:661
+#: src/features/hack_protect.php:682 src/features/hack_protect.php:703
+#: src/features/hack_protect.php:724 src/features/insights.php:438
 #: src/features/lockdown.php:62 src/features/user_management.php:288
 msgid "Options"
 msgstr ""
@@ -83,7 +83,7 @@ msgstr ""
 #: src/features/admin_access_restriction.php:438
 #: src/features/audit_trail.php:290 src/features/autoupdates.php:186
 #: src/features/comments_filter.php:103 src/features/firewall.php:59
-#: src/features/hack_protect.php:767 src/features/headers.php:120
+#: src/features/hack_protect.php:764 src/features/headers.php:120
 #: src/features/ips.php:302 src/features/lockdown.php:85
 #: src/features/login_protect.php:521 src/features/sessions.php:51
 #: src/features/statistics.php:51 src/features/statistics.php:60
@@ -103,10 +103,10 @@ msgstr ""
 #: src/features/base_wpsf.php:319 src/features/comments_filter.php:105
 #: src/features/comments_filter.php:114 src/features/comments_filter.php:124
 #: src/features/comments_filter.php:133 src/features/firewall.php:61
-#: src/features/hack_protect.php:762 src/features/hack_protect.php:769
-#: src/features/hack_protect.php:778 src/features/hack_protect.php:788
-#: src/features/hack_protect.php:797 src/features/hack_protect.php:806
-#: src/features/hack_protect.php:816 src/features/hack_protect.php:826
+#: src/features/hack_protect.php:759 src/features/hack_protect.php:766
+#: src/features/hack_protect.php:775 src/features/hack_protect.php:785
+#: src/features/hack_protect.php:794 src/features/hack_protect.php:803
+#: src/features/hack_protect.php:813 src/features/hack_protect.php:823
 #: src/features/headers.php:122 src/features/headers.php:131
 #: src/features/headers.php:140 src/features/ips.php:304
 #: src/features/ips.php:314 src/features/ips.php:324
@@ -145,10 +145,10 @@ msgstr ""
 #: src/features/comments_filter.php:125 src/features/comments_filter.php:134
 #: src/features/firewall.php:62 src/features/firewall.php:71
 #: src/features/firewall.php:82 src/features/firewall.php:91
-#: src/features/hack_protect.php:770 src/features/hack_protect.php:779
-#: src/features/hack_protect.php:789 src/features/hack_protect.php:798
-#: src/features/hack_protect.php:807 src/features/hack_protect.php:817
-#: src/features/hack_protect.php:827 src/features/headers.php:123
+#: src/features/hack_protect.php:767 src/features/hack_protect.php:776
+#: src/features/hack_protect.php:786 src/features/hack_protect.php:795
+#: src/features/hack_protect.php:804 src/features/hack_protect.php:814
+#: src/features/hack_protect.php:824 src/features/headers.php:123
 #: src/features/headers.php:132 src/features/headers.php:141
 #: src/features/ips.php:305 src/features/ips.php:315 src/features/ips.php:325
 #: src/features/license.php:651 src/features/lockdown.php:88
@@ -169,9 +169,9 @@ msgstr ""
 #: src/features/admin_access_restriction.php:441
 #: src/features/audit_trail.php:293 src/features/autoupdates.php:189
 #: src/features/comments_filter.php:106 src/features/firewall.php:62
-#: src/features/hack_protect.php:770 src/features/hack_protect.php:779
-#: src/features/hack_protect.php:789 src/features/hack_protect.php:798
-#: src/features/hack_protect.php:807 src/features/ips.php:305
+#: src/features/hack_protect.php:767 src/features/hack_protect.php:776
+#: src/features/hack_protect.php:786 src/features/hack_protect.php:795
+#: src/features/hack_protect.php:804 src/features/ips.php:305
 #: src/features/ips.php:315 src/features/lockdown.php:88
 #: src/features/login_protect.php:525 src/features/sessions.php:54
 #: src/features/statistics.php:54 src/features/statistics.php:63
@@ -193,7 +193,7 @@ msgstr ""
 #: src/features/admin_access_restriction.php:444
 #: src/features/audit_trail.php:295 src/features/autoupdates.php:191
 #: src/features/comments_filter.php:108 src/features/firewall.php:64
-#: src/features/hack_protect.php:772 src/features/headers.php:125
+#: src/features/hack_protect.php:769 src/features/headers.php:125
 #: src/features/ips.php:308 src/features/lockdown.php:90
 #: src/features/login_protect.php:522 src/features/sessions.php:56
 #: src/features/statistics.php:56 src/features/statistics.php:65
@@ -206,7 +206,7 @@ msgstr ""
 #: src/features/admin_access_restriction.php:574
 #: src/features/audit_trail.php:295 src/features/autoupdates.php:191
 #: src/features/comments_filter.php:108 src/features/firewall.php:64
-#: src/features/hack_protect.php:772 src/features/headers.php:125
+#: src/features/hack_protect.php:769 src/features/headers.php:125
 #: src/features/ips.php:308 src/features/lockdown.php:90
 #: src/features/login_protect.php:522 src/features/sessions.php:56
 #: src/features/statistics.php:56 src/features/statistics.php:65
@@ -217,7 +217,7 @@ msgstr ""
 #: src/features/admin_access_restriction.php:444
 #: src/features/audit_trail.php:295 src/features/autoupdates.php:191
 #: src/features/comments_filter.php:108 src/features/firewall.php:64
-#: src/features/hack_protect.php:772 src/features/headers.php:125
+#: src/features/hack_protect.php:769 src/features/headers.php:125
 #: src/features/ips.php:308 src/features/lockdown.php:90
 #: src/features/login_protect.php:522 src/features/sessions.php:56
 #: src/features/statistics.php:56 src/features/statistics.php:65
@@ -280,7 +280,7 @@ msgstr ""
 #: src/features/admin_access_restriction.php:503
 #: src/features/audit_trail.php:338 src/features/autoupdates.php:251
 #: src/features/comments_filter.php:188 src/features/firewall.php:115
-#: src/features/hack_protect.php:850 src/features/headers.php:166
+#: src/features/hack_protect.php:847 src/features/headers.php:166
 #: src/features/ips.php:347 src/features/lockdown.php:140
 #: src/features/login_protect.php:615 src/features/plugin.php:805
 #: src/features/sessions.php:79 src/features/statistics.php:99
@@ -349,7 +349,7 @@ msgid "This will automatically expire your Security Admin Session."
 msgstr ""
 
 #: src/features/admin_access_restriction.php:523
-#: src/features/hack_protect.php:858 src/features/hack_protect.php:924
+#: src/features/hack_protect.php:855 src/features/hack_protect.php:921
 #: src/features/login_protect.php:695 src/features/login_protect.php:738
 #: src/features/login_protect.php:745 src/features/user_management.php:399
 msgid "Default"
@@ -393,7 +393,7 @@ msgstr ""
 #: src/features/admin_access_restriction.php:537
 #: src/features/audit_trail.php:187 src/features/audit_trail.php:362
 #: src/features/audit_trail.php:363 src/features/autoupdates.php:282
-#: src/features/hack_protect.php:736 src/features/insights.php:330
+#: src/features/hack_protect.php:733 src/features/insights.php:330
 #: src/features/insights.php:347
 msgid "Plugins"
 msgstr ""
@@ -701,7 +701,7 @@ msgid "Audit Contexts"
 msgstr ""
 
 #: src/features/audit_trail.php:339 src/features/autoupdates.php:252
-#: src/features/firewall.php:116 src/features/hack_protect.php:851
+#: src/features/firewall.php:116 src/features/hack_protect.php:848
 #: src/features/headers.php:167 src/features/ips.php:348
 #: src/features/lockdown.php:141 src/features/login_protect.php:616
 #: src/features/sessions.php:80 src/features/statistics.php:100
@@ -713,7 +713,7 @@ msgstr ""
 
 #: src/features/audit_trail.php:340 src/features/autoupdates.php:253
 #: src/features/comments_filter.php:190 src/features/firewall.php:117
-#: src/features/hack_protect.php:852 src/features/headers.php:168
+#: src/features/hack_protect.php:849 src/features/headers.php:168
 #: src/features/ips.php:349 src/features/lockdown.php:142
 #: src/features/login_protect.php:617 src/features/sessions.php:81
 #: src/features/statistics.php:101 src/features/statistics.php:107
@@ -823,7 +823,7 @@ msgid ""
 "you choose what exactly gets updated automatically."
 msgstr ""
 
-#: src/features/autoupdates.php:189 src/features/hack_protect.php:881
+#: src/features/autoupdates.php:189 src/features/hack_protect.php:878
 #: src/features/plugin.php:951
 msgid "Automatic Updates"
 msgstr ""
@@ -1039,34 +1039,34 @@ msgid ""
 "applied to your site."
 msgstr ""
 
-#: src/features/base.php:978
+#: src/features/base.php:977
 msgid ""
 "Unfortunately your WordPress and/or PHP versions are too old to support this "
 "feature."
 msgstr ""
 
-#: src/features/base.php:1147
+#: src/features/base.php:1146
 #, php-format
 msgid "Failed up to update %s plugin options."
 msgstr ""
 
-#: src/features/base.php:1152
+#: src/features/base.php:1151
 #, php-format
 msgid "%s Plugin options updated successfully."
 msgstr ""
 
-#: src/features/base.php:1156
+#: src/features/base.php:1155
 #, php-format
 msgid ""
 "Failed to update %s options as you are not authenticated with %s as a "
 "Security Admin."
 msgstr ""
 
-#: src/features/base.php:1222
+#: src/features/base.php:1221
 msgid "Plugin options updated successfully."
 msgstr ""
 
-#: src/features/base.php:1606
+#: src/features/base.php:1609
 msgid "Support Forums"
 msgstr ""
 
@@ -1719,8 +1719,8 @@ msgid ""
 "submitted to your site."
 msgstr ""
 
-#: src/features/firewall.php:173 src/features/hack_protect.php:914
-#: src/features/hack_protect.php:938 src/features/hack_protect.php:939
+#: src/features/firewall.php:173 src/features/hack_protect.php:911
+#: src/features/hack_protect.php:935 src/features/hack_protect.php:936
 #: src/features/ips.php:272 src/features/ips.php:279
 #: src/features/lockdown.php:181 src/features/lockdown.php:194
 #: src/features/plugin.php:873
@@ -1826,403 +1826,403 @@ msgstr ""
 msgid "This is the message displayed to visitors that trigger the firewall."
 msgstr ""
 
-#: src/features/hack_protect.php:150
+#: src/features/hack_protect.php:147
 #, php-format
 msgid "%s per day"
 msgstr ""
 
-#: src/features/hack_protect.php:626
+#: src/features/hack_protect.php:623
 msgid "Never"
 msgstr ""
 
-#: src/features/hack_protect.php:627
+#: src/features/hack_protect.php:624
 #, php-format
 msgid "Last Scan Time: %s"
 msgstr ""
 
-#: src/features/hack_protect.php:641
+#: src/features/hack_protect.php:638
 #, php-format
 msgid ""
 "Sorry, this feature is not available because we cannot write to disk at this "
 "location: \"%s\""
 msgstr ""
 
-#: src/features/hack_protect.php:654
+#: src/features/hack_protect.php:651
 msgid "Scans"
 msgstr ""
 
-#: src/features/hack_protect.php:662
+#: src/features/hack_protect.php:659
 msgid "Core File scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:665
+#: src/features/hack_protect.php:662
 msgid "Automatic WordPress Core File scanner should be turned-on."
 msgstr ""
 
-#: src/features/hack_protect.php:671
+#: src/features/hack_protect.php:668
 msgid "Modified WordPress core files found."
 msgstr ""
 
-#: src/features/hack_protect.php:673 src/features/hack_protect.php:694
-#: src/features/hack_protect.php:715
+#: src/features/hack_protect.php:670 src/features/hack_protect.php:691
+#: src/features/hack_protect.php:712
 msgid "Run Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:674
+#: src/features/hack_protect.php:671
 msgid "Scan WP core files and repair any files that are flagged as modified."
 msgstr ""
 
-#: src/features/hack_protect.php:683
+#: src/features/hack_protect.php:680
 msgid "Unrecognised File scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:686
+#: src/features/hack_protect.php:683
 msgid "Automatic scanning for non-WordPress core files is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:692
+#: src/features/hack_protect.php:689
 msgid "Unrecognised files found in WordPress Core directory."
 msgstr ""
 
-#: src/features/hack_protect.php:695
+#: src/features/hack_protect.php:692
 msgid ""
 "Scan and remove any files that are not meant to be in the WP core "
 "directories."
 msgstr ""
 
-#: src/features/hack_protect.php:704
+#: src/features/hack_protect.php:701
 msgid "Automatic Plugin/Themes Guard is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:707
+#: src/features/hack_protect.php:704
 msgid "Automatic detection of plugin/theme modifications is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:713
+#: src/features/hack_protect.php:710
 msgid "A plugin/theme was found to have been modified."
 msgstr ""
 
-#: src/features/hack_protect.php:716
+#: src/features/hack_protect.php:713
 msgid "Reviewing modifications to your plugins/themes is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:725
+#: src/features/hack_protect.php:722
 msgid "Plugin Vulnerability Scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:728
+#: src/features/hack_protect.php:725
 msgid "Automatic detection of plugin vulnerabilities is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:734
+#: src/features/hack_protect.php:731
 msgid "At least 1 plugin has known vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:737
+#: src/features/hack_protect.php:734
 msgid ""
 "Plugins with known vulnerabilities should be updated, removed, or replaced."
 msgstr ""
 
-#: src/features/hack_protect.php:759 src/features/hack_protect.php:760
+#: src/features/hack_protect.php:756 src/features/hack_protect.php:757
 msgid "Scan Options"
 msgstr ""
 
-#: src/features/hack_protect.php:762
+#: src/features/hack_protect.php:759
 msgid "Set how frequently the Hack Guard scans will run."
 msgstr ""
 
-#: src/features/hack_protect.php:769
+#: src/features/hack_protect.php:766
 msgid ""
 "Hack Guard is a set of tools to warn you and protect you against hacks on "
 "your site."
 msgstr ""
 
-#: src/features/hack_protect.php:770 src/features/plugin.php:958
+#: src/features/hack_protect.php:767 src/features/plugin.php:958
 msgid "Hack Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:776 src/features/hack_protect.php:782
+#: src/features/hack_protect.php:773 src/features/hack_protect.php:779
 msgid "Vulnerabilities Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:778
+#: src/features/hack_protect.php:775
 msgid ""
 "Regularly scan your WordPress plugins and themes for known security "
 "vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:779 src/features/hack_protect.php:786
-#: src/features/hack_protect.php:789 src/features/hack_protect.php:869
+#: src/features/hack_protect.php:776 src/features/hack_protect.php:783
+#: src/features/hack_protect.php:786 src/features/hack_protect.php:866
 msgid "Plugin Vulnerabilities Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:780
+#: src/features/hack_protect.php:777
 msgid ""
 "Ensure this is turned on and you will always know if any of your assets have "
 "known security vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:788
+#: src/features/hack_protect.php:785
 msgid ""
 "Regularly scan your plugins against a database of known vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:791
+#: src/features/hack_protect.php:788
 msgid "Plugin Vulnerabilities"
 msgstr ""
 
-#: src/features/hack_protect.php:795 src/features/hack_protect.php:798
+#: src/features/hack_protect.php:792 src/features/hack_protect.php:795
 msgid "Core File Integrity Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:797
+#: src/features/hack_protect.php:794
 msgid ""
 "Regularly scan your WordPress core files for changes compared to official "
 "WordPress files."
 msgstr ""
 
-#: src/features/hack_protect.php:800 src/features/hack_protect.php:893
+#: src/features/hack_protect.php:797 src/features/hack_protect.php:890
 msgid "Core File Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:804 src/features/hack_protect.php:807
-#: src/features/hack_protect.php:809 src/features/hack_protect.php:906
+#: src/features/hack_protect.php:801 src/features/hack_protect.php:804
+#: src/features/hack_protect.php:806 src/features/hack_protect.php:903
 msgid "Unrecognised Files Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:806
+#: src/features/hack_protect.php:803
 msgid "Regularly scan your WordPress core folders for files that don't belong."
 msgstr ""
 
-#: src/features/hack_protect.php:813
+#: src/features/hack_protect.php:810
 msgid "Plugins and Themes Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:814
+#: src/features/hack_protect.php:811
 msgid "Plugins/Themes Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:816
+#: src/features/hack_protect.php:813
 msgid "Detect malicious changes to your themes and plugins."
 msgstr ""
 
-#: src/features/hack_protect.php:817
+#: src/features/hack_protect.php:814
 msgid "Keep the Plugins/Theme Guard feature turned on."
 msgstr ""
 
-#: src/features/hack_protect.php:818 src/features/user_management.php:325
+#: src/features/hack_protect.php:815 src/features/user_management.php:325
 msgid "Requirements"
 msgstr ""
 
-#: src/features/hack_protect.php:823 src/features/hack_protect.php:824
+#: src/features/hack_protect.php:820 src/features/hack_protect.php:821
 msgid "Integrity Checks"
 msgstr ""
 
-#: src/features/hack_protect.php:826
+#: src/features/hack_protect.php:823
 msgid "Monitor for unrecognised changes to your system."
 msgstr ""
 
-#: src/features/hack_protect.php:827
+#: src/features/hack_protect.php:824
 msgid "Enable these to prevent unauthorized changes to your WordPress site."
 msgstr ""
 
-#: src/features/hack_protect.php:856
+#: src/features/hack_protect.php:853
 msgid "Daily Scan Frequency"
 msgstr ""
 
-#: src/features/hack_protect.php:857
+#: src/features/hack_protect.php:854
 msgid "Number Of Times To Automatically Run File Scan In 24hrs"
 msgstr ""
 
-#: src/features/hack_protect.php:858
+#: src/features/hack_protect.php:855
 msgid "Once every 24hrs."
 msgstr ""
 
-#: src/features/hack_protect.php:859
+#: src/features/hack_protect.php:856
 msgid "To improve security, increase the number of scans per day."
 msgstr ""
 
-#: src/features/hack_protect.php:863
+#: src/features/hack_protect.php:860
 msgid "Email Files List"
 msgstr ""
 
-#: src/features/hack_protect.php:864
+#: src/features/hack_protect.php:861
 msgid "Scan Notification Emails Should Include Full Listing Of Files"
 msgstr ""
 
-#: src/features/hack_protect.php:865
+#: src/features/hack_protect.php:862
 msgid ""
 "Scanner notification emails will include a summary list of all affected "
 "files."
 msgstr ""
 
-#: src/features/hack_protect.php:870
+#: src/features/hack_protect.php:867
 #, php-format
 msgid "Daily Cron - %s"
 msgstr ""
 
-#: src/features/hack_protect.php:870
+#: src/features/hack_protect.php:867
 msgid "Scans Plugins For Known Vulnerabilities"
 msgstr ""
 
-#: src/features/hack_protect.php:871
+#: src/features/hack_protect.php:868
 msgid ""
 "Runs a scan of all your plugins against a database of known WordPress plugin "
 "vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:875
+#: src/features/hack_protect.php:872
 msgid "Vulnerability Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:876
+#: src/features/hack_protect.php:873
 msgid "Enable The Vulnerability Scanner"
 msgstr ""
 
-#: src/features/hack_protect.php:877
+#: src/features/hack_protect.php:874
 msgid ""
 "Runs a scan of all your plugins against a database of known WordPress "
 "vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:882
+#: src/features/hack_protect.php:879
 msgid "Apply Updates Automatically To Vulnerable Plugins"
 msgstr ""
 
-#: src/features/hack_protect.php:883
+#: src/features/hack_protect.php:880
 msgid ""
 "When an update becomes available, automatically apply updates to items with "
 "known vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:887
+#: src/features/hack_protect.php:884
 msgid "Highlight Plugins"
 msgstr ""
 
-#: src/features/hack_protect.php:888
+#: src/features/hack_protect.php:885
 msgid "Highlight Vulnerable Plugins Upon Display"
 msgstr ""
 
-#: src/features/hack_protect.php:889
+#: src/features/hack_protect.php:886
 msgid "Vulnerable plugins will be highlighted on the main plugins page."
 msgstr ""
 
-#: src/features/hack_protect.php:894
+#: src/features/hack_protect.php:891
 msgid "Scans WordPress Core Files For Alterations"
 msgstr ""
 
-#: src/features/hack_protect.php:895
+#: src/features/hack_protect.php:892
 msgid ""
 "Compares all WordPress core files on your site against the official "
 "WordPress files."
 msgstr ""
 
-#: src/features/hack_protect.php:896
+#: src/features/hack_protect.php:893
 msgid "WordPress Core files should never be altered for any reason."
 msgstr ""
 
-#: src/features/hack_protect.php:900
+#: src/features/hack_protect.php:897
 msgid "Auto Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:901
+#: src/features/hack_protect.php:898
 msgid "Automatically Repair WordPress Core Files That Have Been Altered"
 msgstr ""
 
-#: src/features/hack_protect.php:902
+#: src/features/hack_protect.php:899
 msgid ""
 "Attempts to automatically repair WordPress Core files with the official "
 "WordPress file data, for files that have been altered or are missing."
 msgstr ""
 
-#: src/features/hack_protect.php:907
+#: src/features/hack_protect.php:904
 msgid "Daily Scan For Unrecognised Files In Core Directories"
 msgstr ""
 
-#: src/features/hack_protect.php:908
+#: src/features/hack_protect.php:905
 msgid ""
 "Scans for, and automatically deletes, any files in your core WordPress "
 "folders that are not part of your WordPress installation."
 msgstr ""
 
-#: src/features/hack_protect.php:912
+#: src/features/hack_protect.php:909
 msgid "Scan Uploads"
 msgstr ""
 
-#: src/features/hack_protect.php:913
+#: src/features/hack_protect.php:910
 msgid "Scan Uploads Folder For PHP and Javascript"
 msgstr ""
 
-#: src/features/hack_protect.php:914
+#: src/features/hack_protect.php:911
 msgid ""
 "Take care when turning on this option - if you are unsure, leave it disabled."
 msgstr ""
 
-#: src/features/hack_protect.php:915
+#: src/features/hack_protect.php:912
 msgid ""
 "The Uploads folder is primarily for media, but could be used to store "
 "nefarious files."
 msgstr ""
 
-#: src/features/hack_protect.php:919
+#: src/features/hack_protect.php:916
 msgid "File Exclusions"
 msgstr ""
 
-#: src/features/hack_protect.php:920
+#: src/features/hack_protect.php:917
 msgid "Provide A List Of Files To Be Excluded From The Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:922
+#: src/features/hack_protect.php:919
 msgid "Take a new line for each file you wish to exclude from the scan."
 msgstr ""
 
-#: src/features/hack_protect.php:923
+#: src/features/hack_protect.php:920
 msgid "No commas are necessary."
 msgstr ""
 
-#: src/features/hack_protect.php:928
+#: src/features/hack_protect.php:925
 msgid "Enable Integrity Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:929
+#: src/features/hack_protect.php:926
 msgid "Scans For Critical Changes Made To Your WordPress Site"
 msgstr ""
 
-#: src/features/hack_protect.php:930
+#: src/features/hack_protect.php:927
 msgid "Detects changes made to your WordPress site outside of WordPress."
 msgstr ""
 
-#: src/features/hack_protect.php:934
+#: src/features/hack_protect.php:931
 msgid "Monitor User Accounts"
 msgstr ""
 
-#: src/features/hack_protect.php:935
+#: src/features/hack_protect.php:932
 msgid "Scans For Critical Changes Made To User Accounts"
 msgstr ""
 
-#: src/features/hack_protect.php:936
+#: src/features/hack_protect.php:933
 msgid ""
 "Detects changes made to critical user account information that were made "
 "directly on the database and outside of the WordPress system."
 msgstr ""
 
-#: src/features/hack_protect.php:937
+#: src/features/hack_protect.php:934
 msgid "An example of this might be some form of SQL Injection attack."
 msgstr ""
 
-#: src/features/hack_protect.php:938
+#: src/features/hack_protect.php:935
 msgid ""
 "Enabling this option for every page low may slow down your site with large "
 "numbers of users."
 msgstr ""
 
-#: src/features/hack_protect.php:939
+#: src/features/hack_protect.php:936
 msgid ""
 "This option may cause critical problem with 3rd party plugins that manage "
 "user accounts."
 msgstr ""
 
-#: src/features/hack_protect.php:943 src/features/headers.php:197
+#: src/features/hack_protect.php:940 src/features/headers.php:197
 #: src/features/headers.php:198 src/features/login_protect.php:631
 #: src/features/login_protect.php:643 src/features/login_protect.php:649
 #: src/features/plugin.php:799
@@ -2230,70 +2230,70 @@ msgstr ""
 msgid "Enable %s"
 msgstr ""
 
-#: src/features/hack_protect.php:943
+#: src/features/hack_protect.php:940
 msgid "Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:944
+#: src/features/hack_protect.php:941
 msgid "Enable The Guard For Plugin And Theme Files"
 msgstr ""
 
-#: src/features/hack_protect.php:945
+#: src/features/hack_protect.php:942
 msgid ""
 "When enabled the Guard will automatically scan for changes to your Plugin "
 "and Theme files."
 msgstr ""
 
-#: src/features/hack_protect.php:949
+#: src/features/hack_protect.php:946
 msgid "Guard/Scan Depth"
 msgstr ""
 
-#: src/features/hack_protect.php:950
+#: src/features/hack_protect.php:947
 msgid "How Deep Into The Plugin Directories To Scan And Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:951
+#: src/features/hack_protect.php:948
 msgid ""
 "The Guard normally scans only the top level of a folder. Increasing depth "
 "will increase scan times."
 msgstr ""
 
-#: src/features/hack_protect.php:952
+#: src/features/hack_protect.php:949
 #, php-format
 msgid ""
 "Setting it to %s will remove this limit and all sub-folders will be scanned "
 "- not recommended"
 msgstr ""
 
-#: src/features/hack_protect.php:956
+#: src/features/hack_protect.php:953
 msgid "Included File Types"
 msgstr ""
 
-#: src/features/hack_protect.php:957
+#: src/features/hack_protect.php:954
 msgid "The File Types (by File Extension) Included In The Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:958
+#: src/features/hack_protect.php:955
 msgid "Take a new line for each file extension."
 msgstr ""
 
-#: src/features/hack_protect.php:959
+#: src/features/hack_protect.php:956
 msgid "No commas(,) or periods(.) necessary."
 msgstr ""
 
-#: src/features/hack_protect.php:960
+#: src/features/hack_protect.php:957
 msgid "Remove all extensions to scan all file type (not recommended)."
 msgstr ""
 
-#: src/features/hack_protect.php:964
+#: src/features/hack_protect.php:961
 msgid "Show Re-Install Links"
 msgstr ""
 
-#: src/features/hack_protect.php:965
+#: src/features/hack_protect.php:962
 msgid "Show Re-Install Links For Plugins"
 msgstr ""
 
-#: src/features/hack_protect.php:966
+#: src/features/hack_protect.php:963
 msgid ""
 "Show links to re-install plugins and offer re-install when activating "
 "plugins."
@@ -5703,13 +5703,13 @@ msgid "Scan This QR Code"
 msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:46
-#: src/processors/loginprotect_yubikey.php:47
+#: src/processors/loginprotect_yubikey.php:54
 #, php-format
 msgid "Sorry, %s may not be added to another user's account."
 msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:47
-#: src/processors/loginprotect_yubikey.php:48
+#: src/processors/loginprotect_yubikey.php:55
 #, php-format
 msgid ""
 "Sorry, %s may only be removed from another user's account by a Security "
@@ -5718,13 +5718,13 @@ msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:48
 #: src/processors/loginprotect_twofactorauth.php:226
-#: src/processors/loginprotect_yubikey.php:49
+#: src/processors/loginprotect_yubikey.php:56
 #, php-format
 msgid "Provided by %s"
 msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:49
-#: src/processors/loginprotect_yubikey.php:50
+#: src/processors/loginprotect_yubikey.php:57
 msgid "Understand how to remove Google Authenticator"
 msgstr ""
 
@@ -5740,12 +5740,12 @@ msgid ""
 msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:145
-#: src/processors/loginprotect_yubikey.php:75
+#: src/processors/loginprotect_yubikey.php:88
 msgid "One Time Password (OTP) was not valid."
 msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:145
-#: src/processors/loginprotect_yubikey.php:75
+#: src/processors/loginprotect_yubikey.php:88
 msgid "Please try again."
 msgstr ""
 
@@ -5762,7 +5762,6 @@ msgid ""
 msgstr ""
 
 #: src/processors/loginprotect_googleauthenticator.php:184
-#: src/processors/loginprotect_yubikey.php:94
 #, php-format
 msgid "%s was successfully added to your account."
 msgstr ""
@@ -5985,93 +5984,120 @@ msgid "This is your unique Yubikey Device ID."
 msgstr ""
 
 #: src/processors/loginprotect_yubikey.php:42
-msgid "Provide a One Time Password from your Yubikey."
+#: src/processors/loginprotect_yubikey.php:49
+msgid "Pro Only"
 msgstr ""
 
 #: src/processors/loginprotect_yubikey.php:43
-msgid "This will remove Yubikey Authentication from your account."
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:43
-msgid "This will add Yubikey Authentication to your account."
+msgid "Multiple Yubikey Device IDs are separated by a comma."
 msgstr ""
 
 #: src/processors/loginprotect_yubikey.php:44
-msgid "Yubikey ID"
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:45
-#: src/processors/loginprotect_yubikey.php:242
-msgid "Yubikey OTP"
+msgid "Provide a One Time Password from your Yubikey."
 msgstr ""
 
 #: src/processors/loginprotect_yubikey.php:46
+msgid "This will remove the Yubikey Device ID from your profile."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:47
+msgid "This will add the Yubikey Device ID to your profile."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:49
+msgid ""
+"If you provide a OTP from an alternative Yubikey device, it will add it to "
+"your account also."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:51
+msgid "Yubikey ID"
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:52
+#: src/processors/loginprotect_yubikey.php:272
+msgid "Yubikey OTP"
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:53
 msgid "Yubikey Authentication"
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:48
-#: src/processors/loginprotect_yubikey.php:94
-#: src/processors/loginprotect_yubikey.php:102
+#: src/processors/loginprotect_yubikey.php:55
 msgid "Yubikey"
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:102
+#: src/processors/loginprotect_yubikey.php:107
 #, php-format
-msgid "%s was successfully removed from your account."
+msgid "%s was removed from your profile."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:147
+#: src/processors/loginprotect_yubikey.php:108
+#: src/processors/loginprotect_yubikey.php:115
+msgid "Yubikey Device"
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:114
 #, php-format
-msgid ""
-"User \"%s\" logged in without a Yubikey One Time Password because no "
-"username-yubikey pair was found for this user."
+msgid "%s was added to your profile."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:154
-#, php-format
-msgid ""
-"User \"%s\" attempted to login but Yubikey ID \"%s\" used was not in list of "
-"authorised keys."
+#: src/processors/loginprotect_yubikey.php:120
+msgid "No changes were made to your Yubikey configuration"
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:160
-#: src/processors/loginprotect_yubikey.php:178
-#, php-format
-msgid "ERROR: %s"
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:160
-msgid ""
-"The Yubikey provided is not on the list of permitted keys for this user."
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:167
-#: src/processors/loginprotect_yubikey.php:217
+#: src/processors/loginprotect_yubikey.php:247
+#: src/processors/loginprotect_yubikey.php:371
 #, php-format
 msgid ""
 "User \"%s\" successfully logged in using a validated Yubikey One Time "
 "Password."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:173
+#: src/processors/loginprotect_yubikey.php:254
+#, php-format
+msgid ""
+"User \"%s\" failed to verify their identity using Yubikey One Time Password."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:270
+msgid "Use your Yubikey to generate a new code."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:351
+#, php-format
+msgid ""
+"User \"%s\" logged in without a Yubikey One Time Password because no "
+"username-yubikey pair was found for this user."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:358
+#, php-format
+msgid ""
+"User \"%s\" attempted to login but Yubikey ID \"%s\" used was not in list of "
+"authorised keys."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:364
+#: src/processors/loginprotect_yubikey.php:382
+#, php-format
+msgid "ERROR: %s"
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:364
+msgid ""
+"The Yubikey provided is not on the list of permitted keys for this user."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:377
 #, php-format
 msgid ""
 "User \"%s\" attempted to login but Yubikey One Time Password failed to "
 "validate due to invalid Yubi API response.\"."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:178
+#: src/processors/loginprotect_yubikey.php:382
 msgid "The Yubikey authentication was not validated successfully."
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:224
-#, php-format
-msgid ""
-"User \"%s\" failed to verify their identity using Yubikey One Time Password."
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:240
-msgid "Use your Yubikey to generate a new code."
 msgstr ""
 
 #: src/processors/plugin.php:206
