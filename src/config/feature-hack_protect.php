@@ -388,6 +388,12 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
+      "key": "ptg_last_build_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
+    },
+    {
       "key": "ptg_candiskwrite",
       "transferable": false,
       "section": "section_non_ui",
