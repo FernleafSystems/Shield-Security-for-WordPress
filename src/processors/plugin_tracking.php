@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 		}
 
 		$mResult = $this->loadFS()->requestUrl(
-			$oFO->getDefinition( 'tracking_post_url' ),
+			$oFO->getDef( 'tracking_post_url' ),
 			array(
 				'method'      => 'POST',
 				'timeout'     => 20,
@@ -141,6 +141,6 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	public function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDefinition( 'tracking_cron_handle' ) );
+		return $oFO->prefix( $oFO->getDef( 'tracking_cron_handle' ) );
 	}
 }

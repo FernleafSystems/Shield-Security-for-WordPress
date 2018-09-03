@@ -157,7 +157,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return string
 	 */
 	public function getCommentsFilterTableName() {
-		return $this->prefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'spambot_comments_filter_table_name' ), '_' );
 	}
 
 	/**

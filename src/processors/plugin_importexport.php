@@ -356,6 +356,6 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'importexport_cron_name' ) );
+		return $oFO->prefixOptionKey( $oFO->getDef( 'importexport_cron_name' ) );
 	}
 }

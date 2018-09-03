@@ -1939,7 +1939,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getHelpVideoId() {
-		return $this->getDefinition( 'help_video_id' );
+		return $this->getDef( 'help_video_id' );
 	}
 
 	/**

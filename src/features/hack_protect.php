@@ -200,7 +200,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function getUfcCronName() {
-		return $this->prefixOptionKey( $this->getDefinition( 'unrecognisedscan_cron_name' ) );
+		return $this->prefixOptionKey( $this->getDef( 'unrecognisedscan_cron_name' ) );
 	}
 
 	/**
