@@ -43,21 +43,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function doExtraSubmitProcessing() {
 
-		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
+		$this->clearIcSnapshots();
+		$this->clearCrons();
+		$this->cleanFileExclusions();
+		$this->cleanPtgFileExtensions();
 
-			$this->clearIcSnapshots();
-			$this->clearCrons();
-			$this->cleanFileExclusions();
-			$this->cleanPtgFileExtensions();
-
-			$oOpts = $this->getOptionsVo();
-			if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
-				/** @var ICWP_WPSF_Processor_HackProtect $oP */
-				$oP = $this->getProcessor();
-				$oP->getSubProcessorGuard()
-				   ->deleteStores();
-				$this->setPtgLastBuildAt( 0 );
-			}
+		$oOpts = $this->getOptionsVo();
+		if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
+			/** @var ICWP_WPSF_Processor_HackProtect $oP */
+			$oP = $this->getProcessor();
+			$oP->getSubProcessorGuard()
+			   ->deleteStores();
+			$this->setPtgLastBuildAt( 0 );
 		}
 	}
 

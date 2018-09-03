@@ -179,7 +179,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					break;
 
 				case 'wiz_process_step':
-					$aAjaxResponse = $this->ajaxExec_ModOptions();
 					if ( $this->canRunWizards() && $this->hasWizard() ) {
 						$aAjaxResponse = $this->getWizardHandler()
 											  ->ajaxExec_WizProcessStep();
@@ -1272,6 +1271,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function updatePluginOptionsFromSubmit() {
 		$oDp = $this->loadDP();
+
+		if ( $oDp->post( 'plugin_form_submit' ) !== 'Y' ) {
+			return;
+		}
 
 		foreach ( $this->getAllFormOptionsAndTypes() as $sOptionKey => $sOptionType ) {
 
