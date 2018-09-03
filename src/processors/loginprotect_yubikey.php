@@ -8,19 +8,11 @@ require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
-	const SECRET_LENGTH = 12;
+	const OTP_LENGTH = 12;
 	/**
 	 * @const string
 	 */
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
-
-	/**
-	 */
-	public function run() {
-		if ( $this->getIsYubikeyConfigReady() ) {
-			parent::run();
-		}
-	}
 
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
@@ -277,15 +269,6 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function getIsYubikeyConfigReady() {
-		$sAppId = $this->getOption( 'yubikey_app_id' );
-		$sApiKey = $this->getOption( 'yubikey_api_key' );
-		return !empty( $sAppId ) && !empty( $sApiKey );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getStub() {
@@ -297,15 +280,20 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @return bool
 	 */
 	protected function isSecretValid( $sSecret ) {
-		return parent::isSecretValid( $sSecret )
-			   && preg_match( sprintf( '#^[a-z]{%s},?#i', $this->getYubiOtpLength() ), $sSecret );
+		$bValid = parent::isSecretValid( $sSecret );
+		if ( $bValid ) {
+			foreach ( explode( ',', $sSecret ) as $sId ) {
+				$bValid = $bValid && preg_match( sprintf( '#^[a-z]{%s}$#', $this->getYubiOtpLength() ), $sId );
+			}
+		}
+		return $bValid;
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function getYubiOtpLength() {
-		return self::SECRET_LENGTH;
+		return self::OTP_LENGTH;
 	}
 
 	/**

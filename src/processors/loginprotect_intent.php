@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		// check for Yubikey auth after user is authenticated with WordPress.
-		if ( $this->getIsOption( 'enable_yubikey', 'Y' ) ) {
+		if ( $oFO->isYubikeyEnabled() ) {
 			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
 			$this->getProcessorYubikey()->run();
 		}

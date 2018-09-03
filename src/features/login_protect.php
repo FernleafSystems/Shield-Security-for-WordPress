@@ -509,6 +509,23 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isYubikeyEnabled() {
+		return $this->getOptIs( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isYubikeyConfigReady() {
+		$sAppId = $this->getOpt( 'yubikey_app_id' );
+		$sApiKey = $this->getOpt( 'yubikey_api_key' );
+		return !empty( $sAppId ) && !empty( $sApiKey );
+	}
+
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
