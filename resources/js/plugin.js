@@ -79,7 +79,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 				var sMessage;
-				if ( oResponse.data.message === undefined ) {
+				if ( oResponse === null || typeof oResponse.data === 'undefined'
+					|| typeof oResponse.data.message === 'undefined' ) {
 					sMessage = oResponse.success ? 'Success' : 'Failure';
 				}
 				else {

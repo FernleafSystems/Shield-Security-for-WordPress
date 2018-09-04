@@ -268,7 +268,7 @@ tr.icwp-plugin-vulnerability dd {
 	top: 0;
 	left: 0;
 	background: rgba(0, 0, 0, 0.2);
-	z-index: 999999;
+	z-index: 5000;
 }
 .icwp-waiting {
 	width: 200px;
