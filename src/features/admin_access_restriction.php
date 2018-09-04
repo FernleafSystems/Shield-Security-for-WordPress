@@ -510,7 +510,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sSummary = _wpsf__( 'Provide/Update Security Admin Access Key' );
 				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
 								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>'
-								.( $this->hasAccessKey() ? '<br/>'.sprintf( _wpsf__( 'To delete the access key, type exactly "%s" and save.' ), 'DELETE' ) : '' );
+								.( $this->hasAccessKey() ? '<br/>'.sprintf( _wpsf__( 'To delete the current security key, type exactly "%s" and save.' ), '<strong>DELETE</strong>' ) : '' );
 				break;
 
 			case 'admin_access_timeout' :

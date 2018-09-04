@@ -413,18 +413,26 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		check_ajax_referer( $sNonceAction, 'exec_nonce' );
 
 		$sAction = $this->loadWpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
-		$aResponse = apply_filters( $this->prefix( $sAction ), array() );
-		$aResponse = apply_filters( $this->prefix( 'ajaxAction' ), $aResponse );
+		ob_start();
+		$aResponseData = apply_filters( $this->prefix( $sAction ), array() );
+		$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
+		$sNoise = ob_get_clean();
 
-		if ( !empty( $aResponse ) && is_array( $aResponse ) && isset( $aResponse[ 'success' ] ) ) {
-			$bSuccess = $aResponse[ 'success' ];
-			wp_send_json(
-				array(
-					'success' => $bSuccess,
-					'data'    => $aResponse
-				)
-			);
+		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {
+			$bSuccess = $aResponseData[ 'success' ];
 		}
+		else {
+			$bSuccess = false;
+			$aResponseData = array();
+		}
+
+		wp_send_json(
+			array(
+				'success' => $bSuccess,
+				'data'    => $aResponseData,
+				'noise'   => $sNoise
+			)
+		);
 	}
 
 	/**

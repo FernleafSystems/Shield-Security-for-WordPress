@@ -172,6 +172,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
 					'help_title'        => _wpsf__( 'Help' ),
 					'help_summary'      => _wpsf__( 'Learn More' ),
+					'supply_password'   => _wpsf__( 'Supply Password' ),
+					'confirm_password'  => _wpsf__( 'Confirm Password' ),
 
 					'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
 					'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),
@@ -179,7 +181,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 					'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
 					'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
-					'aar_forget_key'               => _wpsf__( "Forgotten Key" )
+					'aar_forget_key'               => _wpsf__( "Forgotten Key" ),
 				),
 				'flags'   => array(
 					'has_session' => $this->hasSession()

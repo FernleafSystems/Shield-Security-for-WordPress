@@ -237,7 +237,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function autoupdate_translations( $bUpdate ) {
-		return $this->getIsOption( 'enable_autoupdate_translations', 'Y' );
+		return $this->getMod()->isOpt( 'enable_autoupdate_translations', 'Y' );
 	}
 
 	/**
@@ -304,7 +304,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		// first, is global auto updates for themes set
-		if ( $this->getIsOption( 'enable_autoupdate_themes', 'Y' ) ) {
+		if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
 			$this->doStatIncrement( 'autoupdates.themes.all' );
 			return true;
 		}

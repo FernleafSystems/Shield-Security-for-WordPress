@@ -209,7 +209,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function interceptCanonicalRedirects() {
 
-		if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
 			$sAuthor = $this->loadDP()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
 				$this->loadWp()->wpDie( sprintf(

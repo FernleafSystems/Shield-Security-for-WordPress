@@ -172,17 +172,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
-	 * @param string  $sKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
-	 * @return bool
-	 */
-	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
-		return $this->getMod()->isOpt( $sKey, $mValueToTest, $bStrict );
-	}
-
-	/**
 	 * We don't handle locale derivatives (yet)
 	 * @return string
 	 */
@@ -260,5 +249,16 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function time() {
 		return $this->loadDP()->time();
+	}
+
+	/**
+	 * @deprecated
+	 * @param string  $sKey
+	 * @param mixed   $mValueToTest
+	 * @param boolean $bStrict
+	 * @return bool
+	 */
+	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
+		return $this->getMod()->isOpt( $sKey, $mValueToTest, $bStrict );
 	}
 }

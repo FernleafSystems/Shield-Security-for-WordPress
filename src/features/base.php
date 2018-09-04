@@ -1143,20 +1143,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function ajaxExec_ModOptions() {
 
-		$oCon = self::getConn();
-		$bSuccess = false;
-		$sName = $oCon->getHumanName();
-		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
+		$sName = self::getConn()->getHumanName();
 
-		if ( $oCon->isValidAdminArea() ) {
-			$bSuccess = $this->saveOptionsSubmit();
-			if ( $bSuccess ) {
-				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
-			}
+		try {
+			$this->saveOptionsSubmit();
+			$bSuccess = true;
+			$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
 		}
-		else {
-			$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
+		catch ( Exception $oE ) {
+			$bSuccess = false;
+			$sMessage = sprintf( _wpsf__( 'Failed to update %s plugin options.' ), $sName )
+						.' '.$oE->getMessage();
 		}
+//		$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
 
 		try {
 			$sForm = $this->renderOptionsForm();
@@ -1175,28 +1174,28 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function handleOptionsSubmit() {
-		$bVerified = $this->verifyFormSubmit();
-		if ( $bVerified ) {
-			$this->saveOptionsSubmit();
-			$this->setSaveUserResponse();
+		$bSuccess = $this->verifyFormSubmit();
+		if ( $bSuccess ) {
+			try {
+				$this->saveOptionsSubmit();
+				$this->setSaveUserResponse();
+			}
+			catch ( Exception $oE ) {
+				$bSuccess = false;
+			}
 		}
-		return $bVerified;
+		return $bSuccess;
 	}
 
 	/**
-	 * @return bool
+	 * @throws Exception
 	 */
 	protected function saveOptionsSubmit() {
-		$bSuccess = true;
-		if ( self::getConn()->getHasPermissionToManage() ) {
-			$this->doSaveStandardOptions();
-			$this->doExtraSubmitProcessing();
+		if ( !self::getConn()->getHasPermissionToManage() ) {
+			throw new Exception( _wpsf__( "You don't currently have permission to save settings." ) );
 		}
-		else {
-//			TODO: manage how we react to prohibited submissions
-			$bSuccess = false;
-		}
-		return $bSuccess;
+		$this->doSaveStandardOptions();
+		$this->doExtraSubmitProcessing();
 	}
 
 	protected function verifyFormSubmit() {
@@ -1210,7 +1209,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return void
+	 * @throws Exception
 	 */
 	protected function doSaveStandardOptions() {
 		$this->updatePluginOptionsFromSubmit();
@@ -1270,7 +1269,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return void
+	 * @throws Exception
 	 */
 	protected function updatePluginOptionsFromSubmit() {
 		$oDp = $this->loadDP();
@@ -1310,6 +1309,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					if ( empty( $sTempValue ) ) {
 						continue;
 					}
+
+					$sConfirm = trim( (string)$oDp->post( $sOptionKey.'_confirm', '' ) );
+					if ( $sTempValue !== $sConfirm ) {
+						throw new Exception( _wpsf__( 'Password values do not match.' ) );
+					}
+
 					$sOptionValue = md5( $sTempValue );
 				}
 				else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
@@ -1904,6 +1909,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		return $aOptions;
 	}
+
 	/**
 	 * @return bool
 	 */

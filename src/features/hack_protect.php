@@ -10,13 +10,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	protected function doPostConstruction() {
 		$this->setCustomCronSchedules();
-		$this->canPtgWriteToDisk();
-	}
-
-	public function doPrePluginOptionsSave() {
-		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
-			$this->setOpt( 'ptg_candiskwrite_at', 0 );
-		}
 	}
 
 	/**
@@ -56,6 +49,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			   ->deleteStores();
 			$this->setPtgLastBuildAt( 0 );
 		}
+
+		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 	}
 
 	protected function clearCrons() {
