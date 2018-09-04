@@ -215,10 +215,14 @@
 								<?php elseif ( $sOptType == 'password' ) : ?>
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
-									<input type="password" name="<?php echo $sOptKey; ?>"
-										   id="<?php echo $sOptKey; ?>"
-										   value="<?php echo $mOptValue; ?>"
-										   placeholder="<?php echo $mOptValue; ?>"
+									<input type="password" name="<?php echo $sOptKey; ?>" class="col"
+										   id="<?php echo $sOptKey; ?>" value="<?php echo $mOptValue; ?>"
+										   placeholder="<?php echo $strings[ 'supply_password' ]; ?>"
+										   style="margin-bottom: 5px"
+										<?php echo $sDisabledText; ?> />
+
+									<input type="password" name="<?php echo $sOptKey; ?>_confirm" class="col"
+										   placeholder="<?php echo $strings[ 'confirm_password' ]; ?>"
 										<?php echo $sDisabledText; ?> />
 
 								<?php elseif ( $sOptType == 'email' ) : ?>

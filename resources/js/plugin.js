@@ -90,7 +90,9 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 		).always( function () {
 				bRequestCurrentlyRunning = false;
-				location.reload( true );
+				setTimeout( function () {
+					location.reload( true );
+				}, 2000 );
 			}
 		);
 	};
