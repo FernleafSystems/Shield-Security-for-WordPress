@@ -61,6 +61,10 @@
       "default": [ "logged_in", "cron", "search", "uptime" ],
       "value_options": [
         {
+          "value_key": "simple",
+          "text": "Simple Requests"
+        },
+        {
           "value_key": "api",
           "text": "REST API"
         },
@@ -119,7 +123,6 @@
       "key": "auto_disable",
       "section": "section_traffic_options",
       "default": "N",
-      "min": 0,
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",

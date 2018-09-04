@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->getIsGoogleRecaptchaReady() ) {
+		if ( !$oFO->isGoogleRecaptchaReady() ) {
 			return;
 		}
 		parent::run();

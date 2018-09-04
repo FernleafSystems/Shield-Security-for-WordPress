@@ -47,11 +47,11 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'auto_update_theme', array( $this, 'autoupdate_themes' ), $nFilterPriority, 2 );
 		add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), $nFilterPriority, 2 );
 
-		if ( $this->getIsOption( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
+		if ( $oFO->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
 			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
 		}
 
-		if ( $this->getIsOption( 'enable_autoupdate_disable_all', 'Y' ) ) {
+		if ( $oFO->isOpt( 'enable_autoupdate_disable_all', 'Y' ) ) {
 			add_filter( 'automatic_updater_disabled', '__return_true', $nFilterPriority );
 		}
 
@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->loadWp()->doForceRunAutomaticUpdates();
 		}
 
-		if ( $oFO->isAutoupdateIndividualPlugins() && $oFO->getConn()->getIsValidAdminArea() ) {
+		if ( $oFO->isAutoupdateIndividualPlugins() && $oFO->getConn()->isValidAdminArea() ) {
 			// Adds automatic update indicator column to all plugins in plugin listing.
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
 		}
@@ -195,11 +195,11 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( !$oFO->isDelayUpdates() ) {
-			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
+			if ( $oFO->isOpt( 'autoupdate_core', 'core_never' ) ) {
 				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
 				$bUpdate = false;
 			}
-			else if ( $this->getIsOption( 'autoupdate_core', 'core_major' ) ) {
+			else if ( $oFO->isOpt( 'autoupdate_core', 'core_major' ) ) {
 				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
 				$bUpdate = true;
 			}
@@ -218,11 +218,11 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( !$oFO->isDelayUpdates() ) {
-			if ( $this->getIsOption( 'autoupdate_core', 'core_never' ) ) {
+			if ( $oFO->isOpt( 'autoupdate_core', 'core_never' ) ) {
 				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
 				$bUpdate = false;
 			}
-			else if ( $this->getIsOption( 'autoupdate_core', 'core_minor' ) ) {
+			else if ( $oFO->isOpt( 'autoupdate_core', 'core_minor' ) ) {
 				$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
 				$bUpdate = true;
 			}
@@ -276,7 +276,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		// If it's this plugin and autoupdate this plugin is set...
 		if ( $sFile === $oFO->getConn()->getPluginBaseFile() ) {
 			$bDoAutoUpdate = true;
-			if ( $this->loadWp()->getIsRunningAutomaticUpdates() ) {
+			if ( $this->loadWp()->isRunningAutomaticUpdates() ) {
 				$this->doStatIncrement( 'autoupdates.plugins.self' );
 			}
 		}

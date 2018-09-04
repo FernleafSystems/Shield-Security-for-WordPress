@@ -21,11 +21,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 		add_filter( $oFO->prefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 
-		if ( !$oFO->getIsUpgrading() && !$oWp->isRequestUserLogin() ) {
+		if ( !$oFO->isUpgrading() && !$oWp->isRequestUserLogin() ) {
 			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 		}
 
-		if ( $oFO->getOptIs( 'admin_access_restrict_admin_users', 'Y' ) ) {
+		if ( $oFO->isOpt( 'admin_access_restrict_admin_users', 'Y' ) ) {
 			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 0, 3 );
 			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 0, 1 );
 		}
@@ -156,7 +156,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 			if ( $oPostUser instanceof WP_User ) {
 				// editing an existing user other than yourself?
-				if ( $oPostUser->get( 'user_login' ) != $oWpUsers->getCurrentWpUser()->get( 'user_login' ) ) {
+				if ( $oPostUser->user_login != $oWpUsers->getCurrentWpUser()->user_login ) {
 
 					if ( $oWpUsers->isUserAdmin( $oPostUser ) || ( $sRequestRole == 'administrator' ) ) {
 						$bBlockCapability = true;

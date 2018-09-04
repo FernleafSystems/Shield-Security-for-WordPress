@@ -357,9 +357,10 @@ You will always be able to use Shield Security and its free features in-full.
 *Released: 5th September, 2018* - [Release Notes](https://icwp.io/dc)
 
 * **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
+* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
 * **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
 * **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
-* **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
 * **(v.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
 * **(v.0)**  CHANGED:	Password Policies now requires minimum WordPress v4.4.
 * **(v.0)**  IMPROVED:	Password expiration now redirects to the 'set password' screen, instead of the user profile.

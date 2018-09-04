@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->getOptIs( 'disable_file_editing', 'Y' ) ) {
+		if ( $oFO->isOpt( 'disable_file_editing', 'Y' ) ) {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
@@ -33,23 +33,23 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_action( 'init', array( $this, 'resetAuthKeysSalts' ), 1 );
 		}
 
-		if ( $oFO->getOptIs( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
+		if ( $oFO->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );
 			}
 			force_ssl_admin( true );
 		}
 
-		if ( $oFO->getOptIs( 'hide_wordpress_generator_tag', 'Y' ) ) {
+		if ( $oFO->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $oFO->getOptIs( 'block_author_discovery', 'Y' ) ) {
+		if ( $oFO->isOpt( 'block_author_discovery', 'Y' ) ) {
 			// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
 			add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 		}
 
-		if ( $oFO->getOptIs( 'disable_xmlrpc', 'Y' ) ) {
+		if ( $oFO->isOpt( 'disable_xmlrpc', 'Y' ) ) {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}

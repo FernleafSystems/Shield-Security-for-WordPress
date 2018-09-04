@@ -57,7 +57,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	public function getIsAutoBlackListFeatureEnabled() {
+	public function isAutoBlackListFeatureEnabled() {
 		return ( $this->getOptTransgressionLimit() > 0 );
 	}
 
@@ -138,7 +138,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return bool
 	 */
 	public function is404Tracking() {
-		return !$this->getOptIs( 'track_404', 'disabled' );
+		return !$this->isOpt( 'track_404', 'disabled' );
 	}
 
 	/**

@@ -124,7 +124,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			$nMenuPriority = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 			add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPriority );
-			add_filter( $this->prefix( 'collect_module_summary_data' ), array( $this, 'addModuleSummaryData' ), $nMenuPriority );
+			add_filter( $this->prefix( 'collect_module_summary_data' ), array(
+				$this,
+				'addModuleSummaryData'
+			), $nMenuPriority );
 			add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
@@ -139,7 +142,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
 			}
 
-			if ( $this->getIsUpgrading() ) {
+			if ( $this->isUpgrading() ) {
 				$this->updateHandler();
 			}
 
@@ -350,7 +353,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onLoadOptionsScreen() {
-		if ( $this->getConn()->getIsValidAdminArea() ) {
+		if ( $this->getConn()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
 		}
 	}
@@ -418,7 +421,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getIsUpgrading() {
+	public function isUpgrading() {
 //			return $this->getVersion() != self::getController()->getVersion();
 		return self::getConn()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
 	}
@@ -501,8 +504,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function isModuleEnabled() {
 		$oOpts = $this->getOptionsVo();
 
-		$bEnabled = $this->getOptIs( 'enable_'.$this->getSlug(), 'Y' )
-					|| $this->getOptIs( 'enable_'.$this->getSlug(), true, true );
+		$bEnabled = $this->isOpt( 'enable_'.$this->getSlug(), 'Y' )
+					|| $this->isOpt( 'enable_'.$this->getSlug(), true, true );
 
 		if ( $this->isAutoEnabled() ) {
 			$bEnabled = true;
@@ -758,7 +761,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param boolean $bStrict
 	 * @return bool
 	 */
-	public function getOptIs( $sOptionKey, $mValueToTest, $bStrict = false ) {
+	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
 		$mOptionValue = $this->getOptionsVo()->getOpt( $sOptionKey );
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
@@ -1145,7 +1148,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$sName = $oCon->getHumanName();
 		$sMessage = sprintf( _wpsf__( 'Failed up to update %s plugin options.' ), $sName );
 
-		if ( $oCon->getIsValidAdminArea() ) {
+		if ( $oCon->isValidAdminArea() ) {
 			$bSuccess = $this->saveOptionsSubmit();
 			if ( $bSuccess ) {
 				$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
@@ -1883,11 +1886,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $aData;
 	}
 
-	/** Help Video options */
-
 	/**
 	 * @return array
 	 */
+
+	/** Help Video options */
+
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', array() );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
@@ -1900,7 +1904,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		return $aOptions;
 	}
-
 	/**
 	 * @return bool
 	 */
@@ -2041,5 +2044,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getVersion() {
 		$sVersion = $this->getOpt( self::PluginVersionKey );
 		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
+	}
+
+	/**
+	 * @deprecated
+	 * @param string  $sOptionKey
+	 * @param mixed   $mValueToTest
+	 * @param boolean $bStrict
+	 * @return bool
+	 */
+	public function getOptIs( $sOptionKey, $mValueToTest, $bStrict = false ) {
+		return $this->isOpt( $sOptionKey, $mValueToTest, $bStrict );
 	}
 }

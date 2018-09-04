@@ -85,7 +85,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function doPrePluginOptionsSave() {
 		// TODO: remove as it's a temporary transition for clashing options
-		if ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) ) {
+		if ( $this->isOpt( 'enable_google_recaptcha', 'Y' ) ) {
 			$this->setOpt( 'enable_google_recaptcha_comments', 'Y' );
 		}
 	}
@@ -149,8 +149,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function getIsGoogleRecaptchaEnabled() {
-		return ( $this->getOptIs( 'enable_google_recaptcha_comments', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+	public function isGoogleRecaptchaEnabled() {
+		return ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isGoogleRecaptchaReady() );
 	}
 
 	/**
@@ -164,7 +164,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->getOptIs( 'enable_comments_gasp_protection', 'Y' );
+		return $this->isOpt( 'enable_comments_gasp_protection', 'Y' );
 	}
 
 	/**

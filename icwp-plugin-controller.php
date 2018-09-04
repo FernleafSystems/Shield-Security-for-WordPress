@@ -326,7 +326,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpLoaded() {
-		if ( $this->getIsValidAdminArea() ) {
+		if ( $this->isValidAdminArea() ) {
 			$this->doPluginFormSubmit();
 			$this->downloadOptionsExport();
 		}
@@ -342,7 +342,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpAdminMenu() {
-		if ( $this->getIsValidAdminArea() ) {
+		if ( $this->isValidAdminArea() ) {
 			$this->createPluginMenu();
 		}
 	}
@@ -350,7 +350,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpDashboardSetup() {
-		if ( $this->getIsValidAdminArea() ) {
+		if ( $this->isValidAdminArea() ) {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
@@ -555,7 +555,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpPluginActionLinks( $aActionLinks ) {
 
-		if ( $this->getIsValidAdminArea() ) {
+		if ( $this->isValidAdminArea() ) {
 
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( is_array( $aLinksToAdd ) ) {
@@ -618,7 +618,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpEnqueueAdminJs() {
 		$sVers = $this->getVersion();
 
-		if ( $this->getIsValidAdminArea() ) {
+		if ( $this->isValidAdminArea() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDep = false;
@@ -663,7 +663,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	public function onWpEnqueueAdminCss() {
 
-		if ( $this->getIsValidAdminArea() ) {
+		if ( $this->isValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
 			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
@@ -768,7 +768,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 			$oConOptions = $this->getPluginControllerOptions();
 
-			if ( !$oWp->getIsRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
+			if ( !$oWp->isRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
 				$sAutoupdateSpec = 'yes'; // so that we appear to be automatically updating
 			}
 
@@ -929,7 +929,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function doPluginFormSubmit() {
-		if ( !$this->getIsPluginFormSubmit() ) {
+		if ( !$this->isPluginFormSubmit() ) {
 			return false;
 		}
 
@@ -1054,7 +1054,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @param bool $bCheckUserPerms - do we check the logged-in user permissions
 	 * @return bool
 	 */
-	public function getIsValidAdminArea( $bCheckUserPerms = true ) {
+	public function isValidAdminArea( $bCheckUserPerms = true ) {
 		if ( $bCheckUserPerms && $this->loadWpTrack()->getWpActionHasFired( 'init' )
 			 && !$this->getMeetsBasePermissions() ) {
 			return false;
@@ -1098,7 +1098,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	public function getIsLoggingEnabled() {
+	public function isLoggingEnabled() {
 		return $this->getPluginSpec_Property( 'logging_enabled' );
 	}
 
@@ -1119,7 +1119,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function getIsPluginFormSubmit() {
+	protected function isPluginFormSubmit() {
 		if ( $this->loadWp()->isAjax() || ( empty( $_POST ) && empty( $_GET ) ) ) {
 			return false;
 		}
@@ -1523,7 +1523,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function deactivateSelf() {
-		if ( $this->getIsValidAdminArea() && function_exists( 'deactivate_plugins' ) ) {
+		if ( $this->isValidAdminArea() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
 		}
 	}
@@ -1658,7 +1658,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$bSuccess = true;
 			}
 			catch ( Exception $oE ) {
-				if ( $this->getIsValidAdminArea() ) {
+				if ( $this->isValidAdminArea() ) {
 					$this->sAdminNoticeError = $oE->getMessage();
 					add_action( 'admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );
 					add_action( 'network_admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );

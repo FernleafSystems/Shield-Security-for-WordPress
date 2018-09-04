@@ -122,7 +122,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	public function isAutoDisable() {
-		return $this->getOptIs( 'auto_disable', 'Y' );
+		return $this->isOpt( 'auto_disable', 'Y' );
 	}
 
 	/**
@@ -151,6 +151,13 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function isIncluded_Search() {
 		return !in_array( 'search', $this->getExclusions() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncluded_Simple() {
+		return !in_array( 'simple', $this->getExclusions() );
 	}
 
 	/**

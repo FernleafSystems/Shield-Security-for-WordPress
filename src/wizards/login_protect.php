@@ -191,7 +191,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$aStepsSlugs = array( 'start' );
 
-		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->getIsEmailAuthenticationEnabled() ) {
+		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->isEmailAuthenticationActive() ) {
 			$aStepsSlugs[] = 'authemail';
 		}
 

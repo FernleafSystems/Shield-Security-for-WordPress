@@ -167,7 +167,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @param boolean $bSecure
 	 * @return boolean
 	 */
-	public function getIsUrlValid( $sUrl, $bSecure = false ) {
+	public function isUrlLive( $sUrl, $bSecure = false ) {
 		$sSchema = $bSecure ? 'https://' : 'http://';
 		$sUrl = ( strpos( $sUrl, 'http' ) !== 0 ) ? $sSchema.$sUrl : $sUrl;
 		return ( $this->getUrl( $sUrl ) != false );

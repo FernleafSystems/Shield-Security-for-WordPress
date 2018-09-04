@@ -11,15 +11,15 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return boolean
 	 */
-	public function getIsContentSecurityPolicyEnabled() {
-		return $this->getOptIs( 'enable_x_content_security_policy', 'Y' );
+	public function isContentSecurityPolicyEnabled() {
+		return $this->isOpt( 'enable_x_content_security_policy', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isReferrerPolicyEnabled() {
-		return !$this->getOptIs( 'x_referrer_policy', 'disabled' );
+		return !$this->isOpt( 'x_referrer_policy', 'disabled' );
 	}
 
 	/**

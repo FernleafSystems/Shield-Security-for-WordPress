@@ -161,7 +161,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function getAdminAccessArea_Options() {
-		return $this->getOptIs( 'admin_access_restrict_options', 'Y' );
+		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
 	}
 
 	/**
@@ -348,14 +348,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isWlEnabled() {
-		return $this->getOptIs( 'whitelabel_enable', 'Y' ) && $this->isPremium();
+		return $this->isOpt( 'whitelabel_enable', 'Y' ) && $this->isPremium();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isWlHideUpdates() {
-		return $this->isWlEnabled() && $this->getOptIs( 'wl_hide_updates', 'Y' );
+		return $this->isWlEnabled() && $this->isOpt( 'wl_hide_updates', 'Y' );
 	}
 
 	/**

@@ -111,7 +111,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function setContentSecurityPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->getIsContentSecurityPolicyEnabled() ) {
+		if ( !$oFO->isContentSecurityPolicyEnabled() ) {
 			return null;
 		}
 
@@ -119,19 +119,19 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aDefaultSrcDirectives = array();
 
-		if ( $oFO->getOptIs( 'xcsp_self', 'Y' ) ) {
+		if ( $oFO->isOpt( 'xcsp_self', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'self'";
 		}
-		if ( $oFO->getOptIs( 'xcsp_data', 'Y' ) ) {
+		if ( $oFO->isOpt( 'xcsp_data', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "data:";
 		}
-		if ( $oFO->getOptIs( 'xcsp_inline', 'Y' ) ) {
+		if ( $oFO->isOpt( 'xcsp_inline', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'unsafe-inline'";
 		}
-		if ( $oFO->getOptIs( 'xcsp_eval', 'Y' ) ) {
+		if ( $oFO->isOpt( 'xcsp_eval', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'unsafe-eval'";
 		}
-		if ( $oFO->getOptIs( 'xcsp_https', 'Y' ) ) {
+		if ( $oFO->isOpt( 'xcsp_https', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "https:";
 		}
 
@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->addHeader( $this->setXFrameHeader() );
 		$this->addHeader( $this->setXssProtectionHeader() );
 		$this->addHeader( $this->setContentTypeOptionHeader() );
-		if ( $oFO->getIsContentSecurityPolicyEnabled() ) {
+		if ( $oFO->isContentSecurityPolicyEnabled() ) {
 			$this->addHeader( $this->setContentSecurityPolicyHeader() );
 		}
 		return $this->getHeaders();

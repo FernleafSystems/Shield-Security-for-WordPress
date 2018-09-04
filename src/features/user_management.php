@@ -138,8 +138,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * Currently no distinction between the module and user sessions.
 	 * @return bool
 	 */
-	public function getIsUserSessionsManagementEnabled() {
-		return $this->getOptIs( 'enable_user_management', 'Y' )
+	public function isUserSessionsManagementEnabled() {
+		return $this->isOpt( 'enable_user_management', 'Y' )
 			   && $this->getSessionsProcessor()->getTableExists();
 	}
 
@@ -187,7 +187,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isSendUserEmailLoginNotification() {
-		return $this->isPremium() && $this->getOptIs( 'enable_user_login_email_notification', 'Y' );
+		return $this->isPremium() && $this->isOpt( 'enable_user_login_email_notification', 'Y' );
 	}
 
 	/**
@@ -237,7 +237,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isPasswordPoliciesEnabled() {
-		return $this->getOptIs( 'enable_password_policies', 'Y' )
+		return $this->isOpt( 'enable_password_policies', 'Y' )
 			   && $this->getOptionsVo()->isOptReqsMet( 'enable_password_policies' );
 	}
 
@@ -245,14 +245,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isPassForceUpdateExisting() {
-		return $this->getOptIs( 'pass_force_existing', 'Y' );
+		return $this->isOpt( 'pass_force_existing', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isPassPreventPwned() {
-		return $this->getOptIs( 'pass_prevent_pwned', 'Y' );
+		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
 	/**

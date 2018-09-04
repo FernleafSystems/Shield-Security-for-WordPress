@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getController()->getIsValidAdminArea() ) {
+		if ( $this->getController()->isValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
 		$this->setupTestCron();
@@ -118,7 +118,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 */
 	public function dumpTrackingData() {
-		if ( $this->getController()->getIsValidAdminArea() ) {
+		if ( $this->getController()->isValidAdminArea() ) {
 			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
 																	  ->collectTrackingData(), true ) );
 			die();
@@ -131,7 +131,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 
-		if ( !$this->getController()->getIsValidAdminArea() ) {
+		if ( !$this->getController()->isValidAdminArea() ) {
 			return;
 		}
 

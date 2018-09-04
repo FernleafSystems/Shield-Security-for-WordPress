@@ -101,7 +101,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @param bool $bSlugsOnly
 	 * @return string[]|array[]
 	 */
-	public function getUserRoles( $bSlugsOnly = true ) {
+	public function getAvailableUserRoles( $bSlugsOnly = true ) {
 		require_once( ABSPATH.'wp-admin/includes/user.php' );
 		return $bSlugsOnly ? array_keys( get_editable_roles() ) : get_editable_roles();
 	}
@@ -329,15 +329,13 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	public function setUserLoggedIn( $sUsername ) {
 
 		$oUser = $this->getUserByUsername( $sUsername );
-		if ( !( $oUser instanceof WP_User ) ) {
-			return false;
+		$bSuccess = $oUser instanceof WP_User;
+		if ( $bSuccess ) {
+			wp_clear_auth_cookie();
+			wp_set_current_user( $oUser->ID, $oUser->user_login );
+			wp_set_auth_cookie( $oUser->ID, true );
+			do_action( 'wp_login', $oUser->user_login, $oUser );
 		}
-
-		wp_clear_auth_cookie();
-		wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
-		wp_set_auth_cookie( $oUser->ID, true );
-		do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
-
-		return true;
+		return $bSuccess;
 	}
 }

@@ -328,10 +328,6 @@
       "section":       "section_non_ui"
     },
     {
-      "key":         "enable_user_register_checking",
-      "section":     "section_non_ui"
-    },
-    {
       "key":         "enable_yubikey",
       "section":     "section_yubikey_authentication",
       "default":     "N",

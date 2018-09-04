@@ -55,33 +55,26 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	protected function setupLoginIntent() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$oWpUsers = $this->loadWpUsers();
-
-		$oLoginTracker = $this->getLoginTrack();
 
 		if ( $oFO->getIsEnabledGoogleAuthenticator() ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Google_Authenticator );
 			$this->getProcessorGoogleAuthenticator()->run();
 		}
 
-		if ( $oFO->getIsEmailAuthenticationEnabled() ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Email );
+		if ( $oFO->isEmailAuthenticationActive() ) {
 			$this->getProcessorTwoFactor()->run();
 		}
 
-		// check for Yubikey auth after user is authenticated with WordPress.
-		if ( $oFO->isYubikeyEnabled() ) {
-			$oLoginTracker->addFactorToTrack( ICWP_WPSF_Processor_LoginProtect_Track::Factor_Yubikey );
+		if ( $oFO->isYubikeyActive() ) {
 			$this->getProcessorYubikey()->run();
 		}
 
-		if ( $oLoginTracker->hasFactorsRemainingToTrack() ) {
+		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
 			if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
 				add_filter( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
 			}
 
 			// process the current login intent
-			if ( $oWpUsers->isUserLoggedIn() ) {
+			if ( $this->loadWpUsers()->isUserLoggedIn() ) {
 				if ( $this->isUserSubjectToLoginIntent() ) {
 					$this->processLoginIntent();
 				}
@@ -115,7 +108,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					return;
 				}
 
-				if ( $this->getIsLoginIntentValid() ) {
+				if ( $this->isLoginIntentValid() ) {
 
 					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
@@ -364,7 +357,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * assume that a user is logged in.
 	 * @return bool
 	 */
-	private function getIsLoginIntentValid() {
+	private function isLoginIntentValid() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		if ( !$this->isLoginIntentProcessed() ) {
