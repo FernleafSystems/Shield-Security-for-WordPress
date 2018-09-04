@@ -156,6 +156,13 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return bool
 	 */
+	public function isIncluded_Simple() {
+		return !in_array( 'simple', $this->getExclusions() );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isIncluded_Uptime() {
 		return !in_array( 'uptime', $this->getExclusions() );
 	}

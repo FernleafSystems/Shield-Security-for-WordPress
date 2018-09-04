@@ -61,6 +61,10 @@
       "default": [ "logged_in", "cron", "search", "uptime" ],
       "value_options": [
         {
+          "value_key": "simple",
+          "text": "Simple Requests"
+        },
+        {
           "value_key": "api",
           "text": "REST API"
         },
