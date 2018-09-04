@@ -67,7 +67,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
 			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
-				 && $aAttrs[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
+				 && $aAttrs[ 'valid_admin' ] && $oCon->isValidAdminArea() ) {
 
 				$aAttrs[ 'id' ] = $sNoticeId;
 				$aAttrs[ 'notice_id' ] = $sNoticeId;
@@ -99,7 +99,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo' ) {
-			if ( $this->loadWp()->getIsMobile() ) {
+			if ( $this->loadWp()->isMobile() ) {
 				return false;
 			}
 		}
@@ -172,14 +172,14 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @deprecated
 	 * @param string  $sKey
 	 * @param mixed   $mValueToTest
 	 * @param boolean $bStrict
 	 * @return bool
 	 */
 	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
-		$mOptionValue = $this->getOption( $sKey );
-		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
+		return $this->getMod()->isOpt( $sKey, $mValueToTest, $bStrict );
 	}
 
 	/**

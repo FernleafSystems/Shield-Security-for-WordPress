@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		// TODO: are we calling is_super_admin() too early?
-		if ( $bPerformScan && $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
+		if ( $bPerformScan && $this->getMod()->isOpt( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
 //				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
@@ -104,30 +104,32 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean - true if visitor is permitted, false if it should be blocked.
 	 */
 	protected function isVisitorRequestPermitted() {
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
 
 		$bRequestIsPermitted = true;
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_dir_traversal', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_sql_queries', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_sql_queries', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_wordpress_terms', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_wordpress_terms', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_field_truncation', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_field_truncation', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_php_code', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_leading_schema', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_aggressive', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_aggressive', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 		}
 		return $bRequestIsPermitted;
@@ -275,7 +277,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 					break;
 			}
 
-			if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
+			if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
 
 				$sRecipient = $oFO->getPluginDefaultRecipientAddress();
 				if ( $this->sendBlockEmail( $sRecipient ) ) {
@@ -417,6 +419,9 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		return $this->aRawRequestParams;
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getWhitelistPages() {
 		if ( !isset( $this->aWhitelistPages ) ) {
 

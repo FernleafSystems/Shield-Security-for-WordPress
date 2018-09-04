@@ -238,7 +238,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 * @return bool
 	 */
 	protected function isLockToIp() {
-		return $this->getMod()->getOptIs( 'session_lock_location', 'Y' );
+		return $this->getMod()->isOpt( 'session_lock_location', 'Y' );
 	}
 
 	/**

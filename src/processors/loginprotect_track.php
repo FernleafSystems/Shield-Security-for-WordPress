@@ -61,10 +61,10 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	 * @return array
 	 */
 	public function getAuthFactorsToTrack() {
-		if ( !isset( $this->aFactorsToTrack ) ) {
+		if ( !is_array( $this->aFactorsToTrack ) ) {
 			$this->aFactorsToTrack = array();
 		}
-		return $this->aFactorsToTrack;
+		return array_unique( $this->aFactorsToTrack );
 	}
 
 	/**

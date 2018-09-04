@@ -19,6 +19,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
+		$this->getLoginTrack()->addFactorToTrack( $this->getStub() );
+
 		if ( $oFO->getIfUseLoginIntentPage() ) {
 			add_filter( $oFO->prefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
 			add_action( $oFO->prefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
@@ -34,7 +36,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 
-		if ( $this->getController()->getIsValidAdminArea( true ) ) {
+		if ( $this->getController()->isValidAdminArea( true ) ) {
 			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserProfile' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 		}

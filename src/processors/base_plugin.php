@@ -14,7 +14,9 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		parent::init();
 		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
-		add_filter( $oFO->prefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
+
+		$sFunc = $oFO->isOpt( 'delete_on_deactivate', 'Y' ) ? '__return_true' : '__return_false';
+		add_filter( $oFO->prefix( 'delete_on_deactivate' ), $sFunc );
 	}
 
 	/**
@@ -199,13 +201,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function getIsDeleteOnDeactivate() {
-		return $this->getMod()->getOptIs( 'delete_on_deactivate', 'Y' );
-	}
-
-	/**
 	 * @param bool $bShow
 	 * @return bool
 	 */
@@ -232,6 +227,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	protected function getIfShowAdminNotices() {
-		return $this->getMod()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
+		return $this->getMod()->isOpt( 'enable_upgrade_admin_notice', 'Y' );
 	}
 }

@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return bool
 	 */
 	public function isRestApiAnonymousAccessAllowed() {
-		return $this->getOptIs( 'disable_anonymous_restapi', 'N' );
+		return $this->isOpt( 'disable_anonymous_restapi', 'N' );
 	}
 
 	/**

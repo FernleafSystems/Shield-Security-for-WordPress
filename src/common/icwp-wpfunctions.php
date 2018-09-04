@@ -91,7 +91,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getIsRunningAutomaticUpdates() {
+	public function isRunningAutomaticUpdates() {
 		return ( get_option( 'auto_updater.lock' ) ? true : false );
 	}
 
@@ -547,7 +547,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param string
 	 * @return string
 	 */
-	public function getIsCurrentPage( $sPage ) {
+	public function isCurrentPage( $sPage ) {
 		return $sPage == $this->getCurrentPage();
 	}
 
@@ -556,7 +556,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getIsPage_Updates() {
-		return $this->getIsCurrentPage( 'update.php' );
+		return $this->isCurrentPage( 'update.php' );
 	}
 
 	/**
@@ -681,14 +681,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return boolean
 	 */
-	public function getIsXmlrpc() {
+	public function isXmlrpc() {
 		return defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function getIsMobile() {
+	public function isMobile() {
 		return function_exists( 'wp_is_mobile' ) && wp_is_mobile();
 	}
 

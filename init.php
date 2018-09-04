@@ -56,7 +56,7 @@ class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpPluginActionLinks( $aActionLinks, $sPluginFile ) {
 		$oCon = $this->getController();
-		if ( !$oCon->getIsValidAdminArea() ) {
+		if ( !$oCon->isValidAdminArea() ) {
 			return $aActionLinks;
 		}
 

@@ -204,7 +204,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @param string
 	 * @return boolean
 	 */
-	public function getIsValidOptionKey( $sOptionKey ) {
+	public function isValidOptionKey( $sOptionKey ) {
 		return in_array( $sOptionKey, $this->getOptionsKeys() );
 	}
 
@@ -399,7 +399,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getOpt( $sOptionKey, $mDefault = false ) {
 		$aOptionsValues = $this->getAllOptionsValues();
-		if ( !isset( $aOptionsValues[ $sOptionKey ] ) && $this->getIsValidOptionKey( $sOptionKey ) ) {
+		if ( !isset( $aOptionsValues[ $sOptionKey ] ) && $this->isValidOptionKey( $sOptionKey ) ) {
 			$this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey, $mDefault ) );
 		}
 		return isset( $this->aOptionsValues[ $sOptionKey ] ) ? $this->aOptionsValues[ $sOptionKey ] : $mDefault;

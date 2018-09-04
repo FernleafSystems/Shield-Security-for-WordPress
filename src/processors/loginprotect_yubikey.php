@@ -315,7 +315,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		}
 
 		$oError = new WP_Error();
-		$sUsername = $oUser->get( 'user_login' );
+		$sUsername = $oUser->user_login;
 
 		$sOneTimePassword = $this->fetchCodeFromRequest();
 //			$sApiKey = $this->getOption('yubikey_api_key');

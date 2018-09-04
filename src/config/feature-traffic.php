@@ -123,7 +123,6 @@
       "key": "auto_disable",
       "section": "section_traffic_options",
       "default": "N",
-      "min": 0,
       "type": "checkbox",
       "link_info": "",
       "link_blog": "",

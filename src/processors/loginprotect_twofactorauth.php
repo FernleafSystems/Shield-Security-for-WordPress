@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
-		return ( $oFO->getIsEmailAuthenticationEnabled() && $this->getIsUserSubjectToEmailAuthentication( $oUser ) );
+		return ( $oFO->isEmailAuthenticationActive() && $this->isSubjectToEmailAuthentication( $oUser ) );
 	}
 
 	/**
@@ -157,8 +157,8 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSessionHashCode() ) ),
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
-			sprintf( _wpsf__( 'URL: %s' ), $oWp->getHomeUrl() ),
-			sprintf( _wpsf__( 'Username: %s' ), $oUser->get( 'user_login' ) ),
+			sprintf( '%s: %s', _wpsf__( 'URL' ), $oWp->getHomeUrl() ),
+			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
 			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
 			'',
 		);
@@ -173,11 +173,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$bResult = $this->getEmailProcessor()
 						->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 		if ( $bResult ) {
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->get( 'user_login' ), $sIpAddress );
+			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->user_login, $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );
 		}
 		else {
-			$sAuditMessage = sprintf( _wpsf__( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.' ), $oUser->get( 'user_login' ), $sIpAddress );
+			$sAuditMessage = sprintf( _wpsf__( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.' ), $oUser->user_login, $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
 		}
 		return $bResult;
@@ -193,9 +193,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
 			'user_has_email_authentication_active'   => $bValidatedProfile,
-			'user_has_email_authentication_enforced' => $this->getIsUserSubjectToEmailAuthentication( $oUser ),
+			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
 			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
-			'i_am_valid_admin'                       => $this->getController()->getIsValidAdminArea( true ),
+			'i_am_valid_admin'                       => $this->getController()->isValidAdminArea( true ),
 			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
 			'strings'                                => array(
 				'label_email_authentication'                => _wpsf__( 'Email Authentication' ),

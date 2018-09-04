@@ -100,7 +100,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isIncludeFileLists() {
-		return $this->isPremium() && $this->getOptIs( 'email_files_list', 'Y' );
+		return $this->isPremium() && $this->isOpt( 'email_files_list', 'Y' );
 	}
 
 	/**
@@ -161,14 +161,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isIcEnabled() {
-		return $this->getOptIs( 'ic_enabled', 'Y' );
+		return $this->isOpt( 'ic_enabled', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isIcUsersEnabled() {
-		return $this->getOptIs( 'ic_users', 'Y' );
+		return $this->isOpt( 'ic_users', 'Y' );
 	}
 
 	/**
@@ -276,7 +276,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isUfsScanUploads() {
-		return $this->getOptIs( 'ufc_scan_uploads', 'Y' );
+		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
 	}
 
 	/**
@@ -300,14 +300,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isWcfScanAutoRepair() {
-		return $this->getOptIs( 'attempt_auto_file_repair', 'Y' );
+		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isWcfScanEnabled() {
-		return $this->getOptIs( 'enable_core_file_integrity_scan', 'Y' );
+		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	/**
@@ -343,7 +343,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isWpvulnEnabled() {
-		return $this->isPremium() && !$this->getOptIs( 'enable_wpvuln_scan', 'disabled' );
+		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
 	}
 
 	/**
@@ -366,14 +366,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isWpvulnSendEmail() {
-		return $this->isWpvulnEnabled() && $this->getOptIs( 'enable_wpvuln_scan', 'enabled_email' );
+		return $this->isWpvulnEnabled() && $this->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isWpvulnAutoupdatesEnabled() {
-		return $this->isWpvulnEnabled() && $this->getOptIs( 'wpvuln_scan_autoupdate', 'Y' );
+		return $this->isWpvulnEnabled() && $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	/**
@@ -490,7 +490,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
-		return $this->isPremium() && $this->getOptIs( 'ptg_enable', 'enabled' )
+		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
 			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' )
 			   && $this->canPtgWriteToDisk();
 	}
@@ -506,7 +506,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgReinstallLinks() {
-		return $this->isPtgEnabled() && $this->getOptIs( 'ptg_reinstall_links', 'Y' );
+		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
 	}
 
 	/**

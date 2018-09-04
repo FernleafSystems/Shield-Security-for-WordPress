@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function getIfUseLoginIntentPage() {
-		return $this->getOptIs( 'use_login_intent_page', true );
+		return $this->isOpt( 'use_login_intent_page', true );
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -48,7 +48,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		 * $oWp->resavePermalinks();
 		 * }
 		 */
-		if ( $this->isModuleOptionsRequest() && $this->getIsEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
+		if ( $this->isModuleOptionsRequest() && $this->isEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}
@@ -123,14 +123,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
 			$this->setOpt( 'rename_wplogin_path', $sCustomLoginPath );
 		}
-	}
-
-	/**
-	 * @deprecated
-	 * @return bool
-	 */
-	public function getIsCheckingUserRegistrations() {
-		return $this->getOptIs( 'enable_user_register_checking', 'Y' );
 	}
 
 	/**
@@ -314,30 +306,30 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	public function getIsEmailAuthenticationOptionOn() {
-		return $this->getOptIs( 'enable_email_authentication', 'Y' );
+	public function isEmailAuthenticationOptionOn() {
+		return $this->isOpt( 'enable_email_authentication', 'Y' );
 	}
 
 	/**
 	 * Also considers whether email sending ability has been verified
 	 * @return bool
 	 */
-	public function getIsEmailAuthenticationEnabled() {
-		return $this->getIfCanSendEmailVerified() && $this->getIsEmailAuthenticationOptionOn();
+	public function isEmailAuthenticationActive() {
+		return $this->getIfCanSendEmailVerified() && $this->isEmailAuthenticationOptionOn();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function getIsEnabledGoogleAuthenticator() {
-		return $this->getOptIs( 'enable_google_authenticator', 'Y' );
+		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isGoogleRecaptchaEnabled() {
-		return ( !$this->getOptIs( 'enable_google_recaptcha_login', 'disabled' ) && $this->getIsGoogleRecaptchaReady() );
+		return ( !$this->isOpt( 'enable_google_recaptcha_login', 'disabled' ) && $this->isGoogleRecaptchaReady() );
 	}
 
 	/**
@@ -384,7 +376,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isChainedAuth() {
-		return $this->getOptIs( 'enable_chained_authentication', 'Y' );
+		return $this->isOpt( 'enable_chained_authentication', 'Y' );
 	}
 
 	/**
@@ -460,7 +452,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->getOptIs( 'enable_login_gasp_check', 'Y' );
+		return $this->isOpt( 'enable_login_gasp_check', 'Y' );
 	}
 
 	/**
@@ -511,8 +503,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	public function isYubikeyEnabled() {
-		return $this->getOptIs( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
+	public function isYubikeyActive() {
+		return $this->isOpt( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
 	}
 
 	/**

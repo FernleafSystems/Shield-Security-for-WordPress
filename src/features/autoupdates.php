@@ -69,7 +69,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isAutoupdateAllPlugins() {
-		return $this->getOptIs( 'enable_autoupdate_plugins', 'Y' );
+		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isAutoupdateIndividualPlugins() {
-		return $this->getOptIs( 'enable_individual_autoupdate_plugins', 'Y' );
+		return $this->isOpt( 'enable_individual_autoupdate_plugins', 'Y' );
 	}
 
 	/**
@@ -99,7 +99,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isSendAutoupdatesNotificationEmail() {
-		return $this->getOptIs( 'enable_upgrade_notification_email', 'Y' );
+		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			switch ( $this->loadDP()->request( 'exec' ) ) {
 
 				case 'toggle_plugin_autoupdate':
-					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->getIsValidAdminArea() ) {
+					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isValidAdminArea() ) {
 						$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
 					}
 					break;

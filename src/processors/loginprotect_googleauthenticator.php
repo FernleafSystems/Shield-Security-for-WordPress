@@ -72,7 +72,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$sUrl = $this->loadGoogleAuthenticatorProcessor()
 						 ->getGoogleQrChartUrl(
 							 $this->getSecret( $oUser ),
-							 preg_replace( '#[^0-9a-z]#i', '', $oUser->get( 'user_login' ) )
+							 preg_replace( '#[^0-9a-z]#i', '', $oUser->user_login )
 							 .'@'.preg_replace( '#[^0-9a-z]#i', '', $this->loadWp()->getSiteName() )
 						 );
 		}

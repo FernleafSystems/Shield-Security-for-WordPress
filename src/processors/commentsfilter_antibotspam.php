@@ -160,13 +160,13 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		// Check that we haven't already marked the comment through another scan
-		if ( !empty( $this->sCommentStatus ) || !$this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
-			return;
-		}
-
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
+
+		// Check that we haven't already marked the comment through another scan
+		if ( !empty( $this->sCommentStatus ) || !$oFO->isOpt( 'enable_comments_gasp_protection', 'Y' ) ) {
+			return;
+		}
 
 		$bIsSpam = true;
 		$sStatKey = '';
@@ -223,7 +223,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getIfDoGaspCheck() {
 		$bCheck = true;
 
-		if ( !$this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
+		if ( !$this->getMod()->isOpt( 'enable_comments_gasp_protection', 'Y' ) ) {
 			$bCheck = false;
 		}
 		else if ( $this->loadWpUsers()->isUserLoggedIn() ) {

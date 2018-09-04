@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
 
-		if ( $oFO->getIsAutoBlackListFeatureEnabled() ) {
+		if ( $oFO->isAutoBlackListFeatureEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
 			add_action( 'wp_login_failed', array( $this, 'setIpTransgressed' ), 10, 0 );
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
 
-		if ( $this->getController()->getIsPage_PluginAdmin() && $this->getIsVisitorWhitelisted() ) {#
+		if ( $this->getController()->getIsPage_PluginAdmin() && $this->isVisitorWhitelisted() ) {#
 			$oCon = $this->getController();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
@@ -136,7 +136,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function verifyIfAuthenticationValid( $oUserOrError, $sUsername ) {
 		// Don't concern yourself if visitor is whitelisted
-		if ( $this->getIsVisitorWhitelisted() ) {
+		if ( $this->isVisitorWhitelisted() ) {
 			return $oUserOrError;
 		}
 
@@ -207,7 +207,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	protected function processBlacklist() {
 
 		// white list rules
-		if ( $this->getIsVisitorWhitelisted() ) {
+		if ( $this->isVisitorWhitelisted() ) {
 			return;
 		}
 
@@ -217,7 +217,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$bKill = false; // Manual black list first.
 
 		// now try auto black list
-		if ( !$bKill && $oFO->getIsAutoBlackListFeatureEnabled() ) {
+		if ( !$bKill && $oFO->isAutoBlackListFeatureEnabled() ) {
 			$bKill = $this->getIsIpAutoBlackListed( $sIp );
 		}
 
@@ -248,7 +248,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return boolean
 	 */
-	protected function getIsVisitorWhitelisted() {
+	protected function isVisitorWhitelisted() {
 		return apply_filters( $this->getMod()->prefix( 'visitor_is_whitelisted' ), false );
 	}
 
@@ -268,8 +268,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 			// Never black mark IPs that are on the whitelist
 			$oIP = $this->loadIpService();
-			$bCanBlackMark = !$oFO->isPluginDeleting() && $oFO->getIsAutoBlackListFeatureEnabled()
-							 && !$this->getIsVisitorWhitelisted() && ( $oIP->whatIsMyIp() !== $this->ip() );
+			$bCanBlackMark = !$oFO->isPluginDeleting() && $oFO->isAutoBlackListFeatureEnabled()
+							 && !$this->isVisitorWhitelisted() && ( $oIP->whatIsMyIp() !== $this->ip() );
 
 			if ( $bCanBlackMark ) {
 				$this->blackMarkIp( $this->ip() );

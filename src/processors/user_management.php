@@ -33,12 +33,12 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( $this->loadWp()->getIsXmlrpc() && $oFO->isXmlrpcBypass() ) {
+		if ( $this->loadWp()->isXmlrpc() && $oFO->isXmlrpcBypass() ) {
 			return;
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
-		if ( $oFO->getIsUserSessionsManagementEnabled() ) {
+		if ( $oFO->isUserSessionsManagementEnabled() ) {
 			$this->getProcessorSessions()->run();
 		}
 	}

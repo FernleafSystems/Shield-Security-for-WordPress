@@ -85,7 +85,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isDisplayPluginBadge() {
-		return $this->getOptIs( 'display_plugin_badge', 'Y' )
+		return $this->isOpt( 'display_plugin_badge', 'Y' )
 			   && ( $this->loadDP()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
@@ -263,7 +263,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return boolean
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
-		return $bGloballyDisabled || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
+		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );
 	}
 
 	/**
@@ -323,14 +323,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isTrackingEnabled() {
-		return $this->getOptIs( 'enable_tracking', 'Y' );
+		return $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTrackingPermissionSet() {
-		return !$this->getOptIs( 'tracking_permission_set_at', 0 );
+		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}
 
 	/**
@@ -492,7 +492,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportPermitted() {
-		return $this->isPremium() && $this->getOptIs( 'importexport_enable', 'Y' );
+		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -506,7 +506,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportWhitelistNotify() {
-		return $this->getOptIs( 'importexport_whitelist_notify', 'Y' );
+		return $this->isOpt( 'importexport_whitelist_notify', 'Y' );
 	}
 
 	/**
@@ -678,7 +678,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
-		return $this->getOptIs( 'enable_xmlrpc_compatibility', 'Y' );
+		return $this->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
 	}
 
 	/**
