@@ -153,7 +153,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @param bool $bIncludeCookie
 	 * @return array
 	 */
-	public function getRawRequestParams( $bIncludeCookie = true ) {
+	public function getRequestParams( $bIncludeCookie = true ) {
 		$aParams = array_merge( $_GET, $_POST );
 		return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
 	}

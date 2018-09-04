@@ -477,6 +477,15 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			}
 		}
 
+		if ( $sSection == 'section_2fa_email' ) {
+			$aMsg = array(
+				_wpsf__( '2FA by email demands that your WP site is properly configured to send email.' ),
+				'<br/>'._wpsf__( 'This is a common problem and you may get locked out in the future if you ignore this.' ),
+				sprintf( '<a href="%s" target="_blank" style="font-weight: bolder">%s</a>', 'https://icwp.io/dd', _wpsf__( 'Learn More.' ) )
+			);
+			$aWarnings[] = implode( ' ', $aMsg );
+		}
+
 		return $aWarnings;
 	}
 
@@ -515,7 +524,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$sApiKey = $this->getOpt( 'yubikey_api_key' );
 		return !empty( $sAppId ) && !empty( $sApiKey );
 	}
-
 
 	/**
 	 * @param array $aOptionsParams

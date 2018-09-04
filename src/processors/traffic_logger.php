@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
 			   && ( $oFO->getMaxEntries() > 0 )
-			   && ( $oFO->isIncluded_Simple() || count( $this->loadDP()->getRawRequestParams( false ) ) > 0 )
+			   && ( $oFO->isIncluded_Simple() || count( $this->loadDP()->getRequestParams( false ) ) > 0 )
 			   && ( $oFO->isIncluded_LoggedInUser() || !$bLoggedIn )
 			   && ( $oFO->isIncluded_Ajax() || !$oWp->isAjax() )
 			   && ( $oFO->isIncluded_Cron() || !$oWp->isCron() )

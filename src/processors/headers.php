@@ -82,14 +82,14 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|null
 	 */
 	protected function setXssProtectionHeader() {
-		return $this->getIsOption( 'x_xss_protect', 'Y' ) ? array( 'X-XSS-Protection' => '1; mode=block' ) : null;
+		return $this->getMod()->isOpt( 'x_xss_protect', 'Y' ) ? array( 'X-XSS-Protection' => '1; mode=block' ) : null;
 	}
 
 	/**
 	 * @return array|null
 	 */
 	protected function setContentTypeOptionHeader() {
-		return $this->getIsOption( 'x_content_type', 'Y' ) ? array( 'X-Content-Type-Options' => 'nosniff' ) : null;
+		return $this->getMod()->isOpt( 'x_content_type', 'Y' ) ? array( 'X-Content-Type-Options' => 'nosniff' ) : null;
 	}
 
 	/**

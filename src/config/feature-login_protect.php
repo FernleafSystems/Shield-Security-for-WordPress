@@ -324,10 +324,6 @@
       "description": "Use Google reCAPTCHA on the login screen."
     },
     {
-      "key":           "google_recaptcha_style_login",
-      "section":       "section_non_ui"
-    },
-    {
       "key":         "enable_yubikey",
       "section":     "section_yubikey_authentication",
       "default":     "N",

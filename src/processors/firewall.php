@@ -36,11 +36,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected $aPageParams;
 
-	/**
-	 * @var array
-	 */
-	protected $aRawRequestParams;
-
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
 			$this->doPreFirewallBlock();
@@ -412,11 +407,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRawRequestParams() {
-		if ( !isset( $this->aRawRequestParams ) ) {
-			$this->aRawRequestParams = $this->loadDP()
-											->getRawRequestParams( $this->getIsOption( 'include_cookie_checks', 'Y' ) );
-		}
-		return $this->aRawRequestParams;
+		return $this->loadDP()->getRequestParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
 	}
 
 	/**
