@@ -97,31 +97,13 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * TODO: http://stackoverflow.com/questions/3499104/how-to-know-the-role-of-current-user-in-wordpress
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	private function getIsUserSubjectToEmailAuthentication( $oUser ) {
+	private function isSubjectToEmailAuthentication( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$nUserLevel = $oUser->user_level;
-		$aSubjectedUserLevels = $oFO->getEmail2FaRoles();
-
-		// see: https://codex.wordpress.org/Roles_and_Capabilities#User_Level_to_Role_Conversion
-
-		// authors, contributors and subscribers
-		if ( $nUserLevel < 3 && in_array( $nUserLevel, $aSubjectedUserLevels ) ) {
-			return true;
-		}
-		// editors
-		if ( $nUserLevel >= 3 && $nUserLevel < 8 && in_array( 3, $aSubjectedUserLevels ) ) {
-			return true;
-		}
-		// administrators
-		if ( $nUserLevel >= 8 && $nUserLevel <= 10 && in_array( 8, $aSubjectedUserLevels ) ) {
-			return true;
-		}
-		return false;
+		return count( array_intersect( $oFO->getEmail2FaRoles(), $oUser->roles ) ) > 0;
 	}
 
 	/**
