@@ -386,7 +386,17 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return string
 	 */
 	private function getLoginPassword() {
-		return $this->loadDP()->post( 'pass1' );
+		$sPass = null;
+
+		// Edd: edd_user_pass; Woo: password;
+		foreach ( array( 'pwd', 'pass1' ) as $sKey ) {
+			$sP = $this->loadDP()->post( $sKey );
+			if ( !empty( $sP ) ) {
+				$sPass = $sP;
+				break;
+			}
+		}
+		return $sPass;
 	}
 
 	/**
