@@ -14,9 +14,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
-
-//			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
-			add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); //login
 		}
 	}
 
@@ -46,10 +43,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
-	 * @param string $sUsername
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
 	 */
-	public function onWpLogin( $sUsername ) {
-		$this->enforceSessionLimits( $sUsername );
+	public function onWpLogin( $sUsername, $oUser ) {
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		}
+		$this->enforceSessionLimits( $oUser );
 	}
 
 	/**
@@ -59,10 +60,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$oUser = $this->loadWpUsers()->getUserById( $nUserId );
-		if ( $oUser instanceof WP_User ) {
-			$this->enforceSessionLimits( $oUser->user_login );
-		}
+		$this->enforceSessionLimits( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -242,18 +240,19 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
-	 * @param string $sUsername
+	 * @param WP_User $oUser
 	 */
-	protected function enforceSessionLimits( $sUsername ) {
+	protected function enforceSessionLimits( $oUser ) {
 
 		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
-		if ( $nSessionLimit > 0 ) {
+		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
+			$this->setLoginCaptured();
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getMod();
 			try {
 				$oFO->getSessionsProcessor()
 					->getQueryDeleter()
-					->addWhere( 'wp_username', $sUsername )
+					->addWhere( 'wp_username', $oUser->user_login )
 					->deleteExcess( $nSessionLimit, 'last_activity_at', true );
 			}
 			catch ( Exception $oE ) {

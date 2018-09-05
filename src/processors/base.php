@@ -22,6 +22,11 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected $aSubProcessors;
 
 	/**
+	 * @var bool
+	 */
+	private $bLoginCaptured;
+
+	/**
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 */
 	public function __construct( $oModCon ) {
@@ -31,7 +36,47 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		if ( method_exists( $this, 'addToAdminNotices' ) ) {
 			add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 		}
+
+		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+
 		$this->init();
+	}
+
+	/**
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		/*
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		}
+		*/
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLoginCaptured() {
+		return (bool)$this->bLoginCaptured;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function setLoginCaptured() {
+		$this->bLoginCaptured = true;
+		return $this;
 	}
 
 	/**

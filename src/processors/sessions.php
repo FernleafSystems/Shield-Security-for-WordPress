@@ -32,11 +32,21 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		if ( $this->isReadyToRun() ) {
-			add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); //login
 			add_action( 'clear_auth_cookie', array( $this, 'onWpClearAuthCookie' ), 0 ); //logout
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
 		}
+	}
+
+	/**
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		}
+		$this->activateUserSession( $oUser );
 	}
 
 	/**
@@ -82,14 +92,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	private function isSessionAlreadyCreatedForUser( $oUser ) {
-		return $this->nSessionAlreadyCreatedUserId > 0 && $this->nSessionAlreadyCreatedUserId == $oUser->ID;
-	}
-
-	/**
 	 * Only show Go To Admin link for Authors and above.
 	 * @param string $sMessage
 	 * @return string
@@ -120,22 +122,17 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	private function activateUserSession( $oUser ) {
-		if ( !( $oUser instanceof WP_User ) ) {
-			return false;
-		}
-		if ( $this->isSessionAlreadyCreatedForUser( $oUser ) ) {
-			return true;
-		}
+		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User ) {
+			$this->setLoginCaptured();
+			// If they have a currently active session, terminate it (i.e. we replace it)
+			$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
+			if ( !empty( $oSession ) ) {
+				$this->queryTerminateSession( $oSession );
+				$this->oCurrent = null;
+			}
 
-		// If they have a currently active session, terminate it (i.e. we replace it)
-		$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
-		if ( !empty( $oSession ) ) {
-			$this->queryTerminateSession( $oSession );
-			$this->oCurrent = null;
+			$this->queryCreateSession( $oUser->user_login, $this->getSessionId() );
 		}
-
-		$this->queryCreateSession( $oUser->user_login, $this->getSessionId() );
-		$this->nSessionAlreadyCreatedUserId = $oUser->ID;
 		return true;
 	}
 
