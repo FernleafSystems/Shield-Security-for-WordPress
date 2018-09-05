@@ -24,7 +24,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
 		add_action( 'init', array( $this, 'onWpInit' ) );
-		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
 
 		if ( $oFO->isPasswordPoliciesEnabled() ) {
 			$this->getProcessorPasswords()->run();
@@ -54,17 +53,16 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * Hooked to action wp_login
-	 * @param $sUsername
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
 	 */
-	public function onWpLogin( $sUsername ) {
-		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
-		if ( $oUser instanceof WP_User ) {
-
-			$this->setPasswordStartedAt( $oUser )// used by Password Policies
-				 ->setUserLastLoginTime( $oUser )
-				 ->sendLoginNotifications( $oUser );
+	public function onWpLogin( $sUsername, $oUser ) {
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
 		}
+		$this->setPasswordStartedAt( $oUser )// used by Password Policies
+			 ->setUserLastLoginTime( $oUser )
+			 ->sendLoginNotifications( $oUser );
 	}
 
 	/**

@@ -16,20 +16,39 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		add_filter( 'registration_errors', array( $this, 'checkPassword' ), 100, 3 );
 		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
-		add_action( 'wp_login', array( $this, 'onWpLogin' ) );
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_filter( 'login_message', array( $this, 'addPasswordResetMessage' ) );
+
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		$this->loadAutoload();
 	}
 
 	/**
-	 * @param string $sUsername
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
 	 */
-	public function onWpLogin( $sUsername ) {
-		$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+	public function onWpLogin( $sUsername, $oUser ) {
+		$this->captureLogin( $oUser );
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+		$this->captureLogin( $this->loadWpUsers()->getUserById( $nUserId ) );
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 */
+	private function captureLogin( $oUser ) {
 		$sPassword = $this->getLoginPassword();
 
-		if ( $oUser instanceof WP_User && !empty( $sPassword ) ) {
+		if ( $this->loadDP()->isMethodPost() && !$this->isLoginCaptured()
+			 && $oUser instanceof WP_User && !empty( $sPassword ) ) {
+			$this->setLoginCaptured();
 			try {
 				$this->applyPasswordChecks( $sPassword );
 				$bFailed = false;
@@ -367,7 +386,17 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return string
 	 */
 	private function getLoginPassword() {
-		return $this->loadDP()->post( 'pass1' );
+		$sPass = null;
+
+		// Edd: edd_user_pass; Woo: password;
+		foreach ( array( 'pwd', 'pass1' ) as $sKey ) {
+			$sP = $this->loadDP()->post( $sKey );
+			if ( !empty( $sP ) ) {
+				$sPass = $sP;
+				break;
+			}
+		}
+		return $sPass;
 	}
 
 	/**

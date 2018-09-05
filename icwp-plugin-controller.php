@@ -264,6 +264,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			do_action( $this->prefix( 'delete_plugin' ) );
 			$this->deletePluginControllerOptions();
 		}
+		$this->deleteCronJobs();
 	}
 
 	public function onWpActivatePlugin() {
@@ -1462,6 +1463,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function deletePluginControllerOptions() {
 		$this->setPluginControllerOptions( false );
 		$this->saveCurrentPluginControllerOptions();
+	}
+
+	/**
+	 */
+	protected function deleteCronJobs() {
+		$oWpCron = $this->loadWpCronProcessor();
+		$aCrons = $oWpCron->getWpCrons();
+
+		$sPattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );
+		foreach ( $aCrons as $aCron ) {
+			if ( is_array( $aCrons ) ) {
+				foreach ( $aCron as $sKey => $aCronEntry ) {
+					if ( is_string( $sKey ) && preg_match( $sPattern, $sKey ) ) {
+						$oWpCron->deleteCronJob( $sKey );
+					}
+				}
+			}
+		}
 	}
 
 	/**
