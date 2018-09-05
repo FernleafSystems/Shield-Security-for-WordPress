@@ -806,7 +806,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getCommonStandardOptions() {
-		return array( 'current_plugin_version', 'help_video_options' );
+		return array( 'help_video_options' );
 	}
 
 	/**

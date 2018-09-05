@@ -228,32 +228,33 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_AuditTrail_Count
 	 */
 	public function getAuditTrailCounter() {
-		require_once( $this->getQueryDir().'count.php' );
-		return ( new ICWP_WPSF_Query_AuditTrail_Count() )->setTable( $this->getTableName() );
+		$this->queryRequireLib( 'count.php' );
+		$oQ = new ICWP_WPSF_Query_AuditTrail_Count();
+		return $oQ->setTable( $this->getTableName() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Delete
 	 */
 	public function getAuditTrailDelete() {
-		require_once( $this->getQueryDir().'delete.php' );
-		$oSearch = new ICWP_WPSF_Query_AuditTrail_Delete();
-		return $oSearch->setTable( $this->getTableName() );
+		$this->queryRequireLib( 'delete.php' );
+		$oQ = new ICWP_WPSF_Query_AuditTrail_Delete();
+		return $oQ->setTable( $this->getTableName() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Select
 	 */
 	public function getAuditTrailSelector() {
-		require_once( $this->getQueryDir().'select.php' );
-		$oSearch = new ICWP_WPSF_Query_AuditTrail_Select();
-		return $oSearch->setTable( $this->getTableName() );
+		$this->queryRequireLib( 'select.php' );
+		$oQ = new ICWP_WPSF_Query_AuditTrail_Select();
+		return $oQ->setTable( $this->getTableName() );
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getQueryDir() {
-		return parent::getQueryDir().'audittrail/';
+	protected function queryGetDir() {
+		return parent::queryGetDir().'audittrail/';
 	}
 }
