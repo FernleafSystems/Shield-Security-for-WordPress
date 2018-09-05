@@ -27,15 +27,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected $bModuleMeetsRequirements;
 
 	/**
-	 * @var string
-	 */
-	const CollateSeparator = '--SEP--';
-	/**
-	 * @var string
-	 */
-	const PluginVersionKey = 'current_plugin_version';
-
-	/**
 	 * @var boolean
 	 */
 	protected $bPluginDeleting = false;
@@ -1102,26 +1093,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function collateAllFormInputsForAllOptions() {
-
-		$aOptions = $this->buildOptions();
-
-		$aToJoin = array();
-		foreach ( $aOptions as $aOptionsSection ) {
-
-			if ( empty( $aOptionsSection ) ) {
-				continue;
-			}
-			foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
-				$aToJoin[] = $aOption[ 'type' ].':'.$aOption[ 'key' ];
-			}
-		}
-		return implode( self::CollateSeparator, $aToJoin );
-	}
-
-	/**
 	 * @return array - map of each option to its option type
 	 */
 	protected function getAllFormOptionsAndTypes() {
@@ -1492,12 +1463,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'      => $this->getMainFeatureName(),
 			'data'            => array(
-				'form_nonce'        => $this->genNonce( '' ),
-				'mod_slug'          => $this->getModSlug( true ),
-				'mod_slug_short'    => $this->getModSlug( false ),
-				'all_options'       => $this->buildOptions(),
-				'all_options_input' => $this->collateAllFormInputsForAllOptions(),
-				'hidden_options'    => $this->getOptionsVo()->getHiddenOptions()
+				'form_nonce'     => $this->genNonce( '' ),
+				'mod_slug'       => $this->getModSlug( true ),
+				'mod_slug_short' => $this->getModSlug( false ),
+				'all_options'    => $this->buildOptions(),
+				'hidden_options' => $this->getOptionsVo()->getHiddenOptions()
 			),
 			'ajax'            => array(
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
@@ -2048,8 +2018,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getVersion() {
-		$sVersion = $this->getOpt( self::PluginVersionKey );
-		return empty( $sVersion ) ? self::getConn()->getVersion() : $sVersion;
+		return self::getConn()->getVersion();
 	}
 
 	/**
@@ -2061,5 +2030,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getOptIs( $sOptionKey, $mValueToTest, $bStrict = false ) {
 		return $this->isOpt( $sOptionKey, $mValueToTest, $bStrict );
+	}
+
+	/**
+	 * @deprecated
+	 * @return string
+	 */
+	protected function collateAllFormInputsForAllOptions() {
+
+		$aOptions = $this->buildOptions();
+
+		$aToJoin = array();
+		foreach ( $aOptions as $aOptionsSection ) {
+
+			if ( empty( $aOptionsSection ) ) {
+				continue;
+			}
+			foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
+				$aToJoin[] = $aOption[ 'type' ].':'.$aOption[ 'key' ];
+			}
+		}
+		return implode( '--SEP--', $aToJoin );
 	}
 }

@@ -1469,7 +1469,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function deleteCronJobs() {
 		$oWpCron = $this->loadWpCronProcessor();
-		$aCrons = $oWpCron->getWpCrons();
+		$aCrons = $oWpCron->getCrons();
 
 		$sPattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );
 		foreach ( $aCrons as $aCron ) {

@@ -124,7 +124,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
 			$oP = $oMod->getProcessor();
 			$bSuccess = $oP->getSubProcessorNotes()
-						   ->getQueryCreator()
+						   ->getQueryInserter()
 						   ->create( $sNote ) !== false;
 
 			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );

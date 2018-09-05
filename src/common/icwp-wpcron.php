@@ -65,7 +65,7 @@ class ICWP_WPSF_WpCron {
 	 * @deprecated uses undocumented private WP function
 	 * @return array
 	 */
-	public function getWpCrons() {
+	public function getCrons() {
 		return function_exists( '_get_cron_array' ) && is_array( _get_cron_array() ) ? _get_cron_array() : array();
 	}
 

@@ -206,8 +206,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_Sessions_Insert
 	 */
-	public function getQueryCreator() {
-		require_once( $this->getQueryDir().'insert.php' );
+	public function getQueryInserter() {
+		$this->queryRequireLib( 'insert.php' );
 		$oQ = new ICWP_WPSF_Query_Sessions_Insert();
 		return $oQ->setTable( $this->getTableName() );
 	}
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_Sessions_Delete
 	 */
 	public function getQueryDeleter() {
-		require_once( $this->getQueryDir().'delete.php' );
+		$this->queryRequireLib( 'delete.php' );
 		$oQ = new ICWP_WPSF_Query_Sessions_Delete();
 		return $oQ->setTable( $this->getTableName() );
 	}
@@ -225,7 +225,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_Sessions_Select
 	 */
 	public function getQuerySelector() {
-		require_once( $this->getQueryDir().'select.php' );
+		$this->queryRequireLib( 'select.php' );
 		$oQ = new ICWP_WPSF_Query_Sessions_Select();
 		return $oQ->setTable( $this->getTableName() )
 				  ->setResultsAsVo( true );
@@ -235,9 +235,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_Sessions_Update
 	 */
 	public function getQueryUpdater() {
-		require_once( $this->getQueryDir().'update.php' );
-		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
-		return $oUpdate->setTable( $this->getTableName() );
+		$this->queryRequireLib( 'update.php' );
+		$oQ = new ICWP_WPSF_Query_Sessions_Update();
+		return $oQ->setTable( $this->getTableName() );
 	}
 
 	/**
@@ -250,7 +250,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			return null;
 		}
 
-		$bSuccess = $this->getQueryCreator()
+		$bSuccess = $this->getQueryInserter()
 						 ->create( $sUsername, $sSessionId );
 		if ( $bSuccess ) {
 			$this->doStatIncrement( 'user.session.start' );
@@ -301,7 +301,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return string
 	 */
-	protected function getQueryDir() {
-		return parent::getQueryDir().'sessions/';
+	protected function queryGetDir() {
+		return parent::queryGetDir().'sessions/';
 	}
 }

@@ -296,7 +296,14 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getQueryDir() {
+	protected function queryGetDir() {
 		return dirname( dirname( __FILE__ ) ).'/query/';
+	}
+
+	/**
+	 * @param string $sFile
+	 */
+	protected function queryRequireLib( $sFile ) {
+		require_once( rtrim( $this->queryGetDir(), '/' ).'/'.$sFile );
 	}
 }

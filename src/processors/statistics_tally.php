@@ -22,15 +22,15 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_Tally_Delete
 	 */
 	public function getDeleter() {
-		require_once( $this->getQueryDir().'tally_delete.php' );
+		$this->queryRequireLib( 'tally_delete.php' );
 		return ( new ICWP_WPSF_Query_Tally_Delete() )->setTable( $this->getTableName() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_Tally_Insert
 	 */
-	public function getInsertor() {
-		require_once( $this->getQueryDir().'tally_insert.php' );
+	public function getInserter() {
+		$this->queryRequireLib( 'tally_insert.php' );
 		return ( new ICWP_WPSF_Query_Tally_Insert() )->setTable( $this->getTableName() );
 	}
 
@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_Tally_Update
 	 */
 	public function getUpdater() {
-		require_once( $this->getQueryDir().'tally_update.php' );
+		$this->queryRequireLib( 'tally_update.php' );
 		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
 	}
 
@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_Tally_Select
 	 */
 	public function getSelector() {
-		require_once( $this->getQueryDir().'tally_select.php' );
+		$this->queryRequireLib( 'tally_select.php' );
 		return ( new ICWP_WPSF_Query_Tally_Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true )
@@ -86,8 +86,8 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 				$oStat = $this->getSelector()
 							  ->retrieveStat( $sStatKey, $sParentStatKey );
 
-				if ( true || empty( $oStat ) ) {
-					$this->getInsertor()->insert( $sStatKey, $nTally, $sParentStatKey );
+				if ( empty( $oStat ) ) {
+					$this->getInserter()->insert( $sStatKey, $nTally, $sParentStatKey );
 				}
 				else {
 					$this->getUpdater()->incrementTally( $oStat, $nTally );
@@ -168,7 +168,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return string
 	 */
-	protected function getQueryDir() {
-		return parent::getQueryDir().'statistics/';
+	protected function queryGetDir() {
+		return parent::queryGetDir().'statistics/';
 	}
 }

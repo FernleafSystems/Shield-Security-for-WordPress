@@ -232,17 +232,17 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->verb = $oDP->getRequestMethod();
 		$oEntry->path = $oDP->getRequestPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
-		$oEntry->ua = (string)$oDP->FetchServer( 'HTTP_USER_AGENT' );
+		$oEntry->ua = (string)$oDP->server( 'HTTP_USER_AGENT' );
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
-		$this->getTrafficInsertor()->insert( $oEntry );
+		$this->getTrafficInserter()->insert( $oEntry );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
 	 */
-	public function getTrafficInsertor() {
-		require_once( $this->getQueryDir().'insert.php' );
+	public function getTrafficInserter() {
+		$this->queryRequireLib( 'insert.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
 	}
 
@@ -250,7 +250,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Count
 	 */
 	public function getTrafficEntryCounter() {
-		require_once( $this->getQueryDir().'count.php' );
+		$this->queryRequireLib( 'count.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Count() )->setTable( $this->getTableName() );
 	}
 
@@ -258,7 +258,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Delete
 	 */
 	public function getTrafficEntryDeleter() {
-		require_once( $this->getQueryDir().'delete.php' );
+		$this->queryRequireLib( 'delete.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Delete() )->setTable( $this->getTableName() );
 	}
 
@@ -266,7 +266,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_TrafficEntry_Select
 	 */
 	public function getTrafficEntrySelector() {
-		require_once( $this->getQueryDir().'select.php' );
+		$this->queryRequireLib( 'select.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );
@@ -276,7 +276,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_TrafficEntryVO
 	 */
 	protected function getTrafficEntryVO() {
-		require_once( $this->getQueryDir().'ICWP_WPSF_TrafficEntryVO.php' );
+		$this->queryRequireLib( 'ICWP_WPSF_TrafficEntryVO.php' );
 		return new ICWP_WPSF_TrafficEntryVO();
 	}
 
@@ -321,7 +321,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return string
 	 */
-	protected function getQueryDir() {
-		return parent::getQueryDir().'traffic/';
+	protected function queryGetDir() {
+		return parent::queryGetDir().'traffic/';
 	}
 }
