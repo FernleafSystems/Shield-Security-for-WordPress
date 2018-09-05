@@ -2,7 +2,7 @@
 	<?php echo $sTitle; ?>
 	<a class="btn btn-info" data-toggle="collapse" href="#collapseFilters" role="button" aria-expanded="false"
 	   aria-controls="collapseExample">
-   &darr; Filter Traffic Log &darr;
+   &darr; Filter Log Table &darr;
   </a>
 </h2>
 <div class="collapse" id="collapseFilters">
