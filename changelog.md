@@ -1,3 +1,31 @@
+= 6.9.0 - Series =
+*Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
+
+* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
+* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
+* **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
+* **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
+* **(v.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
+* **(v.0)**  CHANGED:	Password Policies now requires minimum WordPress v4.4.
+* **(v.0)**  IMPROVED:	Password expiration now redirects to the 'set password' screen, instead of the user profile.
+* **(v.0)**  IMPROVED:	Password capture for purposes of password policies is improved.
+* **(v.0)**  IMPROVED:	You can now delete the 'forceoff' file from inside the WP Admin.
+* **(v.0)**  IMPROVED:	Audit Trail entries for emails will identify the file that's calling the `wp_mail` function.
+* **(v.0)**  IMPROVED:	Audit Trail entries for post editing will identify the post type wherever possible.
+* **(v.0)**  IMPROVED:	Audit Trail entries will try to display all message text correctly.
+* **(v.0)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
+* **(v.0)**  IMPROVED:	Major database code refactoring and other code improvements.
+* **(v.0)**  IMPROVED:	User sessions handling.
+* **(v.0)**  IMPROVED:	Security Admin UX - ajax session checking, with admin notifications and auto-page reload.
+* **(v.0)**  IMPROVED:	Security Admin password setting now requires a confirmation password entry.
+* **(v.0)**  IMPROVED:	Refined Cooldown timing system.
+* **(v.0)**  IMPROVED:	Refined Bot checkbox Javascript.
+* **(v.0)**  IMPROVED:	Cron entry cleanup after deactivation.
+* **(v.0)**  UPDATED:	Bootstrap libraries to latest release v4.1.3.
+* **(v.0)**  FIXED:		Potential bug with Plugin/Themes guard scanning.
+* **(v.0)**  FIXED:		PHP Warning(s).
+
 = 6.8 Series =
 *Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
 
