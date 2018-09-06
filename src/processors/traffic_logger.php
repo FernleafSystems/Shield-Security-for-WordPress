@@ -81,7 +81,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
 		return $this->isIp_GoogleBot( $sIp, $sAgent )
 			   || $this->isIp_BingBot( $sIp, $sAgent )
-			   || $this->isIp_DuckDuckGoBot( $sIp, $sAgent );
+			   || $this->isIp_DuckDuckGoBot( $sIp, $sAgent )
+			   || $this->isIp_YandexBot( $sIp, $sAgent );
 	}
 
 	/**
@@ -149,6 +150,28 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpGoogleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
 			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_googlebot' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.html
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	protected function isIp_YandexBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_yandexbot' ) );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpYandexBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_yandexbot' ), $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );

@@ -469,4 +469,24 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		}
 		return $bIsGBot;
 	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIpYandexBot( $sIp, $sUserAgent = '' ) {
+		$bIsGBot = false;
+
+		// We check the useragent if available
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'yandex.com/bots' ) !== false ) {
+			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
+			if ( !empty( $sHost ) && ( $sHost != $sIp )
+				 && preg_match( '#.*\.yandex?\.(com|ru|net)\.$#i', $sHost )
+				 && gethostbyname( $sHost ) === $sIp ) {
+				$bIsGBot = true;
+			}
+		}
+		return $bIsGBot;
+	}
 }
