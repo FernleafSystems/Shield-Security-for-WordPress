@@ -7,6 +7,7 @@
 </h2>
 <div class="collapse" id="collapseFilters">
 	<div class="jumbotron">
+		<p class="alert alert-info">Use the form items below to filter display of entries in the log table.</p>
 		<form id="TrafficFilter">
 			<div class="form-group row">
 				<div class="col-5">
