@@ -76,25 +76,45 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		event.preventDefault();
 
 		var $oForm = jQuery( this );
-		jQuery.post( ajaxurl, $oForm.serialize(),
-			function ( oResponse ) {
-				var sMessage;
-				if ( oResponse === null || typeof oResponse.data === 'undefined'
-					|| typeof oResponse.data.message === 'undefined' ) {
-					sMessage = oResponse.success ? 'Success' : 'Failure';
+
+		var $bPasswordsReady = true;
+		jQuery( 'input[type=password]', $oForm ).each( function () {
+			var $oPass = jQuery( this );
+			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $oForm );
+			if ( typeof $oConfirm.attr( 'id' ) !== 'undefined' ) {
+				if ( $oPass.val() && !$oConfirm.val() ) {
+					$oConfirm.addClass( 'is-invalid' );
+					alert( 'Form not submitted due to error: password confirmation field not provided.' );
+					$bPasswordsReady = false;
 				}
-				else {
-					sMessage = oResponse.data.message;
+			}
+		} );
+
+		if ( $bPasswordsReady ) {
+			jQuery.post( ajaxurl, $oForm.serialize(),
+				function ( oResponse ) {
+					var sMessage;
+					if ( oResponse === null || typeof oResponse.data === 'undefined'
+						|| typeof oResponse.data.message === 'undefined' ) {
+						sMessage = oResponse.success ? 'Success' : 'Failure';
+					}
+					else {
+						sMessage = oResponse.data.message;
+					}
+					iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 				}
-				iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
-			}
-		).always( function () {
-				bRequestCurrentlyRunning = false;
-				setTimeout( function () {
-					location.reload( true );
-				}, 2000 );
-			}
-		);
+			).always( function () {
+					bRequestCurrentlyRunning = false;
+					setTimeout( function () {
+						location.reload( true );
+					}, 2000 );
+				}
+			);
+		}
+		else {
+			bRequestCurrentlyRunning = false;
+			iCWP_WPSF_BodyOverlay.hide();
+		}
 	};
 
 	this.initialise = function () {
