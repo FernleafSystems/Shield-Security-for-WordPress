@@ -198,7 +198,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			switch ( $this->loadDP()->request( 'exec' ) ) {
 
 				case 'render_traffic_table':
-					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
+					$aAjaxResponse = $this->ajaxExec_RenderTrafficTable();
 					break;
 
 				default:
@@ -208,7 +208,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_RenderAuditTable() {
+	protected function ajaxExec_RenderTrafficTable() {
 		$oDP = $this->loadDP();
 		parse_str( $oDP->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
@@ -330,8 +330,26 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 				$aEntry = $oEntry->getRawDataAsArray();
 
-				$aEntry[ 'path' ] = strtoupper( $oEntry->verb ).': <span>'.esc_url( $oEntry->path ).'</span>';
-				$aEntry[ 'trans' ] = $oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' );
+				list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
+				$sQuery = trim( $sQuery, '?' );
+				$sPath = strtoupper( $oEntry->verb ).': <code>'.$sPreQuery
+						 .( empty( $sQuery ) ? '' : '?<br/>'.$sQuery ).'</code>';
+
+				$sCodeType = 'success';
+				if ( $oEntry->code >= 400 ) {
+					$sCodeType = 'danger';
+				}
+				else if ( $oEntry->code >= 300 ) {
+					$sCodeType = 'warning';
+				}
+
+				$aEntry[ 'path' ] = $sPath;
+				$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
+				$aEntry[ 'trans' ] = sprintf(
+					'<span class="badge badge-%s">%s</span>',
+					$oEntry->trans ? 'danger' : 'info',
+					$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
+				);
 				$aEntry[ 'ip' ] = $sIp;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
 				$aEntry[ 'is_you' ] = $sIp == $sYou;
@@ -339,7 +357,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				if ( $oEntry->uid > 0 ) {
 					if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
 						$oUser = $oWpUsers->getUserById( $oEntry->uid );
-						$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) : $oUser->user_login;
+						$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) :
+							sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
+								$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
 					}
 				}
 
@@ -358,13 +378,18 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				);
 
 				$aDetails = array(
-					sprintf( '%s - %s', _wpsf__( 'IP' ), $sIpLink ),
-					sprintf( '%s - %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
-					sprintf( '%s - %s', _wpsf__( 'Location' ), $sCountry ),
+					sprintf( '%s: %s', _wpsf__( 'IP' ), $sIpLink ),
+					sprintf( '%s: %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
+					sprintf( '%s: %s', _wpsf__( 'Location' ), $sCountry ),
 					esc_html( esc_js( sprintf( '%s - %s', _wpsf__( 'User Agent' ), $oEntry->ua ) ) )
 				);
 				$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
+				$aInfo = array(
+					sprintf( '%s: %s', _wpsf__( 'Response' ), $aEntry[ 'code' ] ),
+					sprintf( '%s: %s', _wpsf__( 'Transgression' ), $aEntry[ 'trans' ] ),
+				);
+				$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
 				$aEntries[ $nKey ] = $aEntry;
 			}
 		}

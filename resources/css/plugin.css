@@ -863,9 +863,33 @@ input:checked + .icwp-slider:before {
 	vertical-align: unset;
 }
 
+/** TABLE: Audit trail **/
 td.column-message textarea {
 	width: 100%;
 	background: transparent;
 	box-shadow: none;
 	border-color: rgba(0,0,0,0.05);
+}
+
+/** TABLE: TRAFFIC **/
+th.column-visitor {
+	width: 250px;
+}
+th.column-path {
+	width: 100px;
+}
+td.column-path code {
+	color: #4120a2;
+	display: block;
+	font-size: 0.9rem;
+	background-color: transparent; /* rgba(245, 245, 245, 0.8); */
+}
+th.column-code {
+	width: 84px;
+}
+th.column-trans {
+	width: 114px;
+}
+th.column-request_info {
+	width: 100px;
 }

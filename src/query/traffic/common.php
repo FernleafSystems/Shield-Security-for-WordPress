@@ -43,7 +43,7 @@ trait ICWP_WPSF_Query_TrafficEntry_Common {
 	 * @return $this
 	 */
 	public function filterByIsTransgression( $bIsTransgression ) {
-		return $this->addWhere( 'trans', 0, $bIsTransgression ? 1 : 0 );
+		return $this->addWhereEquals( 'trans', $bIsTransgression ? 1 : 0 );
 	}
 
 	/**
