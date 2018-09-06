@@ -152,7 +152,7 @@
 				?>
 				<div class="form-group row row_number_<?php echo $nKeyRow; ?>">
 
-					<label class="form-label col-3 col-form-label" for="<?php echo $sOptKey; ?>">
+					<label class="form-label col-3 col-form-label" for="Opt-<?php echo $sOptKey; ?>">
 						<div class="form-label-inner text-right">
 							<div class="optname"><?php echo $aOption[ 'name' ]; ?></div>
 							<?php if ( !empty( $aOption[ 'link_info' ] ) ) : ?>
@@ -184,12 +184,12 @@
 							 id="option_section_<?php echo $sOptKey; ?>">
 
 							<label id="Label-<?php echo $sOptKey ?>" class="for<?php echo $sOptType; ?>"
-								   for="<?php echo $sOptKey; ?>">
+								   for="Opt-<?php echo $sOptKey; ?>">
 
 								<?php if ( $sOptType == 'checkbox' ) : ?>
 									<span class="icwp-switch">
 										<input type="checkbox"
-											   name="<?php echo $sOptKey; ?>" id="<?php echo $sOptKey; ?>"
+											   name="<?php echo $sOptKey; ?>" id="Opt-<?php echo $sOptKey; ?>"
 											   value="Y" <?php echo ( $mOptValue == 'Y' ) ? 'checked="checked"' : ''; ?>
 											   aria-labelledby="Label-<?php echo $sOptKey ?>"
 											<?php echo $sDisabledText; ?> />
@@ -201,7 +201,7 @@
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<textarea name="<?php echo $sOptKey; ?>"
-											  id="<?php echo $sOptKey; ?>"
+											  id="Opt-<?php echo $sOptKey; ?>"
 											  placeholder="<?php echo $mOptValue; ?>"
 											  rows="<?php echo $aOption[ 'rows' ]; ?>"
 										<?php echo $sDisabledText; ?>
@@ -215,13 +215,14 @@
 								<?php elseif ( $sOptType == 'password' ) : ?>
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
-									<input type="password" name="<?php echo $sOptKey; ?>" class="col"
-										   id="<?php echo $sOptKey; ?>" value="<?php echo $mOptValue; ?>"
+									<input type="password" name="<?php echo $sOptKey; ?>" class="col form-control"
+										   id="Opt-<?php echo $sOptKey; ?>" value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $strings[ 'supply_password' ]; ?>"
 										   style="margin-bottom: 5px"
 										<?php echo $sDisabledText; ?> />
 
-									<input type="password" name="<?php echo $sOptKey; ?>_confirm" class="col"
+									<input type="password" name="<?php echo $sOptKey; ?>_confirm"
+										   id="Opt-<?php echo $sOptKey; ?>_confirm" class="col form-control"
 										   placeholder="<?php echo $strings[ 'confirm_password' ]; ?>"
 										<?php echo $sDisabledText; ?> />
 
@@ -229,7 +230,7 @@
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<input type="email" name="<?php echo $sOptKey; ?>"
-										   id="<?php echo $sOptKey; ?>"
+										   id="Opt-<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
 										<?php echo $sDisabledText; ?> />
@@ -238,7 +239,7 @@
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<select name="<?php echo $sOptKey; ?>"
-											id="<?php echo $sOptKey; ?>"
+											id="Opt-<?php echo $sOptKey; ?>"
 										<?php echo $sDisabledText; ?> >
 										<?php foreach ( $aOption[ 'value_options' ] as $sOptionValue => $sOptionValueName ) : ?>
 											<option value="<?php echo $sOptionValue; ?>"
@@ -252,7 +253,7 @@
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<select name="<?php echo $sOptKey; ?>[]"
-											id="<?php echo $sOptKey; ?>"
+											id="Opt-<?php echo $sOptKey; ?>"
 											multiple="multiple" multiple
 											size="<?php echo count( $aOption[ 'value_options' ] ); ?>"
 										<?php echo $sDisabledText; ?> >
@@ -268,7 +269,7 @@
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<textarea name="<?php echo $sOptKey; ?>"
-											  id="<?php echo $sOptKey; ?>"
+											  id="Opt-<?php echo $sOptKey; ?>"
 											  placeholder="<?php echo $mOptValue; ?>"
 											  rows="<?php echo $aOption[ 'rows' ]; ?>"
 										<?php echo $sDisabledText; ?>
@@ -278,7 +279,7 @@
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
 									<input type="text" name="<?php echo $sOptKey; ?>"
-										   id="<?php echo $sOptKey; ?>"
+										   id="Opt-<?php echo $sOptKey; ?>"
 										   value="<?php echo $mOptValue; ?>"
 										   placeholder="<?php echo $mOptValue; ?>"
 										<?php echo $sDisabledText; ?> />
