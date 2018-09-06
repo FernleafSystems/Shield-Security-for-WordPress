@@ -335,8 +335,21 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$sPath = strtoupper( $oEntry->verb ).': <code>'.$sPreQuery
 						 .( empty( $sQuery ) ? '' : '?<br/>'.$sQuery ).'</code>';
 
+				$sCodeType = 'success';
+				if ( $oEntry->code >= 400 ) {
+					$sCodeType = 'danger';
+				}
+				else if ( $oEntry->code >= 300 ) {
+					$sCodeType = 'warning';
+				}
+
 				$aEntry[ 'path' ] = $sPath;
-				$aEntry[ 'trans' ] = $oEntry->trans ? '<strong>'._wpsf__( 'Yes' ).'</strong>' : _wpsf__( 'No' );
+				$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
+				$aEntry[ 'trans' ] = sprintf(
+					'<span class="badge badge-%s">%s</span>',
+					$oEntry->trans ? 'danger' : 'info',
+					$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
+				);
 				$aEntry[ 'ip' ] = $sIp;
 				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
 				$aEntry[ 'is_you' ] = $sIp == $sYou;
@@ -373,7 +386,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
 				$aInfo = array(
-					sprintf( '%s: %s', _wpsf__( 'Response' ), $oEntry->code ),
+					sprintf( '%s: %s', _wpsf__( 'Response' ), $aEntry[ 'code' ] ),
 					sprintf( '%s: %s', _wpsf__( 'Transgression' ), $aEntry[ 'trans' ] ),
 				);
 				$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
