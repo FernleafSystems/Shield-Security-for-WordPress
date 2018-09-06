@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 				 $this->getCronName(),
 				 array( $this, 'cron_dailyReportingConsolidation' )
 			 );
-		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getFeature()->isPluginDeleting() ) {
+		if ( !$this->getMod()->isPluginDeleting() ) {
 			$this->commit();
 		}
 	}
@@ -83,9 +83,9 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	protected function getConsolidation() {
 		if ( !isset( $this->oConsolidation ) ) {
-			include( dirname( dirname( __FILE__ ) ).'/query/statistics_consolidation.php' );
+			require_once( $this->queryGetDir().'consolidation.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$this->oConsolidation = new ICWP_WPSF_Query_Statistics_Consolidation();
 			$this->oConsolidation->setFeature( $oFO );
 		}
@@ -96,15 +96,15 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 * @return string
 	 */
 	protected function getCronName() {
-		$oFO = $this->getFeature();
-		return $oFO->prefixOptionKey( $oFO->getDefinition( 'reporting_consolidation_cron_name' ) );
+		$oFO = $this->getMod();
+		return $oFO->prefixOptionKey( $oFO->getDef( 'reporting_consolidation_cron_name' ) );
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDefinition( 'reporting_table_columns' );
+		$aDef = $this->getMod()->getDef( 'reporting_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -126,7 +126,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	/**
 	 */
 	protected function commit() {
-		$aEntries = apply_filters( $this->getFeature()->prefix( 'collect_stats' ), array() );
+		$aEntries = apply_filters( $this->getMod()->prefix( 'collect_stats' ), array() );
 		if ( !empty( $aEntries ) && is_array( $aEntries ) ) {
 			foreach ( $aEntries as $aCollection ) {
 				foreach ( $aCollection as $sStatKey => $nTally ) {
@@ -160,4 +160,11 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	public function deleteTable() {
 	} //override and do not delete
+
+	/**
+	 * @return string
+	 */
+	protected function queryGetDir() {
+		return parent::queryGetDir().'statistics/';
+	}
 }

@@ -1,7 +1,6 @@
-<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate">
+<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate" autocomplete="off">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
-    <input type="hidden" name="all_options_input" value="<?php echo $data[ 'all_options_input' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />
 
 	<?php foreach ( $ajax[ 'mod_options' ] as $sAjKey => $sAjVal ) : ?>
@@ -184,14 +183,15 @@
 						<div class="option_section <?php echo ( $mOptValue == 'Y' ) ? 'selected_item' : ''; ?>"
 							 id="option_section_<?php echo $sOptKey; ?>">
 
-							<label class="for<?php echo $sOptType; ?>">
+							<label id="Label-<?php echo $sOptKey ?>" class="for<?php echo $sOptType; ?>"
+								   for="<?php echo $sOptKey; ?>">
 
 								<?php if ( $sOptType == 'checkbox' ) : ?>
 									<span class="icwp-switch">
 										<input type="checkbox"
-											   name="<?php echo $sOptKey; ?>"
-											   id="<?php echo $sOptKey; ?>"
+											   name="<?php echo $sOptKey; ?>" id="<?php echo $sOptKey; ?>"
 											   value="Y" <?php echo ( $mOptValue == 'Y' ) ? 'checked="checked"' : ''; ?>
+											   aria-labelledby="Label-<?php echo $sOptKey ?>"
 											<?php echo $sDisabledText; ?> />
 										<span class="icwp-slider round"></span>
 									</span>
@@ -215,10 +215,14 @@
 								<?php elseif ( $sOptType == 'password' ) : ?>
 
 									<p><?php echo $aOption[ 'summary' ]; ?></p>
-									<input type="password" name="<?php echo $sOptKey; ?>"
-										   id="<?php echo $sOptKey; ?>"
-										   value="<?php echo $mOptValue; ?>"
-										   placeholder="<?php echo $mOptValue; ?>"
+									<input type="password" name="<?php echo $sOptKey; ?>" class="col"
+										   id="<?php echo $sOptKey; ?>" value="<?php echo $mOptValue; ?>"
+										   placeholder="<?php echo $strings[ 'supply_password' ]; ?>"
+										   style="margin-bottom: 5px"
+										<?php echo $sDisabledText; ?> />
+
+									<input type="password" name="<?php echo $sOptKey; ?>_confirm" class="col"
+										   placeholder="<?php echo $strings[ 'confirm_password' ]; ?>"
 										<?php echo $sDisabledText; ?> />
 
 								<?php elseif ( $sOptType == 'email' ) : ?>

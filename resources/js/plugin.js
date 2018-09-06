@@ -79,7 +79,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 				var sMessage;
-				if ( oResponse.data.message === undefined ) {
+				if ( oResponse === null || typeof oResponse.data === 'undefined'
+					|| typeof oResponse.data.message === 'undefined' ) {
 					sMessage = oResponse.success ? 'Success' : 'Failure';
 				}
 				else {
@@ -89,7 +90,9 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 		).always( function () {
 				bRequestCurrentlyRunning = false;
-				location.reload( true );
+				setTimeout( function () {
+					location.reload( true );
+				}, 2000 );
 			}
 		);
 	};
@@ -203,7 +206,74 @@ var iCWP_WPSF_InsightsAdminNotes = new function () {
 		} );
 	};
 }();
-
 iCWP_WPSF_OptionsPages.initialise();
 iCWP_WPSF_OptionsFormSubmit.initialise();
 iCWP_WPSF_InsightsAdminNotes.initialise();
+
+if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.timeleft > 0 ) {
+
+	var iCWP_WPSF_SecurityAdminCheck = new function () {
+
+		var bCheckInPlace = false;
+		var bWarningShown = false;
+		var nIntervalTimeout = 500 * icwp_wpsf_vars_secadmin.timeleft;
+
+		/**
+		 */
+		var checkSecAdmin = function () {
+
+			bCheckInPlace = false;
+
+			jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.reqajax,
+				function ( oResponse ) {
+					if ( oResponse.data.success ) {
+						var nLeft = oResponse.data.timeleft;
+						nIntervalTimeout = Math.max( 3, (nLeft / 2) ) * 1000;
+
+						if ( !bWarningShown && nLeft < 20 && nLeft > 8 ) {
+							bWarningShown = true;
+							iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
+						}
+
+						scheduleSecAdminCheck();
+					}
+					else {
+						iCWP_WPSF_BodyOverlay.show();
+						setTimeout( function () {
+							if ( confirm( icwp_wpsf_vars_secadmin.strings.confirm ) ) {
+								window.location.reload( true );
+							}
+							else {
+								iCWP_WPSF_BodyOverlay.hide();
+								// Do nothing!
+							}
+						}, 1500 );
+						iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
+					}
+
+				}
+			).always( function () {
+				}
+			);
+		};
+
+		/**
+		 */
+		var scheduleSecAdminCheck = function () {
+			if ( !bCheckInPlace ) {
+				setTimeout( function () {
+					checkSecAdmin();
+				}, nIntervalTimeout );
+				bCheckInPlace = true;
+			}
+		};
+
+		this.initialise = function () {
+			jQuery( document ).ready( function () {
+				scheduleSecAdminCheck();
+			} );
+		};
+	}();
+
+	iCWP_WPSF_SecurityAdminCheck.initialise();
+}

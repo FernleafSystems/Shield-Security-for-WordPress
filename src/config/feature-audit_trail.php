@@ -64,6 +64,7 @@
       "key": "audit_trail_auto_clean",
       "section": "section_audit_trail_options",
       "default": 14,
+      "min": 1,
       "type": "integer",
       "link_info": "https://icwp.io/a2",
       "link_blog": "https://icwp.io/a1",
@@ -76,6 +77,7 @@
       "section": "section_audit_trail_options",
       "premium": true,
       "default": 1000,
+      "min": 0,
       "type": "integer",
       "link_info": "",
       "link_blog": "",
@@ -167,6 +169,7 @@
     "audit_trail_table_name": "audit_trail",
     "audit_trail_table_columns": [
       "id",
+      "rid",
       "wp_username",
       "ip",
       "context",

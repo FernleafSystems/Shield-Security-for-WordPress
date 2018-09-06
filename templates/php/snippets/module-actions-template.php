@@ -6,7 +6,7 @@
 
 				<div class="btn-group float-right icwp-top-buttons" role="group">
 
-					<a href="javascript:void(0)" class="btn btn-outline-success icwp-carousel-2">
+					<a href="javascript:void(0)" class="btn btn-outline-success icwp-carousel-0">
 						<?php echo $strings[ 'btn_options' ]; ?></a>
 
 					<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>

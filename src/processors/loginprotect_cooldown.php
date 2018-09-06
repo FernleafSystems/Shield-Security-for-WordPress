@@ -15,28 +15,26 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 
 		if ( !$this->isFactorTested() ) {
 
-			$bWithinCooldownPeriod = $this->isWithinCooldownPeriod();
-			$nRemaining = $this->getLoginCooldownInterval() - $this->getSecondsSinceLastLogin();
-			$this->updateLastLoginTime()
-				 ->setFactorTested( true );
-
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
 			// And finally return a WP_Error which will be reflected back to the user.
-			if ( $bWithinCooldownPeriod ) {
+			if ( $this->isWithinCooldownPeriod() ) {
 
-				$sErrorString = _wpsf__( "Login Cooldown in effect." ).' '
+				$nRemaining = $this->getCooldownInterval() - $this->getSecondsSinceLastLogin();
+				$sErrorString = _wpsf__( "Request Cooldown in effect." ).' '
 								.sprintf(
 									_wpsf__( "You must wait %s seconds before attempting this action again." ),
 									$nRemaining
 								);
 
-				$this->setLoginAsFailed( 'login.cooldown.fail' );
-				$this->addToAuditEntry( _wpsf__( 'Cooldown triggered and request (login/register/lost-password) was blocked.' ) );
+				$this->setLoginAsFailed( 'login.cooldown.fail' )
+					 ->addToAuditEntry( _wpsf__( 'Cooldown triggered and request (login/register/lost-password) was blocked.' ) );
 				throw new Exception( $sErrorString );
 			}
 			else {
-				$this->doStatIncrement( 'login.cooldown.success' );
+				$this->updateLastLoginTime()
+					 ->setFactorTested( true )
+					 ->doStatIncrement( 'login.cooldown.success' );
 			}
 		}
 	}
@@ -44,7 +42,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	/**
 	 * @return int
 	 */
-	protected function getLoginCooldownInterval() {
+	protected function getCooldownInterval() {
 		return (int)$this->getOption( 'login_limit_interval' );
 	}
 
@@ -77,7 +75,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	private function isWithinCooldownPeriod() {
 		// Is there an interval set?
-		$nCooldown = $this->getLoginCooldownInterval();
+		$nCooldown = $this->getCooldownInterval();
 		if ( empty( $nCooldown ) || $nCooldown <= 0 ) {
 			return false;
 		}

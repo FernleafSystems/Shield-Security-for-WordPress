@@ -1,0 +1,26 @@
+<form class="form-horizontal" target="_blank"
+	  action="https://icontrolwp.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259"
+	  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank" novalidate>
+
+	{{ slideMacros.formInput_Text( 'FNAME', data.name, 'Your Name', data.name ) }}
+	{{ slideMacros.formInput_Email( 'EMAIL', data.user_email, 'Your Email',
+		data.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
+	{{ slideMacros.formInput_Checkbox(
+		'OptinConsent', 'Y', 'Agree To Privacy Policy',
+		strings.privacy_policy,
+		'We treat your membership information under our strict, and GDPR-compliant, privacy policy.',
+		'OptinConsent'
+	) }}
+	{{ slideMacros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
+</form>
+
+<script type="text/javascript">
+	jQuery( document ).ready( function ( $ ) {
+		var $oSubButton = $( 'form#mc-embedded-subscribe-form button' );
+		var $oCheck = $( '#OptinConsent' );
+		$oSubButton.attr( "disabled", "disabled" );
+		$( document ).on( 'change', $oCheck, function () {
+			$oSubButton.prop( "disabled", !$oCheck.is( ":checked" ) );
+		} );
+	} );
+</script>

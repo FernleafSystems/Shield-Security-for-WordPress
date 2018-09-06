@@ -20,6 +20,7 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
  * @property string $prefix
  * @property int    $user_id
  * @property bool   $wc_social_login_valid
+ * @property string $flash_msg
  * Class ICWP_UserMeta
  */
 class ICWP_UserMeta extends ICWP_WPSF_Foundation {

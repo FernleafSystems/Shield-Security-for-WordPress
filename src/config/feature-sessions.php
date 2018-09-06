@@ -8,7 +8,8 @@
     "auto_enabled": true,
     "show_central": false,
     "premium": false,
-    "access_restricted": true
+    "access_restricted": true,
+    "auto_load_processor": true
   },
   "sections": [
     {

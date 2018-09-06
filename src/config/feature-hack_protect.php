@@ -13,9 +13,9 @@
   },
   "sections":    [
     {
-      "slug":        "section_scan_schedule",
+      "slug":        "section_scan_options",
       "primary":     true,
-      "title":       "Scan Schedule",
+      "title":       "Scan Options",
       "title_short": "Schedule",
       "summary":     [
         "Purpose - Set how often the Hack Guard scans will run."
@@ -187,7 +187,7 @@
     },
     {
       "key":         "scan_frequency",
-      "section":     "section_scan_schedule",
+      "section":     "section_scan_options",
       "premium":       true,
       "default":       1,
       "type":          "select",
@@ -230,6 +230,18 @@
       "name":        "Scan Frequency",
       "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
       "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
+    },
+    {
+      "key":         "email_files_list",
+      "section":     "section_scan_options",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Email Files List",
+      "summary":     "Scan Notification Emails Should Include Full Listing Of Files",
+      "description": "Scanner notification emails will include a summary list of all affected files."
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",
@@ -374,6 +386,12 @@
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
+    },
+    {
+      "key": "ptg_last_build_at",
+      "transferable": false,
+      "section": "section_non_ui",
+      "value": 0
     },
     {
       "key": "ptg_candiskwrite",

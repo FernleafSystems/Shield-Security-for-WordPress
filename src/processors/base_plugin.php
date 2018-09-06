@@ -12,9 +12,11 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function init() {
 		parent::init();
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
-		add_filter( $oFO->prefix( 'delete_on_deactivate' ), array( $this, 'getIsDeleteOnDeactivate' ) );
+
+		$sFunc = $oFO->isOpt( 'delete_on_deactivate', 'Y' ) ? '__return_true' : '__return_false';
+		add_filter( $oFO->prefix( 'delete_on_deactivate' ), $sFunc );
 	}
 
 	/**
@@ -30,8 +32,8 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
-		$sSlug = $oFO->getFeatureSlug();
+		$oFO = $this->getMod();
+		$sSlug = $oFO->getSlug();
 		if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
 			$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oFO->getPluginInstallationId();
 		}
@@ -80,7 +82,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function addNotice_wizard_welcome( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$bCanWizardWelcome = $oFO->canRunWizards();
 
@@ -140,7 +142,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 		$oPlugin = $this->getController();
-		$oNotices = $this->loadAdminNoticesProcessor();
+		$oNotices = $this->loadWpNotices();
 
 		if ( $oNotices->isDismissed( 'plugin-update-available' ) ) {
 			$aMeta = $oNotices->getMeta( 'plugin-update-available' );
@@ -199,13 +201,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function getIsDeleteOnDeactivate() {
-		return $this->getFeature()->getOptIs( 'delete_on_deactivate', 'Y' );
-	}
-
-	/**
 	 * @param bool $bShow
 	 * @return bool
 	 */
@@ -232,6 +227,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	protected function getIfShowAdminNotices() {
-		return $this->getFeature()->getOptIs( 'enable_upgrade_admin_notice', 'Y' );
+		return $this->getMod()->isOpt( 'enable_upgrade_admin_notice', 'Y' );
 	}
 }

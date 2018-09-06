@@ -56,7 +56,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @param string  $sDir
 	 * @param boolean $bIncludeExtension
 	 * @param boolean $bCaseSensitive
-	 * @return bool|null
+	 * @return string|null - the full path to the file if found
 	 */
 	public function fileExistsInDir( $sNeedle, $sDir, $bIncludeExtension = true, $bCaseSensitive = false ) {
 		if ( empty( $sNeedle ) || empty( $sDir ) ) {
@@ -75,6 +75,7 @@ class ICWP_WPSF_WpFilesystem {
 		$sNeedlePreExtension = $bHasExtension ? substr( $sNeedle, 0, $nDotPosition ) : $sNeedle;
 
 		$bFound = false;
+		$sFullPath = null;
 		foreach ( $this->getFilesInDir( $sDir ) as $oFileItem ) {
 
 			$sFilename = $oFileItem->getFilename();
@@ -91,11 +92,12 @@ class ICWP_WPSF_WpFilesystem {
 			}
 
 			if ( $bFound ) {
+				$sFullPath = $oFileItem->getPathname();
 				break;
 			}
 		}
 
-		return $bFound;
+		return $sFullPath;
 	}
 
 	/**
@@ -165,7 +167,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @param boolean $bSecure
 	 * @return boolean
 	 */
-	public function getIsUrlValid( $sUrl, $bSecure = false ) {
+	public function isUrlLive( $sUrl, $bSecure = false ) {
 		$sSchema = $bSecure ? 'https://' : 'http://';
 		$sUrl = ( strpos( $sUrl, 'http' ) !== 0 ) ? $sSchema.$sUrl : $sUrl;
 		return ( $this->getUrl( $sUrl ) != false );

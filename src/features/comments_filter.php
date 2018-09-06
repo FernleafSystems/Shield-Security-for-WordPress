@@ -9,13 +9,6 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
-	}
-
-	/**
 	 * @return boolean
 	 */
 	public function getIfDoCommentsCheck() {
@@ -92,7 +85,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function doPrePluginOptionsSave() {
 		// TODO: remove as it's a temporary transition for clashing options
-		if ( $this->getOptIs( 'enable_google_recaptcha', 'Y' ) ) {
+		if ( $this->isOpt( 'enable_google_recaptcha', 'Y' ) ) {
 			$this->setOpt( 'enable_google_recaptcha_comments', 'Y' );
 		}
 	}
@@ -109,8 +102,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), _wpsf__( 'Comments SPAM Protection' ) );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -118,8 +111,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			case 'section_bot_comment_spam_protection_filter' :
 				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection' ), _wpsf__( 'Automatic Bot' ) );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Bot SPAM' );
 				break;
@@ -128,17 +121,17 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sTitle = 'Google reCAPTCHA';
 				$sTitleShort = 'reCAPTCHA';
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Adds Google reCAPTCHA to the Comment Forms.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this turned on.' ) ),
-					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Adds Google reCAPTCHA to the Comment Forms.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this turned on.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
 				);
 				break;
 
 			case 'section_human_spam_filter' :
 				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__( 'Human' ) );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 					_wpsf__( 'This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis.' )
 				);
 				$sTitleShort = _wpsf__( 'Human SPAM' );
@@ -156,22 +149,22 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function getIsGoogleRecaptchaEnabled() {
-		return ( $this->getOptIs( 'enable_google_recaptcha_comments', 'Y' ) && $this->getIsGoogleRecaptchaReady() );
+	public function isGoogleRecaptchaEnabled() {
+		return ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isGoogleRecaptchaReady() );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getCommentsFilterTableName() {
-		return $this->prefix( $this->getDefinition( 'spambot_comments_filter_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'spambot_comments_filter_table_name' ), '_' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->getOptIs( 'enable_comments_gasp_protection', 'Y' );
+		return $this->isOpt( 'enable_comments_gasp_protection', 'Y' );
 	}
 
 	/**

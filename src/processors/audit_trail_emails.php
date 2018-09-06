@@ -15,25 +15,51 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 	}
 
 	/**
-	 * @param array $aEmailParams
+	 * @param array $aEmail
 	 * @return array
 	 */
-	public function auditEmailSend( $aEmailParams ) {
+	public function auditEmailSend( $aEmail ) {
 
-		if ( is_array( $aEmailParams ) ) {
-			$sTo = isset( $aEmailParams[ 'to' ] ) ? $aEmailParams[ 'to' ] : 'no email address provided';
+		if ( is_array( $aEmail ) ) {
+			$sTo = isset( $aEmail[ 'to' ] ) ? $aEmail[ 'to' ] : 'no email address provided';
 			if ( is_array( $sTo ) ) {
 				$sTo = implode( ', ', $sTo );
 			}
-			$sMessage = sprintf( _wpsf__( 'There was an attempt to send an email using the "%s" function.' ), 'wp_mail' )
-						.' '.sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmailParams[ 'subject' ] );
+
+			$aBacktrace = $this->findEmailSenderBacktrace();
+
+			$aMsg = array(
+				sprintf( _wpsf__( 'There was an attempt to send an email using the "%s" function.' ), 'wp_mail' ),
+				sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmail[ 'subject' ] ),
+			);
+			if ( !empty( $aBacktrace ) ) {
+				$aMsg[] = sprintf( _wpsf__( 'The "%s" function was called from the file "%s" on line %s.' ),
+					'wp_mail',
+					$aBacktrace[ 'file' ],
+					$aBacktrace[ 'line' ]
+				);
+			}
 		}
 		else {
-			$sMessage = sprintf( _wpsf__( 'Attempting to log email, but data was not of the correct type (%s)' ), 'array' );
+			$aMsg = array( sprintf( _wpsf__( 'Attempting to log email, but data was not of the correct type (%s)' ), 'array' ) );
 		}
 
-		$this->add( 'emails', 'email_attempt_send', 1, $sMessage );
+		$this->add( 'emails', 'email_attempt_send', 1, implode( " ", $aMsg ) );
 
-		return $aEmailParams;
+		return $aEmail;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function findEmailSenderBacktrace() {
+		$aBT = array();
+		foreach ( debug_backtrace( false ) as $aItem ) {
+			if ( isset( $aItem[ 'function' ] ) && 'wp_mail' === strtolower( $aItem[ 'function' ] ) ) {
+				$aBT = $aItem;
+				break;
+			}
+		}
+		return $aBT;
 	}
 }

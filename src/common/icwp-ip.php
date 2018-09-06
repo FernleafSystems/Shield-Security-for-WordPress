@@ -162,6 +162,13 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSupportedIpv6() {
+		return ( extension_loaded( 'sockets' ) && defined( 'AF_INET6' ) ) || @inet_pton( '::1' );
+	}
+
+	/**
 	 * @param string $sIp
 	 * @param bool   $flags
 	 * @return boolean
@@ -298,7 +305,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		$oDp = $this->loadDP();
 		foreach ( $this->getIpSourceOptions() as $sSource ) {
 
-			$sIpToTest = $oDp->FetchServer( $sSource );
+			$sIpToTest = $oDp->server( $sSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}
@@ -372,5 +379,94 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 			'2c0f:f248::/32',
 			'2a06:98c0::/29'
 		);
+	}
+
+	/**
+	 * @param int $sIpVersion
+	 * @return string[]
+	 */
+	public function getServiceIps_Pingdom( $sIpVersion = 4 ) {
+		$sUrl = sprintf( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion );
+		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getServiceIps_StatusCake() {
+		$aIps = array();
+		$aData = @json_decode( $this->loadFS()
+									->getUrlContent( 'https://app.statuscake.com/Workfloor/Locations.php?format=json' ), true );
+		if ( is_array( $aData ) ) {
+			foreach ( $aData as $aItem ) {
+				$aIps[] = $aItem[ 'ip' ];
+			}
+		}
+		return $aIps;
+	}
+
+	/**
+	 * @param int $sIpVersion
+	 * @return string[]
+	 */
+	public function getServiceIps_UptimeRobot( $sIpVersion = 4 ) {
+		$sUrl = sprintf( 'https://uptimerobot.com/inc/files/ips/IPv%s.txt', $sIpVersion );
+		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIpBingBot( $sIp, $sUserAgent = '' ) {
+		$bIsGBot = false;
+
+		// We check the useragent if available
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'bingbot' ) !== false ) {
+			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
+			if ( !empty( $sHost ) && ( $sHost != $sIp )
+				 && preg_match( '#.*\.search\.msn\.com\.?$#i', $sHost )
+				 && gethostbyname( $sHost ) === $sIp ) {
+				$bIsGBot = true;
+			}
+		}
+		return $bIsGBot;
+	}
+
+	/**
+	 * https://duckduckgo.com/duckduckbot
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIpDuckDuckGoBot( $sIp, $sUserAgent = '' ) {
+		$bIsBot = false;
+
+		// We check the useragent if available
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'DuckDuckBot' ) !== false ) {
+			$bIsBot = in_array( $sIp, array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' ) );
+		}
+		return $bIsBot;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIpGoogleBot( $sIp, $sUserAgent = '' ) {
+		$bIsGBot = false;
+
+		// We check the useragent if available
+		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'Googlebot' ) !== false ) {
+			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
+			if ( !empty( $sHost ) && ( $sHost != $sIp )
+				 && preg_match( '#.*\.google(bot)?\.com\.$#i', $sHost )
+				 && gethostbyname( $sHost ) === $sIp ) {
+				$bIsGBot = true;
+			}
+		}
+		return $bIsGBot;
 	}
 }

@@ -36,11 +36,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected $aPageParams;
 
-	/**
-	 * @var array
-	 */
-	protected $aRawRequestParams;
-
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
 			$this->doPreFirewallBlock();
@@ -91,7 +86,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		// TODO: are we calling is_super_admin() too early?
-		if ( $bPerformScan && $this->getIsOption( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
+		if ( $bPerformScan && $this->getMod()->isOpt( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
 //				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
 //				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
@@ -104,30 +99,32 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean - true if visitor is permitted, false if it should be blocked.
 	 */
 	protected function isVisitorRequestPermitted() {
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
 
 		$bRequestIsPermitted = true;
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_dir_traversal', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_dir_traversal', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_sql_queries', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_sql_queries', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_wordpress_terms', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_wordpress_terms', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_field_truncation', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_field_truncation', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_php_code', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_php_code', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_leading_schema', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_leading_schema', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_aggressive', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_aggressive', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
 		}
-		if ( $bRequestIsPermitted && $this->getIsOption( 'block_exe_file_uploads', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 		}
 		return $bRequestIsPermitted;
@@ -233,7 +230,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallPatterns( $sKey = null ) {
 		if ( !isset( $this->aPatterns ) ) {
-			$this->aPatterns = $this->getFeature()->getDefinition( 'firewall_patterns' );
+			$this->aPatterns = $this->getMod()->getDef( 'firewall_patterns' );
 		}
 		if ( !empty( $sKey ) ) {
 			return isset( $this->aPatterns[ $sKey ] ) ? $this->aPatterns[ $sKey ] : null;
@@ -255,7 +252,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $this->getIfDoFirewallBlock() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 
 			switch ( $oFO->getBlockResponse() ) {
 				case 'redirect_die':
@@ -275,7 +272,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 					break;
 			}
 
-			if ( $this->getIsOption( 'block_send_email', 'Y' ) ) {
+			if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
 
 				$sRecipient = $oFO->getPluginDefaultRecipientAddress();
 				if ( $this->sendBlockEmail( $sRecipient ) ) {
@@ -298,7 +295,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $this->getIfDoFirewallBlock() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$oWp = $this->loadWp();
 
 			switch ( $oFO->getBlockResponse() ) {
@@ -325,7 +322,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallDieMessage() {
 		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
-			$this->aDieMessage = array( $this->getFeature()->getTextOpt( 'text_firewalldie' ) );
+			$this->aDieMessage = array( $this->getMod()->getTextOpt( 'text_firewalldie' ) );
 		}
 		return $this->aDieMessage;
 	}
@@ -334,7 +331,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getFirewallDieMessageForDisplay() {
-		$aMessages = apply_filters( $this->getFeature()
+		$aMessages = apply_filters( $this->getMod()
 										 ->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
 		if ( !is_array( $aMessages ) ) {
 			$aMessages = array();
@@ -410,13 +407,12 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRawRequestParams() {
-		if ( !isset( $this->aRawRequestParams ) ) {
-			$this->aRawRequestParams = $this->loadDP()
-											->getRawRequestParams( $this->getIsOption( 'include_cookie_checks', 'Y' ) );
-		}
-		return $this->aRawRequestParams;
+		return $this->loadDP()->getRequestParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getWhitelistPages() {
 		if ( !isset( $this->aWhitelistPages ) ) {
 
@@ -451,7 +447,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			);
 
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$aCustomWhitelistPageParams = $oFO->getPageParamWhitelist();
 			$this->aWhitelistPages = array_merge_recursive( $aDefaultWlPages, $aCustomWhitelistPageParams );
 		}
@@ -469,7 +465,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$aMessage = array(
 			sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()->getHumanName() ),
 			_wpsf__( 'Log details for this visitor are below:' ),
-			'- '.sprintf( _wpsf__( 'IP Address: %s' ), $sIp )
+			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIp )
 		);
 		$aMessage = array_merge( $aMessage, $this->getRawAuditMessage( '- ' ) );
 		// TODO: Get audit trail messages

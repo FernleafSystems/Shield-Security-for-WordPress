@@ -1,7 +1,7 @@
 
 # Shield Security Plugin for WordPress
 
-[![Build Status](https://travis-ci.org/FernleafSystems/Shield.svg?branch=develop)](https://travis-ci.org/FernleafSystems/Shield)
+[![Build Status](https://travis-ci.org/FernleafSystems/Shield-Security-for-WordPress.svg?branch=develop)](https://travis-ci.org/FernleafSystems/Shield)
 
 
 **Don't Leave Your Site At Risk**

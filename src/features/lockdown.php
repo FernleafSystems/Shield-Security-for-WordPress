@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return bool
 	 */
 	public function isRestApiAnonymousAccessAllowed() {
-		return $this->getOptIs( 'disable_anonymous_restapi', 'N' );
+		return $this->isOpt( 'disable_anonymous_restapi', 'N' );
 	}
 
 	/**
@@ -41,13 +41,6 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			$this->cleanApiExclusions();
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
 	}
 
 	/**
@@ -91,8 +84,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_enable_plugin_feature_wordpress_lockdown' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Lockdown' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Lockdown' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -100,8 +93,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_apixml' :
 				$sTitle = _wpsf__( 'API & XML-RPC' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
 				);
 				$sTitleShort = _wpsf__( 'API & XML-RPC' );
 				break;
@@ -109,8 +102,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_permission_access_options' :
 				$sTitle = _wpsf__( 'Permissions and Access Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Provides finer control of certain WordPress permissions.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Only enable SSL if you have a valid certificate installed.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control of certain WordPress permissions.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Only enable SSL if you have a valid certificate installed.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Permissions' );
 				break;
@@ -118,8 +111,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_wordpress_obscurity_options' :
 				$sTitle = _wpsf__( 'WordPress Obscurity Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Obscures certain WordPress settings from public view.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Obscurity is not true security and so these settings are down to your personal tastes.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Obscures certain WordPress settings from public view.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Obscurity is not true security and so these settings are down to your personal tastes.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Obscurity' );
 				break;
@@ -185,7 +178,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sName = _wpsf__( 'Mask WordPress Version' );
 				$sSummary = _wpsf__( 'Prevents Public Display Of Your WordPress Version' );
 				$sDescription = _wpsf__( 'Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature.' )
-								.'<br />'._wpsf__( 'Warning: This may interfere with WordPress plugins that rely on the $wp_version variable.' );
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'This may interfere with WordPress plugins that rely on the $wp_version variable.' ) );
 				break;
 
 			case 'hide_wordpress_generator_tag' :
@@ -198,7 +191,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sName = _wpsf__( 'Block Username Fishing' );
 				$sSummary = _wpsf__( 'Block the ability to discover WordPress usernames based on author IDs' );
 				$sDescription = sprintf( _wpsf__( 'When enabled, any URL requests containing "%s" will be killed.' ), 'author=' )
-								.'<br />'.sprintf( _wpsf__( 'Warning: %s' ), _wpsf__( 'Enabling this option may interfere with expected operations of your site.' ) );
+								.'<br />'.sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Enabling this option may interfere with expected operations of your site.' ) );
 				break;
 
 			default:

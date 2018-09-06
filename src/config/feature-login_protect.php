@@ -151,6 +151,7 @@
       "section":     "section_multifactor_authentication",
       "premium":     true,
       "default":     0,
+      "min":         0,
       "type":        "integer",
       "link_info":   "https://icwp.io/b1",
       "link_blog":   "",
@@ -185,31 +186,51 @@
       "section":       "section_2fa_email",
       "type":          "multiple_select",
       "default":       [
-        1,
-        2,
-        3,
-        8
+        "contributor",
+        "author",
+        "editor",
+        "administrator"
       ],
       "value_options": [
         {
-          "value_key": 0,
+          "value_key": "subscriber",
           "text":      "Subscribers"
         },
         {
-          "value_key": 1,
+          "value_key": "contributor",
           "text":      "Contributors"
         },
         {
-          "value_key": 2,
+          "value_key": "author",
           "text":      "Authors"
         },
         {
-          "value_key": 3,
+          "value_key": "editor",
           "text":      "Editors"
         },
         {
-          "value_key": 8,
+          "value_key": "administrator",
           "text":      "Administrators"
+        },
+        {
+          "value_key": "customer",
+          "text":      "[Woo] Customer"
+        },
+        {
+          "value_key": "shop_manager",
+          "text":      "[Woo/EDD] Shop Manager"
+        },
+        {
+          "value_key": "shop_accountant",
+          "text":      "[EDD] Shop Accountant"
+        },
+        {
+          "value_key": "shop_worker",
+          "text":      "[EDD] Shop Worker"
+        },
+        {
+          "value_key": "edd_subscriber",
+          "text":      "[EDD] Customer"
         }
       ],
       "link_info":     "https://icwp.io/4v",
@@ -301,14 +322,6 @@
       "name":        "Google reCAPTCHA",
       "summary":     "Enable Google reCAPTCHA",
       "description": "Use Google reCAPTCHA on the login screen."
-    },
-    {
-      "key":           "google_recaptcha_style_login",
-      "section":       "section_non_ui"
-    },
-    {
-      "key":         "enable_user_register_checking",
-      "section":     "section_non_ui"
     },
     {
       "key":         "enable_yubikey",

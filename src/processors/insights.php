@@ -13,6 +13,6 @@ class ICWP_WPSF_Processor_Insights extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Insights $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 	}
 }

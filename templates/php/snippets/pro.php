@@ -261,7 +261,7 @@ var iCWP_WPSF_LicenseHandler = new function () {
 			}
 		).always( function () {
 				bRequestCurrentlyRunning = false;
-//				iCWP_WPSF_BodyOverlay.hide();
+				// iCWP_WPSF_BodyOverlay.hide();
 				location.reload( true );
 			}
 		);

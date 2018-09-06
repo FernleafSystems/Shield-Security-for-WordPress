@@ -91,7 +91,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getIsRunningAutomaticUpdates() {
+	public function isRunningAutomaticUpdates() {
 		return ( get_option( 'auto_updater.lock' ) ? true : false );
 	}
 
@@ -445,7 +445,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 				return;
 			}
 			else {
-				$oDp->setCookie( 'icwp-isredirect', 'yes', 2 );
+				$oDp->setCookie( 'icwp-isredirect', 'yes', 5 );
 			}
 		}
 
@@ -499,11 +499,20 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sPath
+	 * @param bool   $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl( $sPath, $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( $sPath ) : admin_url( $sPath );
+	}
+
+	/**
 	 * @param bool $bWpmsOnly
 	 * @return string
 	 */
 	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
-		return $bWpmsOnly ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' );
+		$this->getAdminUrl( 'plugins.php', $bWpmsOnly );
 	}
 
 	/**
@@ -511,7 +520,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Themes( $bWpmsOnly = false ) {
-		return $bWpmsOnly ? network_admin_url( 'themes.php' ) : admin_url( 'themes.php' );
+		$this->getAdminUrl( 'themes.php', $bWpmsOnly );
 	}
 
 	/**
@@ -519,7 +528,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Updates( $bWpmsOnly = false ) {
-		return $bWpmsOnly ? network_admin_url( 'update-core.php' ) : admin_url( 'update-core.php' );
+		$this->getAdminUrl( 'update-core.php', $bWpmsOnly );
 	}
 
 	/**
@@ -547,7 +556,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param string
 	 * @return string
 	 */
-	public function getIsCurrentPage( $sPage ) {
+	public function isCurrentPage( $sPage ) {
 		return $sPage == $this->getCurrentPage();
 	}
 
@@ -556,7 +565,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getIsPage_Updates() {
-		return $this->getIsCurrentPage( 'update.php' );
+		return $this->isCurrentPage( 'update.php' );
 	}
 
 	/**
@@ -599,6 +608,13 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	public function isRequestUserResetPasswordStart() {
 		$oDp = $this->loadDP();
 		return $this->isRequestLoginUrl() && $oDp->isMethodPost() && !is_null( $oDp->post( 'user_login' ) );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getAuthCookieExpiration() {
+		return (int)apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS, 0, false );
 	}
 
 	/**
@@ -674,14 +690,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @return boolean
 	 */
-	public function getIsXmlrpc() {
+	public function isXmlrpc() {
 		return defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function getIsMobile() {
+	public function isMobile() {
 		return function_exists( 'wp_is_mobile' ) && wp_is_mobile();
 	}
 
@@ -717,7 +733,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 			$sRestPath = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
 			$sRequestPath = trim( $this->loadDP()->getRequestPath(), '/' );
-			$bIsRest = ( strpos( $sRequestPath, $sRestPath ) === 0 );
+			$bIsRest = !empty( $sRequestPath ) && !empty( $sRestPath )
+					   && ( strpos( $sRequestPath, $sRestPath ) === 0 );
 		}
 		return $bIsRest;
 	}

@@ -85,7 +85,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isDisplayPluginBadge() {
-		return $this->getOptIs( 'display_plugin_badge', 'Y' )
+		return $this->isOpt( 'display_plugin_badge', 'Y' )
 			   && ( $this->loadDP()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
@@ -179,6 +179,26 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'delete_forceoff':
+					$aAjaxResponse = $this->ajaxExec_DeleteForceOff();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function ajaxExec_PluginBadgeClose() {
@@ -201,6 +221,19 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function ajaxExec_SetPluginTrackingPerm() {
 		$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
 		return array( 'success' => true );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_DeleteForceOff() {
+		$bStillActive = $this->getConn()
+							 ->deleteForceOffFile()
+							 ->getIfForceOffActive();
+		if ( $bStillActive ) {
+			$this->setFlashAdminNotice( _wpsf__( 'File could not be automatically removed.' ), true );
+		}
+		return array( 'success' => !$bStillActive );
 	}
 
 	/**
@@ -230,14 +263,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return boolean
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
-		return $bGloballyDisabled || !$this->getOptIs( 'global_enable_plugin_features', 'Y' );
+		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getActivePluginFeatures() {
-		$aActiveFeatures = $this->getDefinition( 'active_plugin_features' );
+		$aActiveFeatures = $this->getDef( 'active_plugin_features' );
 
 		$aPluginFeatures = array();
 		if ( !empty( $aActiveFeatures ) && is_array( $aActiveFeatures ) ) {
@@ -290,14 +323,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isTrackingEnabled() {
-		return $this->getOptIs( 'enable_tracking', 'Y' );
+		return $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTrackingPermissionSet() {
-		return !$this->getOptIs( 'tracking_permission_set_at', 0 );
+		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}
 
 	/**
@@ -459,7 +492,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportPermitted() {
-		return $this->isPremium() && $this->getOptIs( 'importexport_enable', 'Y' );
+		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -473,7 +506,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isImportExportWhitelistNotify() {
-		return $this->getOptIs( 'importexport_whitelist_notify', 'Y' );
+		return $this->isOpt( 'importexport_whitelist_notify', 'Y' );
 	}
 
 	/**
@@ -645,7 +678,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
-		return $this->getOptIs( 'enable_xmlrpc_compatibility', 'Y' );
+		return $this->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
 	}
 
 	/**
@@ -697,14 +730,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sTitle = _wpsf__( 'Plugin Defaults' );
 				$sTitleShort = _wpsf__( 'Plugin Defaults' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Important default settings used throughout the plugin.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Important default settings used throughout the plugin.' ) ),
 				);
 				break;
 
 			case 'section_importexport' :
 				$sTitle = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Automatically import options, and deploy configurations across your entire network.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatically import options, and deploy configurations across your entire network.' ) ),
 					sprintf( _wpsf__( 'This is a Pro-only feature.' ) ),
 				);
 				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );

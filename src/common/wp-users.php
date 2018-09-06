@@ -85,6 +85,28 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getLevelToRoleMap() {
+		return array(
+			0 => 'subscriber',
+			1 => 'contributor',
+			2 => 'author',
+			3 => 'editor',
+			8 => 'administrator'
+		);
+	}
+
+	/**
+	 * @param bool $bSlugsOnly
+	 * @return string[]|array[]
+	 */
+	public function getAvailableUserRoles( $bSlugsOnly = true ) {
+		require_once( ABSPATH.'wp-admin/includes/user.php' );
+		return $bSlugsOnly ? array_keys( get_editable_roles() ) : get_editable_roles();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function canSaveMeta() {
@@ -122,8 +144,29 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 */
 	public function getCurrentWpUserId() {
 		$oUser = $this->getCurrentWpUser();
-		$nId = is_null( $oUser ) ? 0 : $oUser->ID;
-		return $nId;
+		return is_null( $oUser ) ? 0 : $oUser->ID;
+	}
+
+	/**
+	 * @return null|string
+	 */
+	public function getCurrentWpUsername() {
+		$oUser = $this->getCurrentWpUser();
+		return is_null( $oUser ) ? null : $oUser->user_login;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return string
+	 */
+	public function getAdminUrl_ProfileEdit( $oUser = null ) {
+		if ( $oUser instanceof WP_User ) {
+			$sPath = 'user-edit.php?user_id='.$oUser->ID;
+		}
+		else {
+			$sPath = 'profile.php';
+		}
+		return $this->loadWp()->getAdminUrl( $sPath );
 	}
 
 	/**
@@ -131,7 +174,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return WP_User|null
 	 */
 	public function getUserByEmail( $sEmail ) {
-		return function_exists( 'get_user_by' ) ? get_user_by( 'email', $sEmail ) : null;
+		return $this->getUserBy( 'email', $sEmail );
 	}
 
 	/**
@@ -139,7 +182,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return WP_User|null
 	 */
 	public function getUserById( $nId ) {
-		return function_exists( 'get_user_by' ) ? get_user_by( 'id', $nId ) : null;
+		return $this->getUserBy( 'id', $nId );
 	}
 
 	/**
@@ -147,7 +190,17 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return null|WP_User
 	 */
 	public function getUserByUsername( $sUsername ) {
-		return function_exists( 'get_user_by' ) ? get_user_by( 'login', $sUsername ) : null;
+		return $this->getUserBy( 'login', $sUsername );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param mixed  $mValue
+	 * @return null|WP_User
+	 */
+	public function getUserBy( $sKey, $mValue ) {
+		$oU = function_exists( 'get_user_by' ) ? get_user_by( $sKey, $mValue ) : null;
+		return empty( $oU ) ? null : $oU;
 	}
 
 	/**
@@ -168,6 +221,29 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 			$mResult = get_user_meta( $nUserId, $sKey, true );
 		}
 		return $mResult;
+	}
+
+	/**
+	 * @see wp-login.php
+	 * @param WP_User $oUser
+	 * @return string|null
+	 */
+	public function getPasswordResetUrl( $oUser ) {
+		$sUrl = null;
+
+		$sResetKey = get_password_reset_key( $oUser );
+		if ( !is_wp_error( $sResetKey ) ) {
+			$sUrl = add_query_arg(
+				array(
+					'action' => 'rp',
+					'key'    => $sResetKey,
+					'login'  => $oUser->user_login,
+				),
+				wp_login_url()
+			);
+		}
+
+		return $sUrl;
 	}
 
 	/**
@@ -267,15 +343,13 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	public function setUserLoggedIn( $sUsername ) {
 
 		$oUser = $this->getUserByUsername( $sUsername );
-		if ( !( $oUser instanceof WP_User ) ) {
-			return false;
+		$bSuccess = $oUser instanceof WP_User;
+		if ( $bSuccess ) {
+			wp_clear_auth_cookie();
+			wp_set_current_user( $oUser->ID, $oUser->user_login );
+			wp_set_auth_cookie( $oUser->ID, true );
+			do_action( 'wp_login', $oUser->user_login, $oUser );
 		}
-
-		wp_clear_auth_cookie();
-		wp_set_current_user( $oUser->ID, $oUser->get( 'user_login' ) );
-		wp_set_auth_cookie( $oUser->ID, true );
-		do_action( 'wp_login', $oUser->get( 'user_login' ), $oUser );
-
-		return true;
+		return $bSuccess;
 	}
 }

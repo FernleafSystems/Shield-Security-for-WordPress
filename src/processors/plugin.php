@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function run() {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
 
 		$this->removePluginConflicts();
@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getController()->getIsValidAdminArea() ) {
+		if ( $this->getController()->isValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
 		$this->setupTestCron();
@@ -71,7 +71,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function getBadgeProcessor() {
 		if ( !isset( $this->oBadgeProcessor ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_badge.php' );
-			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getFeature() );
+			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getMod() );
 		}
 		return $this->oBadgeProcessor;
 	}
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function getTrackingProcessor() {
 		if ( !isset( $this->oTrackingProcessor ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_tracking.php' );
-			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getFeature() );
+			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getMod() );
 		}
 		return $this->oTrackingProcessor;
 	}
@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oProc = $this->getSubProcessor( 'importexport' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_importexport.php' );
-			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getMod() );
 			$this->aSubProcessors[ 'importexport' ] = $oProc;
 		}
 		return $oProc;
@@ -107,7 +107,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oProc = $this->getSubProcessor( 'notes' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
-			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $this->getFeature() );
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+			$oMod = $this->getMod();
+			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $oMod );
 			$this->aSubProcessors[ 'notes' ] = $oProc;
 		}
 		return $oProc;
@@ -116,7 +118,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 */
 	public function dumpTrackingData() {
-		if ( $this->getController()->getIsValidAdminArea() ) {
+		if ( $this->getController()->isValidAdminArea() ) {
 			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
 																	  ->collectTrackingData(), true ) );
 			die();
@@ -127,9 +129,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	public function printTrackingDataBox() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
-		if ( !$this->getController()->getIsValidAdminArea() ) {
+		if ( !$this->getController()->isValidAdminArea() ) {
 			return;
 		}
 
@@ -159,7 +161,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 	public function cron_TestCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->updateTestCronLastRunAt();
 	}
 
@@ -193,18 +195,24 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_override_forceoff( $aNoticeAttributes ) {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getMod();
 
 		$oCon = $this->getController();
 		if ( $oCon->getIfForceOffActive() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'   => sprintf( _wpsf__( 'Warning - %s' ), sprintf( _wpsf__( '%s plugin is not currently processing requests' ), $oCon->getHumanName() ) ),
+					'title'   => sprintf( '%s - %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s plugin is not currently processing requests' ), $oCon->getHumanName() ) ),
 					'message' => sprintf(
 						_wpsf__( 'Please delete the "%s" file to reactivate the %s protection' ),
 						'forceOff',
 						$oCon->getHumanName()
-					)
+					),
+					'delete' => _wpsf__( 'Click here to automatically delete the file' )
+				),
+				'ajax' => array(
+					'delete_forceoff' => $oFO->getAjaxActionData( 'delete_forceoff', true )
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );
@@ -216,7 +224,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @param array $aNoticeAttributes
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
-		$oModCon = $this->getFeature();
+		$oModCon = $this->getMod();
 		$sName = $this->getController()->getHumanName();
 
 		$nDays = $this->getInstallationDays();

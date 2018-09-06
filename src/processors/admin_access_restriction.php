@@ -15,17 +15,17 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oWp = $this->loadWp();
 
 		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 		add_filter( $oFO->prefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 
-		if ( !$oFO->getIsUpgrading() && !$oWp->isRequestUserLogin() ) {
+		if ( !$oFO->isUpgrading() && !$oWp->isRequestUserLogin() ) {
 			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 		}
 
-		if ( $oFO->getOptIs( 'admin_access_restrict_admin_users', 'Y' ) ) {
+		if ( $oFO->isOpt( 'admin_access_restrict_admin_users', 'Y' ) ) {
 			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 0, 3 );
 			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 0, 1 );
 		}
@@ -65,10 +65,10 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel
 	 */
 	protected function getSubProcessorWhitelabel() {
-		$oProc = $this->getSubProcessor( 'checksum' );
+		$oProc = $this->getSubProcessor( 'wl' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/adminaccess_whitelabel.php' );
-			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getFeature() );
+			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getMod() );
 			$this->aSubProcessors[ 'wl' ] = $oProc;
 		}
 		return $oProc;
@@ -81,7 +81,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getFeature()->getFeatureSlug();
+		$sSlug = $this->getMod()->getSlug();
 
 		$aKeysToBoolean = array(
 			'admin_access_restrict_plugins',
@@ -141,9 +141,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 			// Find the WP_User for the POST
 			$oPostUser = false;
-			$sPostUserlogin = $oDp->FetchPost( 'user_login' );
+			$sPostUserlogin = $oDp->post( 'user_login' );
 			if ( empty( $sPostUserlogin ) ) {
-				$nPostUserId = $oDp->FetchPost( 'user_id' );
+				$nPostUserId = $oDp->post( 'user_id' );
 				if ( !empty( $nPostUserId ) ) {
 					$oPostUser = $oWpUsers->getUserById( $nPostUserId );
 				}
@@ -156,7 +156,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 			if ( $oPostUser instanceof WP_User ) {
 				// editing an existing user other than yourself?
-				if ( $oPostUser->get( 'user_login' ) != $oWpUsers->getCurrentWpUser()->get( 'user_login' ) ) {
+				if ( $oPostUser->user_login != $oWpUsers->getCurrentWpUser()->user_login ) {
 
 					if ( $oWpUsers->isUserAdmin( $oPostUser ) || ( $sRequestRole == 'administrator' ) ) {
 						$bBlockCapability = true;
@@ -183,7 +183,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->doCheckHasPermissionToSubmit() ) {
 			return;
 		}
@@ -220,7 +220,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->doCheckHasPermissionToSubmit() ) {
 			return;
 		}
@@ -300,7 +300,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	protected function isOptionRestricted( $sOptionKey ) {
 		$bRestricted = false;
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->getAdminAccessArea_Options() ) {
 			$bRestricted = in_array(
 				$sOptionKey,
@@ -323,7 +323,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oDp = $this->loadDP();
 
 		/** @var string $sRequestedCapability */
@@ -364,7 +364,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -400,7 +400,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -439,7 +439,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	protected function getOptionRegexPattern() {
 		if ( !isset( $this->sOptionRegexPattern ) ) {
 			$this->sOptionRegexPattern = sprintf( '/^%s.*_options$/',
-				$this->getFeature()->getOptionStoragePrefix()
+				$this->getMod()->getOptionStoragePrefix()
 			);
 		}
 		return $this->sOptionRegexPattern;
@@ -447,7 +447,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	public function printAdminAccessAjaxForm() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( $oFO->doCheckHasPermissionToSubmit() ) {
 			return;

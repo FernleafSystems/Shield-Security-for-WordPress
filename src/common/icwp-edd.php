@@ -66,7 +66,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO|null
+	 * @return ICWP_EDD_LicenseVO
 	 */
 	public function activateLicense( $sStoreUrl, $sKey, $sItemId ) {
 		return $this->commonLicenseAction( 'activate_license', $sStoreUrl, $sKey, $sItemId );
@@ -75,7 +75,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sStoreUrl
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO|null
+	 * @return ICWP_EDD_LicenseVO
 	 */
 	public function activateLicenseKeyless( $sStoreUrl, $sItemId ) {
 		return $this->activateLicense( $sStoreUrl, '', $sItemId );
@@ -106,13 +106,13 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO|null
+	 * @return ICWP_EDD_LicenseVO
 	 */
 	private function commonLicenseAction( $sAction, $sStoreUrl, $sKey, $sItemId ) {
 		$oLicense = null;
 
 		$aLicenseLookupParams = array(
-			'timeout' => 10,
+			'timeout' => 30,
 			'body'    => array_merge(
 				array(
 					'edd_action' => $sAction,
@@ -127,11 +127,21 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 
 		$aContent = $this->loadFS()
 						 ->getUrl( $sStoreUrl, $aLicenseLookupParams );
-		if ( !empty( $aContent ) ) {
-			require_once( dirname( __FILE__ ).'/easydigitaldownloads/ICWP_EDD_LicenseVO.php' );
-			$oLicense = new ICWP_EDD_LicenseVO( json_decode( $aContent[ 'body' ] ) );
+		$oDec = !empty( $aContent ) ? @json_decode( $aContent[ 'body' ] ) : new stdClass();
+		return $this->getLicenseVoFromData( $oDec )
+					->setLastRequestAt( $this->loadDP()->time() );
+	}
+
+	/**
+	 * @param stdClass|array $mData
+	 * @return ICWP_EDD_LicenseVO
+	 */
+	public function getLicenseVoFromData( $mData ) {
+		require_once( dirname( __FILE__ ).'/easydigitaldownloads/ICWP_EDD_LicenseVO.php' );
+		if ( is_array( $mData ) ) {
+			$mData = $this->loadDP()->convertArrayToStdClass( $mData );
 		}
-		return $oLicense;
+		return new ICWP_EDD_LicenseVO( $mData );
 	}
 
 	/**

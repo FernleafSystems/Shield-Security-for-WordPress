@@ -22,6 +22,11 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected $aSubProcessors;
 
 	/**
+	 * @var bool
+	 */
+	private $bLoginCaptured;
+
+	/**
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 */
 	public function __construct( $oModCon ) {
@@ -31,7 +36,47 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		if ( method_exists( $this, 'addToAdminNotices' ) ) {
 			add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 		}
+
+		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+
 		$this->init();
+	}
+
+	/**
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		/*
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		}
+		*/
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLoginCaptured() {
+		return (bool)$this->bLoginCaptured;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function setLoginCaptured() {
+		$this->bLoginCaptured = true;
+		return $this;
 	}
 
 	/**
@@ -53,13 +98,13 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
 	public function getController() {
-		return $this->getFeature()->getConn();
+		return $this->getMod()->getConn();
 	}
 
 	public function autoAddToAdminNotices() {
 		$oCon = $this->getController();
 
-		foreach ( $this->getFeature()->getAdminNotices() as $sNoticeId => $aAttrs ) {
+		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;
@@ -67,7 +112,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
 			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
-				 && $aAttrs[ 'valid_admin' ] && $oCon->getIsValidAdminArea() ) {
+				 && $aAttrs[ 'valid_admin' ] && $oCon->isValidAdminArea() ) {
 
 				$aAttrs[ 'id' ] = $sNoticeId;
 				$aAttrs[ 'notice_id' ] = $sNoticeId;
@@ -81,7 +126,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function getIfDisplayAdminNotice( $aAttrs ) {
-		$oWpNotices = $this->loadAdminNoticesProcessor();
+		$oWpNotices = $this->loadWpNotices();
 
 		if ( empty( $aAttrs[ 'schedule' ] )
 			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version', 'never' ) ) ) {
@@ -99,7 +144,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo' ) {
-			if ( $this->loadWp()->getIsMobile() ) {
+			if ( $this->loadWp()->isMobile() ) {
 				return false;
 			}
 		}
@@ -146,10 +191,10 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$bCantDismiss = isset( $aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ] )
 						&& !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
 
-		$oNotices = $this->loadAdminNoticesProcessor();
+		$oNotices = $this->loadWpNotices();
 		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) || $bCantDismiss ) {
 
-			$sRenderedNotice = $this->getFeature()->renderAdminNotice( $aNoticeData );
+			$sRenderedNotice = $this->getMod()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {
 				$oNotices->addAdminNotice(
 					$sRenderedNotice,
@@ -168,18 +213,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return mixed
 	 */
 	public function getOption( $sOptionKey, $mDefault = false ) {
-		return $this->getFeature()->getOpt( $sOptionKey, $mDefault );
-	}
-
-	/**
-	 * @param string  $sKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
-	 * @return bool
-	 */
-	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
-		$mOptionValue = $this->getOption( $sKey );
-		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
+		return $this->getMod()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**
@@ -194,14 +228,22 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Email
 	 */
 	public function getEmailProcessor() {
-		return $this->getFeature()->getEmailProcessor();
+		return $this->getMod()->getEmailProcessor();
 	}
 
 	/**
 	 * @return ICWP_WPSF_FeatureHandler_Base
 	 */
-	protected function getFeature() {
+	protected function getMod() {
 		return $this->oModCon;
+	}
+
+	/**
+	 * @deprecated
+	 * @return ICWP_WPSF_FeatureHandler_Base
+	 */
+	protected function getFeature() {
+		return $this->getMod();
 	}
 
 	/**
@@ -227,7 +269,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_UserMeta
 	 */
 	protected function getCurrentUserMeta() {
-		return $this->getFeature()->getCurrentUserMeta();
+		return $this->getController()->getCurrentUserMeta();
 	}
 
 	/**
@@ -237,7 +279,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getFeature()->prefix( $sSuffix, $sGlue );
+		return $this->getMod()->prefix( $sSuffix, $sGlue );
 	}
 
 	/**
@@ -252,5 +294,16 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function time() {
 		return $this->loadDP()->time();
+	}
+
+	/**
+	 * @deprecated
+	 * @param string  $sKey
+	 * @param mixed   $mValueToTest
+	 * @param boolean $bStrict
+	 * @return bool
+	 */
+	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
+		return $this->getMod()->isOpt( $sKey, $mValueToTest, $bStrict );
 	}
 }

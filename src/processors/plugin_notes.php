@@ -10,7 +10,6 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Plugin $oModCon
-	 * @throws Exception
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Plugin $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDbNameNotes() );
@@ -38,32 +37,16 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'db_notes_table_columns' );
+		$aDef = $this->getMod()->getDef( 'db_notes_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
 	/**
-	 * @param string $nId
-	 * @return bool|int
+	 * @return ICWP_WPSF_Query_PluginNotes_Insert
 	 */
-	public function deleteNote( $nId ) {
-		return $this->getQueryDeleter()->delete( $nId );
-	}
-
-	/**
-	 * @param string $sNote
-	 * @return bool|int
-	 */
-	public function insertNote( $sNote ) {
-		return $this->getQueryCreator()->create( $sNote );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_PluginNotes_Create
-	 */
-	public function getQueryCreator() {
-		require_once( $this->getQueryDir().'plugin_notes_create.php' );
-		$oQ = new ICWP_WPSF_Query_PluginNotes_Create();
+	public function getQueryInserter() {
+		$this->queryRequireLib( 'insert.php' );
+		$oQ = new ICWP_WPSF_Query_PluginNotes_Insert();
 		return $oQ->setTable( $this->getTableName() );
 	}
 
@@ -71,17 +54,24 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_Query_PluginNotes_Delete
 	 */
 	public function getQueryDeleter() {
-		require_once( $this->getQueryDir().'plugin_notes_delete.php' );
+		$this->queryRequireLib( 'delete.php' );
 		$oQ = new ICWP_WPSF_Query_PluginNotes_Delete();
 		return $oQ->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_PluginNotes_Retrieve
+	 * @return ICWP_WPSF_Query_PluginNotes_Select
 	 */
-	public function getQueryRetriever() {
-		require_once( $this->getQueryDir().'plugin_notes_retrieve.php' );
-		$oQ = new ICWP_WPSF_Query_PluginNotes_Retrieve();
+	public function getQuerySelector() {
+		$this->queryRequireLib( 'select.php' );
+		$oQ = new ICWP_WPSF_Query_PluginNotes_Select();
 		return $oQ->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function queryGetDir() {
+		return parent::queryGetDir().'notes/';
 	}
 }

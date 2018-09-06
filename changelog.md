@@ -1,3 +1,82 @@
+= 6.9.0 - Series =
+*Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
+
+* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
+* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
+* **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
+* **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
+* **(v.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
+* **(v.0)**  CHANGED:	Password Policies now requires minimum WordPress v4.4.
+* **(v.0)**  IMPROVED:	Password expiration now redirects to the 'set password' screen, instead of the user profile.
+* **(v.0)**  IMPROVED:	Password capture for purposes of password policies is improved.
+* **(v.0)**  IMPROVED:	You can now delete the 'forceoff' file from inside the WP Admin.
+* **(v.0)**  IMPROVED:	Audit Trail entries for emails will identify the file that's calling the `wp_mail` function.
+* **(v.0)**  IMPROVED:	Audit Trail entries for post editing will identify the post type wherever possible.
+* **(v.0)**  IMPROVED:	Audit Trail entries will try to display all message text correctly.
+* **(v.0)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
+* **(v.0)**  IMPROVED:	Major database code refactoring and other code improvements.
+* **(v.0)**  IMPROVED:	User sessions handling.
+* **(v.0)**  IMPROVED:	Security Admin UX - ajax session checking, with admin notifications and auto-page reload.
+* **(v.0)**  IMPROVED:	Security Admin password setting now requires a confirmation password entry.
+* **(v.0)**  IMPROVED:	Refined Cooldown timing system.
+* **(v.0)**  IMPROVED:	Refined Bot checkbox Javascript.
+* **(v.0)**  IMPROVED:	Cron entry cleanup after deactivation.
+* **(v.0)**  UPDATED:	Bootstrap libraries to latest release v4.1.3.
+* **(v.0)**  FIXED:		Potential bug with Plugin/Themes guard scanning.
+* **(v.0)**  FIXED:		PHP Warning(s).
+
+= 6.8 Series =
+*Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
+
+* **(v.2)**  FIXED:		Bug with multi-factor authentication verification.
+* **(v.2)**  FIXED:		Bug with chosen reCAPTCHA style not being honoured on login pages
+* **(v.2)**  FIXED:		Bug with Invisible reCAPTCHA + WooCommerce
+* **(v.2)**  FIXED:		Bug with Pwned passwords always being checked even if setting turned off.
+* **(v.1)**  FIXED:		A couple of bugs with WooCommerce reCAPTCHA processing.
+* **(v.1)**  FIXED:		A bug with user sessions cleaning
+* **(v.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
+* **(v.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
+* **(v.0)**  IMPROVED:	Completely rebuilt the bot and reCAPTCHA login protection system.
+* **(v.0)**  IMPROVED:	Import/Export system hugely improved with respect to automated push of options from Master sites.
+* **(v.0)**  IMPROVED:	A different approach to sessions management that should handle sessions a bit better.
+* **(v.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
+
+= 6.7 Series =
+*Released: 21st May, 2018* - [Release Notes](https://icwp.io/cx)
+
+* **(v.2)**  ADDED:		[**PRO**] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
+* **(v.2)**  UPDATED:	Some translations.
+* **(v.2)**  FIXED:		A few bugs with the Insights Dashboard.
+* **(v.2)**  FIXED:		Removed the dependency on jQuery with Invisible reCAPTCHA.
+* **(v.1)**  FIXED:		A few bugs with the Insights Dashboard
+* **(v.1)**  ADDED:		[**PRO**] Admin Notes feature - you can now add notes to the Shield plugin in the Insights Dashboard.
+* **(v.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
+* **(v.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
+* **(v.0)**  ADDED:		A simple test cron to demonstrate whether your site crons are running.
+* **(v.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
+* **(v.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(v.0)**  CHANGED:	Guided Wizards now load through WP admin to fix ajax problems for poorly configured SSL on some sites
+* **(v.0)**  IMPROVED:	Upgraded Bootstrap library to 4.1.1.
+* **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
+
+= 6.6 Series =
+*Released: 19th March, 2018* - [Release Notes](https://icwp.io/c3)
+
+* **(v.7)**  IMPROVED:	reCAPTCHA JS is only included on pages where it's actually used by Shield.
+* **(v.7)**  IMPROVED:	Upgrade Bootstrap library to 4.1.0.
+* **(v.7)**  IMPROVED:	Include jQuery for the plugin badge as required
+* **(v.6)**  ADDED:		Small exclusion in the firewall for a jetpack parameter.
+* **(v.6)**  ADDED:		SVGs to the default list of files scanned by the plugin guard.
+* **(v.6)**  ADDED:		Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
+* **(v.1-4)**  FIXED:	Various small fixes and improvements
+* **(v.4)**  FIXED:		PHP Fatal Error on wp object cache.
+* **(v.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](https://icwp.io/c1).
+* **(v.0)**  ADDED:		[WordPress Password Policies](https://icwp.io/c2).
+* **(v.0)**  ADDED:		Pwned Passwords Detection.
+* **(v.0)**  IMPROVED:	Major rewrite of plugin AJAX handling.
+* **(v.0)**  IMPROVED:	Notices to indicate the time of the last scans.
+* **(v.0)**  FIXED:		A few bugs
 
 = 6.5 Series =
 *Released: 5th March, 2018* - [Release Notes](https://icwp.io/bu)

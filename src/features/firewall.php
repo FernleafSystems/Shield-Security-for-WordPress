@@ -9,13 +9,6 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getPageParamWhitelist() {
@@ -65,8 +58,8 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'section_enable_plugin_feature_wordpress_firewall' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Firewall' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Firewall' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -75,7 +68,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sTitle = _wpsf__( 'Firewall Blocking Options' );
 				$aSummary = array(
 					_wpsf__( 'Here you choose what kind of malicious data to scan for.' ),
-					sprintf( _wpsf__( 'Recommendation - %s' ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
 						_wpsf__( 'Turn on as many options here as you can.' ) )
 					.' '._wpsf__( 'If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail.' ),
 				);
@@ -86,7 +79,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sTitle = _wpsf__( 'Choose Firewall Block Response' );
 				$aSummary = array(
 					_wpsf__( 'Here you choose how the plugin will respond when it detects malicious data.' ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Choose the option "%s".' ), _wpsf__( 'Die With Message' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Choose the option "%s".' ), _wpsf__( 'Die With Message' ) ) )
 				);
 				$sTitleShort = _wpsf__( 'Firewall Response' );
 				break;
@@ -95,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sTitle = _wpsf__( 'Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall' );
 				$aSummary = array(
 					_wpsf__( 'In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.' ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not whitelist anything unless you are confident in what you are doing.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Do not whitelist anything unless you are confident in what you are doing.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Whitelist' );
 				break;
@@ -177,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sName = _wpsf__( 'Aggressive Scan' );
 				$sSummary = _wpsf__( 'Aggressively Block Data' );
 				$sDescription = _wpsf__( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.' )
-								.'<br />'.sprintf( _wpsf__( 'Warning - %s' ), _wpsf__( 'May cause an increase in false-positive firewall blocks.' ) );
+								.'<br />'.sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'May cause an increase in false-positive firewall blocks.' ) );
 				break;
 
 			case 'block_response' :

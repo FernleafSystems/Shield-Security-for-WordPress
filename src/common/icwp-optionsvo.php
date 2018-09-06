@@ -204,7 +204,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @param string
 	 * @return boolean
 	 */
-	public function getIsValidOptionKey( $sOptionKey ) {
+	public function isValidOptionKey( $sOptionKey ) {
 		return in_array( $sOptionKey, $this->getOptionsKeys() );
 	}
 
@@ -263,7 +263,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$aSection = $this->getSection( $sSlug );
 		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : array();
 		return array_merge(
-			array( 'php_min' => '5.2.4' ),
+			array(
+				'php_min' => '5.2.4',
+				'wp_min'  => '3.5.0',
+			),
 			$aReqs
 		);
 	}
@@ -283,7 +286,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function isSectionReqsMet( $sSectionSlug ) {
 		$aReqs = $this->getSection_Requirements( $sSectionSlug );
-		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] );
+		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
+				&& $this->loadWp()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
 		return $bMet;
 	}
 
@@ -395,7 +399,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getOpt( $sOptionKey, $mDefault = false ) {
 		$aOptionsValues = $this->getAllOptionsValues();
-		if ( !isset( $aOptionsValues[ $sOptionKey ] ) && $this->getIsValidOptionKey( $sOptionKey ) ) {
+		if ( !isset( $aOptionsValues[ $sOptionKey ] ) && $this->isValidOptionKey( $sOptionKey ) ) {
 			$this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey, $mDefault ) );
 		}
 		return isset( $this->aOptionsValues[ $sOptionKey ] ) ? $this->aOptionsValues[ $sOptionKey ] : $mDefault;
@@ -764,7 +768,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				break;
 
 			case 'email':
-				$bValid = empty( $mPotentialValue) || $this->loadDP()->validEmail( $mPotentialValue );
+				$bValid = empty( $mPotentialValue ) || $this->loadDP()->validEmail( $mPotentialValue );
 				break;
 		}
 		return $bValid;
@@ -802,7 +806,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getCommonStandardOptions() {
-		return array( 'current_plugin_version', 'help_video_options' );
+		return array( 'help_video_options' );
 	}
 
 	/**
@@ -856,11 +860,10 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			if ( !isset( $aConfig[ 'meta_modts' ] ) ) {
 				$aConfig[ 'meta_modts' ] = 0;
 			}
-			$bRebuild = $this->getConfigModTime() != $aConfig[ 'meta_modts' ];
+			$bRebuild = $this->getConfigModTime() > $aConfig[ 'meta_modts' ];
 		}
 
 		if ( $bRebuild ) {
-
 			try {
 				$aConfig = $this->readConfigurationJson();
 			}
@@ -873,6 +876,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
 			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
 		}
+
+		$this->setRebuildFromFile( $bRebuild );
 		return $aConfig;
 	}
 

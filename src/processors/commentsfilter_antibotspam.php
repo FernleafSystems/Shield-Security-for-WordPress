@@ -83,15 +83,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		add_filter( $this->getFeature()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
+		add_filter( $this->getMod()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		// Add GASP checking to the comment form.
 		add_action( 'comment_form', array( $this, 'printGaspFormHook_Action' ), 1 );
 		add_action( 'comment_form', array( $this, 'printGaspFormParts_Action' ), 2 );
 		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
 
-		add_filter( $this->getFeature()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getFeature()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( $this->getMod()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
+		add_filter( $this->getMod()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$this->aRawCommentData = $aCommentData;
 
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->getIfDoCommentsCheck() ) {
 			return $aCommentData;
 		}
@@ -160,25 +160,25 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getMod();
+
 		// Check that we haven't already marked the comment through another scan
-		if ( !empty( $this->sCommentStatus ) || !$this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
+		if ( !empty( $this->sCommentStatus ) || !$oFO->isOpt( 'enable_comments_gasp_protection', 'Y' ) ) {
 			return;
 		}
-
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
 
 		$bIsSpam = true;
 		$sStatKey = '';
 		$sExplanation = '';
 
 		$oDp = $this->loadDP();
-		$sFieldCheckboxName = $oDp->FetchPost( 'cb_nombre' );
-		$sFieldHoney = $oDp->FetchPost( 'sugar_sweet_email' );
-		$sFieldCommentToken = $oDp->FetchPost( 'comment_token' );
+		$sFieldCheckboxName = $oDp->post( 'cb_nombre' );
+		$sFieldHoney = $oDp->post( 'sugar_sweet_email' );
+		$sFieldCommentToken = $oDp->post( 'comment_token' );
 
 		// we have the cb name, is it set?
-		if ( !$sFieldCheckboxName || !$oDp->FetchPost( $sFieldCheckboxName ) ) {
+		if ( !$sFieldCheckboxName || !$oDp->post( $sFieldCheckboxName ) ) {
 			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'checkbox' ) );
 			$sStatKey = 'checkbox';
 		}
@@ -223,7 +223,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getIfDoGaspCheck() {
 		$bCheck = true;
 
-		if ( !$this->getIsOption( 'enable_comments_gasp_protection', 'Y' ) ) {
+		if ( !$this->getMod()->isOpt( 'enable_comments_gasp_protection', 'Y' ) ) {
 			$bCheck = false;
 		}
 		else if ( $this->loadWpUsers()->isUserLoggedIn() ) {
@@ -231,7 +231,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 		else if ( function_exists( 'WPWall_Init' ) ) {
 			// Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
-			if ( !is_null( $this->loadDP()->FetchPost( 'submit_wall_post' ) ) ) {
+			if ( !is_null( $this->loadDP()->post( 'submit_wall_post' ) ) ) {
 				$bCheck = false;
 			}
 		}
@@ -275,13 +275,13 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	protected function getGaspCommentsHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		$sId = $this->getUniqueFormId();
-		$sConfirm = stripslashes( $oFO->getTextOpt( 'custom_message_checkbox' ) );
-		$sAlert = stripslashes( $oFO->getTextOpt( 'custom_message_alert' ) );
-		$sCommentWait = stripslashes( $oFO->getTextOpt( 'custom_message_comment_wait' ) );
-		$sCommentReload = stripslashes( $oFO->getTextOpt( 'custom_message_comment_reload' ) );
+		$sConfirm = $oFO->getTextOpt( 'custom_message_checkbox' );
+		$sAlert = $oFO->getTextOpt( 'custom_message_alert' );
+		$sCommentWait = $oFO->getTextOpt( 'custom_message_comment_wait' );
+		$sCommentReload = $oFO->getTextOpt( 'custom_message_comment_reload' );
 
 		$nCooldown = $this->getOption( 'comments_cooldown_interval' );
 		$nExpire = $this->getOption( 'comments_token_expire_interval' );
@@ -438,7 +438,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDefinition( 'spambot_comments_filter_table_columns' );
+		$aDef = $this->getMod()->getDef( 'spambot_comments_filter_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 

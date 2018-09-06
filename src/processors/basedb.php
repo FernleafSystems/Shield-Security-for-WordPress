@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'base_wpsf.php' );
+require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -27,14 +27,13 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 * @param string                        $sTableName
-	 * @throws Exception
 	 */
 	public function __construct( $oModCon, $sTableName = null ) {
 		parent::__construct( $oModCon );
 		$this->setTableName( $sTableName );
 		$this->createCleanupCron();
 		$this->initializeTable();
-		add_action( $this->getFeature()->prefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
 	}
 
 	/**
@@ -173,7 +172,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 		$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
 		$bValid = ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
-			&& ( count( array_diff( $aColumnsByDefinition, $aActualColumns ) ) <= 0 ) );
+					&& ( count( array_diff( $aColumnsByDefinition, $aActualColumns ) ) <= 0 ) );
 		return $bValid;
 	}
 
@@ -198,7 +197,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( empty( $sTableName ) ) {
 			throw new Exception( 'Database Table Name is EMPTY' );
 		}
-		$this->sFullTableName = $this->loadDbProcessor()->getPrefix() . esc_sql( $sTableName );
+		$this->sFullTableName = $this->loadDbProcessor()->getPrefix().esc_sql( $sTableName );
 		return $this->sFullTableName;
 	}
 
@@ -208,7 +207,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function createCleanupCron() {
 		$sFullHookName = $this->getDbCleanupHookName();
 		if ( !wp_next_scheduled( $sFullHookName ) && !defined( 'WP_INSTALLING' ) ) {
-			$nNextRun = strtotime( 'tomorrow 6am' ) - get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+			$nNextRun = strtotime( 'tomorrow 6am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS;
 			wp_schedule_event( $nNextRun, 'daily', $sFullHookName );
 		}
 	}
@@ -247,7 +246,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getDbCleanupHookName() {
-		return $this->getController()->prefix( $this->getFeature()->getFeatureSlug().'_db_cleanup' );
+		return $this->getController()->prefix( $this->getMod()->getSlug().'_db_cleanup' );
 	}
 
 	/**
@@ -282,7 +281,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( rand( 1, 10 ) === 1 ) {
+		if ( rand( 1, 20 ) === 2 ) {
 			$this->cleanupDatabase();
 		}
 	}
@@ -297,7 +296,14 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	protected function getQueryDir() {
+	protected function queryGetDir() {
 		return dirname( dirname( __FILE__ ) ).'/query/';
+	}
+
+	/**
+	 * @param string $sFile
+	 */
+	protected function queryRequireLib( $sFile ) {
+		require_once( rtrim( $this->queryGetDir(), '/' ).'/'.$sFile );
 	}
 }

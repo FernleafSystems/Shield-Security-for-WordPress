@@ -69,7 +69,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isAutoupdateAllPlugins() {
-		return $this->getOptIs( 'enable_autoupdate_plugins', 'Y' );
+		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isAutoupdateIndividualPlugins() {
-		return $this->getOptIs( 'enable_individual_autoupdate_plugins', 'Y' );
+		return $this->isOpt( 'enable_individual_autoupdate_plugins', 'Y' );
 	}
 
 	/**
@@ -96,6 +96,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSendAutoupdatesNotificationEmail() {
+		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
+	}
+
+	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
@@ -105,7 +112,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			switch ( $this->loadDP()->request( 'exec' ) ) {
 
 				case 'toggle_plugin_autoupdate':
-					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->getIsValidAdminArea() ) {
+					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isValidAdminArea() ) {
 						$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
 					}
 					break;
@@ -178,8 +185,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_enable_plugin_feature_automatic_updates_control' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic Updates' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic Updates' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -187,8 +194,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_disable_all_wordpress_automatic_updates' :
 				$sTitle = _wpsf__( 'Disable ALL WordPress Automatic Updates' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'If you never want WordPress to automatically update anything on your site, turn on this option.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Do not turn on this option unless you really need to block updates.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'If you never want WordPress to automatically update anything on your site, turn on this option.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Do not turn on this option unless you really need to block updates.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Turn Off' );
 				break;
@@ -196,9 +203,9 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_automatic_plugin_self_update' :
 				$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()
 																																									->getHumanName() ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Keep this option turned on.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this option turned on.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Self-Update' );
 				break;
@@ -206,8 +213,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_automatic_updates_for_wordpress_components' :
 				$sTitle = _wpsf__( 'Automatic Updates For WordPress Components' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Control how automatic updates for each WordPress component is handled.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'You should at least allow minor updates for the WordPress core.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Control how automatic updates for each WordPress component is handled.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'You should at least allow minor updates for the WordPress core.' ) )
 				);
 				$sTitleShort = _wpsf__( 'WordPress Components' );
 				break;
@@ -216,7 +223,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sTitle = _wpsf__( 'Auto-Update Options' );
 				$sTitleShort = _wpsf__( 'Auto-Update Options' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Make adjustments to how automatic updates are handled on your site.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Make adjustments to how automatic updates are handled on your site.' ) ),
 				);
 				break;
 

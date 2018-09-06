@@ -90,6 +90,12 @@
       "section": "section_non_ui"
     },
     {
+      "key": "last_warning_email_sent_at",
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
+    },
+    {
       "key": "is_shield_central",
       "sensitive": true,
       "transferable": false,
@@ -122,6 +128,13 @@
       "transferable": false,
       "default": 0,
       "section": "section_non_ui"
+    },
+    {
+      "key": "license_data",
+      "sensitive": true,
+      "transferable": false,
+      "default": 0,
+      "section": "section_non_ui"
     }
   ],
   "definitions": {
@@ -132,7 +145,7 @@
     "license_item_name_sc": "Shield Security Pro (via Shield Central)",
     "license_item_id_sc": "968",
     "lic_verify_expire_days": 3,
-    "lic_verify_expire_grace_days": 1,
+    "lic_verify_expire_grace_days": 3,
     "license_key_length": 32,
     "license_key_type": "alphanumeric",
     "keyless": true,

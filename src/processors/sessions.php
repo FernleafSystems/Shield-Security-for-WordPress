@@ -32,11 +32,21 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		if ( $this->isReadyToRun() ) {
-			add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 ); //login
 			add_action( 'clear_auth_cookie', array( $this, 'onWpClearAuthCookie' ), 0 ); //logout
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
 			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
 		}
+	}
+
+	/**
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		}
+		$this->activateUserSession( $oUser );
 	}
 
 	/**
@@ -46,29 +56,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$oUser = $this->loadWpUsers()
-					  ->getUserById( $nUserId );
-		if ( $oUser instanceof WP_User && !$this->isSessionAlreadyCreatedForUser( $oUser ) ) {
-			$this->activateUserSession( $oUser->user_login, $oUser );
-		}
+		$this->activateUserSession( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
 	 */
 	public function onWpClearAuthCookie() {
 		$this->terminateCurrentSession();
-	}
-
-	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
-	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		$this->activateUserSession( $sUsername, $oUser );
 	}
 
 	/**
@@ -76,27 +70,25 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function onWpLoaded() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRest() ) {
 			$this->autoAddSession();
-			$this->queryUpdateSessionLastActivity();
+
+			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+			$oFO = $this->getMod();
+			if ( $oFO->hasSession() ) {
+				$this->getQueryUpdater()
+					 ->updateLastActivity( $this->getCurrentSession() );
+			}
 		}
 	}
 
 	private function autoAddSession() {
 		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
 			$this->queryCreateSession(
-				$oWpUsers = $this->loadWpUsers()->getCurrentWpUser()->user_login,
+				$this->loadWpUsers()->getCurrentWpUsername(),
 				$oFO->getConn()->getSessionId( true )
 			);
 		}
-	}
-
-	/**
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	private function isSessionAlreadyCreatedForUser( $oUser ) {
-		return $this->nSessionAlreadyCreatedUserId > 0 && $this->nSessionAlreadyCreatedUserId == $oUser->ID;
 	}
 
 	/**
@@ -106,47 +98,41 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws Exception
 	 */
 	public function printLinkToAdmin( $sMessage = '' ) {
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
+		$oFO = $this->getMod();
 		$oWpUsers = $this->loadWpUsers();
-		if ( $oWpUsers->isUserLoggedIn() ) {
-			$oUser = $oWpUsers->getCurrentWpUser();
-			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-			$oFO = $this->getFeature();
-			if ( $oFO->hasSession() ) {
-				$sMessage = sprintf(
-								'<p class="message">%s<br />%s</p>',
-								_wpsf__( "You're already logged-in." ).sprintf(
-									' <span style="white-space: nowrap">(%s)</span>',
-									$oUser->get( 'user_login' ) ),
-								( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
-									$this->loadWp()->getUrl_WpAdmin(),
-									_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
-							.$sMessage;
-			}
+		$sAction = $this->loadDP()->query( 'action' );
+
+		if ( $oWpUsers->isUserLoggedIn() && $oFO->hasSession() && ( empty( $sAction ) || $sAction == 'login' ) ) {
+			$sMessage = sprintf(
+							'<p class="message">%s<br />%s</p>',
+							_wpsf__( "You're already logged-in." ).sprintf(
+								' <span style="white-space: nowrap">(%s)</span>',
+								$oWpUsers->getCurrentWpUsername() ),
+							( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
+								$this->loadWp()->getUrl_WpAdmin(),
+								_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
+						.$sMessage;
 		}
 		return $sMessage;
 	}
 
 	/**
-	 * @param string  $sUsername
 	 * @param WP_User $oUser
 	 * @return boolean
 	 */
-	private function activateUserSession( $sUsername, $oUser ) {
-		if ( !is_a( $oUser, 'WP_User' ) ) {
-			return false;
-		}
+	private function activateUserSession( $oUser ) {
+		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User ) {
+			$this->setLoginCaptured();
+			// If they have a currently active session, terminate it (i.e. we replace it)
+			$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
+			if ( !empty( $oSession ) ) {
+				$this->queryTerminateSession( $oSession );
+				$this->oCurrent = null;
+			}
 
-		if ( $this->isSessionAlreadyCreatedForUser( $oUser ) ) {
-			return true;
+			$this->queryCreateSession( $oUser->user_login, $this->getSessionId() );
 		}
-
-		// If they have a currently active session, terminate it (i.e. we replace it)
-		$oSession = $this->queryGetSession( $sUsername, $this->getSessionId() );
-		if ( !empty( $oSession ) ) {
-			$this->queryTerminateSession( $oSession );
-		}
-		$this->queryCreateSession( $sUsername, $this->getSessionId() );
-		$this->nSessionAlreadyCreatedUserId = $oUser->ID;
 		return true;
 	}
 
@@ -161,15 +147,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	protected function terminateCurrentSession() {
-		$oUser = $this->loadWpUsers()->getCurrentWpUser();
-		if ( empty( $oUser ) || !is_a( $oUser, 'WP_User' ) ) {
+		if ( !$this->loadWpUsers()->isUserLoggedIn() ) {
 			return false;
 		}
-//		$this->getCurrentUserMeta()->login_browser = '';
 
-		$oSession = $this->getCurrentSession();
-		$mResult = $this->queryTerminateSession( $oSession );
+		$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
 		$this->getController()->clearSession();
+		$this->oCurrent = null;
 		return $mResult;
 	}
 
@@ -220,52 +204,69 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Query_Sessions_Insert
+	 */
+	public function getQueryInserter() {
+		$this->queryRequireLib( 'insert.php' );
+		$oQ = new ICWP_WPSF_Query_Sessions_Insert();
+		return $oQ->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Sessions_Delete
+	 */
+	public function getQueryDeleter() {
+		$this->queryRequireLib( 'delete.php' );
+		$oQ = new ICWP_WPSF_Query_Sessions_Delete();
+		return $oQ->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Sessions_Select
+	 */
+	public function getQuerySelector() {
+		$this->queryRequireLib( 'select.php' );
+		$oQ = new ICWP_WPSF_Query_Sessions_Select();
+		return $oQ->setTable( $this->getTableName() )
+				  ->setResultsAsVo( true );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Sessions_Update
+	 */
+	public function getQueryUpdater() {
+		$this->queryRequireLib( 'update.php' );
+		$oQ = new ICWP_WPSF_Query_Sessions_Update();
+		return $oQ->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @param string $sUsername
+	 * @param string $sSessionId
+	 * @return bool
+	 */
+	protected function queryCreateSession( $sUsername, $sSessionId ) {
+		if ( empty( $sUsername ) ) {
+			return null;
+		}
+
+		$bSuccess = $this->getQueryInserter()
+						 ->create( $sUsername, $sSessionId );
+		if ( $bSuccess ) {
+			$this->doStatIncrement( 'user.session.start' );
+		}
+		return $bSuccess;
+	}
+
+	/**
 	 * Checks for and gets a user session.
 	 * @param string $sUsername
 	 * @param string $sSessionId
 	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	protected function queryGetSession( $sUsername, $sSessionId ) {
-		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_retrieve.php' );
-
-		$oRetrieve = new ICWP_WPSF_Query_Sessions_Retrieve();
-		return $oRetrieve->setTable( $this->getTableName() )
-						 ->retrieveUserSession( $sUsername, $sSessionId );
-	}
-
-	/**
-	 * @return ICWP_WPSF_SessionVO[]
-	 */
-	public function queryGetActiveSessions() {
-		return $this->getSessionRetriever()->all();
-	}
-
-	/**
-	 * @param string $sWpUsername
-	 * @return ICWP_WPSF_SessionVO[]
-	 */
-	public function queryGetActiveSessionsForUsername( $sWpUsername ) {
-		return $this->getSessionRetriever()->retrieveForUsername( $sWpUsername );
-	}
-
-	/**
-	 * @param string $sUsername
-	 * @param string $sSessionId
-	 * @return null|ICWP_WPSF_SessionVO
-	 */
-	public function queryCreateSession( $sUsername, $sSessionId ) {
-		if ( empty( $sUsername ) ) {
-			return null;
-		}
-
-		require_once( dirname( dirname( __FILE__ ) ).'/query/sessions_create.php' );
-		$oCreator = new ICWP_WPSF_Query_Sessions_Create();
-		$bSuccess = $oCreator->setTable( $this->getTableName() )
-							 ->create( $sUsername, $sSessionId );
-		if ( $bSuccess ) {
-			$this->doStatIncrement( 'user.session.start' );
-		}
-		return $bSuccess ? $this->queryGetSession( $sUsername, $sSessionId ) : null;
+		return $this->getQuerySelector()
+					->retrieveUserSession( $sUsername, $sSessionId );
 	}
 
 	/**
@@ -278,53 +279,15 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$this->doStatIncrement( 'user.session.terminate' );
 
-		return $this->getSessionTerminator()
-					->setTable( $this->getTableName() )
-					->forUserSession( $oSession );
-	}
-
-	/**
-	 */
-	protected function queryUpdateSessionLastActivity() {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getFeature();
-		if ( $oFO->hasSession() ) {
-			$this->getSessionUpdater()->updateLastActivity( $this->getCurrentSession() );
-		}
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Sessions_Retrieve
-	 */
-	public function getSessionRetriever() {
-		require_once( $this->getQueryDir().'sessions_retrieve.php' );
-		$oRetrieve = new ICWP_WPSF_Query_Sessions_Retrieve();
-		return $oRetrieve->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Sessions_Terminate
-	 */
-	public function getSessionTerminator() {
-		require_once( $this->getQueryDir().'sessions_terminate.php' );
-		$oRetrieve = new ICWP_WPSF_Query_Sessions_Terminate();
-		return $oRetrieve->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Sessions_Update
-	 */
-	public function getSessionUpdater() {
-		require_once( $this->getQueryDir().'sessions_update.php' );
-		$oUpdate = new ICWP_WPSF_Query_Sessions_Update();
-		return $oUpdate->setTable( $this->getTableName() );
+		return $this->getQueryDeleter()
+					->deleteById( $oSession->getId() );
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getFeature()->getDef( 'sessions_table_columns' );
+		$aDef = $this->getMod()->getDef( 'sessions_table_columns' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
 
@@ -333,5 +296,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getAutoExpirePeriod() {
 		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function queryGetDir() {
+		return parent::queryGetDir().'sessions/';
 	}
 }

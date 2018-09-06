@@ -47,16 +47,13 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	 */
 	public function auditNewUserRegistered( $nUserId ) {
 
-		if ( !empty( $nUserId ) ) {
-
-			$oNewUser = $this->loadWpUsers()->getUserById( $nUserId );
-
+		$oNewUser = empty( $nUserId ) ? null : $this->loadWpUsers()->getUserById( $nUserId );
+		if ( !empty( $oNewUser ) ) {
 			$this->add( 'users', 'user_registered', 1,
 				_wpsf__( 'New WordPress user registered.' ).' '
 				.sprintf(
 					_wpsf__( 'New username is "%s" with email address "%s".' ),
-					empty( $oNewUser ) ? 'unknown' : $oNewUser->get( 'user_login' ),
-					empty( $oNewUser ) ? 'unknown' : $oNewUser->get( 'user_email' )
+					$oNewUser->user_login, $oNewUser->user_email
 				)
 			);
 		}
@@ -67,32 +64,30 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	 * @param int $nReassigned
 	 */
 	public function auditDeleteUser( $nUserId, $nReassigned ) {
-		if ( empty( $nUserId ) ) {
-			return;
-		}
-
 		$oWpUsers = $this->loadWpUsers();
-		$oDeletedUser = $oWpUsers->getUserById( $nUserId );
-		$oReassignedUser = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
 
-		// Build the audit message
-		$sAuditMessage =
-			_wpsf__( 'WordPress user deleted.' )
-			.' '.sprintf(
-				_wpsf__( 'Username was "%s" with email address "%s".' ),
-				empty( $oDeletedUser ) ? 'unknown' : $oDeletedUser->get( 'user_login' ),
-				empty( $oDeletedUser ) ? 'unknown' : $oDeletedUser->get( 'user_email' )
-			).' ';
-		if ( empty( $oReassignedUser ) ) {
-			$sAuditMessage .= _wpsf__( 'Their posts were not reassigned to another user.' );
+		$aAuditMessage = array( _wpsf__( 'WordPress user deleted.' ) );
+
+		$oDeletedUser = empty( $nUserId ) ? null : $oWpUsers->getUserById( $nUserId );
+		if ( empty( $oDeletedUser ) ) {
+			$aAuditMessage[] = _wpsf__( 'User is unknown as it could not be loaded.' );
 		}
 		else {
-			$sAuditMessage .= sprintf(
-				_wpsf__( 'Their posts were reassigned to user "%s".' ),
-				$oReassignedUser->get( 'user_login' )
+			$aAuditMessage[] = sprintf( _wpsf__( 'Username was "%s" with email address "%s".' ),
+				$oDeletedUser->user_login, $oDeletedUser->user_email
 			);
 		}
 
-		$this->add( 'users', 'user_deleted', 2, $sAuditMessage );
+		$oReassignedUser = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
+		if ( empty( $oReassignedUser ) ) {
+			$aAuditMessage[] = _wpsf__( 'Their posts were not reassigned to another user.' );
+		}
+		else {
+			$aAuditMessage[] = sprintf( _wpsf__( 'Their posts were reassigned to user "%s".' ),
+				$oReassignedUser->user_login
+			);
+		}
+
+		$this->add( 'users', 'user_deleted', 2, implode( ' ', $aAuditMessage ) );
 	}
 }

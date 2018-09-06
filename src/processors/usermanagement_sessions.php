@@ -8,6 +8,15 @@ require_once( dirname( __FILE__ ).'/cronbase.php' );
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_CronBase {
 
+	public function run() {
+		if ( $this->isReadyToRun() ) {
+			parent::run();
+			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
+			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
+			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
+		}
+	}
+
 	/**
 	 * @return callable
 	 */
@@ -20,18 +29,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	protected function getCronName() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->prefix( $oFO->getDef( 'cron_name_sessionscleanup' ) );
-	}
-
-	public function run() {
-		if ( $this->isReadyToRun() ) {
-			parent::run();
-			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
-			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
-			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 1 );
-		}
 	}
 
 	/**
@@ -39,15 +38,29 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function isReadyToRun() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return ( parent::isReadyToRun() && $oFO->getSessionsProcessor()->isReadyToRun() );
 	}
 
 	/**
-	 * @param string $sUsername
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
 	 */
-	public function onWpLogin( $sUsername ) {
-		$this->enforceSessionLimits( $sUsername );
+	public function onWpLogin( $sUsername, $oUser ) {
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+		}
+		$this->enforceSessionLimits( $oUser );
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+		$this->enforceSessionLimits( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -115,19 +128,59 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 
 	public function cleanExpiredSessions() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oTerminator = $oFO->getSessionsProcessor()
-						   ->getSessionTerminator();
+						   ->getQueryDeleter();
 
-		$nNow = $this->time();
 		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
 		// And if User Management is active, then it'll draw in that value.
-		$oTerminator->forExpiredLoginAt( $nNow - apply_filters( 'auth_cookie_expiration', 14*DAY_IN_SECONDS, 0, false ) );
+		$oTerminator->forExpiredLoginAt( $this->getLoginExpiredBoundary() );
 
 		// Default is ZERO, so we don't want to terminate all sessions if it's never set.
 		if ( $oFO->hasSessionIdleTimeout() ) {
-			$oTerminator->forExpiredLoginIdle( $nNow - $oFO->getSessionIdleTimeoutInterval() );
+			$oTerminator->forExpiredLoginIdle( $this->getLoginIdleExpiredBoundary() );
 		}
+	}
+
+	/**
+	 * @return ICWP_WPSF_SessionVO[]
+	 */
+	public function getActiveSessions() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getMod();
+
+		$oQ = $oFO->getSessionsProcessor()
+				  ->getQuerySelector();
+		if ( $oFO->hasSessionTimeoutInterval() ) {
+			$oQ->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
+		}
+		if ( $oFO->hasSessionIdleTimeout() ) {
+			$oQ->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
+		}
+		return $oQ->query();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCountActiveSessions() {
+		return count( $this->getActiveSessions() );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLoginExpiredBoundary() {
+		return $this->time() - $this->loadWp()->getAuthCookieExpiration();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLoginIdleExpiredBoundary() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getMod();
+		return $this->time() - $oFO->getSessionIdleTimeoutInterval();
 	}
 
 	/**
@@ -142,7 +195,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	protected function assessCurrentSession() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
 		if ( !$oFO->hasSession() ) {
 			$nForceLogOutCode = 4;
@@ -175,47 +228,34 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	 */
 	public function setTimeoutCookieExpiration_Filter( $nTimeout ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->hasSessionTimeoutInterval() ? $oFO->getSessionTimeoutInterval() : $nTimeout;
-	}
-
-	/**
-	 * @param string $sWpUsername
-	 * @return ICWP_WPSF_SessionVO[]
-	 */
-	public function getActiveSessionRecordsForUsername( $sWpUsername ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getFeature();
-		return $oFO->getSessionsProcessor()
-				   ->queryGetActiveSessionsForUsername( $sWpUsername );
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isLockToIp() {
-		return $this->getFeature()->getOptIs( 'session_lock_location', 'Y' );
+		return $this->getMod()->isOpt( 'session_lock_location', 'Y' );
 	}
 
 	/**
-	 * @param string $sUsername
+	 * @param WP_User $oUser
 	 */
-	protected function enforceSessionLimits( $sUsername ) {
+	protected function enforceSessionLimits( $oUser ) {
 
 		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
-		if ( $nSessionLimit > 0 ) {
-
-			$aSessions = $this->getActiveSessionRecordsForUsername( $sUsername );
-			$nSessionsToKill = count( $aSessions ) - $nSessionLimit;
-			if ( $nSessionsToKill > 0 ) {
-
-				/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-				$oFO = $this->getFeature();
-				$oSessProcessor = $oFO->getSessionsProcessor();
-
-				for ( $nCount = 0 ; $nCount < $nSessionsToKill ; $nCount++ ) {
-					$oSessProcessor->queryTerminateSession( $aSessions[ $nCount ] );
-				}
+		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
+			$this->setLoginCaptured();
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			$oFO = $this->getMod();
+			try {
+				$oFO->getSessionsProcessor()
+					->getQueryDeleter()
+					->addWhere( 'wp_username', $oUser->user_login )
+					->deleteExcess( $nSessionLimit, 'last_activity_at', true );
+			}
+			catch ( Exception $oE ) {
 			}
 		}
 	}

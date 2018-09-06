@@ -35,6 +35,34 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return !is_null( $this->getSession() );
 	}
 
+	public function insertCustomJsVars() {
+		parent::insertCustomJsVars();
+
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_secadmin',
+			array(
+				'reqajax'      => $this->getSecAdminCheckAjaxData(),
+				'is_sec_admin' => true, // if $nSecTimeLeft > 0
+				'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
+				'strings'      => array(
+					'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
+					'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
+					'expired' => _wpsf__( 'Security Admin session has timed-out.' )
+				)
+			)
+		);
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getSecAdminTimeLeft() {
+		return $this->getController()
+					->getModule( 'admin_access_restriction' )
+					->getSecAdminTimeLeft();
+	}
+
 	/**
 	 * @return array
 	 */
@@ -87,7 +115,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	public function getIsGoogleRecaptchaReady() {
+	public function isGoogleRecaptchaReady() {
 		$sKey = $this->getGoogleRecaptchaSiteKey();
 		$sSecret = $this->getGoogleRecaptchaSecretKey();
 		return ( !empty( $sSecret ) && !empty( $sKey ) && $this->loadDP()->getPhpSupportsNamespaces() );
@@ -99,6 +127,16 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	protected function getSecAdminLoginAjaxData() {
 		// We set a custom mod_slug so that this module handles the ajax request
 		$aAjaxData = $this->getAjaxActionData( 'sec_admin_login' );
+		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
+		return $aAjaxData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSecAdminCheckAjaxData() {
+		// We set a custom mod_slug so that this module handles the ajax request
+		$aAjaxData = $this->getAjaxActionData( 'sec_admin_check' );
 		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
 		return $aAjaxData;
 	}
@@ -134,6 +172,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
 					'help_title'        => _wpsf__( 'Help' ),
 					'help_summary'      => _wpsf__( 'Learn More' ),
+					'supply_password'   => _wpsf__( 'Supply Password' ),
+					'confirm_password'  => _wpsf__( 'Confirm Password' ),
 
 					'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
 					'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),
@@ -141,7 +181,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
 					'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
 					'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
-					'aar_forget_key'               => _wpsf__( "Forgotten Key" )
+					'aar_forget_key'               => _wpsf__( "Forgotten Key" ),
 				),
 				'flags'   => array(
 					'has_session' => $this->hasSession()
@@ -197,6 +237,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'nonce_failed_supplied' => _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ),
 		);
 		return ( isset( $aStrings[ $sKey ] ) ? $aStrings[ $sKey ] : $sDefault );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return !$this->isVisitorWhitelisted() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -271,9 +318,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				$sTitle = _wpsf__( 'User Messages' );
 				$sTitleShort = _wpsf__( 'User Messages' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Customize the messages displayed to the user.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) ),
-					sprintf( _wpsf__( 'Hint - %s' ), sprintf( _wpsf__( 'To reset any message to its default, enter the text exactly: %s' ), 'default' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Customize the messages displayed to the user.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) ),
+					sprintf( '%s: %s', _wpsf__( 'Hint' ), sprintf( _wpsf__( 'To reset any message to its default, enter the text exactly: %s' ), 'default' ) )
 				);
 				break;
 

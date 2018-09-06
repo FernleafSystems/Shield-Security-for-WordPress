@@ -24,13 +24,35 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	private $bFactorTested;
 
 	/**
+	 * We assume that any given page will have at most 1 login form.
+	 * @var int
+	 */
+	private $nLoginFormCountMax = 1;
+
+	/**
+	 * Track the number of times a login form element has been printed.
+	 * @var int
+	 */
+	private $nLoginFormPrintCount = 0;
+
+	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
-		$b3rdParty = $oFO->getIfSupport3rdParty();
-
 		$this->setFactorTested( false );
+		add_action( 'init', array( $this, 'addHooks' ) );
+	}
+
+	/**
+	 * Hooked to INIT so we can test for logged-in. We don't process for logged-in users.
+	 */
+	public function addHooks() {
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			return;
+		}
+
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+		$b3rdParty = $oFO->getIfSupport3rdParty();
 
 		if ( $oFO->isProtectLogin() ) {
 			// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
@@ -44,32 +66,50 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems_Woo' ), 100 );
 				add_filter( 'woocommerce_process_login_errors', array( $this, 'checkReqLogin_Woo' ), 10, 2 );
+
+				// MemberPress
+				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MePr' ), 100 );
 			}
 		}
 
 		if ( $oFO->isProtectLostPassword() ) {
-			add_action( 'lostpassword_form', array( $this, 'printLoginFormItems' ) );
+			add_action( 'lostpassword_form', array( $this, 'printFormItems' ) );
 			add_action( 'lostpassword_post', array( $this, 'checkReqLostPassword_Wp' ), 10, 1 );
 
+			//No need to really cover this form
+//			add_action( 'resetpass_form', array( $this, 'printFormItems' ) );
+//			add_action( 'validate_password_reset', array( $this, 'checkReqResetPassword_Wp' ), 10, 1 );
+//			add_action( 'woocommerce_resetpassword_form', array( $this, 'printFormItems' ), 10 );
+
 			if ( $b3rdParty ) {
-				add_action( 'woocommerce_lostpassword_form', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'woocommerce_lostpassword_form', array( $this, 'printFormItems' ), 10 );
+
+				// MemberPress
+				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
 			}
 		}
 
 		if ( $oFO->isProtectRegister() ) {
-			add_action( 'register_form', array( $this, 'printLoginFormItems' ) );
+			add_action( 'register_form', array( $this, 'printFormItems' ) );
 //			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
 			add_filter( 'registration_errors', array( $this, 'checkReqRegistrationErrors_Wp' ), 10, 2 );
 
 			if ( $b3rdParty ) {
+				// A bit of a catch-all:
+				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
+
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems_Bp' ), 10 );
 				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
 
-				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printFormItems' ), 10 );
 				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
 
 				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
+
+				// MemberPress - Checkout == Registration
+				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MePr' ), 10 );
+				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MePr' ), 10, 2 );
 			}
 		}
 
@@ -82,8 +122,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	/**
 	 * @throws Exception
 	 */
-	protected function performCheckWithException() {
-	}
+	abstract protected function performCheckWithException();
 
 	/**
 	 */
@@ -155,6 +194,40 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * This is for the request where the User actually enters their new password
+	 * @param WP_Error $oWpError
+	 * @return WP_Error
+	 */
+	public function checkReqResetPassword_Wp( $oWpError ) {
+		try {
+			$oDP = $this->loadDP();
+			if ( $oDP->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
+				list( $sUser, $null ) = explode( ':', wp_unslash( $oDP->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
+				$this->setUserToAudit( $sUser )
+					 ->setActionToAudit( 'set-password' )
+					 ->performCheckWithException();
+			}
+		}
+		catch ( Exception $oE ) {
+			$oWpError = $this->giveMeWpError( $oWpError );
+			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+		}
+		return $oWpError;
+	}
+
+	/**
+	 * @param array $aData
+	 * @return array
+	 */
+	public function checkPreUserInsert_Wp( $aData ) {
+		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadDP()->isMethodPost() ) {
+			$this->setActionToAudit( 'register' )
+				 ->performCheckWithDie();
+		}
+		return $aData;
+	}
+
+	/**
 	 * @param string $sUsername
 	 */
 	public function checkReqRegistration_Wp( $sUsername ) {
@@ -214,6 +287,24 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * Errors are passed about here using an array of strings.
+	 * @param string[] $aErrors
+	 * @return string[]
+	 */
+	public function checkReqRegistration_MePr( $aErrors ) {
+		if ( !empty( $aErrors ) ) {
+			try {
+				$this->setActionToAudit( 'memberpress-register' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				$aErrors[] = $oE->getMessage();
+			}
+		}
+		return $aErrors;
+	}
+
+	/**
 	 * @param WP_Error $oWpError
 	 * @param  string  $sUsername
 	 * @return WP_Error
@@ -241,8 +332,27 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	/**
 	 * @return string
 	 */
-	protected function buildLoginFormItems() {
+	protected function buildFormItems() {
 		return '';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function buildLoginFormItems() {
+		$sItems = '';
+		if ( $this->canPrintLoginFormElement() ) {
+			$this->incrementLoginFormPrintCount();
+			$sItems = $this->buildFormItems();
+		}
+		return $sItems;
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printFormItems() {
+		echo $this->buildFormItems();
 	}
 
 	/**
@@ -250,6 +360,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function printLoginFormItems() {
 		echo $this->buildLoginFormItems();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printLoginFormItems_MePr() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printRegisterFormItems_MePr() {
+		$this->printLoginFormItems();
 	}
 
 	/**
@@ -263,7 +387,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printRegisterFormItems_Woo() {
-		$this->printLoginFormItems();
+		$this->printFormItems();
 	}
 
 	/**
@@ -272,8 +396,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printRegistrationFormItems_Woo( $oCheckout ) {
-		if ( $oCheckout instanceof WC_Checkout && $oCheckout->get_checkout_fields( 'account' ) ) {
-			$this->printLoginFormItems();
+		if ( $oCheckout instanceof WC_Checkout && $oCheckout->is_registration_enabled() ) {
+			$this->printFormItems();
 		}
 	}
 
@@ -291,16 +415,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		return $this->buildLoginFormItems();
 	}
 
+	/**
+	 * @param string $sStatToIncrement
+	 * @return $this
+	 */
 	protected function setLoginAsFailed( $sStatToIncrement ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'last_login_block_at' );
 
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
 
 		$this->doStatIncrement( $sStatToIncrement );
-		$this->setIpTransgressed(); // We now black mark this IP
+		return $this->setIpTransgressed(); // We now black mark this IP
 	}
 
 	/**
@@ -312,10 +440,31 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * @return bool
+	 */
+	protected function canPrintLoginFormElement() {
+		return $this->getLoginFormPrintCount() < $this->getLoginFormCountMax();
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getActionToAudit() {
 		return empty( $this->sActionToAudit ) ? 'unknown-action' : $this->sActionToAudit;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLoginFormCountMax() {
+		return $this->nLoginFormCountMax;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getLoginFormPrintCount() {
+		return max( 0, (int)$this->nLoginFormPrintCount );
 	}
 
 	/**
@@ -338,6 +487,23 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	protected function setActionToAudit( $sActionToAudit ) {
 		$this->sActionToAudit = $sActionToAudit;
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function incrementLoginFormPrintCount() {
+		$this->nLoginFormPrintCount = $this->getLoginFormPrintCount() + 1;
+		return $this;
+	}
+
+	/**
+	 * @param int $nMax
+	 * @return $this
+	 */
+	public function setLoginFormCountMax( $nMax ) {
+		$this->nLoginFormCountMax = $nMax;
 		return $this;
 	}
 

@@ -62,6 +62,14 @@ class ICWP_WPSF_WpCron {
 	}
 
 	/**
+	 * @deprecated uses undocumented private WP function
+	 * @return array
+	 */
+	public function getCrons() {
+		return function_exists( '_get_cron_array' ) && is_array( _get_cron_array() ) ? _get_cron_array() : array();
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getSchedules() {
@@ -145,6 +153,9 @@ class ICWP_WPSF_WpCron {
 	 * @return $this
 	 */
 	public function deleteCronJob( $sUniqueCronName ) {
+		if ( function_exists( 'wp_unschedule_hook' ) ) {
+			wp_unschedule_hook( $sUniqueCronName );
+		}
 		wp_clear_scheduled_hook( $sUniqueCronName );
 		return $this;
 	}

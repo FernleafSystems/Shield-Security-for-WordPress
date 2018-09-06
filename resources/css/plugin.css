@@ -284,7 +284,6 @@ p.code-description {
 	width: 100%;
 }
 .option_section input[type=checkbox] {
-	margin-right: 5px;
 }
 .option_section label {
 	background-color: transparent;
@@ -599,7 +598,7 @@ label.forcheckbox .summary {
 }
 /* Hide default HTML checkbox */
 .icwp-switch input {
-	display: none;
+	opacity: 0;
 }
 /* The slider */
 .icwp-slider {
@@ -695,7 +694,7 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module {
 	font-size: 15px;
-	padding: 0.7rem 1.1rem 0.7rem 1.2rem;
+	padding: 0.7rem 0.9rem 0.7rem 1.2rem;
 	color: #222222;
 	font-weight: bolder;
 	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
@@ -811,7 +810,7 @@ input:checked + .icwp-slider:before {
 
 @media (max-width: 848px) {
 	#ColumnModules {
-		max-width: 76px;
+		max-width: 81px;
 	}
 	#TopPluginIcon {
 		height: 76px;
@@ -855,4 +854,42 @@ input:checked + .icwp-slider:before {
 	margin: 0;
 	line-height: 20px;
 	text-align: left;
+}
+
+.icon-flag {
+	width: 16px;
+	height: 12px;
+	border: 1px solid black;
+	vertical-align: unset;
+}
+
+/** TABLE: Audit trail **/
+td.column-message textarea {
+	width: 100%;
+	background: transparent;
+	box-shadow: none;
+	border-color: rgba(0,0,0,0.05);
+}
+
+/** TABLE: TRAFFIC **/
+th.column-visitor {
+	width: 250px;
+}
+th.column-path {
+	width: 100px;
+}
+td.column-path code {
+	color: #4120a2;
+	display: block;
+	font-size: 0.9rem;
+	background-color: transparent; /* rgba(245, 245, 245, 0.8); */
+}
+th.column-code {
+	width: 84px;
+}
+th.column-trans {
+	width: 114px;
+}
+th.column-request_info {
+	width: 100px;
 }

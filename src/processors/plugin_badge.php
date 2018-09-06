@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		if ( $oFO->isDisplayPluginBadge() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'includeJquery' ) );
 			add_action( 'login_enqueue_scripts', array( $this, 'includeJquery' ) );
@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function gatherPluginWidgetContent( $aContent ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oCon = $this->getController();
 
 		$aLabels = $oCon->getPluginLabels();
@@ -57,7 +57,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	public function addPluginBadgeWidget() {
 		$this->loadWpWidgets();
 		require_once( dirname( __FILE__ ).'/plugin_badgewidget.php' );
-		ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getFeature() );
+		ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getMod() );
 		register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
 	}
 
@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function printPluginBadge() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		try {
 			echo $oFO->renderPluginBadge();
 		}

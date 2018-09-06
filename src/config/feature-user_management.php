@@ -26,7 +26,8 @@
     {
       "slug": "section_passwords",
       "reqs" : {
-        "php_min": "5.4"
+        "php_min": "5.4",
+        "wp_min": "4.4"
       },
       "title": "Password Policies",
       "title_short": "Password Policies",
@@ -109,7 +110,7 @@
     {
       "key": "session_idle_timeout_interval",
       "section": "section_user_session_management",
-      "default": 0,
+      "default": 48,
       "type": "integer",
       "link_info": "",
       "link_blog": "",

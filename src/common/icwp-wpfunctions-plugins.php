@@ -448,7 +448,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param bool $bForceUpdateCheck
-	 * @return array
+	 * @return stdClass[]
 	 */
 	public function getUpdates( $bForceUpdateCheck = false ) {
 		if ( $bForceUpdateCheck ) {

@@ -9,10 +9,18 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return bool
+	 */
+	protected function isReadyToExecute() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' )
+			   && parent::isReadyToExecute();
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getReportingTableName() {
-		return $this->prefix( $this->getDefinition( 'reporting_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'reporting_table_name' ), '_' );
 	}
 
 	/**
@@ -26,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return string
 	 */
 	public function getStatisticsTableName() {
-		return $this->prefix( $this->getDefinition( 'statistics_table_name' ), '_' );
+		return $this->prefix( $this->getDef( 'statistics_table_name' ), '_' );
 	}
 
 	/**
@@ -42,8 +50,8 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 			case 'section_enable_plugin_feature_statistics' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Helps you see at a glance how effective the plugin has been.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $this->getMainFeatureName() ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Helps you see at a glance how effective the plugin has been.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $this->getMainFeatureName() ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -51,8 +59,8 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 			case 'section_enable_plugin_feature_reporting' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'To track stats and issue reports.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $this->getMainFeatureName() ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'To track stats and issue reports.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $this->getMainFeatureName() ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -60,8 +68,8 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 			case 'section_stats_sharing' :
 				$sTitle = _wpsf__( 'Statistics Sharing' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Help us to provide globally accessible statistics on the effectiveness of the plugin.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Enabling this option helps us improve our plugin over time.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Help us to provide globally accessible statistics on the effectiveness of the plugin.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling this option helps us improve our plugin over time.' ) )
 					._wpsf__( 'All statistics data collection is 100% anonymous.' )._wpsf__( 'Neither we nor anyone else will be able to trace the data back to the originating site.' )
 
 				);

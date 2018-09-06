@@ -12,9 +12,9 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 
-		if ( $oFO->getOptIs( 'disable_file_editing', 'Y' ) ) {
+		if ( $oFO->isOpt( 'disable_file_editing', 'Y' ) ) {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
@@ -33,23 +33,23 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_action( 'init', array( $this, 'resetAuthKeysSalts' ), 1 );
 		}
 
-		if ( $oFO->getOptIs( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
+		if ( $oFO->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );
 			}
 			force_ssl_admin( true );
 		}
 
-		if ( $oFO->getOptIs( 'hide_wordpress_generator_tag', 'Y' ) ) {
+		if ( $oFO->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $oFO->getOptIs( 'block_author_discovery', 'Y' ) ) {
+		if ( $oFO->isOpt( 'block_author_discovery', 'Y' ) ) {
 			// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
 			add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 		}
 
-		if ( $oFO->getOptIs( 'disable_xmlrpc', 'Y' ) ) {
+		if ( $oFO->isOpt( 'disable_xmlrpc', 'Y' ) ) {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}
@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function disableXmlrpc() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'xml_block_at' );
 		$this->setIpTransgressed();
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function isRestApiAccessAllowed() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getFeature();
+		$oFO = $this->getMod();
 		return $oFO->isRestApiAnonymousAccessAllowed()
 			   || $this->loadWpUsers()->isUserLoggedIn()
 			   || in_array( $this->loadWp()->getRestNamespace(), $oFO->getRestApiAnonymousExclusions() );
@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
 
 			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-			$oFO = $this->getFeature();
+			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( 'restapi_block_at' );
 		}
 		return $mCurrentStatus;
@@ -122,7 +122,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getFeature()->getFeatureSlug();
+		$sSlug = $this->getMod()->getSlug();
 		$aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ]
 			= empty( $aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
 		return $aData;
@@ -209,7 +209,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function interceptCanonicalRedirects() {
 
-		if ( $this->getIsOption( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
 			$sAuthor = $this->loadDP()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
 				$this->loadWp()->wpDie( sprintf(

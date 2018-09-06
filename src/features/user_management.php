@@ -68,16 +68,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
 	public function getActiveSessionsData( $bCleanFirst = true ) {
-		// we first clean the sessions.
+		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
+		$oPro = $this->getProcessor();
+		$oSessions = $oPro->getProcessorSessions();
 		if ( $bCleanFirst ) {
-			/** @var ICWP_WPSF_Processor_UserManagement $oProc */
-			$oProc = $this->getProcessor();
-			$oProc->getProcessorSessions()
-				  ->cleanExpiredSessions();
+			$oSessions->cleanExpiredSessions();
 		}
-
-		return $this->getSessionsProcessor()
-					->queryGetActiveSessions();
+		return $oSessions->getActiveSessions();
 	}
 
 	/**
@@ -116,11 +113,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return $this->isModuleEnabled() && ( $this->getSessionTimeoutInterval() > 0 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return parent::isReadyToExecute() && !$this->isVisitorWhitelisted();
+	protected function doPrePluginOptionsSave() {
+		if ( $this->getSessionIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
+			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
+		}
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -142,8 +138,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * Currently no distinction between the module and user sessions.
 	 * @return bool
 	 */
-	public function getIsUserSessionsManagementEnabled() {
-		return $this->getOptIs( 'enable_user_management', 'Y' )
+	public function isUserSessionsManagementEnabled() {
+		return $this->isOpt( 'enable_user_management', 'Y' )
 			   && $this->getSessionsProcessor()->getTableExists();
 	}
 
@@ -191,7 +187,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isSendUserEmailLoginNotification() {
-		return $this->isPremium() && $this->getOptIs( 'enable_user_login_email_notification', 'Y' );
+		return $this->isPremium() && $this->isOpt( 'enable_user_login_email_notification', 'Y' );
 	}
 
 	/**
@@ -241,7 +237,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isPasswordPoliciesEnabled() {
-		return $this->getOptIs( 'enable_password_policies', 'Y' )
+		return $this->isOpt( 'enable_password_policies', 'Y' )
 			   && $this->getOptionsVo()->isOptReqsMet( 'enable_password_policies' );
 	}
 
@@ -249,14 +245,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isPassForceUpdateExisting() {
-		return $this->getOptIs( 'pass_force_existing', 'Y' );
+		return $this->isOpt( 'pass_force_existing', 'Y' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isPassPreventPwned() {
-		return $this->getOptIs( 'pass_prevent_pwned', 'Y' );
+		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
 	/**
@@ -314,8 +310,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			case 'section_enable_plugin_feature_user_accounts_management' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
 				);
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
@@ -324,17 +320,17 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sTitle = _wpsf__( 'Password Policies' );
 				$sTitleShort = _wpsf__( 'Password Policies' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Have full control over passwords used by users on the site.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
-					sprintf( _wpsf__( 'Note - %s' ), _wpsf__( 'Requires PHP v5.4 and above.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Have full control over passwords used by users on the site.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Requirements' ), sprintf( 'PHP v%s+', '5.4.0' ).' ; '.sprintf( 'WordPress v%s+', '4.4.0' ) ),
 				);
 				break;
 
 			case 'section_admin_login_notification' :
 				$sTitle = _wpsf__( 'Admin Login Notification' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Notifications' );
 				break;
@@ -342,8 +338,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			case 'section_multifactor_authentication' :
 				$sTitle = _wpsf__( 'Multi-Factor User Authentication' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Multi-Factor Authentication' );
 				break;
@@ -351,8 +347,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			case 'section_user_session_management' :
 				$sTitle = _wpsf__( 'User Session Management' );
 				$aSummary = array(
-					sprintf( _wpsf__( 'Purpose - %s' ), _wpsf__( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.' ) ),
-					sprintf( _wpsf__( 'Recommendation - %s' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Session Options' );
 				break;
@@ -400,8 +396,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'Specify How Many Days After Login To Automatically Force Re-Login' );
 				$sDescription = _wpsf__( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.' )
 								.'<br />'.sprintf( _wpsf__( 'This cannot be less than %s.' ), '"<strong>1</strong>"' )
-								.'<br />'.sprintf( _wpsf__( 'Default: %s.' ), '"<strong>'.$this->getOptionsVo()
-																							   ->getOptDefault( 'session_timeout_interval' ).'</strong>"' );
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Default' ), '"<strong>'.$this->getOptionsVo()
+																									->getOptDefault( 'session_timeout_interval' ).'</strong>"' );
 				break;
 
 			case 'session_idle_timeout_interval' :

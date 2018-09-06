@@ -268,7 +268,7 @@ tr.icwp-plugin-vulnerability dd {
 	top: 0;
 	left: 0;
 	background: rgba(0, 0, 0, 0.2);
-	z-index: 999999;
+	z-index: 5000;
 }
 .icwp-waiting {
 	width: 200px;
@@ -311,10 +311,8 @@ tr.icwp-plugin-vulnerability dd {
 	background-color: rgba(0, 0, 0, 0.03);
 }
 .icwpAjaxTableContainer table th.column-created_at {
-	width: 110px;
 }
 .icwpAjaxTableContainer table th.column-ip {
-	width: 110px;
 }
 .icwpAjaxTableContainer table th.column-wp_username {
 	width: 130px;

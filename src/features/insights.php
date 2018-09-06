@@ -63,6 +63,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	public function insertCustomJsVars() {
+		parent::insertCustomJsVars();
 
 		if ( $this->isThisModulePage() ) {
 			wp_localize_script(
@@ -112,7 +113,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getConn()->getModule( 'plugin' );
 		$sNote = trim( $oDP->post( 'admin_note', '' ) );
-
 		$bSuccess = false;
 		if ( !$oMod->getCanAdminNotes() ) {
 			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
@@ -124,7 +124,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
 			$oP = $oMod->getProcessor();
 			$bSuccess = $oP->getSubProcessorNotes()
-						   ->getQueryCreator()
+						   ->getQueryInserter()
 						   ->create( $sNote ) !== false;
 
 			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
@@ -149,7 +149,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		if ( $nNoteId >= 0 ) {
 			$oP->getSubProcessorNotes()
 			   ->getQueryDeleter()
-			   ->delete( $nNoteId );
+			   ->deleteById( $nNoteId );
 		}
 
 		return array(
@@ -453,14 +453,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
 
 		$oRetriever = $oProc->getSubProcessorNotes()
-							->getQueryRetriever();
+							->getQuerySelector();
 		$aNotes = $oRetriever->setLimit( 10 )
 							 ->setResultsAsVo( false )
-							 ->all();
+							 ->query();
 
 		$oWP = $this->loadWp();
 		foreach ( $aNotes as $oItem ) {
-			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
+			$oItem->created_at = $oWP->getTimeStampForDisplay( $oItem->created_at );
 			$oItem->note = stripslashes( sanitize_text_field( $oItem->note ) );
 			$oItem->wp_username = sanitize_text_field( $oItem->wp_username );
 		}
@@ -475,6 +475,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oConn = $this->getConn();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oConn->getModule( 'user_management' );
+		/** @var ICWP_WPSF_Processor_UserManagement $oProUsers */
+		$oProUsers = $oModUsers->getProcessor();
 		/** @var ICWP_WPSF_Processor_Statistics $oStats */
 		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
 
@@ -510,7 +512,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'sessions'       => array(
 				'title'   => _wpsf__( 'Active Sessions' ),
-				'val'     => count( $oModUsers->getActiveSessionsData() ),
+				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
 				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			),
 			'blackips'       => array(
@@ -559,9 +561,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  ->getModule( 'audit_trail' )
 					  ->getProcessor();
 		try {
-			$aItems = $oProc->getAuditTrailFinder()
+			$aItems = $oProc->getAuditTrailSelector()
 							->setLimit( 20 )
-							->all();
+							->query();
 		}
 		catch ( Exception $oE ) {
 			$aItems = array();

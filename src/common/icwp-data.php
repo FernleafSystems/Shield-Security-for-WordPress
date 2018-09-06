@@ -153,7 +153,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @param bool $bIncludeCookie
 	 * @return array
 	 */
-	public function getRawRequestParams( $bIncludeCookie = true ) {
+	public function getRequestParams( $bIncludeCookie = true ) {
 		$aParams = array_merge( $_GET, $_POST );
 		return $bIncludeCookie ? array_merge( $aParams, $_COOKIE ) : $aParams;
 	}
@@ -309,10 +309,18 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getRequestMethod() {
+		$sRequestMethod = self::FetchServer( 'REQUEST_METHOD' );
+		return ( empty( $sRequestMethod ) ? 'get' : strtolower( $sRequestMethod ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isMethodPost() {
-		return ( self::GetRequestMethod() == 'post' );
+		return ( $this->getRequestMethod() == 'post' );
 	}
 
 	/**
@@ -372,15 +380,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 		$sAtoZ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		$nRandomInt = rand( 0, ( strlen( $sAtoZ ) - 1 ) );
 		return $sAtoZ[ $nRandomInt ];
-	}
-
-	/**
-	 * Returns the current request method as an all-lower-case string
-	 * @return bool|string
-	 */
-	static public function GetRequestMethod() {
-		$sRequestMethod = self::FetchServer( 'REQUEST_METHOD' );
-		return ( empty( $sRequestMethod ) ? false : strtolower( $sRequestMethod ) );
 	}
 
 	/**
@@ -571,7 +570,9 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function setDeleteCookie( $sKey ) {
-		unset( $_COOKIE[ $sKey ] );
+		if ( isset( $_COOKIE[ $sKey ] ) ) {
+			unset( $_COOKIE[ $sKey ] );
+		}
 		return $this->setCookie( $sKey, '', -3600 );
 	}
 
@@ -637,6 +638,14 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param stdClass $oStdClass
+	 * @return array
+	 */
+	public function convertStdClassToArray( $oStdClass ) {
+		return json_decode( json_encode( $oStdClass ), true );
+	}
+
+	/**
 	 * @param array $aSubjectArray
 	 * @param mixed $mValue
 	 * @param int   $nDesiredPosition
@@ -666,6 +675,33 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 		}
 
 		return $aSubjectArray;
+	}
+
+	/**
+	 * note: employs strict search comparison
+	 * @param array $aArray
+	 * @param mixed $mValue
+	 * @param bool  $bFirstOnly - set true to only remove the first element found of this value
+	 * @return array
+	 */
+	public function removeFromArrayByValue( $aArray, $mValue, $bFirstOnly = false ) {
+		$aKeys = array();
+
+		if ( $bFirstOnly ) {
+			$mKey = array_search( $mValue, $aArray, true );
+			if ( $mKey !== false ) {
+				$aKeys[] = $mKey;
+			}
+		}
+		else {
+			$aKeys = array_keys( $aArray, $mValue, true );
+		}
+
+		foreach ( $aKeys as $mKey ) {
+			unset( $aArray[ $mKey ] );
+		}
+
+		return $aArray;
 	}
 
 	/**
