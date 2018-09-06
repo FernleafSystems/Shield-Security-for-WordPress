@@ -512,7 +512,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
-		$this->getAdminUrl( 'plugins.php', $bWpmsOnly );
+		return $this->getAdminUrl( 'plugins.php', $bWpmsOnly );
 	}
 
 	/**
@@ -520,7 +520,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Themes( $bWpmsOnly = false ) {
-		$this->getAdminUrl( 'themes.php', $bWpmsOnly );
+		return $this->getAdminUrl( 'themes.php', $bWpmsOnly );
 	}
 
 	/**
@@ -528,7 +528,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Updates( $bWpmsOnly = false ) {
-		$this->getAdminUrl( 'update-core.php', $bWpmsOnly );
+		return $this->getAdminUrl( 'update-core.php', $bWpmsOnly );
 	}
 
 	/**
