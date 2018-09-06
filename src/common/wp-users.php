@@ -156,6 +156,20 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param WP_User $oUser
+	 * @return string
+	 */
+	public function getAdminUrl_ProfileEdit( $oUser = null ) {
+		if ( $oUser instanceof WP_User ) {
+			$sPath = 'user-edit.php?user_id='.$oUser->ID;
+		}
+		else {
+			$sPath = 'profile.php';
+		}
+		return $this->loadWp()->getAdminUrl( $sPath );
+	}
+
+	/**
 	 * @param string $sEmail
 	 * @return WP_User|null
 	 */

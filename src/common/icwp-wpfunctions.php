@@ -499,11 +499,20 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sPath
+	 * @param bool   $bWpmsOnly
+	 * @return string
+	 */
+	public function getAdminUrl( $sPath, $bWpmsOnly = false ) {
+		return $bWpmsOnly ? network_admin_url( $sPath ) : admin_url( $sPath );
+	}
+
+	/**
 	 * @param bool $bWpmsOnly
 	 * @return string
 	 */
 	public function getAdminUrl_Plugins( $bWpmsOnly = false ) {
-		return $bWpmsOnly ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' );
+		$this->getAdminUrl( 'plugins.php', $bWpmsOnly );
 	}
 
 	/**
@@ -511,7 +520,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Themes( $bWpmsOnly = false ) {
-		return $bWpmsOnly ? network_admin_url( 'themes.php' ) : admin_url( 'themes.php' );
+		$this->getAdminUrl( 'themes.php', $bWpmsOnly );
 	}
 
 	/**
@@ -519,7 +528,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getAdminUrl_Updates( $bWpmsOnly = false ) {
-		return $bWpmsOnly ? network_admin_url( 'update-core.php' ) : admin_url( 'update-core.php' );
+		$this->getAdminUrl( 'update-core.php', $bWpmsOnly );
 	}
 
 	/**

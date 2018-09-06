@@ -198,7 +198,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			switch ( $this->loadDP()->request( 'exec' ) ) {
 
 				case 'render_traffic_table':
-					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
+					$aAjaxResponse = $this->ajaxExec_RenderTrafficTable();
 					break;
 
 				default:
@@ -208,7 +208,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_RenderAuditTable() {
+	protected function ajaxExec_RenderTrafficTable() {
 		$oDP = $this->loadDP();
 		parse_str( $oDP->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
@@ -339,7 +339,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				if ( $oEntry->uid > 0 ) {
 					if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
 						$oUser = $oWpUsers->getUserById( $oEntry->uid );
-						$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) : $oUser->user_login;
+						$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) :
+							sprintf( '<a href="%s" target="_blank">%s</a>',
+								$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
 					}
 				}
 

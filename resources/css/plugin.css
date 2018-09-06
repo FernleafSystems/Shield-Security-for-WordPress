@@ -863,9 +863,24 @@ input:checked + .icwp-slider:before {
 	vertical-align: unset;
 }
 
+/** TABLE: Audit trail **/
 td.column-message textarea {
 	width: 100%;
 	background: transparent;
 	box-shadow: none;
 	border-color: rgba(0,0,0,0.05);
+}
+
+/** TABLE: TRAFFIC **/
+th.column-visitor {
+	width: 200px;
+}
+th.column-path {
+	width: 120px;
+}
+th.column-code {
+	width: 84px;
+}
+th.column-trans {
+	width: 114px;
 }

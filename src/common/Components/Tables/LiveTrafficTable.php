@@ -20,9 +20,9 @@ class LiveTrafficTable extends ICWP_BaseTable {
 	 */
 	public function get_columns() {
 		return array(
-			'created_at' => 'Date',
-			'visitor'    => 'Visitor Details',
 			'path'       => 'Page',
+			'visitor'    => 'Visitor Details',
+			'created_at' => 'Date',
 			'code'       => 'Response',
 			'trans'      => 'Transgression',
 		);
