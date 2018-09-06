@@ -92,7 +92,6 @@
       "name": "Security Admin Access Key",
       "summary": "Provide/Update Security Admin Access Key",
       "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
-
     },
     {
       "key": "admin_access_timeout",
