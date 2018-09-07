@@ -160,6 +160,18 @@
       "description": "Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable."
     },
     {
+      "key":         "allow_backupcodes",
+      "section":     "section_multifactor_authentication",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Allow Backup Codes",
+      "summary":     "Allow Users To Generate A Backup Code",
+      "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
+    },
+    {
       "key":         "enable_google_authenticator",
       "section":     "section_2fa_ga",
       "default":     "N",

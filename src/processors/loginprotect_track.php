@@ -9,6 +9,7 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	const Factor_Google_Authenticator = 'ga';
 	const Factor_Yubikey = 'yubi';
 	const Factor_Email = 'email';
+	const Factor_BackupCode = 'backupcode';
 
 	/**
 	 * @var array
@@ -80,7 +81,21 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	 * @return int
 	 */
 	public function getCountFactorsSuccessful() {
-		return count( array_filter( $this->getAuthFactorsTracked() ) );
+		return count( $this->getFactorsSuccessful() );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFactorsSuccessful() {
+		return array_keys( array_filter( $this->getAuthFactorsTracked() ) ); // filter out the 'falses'
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFactorsUnsuccessful() {
+		return array_diff( array_keys( $this->getAuthFactorsTracked() ), $this->getFactorsSuccessful() );
 	}
 
 	/**

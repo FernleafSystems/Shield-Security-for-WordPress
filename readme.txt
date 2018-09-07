@@ -353,6 +353,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
+= 6.10.0 - Series =
+
+* **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - users can create a backup login code in-case they MFA factors are unavailable.
+
 = 6.9.0 - Series =
 *Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
 

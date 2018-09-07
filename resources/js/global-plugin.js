@@ -137,6 +137,53 @@ var iCWP_WPSF_HackGuard_Reinstall = new function () {
 	};
 }();
 
+if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
+	var iCWP_WPSF_LoginGuard_BackupCodes = new function () {
+		this.initialise = function () {
+			jQuery( document ).ready( function () {
+				jQuery( document ).on( "click", "a#IcwpWpsfGenBackupLoginCode", genBackupCode );
+				jQuery( document ).on( "click", "a#IcwpWpsfDelBackupLoginCode", deleteBackupCode );
+			} );
+		};
+
+		var genBackupCode = function ( event ) {
+			event.preventDefault();
+			iCWP_WPSF_BodyOverlay.show();
+
+			var $aData = icwp_wpsf_vars_lg.ajax_gen_backup_codes;
+			jQuery.post( ajaxurl, $aData,
+				function ( oResponse ) {
+					alert( 'Your login backup code: ' + oResponse.data.code );
+				}
+			).always( function () {
+					location.reload( true );
+				}
+			);
+
+			return false;
+		};
+
+		var deleteBackupCode = function ( event ) {
+			event.preventDefault();
+			iCWP_WPSF_BodyOverlay.show();
+
+			var $aData = icwp_wpsf_vars_lg.ajax_del_backup_codes;
+			jQuery.post( ajaxurl, $aData,
+				function ( oResponse ) {
+					alert( 'here1' );
+				}
+			).always( function () {
+					// location.reload( true );
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			);
+
+			return false;
+		};
+	}();
+	iCWP_WPSF_LoginGuard_BackupCodes.initialise();
+}
+
 /** TODO: THIS AJAX IS NOT COMPLETE **/
 var iCWP_WPSF_Autoupdates = new function () {
 
@@ -195,7 +242,7 @@ var iCWP_WPSF_Growl = new function () {
 		}, 380 );
 		setTimeout( function () {
 			$oDiv.css( 'width', 0 );
-			
+
 			setTimeout( function () {
 				$oDiv.html( '' )
 					 .fadeOut();

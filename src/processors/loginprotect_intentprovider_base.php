@@ -37,7 +37,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 
 		if ( $this->getController()->isValidAdminArea( true ) ) {
-			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserProfile' ) );
+			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserEditProfile' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 		}
 	}
@@ -79,6 +79,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	protected function hasValidatedProfile( $oUser ) {
 		$sKey = $this->getStub().'_validated';
 		return ( $oUser instanceof WP_User )
+			   && $this->hasValidSecret( $oUser )
 			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
 	}
 
@@ -121,9 +122,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 
 	/**
 	 * @param WP_User $oUser
+	 * @return $this
+	 */
+	public function deleteSecret( $oUser ) {
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$sKey = $this->getStub().'_secret';
+		$oMeta->{$sKey} = null;
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
 	 * @return string
 	 */
-	protected function resetSecret( WP_User $oUser ) {
+	public function resetSecret( WP_User $oUser ) {
 		$sNewSecret = $this->genNewSecret();
 		$this->setSecret( $oUser, $sNewSecret );
 		return $sNewSecret;
@@ -179,6 +191,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
+	}
+
+	/**
+	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
+	 * @param WP_User $oUser
+	 */
+	public function addOptionsToUserEditProfile( $oUser ) {
+		$this->addOptionsToUserProfile( $oUser );
 	}
 
 	/**
@@ -238,7 +258,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param bool    $bIsSubjectTo
+	 * @param bool $bIsSubjectTo
 	 * @param WP_User $oUser
 	 * @return bool
 	 */

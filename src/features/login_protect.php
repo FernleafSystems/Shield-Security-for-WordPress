@@ -321,6 +321,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
+	public function isEnabledBackupCodes() {
+		return $this->isOpt( 'allow_backupcodes', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isEnabledGoogleAuthenticator() {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
@@ -524,6 +531,82 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadDP()->request( 'exec' ) ) {
+
+				case 'gen_backup_codes':
+					$aAjaxResponse = $this->ajaxExec_GenBackupCodes();
+					break;
+
+				case 'del_backup_codes':
+					$aAjaxResponse = $this->ajaxExec_DeleteBackupCodes();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_GenBackupCodes() {
+
+		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
+		$oPro = $this->loadProcessor();
+		$sPass = $oPro->getProcessorLoginIntent()
+					  ->getProcessorBackupCodes()
+					  ->resetSecret( $this->loadWpUsers()->getCurrentWpUser() );
+
+		foreach ( array( 20, 15, 10, 5 ) as $nPos ) {
+			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
+		}
+
+		return array(
+			'code'    => $sPass,
+			'success' => true
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_DeleteBackupCodes() {
+
+		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
+		$oPro = $this->loadProcessor();
+		$oPro->getProcessorLoginIntent()
+			 ->getProcessorBackupCodes()
+			 ->deleteSecret( $this->loadWpUsers()->getCurrentWpUser() );
+		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );
+		return array(
+			'success' => true
+		);
+	}
+
+	public function insertCustomJsVars() {
+		parent::insertCustomJsVars();
+
+		wp_localize_script(
+			$this->prefix( 'global-plugin' ),
+			'icwp_wpsf_vars_lg',
+			array(
+				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
+				'ajax_del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
+			)
+		);
+		wp_enqueue_script( 'jquery-ui-dialog' );
+		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -652,6 +735,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sName = _wpsf__( 'Multi-Factor By-Pass' );
 				$sSummary = _wpsf__( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days' );
 				$sDescription = _wpsf__( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.' );
+				break;
+
+			case 'allow_backupcodes' :
+				$sName = _wpsf__( 'Allow Backup Codes' );
+				$sSummary = _wpsf__( 'Allow Users To Generate A Backup Code' );
+				$sDescription = _wpsf__( 'Allow users to generate a backup code that can be used to login if MFA factors are unavailable.' );
 				break;
 
 			case 'enable_google_authenticator' :

@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
 /**
  * @property string $email_secret
  * @property bool   $email_validated
+ * @property string $backupcode_secret
+ * @property string $backupcode_validated
  * @property string $ga_secret
  * @property bool   $ga_validated
  * @property array  $hash_loginmfa

@@ -194,58 +194,6 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @return WP_Error|WP_User
-	 */
-	public function processLoginAttempt_FilterOld( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		$oLoginTrack = $this->getLoginTrack();
-
-		// Mulifactor or not
-		$bNeedToCheckThisFactor = $oFO->isChainedAuth() || !$this->getLoginTrack()->hasSuccessfulFactor();
-		$bErrorOnFailure = $bNeedToCheckThisFactor && $oLoginTrack->isFinalFactorRemainingToTrack();
-		$oLoginTrack->addUnSuccessfulFactor( $this->getStub() );
-
-		if ( !$bNeedToCheckThisFactor || !( $oUser instanceof WP_User ) || is_wp_error( $oUser ) ) {
-			return $oUser;
-		}
-
-		if ( $this->hasValidatedProfile( $oUser ) ) {
-
-			$oError = new WP_Error();
-
-			$sGaOtp = $this->fetchCodeFromRequest();
-			$bIsError = false;
-			if ( empty( $sGaOtp ) ) {
-				$bIsError = true;
-				$oError->add( 'shield_google_authenticator_empty',
-					_wpsf__( 'Whoops.' ).' '._wpsf__( 'Did we forget to use the Google Authenticator?' ) );
-			}
-			else {
-				$sGaOtp = preg_replace( '/[^0-9]/', '', $sGaOtp );
-				if ( !$this->processOtp( $oUser, $sGaOtp ) ) {
-					$bIsError = true;
-					$oError->add( 'shield_google_authenticator_failed',
-						_wpsf__( 'Oh dear.' ).' '._wpsf__( 'Google Authenticator Code Failed.' ) );
-				}
-			}
-
-			if ( $bIsError ) {
-				if ( $bErrorOnFailure ) {
-					$oUser = $oError;
-				}
-				$this->doStatIncrement( 'login.googleauthenticator.fail' );
-			}
-			else {
-				$this->doStatIncrement( 'login.googleauthenticator.verified' );
-				$oLoginTrack->addSuccessfulFactor( $this->getStub() );
-			}
-		}
-		return $oUser;
-	}
-
-	/**
 	 * @param array $aFields
 	 * @return array
 	 */

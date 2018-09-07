@@ -89,7 +89,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	public function hasValidatedProfile( $oUser ) {
+	protected function hasValidatedProfile( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta

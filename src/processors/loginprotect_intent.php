@@ -68,6 +68,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$this->getProcessorYubikey()->run();
 		}
 
+		if ( $oFO->isEnabledBackupCodes() ) {
+			$this->getProcessorBackupCodes()->run();
+		}
+
 		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
 			if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
 				add_filter( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
@@ -109,13 +113,18 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 
 				if ( $this->isLoginIntentValid() ) {
-
 					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
 					}
 
 					$this->removeLoginIntent();
-					$oFO->setFlashAdminNotice( _wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' ) )
+					$sFlash = _wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' );
+					if ( $oFO->isEnabledBackupCodes() ) {
+						$sFlash .= ' '._wpsf__( 'If you used your Backup Code, you will need to reset it.' ); //TODO::
+//								   .' '.sprintf( '<a href="%s">%s</a>', $oWpUsers->getAdminUrl_ProfileEdit(), _wpsf__( 'Go' ) );
+					}
+
+					$oFO->setFlashAdminNotice( $sFlash )
 						->setOptInsightsAt( 'last_2fa_login_at' );
 				}
 				else {
@@ -338,6 +347,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_BackupCodes
+	 */
+	public function getProcessorBackupCodes() {
+		require_once( dirname( __FILE__ ).'/loginprotect_backupcodes.php' );
+		$oProc = new ICWP_WPSF_Processor_LoginProtect_BackupCodes( $this->getMod() );
+		return $oProc->setLoginTrack( $this->getLoginTrack() );
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
 	 */
 	public function getProcessorGoogleAuthenticator() {
@@ -370,7 +388,21 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$this->setLoginIntentProcessed();
 		}
 		$oTrk = $this->getLoginTrack();
-		return $oFO->isChainedAuth() ? !$oTrk->hasUnSuccessfulFactor() : $oTrk->hasSuccessfulFactor();
+
+		// 1st: if backup code was used, then chained auth is irrelevant
+		$sBackupStub = ICWP_WPSF_Processor_LoginProtect_Track::Factor_BackupCode;
+
+		// if backup code used, that's successful; or
+		// It's not chained and you have any 1 successful; or
+		// It's chained (and then you must exclude the backup code.
+		$bSuccess = in_array( $sBackupStub, $oTrk->getFactorsSuccessful() )
+					|| ( !$oFO->isChainedAuth() && $oTrk->hasSuccessfulFactor() );
+		if ( !$bSuccess && $oFO->isChainedAuth() ) {
+			$bSuccess = !$oTrk->hasUnSuccessfulFactor()
+						|| ( $oTrk->getCountFactorsUnsuccessful() == 1 && in_array( $sBackupStub, $oTrk->getFactorsUnsuccessful() ) );
+		}
+
+		return $bSuccess;
 	}
 
 	/**
