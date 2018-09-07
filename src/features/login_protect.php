@@ -197,7 +197,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	public function getIsCustomLoginPathEnabled() {
+	public function isCustomLoginPathEnabled() {
 		$sPath = $this->getCustomLoginPath();
 		return !empty( $sPath );
 	}
@@ -321,7 +321,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	public function getIsEnabledGoogleAuthenticator() {
+	public function isEnabledGoogleAuthenticator() {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 

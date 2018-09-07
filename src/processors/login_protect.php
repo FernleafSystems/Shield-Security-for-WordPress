@@ -20,7 +20,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			return;
 		}
 
-		if ( $oFO->getIsCustomLoginPathEnabled() ) {
+		if ( $oFO->isCustomLoginPathEnabled() ) {
 			$this->getProcessorWpLogin()->run();
 		}
 

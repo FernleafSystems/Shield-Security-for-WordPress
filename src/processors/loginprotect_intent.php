@@ -56,7 +56,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->getIsEnabledGoogleAuthenticator() ) {
+		if ( $oFO->isEnabledGoogleAuthenticator() ) {
 			$this->getProcessorGoogleAuthenticator()->run();
 		}
 

@@ -195,7 +195,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'authemail';
 		}
 
-		if ( !$oFO->getIsEnabledGoogleAuthenticator() ) {
+		if ( !$oFO->isEnabledGoogleAuthenticator() ) {
 			$aStepsSlugs[] = 'authga';
 		}
 
