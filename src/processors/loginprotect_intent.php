@@ -270,6 +270,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		$sRedirectTo = rawurlencode( $this->loadDP()->getRequestUri() ); // not actually used
 
+		$nMfaSkip = $oFO->getMfaSkip();
 		$aDisplayData = array(
 			'strings' => array(
 				'cancel'          => _wpsf__( 'Cancel Login' ),
@@ -282,7 +283,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'what_is_this'    => _wpsf__( 'What is this?' ),
 				'message'         => $sMessage,
 				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() ),
-				'skip_mfa'        => sprintf( _wpsf__( "Don't ask again on this browser for %s day(s)" ), $oFO->getMfaSkip() )
+				'skip_mfa'        => sprintf(
+					_wpsf__( "Don't ask again on this browser for %s." ),
+					sprintf( _n( '%s day', '%s days', $nMfaSkip, 'wp-simple-firewall' ), $nMfaSkip )
+				)
 			),
 			'data'    => array(
 				'login_fields'      => $aLoginIntentFields,
