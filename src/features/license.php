@@ -289,6 +289,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 						$oPro->addToAuditEntry( 'License check failed. Deactivating Pro.', 3, 'license_check_failed' );
 					}
 				}
+				else {
+					// No previously valid license, and the license lookup also failed.
+					$this->deactivate();
+					$oCurrent = $oLookupLicense;
+				}
 			}
 
 			$this->setLicenseData( $oCurrent )
