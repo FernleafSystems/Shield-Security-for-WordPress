@@ -9,8 +9,12 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		$this->verifyLicense( false );
 		add_filter( $this->getConn()->getPremiumLicenseFilterName(), array( $this, 'hasValidWorkingLicense' ), PHP_INT_MAX );
+	}
+
+	public function action_doFeatureShutdown() {
+		$this->verifyLicense( false );
+		parent::action_doFeatureShutdown();
 	}
 
 	/**
@@ -160,12 +164,21 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function ajaxExec_LicenseHandling() {
 		$bSuccess = false;
+		$sMessage = 'Unsupported license action';
 
 		$sLicenseAction = $this->loadDP()->post( 'license-action' );
 
-		if ( $sLicenseAction == 'check' ) {
+		if ( !$this->getIsLicenseNotCheckedFor( 20 ) ) {
+			$nWait = 20 - $this->getLicenseNotCheckedForInterval();
+			$sMessage = sprintf(
+				_wpsf__( 'Please wait %s before attempting another license check.' ),
+				sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
+			);
+		}
+		else if ( $sLicenseAction == 'check' ) {
 			$bSuccess = $this->verifyLicense( true )
 							 ->hasValidWorkingLicense();
+			$sMessage = $bSuccess ? _wpsf__( 'Valid license found.' ) : _wpsf__( "Valid license couldn't be found." );
 		}
 		else if ( $sLicenseAction == 'remove' ) {
 			$oLicense = $this->loadEdd()
@@ -180,7 +193,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$this->deactivate( 'User submitted deactivation' );
 		}
 
-		return array( 'success' => $bSuccess );
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
+		);
 	}
 
 	/**
@@ -252,13 +268,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oCurrent = $this->loadLicense();
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
-		$bCheck = $bForceCheck || ( $this->isLicenseActive() && !$oCurrent->isReady() )
+		$bCheck = $bForceCheck
+				  || ( $this->isLicenseActive() && !$oCurrent->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
 				  || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-					   && ( $nNow - $this->getLicenseLastCheckedAt() > HOUR_IN_SECONDS*4 )
-				  );
+					   && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
 
 		// 1 check in 20 seconds
-		if ( $bCheck && ( $nNow - $this->getLicenseLastCheckedAt() > 20 ) ) {
+		if ( $bCheck && $this->getIsLicenseNotCheckedFor( 20 ) ) {
 
 			$this->setLicenseLastCheckedAt()
 				 ->savePluginOptions();
@@ -290,9 +306,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					}
 				}
 				else {
-					// No previously valid license, and the license lookup also failed.
-					$this->deactivate();
-					$oCurrent = $oLookupLicense;
+					// No previously valid license, and the license lookup also failed but the http request was successful.
+					if ( $oLookupLicense->isReady() ) {
+						$this->deactivate();
+						$oCurrent = $oLookupLicense;
+					}
 				}
 			}
 
@@ -443,6 +461,21 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getLicenseLastCheckedAt() {
 		return $this->getOpt( 'license_last_checked_at' );
+	}
+
+	/**
+	 * @param int $nTimePeriod
+	 * @return bool
+	 */
+	private function getIsLicenseNotCheckedFor( $nTimePeriod ) {
+		return ( $this->getLicenseNotCheckedForInterval() > $nTimePeriod );
+	}
+
+	/**
+	 * @return int
+	 */
+	private function getLicenseNotCheckedForInterval() {
+		return ( $this->loadDP()->time() - $this->getLicenseLastCheckedAt() );
 	}
 
 	/**

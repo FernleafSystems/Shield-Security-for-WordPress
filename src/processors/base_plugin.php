@@ -13,7 +13,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	public function init() {
 		parent::init();
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'show_marketing' ), array( $this, 'getIsShowMarketing' ) );
 
 		$sFunc = $oFO->isOpt( 'delete_on_deactivate', 'Y' ) ? '__return_true' : '__return_false';
 		add_filter( $oFO->prefix( 'delete_on_deactivate' ), $sFunc );
@@ -198,29 +197,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			);
 			$this->insertAdminNotice( $aRenderData );
 		}
-	}
-
-	/**
-	 * @param bool $bShow
-	 * @return bool
-	 */
-	public function getIsShowMarketing( $bShow ) {
-		if ( !$bShow ) {
-			return $bShow;
-		}
-
-		$oWpFunctions = $this->loadWp();
-		if ( class_exists( 'Worpit_Plugin' ) ) {
-			if ( method_exists( 'Worpit_Plugin', 'IsLinked' ) ) {
-				$bShow = !Worpit_Plugin::IsLinked();
-			}
-			else if ( $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned' ) == 'Y'
-					  && $oWpFunctions->getOption( Worpit_Plugin::$VariablePrefix.'assigned_to' ) != '' ) {
-
-				$bShow = false;
-			}
-		}
-		return $bShow;
 	}
 
 	/**
