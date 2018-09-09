@@ -259,7 +259,7 @@ var iCWP_WPSF_LicenseHandler = new function () {
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 				if ( typeof oResponse !== 'undefined' && typeof oResponse.data !== 'undefined' ) {
-					iCWP_WPSF_Growl.showMessage( oResponse.data.message );
+					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.data.success );
 				}
 			}
 		).always( function () {
