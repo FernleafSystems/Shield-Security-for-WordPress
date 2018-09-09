@@ -95,8 +95,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			add_filter( 'registration_errors', array( $this, 'checkReqRegistrationErrors_Wp' ), 10, 2 );
 
 			if ( $b3rdParty ) {
-				// A bit of a catch-all:
-				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
+				// A Catch-all:
+				// 20180909 - not a bit wise as it breaks anything that doesn't properly display front-end output
+//				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
 
 				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems_Bp' ), 10 );
 				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
@@ -105,6 +106,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
 
 				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
+				add_action( 'woocommerce_after_checkout_registration_form', array( $this, 'printRegistrationFormItems_Woo' ), 10 );
 				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
 
 				// MemberPress - Checkout == Registration
