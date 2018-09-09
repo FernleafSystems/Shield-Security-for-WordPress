@@ -74,7 +74,7 @@ $aLicKeyInput = $inputs[ 'license_key' ];
 
 
 							<div class="form-text text-muted">
-								<p class="font-weight-bold"><br/>Be sure to have first activated your URL in your
+								<p class="font-weight-bold"><br />Be sure to have first activated your URL in your
 								<a target="_blank" href="<?php echo $aHrefs[ 'keyless_cp' ]; ?>">Keyless Activation control panel</a>.</p>
 								<ul>
 									<li>URL To Activate: <?php echo $vars[ 'activation_url' ]; ?></li>
@@ -258,11 +258,16 @@ var iCWP_WPSF_LicenseHandler = new function () {
 		var $oForm = jQuery( this );
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
+				if ( typeof oResponse !== 'undefined' && typeof oResponse.data !== 'undefined' ) {
+					iCWP_WPSF_Growl.showMessage( oResponse.data.message );
+				}
 			}
 		).always( function () {
 				bRequestCurrentlyRunning = false;
 				// iCWP_WPSF_BodyOverlay.hide();
-				location.reload( true );
+				setTimeout( function () {
+					location.reload( true );
+				}, 2000 );
 			}
 		);
 	};
@@ -284,9 +289,7 @@ var iCWP_WPSF_ConnectionDebug = new function () {
 		var $oForm = jQuery( this );
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
-
 				alert( oResponse.data.message );
-
 			}
 		).always( function () {
 				iCWP_WPSF_BodyOverlay.hide();

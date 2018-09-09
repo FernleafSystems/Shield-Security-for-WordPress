@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2018-09-07 12:55+0100\n"
-"PO-Revision-Date: 2018-09-07 12:55+0100\n"
+"POT-Creation-Date: 2018-09-09 17:40+0100\n"
+"PO-Revision-Date: 2018-09-09 17:40+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -110,7 +110,7 @@ msgstr ""
 #: src/features/headers.php:122 src/features/headers.php:131
 #: src/features/headers.php:140 src/features/ips.php:304
 #: src/features/ips.php:314 src/features/ips.php:324
-#: src/features/license.php:650 src/features/lockdown.php:87
+#: src/features/license.php:688 src/features/lockdown.php:87
 #: src/features/lockdown.php:96 src/features/lockdown.php:105
 #: src/features/lockdown.php:114 src/features/login_protect.php:539
 #: src/features/login_protect.php:548 src/features/login_protect.php:559
@@ -151,7 +151,7 @@ msgstr ""
 #: src/features/hack_protect.php:819 src/features/headers.php:123
 #: src/features/headers.php:132 src/features/headers.php:141
 #: src/features/ips.php:305 src/features/ips.php:315 src/features/ips.php:325
-#: src/features/license.php:651 src/features/lockdown.php:88
+#: src/features/license.php:689 src/features/lockdown.php:88
 #: src/features/lockdown.php:97 src/features/lockdown.php:106
 #: src/features/lockdown.php:115 src/features/login_protect.php:540
 #: src/features/login_protect.php:549 src/features/login_protect.php:560
@@ -596,11 +596,11 @@ msgid "Your IP"
 msgstr ""
 
 #: src/features/audit_trail.php:169 src/features/audit_trail.php:183
-#: src/features/license.php:89 src/features/plugin.php:950
+#: src/features/license.php:93 src/features/plugin.php:950
 msgid "Audit Trail Viewer"
 msgstr ""
 
-#: src/features/audit_trail.php:184 src/features/license.php:90
+#: src/features/audit_trail.php:184 src/features/license.php:94
 msgid "Review audit trail logs "
 msgstr ""
 
@@ -2938,76 +2938,96 @@ msgid ""
 "the White List"
 msgstr ""
 
-#: src/features/license.php:92
+#: src/features/license.php:96
 msgid "Name"
 msgstr ""
 
-#: src/features/license.php:93
+#: src/features/license.php:97
 msgid "Active"
 msgstr ""
 
-#: src/features/license.php:94
+#: src/features/license.php:98
 msgid "Status"
 msgstr ""
 
-#: src/features/license.php:95
+#: src/features/license.php:99
 msgid "Key"
 msgstr ""
 
-#: src/features/license.php:96
+#: src/features/license.php:100
 msgid "Expires"
 msgstr ""
 
-#: src/features/license.php:97
+#: src/features/license.php:101
 msgid "Owner"
 msgstr ""
 
-#: src/features/license.php:98
+#: src/features/license.php:102
 msgid "Checked"
 msgstr ""
 
-#: src/features/license.php:99
+#: src/features/license.php:103
 msgid "Error"
 msgstr ""
 
-#: src/features/license.php:287
+#: src/features/license.php:174
+#, php-format
+msgid "Please wait %s before attempting another license check."
+msgstr ""
+
+#: src/features/license.php:175
+#, php-format
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/features/license.php:181
+msgid "Valid license found."
+msgstr ""
+
+#: src/features/license.php:181
+msgid "Valid license couldn't be found."
+msgstr ""
+
+#: src/features/license.php:303
 #, php-format
 msgid "Automatic license verification failed after %s days."
 msgstr ""
 
-#: src/features/license.php:325
+#: src/features/license.php:348
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr ""
 
-#: src/features/license.php:326 src/features/license.php:343
+#: src/features/license.php:349 src/features/license.php:366
 #, php-format
 msgid "Please check your license on-site: %s"
 msgstr ""
 
-#: src/features/license.php:327 src/features/license.php:344
+#: src/features/license.php:350 src/features/license.php:367
 #, php-format
 msgid "If this problem persists, please contact support: %s"
 msgstr ""
 
-#: src/features/license.php:342
+#: src/features/license.php:365
 msgid "All attempts to verify Shield Pro license have failed."
 msgstr ""
 
-#: src/features/license.php:647 src/features/license.php:648
+#: src/features/license.php:685 src/features/license.php:686
 msgid "License Options"
 msgstr ""
 
-#: src/features/license.php:650
+#: src/features/license.php:688
 #, php-format
 msgid "Activate %s Pro Extensions."
 msgstr ""
 
-#: src/features/license.php:651
+#: src/features/license.php:689
 msgid "TODO."
 msgstr ""
 
-#: src/features/license.php:675 src/features/license.php:676
-#: src/features/license.php:677
+#: src/features/license.php:713 src/features/license.php:714
+#: src/features/license.php:715
 msgid "License Key"
 msgstr ""
 
@@ -5011,80 +5031,80 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
-#: src/processors/base_plugin.php:69
+#: src/processors/base_plugin.php:68
 msgid "I'd rather not show this support"
 msgstr ""
 
-#: src/processors/base_plugin.php:69
+#: src/processors/base_plugin.php:68
 msgid "I've done this already"
 msgstr ""
 
-#: src/processors/base_plugin.php:93
+#: src/processors/base_plugin.php:92
 msgid "I don't need the setup wizard just now"
 msgstr ""
 
-#: src/processors/base_plugin.php:94
+#: src/processors/base_plugin.php:93
 #, php-format
 msgid "Get started quickly with the %s Setup Wizard"
 msgstr ""
 
-#: src/processors/base_plugin.php:95
+#: src/processors/base_plugin.php:94
 #, php-format
 msgid ""
 "The welcome wizard will help you get setup quickly and become familiar with "
 "some of the core %s features"
 msgstr ""
 
-#: src/processors/base_plugin.php:96
+#: src/processors/base_plugin.php:95
 #, php-format
 msgid ""
 "%s has a helpful setup wizard to walk you through the main features. "
 "Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+"
 msgstr ""
 
-#: src/processors/base_plugin.php:124
+#: src/processors/base_plugin.php:123
 #, php-format
 msgid "Your PHP version is very old: %s"
 msgstr ""
 
-#: src/processors/base_plugin.php:125
+#: src/processors/base_plugin.php:124
 #, php-format
 msgid "Newer features of %s do not support your PHP version."
 msgstr ""
 
-#: src/processors/base_plugin.php:126
+#: src/processors/base_plugin.php:125
 msgid ""
 "You should ask your host to upgrade or provide a much newer PHP version."
 msgstr ""
 
-#: src/processors/base_plugin.php:127
+#: src/processors/base_plugin.php:126
 msgid "Please read here for further information:"
 msgstr ""
 
-#: src/processors/base_plugin.php:128 src/processors/base_plugin.php:169
-#: src/processors/base_plugin.php:193
+#: src/processors/base_plugin.php:127 src/processors/base_plugin.php:168
+#: src/processors/base_plugin.php:192
 msgid "Dismiss this notice"
 msgstr ""
 
-#: src/processors/base_plugin.php:129
+#: src/processors/base_plugin.php:128
 msgid "Dropping support for PHP 5.2 and 5.3"
 msgstr ""
 
-#: src/processors/base_plugin.php:166
+#: src/processors/base_plugin.php:165
 #, php-format
 msgid "Update available for the %s plugin."
 msgstr ""
 
-#: src/processors/base_plugin.php:168
+#: src/processors/base_plugin.php:167
 msgid "Please click to update immediately"
 msgstr ""
 
-#: src/processors/base_plugin.php:189
+#: src/processors/base_plugin.php:188
 #, php-format
 msgid "Can you help translate the %s plugin?"
 msgstr ""
 
-#: src/processors/base_plugin.php:191
+#: src/processors/base_plugin.php:190
 #, php-format
 msgid "Head over to: %s"
 msgstr ""
