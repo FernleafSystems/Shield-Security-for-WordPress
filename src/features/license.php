@@ -168,8 +168,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		$sLicenseAction = $this->loadDP()->post( 'license-action' );
 
-		if ( !$this->getIsLicenseNotCheckedFor( 20 ) ) {
-			$nWait = 20 - $this->getLicenseNotCheckedForInterval();
+		$nCheckInterval = $this->getLicenseNotCheckedForInterval();
+		if ( $nCheckInterval < 20 ) {
+			$nWait = 20 - $nCheckInterval;
 			$sMessage = sprintf(
 				_wpsf__( 'Please wait %s before attempting another license check.' ),
 				sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
