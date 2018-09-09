@@ -420,18 +420,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIpBingBot( $sIp, $sUserAgent = '' ) {
-		$bIsGBot = false;
-
-		// We check the useragent if available
-		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'bingbot' ) !== false ) {
-			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
-			if ( !empty( $sHost ) && ( $sHost != $sIp )
-				 && preg_match( '#.*\.search\.msn\.com\.?$#i', $sHost )
-				 && gethostbyname( $sHost ) === $sIp ) {
-				$bIsGBot = true;
-			}
-		}
-		return $bIsGBot;
+		return $this->isIpOfBot( 'bingbot', '#.*\.search\.msn\.com\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -456,18 +445,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIpGoogleBot( $sIp, $sUserAgent = '' ) {
-		$bIsGBot = false;
-
-		// We check the useragent if available
-		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'Googlebot' ) !== false ) {
-			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
-			if ( !empty( $sHost ) && ( $sHost != $sIp )
-				 && preg_match( '#.*\.google(bot)?\.com\.$#i', $sHost )
-				 && gethostbyname( $sHost ) === $sIp ) {
-				$bIsGBot = true;
-			}
-		}
-		return $bIsGBot;
+		return $this->isIpOfBot( 'Googlebot', '#.*\.google(bot)?\.com\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -476,17 +454,27 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIpYandexBot( $sIp, $sUserAgent = '' ) {
-		$bIsGBot = false;
+		return $this->isIpOfBot( 'yandex.com/bots', '#.*\.yandex?\.(com|ru|net)\.?$#i', $sIp, $sUserAgent );
+	}
+
+	/**
+	 * @param string $sBotUserAgent
+	 * @param string $sBotHostPattern
+	 * @param string $sReqIp
+	 * @param string $sReqUserAgent
+	 * @return bool
+	 */
+	protected function isIpOfBot( $sBotUserAgent, $sBotHostPattern, $sReqIp, $sReqUserAgent = '' ) {
+		$bIsBot = false;
 
 		// We check the useragent if available
-		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'yandex.com/bots' ) !== false ) {
-			$sHost = @gethostbyaddr( $sIp ); // returns the ip on failure
-			if ( !empty( $sHost ) && ( $sHost != $sIp )
-				 && preg_match( '#.*\.yandex?\.(com|ru|net)\.$#i', $sHost )
-				 && gethostbyname( $sHost ) === $sIp ) {
-				$bIsGBot = true;
+		if ( is_null( $sReqUserAgent ) || stripos( $sReqUserAgent, $sBotUserAgent ) !== false ) {
+			$sHost = @gethostbyaddr( $sReqIp ); // returns the ip on failure
+			if ( !empty( $sHost ) && ( $sHost != $sReqIp )
+				 && preg_match( $sBotHostPattern, $sHost ) && gethostbyname( $sHost ) === $sReqIp ) {
+				$bIsBot = true;
 			}
 		}
-		return $bIsGBot;
+		return $bIsBot;
 	}
 }

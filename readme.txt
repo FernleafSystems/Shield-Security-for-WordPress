@@ -353,11 +353,17 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
+= 6.9.1 - Current Release =
+*Released: 9th September, 2018*
+
+* **(v.1)**  ADDED:		Support for Yandex search engine in the [Traffic Watcher](https://icwp.io/dc).
+* **(v.1)**  IMPROVED:	WooCommerce checkout handling with reCAPTCHA.
+
 = 6.9.0 - Series =
 *Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
 
-* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
-* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/dc) - live tracking of all requests to your site.
+* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/dc) - Allows for multiple Yubikeys on the same user profile.
 * **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
 * **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
 * **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
