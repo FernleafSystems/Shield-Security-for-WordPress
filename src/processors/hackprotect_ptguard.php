@@ -166,7 +166,8 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		if ( $aNewSnapData ) {
 			$aSnapshot = $this->loadSnapshotData( $sContext );
 			$aSnapshot[ $sSlug ] = $aNewSnapData;
-			$this->storeSnapshot( $aSnapshot, $sContext );
+			$this->storeSnapshot( $aSnapshot, $sContext )
+				 ->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for item "%s"' ), $sContext, $sSlug ) );
 		}
 
 		return $this;
@@ -641,6 +642,19 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getPtgSnapsBaseDir();
+	}
+
+	/**
+	 * @param string $sMsg
+	 * @param int    $nCategory
+	 * @param string $sEvent
+	 * @param string $sWpUsername
+	 * @return $this
+	 */
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
+		$sMsg = sprintf( '[%s]: %s', _wpsf__( 'Plugin/Theme Guard' ), $sMsg );
+		parent::addToAuditEntry( $sMsg, $nCategory, $sEvent, $sWpUsername );
+		return $this;
 	}
 }
 

@@ -80,7 +80,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		$sKey = $this->getStub().'_validated';
 		return ( $oUser instanceof WP_User )
 			   && $this->hasValidSecret( $oUser )
-			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
+			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey} === true;
 	}
 
 	/**
