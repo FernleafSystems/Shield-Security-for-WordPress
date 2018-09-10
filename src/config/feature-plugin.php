@@ -1,16 +1,16 @@
 {
   "properties":    {
-    "slug":                   "plugin",
-    "name":                   "General",
-    "show_module_menu_item":  true,
-    "storage_key":            "plugin",
-    "tagline":                "General Plugin Settings",
-    "auto_enabled":           true,
-    "show_central":           true,
-    "access_restricted":      true,
-    "premium":                false,
-    "has_custom_actions":     false,
-    "order":                  10
+    "slug":                  "plugin",
+    "name":                  "General",
+    "show_module_menu_item": true,
+    "storage_key":           "plugin",
+    "tagline":               "General Plugin Settings",
+    "auto_enabled":          true,
+    "show_central":          true,
+    "access_restricted":     true,
+    "premium":               false,
+    "has_custom_actions":    false,
+    "order":                 10
   },
   "admin_notices": {
     "override-forceoff":          {
@@ -206,14 +206,14 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
-      "key": "enable_xmlrpc_compatibility",
-      "section": "section_defaults",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "XML-RPC Compatibility",
-      "summary": "Allow Login Through XML-RPC To By-Pass Login Guard Rules",
+      "key":         "enable_xmlrpc_compatibility",
+      "section":     "section_defaults",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "XML-RPC Compatibility",
+      "summary":     "Allow Login Through XML-RPC To By-Pass Login Guard Rules",
       "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
     },
     {
@@ -399,7 +399,7 @@
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "https://icwp.io/wpshieldprivacypolicy",
-    "db_notes_name": "notes",
+    "db_notes_name":          "notes",
     "db_notes_table_columns": [
       "id",
       "wp_username",
@@ -409,10 +409,10 @@
     ],
     "active_plugin_features": [
       {
-        "slug":        "insights",
-        "storage_key": "insights",
+        "slug":          "insights",
+        "storage_key":   "insights",
         "menu_priority": 5,
-        "min_php": "5.4"
+        "min_php":       "5.4"
       },
       {
         "slug":          "admin_access_restriction",
@@ -461,7 +461,8 @@
         "slug":          "statistics",
         "storage_key":   "statistics",
         "load_priority": 11,
-        "hidden":        false
+        "hidden":        false,
+        "min_php":       "5.4"
       },
       {
         "slug":          "sessions",
@@ -477,7 +478,8 @@
       {
         "slug":          "traffic",
         "storage_key":   "traffic",
-        "load_priority": 12
+        "load_priority": 12,
+        "min_php":       "5.4"
       },
       {
         "slug":          "license",
@@ -491,13 +493,13 @@
     ],
     "wizards":                {
       "welcome":      {
-        "title": "Getting Started Setup Wizard",
-        "desc": "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
+        "title":                "Getting Started Setup Wizard",
+        "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "welcome":                  {
             "security_admin": false,
-            "title":             "Welcome"
+            "title":          "Welcome"
           },
           "ip_detect":                {
             "title": "IP Detection"
@@ -531,48 +533,48 @@
           },
           "thankyou":                 {
             "security_admin": false,
-            "title":             "Thank You!"
+            "title":          "Thank You!"
           }
         }
       },
-      "gdpr": {
-        "title": "GDPR Data Wizard",
-        "desc": "Walks you through the searching and removal of personally identifiable data.",
+      "gdpr":         {
+        "title":                "GDPR Data Wizard",
+        "desc":                 "Walks you through the searching and removal of personally identifiable data.",
         "min_user_permissions": "manage_options",
-        "has_premium": true,
+        "has_premium":          true,
         "steps":                {
           "start":    {
             "security_admin": false,
-            "title":             "Start: GDPR Compliance"
+            "title":          "Start: GDPR Compliance"
           },
           "search":   {
             "title": "Input Search"
           },
-          "results":   {
+          "results":  {
             "title": "Search Results"
           },
           "finished": {
             "security_admin": false,
-            "title":             "Finished: GDPR Compliance"
+            "title":          "Finished: GDPR Compliance"
           }
         }
       },
       "importexport": {
-        "title": "Options Import/Export Wizard",
-        "desc": "Walks you through the import and export of options, as well as configuring ongoing automated options-sync.",
+        "title":                "Options Import/Export Wizard",
+        "desc":                 "Walks you through the import and export of options, as well as configuring ongoing automated options-sync.",
         "min_user_permissions": "manage_options",
-        "has_premium": true,
+        "has_premium":          true,
         "steps":                {
           "start":    {
             "security_admin": false,
-            "title":             "Start: Options Import"
+            "title":          "Start: Options Import"
           },
           "import":   {
             "title": "Run Options Import"
           },
           "finished": {
             "security_admin": false,
-            "title":             "Finished: Options Import"
+            "title":          "Finished: Options Import"
           }
         }
       }

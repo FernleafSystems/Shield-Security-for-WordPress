@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.9.1
+Stable tag: 6.9.2
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,9 +353,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.9.1 - Current Release =
-*Released: 9th September, 2018*
+= 6.9.2 - Current Release =
+*Released: 10th September, 2018*
 
+* **(v.2)**  FIXED:		Prevent crashing on sites with PHP < v5.4
 * **(v.1)**  ADDED:		Support for Yandex search engine in the [Traffic Watcher](https://icwp.io/dc).
 * **(v.1)**  IMPROVED:	WooCommerce checkout handling with reCAPTCHA.
 
