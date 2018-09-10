@@ -157,6 +157,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 * @return bool
 	 */
 	protected function isSecretValid( $sSecret ) {
-		return parent::isSecretValid( $sSecret ); //TODO: && ( strlen( $sSecret ) == 16 );
+		return parent::isSecretValid( $sSecret )
+			   && preg_match( '#^[a-z0-9]{25}$#i', str_replace( '-', '', $sSecret ) );
 	}
 }
