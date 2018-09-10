@@ -263,13 +263,13 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @param string $sAdditionalMessage
+	 * @param string $sMsg
 	 * @param int    $nCategory
 	 * @param string $sEvent
 	 * @param string $sWpUsername
 	 * @return $this
 	 */
-	public function addToAuditEntry( $sAdditionalMessage = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
 		if ( !isset( $this->aAuditEntry ) ) {
 
 			if ( empty( $sWpUsername ) ) {
@@ -292,7 +292,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			);
 		}
 
-		$this->aAuditEntry[ 'message' ][] = esc_sql( $sAdditionalMessage );
+		$this->aAuditEntry[ 'message' ][] = esc_sql( $sMsg );
 
 		if ( $nCategory > $this->aAuditEntry[ 'category' ] ) {
 			$this->aAuditEntry[ 'category' ] = $nCategory;
