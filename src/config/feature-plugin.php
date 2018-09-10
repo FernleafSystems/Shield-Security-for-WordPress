@@ -461,7 +461,8 @@
         "slug":          "statistics",
         "storage_key":   "statistics",
         "load_priority": 11,
-        "hidden":        false
+        "hidden":        false,
+        "min_php": "5.4"
       },
       {
         "slug":          "sessions",
@@ -477,7 +478,8 @@
       {
         "slug":          "traffic",
         "storage_key":   "traffic",
-        "load_priority": 12
+        "load_priority": 12,
+        "min_php": "5.4"
       },
       {
         "slug":          "license",
