@@ -243,7 +243,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return !$this->isVisitorWhitelisted() && parent::isReadyToExecute();
+		return ( $this->getOptionsVo()->isModuleWhitelistExempt() || !$this->isVisitorWhitelisted() )
+			   && parent::isReadyToExecute();
 	}
 
 	/**

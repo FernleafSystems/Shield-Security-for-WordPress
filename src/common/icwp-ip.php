@@ -458,6 +458,19 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * https://support.apple.com/en-gb/HT204683
+	 * https://discussions.apple.com/thread/7090135
+	 * Apple IPs start with '17.'
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIpAppleBot( $sIp, $sUserAgent = '' ) {
+		return ( $this->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
+			   && $this->isIpOfBot( 'Applebot/', '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
+	}
+
+	/**
 	 * @param string $sBotUserAgent
 	 * @param string $sBotHostPattern
 	 * @param string $sReqIp
