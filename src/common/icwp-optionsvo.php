@@ -707,29 +707,42 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sOptKey
-	 * @param mixed  $mValue
+	 * @param mixed  $mNewValue
 	 * @return mixed
 	 */
-	public function setOpt( $sOptKey, $mValue ) {
+	public function setOpt( $sOptKey, $mNewValue ) {
 
 		// We can't use getOpt() to find the current value since we'll create an infinite loop
 		$aOptionsValues = $this->getAllOptionsValues();
 		$mCurrent = isset( $aOptionsValues[ $sOptKey ] ) ? $aOptionsValues[ $sOptKey ] : null;
 
-		$mValue = $this->ensureOptValueState( $sOptKey, $mValue );
-		if ( serialize( $mCurrent ) !== serialize( $mValue ) && $this->verifyCanSet( $sOptKey, $mValue ) ) {
+		$mNewValue = $this->ensureOptValueState( $sOptKey, $mNewValue );
+
+		// Here we try to ensure that values that are repeatedly changed properly reflect their changed
+		// states, as they may be reverted back to their original state and we "think" it's been changed.
+		$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $mNewValue );
+		// basically if we're actually resetting back to the original value
+		$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $sOptKey )
+						   && ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
+
+		if ( $bValueIsDifferent && $this->verifyCanSet( $sOptKey, $mNewValue ) ) {
 			$this->setNeedSave( true );
 
 			//Load the config and do some pre-set verification where possible. This will slowly grow.
 			$aOption = $this->getRawData_SingleOption( $sOptKey );
 			if ( !empty( $aOption[ 'type' ] ) ) {
-				if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mValue ) ) {
+				if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mNewValue ) ) {
 					return $this->resetOptToDefault( $sOptKey );
 				}
 			}
 			$this->setOldOptValue( $sOptKey, $mCurrent );
-			$this->aOptionsValues[ $sOptKey ] = $mValue;
+			$this->aOptionsValues[ $sOptKey ] = $mNewValue;
 		}
+
+		if ( $bIsResetting ) {
+			unset( $this->aOld[ $sOptKey ] );
+		}
+
 		return true;
 	}
 
