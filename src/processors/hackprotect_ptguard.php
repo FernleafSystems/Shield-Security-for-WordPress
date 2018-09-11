@@ -138,21 +138,21 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			$sContext = self::CONTEXT_THEMES;
 			$aSlugs = array( $aInfo[ 'theme' ] );
 		}
-		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install' && isset( $aInfo[ 'type' ] ) && $aInfo[ 'type' ] == 'plugin' ) {
-			$sDir = !empty( $oUpgrader->result[ 'destination_name' ] ) ? $oUpgrader->result[ 'destination_name' ] : '';
-			if ( !empty( $sDir ) ) {
+		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install'
+				  && isset( $aInfo[ 'type' ] ) && $aInfo[ 'type' ] == 'plugin' ) {
+
+			if ( !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
 				$oWpPlugins = $this->loadWpPlugins();
-				foreach ( $oWpPlugins->getInstalledPluginFiles() as $sFile ) {
-					if ( strpos( $sFile, $sDir.'/' ) === 0 && $oWpPlugins->isActive( $sFile ) ) {
-						$sContext = self::CONTEXT_PLUGINS;
-						$aSlugs = array( $sFile );
-					}
+				$sFile = $oWpPlugins->getFileFromDirName( $oUpgrader->result[ 'destination_name' ] );
+				if ( $sFile && $oWpPlugins->isActive( $sFile ) ) {
+					$sContext = self::CONTEXT_PLUGINS;
+					$aSlugs = array( $sFile );
 				}
 			}
 		}
 
 		// update snaptshots
-		if ( !empty( $aSlugs ) && is_array( $aSlugs ) ) {
+		if ( is_array( $aSlugs ) ) {
 			foreach ( $aSlugs as $sSlug ) {
 				$this->updateItemInSnapshot( $sSlug, $sContext );
 			}
