@@ -175,7 +175,8 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		$aSnapshot = $this->loadSnapshotData( $sContext );
 		if ( isset( $aSnapshot[ $sSlug ] ) ) {
 			unset( $aSnapshot[ $sSlug ] );
-			$this->storeSnapshot( $aSnapshot, $sContext );
+			$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for item "%s"' ), $sSlug ) )
+				 ->storeSnapshot( $aSnapshot, $sContext );
 		}
 		return $this;
 	}
