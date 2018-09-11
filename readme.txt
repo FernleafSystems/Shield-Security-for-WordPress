@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.9.2
+Stable tag: 6.9.3
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -345,10 +345,9 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
-Our policy was to never restrict security features to Pro upgrades.
-[This has now changed](https://icwp.io/bs).
+Shield Pro brings exclusive features to the serious webmaster to maximise site security.
+You'll also have access to our email technical support team.
 
-Shield Pro brings exclusive features to the serious webmaster to maximise site security. You'll also have access to our email technical support team.
 You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
@@ -357,16 +356,19 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - users can create a backup login code in-case they MFA factors are unavailable.
 
-= 6.9.2 - Current Release =
-*Released: 10th September, 2018*
+= 6.9.3 - Current Release =
+*Released: 11th September, 2018*
 
-* **(v.2)**  FIXED:		Prevent crashing on sites with PHP < v5.4
-* **(v.1)**  ADDED:		Support for Yandex search engine in the [Traffic Watcher](https://icwp.io/dc).
-* **(v.1)**  IMPROVED:	WooCommerce checkout handling with reCAPTCHA.
+* **(v.3)**  ADDED:		Support for AppleBot in the [Traffic Watcher](https://icwp.io/dc).
+* **(v.3)**  FIXED:		[Plugin/Theme Guard](https://icwp.io/bq) bug not capturing updates correctly.
+* **(v.3)**  FIXED:		Google Authenticator could not be removed from profile.
 
 = 6.9.0 - Series =
 *Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
 
+* **(v.2)**  FIXED:		Prevent crashing on sites with PHP < v5.4
+* **(v.1)**  ADDED:		Support for Yandex search engine in the [Traffic Watcher](https://icwp.io/dc).
+* **(v.1)**  IMPROVED:	WooCommerce checkout handling with reCAPTCHA.
 * **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/dc) - live tracking of all requests to your site.
 * **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/dc) - Allows for multiple Yubikeys on the same user profile.
 * **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
