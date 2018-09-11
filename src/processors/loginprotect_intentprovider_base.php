@@ -79,7 +79,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	protected function hasValidatedProfile( $oUser ) {
 		$sKey = $this->getStub().'_validated';
 		return ( $oUser instanceof WP_User )
-			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey};
+			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey} === true;
 	}
 
 	/**
@@ -238,7 +238,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param bool    $bIsSubjectTo
+	 * @param bool $bIsSubjectTo
 	 * @param WP_User $oUser
 	 * @return bool
 	 */

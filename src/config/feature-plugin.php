@@ -10,6 +10,7 @@
     "access_restricted":     true,
     "premium":               false,
     "has_custom_actions":    false,
+    "whitelist_exempt":      true,
     "order":                 10
   },
   "admin_notices": {

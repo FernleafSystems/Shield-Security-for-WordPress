@@ -82,7 +82,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		return $this->isIp_GoogleBot( $sIp, $sAgent )
 			   || $this->isIp_BingBot( $sIp, $sAgent )
 			   || $this->isIp_DuckDuckGoBot( $sIp, $sAgent )
-			   || $this->isIp_YandexBot( $sIp, $sAgent );
+			   || $this->isIp_YandexBot( $sIp, $sAgent )
+			   || $this->isIp_AppleBot( $sIp, $sAgent );
 	}
 
 	/**
@@ -172,6 +173,27 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpYandexBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
 			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_yandexbot' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	protected function isIp_AppleBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_applebot' ) );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpAppleBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_applebot' ), $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );

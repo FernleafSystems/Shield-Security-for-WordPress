@@ -122,9 +122,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @return $this
 	 */
 	protected function processRemovalFromAccount( $oUser ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
-		$oMeta->ga_validated = 'N';
-		$oMeta->ga_secret = 'N';
+		$this->setProfileValidated( $oUser, false )
+			 ->resetSecret( $oUser );
 		return $this;
 	}
 
@@ -370,6 +369,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	protected function genNewSecret() {
 		return $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @return string
+	 */
+	protected function getSecret( WP_User $oUser ) {
+		$sSec = parent::getSecret( $oUser );
+		return empty( $sSec ) ? $this->resetSecret( $oUser ) : $sSec;
 	}
 
 	/**

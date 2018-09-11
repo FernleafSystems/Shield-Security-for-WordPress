@@ -1,42 +1,43 @@
 {
-  "properties": {
-    "slug": "sessions",
-    "name": "Sessions",
+  "properties":  {
+    "slug":                  "sessions",
+    "name":                  "Sessions",
     "show_module_menu_item": false,
-    "storage_key": "sessions",
-    "tagline": "User Sessions",
-    "auto_enabled": true,
-    "show_central": false,
-    "premium": false,
-    "access_restricted": true,
-    "auto_load_processor": true
+    "storage_key":           "sessions",
+    "tagline":               "User Sessions",
+    "auto_enabled":          true,
+    "show_central":          false,
+    "premium":               false,
+    "access_restricted":     true,
+    "auto_load_processor":   true,
+    "whitelist_exempt":      true
   },
-  "sections": [
+  "sections":    [
     {
-      "slug": "section_enable_plugin_feature_sessions",
-      "primary": true,
-      "title": "Enable Module: Sessions",
+      "slug":        "section_enable_plugin_feature_sessions",
+      "primary":     true,
+      "title":       "Enable Module: Sessions",
       "title_short": "Disable Module",
-      "summary": [
+      "summary":     [
         "Purpose - Creates and Manages User Sessions.",
         "Recommendation - Keep the Sessions feature turned on."
       ]
     },
     {
-      "slug": "section_non_ui",
+      "slug":   "section_non_ui",
       "hidden": true
     }
   ],
-  "options": [
+  "options":     [
     {
-      "key": "enable_sessions",
-      "section": "section_enable_plugin_feature_sessions",
-      "default": "Y",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Enable Sessions",
-      "summary": "Enable (or Disable) The Sessions module",
+      "key":         "enable_sessions",
+      "section":     "section_enable_plugin_feature_sessions",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Enable Sessions",
+      "summary":     "Enable (or Disable) The Sessions module",
       "description": "Un-Checking this option will completely disable the Sessions module"
     },
     {
@@ -46,7 +47,7 @@
     }
   ],
   "definitions": {
-    "sessions_table_name": "sessions",
+    "sessions_table_name":    "sessions",
     "sessions_table_columns": [
       "id",
       "session_id",
