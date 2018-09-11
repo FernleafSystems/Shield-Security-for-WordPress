@@ -114,20 +114,46 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 
 	/**
 	 * @param WP_Upgrader $oUpgrader
-	 * @param array       $aUpgradeInfo
+	 * @param array       $aInfo Upgrade/Install Information
 	 */
-	public function updateSnapshotAfterUpgrade( $oUpgrader, $aUpgradeInfo ) {
+	public function updateSnapshotAfterUpgrade( $oUpgrader, $aInfo ) {
 
 		$sContext = '';
-		if ( !empty( $aUpgradeInfo[ self::CONTEXT_PLUGINS ] ) ) {
+		$aSlugs = array();
+
+		// Need to account for single and bulk updates. First bulk
+		if ( !empty( $aInfo[ self::CONTEXT_PLUGINS ] ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
+			$aSlugs = $aInfo[ $sContext ];
 		}
-		else if ( !empty( $aUpgradeInfo[ self::CONTEXT_PLUGINS ] ) ) {
+		else if ( !empty( $aInfo[ self::CONTEXT_THEMES ] ) ) {
+			$sContext = self::CONTEXT_THEMES;
+			$aSlugs = $aInfo[ $sContext ];
+		}
+		else if ( !empty( $aInfo[ 'plugin' ] ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
+			$aSlugs = array( $aInfo[ 'plugin' ] );
+		}
+		else if ( !empty( $aInfo[ 'theme' ] ) ) {
+			$sContext = self::CONTEXT_THEMES;
+			$aSlugs = array( $aInfo[ 'theme' ] );
+		}
+		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install' && isset( $aInfo[ 'type' ] ) && $aInfo[ 'type' ] == 'plugin' ) {
+			$sDir = !empty( $oUpgrader->result[ 'destination_name' ] ) ? $oUpgrader->result[ 'destination_name' ] : '';
+			if ( !empty( $sDir ) ) {
+				$oWpPlugins = $this->loadWpPlugins();
+				foreach ( $oWpPlugins->getInstalledPluginFiles() as $sFile ) {
+					if ( strpos( $sFile, $sDir.'/' ) === 0 && $oWpPlugins->isActive( $sFile ) ) {
+						$sContext = self::CONTEXT_PLUGINS;
+						$aSlugs = array( $sFile );
+					}
+				}
+			}
 		}
 
-		if ( !empty( $sContext ) ) {
-			foreach ( $aUpgradeInfo[ $sContext ] as $sSlug ) {
+		// update snaptshots
+		if ( !empty( $aSlugs ) && is_array( $aSlugs ) ) {
+			foreach ( $aSlugs as $sSlug ) {
 				$this->updateItemInSnapshot( $sSlug, $sContext );
 			}
 		}
@@ -167,7 +193,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			$aSnapshot = $this->loadSnapshotData( $sContext );
 			$aSnapshot[ $sSlug ] = $aNewSnapData;
 			$this->storeSnapshot( $aSnapshot, $sContext )
-				 ->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for item "%s"' ), $sContext, $sSlug ) );
+				 ->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for item "%s"' ), $sSlug ) );
 		}
 
 		return $this;
