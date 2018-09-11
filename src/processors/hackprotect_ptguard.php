@@ -138,15 +138,22 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			$sContext = self::CONTEXT_THEMES;
 			$aSlugs = array( $aInfo[ 'theme' ] );
 		}
-		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install'
-				  && isset( $aInfo[ 'type' ] ) && $aInfo[ 'type' ] == 'plugin' ) {
+		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install' && isset( $aInfo[ 'type' ] )
+				  && !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
 
-			if ( !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
+			if ( $aInfo[ 'type' ] == 'plugin' ) {
 				$oWpPlugins = $this->loadWpPlugins();
-				$sFile = $oWpPlugins->getFileFromDirName( $oUpgrader->result[ 'destination_name' ] );
-				if ( $sFile && $oWpPlugins->isActive( $sFile ) ) {
+				$sDir = $oWpPlugins->getFileFromDirName( $oUpgrader->result[ 'destination_name' ] );
+				if ( $sDir && $oWpPlugins->isActive( $sDir ) ) {
 					$sContext = self::CONTEXT_PLUGINS;
-					$aSlugs = array( $sFile );
+					$aSlugs = array( $sDir );
+				}
+			}
+			else if ( $aInfo[ 'type' ] == 'theme' ) {
+				$sDir = $oUpgrader->result[ 'destination_name' ];
+				if ( $this->loadWpThemes()->isActive( $sDir ) ) {
+					$sContext = self::CONTEXT_THEMES;
+					$aSlugs = array( $sDir );
 				}
 			}
 		}
