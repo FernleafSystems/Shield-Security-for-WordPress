@@ -307,7 +307,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isEnabledBackupCodes() {
-		return $this->isOpt( 'allow_backupcodes', 'Y' );
+		return $this->isPremium() && $this->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	/**

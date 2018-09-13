@@ -13,22 +13,27 @@
 						</label>
 					</th>
 					<td>
-						<a href="#" id="IcwpWpsfGenBackupLoginCode"
-						   class="button button-primary">
-							<?php echo $strings[ 'button_gen_code' ]; ?>
-						</a>
-						<?php if ( $has_validated_profile ) : ?>
-							<a href="#" id="IcwpWpsfDelBackupLoginCode"
-							   class="button">
-							<?php echo $strings[ 'button_del_code' ]; ?>
-						</a>
-						<?php endif; ?>
-						<p class="description">
-							<?php echo $strings[ 'description_code' ]; ?>
+						<?php if ( !$has_mfa ) : ?>
+							<?php echo $strings[ 'not_available' ]; ?>
+						<?php else : ?>
+							<a href="#" id="IcwpWpsfGenBackupLoginCode"
+							   class="button button-primary">
+								<?php echo $strings[ 'button_gen_code' ]; ?>
+							</a>
 							<?php if ( $has_validated_profile ) : ?>
-								<br/><?php echo $strings[ 'description_code_ext' ]; ?>
+								<a href="#" id="IcwpWpsfDelBackupLoginCode"
+								   class="button">
+								<?php echo $strings[ 'button_del_code' ]; ?>
+							</a>
 							<?php endif; ?>
-						</p>
+							<p class="description">
+								<?php echo $strings[ 'description_code' ]; ?>
+								<br/><strong><?php echo $strings[ 'description_code_ext1' ]; ?></strong>
+								<?php if ( $has_validated_profile ) : ?>
+									<br /><?php echo $strings[ 'description_code_ext2' ]; ?>
+								<?php endif; ?>
+							</p>
+						<?php endif; ?>
 					</td>
 				</tr>
 			<?php else : ?>

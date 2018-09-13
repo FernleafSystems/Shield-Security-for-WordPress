@@ -170,11 +170,10 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			var $aData = icwp_wpsf_vars_lg.ajax_del_backup_codes;
 			jQuery.post( ajaxurl, $aData,
 				function ( oResponse ) {
-					alert( 'here1' );
 				}
 			).always( function () {
-					// location.reload( true );
-					iCWP_WPSF_BodyOverlay.hide();
+					location.reload( true );
+					// iCWP_WPSF_BodyOverlay.hide();
 				}
 			);
 

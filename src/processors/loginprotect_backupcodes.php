@@ -18,21 +18,27 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
+			'has_mfa'                          => $this->isUserSubjectToLoginIntent( $oUser ),
 			'has_validated_profile'            => $bValidatedProfile,
 			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
 			'is_my_user_profile'               => ( $oUser->ID == $this->loadWpUsers()->getCurrentWpUserId() ),
 			'i_am_valid_admin'                 => $oCon->getHasPermissionToManage(),
 			'user_to_edit_is_admin'            => $this->loadWpUsers()->isUserAdmin( $oUser ),
 			'strings'                          => array(
-				'button_gen_code'       => _wpsf__( 'Generate Login Backup Code' ),
+				'button_gen_code'       => _wpsf__( 'Generate ONE-Time Backup 2FA Login Code' ),
 				'button_del_code'       => _wpsf__( 'Delete Login Backup Code' ),
-				'description_code'      => _wpsf__( 'Click to generate a new login backup code.' ),
-				'description_code_ext'  => _wpsf__( 'Generating a new code will replace the existing.' ),
+				'not_available'         => _wpsf__( 'Backup login codes are not available if you do not have any other two-factor authentication modes active.' ),
+				'description_code'      => _wpsf__( 'Click to generate a backup login code for your two-factor authentication.' ),
+				'description_code_ext1' => sprintf( '%s: %s',
+					_wpsf__( 'Important' ),
+					_wpsf__( 'This code will be displayed only once and you may use it to verify your login only once.' )
+					.' '._wpsf__( 'Store it somewhere safe.' ) ),
+				'description_code_ext2' => _wpsf__( 'Generating a new code will replace your existing code.' ),
 				'description_chart_url' => _wpsf__( 'Use your Google Authenticator app to scan this QR code and enter the one time password below.' ),
 				'description_ga_secret' => _wpsf__( 'If you have a problem with scanning the QR code enter this code manually into the app.' ),
 				'desc_remove'           => _wpsf__( 'Check the box to remove Google Authenticator login authentication.' ),
 				'label_check_to_remove' => sprintf( _wpsf__( 'Remove %s' ), _wpsf__( 'Google Authenticator' ) ),
-				'label_enter_code'      => _wpsf__( 'Generate Backup Login Code' ),
+				'label_enter_code'      => _wpsf__( 'Create Backup 2FA Login Code' ),
 				'label_ga_secret'       => _wpsf__( 'Manual Code' ),
 				'label_scan_qr_code'    => _wpsf__( 'Scan This QR Code' ),
 				'title'                 => _wpsf__( 'Backup Login Code' ),
@@ -78,7 +84,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 * Backup codes shouldn't make a user subject to login intent, but only be presented as required
 	 * - i.e. they have other MFA options but they can't be used at the moment. So no MFA options =
 	 * no need for backup codes
-	 * @param bool $bIsSubjectTo
+	 * @param bool    $bIsSubjectTo
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
