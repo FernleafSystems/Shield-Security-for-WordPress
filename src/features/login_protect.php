@@ -9,6 +9,20 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * TODO remove
+	 */
+	protected function updateHandler() {
+		if ( $this->getConn()->getVersion() == '6.9.4' ) {
+			if ( $this->getIfCanSendEmailVerified() && $this->isEmailAuthenticationOptionOn() ) {
+				$aRoles = $this->getEmail2FaRoles();
+				if ( count( $aRoles ) == 1 && in_array( 'subscriber', $aRoles ) ) {
+					$this->getOptionsVo()->resetOptToDefault( 'two_factor_auth_user_roles' );
+				}
+			}
+		}
+	}
+
+	/**
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
@@ -58,21 +72,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 
 		$this->cleanLoginUrlPath();
-	}
-
-	/**
-	 */
-	protected function updateHandler() {
-
-		// Migrate from levels to roles
-		$aNew = array();
-		foreach ( $this->loadWpUsers()->getLevelToRoleMap() as $nLevel => $sRole ) {
-			if ( in_array( $nLevel, $this->getEmail2FaRoles() ) ) {
-				$aNew[] = $sRole;
-			}
-		}
-		$this->setOpt( 'two_factor_auth_user_roles', $aNew )
-			 ->savePluginOptions();
 	}
 
 	/**
