@@ -75,6 +75,18 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	}
 
 	/**
+	 * Backup codes shouldn't make a user subject to login intent, but only be presented as required
+	 * - i.e. they have other MFA options but they can't be used at the moment. So no MFA options =
+	 * no need for backup codes
+	 * @param bool $bIsSubjectTo
+	 * @param WP_User $oUser
+	 * @return bool
+	 */
+	public function filterUserSubjectToIntent( $bIsSubjectTo, $oUser ) {
+		return $bIsSubjectTo;
+	}
+
+	/**
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
@@ -150,14 +162,5 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 */
 	protected function getStub() {
 		return ICWP_WPSF_Processor_LoginProtect_Track::Factor_BackupCode;
-	}
-
-	/**
-	 * @param string $sSecret
-	 * @return bool
-	 */
-	protected function isSecretValid( $sSecret ) {
-		return parent::isSecretValid( $sSecret )
-			   && preg_match( '#^[a-z0-9]{25}$#i', str_replace( '-', '', $sSecret ) );
 	}
 }
