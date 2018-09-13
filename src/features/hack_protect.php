@@ -13,18 +13,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 */
-	protected function updateHandler() {
-		if ( $this->getConn()->getVersion() == '6.9.3' ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$this->setPtgLastBuildAt( 0 );
-			$oP->getSubProcessorGuard()
-			   ->deleteStores();
-		}
-	}
-
-	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
