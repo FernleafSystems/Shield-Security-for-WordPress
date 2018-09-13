@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.9.3
+Stable tag: 6.9.4
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -356,9 +356,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - users can create a backup login code in-case they MFA factors are unavailable.
 
-= 6.9.3 - Current Release =
-*Released: 11th September, 2018*
+= 6.9.4 - Current Release =
+*Released: 13th September, 2018*
 
+* **(v.4)**  FIXED:		Bug where 2FA by email user roles get reset in some cases.
 * **(v.3)**  ADDED:		Support for AppleBot in the [Traffic Watcher](https://icwp.io/dc).
 * **(v.3)**  FIXED:		[Plugin/Theme Guard](https://icwp.io/bq) bug not capturing updates correctly.
 * **(v.3)**  FIXED:		Google Authenticator could not be removed from profile.
