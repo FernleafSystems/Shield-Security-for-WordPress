@@ -45,6 +45,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			 ->cleanupDatabase();
 
 		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? $this->loadDP()->time() + WEEK_IN_SECONDS : 0 );
+
+		$aExcls = $this->getCustomExclusions();
+		foreach ( $aExcls as &$sExcl ) {
+			$sExcl = trim( esc_js( $sExcl ) );
+		}
 	}
 
 	/**
@@ -87,6 +92,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getExclusions() {
 		$aEx = $this->getOpt( 'type_exclusions' );
+		return is_array( $aEx ) ? $aEx : array();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCustomExclusions() {
+		$aEx = $this->getOpt( 'custom_exclusions' );
 		return is_array( $aEx ) ? $aEx : array();
 	}
 
@@ -495,6 +508,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$sSummary = _wpsf__( 'Select Which Types Of Requests To Exclude' );
 				$sDescription = _wpsf__( "Select request types that you don't want to appear in the traffic viewer." )
 								.'<br/>'._wpsf__( 'If a request matches any exclusion rule, it will not show on the traffic viewer.' );
+				break;
+
+			case 'custom_exclusions' :
+				$sName = _wpsf__( 'Custom Exclusions' );
+				$sSummary = _wpsf__( 'Provide Custom Traffic Exclusions' );
+				$sDescription = _wpsf__( "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded." )
+								.'<br/>'._wpsf__( 'Take a new line for each entry.' )
+								.'<br/>'._wpsf__( 'Comparisons are case-insensitive.' );
 				break;
 
 			case 'auto_clean' :

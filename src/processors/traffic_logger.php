@@ -51,6 +51,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
 			   && ( $oFO->getMaxEntries() > 0 )
+			   && ( !$this->isCustomExcluded() )
 			   && ( $oFO->isIncluded_Simple() || count( $this->loadDP()->getRequestParams( false ) ) > 0 )
 			   && ( $oFO->isIncluded_LoggedInUser() || !$bLoggedIn )
 			   && ( $oFO->isIncluded_Ajax() || !$oWp->isAjax() )
@@ -62,6 +63,26 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 					   && ( $oFO->isIncluded_Uptime() || !$this->isServiceIp_Uptime() )
 				   )
 			   );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isCustomExcluded() {
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getMod();
+		$oDP = $this->loadDP();
+		$aExcls = $oFO->getCustomExclusions();
+		$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+		$sPath = $oDP->getRequestPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
+
+		$bExcluded = false;
+		foreach ( $aExcls as $sExcl ) {
+			if ( stripos( $sAgent, $sExcl ) !== false || stripos( $sPath, $sExcl ) !== false ) {
+				$bExcluded = true;
+			}
+		}
+		return $bExcluded;
 	}
 
 	/**

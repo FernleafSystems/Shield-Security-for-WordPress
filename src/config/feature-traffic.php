@@ -102,6 +102,17 @@
       "description":   "Deselect any requests that you don't want to appear in the traffic viewer."
     },
     {
+      "key":         "custom_exclusions",
+      "section":     "section_traffic_options",
+      "default":     [],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Custom Exclusions",
+      "summary":     "Provide Custom Traffic Exclusions",
+      "description": "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
+    },
+    {
       "key":         "auto_clean",
       "section":     "section_traffic_options",
       "default":     3,
