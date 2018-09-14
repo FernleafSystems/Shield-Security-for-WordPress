@@ -10,7 +10,7 @@
     "access_restricted":     true,
     "premium":               true,
     "has_custom_actions":    true,
-    "whitelist_exempt":      true,
+    "whitelist_exempt":      false,
     "order":                 110
   },
   "requirements": {
