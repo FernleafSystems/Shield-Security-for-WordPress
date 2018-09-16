@@ -88,7 +88,7 @@
         },
         {
           "value_key": "search",
-          "text":      "Search Bots (i.e. Google, Bing, DuckDuckGo)"
+          "text":      "Search Bots (i.e. Google, Bing, DuckDuckGo, Yandex, Apple)"
         },
         {
           "value_key": "uptime",

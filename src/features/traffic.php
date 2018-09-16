@@ -50,6 +50,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		foreach ( $aExcls as &$sExcl ) {
 			$sExcl = trim( esc_js( $sExcl ) );
 		}
+		$this->setOpt( 'custom_exclusions', array_filter( $aExcls ) );
 	}
 
 	/**
@@ -513,7 +514,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			case 'custom_exclusions' :
 				$sName = _wpsf__( 'Custom Exclusions' );
 				$sSummary = _wpsf__( 'Provide Custom Traffic Exclusions' );
-				$sDescription = _wpsf__( "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded." )
+				$sDescription = _wpsf__( "For each entry, if the text is present in either the User Agent or request Path, it will be excluded." )
 								.'<br/>'._wpsf__( 'Take a new line for each entry.' )
 								.'<br/>'._wpsf__( 'Comparisons are case-insensitive.' );
 				break;
