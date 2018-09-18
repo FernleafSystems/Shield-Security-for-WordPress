@@ -364,10 +364,18 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$aRequestUriParts = $oDp->getRequestUriParts();
 		$sRequestPage = $aRequestUriParts[ 'path' ];
 
-		// first we remove globally whitelist request parameters
-		if ( array_key_exists( '*', $aWhitelistPages ) ) {
+		// first we remove globally whitelisted request parameters
+		if ( !empty( $aWhitelistPages[ '*' ] ) && is_array( $aWhitelistPages[ '*' ] ) ) {
 			foreach ( $aWhitelistPages[ '*' ] as $sWhitelistParam ) {
-				if ( array_key_exists( $sWhitelistParam, $this->aPageParams ) ) {
+
+				if ( preg_match( '#^/.+/$#', $sWhitelistParam ) ) {
+					foreach ( array_keys( $this->aPageParams ) as $sParamKey ) {
+						if ( preg_match( $sWhitelistParam, $sParamKey ) ) {
+							unset( $this->aPageParams[ $sParamKey ] );
+						}
+					}
+				}
+				else if ( isset( $this->aPageParams[ $sWhitelistParam ] ) ) {
 					unset( $this->aPageParams[ $sWhitelistParam ] );
 				}
 			}
@@ -442,7 +450,8 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 					'referredby',
 					'redirect_to',
 					'jetpack_sso_original_request',
-					'jetpack_sso_redirect_to'
+					'jetpack_sso_redirect_to',
+					'/^wordpress_logged_in_[0-9a-f]+$/',
 				)
 			);
 
