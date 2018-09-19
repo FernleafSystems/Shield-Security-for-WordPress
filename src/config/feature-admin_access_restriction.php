@@ -322,7 +322,7 @@
       "key": "wl_login2fa_logourl",
       "section": "section_whitelabel",
       "sensitive": true,
-      "default": "shield/ShieldSecurity_Banner-772x250.png",
+      "default": "pluginlogo_banner-772x250.png",
       "type": "text",
       "link_info": "",
       "link_blog": "",

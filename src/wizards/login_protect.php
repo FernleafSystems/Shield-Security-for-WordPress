@@ -66,7 +66,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
 					$oFO->setIfCanSendEmail( false );
 					$oResponse->setSuccessful( true );
-					$sMessage = 'Verification email sent - please check your email (including your SPAM)';
+					$sMessage = _wpsf__( 'Verification email sent (please check your email including your SPAM).' )
+								.' '._wpsf__( 'Enter the code from the email into the form above and click the button to verify.' );
 				}
 				else {
 					$sMessage = 'Failed to send verification email';

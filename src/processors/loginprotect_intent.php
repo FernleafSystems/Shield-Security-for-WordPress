@@ -280,7 +280,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$sRedirectTo = rawurlencode( $this->loadDP()->getRequestUri() ); // not actually used
 
 		$aLabels = $oCon->getPluginLabels();
-		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'shield/ShieldSecurity_Banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
+		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
 		$nMfaSkip = $oFO->getMfaSkip();
 		$aDisplayData = array(
 			'strings' => array(
