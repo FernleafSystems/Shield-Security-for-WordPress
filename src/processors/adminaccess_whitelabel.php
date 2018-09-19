@@ -107,7 +107,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 			$aPluginLabels[ 'icon_url_128x128' ] = $sLogoUrl;
 		}
 
-		return $aPluginLabels;
+		return array_merge( $aWhiteLabels, $aPluginLabels );
 	}
 
 	/**
