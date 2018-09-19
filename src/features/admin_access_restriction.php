@@ -240,6 +240,22 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$this->setPermissionToSubmit( true );
 			}
 		}
+
+		// Verify whitelabel images
+		if ( $this->isWlEnabled() ) {
+			$aImages = array(
+				'wl_menuiconurl',
+				'wl_dashboardlogourl',
+				'wl_login2fa_logourl',
+			);
+			$oDP = $this->loadDP();
+			$oOpts = $this->getOptionsVo();
+			foreach ( $aImages as $sKey ) {
+				if ( !$oDP->isValidUrl( $this->buildWlImageUrl( $sKey ) ) ) {
+					$oOpts->resetOptToDefault( $sKey );
+				}
+			}
+		}
 	}
 
 	protected function setSaveUserResponse() {
@@ -362,7 +378,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$oOpts->resetOptToDefault( $sKey );
 			$sLogoUrl = $this->getOpt( $sKey );
 		}
-		if ( !empty( $sLogoUrl ) && !$oDp->validUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
+		if ( !empty( $sLogoUrl ) && !$oDp->isValidUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
 			$sLogoUrl = $this->getConn()->getPluginUrl_Image( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
 				$oOpts->resetOptToDefault( $sKey );

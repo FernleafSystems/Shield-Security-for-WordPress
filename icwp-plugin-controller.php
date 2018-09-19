@@ -589,11 +589,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 					$sShow = $aLink[ 'show' ];
 					$bShow = ( $sShow == 'always' ) || ( $bPro && $sShow == 'pro' ) || ( !$bPro && $sShow == 'free' );
-					if ( !$oDP->validUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
+					if ( !$oDP->isValidUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
 						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
 					}
 
-					if ( !$bShow || !$oDP->validUrl( $aLink[ 'href' ] )
+					if ( !$bShow || !$oDP->isValidUrl( $aLink[ 'href' ] )
 						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
 						continue;
 					}
@@ -843,7 +843,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oDP = $this->loadDP();
 		foreach ( array( '16x16', '32x32', '128x128' ) as $sSize ) {
 			$sKey = 'icon_url_'.$sSize;
-			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->validUrl( $aLabels[ $sKey ] ) ) {
+			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->isValidUrl( $aLabels[ $sKey ] ) ) {
 				$aLabels[ $sKey ] = $this->getPluginUrl_Image( $aLabels[ $sKey ] );
 			}
 		}
