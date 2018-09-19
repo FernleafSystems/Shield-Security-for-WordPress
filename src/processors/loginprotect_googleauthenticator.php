@@ -285,17 +285,17 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_ga_verified'
+				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Google Authenticator' )
+				), 2, 'login_protect_ga_verified'
 			);
 			$this->doStatIncrement( 'login.googleauthenticator.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_ga_failed'
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Google Authenticator' )
+				), 2, 'login_protect_ga_failed'
 			);
 			$this->doStatIncrement( 'login.googleauthenticator.fail' );
 		}

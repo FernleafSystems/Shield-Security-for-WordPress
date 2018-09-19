@@ -38,19 +38,19 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_two_factor_verified'
+				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Email Auth' )
+				), 2, 'login_protect_emailauth_verified'
 			);
-			$this->doStatIncrement( 'login.twofactor.verified' );
+			$this->doStatIncrement( 'login.emailauth.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" failed to verify their identity using Email Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_two_factor_failed'
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Email Auth' )
+				),2, 'login_protect_emailauth_failed'
 			);
-			$this->doStatIncrement( 'login.twofactor.failed' );
+			$this->doStatIncrement( 'login.emailauth.failed' );
 		}
 	}
 
