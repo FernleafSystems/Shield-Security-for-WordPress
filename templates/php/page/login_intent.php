@@ -2,7 +2,7 @@
 <head>
     <link rel="stylesheet" href="<?php echo $hrefs[ 'css_bootstrap' ]; ?>" />
     <title><?php echo $strings[ 'page_title' ]; ?></title>
-    <link rel="icon" type="image/png" href="<?php echo $hrefs[ 'favicon' ]; ?>" />
+    <link rel="icon" type="image/png" href="<?php echo $imgs[ 'favicon' ]; ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -78,8 +78,8 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-8 offset-2 col-md-6 offset-md-3">
-            <img id="ShieldLogo" class="img-fluid" src="<?php echo $hrefs[ 'shield_logo' ]; ?>" />
+        <div class="col-8 offset-2 col-md-6 offset-md-3 text-center">
+            <img id="ShieldLogo" class="img-fluid" src="<?php echo $imgs[ 'banner' ]; ?>" />
         </div>
     </div>
     <div class="row">

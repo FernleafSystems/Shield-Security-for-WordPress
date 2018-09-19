@@ -416,7 +416,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sAction = $this->loadWpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
 		ob_start();
 		$aResponseData = apply_filters( $this->prefix( $sAction ), array() );
-		$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
+		if ( empty( $aResponseData ) ) {
+			$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
+		}
 		$sNoise = ob_get_clean();
 
 		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {
@@ -587,11 +589,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 					$sShow = $aLink[ 'show' ];
 					$bShow = ( $sShow == 'always' ) || ( $bPro && $sShow == 'pro' ) || ( !$bPro && $sShow == 'free' );
-					if ( !$oDP->validUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
+					if ( !$oDP->isValidUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
 						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
 					}
 
-					if ( !$bShow || !$oDP->validUrl( $aLink[ 'href' ] )
+					if ( !$bShow || !$oDP->isValidUrl( $aLink[ 'href' ] )
 						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
 						continue;
 					}
@@ -627,25 +629,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpEnqueueAdminJs() {
 		$sVers = $this->getVersion();
 
-		if ( $this->isValidAdminArea() ) {
-			$aAdminJs = $this->getPluginSpec_Include( 'admin' );
-			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-				$sDep = false;
-				foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDep ? array( $sDep ) : array(), $sVers );
-						wp_enqueue_script( $sUnique );
-						$sDep = $sUnique;
-					}
+		$aAdminJs = $this->getPluginSpec_Include( 'admin' );
+		if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
+			$sDep = false;
+			foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
+				$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
+				if ( !empty( $sUrl ) ) {
+					$sUnique = $this->prefix( $sAsset );
+					wp_register_script( $sUnique, $sUrl, $sDep ? array( $sDep ) : array(), $sVers );
+					wp_enqueue_script( $sUnique );
+					$sDep = $sUnique;
 				}
 			}
 		}
 
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
+			if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDep = false;
 				foreach ( $aAdminJs[ 'js' ] as $sAsset ) {
 
@@ -674,7 +674,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->isValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
-			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
+			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
@@ -690,7 +690,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
+			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
@@ -843,7 +843,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oDP = $this->loadDP();
 		foreach ( array( '16x16', '32x32', '128x128' ) as $sSize ) {
 			$sKey = 'icon_url_'.$sSize;
-			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->validUrl( $aLabels[ $sKey ] ) ) {
+			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->isValidUrl( $aLabels[ $sKey ] ) ) {
 				$aLabels[ $sKey ] = $this->getPluginUrl_Image( $aLabels[ $sKey ] );
 			}
 		}

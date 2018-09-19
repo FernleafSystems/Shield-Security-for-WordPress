@@ -53,14 +53,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 			$oLoginTrack->removeFactorToTrack( $sFactor );
 		}
 		else {
-			if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
+			$sReqOtpCode = $this->fetchCodeFromRequest();
+			$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
+			if ( $bOtpSuccess ) {
 				$oLoginTrack->addSuccessfulFactor( $sFactor );
-				$this->auditLogin( $oUser, true );
 			}
 			else {
 				$oLoginTrack->addUnSuccessfulFactor( $sFactor );
-				$this->auditLogin( $oUser, false );
 			}
+
+			$this->postOtpProcessAction( $oUser, $bOtpSuccess, !empty( $sReqOtpCode ) );
 		}
 	}
 
@@ -242,6 +244,19 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param bool    $bIsSuccess
 	 */
 	abstract protected function auditLogin( $oUser, $bIsSuccess );
+
+	/**
+	 * @param WP_User $oUser
+	 * @param bool    $bIsOtpSuccess
+	 * @param bool    $bOtpProvided - whether a OTP was actually provided
+	 * @return $this
+	 */
+	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
+		if ( $bOtpProvided ) {
+			$this->auditLogin( $oUser, $bIsOtpSuccess );
+		}
+		return $this;
+	}
 
 	/**
 	 * @return string

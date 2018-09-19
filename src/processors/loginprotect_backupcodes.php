@@ -130,20 +130,57 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" verified their identity using Google Authenticator Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_ga_verified'
+				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Backup Code' )
+				), 2, 'login_protect_bc_verified'
 			);
-			$this->doStatIncrement( 'login.googleauthenticator.verified' );
+			$this->doStatIncrement( 'login.backupcode.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" failed to verify their identity using Google Authenticator Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_ga_failed'
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Backup Code' )
+				), 2, 'login_protect_bc_failed'
 			);
-			$this->doStatIncrement( 'login.googleauthenticator.fail' );
+			$this->doStatIncrement( 'login.backupcode.fail' );
 		}
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 * @param bool    $bIsOtpSuccess
+	 * @param bool    $bOtpProvided - whether a OTP was actually provided
+	 * @return $this
+	 */
+	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
+		parent::postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided );
+
+		if ( $bOtpProvided && $bIsOtpSuccess ) {
+			$this->sendBackupCodeUsedEmail( $oUser );
+		}
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
+	 */
+	private function sendBackupCodeUsedEmail( $oUser ) {
+		$aEmailContent = array(
+			_wpsf__( 'This is a quick notice to inform you that your Backup Login code was just used.' ),
+			_wpsf__( "Your WordPress account had only 1 backup login code." )
+			.' '._wpsf__( "You must go to your profile and regenerate a new code if you want to use this method again." ),
+			'',
+			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
+			sprintf( '%s: %s', _wpsf__( 'URL' ), $this->loadWp()->getHomeUrl() ),
+			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
+			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
+			'',
+			_wpsf__( 'Thank You.' ),
+		);
+
+		$sTitle = sprintf( _wpsf__( "Notice: %s" ), _wpsf__( "Backup Login Code Just Used" ) );
+		$this->getEmailProcessor()
+			 ->sendEmailWithWrap( $oUser->user_email, $sTitle, $aEmailContent );
 	}
 
 	/**

@@ -30,24 +30,24 @@
   "includes":     {
     "admin":        {
       "css": [
-        "global-plugin",
-        "featherlight"
+        "global-plugin"
       ],
       "js":  [
         "jquery",
-        "global-plugin",
-        "featherlight"
+        "global-plugin"
       ]
     },
     "plugin_admin": {
       "css": [
         "bootstrap4",
-        "plugin"
+        "plugin",
+        "featherlight"
       ],
       "js":  [
         "bootstrap4.bundle.min",
         "jquery",
-        "plugin"
+        "plugin",
+        "featherlight"
       ]
     },
     "frontend":     {

@@ -279,6 +279,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		$sRedirectTo = rawurlencode( $this->loadDP()->getRequestUri() ); // not actually used
 
+		$aLabels = $oCon->getPluginLabels();
+		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
 		$nMfaSkip = $oFO->getMfaSkip();
 		$aDisplayData = array(
 			'strings' => array(
@@ -310,6 +312,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
+			),
+			'imgs'    => array(
+				'banner'        => $sBannerUrl,
 				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
 			'flags'   => array(

@@ -240,6 +240,22 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$this->setPermissionToSubmit( true );
 			}
 		}
+
+		// Verify whitelabel images
+		if ( $this->isWlEnabled() ) {
+			$aImages = array(
+				'wl_menuiconurl',
+				'wl_dashboardlogourl',
+				'wl_login2fa_logourl',
+			);
+			$oDP = $this->loadDP();
+			$oOpts = $this->getOptionsVo();
+			foreach ( $aImages as $sKey ) {
+				if ( !$oDP->isValidUrl( $this->buildWlImageUrl( $sKey ) ) ) {
+					$oOpts->resetOptToDefault( $sKey );
+				}
+			}
+		}
 	}
 
 	protected function setSaveUserResponse() {
@@ -339,9 +355,38 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			'name_company'         => $this->getOpt( 'wl_companyname' ),
 			'description'          => $this->getOpt( 'wl_description' ),
 			'url_home'             => $this->getOpt( 'wl_homeurl' ),
-			'url_icon'             => $this->getOpt( 'wl_menuiconurl' ),
-			'url_dashboardlogourl' => $this->getOpt( 'wl_dashboardlogourl' ),
+			'url_icon'             => $this->buildWlImageUrl( 'wl_menuiconurl' ),
+			'url_dashboardlogourl' => $this->buildWlImageUrl( 'wl_dashboardlogourl' ),
+			'url_login2fa_logourl' => $this->buildWlImageUrl( 'wl_login2fa_logourl' ),
 		);
+	}
+
+	/**
+	 * We cater for 3 options:
+	 * Full URL
+	 * Relative path URL: i.e. starts with /
+	 * Or Plugin image URL i.e. doesn't start with HTTP or /
+	 * @param string $sKey
+	 * @return string
+	 */
+	private function buildWlImageUrl( $sKey ) {
+		$oDp = $this->loadDP();
+		$oOpts = $this->getOptionsVo();
+
+		$sLogoUrl = $this->getOpt( $sKey );
+		if ( empty( $sLogoUrl ) ) {
+			$oOpts->resetOptToDefault( $sKey );
+			$sLogoUrl = $this->getOpt( $sKey );
+		}
+		if ( !empty( $sLogoUrl ) && !$oDp->isValidUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
+			$sLogoUrl = $this->getConn()->getPluginUrl_Image( $sLogoUrl );
+			if ( empty( $sLogoUrl ) ) {
+				$oOpts->resetOptToDefault( $sKey );
+				$sLogoUrl = $this->getConn()->getPluginUrl_Image( $this->getOpt( $sKey ) );
+			}
+		}
+
+		return $sLogoUrl;
 	}
 
 	/**
@@ -609,13 +654,18 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sName = _wpsf__( 'Menu Icon' );
 				$sSummary = _wpsf__( 'Menu Icon URL' );
 				$sDescription = _wpsf__( 'The URL of the icon to display in the menu.' )
-								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'icon' ), '32px x 32px' );
+								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'icon' ), '16px x 16px' );
 				break;
 			case 'wl_dashboardlogourl' :
 				$sName = _wpsf__( 'Dashboard Logo' );
 				$sSummary = _wpsf__( 'Dashboard Logo URL' );
 				$sDescription = _wpsf__( 'The URL of the logo to display in the admin pages.' )
 								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'logo' ), '128px x 128px' );
+				break;
+			case 'wl_login2fa_logourl' :
+				$sName = _wpsf__( '2FA Login Logo URL' );
+				$sSummary = _wpsf__( '2FA Login Logo URL' );
+				$sDescription = _wpsf__( 'The URL of the logo to display on the Two-Factor Authentication login page.' );
 				break;
 
 			default:
@@ -670,13 +720,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'admin_access_restrict_posts',
 				array_unique( array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) ) )
 			);
-		}
-
-		if ( !filter_var( $this->getOpt( 'wl_menuiconurl' ), FILTER_VALIDATE_URL ) ) {
-			$this->setOpt( 'wl_menuiconurl', '' );
-		}
-		if ( !filter_var( $this->getOpt( 'wl_dashboardlogourl' ), FILTER_VALIDATE_URL ) ) {
-			$this->setOpt( 'wl_dashboardlogourl', '' );
 		}
 	}
 }

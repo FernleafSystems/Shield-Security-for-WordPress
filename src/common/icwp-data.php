@@ -260,10 +260,20 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sUrl
+	 * @param bool   $bVerify
 	 * @return bool
 	 */
-	public function validUrl( $sUrl ) {
-		return filter_var( $sUrl, FILTER_VALIDATE_URL );
+	public function isValidUrl( $sUrl, $bVerify = false ) {
+		$bValid = filter_var( $sUrl, FILTER_VALIDATE_URL );
+		if ( $bValid && $bVerify ) {
+			$mRes = $this->loadFS()->getUrl( $sUrl );
+			if ( is_array( $mRes ) && isset( $mRes[ 'http_response' ] ) ) {
+				/** @var WP_HTTP_Requests_Response $oResp */
+				$oResp = $mRes[ 'http_response' ];
+				$bValid = $oResp->get_status() >= 200 && $oResp->get_status() < 300;
+			}
+		}
+		return $bValid;
 	}
 
 	/**
