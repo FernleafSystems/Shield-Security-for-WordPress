@@ -373,6 +373,7 @@
     {
       "key":         "text_imahuman",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",
@@ -385,6 +386,7 @@
     {
       "key":         "text_pleasecheckbox",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",

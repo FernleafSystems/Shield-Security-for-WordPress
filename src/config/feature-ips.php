@@ -134,6 +134,7 @@
     {
       "key":         "text_loginfailed",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",
@@ -173,6 +174,7 @@
     {
       "key":         "text_remainingtrans",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",
