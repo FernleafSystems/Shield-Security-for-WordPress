@@ -192,7 +192,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 						&& !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
 
 		$oNotices = $this->loadWpNotices();
-		if ( !$oNotices->isDismissed( $aAttrs[ 'id' ] ) || $bCantDismiss ) {
+		if ( $bCantDismiss || !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
 
 			$sRenderedNotice = $this->getMod()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {

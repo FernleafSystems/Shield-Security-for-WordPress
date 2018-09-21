@@ -16,18 +16,37 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		$oWp = $this->loadWp();
 
 		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 		add_filter( $oFO->prefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
 
-		if ( !$oFO->isUpgrading() && !$oWp->isRequestUserLogin() ) {
+		if ( !$oFO->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
 			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
+		}
+
+		// Setup all the sec admin hooks
+		add_action( 'init', array( $this, 'onWpInit' ) );
+
+		if ( $oFO->isWlEnabled() ) {
+			$this->runWhiteLabel();
+		}
+	}
+
+	public function onWpInit() {
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getMod();
+		if ( !$this->loadWpUsers()->isUserLoggedIn() || $this->isSecurityAdmin() ) {
+			return;
 		}
 
 		if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
 			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 100, 3 );
 			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 100, 1 );
+			add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
+			add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
+			if ( $this->loadWp()->getWordpressIsAtLeastVersion( '3.6' ) ) {
+				add_action( 'set_user_role', array( $this, 'restrictSetUserRole' ), 100, 3 );
+			}
 		}
 
 		$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
@@ -47,10 +66,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 		if ( !$this->getController()->isThisPluginModuleRequest() ) {
 			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
-		}
-
-		if ( $oFO->isWlEnabled() ) {
-			$this->runWhiteLabel();
 		}
 	}
 
@@ -103,6 +118,58 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
+	 * @param int    $nUserId
+	 * @param string $sNewRole
+	 */
+	public function restrictAddUserRole( $nUserId, $sNewRole ) {
+		$oWpUsers = $this->loadWpUsers();
+		$sNewRole = strtolower( $sNewRole );
+		$oCurrent = $oWpUsers->getCurrentWpUser();
+		if ( $oCurrent->ID !== $nUserId && $sNewRole === 'administrator' ) {
+			$oModUser = $oWpUsers->getUserById( $nUserId );
+			remove_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100 );
+			$oModUser->remove_role( 'administrator' );
+			add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
+		}
+	}
+
+	/**
+	 * @param int    $nUserId
+	 * @param string $sNewRole
+	 * @param array  $aOldRoles
+	 */
+	public function restrictSetUserRole( $nUserId, $sNewRole, $aOldRoles ) {
+		$oWpUsers = $this->loadWpUsers();
+		$sNewRole = strtolower( $sNewRole );
+
+		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId
+			 && $sNewRole === 'administrator' && !in_array( $sNewRole, $aOldRoles ) ) {
+			$oModUser = $oWpUsers->getUserById( $nUserId );
+			remove_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100 );
+			$oModUser->remove_role( 'administrator' );
+			foreach ( $aOldRoles as $sPreExistingRoles ) {
+				$oModUser->add_role( $sPreExistingRoles );
+			}
+			add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
+		}
+	}
+
+	/**
+	 * @param int    $nUserId
+	 * @param string $sNewRole
+	 */
+	public function restrictRemoveUserRole( $nUserId, $sNewRole ) {
+		$oWpUsers = $this->loadWpUsers();
+		$sNewRole = strtolower( $sNewRole );
+		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId && $sNewRole === 'administrator' ) {
+			$oModUser = $oWpUsers->getUserById( $nUserId );
+			remove_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100 );
+			$oModUser->add_role( 'administrator' );
+			add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
+		}
+	}
+
+	/**
 	 * @param int $nId
 	 */
 	public function restrictAdminUserDelete( $nId ) {
@@ -117,17 +184,26 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
+	 * This hooked function captures the attempts to modify the user role using the standard
+	 * WordPress profile edit pages. It doesn't sufficiently capture the AJAX request to
+	 * modify user roles.
 	 * @param array $aAllCaps
 	 * @param       $cap
 	 * @param array $aArgs
 	 * @return array
 	 */
 	public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
+		if ( $this->isSecurityAdmin() ) {
+			return $aAllCaps;
+		}
+
 		/** @var string $sUserCap */
 		$sUserCap = $aArgs[ 0 ];
 
+		$aReleventCaps = array( 'edit_users', 'create_users' );
+
 		// If we're registered with Admin Access we don't modify anything
-		if ( !$this->isSecurityAdmin() && in_array( $sUserCap, array( 'edit_users', 'create_users' ) ) ) {
+		if ( in_array( $sUserCap, $aReleventCaps ) ) {
 			$bBlockCapability = false;
 
 			$oDp = $this->loadDP();
@@ -162,7 +238,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 					$bBlockCapability = true;
 				}
 			}
-
 
 			if ( $bBlockCapability ) {
 				$aAllCaps[ $sUserCap ] = false;
@@ -215,11 +290,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @throws Exception
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->doCheckHasPermissionToSubmit() ) {
+		if ( $this->isSecurityAdmin() ) {
 			return;
 		}
+
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getMod();
 
 		$sCurrentPage = $this->loadWp()->getCurrentPage();
 		if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
@@ -444,10 +520,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function printAdminAccessAjaxForm() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-
-		if ( $oFO->doCheckHasPermissionToSubmit() ) {
-			return;
-		}
 
 		$aRenderData = array(
 			'strings'     => array(

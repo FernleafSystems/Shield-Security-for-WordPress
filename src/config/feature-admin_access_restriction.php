@@ -23,6 +23,7 @@
       "id": "admin-users-restricted",
       "schedule": "conditions",
       "valid_admin": true,
+      "can_dismiss": false,
       "type": "warning"
     }
   },
