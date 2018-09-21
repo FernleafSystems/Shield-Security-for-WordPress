@@ -45,9 +45,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 100, 1 );
 			add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
 			add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
-			if ( $this->loadWp()->getWordpressIsAtLeastVersion( '3.6' ) ) {
-				add_action( 'set_user_role', array( $this, 'restrictSetUserRole' ), 100, 3 );
-			}
+			add_action( 'set_user_role', array( $this, 'restrictSetUserRole' ), 100, 3 );
 		}
 
 		$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
@@ -138,7 +136,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param string $sRole
 	 * @param array  $aOldRoles
 	 */
-	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles ) {
+	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles = array() ) {
 		$oWpUsers = $this->loadWpUsers();
 
 		$sRole = strtolower( $sRole );
