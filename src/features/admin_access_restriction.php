@@ -232,6 +232,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isAdminAccessAdminUsersEnabled() {
+		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
+	}
+
+	/**
 	 */
 	protected function doExtraSubmitProcessing() {
 		// We should only use setPermissionToSubmit() here, before any headers elsewhere are sent out.
