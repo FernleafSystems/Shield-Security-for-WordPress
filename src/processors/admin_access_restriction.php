@@ -25,9 +25,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 		}
 
-		if ( $oFO->isOpt( 'admin_access_restrict_admin_users', 'Y' ) ) {
-			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 0, 3 );
-			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 0, 1 );
+		if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
+			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 100, 3 );
+			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 100, 1 );
 		}
 
 		$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
@@ -123,21 +123,15 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
+		/** @var string $sUserCap */
+		$sUserCap = $aArgs[ 0 ];
+
 		// If we're registered with Admin Access we don't modify anything
-		if ( $this->isSecurityAdmin() ) {
-			return $aAllCaps;
-		}
+		if ( !$this->isSecurityAdmin() && in_array( $sUserCap, array( 'edit_users', 'create_users' ) ) ) {
+			$bBlockCapability = false;
 
-		$oWpUsers = $this->loadWpUsers();
-		$oDp = $this->loadDP();
-
-		/** @var string $sRequestedCapability */
-		$sRequestedCapability = $aArgs[ 0 ];
-		$aUserCapabilities = array( 'edit_users', 'create_users' );
-
-		$bBlockCapability = false;
-
-		if ( in_array( $sRequestedCapability, $aUserCapabilities ) ) {
+			$oDp = $this->loadDP();
+			$oWpUsers = $this->loadWpUsers();
 
 			// Find the WP_User for the POST
 			$oPostUser = false;
@@ -152,27 +146,27 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				$oPostUser = $oWpUsers->getUserByUsername( $sPostUserlogin );
 			}
 
-			$sRequestRole = $oDp->FetchPost( 'role', '' );
+			$sRequestRole = strtolower( $oDp->post( 'role', '' ) );
 
 			if ( $oPostUser instanceof WP_User ) {
 				// editing an existing user other than yourself?
-				if ( $oPostUser->user_login != $oWpUsers->getCurrentWpUser()->user_login ) {
+				if ( $oPostUser->user_login != $oWpUsers->getCurrentWpUsername() ) {
 
 					if ( $oWpUsers->isUserAdmin( $oPostUser ) || ( $sRequestRole == 'administrator' ) ) {
 						$bBlockCapability = true;
 					}
 				}
 			}
-			else {
-				//creating a new admin user?
+			else {//creating a new admin user?
 				if ( $sRequestRole == 'administrator' ) {
 					$bBlockCapability = true;
 				}
 			}
-		}
 
-		if ( $bBlockCapability ) {
-			$aAllCaps[ $sRequestedCapability ] = false;
+
+			if ( $bBlockCapability ) {
+				$aAllCaps[ $sUserCap ] = false;
+			}
 		}
 
 		return $aAllCaps;
@@ -180,6 +174,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param array $aNoticeAttributes
+	 * @throws Exception
 	 */
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
@@ -217,6 +212,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param array $aNoticeAttributes
+	 * @throws Exception
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */

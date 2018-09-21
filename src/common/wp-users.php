@@ -132,11 +132,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return null|WP_User
 	 */
 	public function getCurrentWpUser() {
-		$oUser = null;
-		if ( $this->isUserLoggedIn() ) {
-			$oUser = wp_get_current_user();
-		}
-		return $oUser;
+		return $this->isUserLoggedIn() ? wp_get_current_user() : null;
 	}
 
 	/**
