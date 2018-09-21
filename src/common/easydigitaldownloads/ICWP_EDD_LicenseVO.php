@@ -191,10 +191,12 @@ class ICWP_EDD_LicenseVO {
 	}
 
 	/**
+	 * @param bool $bAddRandom
 	 * @return $this
 	 */
-	public function updateLastVerifiedAt() {
-		return $this->setRawKey( 'last_verified_at', $this->getLastRequestAt() );
+	public function updateLastVerifiedAt( $bAddRandom = false ) {
+		$nRandom = $bAddRandom ? rand( -12, 12 )*HOUR_IN_SECONDS : 0;
+		return $this->setRawKey( 'last_verified_at', $this->getLastRequestAt() + $nRandom );
 	}
 
 	/**
