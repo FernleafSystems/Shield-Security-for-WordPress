@@ -119,13 +119,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param int    $nUserId
-	 * @param string $sNewRole
+	 * @param string $sRole
 	 */
-	public function restrictAddUserRole( $nUserId, $sNewRole ) {
+	public function restrictAddUserRole( $nUserId, $sRole ) {
 		$oWpUsers = $this->loadWpUsers();
-		$sNewRole = strtolower( $sNewRole );
-		$oCurrent = $oWpUsers->getCurrentWpUser();
-		if ( $oCurrent->ID !== $nUserId && $sNewRole === 'administrator' ) {
+
+		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId && strtolower( $sRole ) === 'administrator' ) {
 			$oModUser = $oWpUsers->getUserById( $nUserId );
 			remove_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100 );
 			$oModUser->remove_role( 'administrator' );
@@ -135,15 +134,15 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param int    $nUserId
-	 * @param string $sNewRole
+	 * @param string $sRole
 	 * @param array  $aOldRoles
 	 */
-	public function restrictSetUserRole( $nUserId, $sNewRole, $aOldRoles ) {
+	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles ) {
 		$oWpUsers = $this->loadWpUsers();
-		$sNewRole = strtolower( $sNewRole );
+		$sRole = strtolower( $sRole );
 
 		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId
-			 && $sNewRole === 'administrator' && !in_array( $sNewRole, $aOldRoles ) ) {
+			 && $sRole === 'administrator' && !in_array( $sRole, $aOldRoles ) ) {
 			$oModUser = $oWpUsers->getUserById( $nUserId );
 			remove_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100 );
 			$oModUser->remove_role( 'administrator' );
@@ -156,12 +155,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param int    $nUserId
-	 * @param string $sNewRole
+	 * @param string $sRole
 	 */
-	public function restrictRemoveUserRole( $nUserId, $sNewRole ) {
+	public function restrictRemoveUserRole( $nUserId, $sRole ) {
 		$oWpUsers = $this->loadWpUsers();
-		$sNewRole = strtolower( $sNewRole );
-		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId && $sNewRole === 'administrator' ) {
+
+		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId && strtolower( $sRole ) === 'administrator' ) {
 			$oModUser = $oWpUsers->getUserById( $nUserId );
 			remove_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100 );
 			$oModUser->add_role( 'administrator' );
@@ -173,30 +172,24 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param int $nId
 	 */
 	public function restrictAdminUserDelete( $nId ) {
-		if ( !$this->isSecurityAdmin() ) {
-			$oWpUsers = $this->loadWpUsers();
-			$oUser = $oWpUsers->getUserById( $nId );
-			if ( $oUser && $oWpUsers->isUserAdmin( $oUser ) ) {
-				$this->loadWp()
-					 ->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
-			}
+		$oWpUsers = $this->loadWpUsers();
+		$oUserToDelete = $oWpUsers->getUserById( $nId );
+		if ( $oUserToDelete && $oWpUsers->isUserAdmin( $oUserToDelete ) ) {
+			$this->loadWp()
+				 ->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
 		}
 	}
 
 	/**
 	 * This hooked function captures the attempts to modify the user role using the standard
 	 * WordPress profile edit pages. It doesn't sufficiently capture the AJAX request to
-	 * modify user roles.
+	 * modify user roles. (see user role hooks)
 	 * @param array $aAllCaps
 	 * @param       $cap
 	 * @param array $aArgs
 	 * @return array
 	 */
 	public function restrictAdminUserChanges( $aAllCaps, $cap, $aArgs ) {
-		if ( $this->isSecurityAdmin() ) {
-			return $aAllCaps;
-		}
-
 		/** @var string $sUserCap */
 		$sUserCap = $aArgs[ 0 ];
 
@@ -389,10 +382,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
-		// If we're registered with Admin Access we can do everything!
-		if ( $this->isSecurityAdmin() ) {
-			return $aAllCaps;
-		}
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
