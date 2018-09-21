@@ -40,6 +40,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
+			add_filter( 'editable_roles', array( $this, 'restrictEditableRoles' ), 100, 1 );
 			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 100, 3 );
 			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 100, 1 );
 			add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
@@ -139,17 +140,38 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles ) {
 		$oWpUsers = $this->loadWpUsers();
-		$sRole = strtolower( $sRole );
 
-		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId
-			 && $sRole === 'administrator' && !in_array( $sRole, $aOldRoles ) ) {
-			$oModUser = $oWpUsers->getUserById( $nUserId );
-			remove_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100 );
-			$oModUser->remove_role( 'administrator' );
-			foreach ( $aOldRoles as $sPreExistingRoles ) {
-				$oModUser->add_role( $sPreExistingRoles );
+		$sRole = strtolower( $sRole );
+		if ( !is_array( $aOldRoles ) ) {
+			$aOldRoles = array();
+		}
+
+		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId ) {
+			$bNewRoleIsAdmin = $sRole == 'administrator';
+
+			// 1. Setting administrator role where it doesn't previously exist
+			if ( $bNewRoleIsAdmin && !in_array( 'administrator', $aOldRoles ) ) {
+				$bRevert = true;
 			}
-			add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
+			// 2. Setting non-administrator role when previous roles included administrator
+			else if ( !$bNewRoleIsAdmin && in_array( 'administrator', $aOldRoles ) ) {
+				$bRevert = true;
+			}
+			else {
+				$bRevert = false;
+			}
+
+			if ( $bRevert ) {
+				$oModUser = $oWpUsers->getUserById( $nUserId );
+				remove_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100 );
+				remove_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100 );
+				$oModUser->remove_role( $sRole );
+				foreach ( $aOldRoles as $sPreExistingRoles ) {
+					$oModUser->add_role( $sPreExistingRoles );
+				}
+				add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
+				add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
+			}
 		}
 	}
 
@@ -178,6 +200,17 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			$this->loadWp()
 				 ->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
 		}
+	}
+
+	/**
+	 * @param array[] $aAllRoles
+	 * @return array[]
+	 */
+	public function restrictEditableRoles( $aAllRoles ) {
+		if ( isset( $aAllRoles[ 'administrator' ] ) ) {
+			unset( $aAllRoles[ 'administrator' ] );
+		}
+		return $aAllRoles;
 	}
 
 	/**
