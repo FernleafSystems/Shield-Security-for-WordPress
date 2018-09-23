@@ -23,7 +23,8 @@
 	}
 </style>
 
-<p id="<?php echo $sUniqElem; ?>" class="icwpImHuman_<?php echo $sUniqId; ?>"></p>
+<p id="<?php echo $sUniqElem; ?>" class="icwpImHuman_<?php echo $sUniqId; ?>">
+	<?php echo $strings['loading']; ?> ...</p>
 
 <script type="text/javascript">
 
@@ -40,6 +41,8 @@
 		var hon<?php echo $sUniqId; ?> = document.createElement( "input" );
 		hon<?php echo $sUniqId; ?>.type = "hidden";
 		hon<?php echo $sUniqId; ?>.name = "icwp_wpsf_login_email";
+		
+		the_p<?php echo $sUniqId; ?>.innerHTML = '';
 		the_p<?php echo $sUniqId; ?>.appendChild( hon<?php echo $sUniqId; ?> );
 
 		{ /* Prevent multiple checkboxes within the same form */
