@@ -38,13 +38,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param int $nUserId
 	 */
 	public function onWcSocialLogin( $nUserId ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oUser = new WP_User( $nUserId );
-		if ( $oUser->ID != 0 ) { // i.e. said user id exists.
-			$oMeta = $this->getController()->getUserMeta( $oUser );
-			$oMeta->wc_social_login_valid = true;
+		$oUser = $this->loadWpUsers()->getUserById( $nUserId );
+		if ( $oUser instanceof WP_User ) {
+			$this->getController()->getUserMeta( $oUser )->wc_social_login_valid = true;
 		}
 	}
 

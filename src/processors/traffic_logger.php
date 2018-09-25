@@ -94,199 +94,31 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * TODO: Other search engines
 	 * @return bool
 	 */
 	protected function isServiceIp_Search() {
+		$oSP = $this->loadServiceProviders();
+
 		$sIp = $this->ip();
 		$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
-		return $this->isIp_GoogleBot( $sIp, $sAgent )
-			   || $this->isIp_BingBot( $sIp, $sAgent )
-			   || $this->isIp_DuckDuckGoBot( $sIp, $sAgent )
-			   || $this->isIp_YandexBot( $sIp, $sAgent )
-			   || $this->isIp_AppleBot( $sIp, $sAgent );
+		return $oSP->isIp_GoogleBot( $sIp, $sAgent )
+			   || $oSP->isIp_BingBot( $sIp, $sAgent )
+			   || $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
+			   || $oSP->isIp_YandexBot( $sIp, $sAgent )
+			   || $oSP->isIp_AppleBot( $sIp, $sAgent );
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isServiceIp_Uptime() {
+		$oSP = $this->loadServiceProviders();
+
 		$sIp = $this->ip();
-		return $this->isIp_Statuscake( $sIp )
-			   || $this->isIp_UptimeRobot( $sIp )
-			   || $this->isIp_Pingdom( $sIp );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return bool
-	 */
-	protected function isIp_Cloudflare( $sIp ) {
-		return $this->loadIpService()->isCloudFlareIp( $sIp );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @param string $sUserAgent
-	 * @return bool
-	 */
-	protected function isIp_BingBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
-
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_bingbot' ) );
-		if ( !is_array( $aIps ) ) {
-			$aIps = array();
-		}
-
-		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpBingBot( $sIp, $sUserAgent ) ) {
-			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_bingbot' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-
-		return in_array( $sIp, $aIps );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @param string $sUserAgent
-	 * @return bool
-	 */
-	protected function isIp_DuckDuckGoBot( $sIp, $sUserAgent ) {
-		return $this->loadIpService()->isIpDuckDuckGoBot( $sIp, $sUserAgent );
-	}
-
-	/**
-	 * https://support.google.com/webmasters/answer/80553?hl=en
-	 * @param string $sIp
-	 * @param string $sUserAgent
-	 * @return bool
-	 */
-	protected function isIp_GoogleBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
-
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_googlebot' ) );
-		if ( !is_array( $aIps ) ) {
-			$aIps = array();
-		}
-
-		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpGoogleBot( $sIp, $sUserAgent ) ) {
-			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_googlebot' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-
-		return in_array( $sIp, $aIps );
-	}
-
-	/**
-	 * https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.html
-	 * @param string $sIp
-	 * @param string $sUserAgent
-	 * @return bool
-	 */
-	protected function isIp_YandexBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
-
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_yandexbot' ) );
-		if ( !is_array( $aIps ) ) {
-			$aIps = array();
-		}
-
-		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpYandexBot( $sIp, $sUserAgent ) ) {
-			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_yandexbot' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-
-		return in_array( $sIp, $aIps );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @param string $sUserAgent
-	 * @return bool
-	 */
-	protected function isIp_AppleBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
-
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_applebot' ) );
-		if ( !is_array( $aIps ) ) {
-			$aIps = array();
-		}
-
-		if ( !in_array( $sIp, $aIps ) && $this->loadIpService()->isIpAppleBot( $sIp, $sUserAgent ) ) {
-			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $this->prefix( 'serviceips_applebot' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-
-		return in_array( $sIp, $aIps );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return bool
-	 */
-	protected function isIp_Statuscake( $sIp ) {
-		return in_array( $sIp, $this->getIpsStatuscake() );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return bool
-	 */
-	protected function isIp_Pingdom( $sIp ) {
-		return in_array( $sIp, $this->getIpsPingdom()[ $this->loadIpService()->getIpVersion( $sIp ) ] );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return bool
-	 */
-	protected function isIp_UptimeRobot( $sIp ) {
-		return in_array( $sIp, $this->getIpsUptimeRobot()[ $this->loadIpService()->getIpVersion( $sIp ) ] );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getIpsStatuscake() {
-		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_statuscake' ) );
-		if ( empty( $aIps ) ) {
-			$aIps = $this->loadIpService()->getServiceIps_StatusCake();
-			$oWp->setTransient( $this->prefix( 'serviceips_statuscake' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-		return $aIps;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getIpsUptimeRobot() {
-		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_uptimerobot' ) );
-		if ( empty( $aIps ) ) {
-			$aIps = array(
-				4 => $this->loadIpService()->getServiceIps_UptimeRobot( 4 ),
-				6 => $this->loadIpService()->getServiceIps_UptimeRobot( 6 )
-			);
-			$oWp->setTransient( $this->prefix( 'serviceips_uptimerobot' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-		return $aIps;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getIpsPingdom() {
-		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_pingdom' ) );
-		if ( empty( $aIps ) ) {
-			$aIps = array(
-				4 => $this->loadIpService()->getServiceIps_Pingdom( 4 ),
-				6 => $this->loadIpService()->getServiceIps_Pingdom( 6 )
-			);
-			$oWp->setTransient( $this->prefix( 'serviceips_pingdom' ), $aIps, WEEK_IN_SECONDS*4 );
-		}
-		return $aIps;
+		$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+		return $oSP->isIp_Statuscake( $sIp, $sAgent )
+			   || $oSP->isIp_UptimeRobot( $sIp, $sAgent )
+			   || $oSP->isIp_Pingdom( $sIp, $sAgent );
 	}
 
 	protected function logTraffic() {
