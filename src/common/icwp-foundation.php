@@ -5,10 +5,20 @@ if ( class_exists( 'ICWP_WPSF_Foundation', false ) ) {
 
 class ICWP_WPSF_Foundation {
 
+	const DEFAULT_SERVICE_PREFIX = 'icwp_wpsf_';
+
 	/**
 	 * @var array
 	 */
 	private static $aDic;
+
+	/**
+	 * @param string $sSuffix
+	 * @return string
+	 */
+	protected function prefix( $sSuffix ) {
+		return self::DEFAULT_SERVICE_PREFIX.$sSuffix;
+	}
 
 	/**
 	 * @return ICWP_WPSF_DataProcessor
@@ -121,6 +131,18 @@ class ICWP_WPSF_Foundation {
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_Ip::GetInstance() );
+		}
+		return self::getService( $sKey );
+	}
+
+	/**
+	 * @return ICWP_WPSF_ServiceProviders
+	 */
+	public function loadServiceProviders() {
+		$sKey = 'icwp-serviceproviders';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_ServiceProviders::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
@@ -293,7 +315,7 @@ class ICWP_WPSF_Foundation {
 	 * @param string $sFile
 	 */
 	static public function requireCommonLib( $sFile ) {
-		require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.$sFile );
+		require_once( dirname( __FILE__ ).'/'.$sFile );
 	}
 
 	/**
