@@ -9,11 +9,11 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/insert.php' );
 class ICWP_WPSF_Query_Sessions_Insert extends ICWP_WPSF_Query_BaseInsert {
 
 	/**
-	 * @param string $sUsername
 	 * @param string $sSessionId
+	 * @param string $sUsername
 	 * @return bool
 	 */
-	public function create( $sUsername, $sSessionId ) {
+	public function create( $sSessionId, $sUsername ) {
 		$oDP = $this->loadDP();
 		$nTimeStamp = $oDP->time();
 

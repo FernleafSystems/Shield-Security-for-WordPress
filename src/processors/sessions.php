@@ -80,8 +80,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
 			$this->queryCreateSession(
-				$this->loadWpUsers()->getCurrentWpUsername(),
-				$oFO->getConn()->getSessionId( true )
+				$oFO->getConn()->getSessionId( true ),
+				$this->loadWpUsers()->getCurrentWpUsername()
 			);
 		}
 	}
@@ -120,13 +120,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User ) {
 			$this->setLoginCaptured();
 			// If they have a currently active session, terminate it (i.e. we replace it)
-			$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
+			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
 			if ( !empty( $oSession ) ) {
 				$this->queryTerminateSession( $oSession );
 				$this->oCurrent = null;
 			}
 
-			$this->queryCreateSession( $oUser->user_login, $this->getSessionId() );
+			$this->queryCreateSession( $this->getSessionId(), $oUser->user_login );
 		}
 		return true;
 	}
@@ -189,12 +189,11 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function loadCurrentSession() {
 		$oSession = null;
-		$oWpUsers = $this->loadWpUsers();
-		if ( did_action( 'init' ) && $oWpUsers->isUserLoggedIn() ) {
-			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser instanceof WP_User ) {
-				$oSession = $this->queryGetSession( $oUser->user_login, $this->getSessionId() );
-			}
+		if ( did_action( 'init' ) ) {
+			$oSession = $this->queryGetSession(
+				$this->getSessionId(),
+				$this->loadWpUsers()->getCurrentWpUsername()
+			);
 		}
 		return $oSession;
 	}
@@ -237,17 +236,17 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param string $sUsername
 	 * @param string $sSessionId
+	 * @param string $sUsername
 	 * @return bool
 	 */
-	protected function queryCreateSession( $sUsername, $sSessionId ) {
-		if ( empty( $sUsername ) ) {
+	protected function queryCreateSession( $sSessionId, $sUsername ) {
+		if ( empty( $sSessionId ) || empty( $sUsername ) ) {
 			return null;
 		}
 
 		$bSuccess = $this->getQueryInserter()
-						 ->create( $sUsername, $sSessionId );
+						 ->create( $sSessionId, $sUsername );
 		if ( $bSuccess ) {
 			$this->doStatIncrement( 'user.session.start' );
 		}
@@ -260,9 +259,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sSessionId
 	 * @return ICWP_WPSF_SessionVO|null
 	 */
-	protected function queryGetSession( $sUsername, $sSessionId ) {
+	protected function queryGetSession( $sSessionId, $sUsername = '' ) {
 		return $this->getQuerySelector()
-					->retrieveUserSession( $sUsername, $sSessionId );
+					->retrieveUserSession( $sSessionId, $sUsername );
 	}
 
 	/**

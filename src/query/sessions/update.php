@@ -53,7 +53,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	public function updateLoginIntentExpiresAt( $oSession, $nExpiresAt ) {
 		return $this->updateSession(
 			$oSession,
-			array( 'login_intent_expires_at' => $nExpiresAt )
+			array( 'login_intent_expires_at' => (int)$nExpiresAt )
 		);
 	}
 
