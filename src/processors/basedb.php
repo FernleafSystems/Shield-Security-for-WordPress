@@ -20,6 +20,11 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $bTableExists;
 
 	/**
+	 * @var bool
+	 */
+	protected $bTableStructureIsValid;
+
+	/**
 	 * @var integer
 	 */
 	protected $nAutoExpirePeriod = null;
@@ -40,7 +45,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	public function isReadyToRun() {
-		return ( parent::isReadyToRun() && $this->getTableExists() );
+		return ( parent::isReadyToRun() && $this->getTableExists() && $this->isTableStructureValid() );
 	}
 
 	/**
@@ -58,17 +63,22 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function createTable() {
 		$sSql = $this->getCreateTableSql();
 		if ( !empty( $sSql ) ) {
+			$this->clearTableIsValid();
 			return $this->loadDbProcessor()->dbDelta( $sSql );
 		}
 		return true;
 	}
 
 	/**
+	 * @return $this
 	 */
 	protected function initializeTable() {
 		if ( $this->getTableExists() ) {
-			if ( !$this->tableIsValid() ) {
-				$this->recreateTable();
+			if ( !$this->isTableStructureValid() ) {
+				$this->createTable(); // First attempt the delta
+				if ( !$this->isTableStructureValid( true ) ) {
+					$this->recreateTable();
+				}
 			}
 			$sFullHookName = $this->getDbCleanupHookName();
 			add_action( $sFullHookName, array( $this, 'cleanupDatabase' ) );
@@ -76,6 +86,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		else {
 			$this->createTable();
 		}
+		return $this;
 	}
 
 	/**
@@ -168,7 +179,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	protected function tableIsValid() {
+	protected function testTableStructure() {
 		$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
 		$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
 		$bValid = ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
@@ -291,6 +302,25 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getAutoExpirePeriod() {
 		return null;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function clearTableIsValid() {
+		unset( $this->bTableStructureIsValid );
+		return $this;
+	}
+
+	/**
+	 * @param bool $bRetest
+	 * @return bool
+	 */
+	protected function isTableStructureValid( $bRetest = false ) {
+		if ( $bRetest || !isset( $this->bTableStructureIsValid ) ) {
+			$this->bTableStructureIsValid = $this->testTableStructure();
+		}
+		return $this->bTableStructureIsValid;
 	}
 
 	/**

@@ -47,6 +47,18 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param int                 $nExpiresAt
+	 * @return bool
+	 */
+	public function updateLoginIntentExpiresAt( $oSession, $nExpiresAt ) {
+		return $this->updateSession(
+			$oSession,
+			array( 'login_intent_expires_at' => (int)$nExpiresAt )
+		);
+	}
+
+	/**
+	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @param array               $aUpdateData
 	 * @return bool
 	 */

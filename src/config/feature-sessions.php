@@ -58,6 +58,7 @@
       "last_activity_at",
       "last_activity_uri",
       "secadmin_at",
+      "login_intent_expires_at",
       "created_at",
       "deleted_at"
     ]
