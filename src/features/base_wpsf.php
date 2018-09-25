@@ -58,9 +58,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return int
 	 */
 	protected function getSecAdminTimeLeft() {
-		return $this->getController()
-					->getModule( 'admin_access_restriction' )
-					->getSecAdminTimeLeft();
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getConn()
+					->getModule( 'admin_access_restriction' );
+		return $oFO->getSecAdminTimeLeft();
 	}
 
 	/**
@@ -258,9 +259,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
-		return $this->getConn()
-					->getModule( 'plugin' )
-					->isXmlrpcBypass();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getConn()
+					->getModule( 'plugin' );
+		return $oFO->isXmlrpcBypass();
 	}
 
 	/**

@@ -1800,6 +1800,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @deprecated
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
 	static public function getController() {
