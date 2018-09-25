@@ -14,6 +14,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static protected $oSessProcessor;
 
 	/**
+	 * @var bool
+	 */
+	static protected $bIsVerifiedBot;
+
+	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
@@ -245,6 +250,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function isReadyToExecute() {
 		return ( $this->getOptionsVo()->isModuleWhitelistExempt() || !$this->isVisitorWhitelisted() )
+			   && !$this->isVerifiedBot()
 			   && parent::isReadyToExecute();
 	}
 
@@ -253,6 +259,27 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function isVisitorWhitelisted() {
 		return apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false );
+	}
+
+	/**
+	 * Only test for bots that we can actually verify based on IP, hostname
+	 * @return bool
+	 */
+	public function isVerifiedBot() {
+		if ( !isset( self::$bIsVerifiedBot ) ) {
+			$oSp = $this->loadServiceProviders();
+
+			$sIp = $this->loadIpService()->getRequestIp();
+			$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+			if ( empty( $sAgent ) ) {
+				$sAgent = 'Unknown';
+			}
+			self::$bIsVerifiedBot = $oSp->isIp_GoogleBot( $sIp, $sAgent )
+									|| $oSp->isIp_BingBot( $sIp, $sAgent )
+									|| $oSp->isIp_AppleBot( $sIp, $sAgent )
+									|| $oSp->isIp_YandexBot( $sIp, $sAgent );
+		}
+		return self::$bIsVerifiedBot;
 	}
 
 	/**
