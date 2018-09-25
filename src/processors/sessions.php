@@ -19,11 +19,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	private $oCurrent;
 
 	/**
-	 * @var int
-	 */
-	private $nSessionAlreadyCreatedUserId = 0;
-
-	/**
 	 * @param ICWP_WPSF_Processor_Sessions $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oModCon ) {
