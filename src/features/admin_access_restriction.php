@@ -286,11 +286,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
-		$oPro = $this->getSessionsProcessor();
-		$oSession = $this->getSession();
-		$oUpdater = $oPro->getQueryUpdater();
-		$this->getSessionsProcessor()->clearCurrentSession();
-		return $bSetOn ? $oUpdater->startSecurityAdmin( $oSession ) : $oUpdater->terminateSecurityAdmin( $oSession );
+		$oUpdater = $this->getSessionsProcessor()->getQueryUpdater();
+		return $bSetOn ?
+			$oUpdater->startSecurityAdmin( $this->getSession() )
+			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
 	}
 
 	/**

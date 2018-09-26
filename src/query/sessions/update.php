@@ -57,7 +57,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function updateSession( $oSession, $aUpdateData = array() ) {
-		$mResult = false;
+		$bSuccess = false;
 		if ( !empty( $aUpdateData ) && $oSession instanceof ICWP_WPSF_SessionVO ) {
 			$mResult = $this
 				->setUpdateData( $aUpdateData )
@@ -69,7 +69,15 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 					)
 				)
 				->query();
+			$bSuccess = is_numeric( $mResult ) && $mResult === 1;
+
+			if ( $bSuccess ) {
+				foreach ( $aUpdateData as $sColumn => $mValue ) {
+					$oSession->{$sColumn} = $mValue;
+				}
+			}
 		}
-		return is_numeric( $mResult ) && $mResult === 1;
+
+		return $bSuccess;
 	}
 }
