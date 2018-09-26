@@ -272,7 +272,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 							 && !$this->isVisitorWhitelisted() && ( $oIP->whatIsMyIp() !== $this->ip() );
 
 			if ( $bCanBlackMark ) {
-				$this->blackMarkIp( $this->ip() );
+				$this->processIpBlackMark( $this->ip() );
 			}
 		}
 	}
@@ -280,7 +280,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @param string $sIp
 	 */
-	protected function blackMarkIp( $sIp ) {
+	private function processIpBlackMark( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'last_transgression_at' );

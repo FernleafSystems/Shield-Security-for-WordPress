@@ -601,6 +601,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isModuleRunIfVerifiedBot() {
+		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return bool
 	 */

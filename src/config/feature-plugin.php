@@ -11,6 +11,7 @@
     "premium":               false,
     "has_custom_actions":    false,
     "whitelist_exempt":      true,
+    "run_if_verified_bot":   true,
     "order":                 10
   },
   "admin_notices": {

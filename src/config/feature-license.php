@@ -11,7 +11,8 @@
     "show_central":          false,
     "premium":               false,
     "access_restricted":     true,
-    "whitelist_exempt":      true
+    "whitelist_exempt":      true,
+    "run_if_verified_bot":   true
   },
   "sections":    [
     {

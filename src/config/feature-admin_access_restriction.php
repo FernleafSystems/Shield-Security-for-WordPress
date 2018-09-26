@@ -10,6 +10,7 @@
     "show_central": true,
     "access_restricted": true,
     "premium": false,
+    "run_if_verified_bot":   true,
     "order": 20
   },
   "admin_notices": {

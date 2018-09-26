@@ -11,6 +11,7 @@
     "premium":               true,
     "has_custom_actions":    true,
     "whitelist_exempt":      false,
+    "run_if_verified_bot":   true,
     "order":                 110
   },
   "requirements": {
