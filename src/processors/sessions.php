@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
 			if ( !empty( $oSession ) ) {
 				$this->queryTerminateSession( $oSession );
-				$this->oCurrent = null;
+				$this->clearCurrentSession();
 			}
 
 			$this->queryCreateSession( $this->getSessionId(), $oUser->user_login );
@@ -148,7 +148,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 		$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
 		$this->getController()->clearSession();
-		$this->oCurrent = null;
+		$this->clearCurrentSession();
 		return $mResult;
 	}
 
@@ -182,6 +182,14 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			$this->oCurrent = $this->loadCurrentSession();
 		}
 		return $this->oCurrent;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearCurrentSession() {
+		unset( $this->oCurrent );
+		return $this;
 	}
 
 	/**

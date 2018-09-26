@@ -13,10 +13,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function startSecurityAdmin( $oSession ) {
-		return $this->updateSession(
-			$oSession,
-			array( 'secadmin_at' => $this->loadDP()->time() )
-		);
+		return $this->updateSession( $oSession, array( 'secadmin_at' => $this->loadDP()->time() ) );
 	}
 
 	/**
@@ -24,10 +21,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function terminateSecurityAdmin( $oSession ) {
-		return $this->updateSession(
-			$oSession,
-			array( 'secadmin_at' => 0 )
-		);
+		return $this->updateSession( $oSession, array( 'secadmin_at' => 0 ) );
 	}
 
 	/**
