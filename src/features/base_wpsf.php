@@ -259,7 +259,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isVisitorWhitelisted() {
-		return apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->getConn()
+					 ->getModule( 'ips' )
+					 ->getProcessor();
+		return $oPro->isCurrentIpWhitelisted();
 	}
 
 	/**
