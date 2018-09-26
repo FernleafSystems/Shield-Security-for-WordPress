@@ -596,8 +596,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function isModuleWhitelistExempt() {
-		return (bool)$this->getFeatureProperty( 'whitelist_exempt' );
+	public function isModuleRunIfWhitelisted() {
+		return (bool)$this->getFeatureProperty( 'run_if_whitelisted' );
 	}
 
 	/**

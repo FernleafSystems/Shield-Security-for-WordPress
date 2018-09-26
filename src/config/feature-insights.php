@@ -10,7 +10,7 @@
     "show_central":          false,
     "premium":               false,
     "access_restricted":     true,
-    "whitelist_exempt":      true,
+    "run_if_whitelisted":    true,
     "run_if_verified_bot":   false
   },
   "requirements": {

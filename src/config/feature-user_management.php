@@ -9,6 +9,7 @@
     "access_restricted": true,
     "premium": false,
     "has_custom_actions": true,
+    "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
     "order": 40
   },

@@ -250,7 +250,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function isReadyToExecute() {
 		$oOpts = $this->getOptionsVo();
-		return ( $oOpts->isModuleWhitelistExempt() || !$this->isVisitorWhitelisted() )
+		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
 			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
 			   && parent::isReadyToExecute();
 	}
