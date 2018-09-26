@@ -178,7 +178,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	public function getCurrentSession() {
-		if ( is_null( $this->oCurrent ) ) {
+		if ( empty( $this->oCurrent ) ) {
 			$this->oCurrent = $this->loadCurrentSession();
 		}
 		return $this->oCurrent;
@@ -188,7 +188,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return $this
 	 */
 	public function clearCurrentSession() {
-		unset( $this->oCurrent );
+		$this->oCurrent = null;
 		return $this;
 	}
 

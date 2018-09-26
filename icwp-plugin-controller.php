@@ -289,13 +289,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			add_action( 'wp_ajax_nopriv_'.$this->prefix(), array( $this, 'ajaxAction' ) );
 		}
 
+		$sBaseFile = $this->getPluginBaseFile();
 		add_filter( 'all_plugins', array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins', array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_action_links_'.$sBaseFile, array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'plugin_row_meta', array( $this, 'onPluginRowMeta' ), 50, 2 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
-
+		add_action( 'in_plugin_update_message-'.$sBaseFile, array( $this, 'onWpPluginUpdateMessage' ) );
+		add_filter( 'site_transient_update_plugins', array( $this, 'blockIncompatibleUpdates' ) );
 		add_filter( 'auto_update_plugin', array( $this, 'onWpAutoUpdate' ), 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', array( $this, 'setUpdateFirstDetectedAt' ) );
 
@@ -716,12 +717,28 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		}
 		else {
 			$sMessage = sprintf(
-				'<div class="%s plugin_update_message">%s</div>',
+				' <span class="%s plugin_update_message">%s</span>',
 				$this->getPluginPrefix(),
 				$sMessage
 			);
 		}
 		echo $sMessage;
+	}
+
+	/**
+	 * We protect against providing updates for Shield v7.0.0
+	 * @param stdClass $oUpdates
+	 * @return stdClass
+	 */
+	public function blockIncompatibleUpdates( $oUpdates ) {
+		$sFile = $this->getPluginBaseFile();
+		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
+			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
+				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
+				unset( $oUpdates->response[ $sFile ] );
+			}
+		}
+		return $oUpdates;
 	}
 
 	/**
@@ -780,6 +797,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( !$oWp->isRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
 				$sAutoupdateSpec = 'yes'; // so that we appear to be automatically updating
 			}
+
+			$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
+
+			/** We block automatic updates for Shield v7+ if PHP < 5.3 */
+//			if ( version_compare( $sNewVersion, '7.0.0', '>=' )
+//				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.3' )
+//			) {
+//				$sAutoupdateSpec = 'block';
+//			}
 
 			switch ( $sAutoupdateSpec ) {
 
