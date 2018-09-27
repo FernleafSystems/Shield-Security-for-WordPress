@@ -361,7 +361,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isCooldownEnabled() {
-		return $this->getOpt( 'login_limit_interval' ) > 0;
+		return (int)$this->getOpt( 'login_limit_interval' ) > 0;
 	}
 
 	/**

@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$this->addToAuditEntry(
 				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
 					$oUser->user_login, _wpsf__( 'Email Auth' )
-				),2, 'login_protect_emailauth_failed'
+				), 2, 'login_protect_emailauth_failed'
 			);
 			$this->doStatIncrement( 'login.emailauth.failed' );
 		}
@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function processOtp( $oUser, $sOtpCode ) {
 		$bValid = ( $sOtpCode == $this->getStoredSessionHashCode() );
 		if ( $bValid ) {
-			unset( $this->loadWpUsers()->metaVoForUser( $this->prefix() )->code_tfaemail );
+			$this->loadWpUsers()->metaVoForUser( $this->prefix() )->code_tfaemail = '';
 		}
 		return $bValid;
 	}
@@ -138,7 +138,8 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return bool
 	 */
 	protected function isSecretValid( $sSecret ) {
-		return true; // we don't use individual user secrets for email (yet)
+		$sHash = $this->getStoredSessionHashCode();
+		return !empty( $sHash );
 	}
 
 	/**
