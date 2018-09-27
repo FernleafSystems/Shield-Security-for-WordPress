@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return !is_null( $this->getSession() );
+		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
 	}
 
 	public function insertCustomJsVars() {

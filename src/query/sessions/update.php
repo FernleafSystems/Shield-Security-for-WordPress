@@ -53,6 +53,23 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
 	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @return bool
+	 */
+	public function clearLoginIntentCodeEmail( $oSession ) {
+		return $this->setLoginIntentCodeEmail( $oSession, '' );
+	}
+
+	/**
+	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param string              $sCode
+	 * @return bool
+	 */
+	public function setLoginIntentCodeEmail( $oSession, $sCode ) {
+		return $this->updateSession( $oSession, array( 'li_code_email' => (string)$sCode ) );
+	}
+
+	/**
+	 * @param ICWP_WPSF_SessionVO $oSession
 	 * @param array               $aUpdateData
 	 * @return bool
 	 */

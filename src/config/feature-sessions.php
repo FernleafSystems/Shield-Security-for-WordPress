@@ -58,8 +58,9 @@
       "logged_in_at",
       "last_activity_at",
       "last_activity_uri",
-      "secadmin_at",
+      "li_code_email",
       "login_intent_expires_at",
+      "secadmin_at",
       "created_at",
       "deleted_at"
     ]
