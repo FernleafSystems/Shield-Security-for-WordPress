@@ -28,7 +28,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 				'sAlert'    => $this->getTextPleaseCheckBox(),
 				'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
 				'sUniqId'   => $sUniqId,
-				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId
+				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
+				'strings'   => array(
+					'loading' => _wpsf__( 'Loading' )
+				)
 			)
 		);
 	}

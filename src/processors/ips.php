@@ -36,8 +36,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'visitor_is_whitelisted' ), array( $this, 'fGetIsVisitorWhitelisted' ), 1000 );
-
 		if ( $oFO->isAutoBlackListFeatureEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
@@ -45,14 +43,14 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
-		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'fGetIsVisitorWhitelisted' ) );
+//		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'isCurrentIpWhitelisted' ), 30, 0 );
 		add_action( 'template_redirect', array( $this, 'doTrack404' ) );
 	}
 
 	public function doTrack404() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		if ( $oFO->is404Tracking() && is_404() ) {
+		if ( $oFO->is404Tracking() && is_404() && !$oFO->isVerifiedBot() ) {
 			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
 				$this->setIpTransgressed(); // We now black mark this IP
 			}
@@ -81,9 +79,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param array $aNoticeAttributes
 	 */
 	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
+		$oCon = $this->getController();
 
-		if ( $this->getController()->getIsPage_PluginAdmin() && $this->isVisitorWhitelisted() ) {#
-			$oCon = $this->getController();
+		if ( $oCon->getIsPage_PluginAdmin() && $this->isCurrentIpWhitelisted() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
@@ -136,7 +134,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function verifyIfAuthenticationValid( $oUserOrError, $sUsername ) {
 		// Don't concern yourself if visitor is whitelisted
-		if ( $this->isVisitorWhitelisted() ) {
+		if ( $this->isCurrentIpWhitelisted() ) {
 			return $oUserOrError;
 		}
 
@@ -205,9 +203,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	protected function processBlacklist() {
-
-		// white list rules
-		if ( $this->isVisitorWhitelisted() ) {
+		if ( $this->isCurrentIpWhitelisted() ) {
 			return;
 		}
 
@@ -246,13 +242,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return boolean
-	 */
-	protected function isVisitorWhitelisted() {
-		return apply_filters( $this->getMod()->prefix( 'visitor_is_whitelisted' ), false );
-	}
-
-	/**
 	 */
 	public function action_blackMarkIp() {
 		$this->blackMarkCurrentVisitor();
@@ -264,15 +253,15 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 
-		if ( $this->getIfIpTransgressed() ) {
+		if ( $this->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 
 			// Never black mark IPs that are on the whitelist
 			$oIP = $this->loadIpService();
 			$bCanBlackMark = !$oFO->isPluginDeleting() && $oFO->isAutoBlackListFeatureEnabled()
-							 && !$this->isVisitorWhitelisted() && ( $oIP->whatIsMyIp() !== $this->ip() );
+							 && ( $oIP->whatIsMyIp() !== $this->ip() );
 
 			if ( $bCanBlackMark ) {
-				$this->blackMarkIp( $this->ip() );
+				$this->processIpBlackMark( $this->ip() );
 			}
 		}
 	}
@@ -280,7 +269,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @param string $sIp
 	 */
-	protected function blackMarkIp( $sIp ) {
+	private function processIpBlackMark( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'last_transgression_at' );
@@ -307,27 +296,22 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param boolean $bIsWhitelisted
-	 * @return boolean
+	 * @return bool
 	 */
-	public function fGetIsVisitorWhitelisted( $bIsWhitelisted ) {
+	public function isCurrentIpWhitelisted() {
 		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-			$this->bVisitorIsWhitelisted = $this->getIsIpOnWhiteList( $this->ip() );
+			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( $this->ip() );
 		}
-		return ( $bIsWhitelisted || $this->bVisitorIsWhitelisted ); //so we still support the legacy lists
+		return $this->bVisitorIsWhitelisted;
 	}
 
 	/**
 	 * @param string $sIp
-	 * @param bool   $bReturnListData
-	 * @return bool|array
+	 * @return bool
 	 */
-	public function getIsIpOnWhiteList( $sIp, $bReturnListData = false ) {
-
+	public function isIpOnWhiteList( $sIp ) {
 		$aIpData = $this->getIpListData( $sIp, array( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE ) );
-		$bOnList = count( $aIpData ) > 0;
-
-		return ( $bOnList && $bReturnListData ) ? $aIpData : $bOnList;
+		return ( count( $aIpData ) > 0 );
 	}
 
 	/**

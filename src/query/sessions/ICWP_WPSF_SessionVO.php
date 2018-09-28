@@ -45,14 +45,28 @@ class ICWP_WPSF_SessionVO {
 	 * @return int
 	 */
 	public function getLastActivityAt() {
-		return $this->getRowData()->last_activity_at;
+		return (int)$this->getRowData()->last_activity_at;
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getLoggedInAt() {
-		return $this->getRowData()->logged_in_at;
+		return (int)$this->getRowData()->logged_in_at;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLoginIntentExpiresAt() {
+		return (int)$this->getRowData()->login_intent_expires_at;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLoginIntentCodeEmail() {
+		return (string)$this->getRowData()->li_code_email;
 	}
 
 	/**
@@ -66,7 +80,7 @@ class ICWP_WPSF_SessionVO {
 	 * @return int
 	 */
 	public function getSecAdminAt() {
-		return $this->getRowData()->secadmin_at;
+		return (int)$this->getRowData()->secadmin_at;
 	}
 
 	/**

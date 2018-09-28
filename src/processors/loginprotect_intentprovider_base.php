@@ -27,7 +27,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		}
 
 		if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
-			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
+//			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
 		// Necessary so we don't show user intent to people without it
@@ -40,6 +40,24 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserEditProfile' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 		}
+	}
+
+	/**
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		$this->processLoginAttempt_Filter( $oUser );
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+		$this->processLoginAttempt_Filter( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**

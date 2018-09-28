@@ -9,6 +9,8 @@
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
+    "run_if_whitelisted":     false,
+    "run_if_verified_bot":    false,
     "order":                  40
   },
   "admin_notices": {

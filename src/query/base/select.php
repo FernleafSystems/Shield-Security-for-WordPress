@@ -117,13 +117,16 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	public function setColumnsToSelect( $aColumns ) {
 		if ( is_array( $aColumns ) ) {
-			$this->aColumnsToSelect = array_unique( array_filter(
-				array_map( 'trim', $aColumns ),
-				function ( $sCol ) {
-					$aDef = $this->getColumnsDefinition();
-					return !empty( $sCol ) && ( empty( $aDef ) || in_array( $sCol, $aDef ) );
+			$aColumns = array_filter( array_map( 'trim', $aColumns ) );
+			$aDef = $this->getColumnsDefinition();
+			if ( !empty( $aDef ) ) {
+				foreach ( $aColumns as $nKey => $sCol ) {
+					if ( !in_array( $sCol, $aDef ) ) {
+						unset( $aColumns[ $nKey ] );
+					}
 				}
-			) );
+			}
+			$this->aColumnsToSelect = array_unique( $aColumns );
 		}
 		return $this;
 	}
