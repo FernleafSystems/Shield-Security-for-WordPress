@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return !is_null( $this->getSession() );
+		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
 	}
 
 	public function insertCustomJsVars() {
@@ -249,8 +249,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getOptionsVo()->isModuleWhitelistExempt() || !$this->isVisitorWhitelisted() )
-			   && !$this->isVerifiedBot()
+		$oOpts = $this->getOptionsVo();
+		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
+			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
 			   && parent::isReadyToExecute();
 	}
 
@@ -258,7 +259,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isVisitorWhitelisted() {
-		return apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->getConn()
+					 ->getModule( 'ips' )
+					 ->getProcessor();
+		return $oPro->isCurrentIpWhitelisted();
 	}
 
 	/**

@@ -107,6 +107,25 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
+	 * @param WP_User|WP_Error $oUser
+	 */
+	protected function initLoginIntent( $oUser ) {
+		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
+			 && $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
+
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
+			$oF = $this->getMod();
+			if ( !$oF->canUserMfaSkip( $oUser ) ) {
+				$nTimeout = (int)apply_filters(
+					$oF->prefix( 'login_intent_timeout' ),
+					$oF->getDef( 'login_intent_timeout' )
+				);
+				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout );
+			}
+		}
+	}
+
+	/**
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
 	private function processLoginIntent() {
@@ -160,40 +179,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			// the login has already been fully validated and the login intent was deleted.
 			// also means new installation don't get booted out
 		}
-	}
-
-	/**
-	 */
-	public function onWpLogout() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-
-		$this->removeLoginIntent();
-
-		// support for WooCommerce Social Login
-		if ( $oFO->getIfSupport3rdParty() ) {
-			$this->getController()->getCurrentUserMeta()->wc_social_login_valid = false;
-		}
-	}
-
-	/**
-	 * @param WP_User|WP_Error $oUser
-	 * @return WP_User
-	 */
-	protected function initLoginIntent( $oUser ) {
-		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User ) {
-
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
-			$oF = $this->getMod();
-			if ( !$oF->canUserMfaSkip( $oUser ) ) {
-				$nTimeout = (int)apply_filters(
-					$oF->prefix( 'login_intent_timeout' ),
-					$oF->getDef( 'login_intent_timeout' )
-				);
-				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout );
-			}
-		}
-		return $oUser;
 	}
 
 	/**
@@ -338,6 +323,20 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			 ->display();
 
 		return true;
+	}
+
+	/**
+	 */
+	public function onWpLogout() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+
+		$this->removeLoginIntent();
+
+		// support for WooCommerce Social Login
+		if ( $oFO->getIfSupport3rdParty() ) {
+			$this->getController()->getCurrentUserMeta()->wc_social_login_valid = false;
+		}
 	}
 
 	/**

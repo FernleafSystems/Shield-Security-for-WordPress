@@ -10,7 +10,8 @@
     "premium":               false,
     "access_restricted":     true,
     "auto_load_processor":   true,
-    "whitelist_exempt":      true
+    "run_if_whitelisted":    true,
+    "run_if_verified_bot":   true
   },
   "sections":    [
     {
@@ -57,8 +58,9 @@
       "logged_in_at",
       "last_activity_at",
       "last_activity_uri",
-      "secadmin_at",
+      "li_code_email",
       "login_intent_expires_at",
+      "secadmin_at",
       "created_at",
       "deleted_at"
     ]

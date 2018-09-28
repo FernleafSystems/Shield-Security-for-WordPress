@@ -27,6 +27,7 @@ class ICWP_WPSF_Query_Sessions_Insert extends ICWP_WPSF_Query_BaseInsert {
 			'last_activity_at'        => $nTimeStamp,
 			'last_activity_uri'       => $oDP->server( 'REQUEST_URI' ),
 			'login_intent_expires_at' => 0,
+			'secadmin_at'             => 0,
 		);
 		return $this->setInsertData( $aData )->query() === 1;
 	}

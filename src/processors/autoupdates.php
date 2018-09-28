@@ -270,21 +270,10 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		// first, is global auto updates for plugins set
 		if ( $oFO->isAutoupdateAllPlugins() ) {
 			$this->doStatIncrement( 'autoupdates.plugins.all' );
-			return true;
-		}
-
-		// If it's this plugin and autoupdate this plugin is set...
-		if ( $sFile === $oFO->getConn()->getPluginBaseFile() ) {
 			$bDoAutoUpdate = true;
-			if ( $this->loadWp()->isRunningAutomaticUpdates() ) {
-				$this->doStatIncrement( 'autoupdates.plugins.self' );
-			}
 		}
-		else {
-			$aAutoUpdates = $oFO->getAutoupdatePlugins();
-			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
-				$bDoAutoUpdate = true;
-			}
+		else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
+			$bDoAutoUpdate = true;
 		}
 
 		return $bDoAutoUpdate;

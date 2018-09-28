@@ -113,7 +113,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 			$sMessage = _wpsf__( 'Security Admin Key was not correct.' );
 		}
 		else {
-			$bSuccess = $oModule->setPermissionToSubmit( true );
+			$bSuccess = $oModule->setSecurityAdminStatusOnOff( true );
 			$aData = array(
 				'rerender' => true
 			);

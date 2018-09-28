@@ -28,6 +28,12 @@
 	color: rgb(103, 21, 0);
 	text-align: right;
 }
+
+.plugin_update_message {
+	color: #dd3333;
+	font-weight: bolder;
+}
+
 .notice-icon {
 	display: none;
 	float: left;

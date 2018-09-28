@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
 			if ( !empty( $oSession ) ) {
 				$this->queryTerminateSession( $oSession );
-				$this->oCurrent = null;
+				$this->clearCurrentSession();
 			}
 
 			$this->queryCreateSession( $this->getSessionId(), $oUser->user_login );
@@ -148,7 +148,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 		$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
 		$this->getController()->clearSession();
-		$this->oCurrent = null;
+		$this->clearCurrentSession();
 		return $mResult;
 	}
 
@@ -165,8 +165,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			logged_in_at int(15) NOT NULL DEFAULT 0,
 			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			last_activity_uri text NOT NULL DEFAULT '',
-			secadmin_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			li_code_email varchar(6) NOT NULL DEFAULT '',
 			login_intent_expires_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			secadmin_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
@@ -178,10 +179,18 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_SessionVO|null
 	 */
 	public function getCurrentSession() {
-		if ( is_null( $this->oCurrent ) ) {
+		if ( empty( $this->oCurrent ) ) {
 			$this->oCurrent = $this->loadCurrentSession();
 		}
 		return $this->oCurrent;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearCurrentSession() {
+		$this->oCurrent = null;
+		return $this;
 	}
 
 	/**

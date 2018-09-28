@@ -63,6 +63,13 @@ class ICWP_WPSF_SessionVO {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getLoginIntentCodeEmail() {
+		return (string)$this->getRowData()->li_code_email;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getSessionId() {

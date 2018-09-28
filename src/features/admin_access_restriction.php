@@ -67,7 +67,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 		if ( $this->checkAdminAccessKeySubmission() ) {
 
-			if ( $this->setPermissionToSubmit( true ) ) {
+			if ( $this->setSecurityAdminStatusOnOff( true ) ) {
 				$aResponse[ 'success' ] = true;
 				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
 									   .' '._wpsf__( 'Please wait' ).' ...';
@@ -91,30 +91,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			'success' => 'true',
 			'html'    => $this->renderAdminAccessAjaxLoginForm()
 		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_RestrictedAccess() {
-		$aResponse = array();
-
-		if ( $this->checkAdminAccessKeySubmission() ) {
-
-			if ( $this->setPermissionToSubmit( true ) ) {
-				$aResponse[ 'success' ] = true;
-				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
-									   .' '._wpsf__( 'Please wait' ).' ...';
-			}
-			else {
-				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
-			}
-		}
-		else {
-			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
-		}
-
-		return $aResponse;
 	}
 
 	/**
@@ -241,11 +217,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-		// We should only use setPermissionToSubmit() here, before any headers elsewhere are sent out.
-		if ( $this->isAccessKeyRequest() ) {
-			if ( $this->checkAdminAccessKeySubmission() ) {
-				$this->setPermissionToSubmit( true );
-			}
+		if ( $this->isAccessKeyRequest() && $this->checkAdminAccessKeySubmission() ) {
+			$this->setSecurityAdminStatusOnOff( true );
 		}
 
 		// Verify whitelabel images
@@ -309,14 +282,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param bool $bPermission
+	 * @param bool $bSetOn
 	 * @return bool
 	 */
-	public function setPermissionToSubmit( $bPermission = false ) {
-		$oSession = $this->getSession();
-		$oUpdater = $this->getSessionsProcessor()
-						 ->getQueryUpdater();
-		return $bPermission ? $oUpdater->startSecurityAdmin( $oSession ) : $oUpdater->terminateSecurityAdmin( $oSession );
+	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
+		$oUpdater = $this->getSessionsProcessor()->getQueryUpdater();
+		return $bSetOn ?
+			$oUpdater->startSecurityAdmin( $this->getSession() )
+			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
 	}
 
 	/**
@@ -692,7 +665,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 		if ( $this->getAccessKeyHash() == self::HASH_DELETE ) {
 			$this->clearAdminAccessKey()
-				 ->setPermissionToSubmit( false );
+				 ->setSecurityAdminStatusOnOff( false );
 		}
 
 		// Restricting Activate Plugins also means restricting the rest.
