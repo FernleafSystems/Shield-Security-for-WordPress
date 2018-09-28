@@ -289,3 +289,82 @@ iCWP_WPSF_SecurityAdmin.initialise();
 if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 	iCWP_WPSF_HackGuard_Reinstall.initialise();
 }
+if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+
+	var iCWP_WPSF_Plugin_Deactivate_Survey = new function () {
+
+		this.initialise = function () {
+			jQuery( document ).ready( function () {
+
+				jQuery( document ).on( "click",
+					'[data-plugin="' + icwp_wpsf_vars_plugin.file + '"] span.deactivate a',
+					promptReinstall
+				);
+				return;
+				var oShareSettings = {
+					title: 'Deactivate Shield Security',
+					dialogClass: 'wp-dialog',
+					autoOpen: false,
+					draggable: false,
+					width: 'auto',
+					modal: true,
+					resizable: false,
+					closeOnEscape: true,
+					position: {
+						my: "center",
+						at: "center",
+						of: window
+					},
+					open: function () {
+						// close dialog by clicking the overlay behind it
+						jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
+							jQuery( this ).dialog( 'close' );
+						} )
+					},
+					create: function () {
+						// style fix for WordPress admin
+						jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
+					}
+				};
+
+				var $oSurveyDialog = jQuery( '#icwpWpsfReinstall' );
+				oShareSettings[ 'buttons' ] = {
+					"Okay, Re-Install It": function () {
+						jQuery( this ).dialog( "close" );
+						reinstall_plugin( 1 );
+					},
+					"Cancel": function () {
+						jQuery( this ).dialog( "close" );
+					}
+				};
+				$oSurveyDialog.dialog( oShareSettings );
+			} );
+		};
+
+		var promptReinstall = function ( event ) {
+			event.preventDefault();
+			alert( 'here1' );
+			return false;
+		};
+
+		var reinstall_plugin = function ( bReinstall ) {
+			iCWP_WPSF_BodyOverlay.show();
+
+			var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
+			$aData[ 'file' ] = sActiveFile;
+			$aData[ 'reinstall' ] = bReinstall;
+			$aData[ 'activate' ] = bActivate;
+
+			jQuery.post( ajaxurl, $aData, function ( oResponse ) {
+
+			} ).always( function () {
+					location.reload( true );
+					bActivate = null;
+				}
+			);
+
+			return false;
+		};
+	}();
+	iCWP_WPSF_Plugin_Deactivate_Survey.initialise();
+}

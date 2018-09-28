@@ -711,6 +711,23 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->prefixOptionKey( $this->getDef( 'db_notes_name' ) );
 	}
 
+	public function insertCustomJsVars() {
+		parent::insertCustomJsVars();
+
+		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) ) {
+			wp_localize_script(
+				$this->prefix( 'global-plugin' ),
+				'icwp_wpsf_vars_plugin',
+				array(
+					'file' => $this->getConn()->getPluginBaseFile(),
+					'ajax_send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
+				)
+			);
+			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
+			wp_enqueue_style( 'wp-jquery-ui-dialog' );
+		}
+	}
+
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
