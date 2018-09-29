@@ -715,12 +715,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::insertCustomJsVars();
 
 		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) ) {
+			$sFile = $this->getConn()->getPluginBaseFile();
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				array(
-					'file' => $this->getConn()->getPluginBaseFile(),
+					'file'                        => $sFile,
 					'ajax_send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
+					'hrefs'                       => array(
+						'deactivate' => $this->loadWpPlugins()->getUrl_Deactivate( $sFile ),
+					),
 				)
 			);
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...

@@ -120,9 +120,24 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function printPluginDeactivateSurvey() {
 		$oWp = $this->loadWp();
 		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
+
+			$aOpts = array(
+				'confusing'   => "It's too confusing",
+				'expected'    => "It's not what I expected",
+				'accident'    => "I downloaded it accidentally",
+				'alternative' => "I'm already using an alternative",
+				'trust'       => "I don't trust the developer :(",
+				'not_work'    => "It doesn't work",
+				'errors'      => "I'm getting errors",
+			);
+			shuffle( $aOpts );
+
 			$aRenderData = array(
-				'strings'     => array(
+				'strings' => array(
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+				),
+				'inputs'  => array(
+					'checkboxes' => $aOpts
 				),
 				'js_snippets' => array()
 			);

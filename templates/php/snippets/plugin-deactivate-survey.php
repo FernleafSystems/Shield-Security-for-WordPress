@@ -1,13 +1,14 @@
-<div id="icwpWpsfReinstall" class="hidden icwp-wpsf-dialog">
-	<h3>Really Re-Install Plugin?</h3>
-	<p>WordPress will now download and install the <strong>latest available version</strong> of this plugin.</p>
-	<p>Note: In case of possible failure, it's preferred to do this while the plugin is not active.</p>
-</div>
-
-<div id="icwpWpsfActivateReinstall" class="hidden icwp-wpsf-dialog">
-	<h3>Re-Install First?</h3>
-	<p>For best security practices, Shield will download and re-install the
-		<strong>latest available version</strong> of this plugin.</p>
-	<p>This ensures the files for this plugin have not been corrupted in any way.</p>
-	<p>You can choose to 'Activate Only' (not recommended), or close this message to cancel activation.</p>
+<div id="icwpWpsfSurvey" class="hidden icwp-wpsf-dialog">
+	<h3>Would You Care To Share?</h3>
+	<p>Deactivating Shield makes us sad, but to help us improve we'd love to know why.</p>
+	<p>This is optional - will you take a second to tell us why you're deactivating Shield?</p>
+	<form>
+		<ul>
+			<?php foreach ( $inputs[ 'checkboxes' ] as $sKey => $sOpt ) : ?>
+				<li><label><input name="<?php echo $sKey; ?>" type="checkbox" value="Y">
+						<?php echo $sOpt; ?></label></li>
+			<?php endforeach; ?>
+		</ul>
+		<textarea style="width: 360px;" rows="3" placeholder="Any other specific details or comments?"></textarea>
+	</form>
 </div>

@@ -298,9 +298,9 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 				jQuery( document ).on( "click",
 					'[data-plugin="' + icwp_wpsf_vars_plugin.file + '"] span.deactivate a',
-					promptReinstall
+					promptSurvey
 				);
-				return;
+
 				var oShareSettings = {
 					title: 'Deactivate Shield Security',
 					dialogClass: 'wp-dialog',
@@ -324,16 +324,19 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 					create: function () {
 						// style fix for WordPress admin
 						jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
+					},
+					close: function () {
+						// window.location.href = icwp_wpsf_vars_plugin.hrefs.deactivate;
 					}
 				};
 
-				var $oSurveyDialog = jQuery( '#icwpWpsfReinstall' );
+				var $oSurveyDialog = jQuery( '#icwpWpsfSurvey' );
 				oShareSettings[ 'buttons' ] = {
-					"Okay, Re-Install It": function () {
+					"Close (I don't want to help)": function () {
 						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 1 );
 					},
-					"Cancel": function () {
+					"Yes (Send my feedback)": function () {
+						send_survey_deactivate( 1 );
 						jQuery( this ).dialog( "close" );
 					}
 				};
@@ -341,13 +344,13 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 			} );
 		};
 
-		var promptReinstall = function ( event ) {
+		var promptSurvey = function ( event ) {
 			event.preventDefault();
-			alert( 'here1' );
+			jQuery( '#icwpWpsfSurvey' ).dialog( 'open' );
 			return false;
 		};
 
-		var reinstall_plugin = function ( bReinstall ) {
+		var send_survey_deactivate = function ( bReinstall ) {
 			iCWP_WPSF_BodyOverlay.show();
 
 			var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
