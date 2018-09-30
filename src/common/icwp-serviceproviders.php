@@ -66,6 +66,13 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getIps_DuckDuckGo() {
+		return array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' );
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public function getIps_Pingdom() {
@@ -137,6 +144,28 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @param string $sUserAgent
 	 * @return bool
 	 */
+	public function isIp_BaiduBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_baidubot' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BaiduBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
 	public function isIp_BingBot( $sIp, $sUserAgent ) {
 		$oWp = $this->loadWp();
 
@@ -184,7 +213,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$bIsBot = false;
 		// We check the useragent if available
 		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'DuckDuckBot' ) !== false ) {
-			$bIsBot = in_array( $sIp, array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' ) );
+			$bIsBot = in_array( $sIp, $this->getIps_DuckDuckGo() );
 		}
 		return $bIsBot;
 	}
@@ -278,6 +307,29 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.html
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIp_YahooBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_yahoobot' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YahooBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
 	 * https://support.apple.com/en-gb/HT204683
 	 * https://discussions.apple.com/thread/7090135
 	 * Apple IPs start with '17.'
@@ -288,6 +340,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	private function verifyIp_AppleBot( $sIp, $sUserAgent = '' ) {
 		return ( $this->loadIpService()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
 			   && $this->isIpOfBot( 'Applebot/', '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	private function verifyIp_BaiduBot( $sIp, $sUserAgent = '' ) {
+		return $this->isIpOfBot( 'baidu', '#.*\.crawl\.baidu\.(com|jp)\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -318,7 +379,17 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	private function verifyIp_YahooBot( $sIp, $sUserAgent = '' ) {
+		return $this->isIpOfBot( 'yahoo!', '#.*\.crawl\.yahoo\.net\.?$#i', $sIp, $sUserAgent );
+	}
+
+	/**
 	 * Will test useragent, then attempt to resolve to hostname and back again
+	 * https://www.elephate.com/detect-verify-crawlers/
 	 * @param string $sBotUserAgent
 	 * @param string $sBotHostPattern
 	 * @param string $sReqIp

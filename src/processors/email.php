@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = array() ) {
 		return $this->send(
 			$sAddress,
-			$sSubject,
+			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),
 			'<html>'.implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) ).'</html>'
 		);
 	}
@@ -114,7 +114,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->emailFilters( true );
 		$bSuccess = wp_mail(
 			$this->verifyEmailAddress( $sAddress ),
-			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),
+			$sSubject,
 			$sMessageBody
 		);
 		$this->emailFilters( false );
