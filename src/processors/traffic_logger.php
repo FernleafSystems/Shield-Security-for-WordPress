@@ -105,6 +105,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 			   || $oSP->isIp_BingBot( $sIp, $sAgent )
 			   || $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
 			   || $oSP->isIp_YandexBot( $sIp, $sAgent )
+			   || $oSP->isIp_BaiduBot( $sIp, $sAgent )
+			   || $oSP->isIp_YahooBot( $sIp, $sAgent )
 			   || $oSP->isIp_AppleBot( $sIp, $sAgent );
 	}
 

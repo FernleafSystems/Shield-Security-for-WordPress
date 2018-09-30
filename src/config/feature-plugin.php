@@ -55,13 +55,6 @@
       "valid_admin": true,
       "delay_days":  30,
       "type":        "promo"
-    },
-    "translate-plugin":           {
-      "id":          "translate-plugin",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  45,
-      "type":        "promo"
     }
   },
   "sections":      [
