@@ -344,12 +344,12 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 		var promptSurvey = function ( event ) {
 			event.preventDefault();
+			iCWP_WPSF_BodyOverlay.show();
 			jQuery( '#icwpWpsfSurvey' ).dialog( 'open' );
 			return false;
 		};
 
 		var send_survey_deactivate = function () {
-			iCWP_WPSF_BodyOverlay.show();
 
 			var $aData = icwp_wpsf_vars_plugin.ajax.send_deactivate_survey;
 			jQuery.each( jQuery( '#icwpWpsfSurveyForm' ).serializeArray(),
