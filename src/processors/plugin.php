@@ -122,22 +122,21 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
 
 			$aOpts = array(
-				'confusing'   => "It's too confusing",
-				'expected'    => "It's not what I expected",
-				'accident'    => "I downloaded it accidentally",
-				'alternative' => "I'm already using an alternative",
-				'trust'       => "I don't trust the developer :(",
-				'not_work'    => "It doesn't work",
-				'errors'      => "I'm getting errors",
+				'reason_confusing'   => "It's too confusing",
+				'reason_expected'    => "It's not what I expected",
+				'reason_accident'    => "I downloaded it accidentally",
+				'reason_alternative' => "I'm already using an alternative",
+				'reason_trust'       => "I don't trust the developer :(",
+				'reason_not_work'    => "It doesn't work",
+				'reason_errors'      => "I'm getting errors",
 			);
-			shuffle( $aOpts );
 
 			$aRenderData = array(
-				'strings' => array(
+				'strings'     => array(
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
 				),
-				'inputs'  => array(
-					'checkboxes' => $aOpts
+				'inputs'      => array(
+					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
 				),
 				'js_snippets' => array()
 			);

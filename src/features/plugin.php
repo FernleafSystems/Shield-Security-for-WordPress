@@ -173,6 +173,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 						$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
 					}
 					break;
+				case 'send_deactivate_survey':
+					$aAjaxResponse = $this->ajaxExec_SendDeactivateSurvey();
+					break;
 			}
 		}
 		return parent::handleAjax( $aAjaxResponse );
@@ -220,6 +223,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function ajaxExec_SetPluginTrackingPerm() {
 		$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
+		return array( 'success' => true );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_SendDeactivateSurvey() {
+		wp_mail( 'test@paulgoodchild.net', 'test '.rand(), 'asdf' );
 		return array( 'success' => true );
 	}
 
@@ -720,9 +731,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				array(
-					'file'                        => $sFile,
-					'ajax_send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
-					'hrefs'                       => array(
+					'file'  => $sFile,
+					'ajax'  => array(
+						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
+					),
+					'hrefs' => array(
 						'deactivate' => $this->loadWpPlugins()->getUrl_Deactivate( $sFile ),
 					),
 				)

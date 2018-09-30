@@ -150,8 +150,7 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			event.preventDefault();
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_lg.ajax_gen_backup_codes;
-			jQuery.post( ajaxurl, $aData,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_gen_backup_codes,
 				function ( oResponse ) {
 					alert( 'Your login backup code: ' + oResponse.data.code );
 				}
@@ -167,8 +166,7 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			event.preventDefault();
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_lg.ajax_del_backup_codes;
-			jQuery.post( ajaxurl, $aData,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_del_backup_codes,
 				function ( oResponse ) {
 				}
 			).always( function () {
@@ -302,7 +300,7 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 				);
 
 				var oShareSettings = {
-					title: 'Deactivate Shield Security',
+					title: 'Care To Share?',
 					dialogClass: 'wp-dialog',
 					autoOpen: false,
 					draggable: false,
@@ -326,7 +324,7 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 						jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
 					},
 					close: function () {
-						// window.location.href = icwp_wpsf_vars_plugin.hrefs.deactivate;
+						window.location.href = icwp_wpsf_vars_plugin.hrefs.deactivate;
 					}
 				};
 
@@ -336,7 +334,7 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 						jQuery( this ).dialog( "close" );
 					},
 					"Yes (Send my feedback)": function () {
-						send_survey_deactivate( 1 );
+						send_survey_deactivate();
 						jQuery( this ).dialog( "close" );
 					}
 				};
@@ -350,21 +348,18 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 			return false;
 		};
 
-		var send_survey_deactivate = function ( bReinstall ) {
+		var send_survey_deactivate = function () {
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
-			$aData[ 'file' ] = sActiveFile;
-			$aData[ 'reinstall' ] = bReinstall;
-			$aData[ 'activate' ] = bActivate;
-
-			jQuery.post( ajaxurl, $aData, function ( oResponse ) {
-
-			} ).always( function () {
-					location.reload( true );
-					bActivate = null;
+			var $aData = icwp_wpsf_vars_plugin.ajax.send_deactivate_survey;
+			jQuery.each( jQuery( '#icwpWpsfSurveyForm' ).serializeArray(),
+				function ( _, kv ) {
+					$aData[ kv.name ] = kv.value;
 				}
 			);
+
+			jQuery.post( ajaxurl, $aData );
+			setTimeout( function () {}, 2000 ); // give the request time to complete
 
 			return false;
 		};
