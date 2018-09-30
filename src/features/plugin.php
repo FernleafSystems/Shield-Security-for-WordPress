@@ -230,7 +230,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_SendDeactivateSurvey() {
-		wp_mail( 'test@paulgoodchild.net', 'test '.rand(), 'asdf' );
+		$aResults = array();
+		foreach ( $_POST as $sKey => $sValue ) {
+			if ( strpos( $sKey, 'reason_' ) === 0 ) {
+				$aResults[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
+			}
+		}
+		$this->getEmailProcessor()
+			 ->send(
+				 'shield-deactivate-survey@paulgoodchild.net',
+				 'Shield Deactivation Survey',
+				 implode( "\n<br/>", $aResults )
+			 );
 		return array( 'success' => true );
 	}
 

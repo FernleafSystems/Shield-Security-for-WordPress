@@ -8,6 +8,6 @@
 						<?php echo $sOpt; ?></label></li>
 			<?php endforeach; ?>
 		</ul>
-		<textarea style="width: 360px;" rows="3" placeholder="Any other comments?"></textarea>
+		<textarea name="reason_comments" style="width: 360px;" rows="3" placeholder="Any other comments?"></textarea>
 	</form>
 </div>
