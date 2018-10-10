@@ -8,7 +8,7 @@ require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
 
 class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
-	protected $aWhitelistPages;
+	protected $aWhitelist;
 
 	/**
 	 * @var array
@@ -422,50 +422,13 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getWhitelistPages() {
-		if ( !isset( $this->aWhitelistPages ) ) {
-
-			$aDefaultWlPages = array(
-				'/wp-admin/options-general.php' => array(),
-				'/wp-admin/options.php'         => array(
-					'home',
-					'siteurl'
-				),
-				'/wp-admin/post-new.php'        => array(),
-				'/wp-admin/page-new.php'        => array(),
-				'/wp-admin/link-add.php'        => array(),
-				'/wp-admin/media-upload.php'    => array(),
-				'/wp-admin/post.php'            => array( 'content' ),
-				'/wp-admin/plugin-editor.php'   => array( 'newcontent' ),
-				'/wp-admin/page.php'            => array(),
-				'/wp-admin/admin-ajax.php'      => array(),
-				'/wp-comments-post.php'         => array(
-					'url',
-					'comment'
-				),
-				'*'                             => array(
-					'g-recaptcha-response',
-					'verify_sign',
-					'txn_id',
-					'wp_http_referer',
-					'_wp_http_referer',
-					'_wp_original_http_referer',
-					'pwd',
-					'url',
-					'referredby',
-					'redirect_to',
-					'jetpack_sso_original_request',
-					'jetpack_sso_redirect_to',
-					'/^wordpress_logged_in_[0-9a-f]+$/',
-				)
-			);
-
+		if ( !isset( $this->aWhitelist ) ) {
 			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 			$oFO = $this->getMod();
-			$aCustomWhitelistPageParams = $oFO->getPageParamWhitelist();
-			$this->aWhitelistPages = array_merge_recursive( $aDefaultWlPages, $aCustomWhitelistPageParams );
+			$this->aWhitelist = $this->loadDP()
+									 ->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
 		}
-
-		return $this->aWhitelistPages;
+		return $this->aWhitelist;
 	}
 
 	/**
