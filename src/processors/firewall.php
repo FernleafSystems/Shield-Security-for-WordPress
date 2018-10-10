@@ -426,6 +426,10 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$aDefaultWlPages = array(
 				'/wp-admin/options-general.php' => array(),
+				'/wp-admin/options.php'         => array(
+					'home',
+					'siteurl'
+				),
 				'/wp-admin/post-new.php'        => array(),
 				'/wp-admin/page-new.php'        => array(),
 				'/wp-admin/link-add.php'        => array(),
