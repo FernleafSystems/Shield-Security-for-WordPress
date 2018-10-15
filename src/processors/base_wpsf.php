@@ -136,15 +136,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * Used to mark an IP address for transgression/black-mark
-	 * @return $this
-	 */
-	public function setIpTransgressed() {
-		add_filter( $this->getMod()->prefix( 'ip_black_mark' ), '__return_true' );
-		return $this;
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function isRecaptchaInvisible() {
@@ -179,20 +170,12 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
-	 * - it is not enabled by default.
-	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
-	 * identifiable data.
-	 * @param $aData
-	 * @return array
+	 * Used to mark an IP address for transgression/black-mark
+	 * @return $this
 	 */
-	public function tracking_DataCollect( $aData ) {
-		if ( !is_array( $aData ) ) {
-			$aData = array();
-		}
-		$oFO = $this->getMod();
-		$aData[ $oFO->getSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
-		return $aData;
+	public function setIpTransgressed() {
+		add_filter( $this->getMod()->prefix( 'ip_black_mark' ), '__return_true' );
+		return $this;
 	}
 
 	/**
@@ -233,6 +216,23 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			$this->aStatistics = array();
 		}
 		return $this->aStatistics;
+	}
+
+	/**
+	 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
+	 * - it is not enabled by default.
+	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
+	 * identifiable data.
+	 * @param $aData
+	 * @return array
+	 */
+	public function tracking_DataCollect( $aData ) {
+		if ( !is_array( $aData ) ) {
+			$aData = array();
+		}
+		$oFO = $this->getMod();
+		$aData[ $oFO->getSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
+		return $aData;
 	}
 
 	/**

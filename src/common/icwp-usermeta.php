@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
 /**
  * @property string $email_secret
  * @property bool   $email_validated
+ * @property string $backupcode_secret
+ * @property string $backupcode_validated
  * @property string $ga_secret
  * @property bool   $ga_validated
  * @property array  $hash_loginmfa
@@ -14,9 +16,7 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
  * @property int    $pass_check_failed_at
  * @property string $yubi_secret
  * @property bool   $yubi_validated
- * @property string $code_tfaemail
  * @property int    $last_login_at
- * @property int    $login_intent_expires_at
  * @property string $prefix
  * @property int    $user_id
  * @property bool   $wc_social_login_valid

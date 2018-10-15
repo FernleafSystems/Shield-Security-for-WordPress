@@ -10,7 +10,8 @@
     "access_restricted":     true,
     "premium":               true,
     "has_custom_actions":    true,
-    "whitelist_exempt":      true,
+    "run_if_whitelisted":    false,
+    "run_if_verified_bot":   true,
     "order":                 110
   },
   "requirements": {
@@ -88,7 +89,7 @@
         },
         {
           "value_key": "search",
-          "text":      "Search Bots (i.e. Google, Bing, DuckDuckGo)"
+          "text":      "Search Bots (i.e. Google, Bing, DuckDuckGo, Yandex, Baidu, Apple)"
         },
         {
           "value_key": "uptime",
@@ -100,6 +101,17 @@
       "name":          "Traffic Log Exclusions",
       "summary":       "Select Which Types Of Requests To Exclude",
       "description":   "Deselect any requests that you don't want to appear in the traffic viewer."
+    },
+    {
+      "key":         "custom_exclusions",
+      "section":     "section_traffic_options",
+      "default":     [],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Custom Exclusions",
+      "summary":     "Provide Custom Traffic Exclusions",
+      "description": "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
     },
     {
       "key":         "auto_clean",

@@ -29,7 +29,7 @@
 			) }}
 		</div>
 		{{ slideMacros.formInput_Hidden( 'wizard-step', 'authemail' ) }}
-		{{ slideMacros.formInput_Submit( 'Send Code' ) }}
+		{{ slideMacros.formInput_Submit( 'Send Code', 'EmailSendCode' ) }}
 	</form>
 
 	<script type="text/javascript">
@@ -37,7 +37,12 @@
 			if ( oResponse.success ) {
 				var $oForm = jQuery( event.target );
 				jQuery( '.stage-verificationcode', $oForm ).slideDown();
-				jQuery( 'button[type=submit]', $oForm ).prop( 'disabled', false );
+				var $oButt = jQuery( 'button[name=EmailSendCode]', $oForm );
+				$oButt.prop( 'disabled', false );
+				$oButt.prop( 'value', 'Now Click To Verify Your Code' );
+				$oButt.html( 'Now Click To Verify Your Code' );
+				$oButt.removeClass( 'btn-primary' );
+				$oButt.addClass( 'btn-warning' );
 			}
 		} );
 	</script>

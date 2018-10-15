@@ -10,7 +10,8 @@
     "access_restricted":     true,
     "premium":               false,
     "has_custom_actions":    true,
-    "whitelist_exempt":      true,
+    "run_if_whitelisted":    true,
+    "run_if_verified_bot":   true,
     "order":                 100
   },
   "admin_notices": {
@@ -134,6 +135,7 @@
     {
       "key":         "text_loginfailed",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",
@@ -173,6 +175,7 @@
     {
       "key":         "text_remainingtrans",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",

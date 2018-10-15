@@ -33,12 +33,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$sExpiresAt = 'n/a';
 		}
 
+		$nLastReqAt = $oCurrent->getLastRequestAt();
 		$aLicenseTableVars = array(
 			'product_name'    => $this->getLicenseItemName(),
-			'license_active'  => $this->hasValidWorkingLicense() ? 'Active' : 'Not Active',
+			'license_active'  => $this->hasValidWorkingLicense() ? _wpsf__( 'Active' ) : _wpsf__( 'Not Active' ),
 			'license_expires' => $sExpiresAt,
 			'license_email'   => $oCurrent->getCustomerEmail(),
-			'last_checked'    => $oWp->getTimeStampForDisplay( $oCurrent->getLastRequestAt() ),
+			'last_checked'    => empty( $nLastReqAt ) ? _wpsf__( 'Never' ) : $oWp->getTimeStampForDisplay( $nLastReqAt ),
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		);
 		if ( !$this->isKeyless() ) {
@@ -286,7 +287,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oLookupLicense = $this->lookupOfficialLicense();
 			if ( $oLookupLicense->isValid() ) {
 				$oCurrent = $oLookupLicense;
-				$oLookupLicense->updateLastVerifiedAt();
+				$oLookupLicense->updateLastVerifiedAt( true );
 				$this->activateLicense()
 					 ->clearLastErrors();
 				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
@@ -333,7 +334,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function activateLicense() {
 		if ( !$this->isLicenseActive() ) {
-			$this->setOpt( 'license_activated_at', $this->loadLicense()->getLastRequestAt() );
+			$nAt = $this->loadLicense()->getLastRequestAt();
+			$this->setOptAt( 'license_activated_at', $nAt > 0 ? $nAt : null );
 		}
 		return $this;
 	}

@@ -289,13 +289,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			add_action( 'wp_ajax_nopriv_'.$this->prefix(), array( $this, 'ajaxAction' ) );
 		}
 
+		$sBaseFile = $this->getPluginBaseFile();
 		add_filter( 'all_plugins', array( $this, 'filter_hidePluginFromTableList' ) );
 		add_filter( 'all_plugins', array( $this, 'doPluginLabels' ) );
-		add_filter( 'plugin_action_links_'.$this->getPluginBaseFile(), array( $this, 'onWpPluginActionLinks' ), 50, 1 );
+		add_filter( 'plugin_action_links_'.$sBaseFile, array( $this, 'onWpPluginActionLinks' ), 50, 1 );
 		add_filter( 'plugin_row_meta', array( $this, 'onPluginRowMeta' ), 50, 2 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'filter_hidePluginUpdatesFromUI' ) );
-		add_action( 'in_plugin_update_message-'.$this->getPluginBaseFile(), array( $this, 'onWpPluginUpdateMessage' ) );
-
+		add_action( 'in_plugin_update_message-'.$sBaseFile, array( $this, 'onWpPluginUpdateMessage' ) );
+		add_filter( 'site_transient_update_plugins', array( $this, 'blockIncompatibleUpdates' ) );
 		add_filter( 'auto_update_plugin', array( $this, 'onWpAutoUpdate' ), 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', array( $this, 'setUpdateFirstDetectedAt' ) );
 
@@ -416,7 +417,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sAction = $this->loadWpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
 		ob_start();
 		$aResponseData = apply_filters( $this->prefix( $sAction ), array() );
-		$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
+		if ( empty( $aResponseData ) ) {
+			$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
+		}
 		$sNoise = ob_get_clean();
 
 		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {
@@ -587,11 +590,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 					$sShow = $aLink[ 'show' ];
 					$bShow = ( $sShow == 'always' ) || ( $bPro && $sShow == 'pro' ) || ( !$bPro && $sShow == 'free' );
-					if ( !$oDP->validUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
+					if ( !$oDP->isValidUrl( $aLink[ 'href' ] ) && method_exists( $this, $aLink[ 'href' ] ) ) {
 						$aLink[ 'href' ] = $this->{$aLink[ 'href' ]}();
 					}
 
-					if ( !$bShow || !$oDP->validUrl( $aLink[ 'href' ] )
+					if ( !$bShow || !$oDP->isValidUrl( $aLink[ 'href' ] )
 						 || empty( $aLink[ 'name' ] ) || empty( $aLink[ 'href' ] ) ) {
 						continue;
 					}
@@ -627,25 +630,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpEnqueueAdminJs() {
 		$sVers = $this->getVersion();
 
-		if ( $this->isValidAdminArea() ) {
-			$aAdminJs = $this->getPluginSpec_Include( 'admin' );
-			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-				$sDep = false;
-				foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDep ? array( $sDep ) : array(), $sVers );
-						wp_enqueue_script( $sUnique );
-						$sDep = $sUnique;
-					}
+		$aAdminJs = $this->getPluginSpec_Include( 'admin' );
+		if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
+			$sDep = false;
+			foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
+				$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
+				if ( !empty( $sUrl ) ) {
+					$sUnique = $this->prefix( $sAsset );
+					wp_register_script( $sUnique, $sUrl, $sDep ? array( $sDep ) : array(), $sVers );
+					wp_enqueue_script( $sUnique );
+					$sDep = $sUnique;
 				}
 			}
 		}
 
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( isset( $aAdminJs[ 'js' ] ) && !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
+			if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 				$sDep = false;
 				foreach ( $aAdminJs[ 'js' ] as $sAsset ) {
 
@@ -674,7 +675,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->isValidAdminArea() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
-			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
+			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
@@ -690,7 +691,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->getIsPage_PluginAdmin() ) {
 			$aAdminCss = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( isset( $aAdminCss[ 'css' ] ) && !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
+			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
 				$sDependent = false;
 				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
@@ -716,12 +717,28 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		}
 		else {
 			$sMessage = sprintf(
-				'<div class="%s plugin_update_message">%s</div>',
+				' <span class="%s plugin_update_message">%s</span>',
 				$this->getPluginPrefix(),
 				$sMessage
 			);
 		}
 		echo $sMessage;
+	}
+
+	/**
+	 * We protect against providing updates for Shield v7.0.0
+	 * @param stdClass $oUpdates
+	 * @return stdClass
+	 */
+	public function blockIncompatibleUpdates( $oUpdates ) {
+		$sFile = $this->getPluginBaseFile();
+		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
+			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
+				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
+				unset( $oUpdates->response[ $sFile ] );
+			}
+		}
+		return $oUpdates;
 	}
 
 	/**
@@ -780,6 +797,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( !$oWp->isRunningAutomaticUpdates() && $sAutoupdateSpec == 'confidence' ) {
 				$sAutoupdateSpec = 'yes'; // so that we appear to be automatically updating
 			}
+
+			$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
+
+			/** We block automatic updates for Shield v7+ if PHP < 5.3 */
+//			if ( version_compare( $sNewVersion, '7.0.0', '>=' )
+//				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.3' )
+//			) {
+//				$sAutoupdateSpec = 'block';
+//			}
 
 			switch ( $sAutoupdateSpec ) {
 
@@ -843,7 +869,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oDP = $this->loadDP();
 		foreach ( array( '16x16', '32x32', '128x128' ) as $sSize ) {
 			$sKey = 'icon_url_'.$sSize;
-			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->validUrl( $aLabels[ $sKey ] ) ) {
+			if ( !empty( $aLabels[ $sKey ] ) && !$oDP->isValidUrl( $aLabels[ $sKey ] ) ) {
 				$aLabels[ $sKey ] = $this->getPluginUrl_Image( $aLabels[ $sKey ] );
 			}
 		}

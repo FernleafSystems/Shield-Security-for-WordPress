@@ -25,21 +25,21 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @param string $sWpUsername
 	 * @param string $sSessionId
+	 * @param string $sWpUsername
 	 * @return ICWP_WPSF_SessionVO|null
 	 */
-	public function retrieveUserSession( $sWpUsername, $sSessionId ) {
-		$aData = $this->selectForUserSession( $sWpUsername, $sSessionId );
+	public function retrieveUserSession( $sSessionId, $sWpUsername = '' ) {
+		$aData = $this->selectForUserSession( $sSessionId, $sWpUsername );
 		return ( count( $aData ) == 1 ) ? array_shift( $aData ) : null;
 	}
 
 	/**
-	 * @param string $sWpUsername
 	 * @param string $sSessionId
+	 * @param string $sWpUsername
 	 * @return ICWP_WPSF_SessionVO[]
 	 */
-	protected function selectForUserSession( $sWpUsername = '', $sSessionId = '' ) {
+	protected function selectForUserSession( $sSessionId = '', $sWpUsername = '' ) {
 		if ( !empty( $sWpUsername ) ) {
 			$this->addWhereEquals( 'wp_username', $sWpUsername );
 		}

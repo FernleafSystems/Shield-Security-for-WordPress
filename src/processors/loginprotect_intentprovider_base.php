@@ -27,7 +27,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		}
 
 		if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
-			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
+//			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
 		// Necessary so we don't show user intent to people without it
@@ -37,9 +37,27 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 
 		if ( $this->getController()->isValidAdminArea( true ) ) {
-			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserProfile' ) );
+			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserEditProfile' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 		}
+	}
+
+	/**
+	 * @param string  $sUsername
+	 * @param WP_User $oUser
+	 */
+	public function onWpLogin( $sUsername, $oUser ) {
+		$this->processLoginAttempt_Filter( $oUser );
+	}
+
+	/**
+	 * @param string $sCookie
+	 * @param int    $nExpire
+	 * @param int    $nExpiration
+	 * @param int    $nUserId
+	 */
+	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
+		$this->processLoginAttempt_Filter( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -53,14 +71,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 			$oLoginTrack->removeFactorToTrack( $sFactor );
 		}
 		else {
-			if ( $this->processOtp( $oUser, $this->fetchCodeFromRequest() ) ) {
+			$sReqOtpCode = $this->fetchCodeFromRequest();
+			$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
+			if ( $bOtpSuccess ) {
 				$oLoginTrack->addSuccessfulFactor( $sFactor );
-				$this->auditLogin( $oUser, true );
 			}
 			else {
 				$oLoginTrack->addUnSuccessfulFactor( $sFactor );
-				$this->auditLogin( $oUser, false );
 			}
+
+			$this->postOtpProcessAction( $oUser, $bOtpSuccess, !empty( $sReqOtpCode ) );
 		}
 	}
 
@@ -79,6 +99,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	protected function hasValidatedProfile( $oUser ) {
 		$sKey = $this->getStub().'_validated';
 		return ( $oUser instanceof WP_User )
+			   && $this->hasValidSecret( $oUser )
 			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey} === true;
 	}
 
@@ -121,9 +142,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 
 	/**
 	 * @param WP_User $oUser
+	 * @return $this
+	 */
+	public function deleteSecret( $oUser ) {
+		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$sKey = $this->getStub().'_secret';
+		$oMeta->{$sKey} = null;
+		return $this;
+	}
+
+	/**
+	 * @param WP_User $oUser
 	 * @return string
 	 */
-	protected function resetSecret( WP_User $oUser ) {
+	public function resetSecret( WP_User $oUser ) {
 		$sNewSecret = $this->genNewSecret();
 		$this->setSecret( $oUser, $sNewSecret );
 		return $sNewSecret;
@@ -182,6 +214,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
+	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
+	 * @param WP_User $oUser
+	 */
+	public function addOptionsToUserEditProfile( $oUser ) {
+		$this->addOptionsToUserProfile( $oUser );
+	}
+
+	/**
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
 	 * @param int $nSavingUserId
@@ -222,6 +262,19 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param bool    $bIsSuccess
 	 */
 	abstract protected function auditLogin( $oUser, $bIsSuccess );
+
+	/**
+	 * @param WP_User $oUser
+	 * @param bool    $bIsOtpSuccess
+	 * @param bool    $bOtpProvided - whether a OTP was actually provided
+	 * @return $this
+	 */
+	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
+		if ( $bOtpProvided ) {
+			$this->auditLogin( $oUser, $bIsOtpSuccess );
+		}
+		return $this;
+	}
 
 	/**
 	 * @return string

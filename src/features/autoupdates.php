@@ -88,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param $sPluginFile
+	 * @param string $sPluginFile
 	 * @return bool
 	 */
 	public function isPluginSetToAutoupdate( $sPluginFile ) {

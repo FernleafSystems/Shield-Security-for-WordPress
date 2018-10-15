@@ -660,7 +660,7 @@ input:checked + .icwp-slider:before {
 	min-width: 760px; /** prevents col breaking **/
 }
 #TopPluginIcon {
-	background: url("../images/shield/SHIELDSECURITY.png?ver=2.0") no-repeat 0 0 #f1f1f1;
+	background: url("../images/pluginlogo_128x128.png?ver=2.0") no-repeat 0 0 #f1f1f1;
 	border-bottom: 1px solid #ccc;
 
 	height: 128px;

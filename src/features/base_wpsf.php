@@ -14,6 +14,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static protected $oSessProcessor;
 
 	/**
+	 * @var bool
+	 */
+	static protected $bIsVerifiedBot;
+
+	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
@@ -32,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return !is_null( $this->getSession() );
+		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
 	}
 
 	public function insertCustomJsVars() {
@@ -58,9 +63,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return int
 	 */
 	protected function getSecAdminTimeLeft() {
-		return $this->getController()
-					->getModule( 'admin_access_restriction' )
-					->getSecAdminTimeLeft();
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getConn()
+					->getModule( 'admin_access_restriction' );
+		return $oFO->getSecAdminTimeLeft();
 	}
 
 	/**
@@ -243,7 +249,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getOptionsVo()->isModuleWhitelistExempt() || !$this->isVisitorWhitelisted() )
+		$oOpts = $this->getOptionsVo();
+		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
+			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
 			   && parent::isReadyToExecute();
 	}
 
@@ -251,16 +259,45 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isVisitorWhitelisted() {
-		return apply_filters( $this->prefix( 'visitor_is_whitelisted' ), false );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->getConn()
+					 ->getModule( 'ips' )
+					 ->getProcessor();
+		return $oPro->isCurrentIpWhitelisted();
+	}
+
+	/**
+	 * Only test for bots that we can actually verify based on IP, hostname
+	 * @return bool
+	 */
+	public function isVerifiedBot() {
+		if ( !isset( self::$bIsVerifiedBot ) ) {
+			$oSp = $this->loadServiceProviders();
+
+			$sIp = $this->loadIpService()->getRequestIp();
+			$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+			if ( empty( $sAgent ) ) {
+				$sAgent = 'Unknown';
+			}
+			self::$bIsVerifiedBot = $oSp->isIp_GoogleBot( $sIp, $sAgent )
+									|| $oSp->isIp_BingBot( $sIp, $sAgent )
+									|| $oSp->isIp_AppleBot( $sIp, $sAgent )
+									|| $oSp->isIp_YahooBot( $sIp, $sAgent )
+									|| $oSp->isIp_DuckDuckGoBot( $sIp, $sAgent )
+									|| $oSp->isIp_YandexBot( $sIp, $sAgent )
+									|| $oSp->isIp_BaiduBot( $sIp, $sAgent );
+		}
+		return self::$bIsVerifiedBot;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
-		return $this->getConn()
-					->getModule( 'plugin' )
-					->isXmlrpcBypass();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getConn()
+					->getModule( 'plugin' );
+		return $oFO->isXmlrpcBypass();
 	}
 
 	/**

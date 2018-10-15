@@ -10,7 +10,8 @@
     "access_restricted":      true,
     "premium":                false,
     "order":                  70,
-    "whitelist_exempt":       true
+    "run_if_whitelisted":     true,
+    "run_if_verified_bot":    true
   },
   "sections":    [
     {

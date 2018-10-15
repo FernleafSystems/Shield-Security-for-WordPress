@@ -457,7 +457,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oModule = $this->getPluginCon()->getModule( 'admin_access_restriction' );
 			try {
 				$oModule->setNewAccessKeyManually( $sKey )
-						->setPermissionToSubmit( true );
+						->setSecurityAdminStatusOnOff( true );
 				$bSuccess = true;
 				$sMessage = _wpsf__( 'Security Admin setup was successful.' );
 			}

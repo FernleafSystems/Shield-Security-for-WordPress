@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2018-09-09 17:40+0100\n"
-"PO-Revision-Date: 2018-09-09 17:40+0100\n"
+"POT-Creation-Date: 2018-09-19 17:21+0100\n"
+"PO-Revision-Date: 2018-09-19 17:21+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -51,23 +51,23 @@ msgstr ""
 msgid "Enter your Security Admin Access Key"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:250
+#: src/features/admin_access_restriction.php:266
 msgid "Security Admin key accepted."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:253
+#: src/features/admin_access_restriction.php:269
 msgid "Security Admin key not accepted."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:394
+#: src/features/admin_access_restriction.php:439
 msgid "Security Admin Protection"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:403
+#: src/features/admin_access_restriction.php:448
 msgid "The Security Admin protection is not active."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:407
+#: src/features/admin_access_restriction.php:452
 #: src/features/audit_trail.php:304 src/features/base_wpsf.php:169
 #: src/features/base_wpsf.php:209 src/features/hack_protect.php:656
 #: src/features/hack_protect.php:677 src/features/hack_protect.php:698
@@ -76,31 +76,31 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:408
+#: src/features/admin_access_restriction.php:453
 msgid "Security Admin should be turned-on to protect your security settings."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:438
+#: src/features/admin_access_restriction.php:483
 #: src/features/audit_trail.php:290 src/features/autoupdates.php:186
 #: src/features/comments_filter.php:103 src/features/firewall.php:59
 #: src/features/hack_protect.php:759 src/features/headers.php:120
 #: src/features/ips.php:302 src/features/lockdown.php:85
-#: src/features/login_protect.php:536 src/features/sessions.php:51
+#: src/features/login_protect.php:604 src/features/sessions.php:51
 #: src/features/statistics.php:51 src/features/statistics.php:60
-#: src/features/traffic.php:451 src/features/user_management.php:311
+#: src/features/traffic.php:465 src/features/user_management.php:311
 #, php-format
 msgid "Enable Module: %s"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:440
-#: src/features/admin_access_restriction.php:450
-#: src/features/admin_access_restriction.php:459
-#: src/features/admin_access_restriction.php:469
+#: src/features/admin_access_restriction.php:485
+#: src/features/admin_access_restriction.php:495
+#: src/features/admin_access_restriction.php:504
+#: src/features/admin_access_restriction.php:514
 #: src/features/audit_trail.php:292 src/features/audit_trail.php:301
 #: src/features/audit_trail.php:310 src/features/autoupdates.php:188
 #: src/features/autoupdates.php:197 src/features/autoupdates.php:206
 #: src/features/autoupdates.php:216 src/features/autoupdates.php:226
-#: src/features/base_wpsf.php:321 src/features/comments_filter.php:105
+#: src/features/base_wpsf.php:322 src/features/comments_filter.php:105
 #: src/features/comments_filter.php:114 src/features/comments_filter.php:124
 #: src/features/comments_filter.php:133 src/features/firewall.php:61
 #: src/features/hack_protect.php:754 src/features/hack_protect.php:761
@@ -110,37 +110,37 @@ msgstr ""
 #: src/features/headers.php:122 src/features/headers.php:131
 #: src/features/headers.php:140 src/features/ips.php:304
 #: src/features/ips.php:314 src/features/ips.php:324
-#: src/features/license.php:688 src/features/lockdown.php:87
+#: src/features/license.php:691 src/features/lockdown.php:87
 #: src/features/lockdown.php:96 src/features/lockdown.php:105
-#: src/features/lockdown.php:114 src/features/login_protect.php:539
-#: src/features/login_protect.php:548 src/features/login_protect.php:559
-#: src/features/login_protect.php:568 src/features/login_protect.php:577
-#: src/features/login_protect.php:587 src/features/login_protect.php:596
-#: src/features/login_protect.php:605 src/features/plugin.php:733
+#: src/features/lockdown.php:114 src/features/login_protect.php:607
+#: src/features/login_protect.php:616 src/features/login_protect.php:627
+#: src/features/login_protect.php:636 src/features/login_protect.php:645
+#: src/features/login_protect.php:655 src/features/login_protect.php:664
+#: src/features/login_protect.php:673 src/features/plugin.php:733
 #: src/features/plugin.php:740 src/features/plugin.php:755
 #: src/features/sessions.php:53 src/features/statistics.php:53
 #: src/features/statistics.php:62 src/features/statistics.php:71
-#: src/features/traffic.php:453 src/features/traffic.php:462
+#: src/features/traffic.php:467 src/features/traffic.php:476
 #: src/features/user_management.php:313 src/features/user_management.php:323
 #: src/features/user_management.php:332 src/features/user_management.php:341
 #: src/features/user_management.php:350
 msgid "Purpose"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:440
-#: src/features/admin_access_restriction.php:450
+#: src/features/admin_access_restriction.php:485
+#: src/features/admin_access_restriction.php:495
 msgid ""
 "Restricts access to this plugin preventing unauthorized changes to your "
 "security settings."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:441
-#: src/features/admin_access_restriction.php:451
-#: src/features/admin_access_restriction.php:460
+#: src/features/admin_access_restriction.php:486
+#: src/features/admin_access_restriction.php:496
+#: src/features/admin_access_restriction.php:505
 #: src/features/audit_trail.php:293 src/features/audit_trail.php:302
 #: src/features/audit_trail.php:311 src/features/autoupdates.php:189
 #: src/features/autoupdates.php:198 src/features/autoupdates.php:208
-#: src/features/autoupdates.php:217 src/features/base_wpsf.php:322
+#: src/features/autoupdates.php:217 src/features/base_wpsf.php:323
 #: src/features/comments_filter.php:106 src/features/comments_filter.php:115
 #: src/features/comments_filter.php:125 src/features/comments_filter.php:134
 #: src/features/firewall.php:62 src/features/firewall.php:71
@@ -151,246 +151,247 @@ msgstr ""
 #: src/features/hack_protect.php:819 src/features/headers.php:123
 #: src/features/headers.php:132 src/features/headers.php:141
 #: src/features/ips.php:305 src/features/ips.php:315 src/features/ips.php:325
-#: src/features/license.php:689 src/features/lockdown.php:88
+#: src/features/license.php:692 src/features/lockdown.php:88
 #: src/features/lockdown.php:97 src/features/lockdown.php:106
-#: src/features/lockdown.php:115 src/features/login_protect.php:540
-#: src/features/login_protect.php:549 src/features/login_protect.php:560
-#: src/features/login_protect.php:578 src/features/login_protect.php:597
-#: src/features/login_protect.php:702 src/features/plugin.php:757
+#: src/features/lockdown.php:115 src/features/login_protect.php:608
+#: src/features/login_protect.php:617 src/features/login_protect.php:628
+#: src/features/login_protect.php:646 src/features/login_protect.php:665
+#: src/features/login_protect.php:776 src/features/plugin.php:757
 #: src/features/sessions.php:54 src/features/statistics.php:54
 #: src/features/statistics.php:63 src/features/statistics.php:72
-#: src/features/traffic.php:454 src/features/traffic.php:463
+#: src/features/traffic.php:468 src/features/traffic.php:477
 #: src/features/user_management.php:314 src/features/user_management.php:324
 #: src/features/user_management.php:333 src/features/user_management.php:342
 #: src/features/user_management.php:351
 msgid "Recommendation"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:441
+#: src/features/admin_access_restriction.php:486
 #: src/features/audit_trail.php:293 src/features/autoupdates.php:189
 #: src/features/comments_filter.php:106 src/features/firewall.php:62
 #: src/features/hack_protect.php:762 src/features/hack_protect.php:771
 #: src/features/hack_protect.php:781 src/features/hack_protect.php:790
 #: src/features/hack_protect.php:799 src/features/ips.php:305
 #: src/features/ips.php:315 src/features/lockdown.php:88
-#: src/features/login_protect.php:540 src/features/sessions.php:54
+#: src/features/login_protect.php:608 src/features/sessions.php:54
 #: src/features/statistics.php:54 src/features/statistics.php:63
 #: src/features/user_management.php:314
 #, php-format
 msgid "Keep the %s feature turned on."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:441
-#: src/features/admin_access_restriction.php:503 src/features/plugin.php:945
+#: src/features/admin_access_restriction.php:486
+#: src/features/admin_access_restriction.php:548 src/features/plugin.php:945
 #: src/features/plugin.php:947 src/wizards/base_wpsf.php:65
 msgid "Security Admin"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:442
+#: src/features/admin_access_restriction.php:487
 msgid "You need to also enter a new Access Key to enable this feature."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:444
+#: src/features/admin_access_restriction.php:489
 #: src/features/audit_trail.php:295 src/features/autoupdates.php:191
 #: src/features/comments_filter.php:108 src/features/firewall.php:64
 #: src/features/hack_protect.php:764 src/features/headers.php:125
 #: src/features/ips.php:308 src/features/lockdown.php:90
-#: src/features/login_protect.php:537 src/features/sessions.php:56
+#: src/features/login_protect.php:605 src/features/sessions.php:56
 #: src/features/statistics.php:56 src/features/statistics.php:65
-#: src/features/traffic.php:456 src/features/user_management.php:316
+#: src/features/traffic.php:470 src/features/user_management.php:316
 #, php-format
 msgid "%s/%s Module"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:444
-#: src/features/admin_access_restriction.php:574
+#: src/features/admin_access_restriction.php:489
+#: src/features/admin_access_restriction.php:619
 #: src/features/audit_trail.php:295 src/features/autoupdates.php:191
 #: src/features/comments_filter.php:108 src/features/firewall.php:64
 #: src/features/hack_protect.php:764 src/features/headers.php:125
 #: src/features/ips.php:308 src/features/lockdown.php:90
-#: src/features/login_protect.php:537 src/features/sessions.php:56
+#: src/features/login_protect.php:605 src/features/sessions.php:56
 #: src/features/statistics.php:56 src/features/statistics.php:65
-#: src/features/traffic.php:456 src/features/user_management.php:316
+#: src/features/traffic.php:470 src/features/user_management.php:316
 msgid "Enable"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:444
+#: src/features/admin_access_restriction.php:489
 #: src/features/audit_trail.php:295 src/features/autoupdates.php:191
 #: src/features/comments_filter.php:108 src/features/firewall.php:64
 #: src/features/hack_protect.php:764 src/features/headers.php:125
 #: src/features/ips.php:308 src/features/lockdown.php:90
-#: src/features/login_protect.php:537 src/features/sessions.php:56
+#: src/features/login_protect.php:605 src/features/sessions.php:56
 #: src/features/statistics.php:56 src/features/statistics.php:65
-#: src/features/traffic.php:456 src/features/user_management.php:316
+#: src/features/traffic.php:470 src/features/user_management.php:316
 msgid "Disable"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:448
+#: src/features/admin_access_restriction.php:493
 msgid "Security Admin Restriction Settings"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:451
-#: src/features/admin_access_restriction.php:460
+#: src/features/admin_access_restriction.php:496
+#: src/features/admin_access_restriction.php:505
 #: src/features/comments_filter.php:115 src/features/comments_filter.php:134
-#: src/features/login_protect.php:578 src/features/login_protect.php:597
+#: src/features/login_protect.php:646 src/features/login_protect.php:665
 #: src/features/plugin.php:758 src/features/user_management.php:324
 #: src/features/user_management.php:333 src/features/user_management.php:342
 #: src/features/user_management.php:351
 msgid "Use of this feature is highly recommend."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:453
+#: src/features/admin_access_restriction.php:498
 msgid "Security Admin Settings"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:457
+#: src/features/admin_access_restriction.php:502
 msgid "Security Admin Restriction Zones"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:459
+#: src/features/admin_access_restriction.php:504
 msgid ""
 "Restricts access to key WordPress areas for all users not authenticated with "
 "the Security Admin Access system."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:462
+#: src/features/admin_access_restriction.php:507
 msgid "Access Restriction Zones"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:466
-#: src/features/admin_access_restriction.php:479
-#: src/features/admin_access_restriction.php:574
+#: src/features/admin_access_restriction.php:511
+#: src/features/admin_access_restriction.php:524
+#: src/features/admin_access_restriction.php:619
 msgid "White Label"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:470
+#: src/features/admin_access_restriction.php:515
 #, php-format
 msgid "Rename and re-brand the %s plugin for your client site installations."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:474
-#: src/features/login_protect.php:682
+#: src/features/admin_access_restriction.php:519
+#: src/features/login_protect.php:756
+#: src/processors/loginprotect_backupcodes.php:33
 msgid "Important"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:475
+#: src/features/admin_access_restriction.php:520
 msgid "The Security Admin system must be active for these settings to apply."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:503
+#: src/features/admin_access_restriction.php:548
 #: src/features/audit_trail.php:338 src/features/autoupdates.php:251
 #: src/features/comments_filter.php:188 src/features/firewall.php:115
 #: src/features/hack_protect.php:842 src/features/headers.php:166
 #: src/features/ips.php:347 src/features/lockdown.php:140
-#: src/features/login_protect.php:630 src/features/plugin.php:805
+#: src/features/login_protect.php:698 src/features/plugin.php:805
 #: src/features/sessions.php:79 src/features/statistics.php:99
-#: src/features/statistics.php:105 src/features/traffic.php:488
+#: src/features/statistics.php:105 src/features/traffic.php:502
 #: src/features/user_management.php:376
 #, php-format
 msgid "Enable %s Module"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:504
+#: src/features/admin_access_restriction.php:549
 msgid "Enforce Security Admin Access Restriction"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:505
+#: src/features/admin_access_restriction.php:550
 msgid ""
 "Enable this with great care and consideration. Ensure that you set a key "
 "that you have set an access key that you will remember."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:509
+#: src/features/admin_access_restriction.php:554
 msgid "Security Admin Access Key"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:510
+#: src/features/admin_access_restriction.php:555
 msgid "Provide/Update Security Admin Access Key"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:511
-#: src/features/admin_access_restriction.php:532
-#: src/features/admin_access_restriction.php:539
-#: src/features/admin_access_restriction.php:546
-#: src/features/admin_access_restriction.php:552
-#: src/features/admin_access_restriction.php:558
+#: src/features/admin_access_restriction.php:556
+#: src/features/admin_access_restriction.php:577
+#: src/features/admin_access_restriction.php:584
+#: src/features/admin_access_restriction.php:591
+#: src/features/admin_access_restriction.php:597
+#: src/features/admin_access_restriction.php:603
 msgid "Careful"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:511
+#: src/features/admin_access_restriction.php:556
 msgid ""
 "If you forget this, you could potentially lock yourself out from using this "
 "plugin."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:512
+#: src/features/admin_access_restriction.php:557
 msgid "Security Key Currently Set"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:512
+#: src/features/admin_access_restriction.php:557
 msgid "Security Key NOT Currently Set"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:513
+#: src/features/admin_access_restriction.php:558
 #, php-format
 msgid "To delete the current security key, type exactly \"%s\" and save."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:517
+#: src/features/admin_access_restriction.php:562
 msgid "Security Admin Timeout"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:518
+#: src/features/admin_access_restriction.php:563
 msgid "Specify An Automatic Timeout Interval For Security Admin Access"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:519
+#: src/features/admin_access_restriction.php:564
 msgid "This will automatically expire your Security Admin Session."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:523
+#: src/features/admin_access_restriction.php:568
 #: src/features/hack_protect.php:850 src/features/hack_protect.php:916
-#: src/features/login_protect.php:710 src/features/login_protect.php:753
-#: src/features/login_protect.php:760 src/features/user_management.php:399
+#: src/features/login_protect.php:784 src/features/login_protect.php:827
+#: src/features/login_protect.php:834 src/features/user_management.php:399
 msgid "Default"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:530
+#: src/features/admin_access_restriction.php:575
 msgid "Pages"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:531
+#: src/features/admin_access_restriction.php:576
 msgid "Restrict Access To Key WordPress Posts And Pages Actions"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:532
+#: src/features/admin_access_restriction.php:577
 msgid "This will restrict access to page/post creation, editing and deletion."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:533
-#: src/features/admin_access_restriction.php:540
-#: src/features/admin_access_restriction.php:561
+#: src/features/admin_access_restriction.php:578
+#: src/features/admin_access_restriction.php:585
+#: src/features/admin_access_restriction.php:606
 #: src/features/comments_filter.php:126 src/features/headers.php:239
-#: src/features/login_protect.php:550 src/features/login_protect.php:579
-#: src/features/login_protect.php:588 src/features/login_protect.php:606
-#: src/features/login_protect.php:673 src/features/login_protect.php:681
-#: src/features/login_protect.php:695 src/features/plugin.php:759
+#: src/features/login_protect.php:618 src/features/login_protect.php:647
+#: src/features/login_protect.php:656 src/features/login_protect.php:674
+#: src/features/login_protect.php:747 src/features/login_protect.php:755
+#: src/features/login_protect.php:769 src/features/plugin.php:759
 #: src/features/plugin.php:763 src/features/plugin.php:857
 msgid "Note"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:533
-#: src/features/admin_access_restriction.php:540
-#: src/features/admin_access_restriction.php:563
+#: src/features/admin_access_restriction.php:578
+#: src/features/admin_access_restriction.php:585
+#: src/features/admin_access_restriction.php:608
 #, php-format
 msgid "Selecting \"%s\" will also restrict all other options."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:533
+#: src/features/admin_access_restriction.php:578
 msgid "Edit"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:537
+#: src/features/admin_access_restriction.php:582
 #: src/features/audit_trail.php:187 src/features/audit_trail.php:362
 #: src/features/audit_trail.php:363 src/features/autoupdates.php:282
 #: src/features/hack_protect.php:728 src/features/insights.php:330
@@ -398,197 +399,207 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:538
+#: src/features/admin_access_restriction.php:583
 msgid "Restrict Access To Key WordPress Plugin Actions"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:539
+#: src/features/admin_access_restriction.php:584
 msgid ""
 "This will restrict access to plugin installation, update, activation and "
 "deletion."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:540
-#: src/features/admin_access_restriction.php:566
+#: src/features/admin_access_restriction.php:585
+#: src/features/admin_access_restriction.php:611
 msgid "Activate"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:544
+#: src/features/admin_access_restriction.php:589
 msgid "WordPress Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:545
+#: src/features/admin_access_restriction.php:590
 msgid "Restrict Access To Certain WordPress Admin Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:546
+#: src/features/admin_access_restriction.php:591
 msgid ""
 "This will restrict the ability of WordPress administrators from changing key "
 "WordPress settings."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:550
+#: src/features/admin_access_restriction.php:595
 msgid "Admin Users"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:551
+#: src/features/admin_access_restriction.php:596
 msgid "Restrict Access To Create/Delete/Modify Other Admin Users"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:552
+#: src/features/admin_access_restriction.php:597
 msgid ""
 "This will restrict the ability of WordPress administrators from creating, "
 "modifying or promoting other administrators."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:556
+#: src/features/admin_access_restriction.php:601
 #: src/features/audit_trail.php:188 src/features/audit_trail.php:368
 #: src/features/audit_trail.php:369 src/features/autoupdates.php:294
 #: src/features/insights.php:376 src/features/insights.php:387
 msgid "Themes"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:557
+#: src/features/admin_access_restriction.php:602
 msgid "Restrict Access To WordPress Theme Actions"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:558
+#: src/features/admin_access_restriction.php:603
 msgid ""
 "This will restrict access to theme installation, update, activation and "
 "deletion."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:565
+#: src/features/admin_access_restriction.php:610
 #, php-format
 msgid "%s and %s"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:567
+#: src/features/admin_access_restriction.php:612
 msgid "Edit Theme Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:575
+#: src/features/admin_access_restriction.php:620
 msgid "Activate Your White Label Settings"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:576
+#: src/features/admin_access_restriction.php:621
 msgid "Turn on/off the application of your White Label settings."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:579
+#: src/features/admin_access_restriction.php:624
 msgid "Hide Updates"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:580
+#: src/features/admin_access_restriction.php:625
 msgid "Hide Plugin Updates From Non-Security Admins"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:581
+#: src/features/admin_access_restriction.php:626
 #, php-format
 msgid "Hide available %s updates from non-security administrators."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:584
-#: src/features/admin_access_restriction.php:591
+#: src/features/admin_access_restriction.php:629
+#: src/features/admin_access_restriction.php:636
 msgid "Plugin Name"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:585
+#: src/features/admin_access_restriction.php:630
 msgid "The Name Of The Plugin"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:586
+#: src/features/admin_access_restriction.php:631
 msgid "The name of the plugin that will be displayed to your site users."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:589
+#: src/features/admin_access_restriction.php:634
 msgid "Menu Title"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:590
+#: src/features/admin_access_restriction.php:635
 msgid "The Main Menu Title Of The Plugin"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:591
+#: src/features/admin_access_restriction.php:636
 #, php-format
 msgid ""
 "The Main Menu Title Of The Plugin. If left empty, the \"%s\" will be used."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:594
+#: src/features/admin_access_restriction.php:639
 msgid "Company Name"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:595
+#: src/features/admin_access_restriction.php:640
 msgid "The Name Of Your Company"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:596
+#: src/features/admin_access_restriction.php:641
 msgid "Provide the name of your company."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:599
+#: src/features/admin_access_restriction.php:644
 msgid "Description"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:600
+#: src/features/admin_access_restriction.php:645
 msgid "The Description Of The Plugin"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:601
+#: src/features/admin_access_restriction.php:646
 msgid "The description of the plugin displayed on the plugins page."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:604
+#: src/features/admin_access_restriction.php:649
 msgid "Home URL"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:605
+#: src/features/admin_access_restriction.php:650
 msgid "Plugin Home Page URL"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:606
+#: src/features/admin_access_restriction.php:651
 msgid ""
 "When a user clicks the home link for this plugin, this is where they'll be "
 "directed."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:609
+#: src/features/admin_access_restriction.php:654
 msgid "Menu Icon"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:610
+#: src/features/admin_access_restriction.php:655
 msgid "Menu Icon URL"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:611
+#: src/features/admin_access_restriction.php:656
 msgid "The URL of the icon to display in the menu."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:612
-#: src/features/admin_access_restriction.php:618
+#: src/features/admin_access_restriction.php:657
+#: src/features/admin_access_restriction.php:663
 #, php-format
 msgid "The %s should measure %s."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:612
+#: src/features/admin_access_restriction.php:657
 msgid "icon"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:615
+#: src/features/admin_access_restriction.php:660
 msgid "Dashboard Logo"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:616
+#: src/features/admin_access_restriction.php:661
 msgid "Dashboard Logo URL"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:617
+#: src/features/admin_access_restriction.php:662
 msgid "The URL of the logo to display in the admin pages."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:618
+#: src/features/admin_access_restriction.php:663
 msgid "logo"
+msgstr ""
+
+#: src/features/admin_access_restriction.php:666
+#: src/features/admin_access_restriction.php:667
+msgid "2FA Login Logo URL"
+msgstr ""
+
+#: src/features/admin_access_restriction.php:668
+msgid ""
+"The URL of the logo to display on the Two-Factor Authentication login page."
 msgstr ""
 
 #: src/features/audit_trail.php:139
@@ -596,11 +607,11 @@ msgid "Your IP"
 msgstr ""
 
 #: src/features/audit_trail.php:169 src/features/audit_trail.php:183
-#: src/features/license.php:93 src/features/plugin.php:950
+#: src/features/license.php:94 src/features/plugin.php:950
 msgid "Audit Trail Viewer"
 msgstr ""
 
-#: src/features/audit_trail.php:184 src/features/license.php:94
+#: src/features/audit_trail.php:184 src/features/license.php:95
 msgid "Review audit trail logs "
 msgstr ""
 
@@ -634,6 +645,7 @@ msgid "Message"
 msgstr ""
 
 #: src/features/audit_trail.php:195 src/features/user_management.php:157
+#: src/processors/loginprotect_backupcodes.php:175
 #: src/processors/loginprotect_twofactorauth.php:161
 #: src/processors/user_management.php:208
 #: src/processors/user_management.php:236
@@ -645,14 +657,15 @@ msgid "Category"
 msgstr ""
 
 #: src/features/audit_trail.php:197 src/features/plugin.php:937
-#: src/processors/firewall.php:468
+#: src/processors/firewall.php:477
+#: src/processors/loginprotect_backupcodes.php:176
 #: src/processors/loginprotect_twofactorauth.php:162
 #: src/processors/user_management.php:210
 #: src/processors/user_management.php:237
 msgid "IP Address"
 msgstr ""
 
-#: src/features/audit_trail.php:198 src/features/traffic.php:377
+#: src/features/audit_trail.php:198 src/features/traffic.php:391
 msgid "You"
 msgstr ""
 
@@ -685,7 +698,7 @@ msgid "Provides finer control over the audit trail itself."
 msgstr ""
 
 #: src/features/audit_trail.php:302 src/features/audit_trail.php:311
-#: src/features/traffic.php:463
+#: src/features/traffic.php:477
 msgid "These settings are dependent on your requirements."
 msgstr ""
 
@@ -704,9 +717,9 @@ msgstr ""
 #: src/features/audit_trail.php:339 src/features/autoupdates.php:252
 #: src/features/firewall.php:116 src/features/hack_protect.php:843
 #: src/features/headers.php:167 src/features/ips.php:348
-#: src/features/lockdown.php:141 src/features/login_protect.php:631
+#: src/features/lockdown.php:141 src/features/login_protect.php:699
 #: src/features/sessions.php:80 src/features/statistics.php:100
-#: src/features/statistics.php:106 src/features/traffic.php:489
+#: src/features/statistics.php:106 src/features/traffic.php:503
 #: src/features/user_management.php:377
 #, php-format
 msgid "Enable (or Disable) The %s Module"
@@ -716,9 +729,9 @@ msgstr ""
 #: src/features/comments_filter.php:190 src/features/firewall.php:117
 #: src/features/hack_protect.php:844 src/features/headers.php:168
 #: src/features/ips.php:349 src/features/lockdown.php:142
-#: src/features/login_protect.php:632 src/features/sessions.php:81
+#: src/features/login_protect.php:700 src/features/sessions.php:81
 #: src/features/statistics.php:101 src/features/statistics.php:107
-#: src/features/traffic.php:490 src/features/user_management.php:378
+#: src/features/traffic.php:504 src/features/user_management.php:378
 #, php-format
 msgid "Un-Checking this option will completely disable the %s module."
 msgstr ""
@@ -1100,7 +1113,7 @@ msgstr ""
 #: src/processors/hackprotect_corechecksumscan.php:280
 #: src/processors/hackprotect_pluginvulnerabilities.php:156
 #: src/processors/hackprotect_wpvulnscan.php:147
-#: src/processors/loginprotect_intent.php:282
+#: src/processors/loginprotect_intent.php:293
 msgid "More Info"
 msgstr ""
 
@@ -1179,25 +1192,25 @@ msgstr ""
 msgid "Nonce security checking failed - the nonce supplied was \"%s\"."
 msgstr ""
 
-#: src/features/base_wpsf.php:318 src/features/base_wpsf.php:319
+#: src/features/base_wpsf.php:319 src/features/base_wpsf.php:320
 msgid "User Messages"
 msgstr ""
 
-#: src/features/base_wpsf.php:321
+#: src/features/base_wpsf.php:322
 msgid "Customize the messages displayed to the user."
 msgstr ""
 
-#: src/features/base_wpsf.php:322
+#: src/features/base_wpsf.php:323
 msgid ""
 "Use this section if you need to communicate to the user in a particular "
 "manner."
 msgstr ""
 
-#: src/features/base_wpsf.php:323
+#: src/features/base_wpsf.php:324
 msgid "Hint"
 msgstr ""
 
-#: src/features/base_wpsf.php:323
+#: src/features/base_wpsf.php:324
 #, php-format
 msgid "To reset any message to its default, enter the text exactly: %s"
 msgstr ""
@@ -1256,11 +1269,11 @@ msgstr ""
 msgid "Adds Google reCAPTCHA to the Comment Forms."
 msgstr ""
 
-#: src/features/comments_filter.php:125 src/features/login_protect.php:549
+#: src/features/comments_filter.php:125 src/features/login_protect.php:617
 msgid "Keep this turned on."
 msgstr ""
 
-#: src/features/comments_filter.php:126 src/features/login_protect.php:550
+#: src/features/comments_filter.php:126 src/features/login_protect.php:618
 msgid ""
 "You will need to register for Google reCAPTCHA keys and store them in the "
 "Shield 'Dashboard' settings."
@@ -1431,16 +1444,16 @@ msgstr ""
 msgid "Use Google reCAPTCHA on the comments form to prevent bot-spam comments."
 msgstr ""
 
-#: src/features/comments_filter.php:249 src/features/login_protect.php:686
+#: src/features/comments_filter.php:249 src/features/login_protect.php:760
 #: src/features/plugin.php:907
 msgid "reCAPTCHA Style"
 msgstr ""
 
-#: src/features/comments_filter.php:250 src/features/login_protect.php:687
+#: src/features/comments_filter.php:250 src/features/login_protect.php:761
 msgid "How Google reCAPTCHA Will Be Displayed"
 msgstr ""
 
-#: src/features/comments_filter.php:251 src/features/login_protect.php:688
+#: src/features/comments_filter.php:251 src/features/login_protect.php:762
 #: src/features/plugin.php:909
 msgid ""
 "You can choose the reCAPTCHA display format that best suits your site, "
@@ -1629,7 +1642,7 @@ msgid ""
 "%s, etc)."
 msgstr ""
 
-#: src/features/firewall.php:133 src/processors/firewall.php:536
+#: src/features/firewall.php:133 src/processors/firewall.php:545
 msgid "SQL Queries"
 msgstr ""
 
@@ -1642,7 +1655,7 @@ msgstr ""
 msgid "This will block sql in application parameters (e.g. %s, etc)."
 msgstr ""
 
-#: src/features/firewall.php:139 src/processors/firewall.php:530
+#: src/features/firewall.php:139 src/processors/firewall.php:539
 msgid "WordPress Terms"
 msgstr ""
 
@@ -1656,7 +1669,7 @@ msgid ""
 "user_login, etc.)."
 msgstr ""
 
-#: src/features/firewall.php:145 src/processors/firewall.php:533
+#: src/features/firewall.php:145 src/processors/firewall.php:542
 msgid "Field Truncation"
 msgstr ""
 
@@ -1668,7 +1681,7 @@ msgstr ""
 msgid "This will block field truncation attacks in application parameters."
 msgstr ""
 
-#: src/features/firewall.php:151 src/processors/firewall.php:545
+#: src/features/firewall.php:151 src/processors/firewall.php:554
 msgid "PHP Code"
 msgstr ""
 
@@ -1737,7 +1750,7 @@ msgstr ""
 #: src/processors/hackprotect_corechecksumscan.php:244
 #: src/processors/hackprotect_filecleanerscan.php:232
 #: src/processors/hackprotect_pluginvulnerabilities.php:110
-#: src/processors/hackprotect_ptguard.php:491
+#: src/processors/hackprotect_ptguard.php:526
 #: src/processors/hackprotect_wpvulnscan.php:220
 #: src/processors/loginprotect_wplogin.php:74
 #: src/processors/loginprotect_wplogin.php:93 src/processors/plugin.php:206
@@ -1800,7 +1813,7 @@ msgid "Ignore %s"
 msgstr ""
 
 #: src/features/firewall.php:195 src/features/firewall.php:196
-#: src/features/login_protect.php:180
+#: src/features/login_protect.php:165
 msgid "Administrators"
 msgstr ""
 
@@ -1841,7 +1854,7 @@ msgstr ""
 msgid "%s per day"
 msgstr ""
 
-#: src/features/hack_protect.php:618
+#: src/features/hack_protect.php:618 src/features/license.php:42
 msgid "Never"
 msgstr ""
 
@@ -2233,8 +2246,8 @@ msgid ""
 msgstr ""
 
 #: src/features/hack_protect.php:935 src/features/headers.php:197
-#: src/features/headers.php:198 src/features/login_protect.php:646
-#: src/features/login_protect.php:658 src/features/login_protect.php:664
+#: src/features/headers.php:198 src/features/login_protect.php:714
+#: src/features/login_protect.php:732 src/features/login_protect.php:738
 #: src/features/plugin.php:799
 #, php-format
 msgid "Enable %s"
@@ -2679,12 +2692,12 @@ msgstr ""
 msgid "Pro"
 msgstr ""
 
-#: src/features/insights.php:525 src/features/traffic.php:351
+#: src/features/insights.php:525 src/features/traffic.php:365
 msgid "Yes"
 msgstr ""
 
-#: src/features/insights.php:525 src/features/traffic.php:327
-#: src/features/traffic.php:351
+#: src/features/insights.php:525 src/features/traffic.php:341
+#: src/features/traffic.php:365
 msgid "No"
 msgstr ""
 
@@ -2938,96 +2951,100 @@ msgid ""
 "the White List"
 msgstr ""
 
-#: src/features/license.php:96
-msgid "Name"
-msgstr ""
-
-#: src/features/license.php:97
+#: src/features/license.php:39 src/features/license.php:98
 msgid "Active"
 msgstr ""
 
-#: src/features/license.php:98
-msgid "Status"
+#: src/features/license.php:39
+msgid "Not Active"
+msgstr ""
+
+#: src/features/license.php:97
+msgid "Name"
 msgstr ""
 
 #: src/features/license.php:99
-msgid "Key"
+msgid "Status"
 msgstr ""
 
 #: src/features/license.php:100
-msgid "Expires"
+msgid "Key"
 msgstr ""
 
 #: src/features/license.php:101
-msgid "Owner"
+msgid "Expires"
 msgstr ""
 
 #: src/features/license.php:102
-msgid "Checked"
+msgid "Owner"
 msgstr ""
 
 #: src/features/license.php:103
+msgid "Checked"
+msgstr ""
+
+#: src/features/license.php:104
 msgid "Error"
 msgstr ""
 
-#: src/features/license.php:174
+#: src/features/license.php:176
 #, php-format
 msgid "Please wait %s before attempting another license check."
 msgstr ""
 
-#: src/features/license.php:175
+#: src/features/license.php:177
 #, php-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/features/license.php:181
+#: src/features/license.php:183
 msgid "Valid license found."
 msgstr ""
 
-#: src/features/license.php:181
+#: src/features/license.php:183
 msgid "Valid license couldn't be found."
 msgstr ""
 
-#: src/features/license.php:303
+#: src/features/license.php:305
 #, php-format
 msgid "Automatic license verification failed after %s days."
 msgstr ""
 
-#: src/features/license.php:348
+#: src/features/license.php:351
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr ""
 
-#: src/features/license.php:349 src/features/license.php:366
+#: src/features/license.php:352 src/features/license.php:369
 #, php-format
 msgid "Please check your license on-site: %s"
 msgstr ""
 
-#: src/features/license.php:350 src/features/license.php:367
+#: src/features/license.php:353 src/features/license.php:370
 #, php-format
 msgid "If this problem persists, please contact support: %s"
 msgstr ""
 
-#: src/features/license.php:365
+#: src/features/license.php:368
 msgid "All attempts to verify Shield Pro license have failed."
 msgstr ""
 
-#: src/features/license.php:685 src/features/license.php:686
+#: src/features/license.php:688 src/features/license.php:689
 msgid "License Options"
 msgstr ""
 
-#: src/features/license.php:688
+#: src/features/license.php:691
 #, php-format
 msgid "Activate %s Pro Extensions."
 msgstr ""
 
-#: src/features/license.php:689
+#: src/features/license.php:692
 msgid "TODO."
 msgstr ""
 
-#: src/features/license.php:713 src/features/license.php:714
-#: src/features/license.php:715
+#: src/features/license.php:716 src/features/license.php:717
+#: src/features/license.php:718
 msgid "License Key"
 msgstr ""
 
@@ -3230,509 +3247,530 @@ msgstr ""
 msgid "Email verification could not be completed."
 msgstr ""
 
-#: src/features/login_protect.php:101
+#: src/features/login_protect.php:86
 msgid ""
 "Before enabling 2-factor email authentication for your WordPress site, you "
 "must verify you can receive this email."
 msgstr ""
 
-#: src/features/login_protect.php:102
+#: src/features/login_protect.php:87
 msgid ""
 "This verifies your website can send email and that your account can receive "
 "emails sent from your site."
 msgstr ""
 
-#: src/features/login_protect.php:107
+#: src/features/login_protect.php:92
 #, php-format
 msgid "Click the verify link: %s"
 msgstr ""
 
-#: src/features/login_protect.php:110
+#: src/features/login_protect.php:95
 #, php-format
 msgid "Here's your code for the guided wizard: %s"
 msgstr ""
 
-#: src/features/login_protect.php:113
+#: src/features/login_protect.php:98
 msgid "Email Sending Verification"
 msgstr ""
 
-#: src/features/login_protect.php:176
+#: src/features/login_protect.php:161
 msgid "Subscribers"
 msgstr ""
 
-#: src/features/login_protect.php:177
+#: src/features/login_protect.php:162
 msgid "Contributors"
 msgstr ""
 
-#: src/features/login_protect.php:178
+#: src/features/login_protect.php:163
 msgid "Authors"
 msgstr ""
 
-#: src/features/login_protect.php:179
+#: src/features/login_protect.php:164
 msgid "Editors"
 msgstr ""
 
-#: src/features/login_protect.php:437
+#: src/features/login_protect.php:429
 msgid "I'm a human."
 msgstr ""
 
-#: src/features/login_protect.php:441
+#: src/features/login_protect.php:433
 msgid "Please check the box to show us you're a human."
 msgstr ""
 
-#: src/features/login_protect.php:476
+#: src/features/login_protect.php:468
 #, php-format
 msgid "Support for login protection with %s is a Pro-only feature."
 msgstr ""
 
-#: src/features/login_protect.php:482
+#: src/features/login_protect.php:474
 msgid ""
 "2FA by email demands that your WP site is properly configured to send email."
 msgstr ""
 
-#: src/features/login_protect.php:483
+#: src/features/login_protect.php:475
 msgid ""
 "This is a common problem and you may get locked out in the future if you "
 "ignore this."
 msgstr ""
 
-#: src/features/login_protect.php:484 src/processors/lockdown.php:219
+#: src/features/login_protect.php:476 src/processors/lockdown.php:219
 #: src/processors/plugin_tracking.php:37
 msgid "Learn More."
 msgstr ""
 
-#: src/features/login_protect.php:539
+#: src/features/login_protect.php:573
+msgid "Multi-factor login backup code has been removed from your profile"
+msgstr ""
+
+#: src/features/login_protect.php:607
 msgid ""
 "Login Guard blocks all automated and brute force attempts to log in to your "
 "site."
 msgstr ""
 
-#: src/features/login_protect.php:540 src/features/plugin.php:965
+#: src/features/login_protect.php:608 src/features/plugin.php:965
 #: src/wizards/plugin.php:561 src/wizards/plugin.php:566
 msgid "Login Guard"
 msgstr ""
 
-#: src/features/login_protect.php:548
+#: src/features/login_protect.php:616
 msgid "Adds Google reCAPTCHA to the Login Forms."
 msgstr ""
 
-#: src/features/login_protect.php:555
+#: src/features/login_protect.php:623
 msgid "Hide WordPress Login Page"
 msgstr ""
 
-#: src/features/login_protect.php:556
+#: src/features/login_protect.php:624
 #, php-format
 msgid "Rename \"%s\""
 msgstr ""
 
-#: src/features/login_protect.php:557
+#: src/features/login_protect.php:625
 msgid "Hide Login Page"
 msgstr ""
 
-#: src/features/login_protect.php:559
+#: src/features/login_protect.php:627
 msgid ""
 "To hide your wp-login.php page from brute force attacks and hacking attempts "
 "- if your login page cannot be found, no-one can login."
 msgstr ""
 
-#: src/features/login_protect.php:560
+#: src/features/login_protect.php:628
 msgid ""
 "This is not required for complete security and if your site has irregular or "
 "inconsistent configuration it may not work for you."
 msgstr ""
 
-#: src/features/login_protect.php:565 src/features/login_protect.php:646
+#: src/features/login_protect.php:633 src/features/login_protect.php:714
 #: src/features/user_management.php:344
 msgid "Multi-Factor Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:566
+#: src/features/login_protect.php:634
 msgid "Multi-Factor Auth"
 msgstr ""
 
-#: src/features/login_protect.php:568 src/features/user_management.php:341
+#: src/features/login_protect.php:636 src/features/user_management.php:341
 msgid ""
 "Verifies the identity of users who log in to your site - i.e. they are who "
 "they say they are."
 msgstr ""
 
-#: src/features/login_protect.php:569 src/features/login_protect.php:579
-#: src/features/login_protect.php:588 src/features/login_protect.php:606
+#: src/features/login_protect.php:637 src/features/login_protect.php:647
+#: src/features/login_protect.php:656 src/features/login_protect.php:674
 msgid "You may combine multiple authentication factors for increased security."
 msgstr ""
 
-#: src/features/login_protect.php:574
+#: src/features/login_protect.php:642
 msgid "Email Two-Factor Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:575
+#: src/features/login_protect.php:643
 msgid "2FA - Email"
 msgstr ""
 
-#: src/features/login_protect.php:577
+#: src/features/login_protect.php:645
 msgid ""
 "Verifies the identity of users who log in to your site using email-based one-"
 "time-passwords."
 msgstr ""
 
-#: src/features/login_protect.php:578 src/features/user_management.php:342
+#: src/features/login_protect.php:646 src/features/user_management.php:342
 msgid "However, if your host blocks email sending you may lock yourself out."
 msgstr ""
 
-#: src/features/login_protect.php:584
+#: src/features/login_protect.php:652
 msgid "Google Authenticator Two-Factor Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:585
+#: src/features/login_protect.php:653
 msgid "2FA - Google Authenticator"
 msgstr ""
 
-#: src/features/login_protect.php:587
+#: src/features/login_protect.php:655
 msgid ""
 "Verifies the identity of users who log in to your site using Google "
 "Authenticator one-time-passwords."
 msgstr ""
 
-#: src/features/login_protect.php:593
+#: src/features/login_protect.php:661
 msgid "Brute Force Login Protection"
 msgstr ""
 
-#: src/features/login_protect.php:594
+#: src/features/login_protect.php:662
 msgid "reCAPTCHA & Bots"
 msgstr ""
 
-#: src/features/login_protect.php:596
+#: src/features/login_protect.php:664
 msgid ""
 "Blocks brute force hacking attacks against your login and registration pages."
 msgstr ""
 
-#: src/features/login_protect.php:602
+#: src/features/login_protect.php:670
 msgid "Yubikey Two-Factor Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:603
+#: src/features/login_protect.php:671
 msgid "2FA -Yubikey"
 msgstr ""
 
-#: src/features/login_protect.php:605
+#: src/features/login_protect.php:673
 msgid ""
 "Verifies the identity of users who log in to your site using Yubikey one-"
 "time-passwords."
 msgstr ""
 
-#: src/features/login_protect.php:636
+#: src/features/login_protect.php:704
 msgid "Hide WP Login Page"
 msgstr ""
 
-#: src/features/login_protect.php:637
+#: src/features/login_protect.php:705
 msgid "Hide The WordPress Login Page"
 msgstr ""
 
-#: src/features/login_protect.php:638
+#: src/features/login_protect.php:706
 msgid "Creating a path here will disable your wp-login.php"
 msgstr ""
 
-#: src/features/login_protect.php:640
+#: src/features/login_protect.php:708
 #, php-format
 msgid "Only letters and numbers are permitted: %s"
 msgstr ""
 
-#: src/features/login_protect.php:642
+#: src/features/login_protect.php:710
 #, php-format
 msgid "Your current login URL is: %s"
 msgstr ""
 
-#: src/features/login_protect.php:647
+#: src/features/login_protect.php:715
 msgid "Require All Active Authentication Factors"
 msgstr ""
 
-#: src/features/login_protect.php:648
+#: src/features/login_protect.php:716
 msgid ""
 "When enabled, all multi-factor authentication methods will be applied to a "
 "user login. Disable to require only one to login."
 msgstr ""
 
-#: src/features/login_protect.php:652
+#: src/features/login_protect.php:720
 msgid "Multi-Factor By-Pass"
 msgstr ""
 
-#: src/features/login_protect.php:653
+#: src/features/login_protect.php:721
 msgid ""
 "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of "
 "Days"
 msgstr ""
 
-#: src/features/login_protect.php:654
+#: src/features/login_protect.php:722
 msgid ""
 "Enter the number of days a user can by-pass future MFA after a successful "
 "MFA-login. 0 to disable."
 msgstr ""
 
-#: src/features/login_protect.php:658
+#: src/features/login_protect.php:726
+msgid "Allow Backup Codes"
+msgstr ""
+
+#: src/features/login_protect.php:727
+msgid "Allow Users To Generate A Backup Code"
+msgstr ""
+
+#: src/features/login_protect.php:728
+msgid ""
+"Allow users to generate a backup code that can be used to login if MFA "
+"factors are unavailable."
+msgstr ""
+
+#: src/features/login_protect.php:732
+#: src/processors/loginprotect_backupcodes.php:40
 #: src/processors/loginprotect_googleauthenticator.php:41
 #: src/processors/loginprotect_googleauthenticator.php:45
 #: src/processors/loginprotect_googleauthenticator.php:47
-#: src/processors/loginprotect_googleauthenticator.php:185
+#: src/processors/loginprotect_googleauthenticator.php:184
+#: src/processors/loginprotect_googleauthenticator.php:289
+#: src/processors/loginprotect_googleauthenticator.php:297
 msgid "Google Authenticator"
 msgstr ""
 
-#: src/features/login_protect.php:659
+#: src/features/login_protect.php:733
 msgid "Allow Users To Use Google Authenticator"
 msgstr ""
 
-#: src/features/login_protect.php:660
+#: src/features/login_protect.php:734
 msgid ""
 "When enabled, users will have the option to add Google Authenticator to "
 "their WordPress user profile"
 msgstr ""
 
-#: src/features/login_protect.php:664 src/features/login_protect.php:670
-#: src/features/login_protect.php:673
+#: src/features/login_protect.php:738 src/features/login_protect.php:744
+#: src/features/login_protect.php:747
 #: src/processors/loginprotect_twofactorauth.php:201
 #: src/processors/loginprotect_twofactorauth.php:202
 msgid "Email Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:665
+#: src/features/login_protect.php:739
 #, php-format
 msgid "Two-Factor Login Authentication By %s"
 msgstr ""
 
-#: src/features/login_protect.php:665 src/features/plugin.php:955
+#: src/features/login_protect.php:739 src/features/plugin.php:955
 #: src/processors/user_management.php:209
 msgid "Email"
 msgstr ""
 
-#: src/features/login_protect.php:666
+#: src/features/login_protect.php:740
 msgid ""
 "All users will be required to verify their login by email-based two-factor "
 "authentication."
 msgstr ""
 
-#: src/features/login_protect.php:670
+#: src/features/login_protect.php:744
 msgid "Enforce"
 msgstr ""
 
-#: src/features/login_protect.php:671
+#: src/features/login_protect.php:745
 msgid "All User Roles Subject To Email Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:672
+#: src/features/login_protect.php:746
 msgid ""
 "Enforces email-based authentication on all users with the selected roles."
 msgstr ""
 
-#: src/features/login_protect.php:673
+#: src/features/login_protect.php:747
 #, php-format
 msgid "This setting only applies to %s."
 msgstr ""
 
-#: src/features/login_protect.php:677
+#: src/features/login_protect.php:751
 msgid "Google reCAPTCHA"
 msgstr ""
 
-#: src/features/login_protect.php:678
+#: src/features/login_protect.php:752
 msgid "Protect WordPress Account Access Requests With Google reCAPTCHA"
 msgstr ""
 
-#: src/features/login_protect.php:679
+#: src/features/login_protect.php:753
 msgid ""
 "Use Google reCAPTCHA on the user account forms such as login, register, etc."
 msgstr ""
 
-#: src/features/login_protect.php:680
+#: src/features/login_protect.php:754
 #, php-format
 msgid "Use of any theme other than \"%s\", requires a Pro license."
 msgstr ""
 
-#: src/features/login_protect.php:680
+#: src/features/login_protect.php:754
 msgid "Light Theme"
 msgstr ""
 
-#: src/features/login_protect.php:681
+#: src/features/login_protect.php:755
 msgid ""
 "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings."
 msgstr ""
 
-#: src/features/login_protect.php:682
+#: src/features/login_protect.php:756
 msgid ""
 "Some forms are more dynamic than others so if you experience problems, "
 "please use non-Invisible reCAPTCHA."
 msgstr ""
 
-#: src/features/login_protect.php:692
+#: src/features/login_protect.php:766
 msgid "Protection Locations"
 msgstr ""
 
-#: src/features/login_protect.php:693
+#: src/features/login_protect.php:767
 msgid "Which Forms Should Be Protected"
 msgstr ""
 
-#: src/features/login_protect.php:694
+#: src/features/login_protect.php:768
 msgid "Choose the forms for which bot protection measures will be deployed."
 msgstr ""
 
-#: src/features/login_protect.php:695
+#: src/features/login_protect.php:769
 #, php-format
 msgid "Use with 3rd party systems such as %s, requires a Pro license."
 msgstr ""
 
-#: src/features/login_protect.php:699
+#: src/features/login_protect.php:773
 msgid "Bot Protection"
 msgstr ""
 
-#: src/features/login_protect.php:700
+#: src/features/login_protect.php:774
 msgid "Protect WP Login From Automated Login Attempts By Bots"
 msgstr ""
 
-#: src/features/login_protect.php:701
+#: src/features/login_protect.php:775
 msgid ""
 "Adds a dynamically (Javascript) generated checkbox to the login form that "
 "prevents bots using automated login techniques."
 msgstr ""
 
-#: src/features/login_protect.php:702
+#: src/features/login_protect.php:776
 msgid "ON"
 msgstr ""
 
-#: src/features/login_protect.php:706
+#: src/features/login_protect.php:780
 msgid "Cooldown Period"
 msgstr ""
 
-#: src/features/login_protect.php:707
+#: src/features/login_protect.php:781
 msgid "Limit account access requests to every X seconds"
 msgstr ""
 
-#: src/features/login_protect.php:708
+#: src/features/login_protect.php:782
 msgid ""
 "WordPress will process only ONE account access attempt per number of seconds "
 "specified."
 msgstr ""
 
-#: src/features/login_protect.php:709
+#: src/features/login_protect.php:783
 msgid "Zero (0) turns this off."
 msgstr ""
 
-#: src/features/login_protect.php:715
+#: src/features/login_protect.php:789
 msgid "User Registration"
 msgstr ""
 
-#: src/features/login_protect.php:716
+#: src/features/login_protect.php:790
 msgid "Apply Brute Force Protection To User Registration And Lost Passwords"
 msgstr ""
 
-#: src/features/login_protect.php:717
+#: src/features/login_protect.php:791
 msgid ""
 "When enabled, settings in this section will also apply to new user "
 "registration and users trying to reset passwords."
 msgstr ""
 
-#: src/features/login_protect.php:721
+#: src/features/login_protect.php:795
 msgid "Enable Yubikey Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:722
+#: src/features/login_protect.php:796
 msgid "Turn On / Off Yubikey Authentication On This Site"
 msgstr ""
 
-#: src/features/login_protect.php:723
+#: src/features/login_protect.php:797
 msgid ""
 "Combined with your Yubikey API details this will form the basis of your "
 "Yubikey Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:727
+#: src/features/login_protect.php:801
 msgid "Yubikey App ID"
 msgstr ""
 
-#: src/features/login_protect.php:728
+#: src/features/login_protect.php:802
 msgid "Your Unique Yubikey App ID"
 msgstr ""
 
-#: src/features/login_protect.php:729
+#: src/features/login_protect.php:803
 msgid ""
 "Combined with your Yubikey API Key this will form the basis of your Yubikey "
 "Authentication"
 msgstr ""
 
-#: src/features/login_protect.php:730
+#: src/features/login_protect.php:804
 msgid ""
 "Please review the info link on how to obtain your own Yubikey App ID and API "
 "Key."
 msgstr ""
 
-#: src/features/login_protect.php:734
+#: src/features/login_protect.php:808
 msgid "Yubikey API Key"
 msgstr ""
 
-#: src/features/login_protect.php:735
+#: src/features/login_protect.php:809
 msgid "Your Unique Yubikey App API Key"
 msgstr ""
 
-#: src/features/login_protect.php:736
+#: src/features/login_protect.php:810
 msgid ""
 "Combined with your Yubikey App ID this will form the basis of your Yubikey "
 "Authentication."
 msgstr ""
 
-#: src/features/login_protect.php:737
+#: src/features/login_protect.php:811
 msgid ""
 "Please review the info link on how to get your own Yubikey App ID and API "
 "Key."
 msgstr ""
 
-#: src/features/login_protect.php:741
+#: src/features/login_protect.php:815
 msgid "Yubikey Unique Keys"
 msgstr ""
 
-#: src/features/login_protect.php:742
+#: src/features/login_protect.php:816
 msgid ""
 "This method for Yubikeys is no longer supported. Please see your user profile"
 msgstr ""
 
-#: src/features/login_protect.php:743
+#: src/features/login_protect.php:817
 msgid "Format"
 msgstr ""
 
-#: src/features/login_protect.php:744
+#: src/features/login_protect.php:818
 msgid "Provide Username<->Yubikey Pairs that are usable for this site."
 msgstr ""
 
-#: src/features/login_protect.php:745
+#: src/features/login_protect.php:819
 msgid ""
 "If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for "
 "that user."
 msgstr ""
 
-#: src/features/login_protect.php:746
+#: src/features/login_protect.php:820
 msgid ""
 "Each [Username,Key] pair should be separated by a new line: you only need to "
 "provide the first 12 characters of the yubikey."
 msgstr ""
 
-#: src/features/login_protect.php:750
+#: src/features/login_protect.php:824
 msgid "GASP Checkbox Text"
 msgstr ""
 
-#: src/features/login_protect.php:751
+#: src/features/login_protect.php:825
 msgid "The User Message Displayed Next To The GASP Checkbox"
 msgstr ""
 
-#: src/features/login_protect.php:752
+#: src/features/login_protect.php:826
 msgid ""
 "You can change the text displayed to the user beside the checkbox if you "
 "need a custom message."
 msgstr ""
 
-#: src/features/login_protect.php:757
+#: src/features/login_protect.php:831
 msgid "GASP Alert Text"
 msgstr ""
 
-#: src/features/login_protect.php:758
+#: src/features/login_protect.php:832
 msgid "The Message Displayed If The User Doesn't Check The Box"
 msgstr ""
 
-#: src/features/login_protect.php:759
+#: src/features/login_protect.php:833
 msgid ""
 "You can change the text displayed to the user in the alert message if they "
 "don't check the box."
@@ -4159,7 +4197,7 @@ msgstr ""
 msgid "Cookie"
 msgstr ""
 
-#: src/features/plugin.php:938 src/features/traffic.php:381
+#: src/features/plugin.php:938 src/features/traffic.php:395
 msgid "IP"
 msgstr ""
 
@@ -4268,7 +4306,7 @@ msgid "Premium Plugin Support Centre"
 msgstr ""
 
 #: src/features/plugin.php:974 src/features/sessions.php:54
-#: src/features/traffic.php:463 src/features/user_management.php:314
+#: src/features/traffic.php:477 src/features/user_management.php:314
 msgid "User Management"
 msgstr ""
 
@@ -4322,144 +4360,166 @@ msgstr ""
 msgid "Sharing"
 msgstr ""
 
-#: src/features/traffic.php:66
+#: src/features/traffic.php:72
 #, php-format
 msgid "%s is a Pro-only feature."
 msgstr ""
 
-#: src/features/traffic.php:66
+#: src/features/traffic.php:72
 msgid "Traffic Watch"
 msgstr ""
 
-#: src/features/traffic.php:71
+#: src/features/traffic.php:77
 msgid ""
 "Traffic Watcher will not run because visitor IP address detection is not "
 "correctly configured."
 msgstr ""
 
-#: src/features/traffic.php:184
+#: src/features/traffic.php:198
 msgid "Traffic Watch Viewer"
 msgstr ""
 
-#: src/features/traffic.php:360
+#: src/features/traffic.php:374
 msgid "unknown"
 msgstr ""
 
-#: src/features/traffic.php:368 src/processors/firewall.php:271
+#: src/features/traffic.php:382 src/processors/firewall.php:271
 msgid "Unknown"
 msgstr ""
 
-#: src/features/traffic.php:382
+#: src/features/traffic.php:396
 msgid "Logged-In"
 msgstr ""
 
-#: src/features/traffic.php:383
+#: src/features/traffic.php:397
 msgid "Location"
 msgstr ""
 
-#: src/features/traffic.php:384
+#: src/features/traffic.php:398
 msgid "User Agent"
 msgstr ""
 
-#: src/features/traffic.php:389
+#: src/features/traffic.php:403
 msgid "Response"
 msgstr ""
 
-#: src/features/traffic.php:390
+#: src/features/traffic.php:404
 msgid "Transgression"
 msgstr ""
 
-#: src/features/traffic.php:434
+#: src/features/traffic.php:448
 msgid "Traffic Watch Log"
 msgstr ""
 
-#: src/features/traffic.php:435
+#: src/features/traffic.php:449
 msgid "Review Site Traffic Logs "
 msgstr ""
 
-#: src/features/traffic.php:453
+#: src/features/traffic.php:467
 msgid "Monitor and review all requests to your site."
 msgstr ""
 
-#: src/features/traffic.php:454
+#: src/features/traffic.php:468
 msgid ""
 "Required only if you need to review and investigate and monitor requests to "
 "your site"
 msgstr ""
 
-#: src/features/traffic.php:460
+#: src/features/traffic.php:474
 msgid "Traffic Watch Options"
 msgstr ""
 
-#: src/features/traffic.php:462
+#: src/features/traffic.php:476
 msgid "Provides finer control over the Traffic Watch system."
 msgstr ""
 
-#: src/features/traffic.php:465
+#: src/features/traffic.php:479
 msgid "Traffic Logging Options"
 msgstr ""
 
-#: src/features/traffic.php:494
+#: src/features/traffic.php:508
 msgid "Traffic Log Exclusions"
 msgstr ""
 
-#: src/features/traffic.php:495
+#: src/features/traffic.php:509
 msgid "Select Which Types Of Requests To Exclude"
 msgstr ""
 
-#: src/features/traffic.php:496
+#: src/features/traffic.php:510
 msgid ""
 "Select request types that you don't want to appear in the traffic viewer."
 msgstr ""
 
-#: src/features/traffic.php:497
+#: src/features/traffic.php:511
 msgid ""
 "If a request matches any exclusion rule, it will not show on the traffic "
 "viewer."
 msgstr ""
 
-#: src/features/traffic.php:501
-msgid "Auto Expiry Cleaning"
+#: src/features/traffic.php:515
+msgid "Custom Exclusions"
 msgstr ""
 
-#: src/features/traffic.php:502
-msgid "Enable Traffic Log Auto Expiry"
-msgstr ""
-
-#: src/features/traffic.php:503
-msgid "DB cleanup will delete logs older than this maximum value (in days)."
-msgstr ""
-
-#: src/features/traffic.php:507
-msgid "Max Log Length"
-msgstr ""
-
-#: src/features/traffic.php:508
-msgid "Maximum Traffic Log Length To Keep"
-msgstr ""
-
-#: src/features/traffic.php:509
-msgid "DB cleanup will delete logs to maintain this maximum number of records."
-msgstr ""
-
-#: src/features/traffic.php:513
-msgid "Auto Disable"
-msgstr ""
-
-#: src/features/traffic.php:514
-msgid "Auto Disable Traffic Logging After 1 Week"
+#: src/features/traffic.php:516
+msgid "Provide Custom Traffic Exclusions"
 msgstr ""
 
 #: src/features/traffic.php:517
+msgid ""
+"For each entry, if the text is present in either the User Agent or request "
+"Path, it will be excluded."
+msgstr ""
+
+#: src/features/traffic.php:518
+msgid "Take a new line for each entry."
+msgstr ""
+
+#: src/features/traffic.php:519
+msgid "Comparisons are case-insensitive."
+msgstr ""
+
+#: src/features/traffic.php:523
+msgid "Auto Expiry Cleaning"
+msgstr ""
+
+#: src/features/traffic.php:524
+msgid "Enable Traffic Log Auto Expiry"
+msgstr ""
+
+#: src/features/traffic.php:525
+msgid "DB cleanup will delete logs older than this maximum value (in days)."
+msgstr ""
+
+#: src/features/traffic.php:529
+msgid "Max Log Length"
+msgstr ""
+
+#: src/features/traffic.php:530
+msgid "Maximum Traffic Log Length To Keep"
+msgstr ""
+
+#: src/features/traffic.php:531
+msgid "DB cleanup will delete logs to maintain this maximum number of records."
+msgstr ""
+
+#: src/features/traffic.php:535
+msgid "Auto Disable"
+msgstr ""
+
+#: src/features/traffic.php:536
+msgid "Auto Disable Traffic Logging After 1 Week"
+msgstr ""
+
+#: src/features/traffic.php:539
 #, php-format
 msgid "Auto Disable At: %s"
 msgstr ""
 
-#: src/features/traffic.php:522
+#: src/features/traffic.php:544
 msgid "Turn on to prevent unnecessary long-term traffic logging."
 msgstr ""
 
-#: src/features/traffic.php:523
+#: src/features/traffic.php:545
 msgid "Timer resets after options save."
 msgstr ""
 
@@ -5006,6 +5066,7 @@ msgid "Thank you."
 msgstr ""
 
 #: src/processors/autoupdates.php:540
+#: src/processors/loginprotect_backupcodes.php:181
 #, php-format
 msgid "Notice: %s"
 msgstr ""
@@ -5110,7 +5171,6 @@ msgid "Head over to: %s"
 msgstr ""
 
 #: src/processors/base_wpsf.php:99 src/processors/base_wpsf.php:107
-#: src/processors/loginprotect_googleauthenticator.php:223
 msgid "Whoops."
 msgstr ""
 
@@ -5200,7 +5260,7 @@ msgstr ""
 msgid "Firewall Trigger: %s."
 msgstr ""
 
-#: src/processors/firewall.php:160 src/processors/firewall.php:539
+#: src/processors/firewall.php:160 src/processors/firewall.php:548
 msgid "EXE File Uploads"
 msgstr ""
 
@@ -5248,37 +5308,37 @@ msgstr ""
 msgid "Firewall Block Response: %s."
 msgstr ""
 
-#: src/processors/firewall.php:466
+#: src/processors/firewall.php:475
 #, php-format
 msgid "%s has blocked a page visit to your site."
 msgstr ""
 
-#: src/processors/firewall.php:467
+#: src/processors/firewall.php:476
 msgid "Log details for this visitor are below:"
 msgstr ""
 
-#: src/processors/firewall.php:472
+#: src/processors/firewall.php:481
 #, php-format
 msgid "You can look up the offending IP Address here: %s"
 msgstr ""
 
-#: src/processors/firewall.php:473
+#: src/processors/firewall.php:482
 msgid "Firewall Block Alert"
 msgstr ""
 
-#: src/processors/firewall.php:527
+#: src/processors/firewall.php:536
 msgid "Directory Traversal"
 msgstr ""
 
-#: src/processors/firewall.php:542
+#: src/processors/firewall.php:551
 msgid "Leading Schema"
 msgstr ""
 
-#: src/processors/firewall.php:548
+#: src/processors/firewall.php:557
 msgid "Aggressive Rules"
 msgstr ""
 
-#: src/processors/firewall.php:551
+#: src/processors/firewall.php:560
 msgid "Unknown Rules"
 msgstr ""
 
@@ -5311,7 +5371,7 @@ msgstr ""
 
 #: src/processors/hackprotect_corechecksumscan.php:265
 #: src/processors/hackprotect_filecleanerscan.php:254
-#: src/processors/hackprotect_ptguard.php:460
+#: src/processors/hackprotect_ptguard.php:495
 #: src/processors/user_management.php:207
 #: src/processors/user_management.php:235
 msgid "Site URL"
@@ -5470,50 +5530,64 @@ msgstr ""
 msgid "Vulnerable Versions"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:414
+#: src/processors/hackprotect_ptguard.php:178
+#, php-format
+msgid "File signatures removed for item \"%s\""
+msgstr ""
+
+#: src/processors/hackprotect_ptguard.php:204
+#, php-format
+msgid "File signatures updated for item \"%s\""
+msgstr ""
+
+#: src/processors/hackprotect_ptguard.php:449
 msgid "Silenced repeated email alert from Plugin/Theme Scan Guard"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:456
+#: src/processors/hackprotect_ptguard.php:491
 #, php-format
 msgid ""
 "%s has detected at least 1 Plugins/Themes have been modified on your site."
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:458
+#: src/processors/hackprotect_ptguard.php:493
 msgid ""
 "You will receive only 1 email notification about these changes in a 1 week "
 "period."
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:462
+#: src/processors/hackprotect_ptguard.php:497
 msgid "Details of the problem items are below:"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:467
+#: src/processors/hackprotect_ptguard.php:502
 msgid "Modified Plugins:"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:475
+#: src/processors/hackprotect_ptguard.php:510
 msgid "Modified Themes:"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:485
+#: src/processors/hackprotect_ptguard.php:520
 msgid "Run the scanner"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:491
+#: src/processors/hackprotect_ptguard.php:526
 msgid "Plugins/Themes Have Been Altered"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:496
+#: src/processors/hackprotect_ptguard.php:531
 #, php-format
 msgid "Successfully sent Plugin/Theme Guard email alert to: %s"
 msgstr ""
 
-#: src/processors/hackprotect_ptguard.php:499
+#: src/processors/hackprotect_ptguard.php:534
 #, php-format
 msgid "Failed to send Plugin/Theme Guard email alert to: %s"
+msgstr ""
+
+#: src/processors/hackprotect_ptguard.php:689
+msgid "Plugin/Theme Guard"
 msgstr ""
 
 #: src/processors/hackprotect_wpvulnscan.php:112
@@ -5662,6 +5736,179 @@ msgstr ""
 msgid "To turn this notice off, disable 2-Factor Authentication."
 msgstr ""
 
+#: src/processors/loginprotect_backupcodes.php:28
+msgid "Generate ONE-Time Backup 2FA Login Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:29
+msgid "Delete Login Backup Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:30
+msgid ""
+"Backup login codes are not available if you do not have any other two-factor "
+"authentication modes active."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:31
+msgid ""
+"Click to generate a backup login code for your two-factor authentication."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:34
+msgid ""
+"This code will be displayed only once and you may use it to verify your "
+"login only once."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:35
+msgid "Store it somewhere safe."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:36
+msgid "Generating a new code will replace your existing code."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:37
+#: src/processors/loginprotect_googleauthenticator.php:38
+msgid ""
+"Use your Google Authenticator app to scan this QR code and enter the one "
+"time password below."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:38
+#: src/processors/loginprotect_googleauthenticator.php:39
+msgid ""
+"If you have a problem with scanning the QR code enter this code manually "
+"into the app."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:39
+#: src/processors/loginprotect_googleauthenticator.php:40
+msgid "Check the box to remove Google Authenticator login authentication."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:40
+#: src/processors/loginprotect_googleauthenticator.php:41
+#, php-format
+msgid "Remove %s"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:41
+msgid "Create Backup 2FA Login Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:42
+#: src/processors/loginprotect_googleauthenticator.php:43
+msgid "Manual Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:43
+#: src/processors/loginprotect_googleauthenticator.php:44
+msgid "Scan This QR Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:44
+msgid "Backup Login Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:45
+#: src/processors/loginprotect_googleauthenticator.php:46
+#: src/processors/loginprotect_yubikey.php:46
+#, php-format
+msgid "Sorry, %s may not be added to another user's account."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:46
+#: src/processors/loginprotect_googleauthenticator.php:47
+#: src/processors/loginprotect_yubikey.php:47
+#, php-format
+msgid ""
+"Sorry, %s may only be removed from another user's account by a Security "
+"Administrator."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:46
+msgid "Backup Codes"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:47
+#: src/processors/loginprotect_googleauthenticator.php:48
+#: src/processors/loginprotect_twofactorauth.php:204
+#: src/processors/loginprotect_yubikey.php:48
+#, php-format
+msgid "Provided by %s"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:48
+#: src/processors/loginprotect_googleauthenticator.php:49
+#: src/processors/loginprotect_yubikey.php:49
+msgid "Understand how to remove Google Authenticator"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:75
+msgid "Please use your Backup Code to login."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:76
+msgid "Login Backup Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:133
+#: src/processors/loginprotect_googleauthenticator.php:288
+#: src/processors/loginprotect_twofactorauth.php:41
+#: src/processors/loginprotect_yubikey.php:239
+#, php-format
+msgid "User \"%s\" verified their identity using %s method."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:134
+#: src/processors/loginprotect_backupcodes.php:142
+msgid "Backup Code"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:141
+#: src/processors/loginprotect_googleauthenticator.php:296
+#: src/processors/loginprotect_twofactorauth.php:49
+#: src/processors/loginprotect_yubikey.php:247
+#, php-format
+msgid "User \"%s\" failed to verify their identity using %s method."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:169
+msgid ""
+"This is a quick notice to inform you that your Backup Login code was just "
+"used."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:170
+msgid "Your WordPress account had only 1 backup login code."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:171
+msgid ""
+"You must go to your profile and regenerate a new code if you want to use "
+"this method again."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:173
+#: src/processors/loginprotect_twofactorauth.php:159
+msgid "Login Details"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:174
+#: src/processors/loginprotect_twofactorauth.php:160
+msgid "URL"
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:178
+msgid "Thank You."
+msgstr ""
+
+#: src/processors/loginprotect_backupcodes.php:181
+msgid "Backup Login Code Just Used"
+msgstr ""
+
 #: src/processors/loginprotect_cooldown.php:24
 msgid "Request Cooldown in effect."
 msgstr ""
@@ -5718,68 +5965,13 @@ msgstr ""
 msgid "To reset this QR Code enter fake data here."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:38
-msgid ""
-"Use your Google Authenticator app to scan this QR code and enter the one "
-"time password below."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:39
-msgid ""
-"If you have a problem with scanning the QR code enter this code manually "
-"into the app."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:40
-msgid "Check the box to remove Google Authenticator login authentication."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:41
-#, php-format
-msgid "Remove %s"
-msgstr ""
-
 #: src/processors/loginprotect_googleauthenticator.php:42
-#: src/processors/loginprotect_googleauthenticator.php:259
+#: src/processors/loginprotect_googleauthenticator.php:206
 msgid "Google Authenticator Code"
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:43
-msgid "Manual Code"
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:44
-msgid "Scan This QR Code"
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:46
-#: src/processors/loginprotect_yubikey.php:46
-#, php-format
-msgid "Sorry, %s may not be added to another user's account."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:47
-#: src/processors/loginprotect_yubikey.php:47
-#, php-format
-msgid ""
-"Sorry, %s may only be removed from another user's account by a Security "
-"Administrator."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:48
-#: src/processors/loginprotect_twofactorauth.php:204
-#: src/processors/loginprotect_yubikey.php:48
-#, php-format
-msgid "Provided by %s"
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:49
-#: src/processors/loginprotect_yubikey.php:49
-msgid "Understand how to remove Google Authenticator"
-msgstr ""
-
 #: src/processors/loginprotect_googleauthenticator.php:107
-#: src/processors/loginprotect_googleauthenticator.php:153
+#: src/processors/loginprotect_googleauthenticator.php:152
 msgid "Google Authenticator was successfully removed from the account."
 msgstr ""
 
@@ -5789,140 +5981,118 @@ msgid ""
 "code is correct."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:145
+#: src/processors/loginprotect_googleauthenticator.php:144
 #: src/processors/loginprotect_yubikey.php:80
 msgid "One Time Password (OTP) was not valid."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:145
+#: src/processors/loginprotect_googleauthenticator.php:144
 #: src/processors/loginprotect_yubikey.php:80
 msgid "Please try again."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:158
+#: src/processors/loginprotect_googleauthenticator.php:157
 msgid ""
 "An email has been sent to you in order to confirm Google Authenticator "
 "removal"
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:162
+#: src/processors/loginprotect_googleauthenticator.php:161
 msgid ""
 "We tried to send an email for you to confirm Google Authenticator removal "
 "but it failed."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:184
+#: src/processors/loginprotect_googleauthenticator.php:183
 #, php-format
 msgid "%s was successfully added to your account."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:223
-msgid "Did we forget to use the Google Authenticator?"
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:230
-msgid "Oh dear."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:230
-msgid "Google Authenticator Code Failed."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:258
+#: src/processors/loginprotect_googleauthenticator.php:205
 msgid "Please use your Google Authenticator App to retrieve your code."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:277
+#: src/processors/loginprotect_googleauthenticator.php:224
 msgid ""
 "You have requested the removal of Google Authenticator from your WordPress "
 "account."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:278
+#: src/processors/loginprotect_googleauthenticator.php:225
 msgid "Please click the link below to confirm."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:283
+#: src/processors/loginprotect_googleauthenticator.php:230
 msgid "Google Authenticator Removal Confirmation"
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:307
+#: src/processors/loginprotect_googleauthenticator.php:254
 msgid "Google Authenticator was successfully removed from this account."
 msgstr ""
 
-#: src/processors/loginprotect_googleauthenticator.php:342
-#, php-format
-msgid ""
-"User \"%s\" verified their identity using Google Authenticator Two-Factor "
-"Authentication."
-msgstr ""
-
-#: src/processors/loginprotect_googleauthenticator.php:350
-#, php-format
-msgid ""
-"User \"%s\" failed to verify their identity using Google Authenticator Two-"
-"Factor Authentication."
-msgstr ""
-
-#: src/processors/loginprotect_intent.php:118
+#: src/processors/loginprotect_intent.php:121
 msgid "Success"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:118
+#: src/processors/loginprotect_intent.php:121
 msgid "Thank you for authenticating your login."
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:122
+#: src/processors/loginprotect_intent.php:123
+msgid "If you used your Backup Code, you will need to reset it."
+msgstr ""
+
+#: src/processors/loginprotect_intent.php:131
 msgid "One or more of your authentication codes failed or was missing"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:260
+#: src/processors/loginprotect_intent.php:269
 msgid "Please supply all authentication codes"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:263
+#: src/processors/loginprotect_intent.php:272
 msgid "Please supply at least 1 authentication code"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:276
+#: src/processors/loginprotect_intent.php:287
 msgid "Cancel Login"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:277
+#: src/processors/loginprotect_intent.php:288
 msgid "Time Remaining"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:278
+#: src/processors/loginprotect_intent.php:289
 msgid "Calculating"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:279
+#: src/processors/loginprotect_intent.php:290
 msgid "Seconds"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:280
+#: src/processors/loginprotect_intent.php:291
 msgid "Login Expired"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:281
+#: src/processors/loginprotect_intent.php:292
 msgid "Verify My Login"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:283
+#: src/processors/loginprotect_intent.php:294
 msgid "What is this?"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:285
+#: src/processors/loginprotect_intent.php:296
 #, php-format
 msgid "%s Login Verification"
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:287
+#: src/processors/loginprotect_intent.php:298
 #, php-format
 msgid "Don't ask again on this browser for %s."
 msgstr ""
 
-#: src/processors/loginprotect_intent.php:288
+#: src/processors/loginprotect_intent.php:299
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
@@ -5930,16 +6100,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/processors/loginprotect_twofactorauth.php:42
-#, php-format
-msgid ""
-"User \"%s\" verified their identity using Email Two-Factor Authentication."
-msgstr ""
-
 #: src/processors/loginprotect_twofactorauth.php:50
-#, php-format
-msgid ""
-"User \"%s\" failed to verify their identity using Email Two-Factor "
-"Authentication."
+msgid "Email Auth"
 msgstr ""
 
 #: src/processors/loginprotect_twofactorauth.php:80
@@ -5961,14 +6123,6 @@ msgstr ""
 #: src/processors/loginprotect_twofactorauth.php:157
 #, php-format
 msgid "Verification Code: %s"
-msgstr ""
-
-#: src/processors/loginprotect_twofactorauth.php:159
-msgid "Login Details"
-msgstr ""
-
-#: src/processors/loginprotect_twofactorauth.php:160
-msgid "URL"
 msgstr ""
 
 #: src/processors/loginprotect_twofactorauth.php:167
@@ -6066,7 +6220,9 @@ msgid "Yubikey ID"
 msgstr ""
 
 #: src/processors/loginprotect_yubikey.php:44
-#: src/processors/loginprotect_yubikey.php:264
+#: src/processors/loginprotect_yubikey.php:240
+#: src/processors/loginprotect_yubikey.php:248
+#: src/processors/loginprotect_yubikey.php:266
 msgid "Yubikey OTP"
 msgstr ""
 
@@ -6097,57 +6253,50 @@ msgstr ""
 msgid "No changes were made to your Yubikey configuration"
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:239
-#: src/processors/loginprotect_yubikey.php:359
-#, php-format
-msgid ""
-"User \"%s\" successfully logged in using a validated Yubikey One Time "
-"Password."
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:246
-#, php-format
-msgid ""
-"User \"%s\" failed to verify their identity using Yubikey One Time Password."
-msgstr ""
-
-#: src/processors/loginprotect_yubikey.php:262
+#: src/processors/loginprotect_yubikey.php:264
 msgid "Use your Yubikey to generate a new code."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:339
+#: src/processors/loginprotect_yubikey.php:341
 #, php-format
 msgid ""
 "User \"%s\" logged in without a Yubikey One Time Password because no "
 "username-yubikey pair was found for this user."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:346
+#: src/processors/loginprotect_yubikey.php:348
 #, php-format
 msgid ""
 "User \"%s\" attempted to login but Yubikey ID \"%s\" used was not in list of "
 "authorised keys."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:352
-#: src/processors/loginprotect_yubikey.php:370
+#: src/processors/loginprotect_yubikey.php:354
+#: src/processors/loginprotect_yubikey.php:372
 #, php-format
 msgid "ERROR: %s"
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:352
+#: src/processors/loginprotect_yubikey.php:354
 msgid ""
 "The Yubikey provided is not on the list of permitted keys for this user."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:365
+#: src/processors/loginprotect_yubikey.php:361
+#, php-format
+msgid ""
+"User \"%s\" successfully logged in using a validated Yubikey One Time "
+"Password."
+msgstr ""
+
+#: src/processors/loginprotect_yubikey.php:367
 #, php-format
 msgid ""
 "User \"%s\" attempted to login but Yubikey One Time Password failed to "
 "validate due to invalid Yubi API response.\"."
 msgstr ""
 
-#: src/processors/loginprotect_yubikey.php:370
+#: src/processors/loginprotect_yubikey.php:372
 msgid "The Yubikey authentication was not validated successfully."
 msgstr ""
 
@@ -6495,24 +6644,34 @@ msgstr ""
 msgid "Invalid email address"
 msgstr ""
 
-#: src/wizards/login_protect.php:117
+#: src/wizards/login_protect.php:69
+msgid "Verification email sent (please check your email including your SPAM)."
+msgstr ""
+
+#: src/wizards/login_protect.php:70
+msgid ""
+"Enter the code from the email into the form above and click the button to "
+"verify."
+msgstr ""
+
+#: src/wizards/login_protect.php:119
 msgid "Code was empty."
 msgstr ""
 
-#: src/wizards/login_protect.php:144
+#: src/wizards/login_protect.php:146
 msgid "Google Authenticator was enabled for the site."
 msgstr ""
 
-#: src/wizards/login_protect.php:159
+#: src/wizards/login_protect.php:161
 #, php-format
 msgid "Multi-Factor Authentication was %s for the site."
 msgstr ""
 
-#: src/wizards/login_protect.php:160
+#: src/wizards/login_protect.php:162
 msgid "enabled"
 msgstr ""
 
-#: src/wizards/login_protect.php:160
+#: src/wizards/login_protect.php:162
 msgid "disabled"
 msgstr ""
 

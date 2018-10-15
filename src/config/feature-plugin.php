@@ -10,7 +10,8 @@
     "access_restricted":     true,
     "premium":               false,
     "has_custom_actions":    false,
-    "whitelist_exempt":      true,
+    "run_if_whitelisted":    true,
+    "run_if_verified_bot":   true,
     "order":                 10
   },
   "admin_notices": {
@@ -53,13 +54,6 @@
       "schedule":    "once",
       "valid_admin": true,
       "delay_days":  30,
-      "type":        "promo"
-    },
-    "translate-plugin":           {
-      "id":          "translate-plugin",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  45,
       "type":        "promo"
     }
   },
@@ -395,6 +389,7 @@
     }
   ],
   "definitions":   {
+    "survey_email":           "c3VwcG9ydEBvbmVkb2xsYXJwbHVnaW4uY29t",
     "help_video_id":          "",
     "tracking_cron_handle":   "plugin_tracking_cron",
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",

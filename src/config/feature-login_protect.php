@@ -9,6 +9,8 @@
     "show_central":           true,
     "access_restricted":      true,
     "premium":                false,
+    "run_if_whitelisted":     false,
+    "run_if_verified_bot":    false,
     "order":                  40
   },
   "admin_notices": {
@@ -158,6 +160,18 @@
       "name":        "Multi-Factor By-Pass",
       "summary":     "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days",
       "description": "Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable."
+    },
+    {
+      "key":         "allow_backupcodes",
+      "section":     "section_multifactor_authentication",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Allow Backup Codes",
+      "summary":     "Allow Users To Generate A Backup Code",
+      "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
     },
     {
       "key":         "enable_google_authenticator",
@@ -361,6 +375,7 @@
     {
       "key":         "text_imahuman",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",
@@ -373,6 +388,7 @@
     {
       "key":         "text_pleasecheckbox",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",

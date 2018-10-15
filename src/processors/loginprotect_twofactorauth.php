@@ -17,16 +17,17 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
-		$bLoginSuccess = is_object( $oUser ) && ( $oUser instanceof WP_User );
-		if ( $bLoginSuccess && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
+		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
+			 && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
+
+			$oFO->getSessionsProcessor()
+				->getQueryUpdater()
+				->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
-			$this->doStatIncrement( 'login.twofactor.started' );
-
-			$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
-			$oMeta->code_tfaemail = $this->getSessionHashCode();
-
-			$this->sendEmailTwoFactorVerify( $oUser );
+			$this->doStatIncrement( 'login.twofactor.started' )
+				 ->sendEmailTwoFactorVerify( $oUser )
+				 ->setLoginCaptured();
 		}
 		return $oUser;
 	}
@@ -38,19 +39,19 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" verified their identity using Email Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_two_factor_verified'
+				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Email Auth' )
+				), 2, 'login_protect_emailauth_verified'
 			);
-			$this->doStatIncrement( 'login.twofactor.verified' );
+			$this->doStatIncrement( 'login.emailauth.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf(
-					_wpsf__( 'User "%s" failed to verify their identity using Email Two-Factor Authentication.' ),
-					$oUser->user_login ), 2, 'login_protect_two_factor_failed'
+				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
+					$oUser->user_login, _wpsf__( 'Email Auth' )
+				), 2, 'login_protect_emailauth_failed'
 			);
-			$this->doStatIncrement( 'login.twofactor.failed' );
+			$this->doStatIncrement( 'login.emailauth.failed' );
 		}
 	}
 
@@ -60,9 +61,13 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
-		$bValid = ( $sOtpCode == $this->getStoredSessionHashCode() );
+		$bValid = !empty( $sOtpCode ) && ( $sOtpCode == $this->getStoredSessionHashCode() );
 		if ( $bValid ) {
-			unset( $this->loadWpUsers()->metaVoForUser( $this->prefix() )->code_tfaemail );
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+			$oFO = $this->getMod();
+			$oFO->getSessionsProcessor()
+				->getQueryUpdater()
+				->clearLoginIntentCodeEmail( $oFO->getSession() );
 		}
 		return $bValid;
 	}
@@ -89,7 +94,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
-	public function hasValidatedProfile( $oUser ) {
+	protected function hasValidatedProfile( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		// Currently it's a global setting but this will evolve to be like Google Authenticator so that it's a user meta
@@ -120,9 +125,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @return string The unique 2FA 6-digit code
+	 * We don't use user meta as it's dependent on the particular user sessions in-use
+	 * @param WP_User $oUser
+	 * @return string
 	 */
-	protected function getSessionHashCode() {
+	protected function getSecret( WP_User $oUser ) {
 		return strtoupper( substr( $this->genSessionHash(), 0, 6 ) );
 	}
 
@@ -130,7 +137,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return string The unique 2FA 6-digit code
 	 */
 	protected function getStoredSessionHashCode() {
-		return $this->getCurrentUserMeta()->code_tfaemail;
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->hasSession() ? $oFO->getSession()->getLoginIntentCodeEmail() : '';
 	}
 
 	/**
@@ -138,26 +147,25 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return bool
 	 */
 	protected function isSecretValid( $sSecret ) {
-		return true; // we don't use individual user secrets for email (yet)
+		$sHash = $this->getStoredSessionHashCode();
+		return !empty( $sHash );
 	}
 
 	/**
 	 * @param WP_User $oUser
-	 * @return boolean
+	 * @return $this
 	 */
 	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
-		$oWp = $this->loadWp();
 		$sIpAddress = $this->ip();
-		$sEmail = $oUser->get( 'user_email' );
 
 		$aMessage = array(
 			_wpsf__( 'Someone attempted to login into this WordPress site using your account.' ),
 			_wpsf__( 'Login requires verification with the following code.' ),
 			'',
-			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSessionHashCode() ) ),
+			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
-			sprintf( '%s: %s', _wpsf__( 'URL' ), $oWp->getHomeUrl() ),
+			sprintf( '%s: %s', _wpsf__( 'URL' ), $this->loadWp()->getHomeUrl() ),
 			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
 			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
 			'',
@@ -171,7 +179,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$sEmailSubject = _wpsf__( 'Two-Factor Login Verification' );
 
 		$bResult = $this->getEmailProcessor()
-						->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
+						->sendEmailWithWrap( $oUser->user_email, $sEmailSubject, $aMessage );
 		if ( $bResult ) {
 			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->user_login, $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );
@@ -180,7 +188,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$sAuditMessage = sprintf( _wpsf__( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.' ), $oUser->user_login, $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
 		}
-		return $bResult;
+		return $this;
 	}
 
 	/**
