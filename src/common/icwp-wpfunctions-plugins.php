@@ -292,14 +292,15 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @param string $sPluginFile
 	 * @return string
 	 */
-	public function getLinkPluginDeactivate( $sPluginFile ) {
-		$sUrl = self_admin_url( 'plugins.php' );
-		$aQueryArgs = array(
-			'action'   => 'deactivate',
-			'plugin'   => urlencode( $sPluginFile ),
-			'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sPluginFile )
+	public function getUrl_Deactivate( $sPluginFile ) {
+		return add_query_arg(
+			array(
+				'action'   => 'deactivate',
+				'plugin'   => urlencode( $sPluginFile ),
+				'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sPluginFile )
+			),
+			self_admin_url( 'plugins.php' )
 		);
-		return add_query_arg( $aQueryArgs, $sUrl );
 	}
 
 	/**

@@ -57,7 +57,6 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	}
 
 	public function printPluginReinstallDialogs() {
-
 		$aRenderData = array(
 			'strings'     => array(
 				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),

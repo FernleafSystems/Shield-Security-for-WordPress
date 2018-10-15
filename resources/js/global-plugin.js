@@ -150,8 +150,7 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			event.preventDefault();
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_lg.ajax_gen_backup_codes;
-			jQuery.post( ajaxurl, $aData,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_gen_backup_codes,
 				function ( oResponse ) {
 					alert( 'Your login backup code: ' + oResponse.data.code );
 				}
@@ -167,8 +166,7 @@ if ( typeof icwp_wpsf_vars_lg !== 'undefined' ) {
 			event.preventDefault();
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_lg.ajax_del_backup_codes;
-			jQuery.post( ajaxurl, $aData,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_lg.ajax_del_backup_codes,
 				function ( oResponse ) {
 				}
 			).always( function () {
@@ -288,4 +286,83 @@ iCWP_WPSF_SecurityAdmin.initialise();
 /** only run when HackGuard module is processing enqueues **/
 if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 	iCWP_WPSF_HackGuard_Reinstall.initialise();
+}
+if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+
+	var iCWP_WPSF_Plugin_Deactivate_Survey = new function () {
+
+		this.initialise = function () {
+			jQuery( document ).ready( function () {
+
+				jQuery( document ).on( "click",
+					'[data-plugin="' + icwp_wpsf_vars_plugin.file + '"] span.deactivate a',
+					promptSurvey
+				);
+
+				var oShareSettings = {
+					title: 'Care To Share?',
+					dialogClass: 'wp-dialog',
+					autoOpen: false,
+					draggable: false,
+					width: 'auto',
+					modal: true,
+					resizable: false,
+					closeOnEscape: true,
+					position: {
+						my: "center",
+						at: "center",
+						of: window
+					},
+					open: function () {
+						// close dialog by clicking the overlay behind it
+						jQuery( '.ui-widget-overlay' ).bind( 'click', function () {
+							jQuery( this ).dialog( 'close' );
+						} )
+					},
+					create: function () {
+						// style fix for WordPress admin
+						jQuery( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
+					},
+					close: function () {
+						window.location.href = icwp_wpsf_vars_plugin.hrefs.deactivate;
+					}
+				};
+
+				var $oSurveyDialog = jQuery( '#icwpWpsfSurvey' );
+				oShareSettings[ 'buttons' ] = {
+					"Close (I don't want to help)": function () {
+						jQuery( this ).dialog( "close" );
+					},
+					"Yes (Send my feedback)": function () {
+						send_survey_deactivate();
+						jQuery( this ).dialog( "close" );
+					}
+				};
+				$oSurveyDialog.dialog( oShareSettings );
+			} );
+		};
+
+		var promptSurvey = function ( event ) {
+			event.preventDefault();
+			iCWP_WPSF_BodyOverlay.show();
+			jQuery( '#icwpWpsfSurvey' ).dialog( 'open' );
+			return false;
+		};
+
+		var send_survey_deactivate = function () {
+
+			var $aData = icwp_wpsf_vars_plugin.ajax.send_deactivate_survey;
+			jQuery.each( jQuery( '#icwpWpsfSurveyForm' ).serializeArray(),
+				function ( _, kv ) {
+					$aData[ kv.name ] = kv.value;
+				}
+			);
+
+			jQuery.post( ajaxurl, $aData );
+			setTimeout( function () {}, 2000 ); // give the request time to complete
+
+			return false;
+		};
+	}();
+	iCWP_WPSF_Plugin_Deactivate_Survey.initialise();
 }
