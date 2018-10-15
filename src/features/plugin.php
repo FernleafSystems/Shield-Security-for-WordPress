@@ -238,7 +238,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		}
 		$this->getEmailProcessor()
 			 ->send(
-				 'shield-deactivate-survey@paulgoodchild.net',
+				 $this->getSurveyEmail(),
 				 'Shield Deactivation Survey',
 				 implode( "\n<br/>", $aResults )
 			 );
@@ -962,6 +962,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aOptionsParams[ 'summary' ] = $sSummary;
 		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getSurveyEmail() {
+		return base64_decode( $this->getDef( 'survey_email' ) );
 	}
 
 	/**

@@ -389,6 +389,7 @@
     }
   ],
   "definitions":   {
+    "survey_email":           "c3VwcG9ydEBvbmVkb2xsYXJwbHVnaW4uY29t",
     "help_video_id":          "",
     "tracking_cron_handle":   "plugin_tracking_cron",
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
