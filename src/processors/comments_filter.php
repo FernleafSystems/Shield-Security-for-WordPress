@@ -72,7 +72,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 						'click_to_deactivate'     => _wpsf__( 'Click to deactivate Akismet now.' ),
 					),
 					'hrefs'             => array(
-						'deactivate' => $oWpPlugins->getLinkPluginDeactivate( $sPluginFile )
+						'deactivate' => $oWpPlugins->getUrl_Deactivate( $sPluginFile )
 					)
 				);
 				$this->insertAdminNotice( $aRenderData );

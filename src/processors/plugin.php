@@ -56,6 +56,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			default:
 				break;
 		}
+
+		add_action( 'admin_footer', array( $this, 'printPluginDeactivateSurvey' ), 100, 0 );
 	}
 
 	public function onWpLoaded() {
@@ -113,6 +115,34 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->aSubProcessors[ 'notes' ] = $oProc;
 		}
 		return $oProc;
+	}
+
+	public function printPluginDeactivateSurvey() {
+		$oWp = $this->loadWp();
+		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
+
+			$aOpts = array(
+				'reason_confusing'   => "It's too confusing",
+				'reason_expected'    => "It's not what I expected",
+				'reason_accident'    => "I downloaded it accidentally",
+				'reason_alternative' => "I'm already using an alternative",
+				'reason_trust'       => "I don't trust the developer :(",
+				'reason_not_work'    => "It doesn't work",
+				'reason_errors'      => "I'm getting errors",
+			);
+
+			$aRenderData = array(
+				'strings'     => array(
+					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+				),
+				'inputs'      => array(
+					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
+				),
+				'js_snippets' => array()
+			);
+			echo $this->getMod()
+					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aRenderData );
+		}
 	}
 
 	/**
@@ -209,9 +239,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 						'forceOff',
 						$oCon->getHumanName()
 					),
-					'delete' => _wpsf__( 'Click here to automatically delete the file' )
+					'delete'  => _wpsf__( 'Click here to automatically delete the file' )
 				),
-				'ajax' => array(
+				'ajax'              => array(
 					'delete_forceoff' => $oFO->getAjaxActionData( 'delete_forceoff', true )
 				)
 			);

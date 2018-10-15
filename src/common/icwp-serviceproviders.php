@@ -29,40 +29,35 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string[][]
+	 */
+	public function getIps_CloudFlare() {
+		$oWp = $this->loadWp();
+		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_cloudflare' ) );
+		if ( empty( $aIps ) ) {
+			$aIps = array(
+				4 => $this->downloadServiceIps_Cloudflare( 4 ),
+				6 => $this->downloadServiceIps_Cloudflare( 6 )
+			);
+			$oWp->setTransient( $this->prefix( 'serviceips_cloudflare' ), $aIps, WEEK_IN_SECONDS*4 );
+		}
+		return $aIps;
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getIps_CloudFlareV4() {
-		return array(
-			'103.21.244.0/22',
-			'103.22.200.0/22',
-			'103.31.4.0/22',
-			'104.16.0.0/12',
-			'108.162.192.0/18',
-			'131.0.72.0/22',
-			'141.101.64.0/18',
-			'162.158.0.0/15',
-			'172.64.0.0/13',
-			'173.245.48.0/20',
-			'188.114.96.0/20',
-			'190.93.240.0/20',
-			'197.234.240.0/22',
-			'198.41.128.0/17'
-		);
+		$aIps = $this->getIps_CloudFlare();
+		return $aIps[ 4 ];
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getIps_CloudFlareV6() {
-		return array(
-			'2400:cb00::/32',
-			'2405:8100::/32',
-			'2405:b500::/32',
-			'2606:4700::/32',
-			'2803:f800::/32',
-			'2c0f:f248::/32',
-			'2a06:98c0::/29'
-		);
+		$aIps = $this->getIps_CloudFlare();
+		return $aIps[ 6 ];
 	}
 
 	/**
@@ -414,6 +409,18 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @param int $sIpVersion
 	 * @return string[]
 	 */
+	private function downloadServiceIps_Cloudflare( $sIpVersion = 4 ) {
+		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
+			$sIpVersion = 4;
+		}
+		$sUrl = 'https://www.cloudflare.com/ips-v'.$sIpVersion;
+		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+	}
+
+	/**
+	 * @param int $sIpVersion
+	 * @return string[]
+	 */
 	private function downloadServiceIps_Pingdom( $sIpVersion = 4 ) {
 		$sUrl = sprintf( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion );
 		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
@@ -439,6 +446,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_UptimeRobot( $sIpVersion = 4 ) {
+		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
+			$sIpVersion = 4;
+		}
 		$sUrl = sprintf( 'https://uptimerobot.com/inc/files/ips/IPv%s.txt', $sIpVersion );
 		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
 	}

@@ -270,6 +270,44 @@
     }
   ],
   "definitions": {
+    "default_whitelist": {
+      "/wp-admin/options-general.php": [],
+      "/wp-admin/options.php":         [
+        "home",
+        "siteurl"
+      ],
+      "/wp-admin/post-new.php":        [],
+      "/wp-admin/page-new.php":        [],
+      "/wp-admin/link-add.php":        [],
+      "/wp-admin/media-upload.php":    [],
+      "/wp-admin/post.php":            [
+        "content"
+      ],
+      "/wp-admin/plugin-editor.php":   [
+        "newcontent"
+      ],
+      "/wp-admin/page.php":            [],
+      "/wp-admin/admin-ajax.php":      [],
+      "/wp-comments-post.php":         [
+        "url",
+        "comment"
+      ],
+      "*":                             [
+        "g-recaptcha-response",
+        "verify_sign",
+        "txn_id",
+        "wp_http_referer",
+        "_wp_http_referer",
+        "_wp_original_http_referer",
+        "pwd",
+        "url",
+        "referredby",
+        "redirect_to",
+        "jetpack_sso_original_request",
+        "jetpack_sso_redirect_to",
+        "/^wordpress_logged_in_[0-9a-f]+$/"
+      ]
+    },
     "firewall_patterns": {
       "dirtraversal":    {
         "simple": [
