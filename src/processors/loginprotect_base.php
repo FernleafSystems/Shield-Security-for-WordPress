@@ -69,6 +69,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// MemberPress
 				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MePr' ), 100 );
+				// Ultimate Member
+				add_action( 'um_after_login_fields', array( $this, 'printFormItems_UltMem' ), 100 );
+				add_action( 'um_submit_form_login', array( $this, 'checkReqLogin_UltMem' ), 100 );
 			}
 		}
 
@@ -86,6 +89,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// MemberPress
 				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
+				// Ultimate Member
+				add_action( 'um_after_password_reset_fields', array( $this, 'printFormItems_UltMem' ), 100 );
+				add_action( 'um_submit_form_password_reset', array( $this, 'checkReqLostPassword_UltMem' ), 5, 0 );
 			}
 		}
 
@@ -112,6 +118,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				// MemberPress - Checkout == Registration
 				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MePr' ), 10 );
 				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MePr' ), 10, 2 );
+				// Ultimate Member
+				add_action( 'um_after_register_fields', array( $this, 'printFormItems_UltMem' ), 100 );
+				add_action( 'um_submit_form_register', array( $this, 'checkReqRegistration_UltMem' ), 5, 0 );
 			}
 		}
 
@@ -179,6 +188,21 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 *
+	 */
+	public function checkReqLogin_UltMem() {
+		if ( $this->isUltimateMember() ) {
+			try {
+				$this->setActionToAudit( 'ultimatemember-login' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
+			}
+		}
+	}
+
+	/**
 	 * @param WP_Error $oWpError
 	 * @return WP_Error
 	 */
@@ -193,6 +217,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
+	}
+
+	/**
+	 */
+	public function checkReqLostPassword_UltMem() {
+		if ( $this->isUltimateMember() ) {
+			try {
+				$this->setActionToAudit( 'ultimatemember-lostpassword' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				UM()->form()->add_error( 'shield-fail-lostpassword', $oE->getMessage() );
+			}
+		}
 	}
 
 	/**
@@ -307,6 +345,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 */
+	public function checkReqRegistration_UltMem() {
+		if ( $this->isUltimateMember() ) {
+			try {
+				$this->setActionToAudit( 'ultimatemember-register' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
+			}
+		}
+	}
+
+	/**
 	 * @param WP_Error $oWpError
 	 * @param  string  $sUsername
 	 * @return WP_Error
@@ -368,6 +420,15 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printLoginFormItems_MePr() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * Ultimate Member Forms
+	 * https://wordpress.org/plugins/ultimate-member/
+	 * @return void
+	 */
+	public function printFormItems_UltMem() {
 		$this->printLoginFormItems();
 	}
 
@@ -481,6 +542,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function isFactorTested() {
 		return (bool)$this->bFactorTested;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isUltimateMember() {
+		return function_exists( 'UM' ) && class_exists( 'UM' ) && method_exists( 'UM', 'form' );
 	}
 
 	/**
