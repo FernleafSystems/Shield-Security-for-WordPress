@@ -28,9 +28,9 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @param int    $nLastAccessAfter
 	 * @return ICWP_WPSF_IpsEntryVO|null
 	 */
-	public function getIpOnList( $sIp, $sList, $nLastAccessAfter = 0 ) {
+	public function getIpFromList( $sIp, $sList, $nLastAccessAfter = 0 ) {
 		$oIp = null;
-		if ( $this->loadIpService()->isValidIp( $sIp ) && !empty( $sList ) ) {
+		if ( $this->loadIpService()->isValidIpOrRange( $sIp ) && !empty( $sList ) ) {
 			/** @var ICWP_WPSF_IpsEntryVO $oIp */
 			$this->reset()
 				 ->addWhereEquals( 'ip', $sIp )

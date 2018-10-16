@@ -16,14 +16,13 @@ class ICWP_WPSF_Query_Ips_Insert extends ICWP_WPSF_Query_BaseInsert {
 	public function insert( $oIp ) {
 
 		$bSuccess = false;
-		if ( !empty( $oIp->ip ) && !empty( $oIp->list ) ) {
+		if ( $this->loadIpService()->isValidIpOrRange( $oIp->ip ) && !empty( $oIp->list ) ) {
 			$oDP = $this->loadDP();
 			$oIp->is_range = strpos( $oIp->getIp(), '/' ) !== false;
 
 			$aData = array_merge(
 				array(
-					'last_access_at' => 0,
-					'created_at'     => $oDP->time(),
+					'created_at' => $oDP->time(),
 				),
 				$oDP->convertStdClassToArray( $oIp->getRowData() )
 			);

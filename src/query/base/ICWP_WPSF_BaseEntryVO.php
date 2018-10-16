@@ -62,7 +62,8 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return mixed
 	 */
 	public function __get( $sKey ) {
-		return $this->getRowData()->{$sKey};
+		$oD = $this->getRowData();
+		return isset( $oD->{$sKey} ) ? $oD->{$sKey} : null;
 	}
 
 	/**

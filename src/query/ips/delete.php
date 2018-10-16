@@ -15,7 +15,7 @@ class ICWP_WPSF_Query_Ips_Delete extends ICWP_WPSF_Query_BaseDelete {
 	 */
 	public function deleteIpOnList( $sIp, $sList ) {
 		$this->reset();
-		if ( $this->loadIpService()->isValidIp( $sIp ) && !empty( $sList ) ) {
+		if ( $this->loadIpService()->isValidIpOrRange( $sIp ) && !empty( $sList ) ) {
 			$this->addWhereEquals( 'ip', $sIp )
 				 ->addWhereEquals( 'list', $sList );
 		}
