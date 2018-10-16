@@ -309,19 +309,55 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return ICWP_WPSF_IpsEntryVO[]
+	 */
+	public function getAutoBlacklistIpsData() {
+		return $this->getQuerySelector()->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getAutoBlacklistIps() {
+		$aIps = array();
+		foreach ( $this->getAutoBlacklistIpsData() as $oIp ) {
+			$aIps[] = $oIp->getIp();
+		}
+		return $aIps;
+	}
+
+	/**
+	 * @return ICWP_WPSF_IpsEntryVO[]
+	 */
+	public function getWhitelistIpsData() {
+		return $this->getQuerySelector()->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getWhitelistIps() {
+		$aIps = array();
+		foreach ( $this->getWhitelistIpsData() as $oIp ) {
+			$aIps[] = $oIp->getIp();
+		}
+		return $aIps;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	public function isIpOnManualBlackList( $sIp ) {
+		return $this->isIpOnList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK );
+	}
+
+	/**
 	 * @param string $sIp
 	 * @return bool
 	 */
 	public function isIpOnWhiteList( $sIp ) {
 		return $this->isIpOnList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return bool|array
-	 */
-	public function isIpOnManualBlackList( $sIp ) {
-		return $this->isIpOnList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK );
 	}
 
 	/**
@@ -333,20 +369,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		$oIp = $this->getAutoBlackListIp( $sIp );
 		return ( $oIp instanceof ICWP_WPSF_IpsEntryVO && $oIp->getTransgressions() >= $oFO->getOptTransgressionLimit() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_IpsEntryVO[]
-	 */
-	public function getWhitelistIps() {
-		return $this->getQuerySelector()->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
-	}
-
-	/**
-	 * @return ICWP_WPSF_IpsEntryVO[]
-	 */
-	public function getAutoBlacklistIps() {
-		return $this->getQuerySelector()->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
 	}
 
 	/**

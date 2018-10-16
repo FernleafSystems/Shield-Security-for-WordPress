@@ -91,7 +91,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getFormatedData_WhiteList() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getWhitelistIps() );
+		return $this->formatIpListData( $oProcessor->getWhitelistIpsData() );
 	}
 
 	/**
@@ -100,7 +100,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getFormatedData_AutoBlackList() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getAutoBlacklistIps() );
+		return $this->formatIpListData( $oProcessor->getAutoBlacklistIpsData() );
 	}
 
 	/**
@@ -411,7 +411,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * Single query to add them all
 	 */
 	protected function addFilterIpsToWhiteList() {
 		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
@@ -419,10 +418,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			/** @var ICWP_WPSF_Processor_Ips $oPro */
 			$oPro = $this->getProcessor();
 
-			$oSelect = $oPro->getQuerySelector();
-
+			$aWhiteIps = $oPro->getWhitelistIps();
 			foreach ( $aIps as $sIP => $sLabel ) {
-				$oPro->addIpToWhiteList( $sIP, $sLabel );
+				if ( !in_array( $sIP, $aWhiteIps ) ) {
+					$oPro->addIpToWhiteList( $sIP, $sLabel );
+				}
 			}
 		}
 	}
@@ -432,7 +432,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !$this->isModuleEnabled() ) {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
-			if ( count( $oProcessor->getWhitelistIps() ) > 0 ) {
+			if ( count( $oProcessor->getWhitelistIpsData() ) > 0 ) {
 				$this->setIsMainFeatureEnabled( true );
 				$this->setFlashAdminNotice(
 					sprintf( _wpsf__( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List' ), $this->getMainFeatureName() )
