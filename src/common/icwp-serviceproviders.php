@@ -418,12 +418,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_Cloudflare( $sIpVersion = 4 ) {
-		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
-			$sIpVersion = 4;
-		}
-		$sRaw = $this->loadFS()->getUrlContent( sprintf( 'https://www.cloudflare.com/ips-v%s', $sIpVersion ) );
-		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
-		return array_filter( array_map( 'trim', $aIps ) );
+		return $this->downloadServiceIps_Standard( 'https://www.cloudflare.com/ips-v%s', $sIpVersion );
 	}
 
 	/**
@@ -431,9 +426,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_Pingdom( $sIpVersion = 4 ) {
-		$sRaw = $this->loadFS()->getUrlContent( sprintf( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion ) );
-		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
-		return array_filter( array_map( 'trim', $aIps ) );
+		return $this->downloadServiceIps_Standard( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion );
 	}
 
 	/**
@@ -458,10 +451,20 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_UptimeRobot( $sIpVersion = 4 ) {
+		return $this->downloadServiceIps_Standard( 'https://uptimerobot.com/inc/files/ips/IPv%s.txt', $sIpVersion );
+	}
+
+	/**
+	 * @param string $sSourceUrl must have an sprintf %s placeholder
+	 * @param int    $sIpVersion
+	 * @return string[]
+	 */
+	private function downloadServiceIps_Standard( $sSourceUrl, $sIpVersion = 4 ) {
 		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
 			$sIpVersion = 4;
 		}
-		$sUrl = sprintf( 'https://uptimerobot.com/inc/files/ips/IPv%s.txt', $sIpVersion );
-		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+		$sRaw = $this->loadFS()->getUrlContent( sprintf( $sSourceUrl, $sIpVersion ) );
+		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
+		return array_filter( array_map( 'trim', $aIps ) );
 	}
 }
