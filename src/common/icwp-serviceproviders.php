@@ -128,7 +128,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_AppleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -150,7 +150,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BaiduBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -172,7 +172,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BingBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -230,7 +230,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_GoogleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -295,7 +295,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YandexBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -318,7 +318,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YahooBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
