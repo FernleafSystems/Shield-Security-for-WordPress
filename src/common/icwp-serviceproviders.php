@@ -421,8 +421,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
 			$sIpVersion = 4;
 		}
-		$sUrl = 'https://www.cloudflare.com/ips-v'.$sIpVersion;
-		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+		$sRaw = $this->loadFS()->getUrlContent( sprintf( 'https://www.cloudflare.com/ips-v%s', $sIpVersion ) );
+		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
+		return array_filter( array_map( 'trim', $aIps ) );
 	}
 
 	/**
@@ -430,8 +431,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_Pingdom( $sIpVersion = 4 ) {
-		$sUrl = sprintf( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion );
-		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+		$sRaw = $this->loadFS()->getUrlContent( sprintf( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion ) );
+		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
+		return array_filter( array_map( 'trim', $aIps ) );
 	}
 
 	/**
@@ -443,7 +445,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 									->getUrlContent( 'https://app.statuscake.com/Workfloor/Locations.php?format=json' ), true );
 		if ( is_array( $aData ) ) {
 			foreach ( $aData as $aItem ) {
-				$aIps[] = $aItem[ 'ip' ];
+				if ( !empty( $aItem[ 'ip' ] ) ) {
+					$aIps[] = $aItem[ 'ip' ];
+				}
 			}
 		}
 		return $aIps;
