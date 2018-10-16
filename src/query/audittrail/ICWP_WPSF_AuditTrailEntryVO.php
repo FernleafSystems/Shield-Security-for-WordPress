@@ -1,67 +1,33 @@
 <?php
 
-class ICWP_WPSF_AuditTrailEntryVO {
+require_once( dirname( dirname( __FILE__ ) ).'/base/ICWP_WPSF_BaseEntryVO.php' );
 
-	/**
-	 * @var stdClass
-	 */
-	protected $oRowData;
-
-	/**
-	 * @param stdClass $oRowData
-	 */
-	public function __construct( $oRowData ) {
-		$this->oRowData = $oRowData;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getCreatedAt() {
-		return $this->getRowData()->created_at;
-	}
+/**
+ * Class ICWP_WPSF_AuditTrailEntryVO
+ * @property string ip
+ * @property string message
+ * @property string wp_username
+ */
+class ICWP_WPSF_AuditTrailEntryVO extends ICWP_WPSF_BaseEntryVO {
 
 	/**
 	 * @return string
 	 */
 	public function getIp() {
-		return $this->getRowData()->ip;
+		return (string)$this->ip;
 	}
 
 	/**
-	 * @return int
+	 * @return string
 	 */
 	public function getMessage() {
-		return $this->getRowData()->message;
+		return (string)$this->message;
 	}
 
 	/**
-	 * @return int
+	 * @return string
 	 */
 	public function getUsername() {
-		return $this->getRowData()->wp_username;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function isDeleted() {
-		return $this->getRowData()->deleted_at > 0;
-	}
-
-	/**
-	 * @return stdClass
-	 */
-	public function getRowData() {
-		return $this->oRowData;
-	}
-
-	/**
-	 * @param stdClass $oRowData
-	 * @return $this
-	 */
-	public function setRowData( $oRowData ) {
-		$this->oRowData = $oRowData;
-		return $this;
+		return (string)$this->wp_username;
 	}
 }
