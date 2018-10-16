@@ -48,7 +48,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return stdClass|null
+	 * @return ICWP_WPSF_BaseEntryVO|stdClass|null
 	 */
 	public function first() {
 		$aR = $this->query();

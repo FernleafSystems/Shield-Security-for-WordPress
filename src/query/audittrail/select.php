@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Select', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Select', false ) ) {
 	return;
 }
 

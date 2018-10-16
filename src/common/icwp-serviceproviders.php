@@ -29,40 +29,44 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string[][]
+	 */
+	public function getIps_CloudFlare() {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_cloudflare' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( empty( $aIps ) ) {
+			$aIps = array(
+				4 => $this->downloadServiceIps_Cloudflare( 4 ),
+				6 => $this->downloadServiceIps_Cloudflare( 6 )
+			);
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+		}
+		return $aIps;
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getIps_CloudFlareV4() {
-		return array(
-			'103.21.244.0/22',
-			'103.22.200.0/22',
-			'103.31.4.0/22',
-			'104.16.0.0/12',
-			'108.162.192.0/18',
-			'131.0.72.0/22',
-			'141.101.64.0/18',
-			'162.158.0.0/15',
-			'172.64.0.0/13',
-			'173.245.48.0/20',
-			'188.114.96.0/20',
-			'190.93.240.0/20',
-			'197.234.240.0/22',
-			'198.41.128.0/17'
-		);
+		$aIps = $this->getIps_CloudFlare();
+		return $aIps[ 4 ];
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getIps_CloudFlareV6() {
-		return array(
-			'2400:cb00::/32',
-			'2405:8100::/32',
-			'2405:b500::/32',
-			'2606:4700::/32',
-			'2803:f800::/32',
-			'2c0f:f248::/32',
-			'2a06:98c0::/29'
-		);
+		$aIps = $this->getIps_CloudFlare();
+		return $aIps[ 6 ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getIps_DuckDuckGo() {
+		return array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' );
 	}
 
 	/**
@@ -70,13 +74,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_Pingdom() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_pingdom' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_pingdom' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = array(
 				4 => $this->downloadServiceIps_Pingdom( 4 ),
 				6 => $this->downloadServiceIps_Pingdom( 6 )
 			);
-			$oWp->setTransient( $this->prefix( 'serviceips_pingdom' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -86,10 +92,12 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_Statuscake() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_statuscake' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_statuscake' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) || !is_array( $aIps ) ) {
 			$aIps = $this->downloadServiceIps_StatusCake();
-			$oWp->setTransient( $this->prefix( 'serviceips_statuscake' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -99,13 +107,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_UptimeRobot() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_uptimerobot' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_uptimerobot' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = array(
 				4 => $this->downloadServiceIps_UptimeRobot( 4 ),
 				6 => $this->downloadServiceIps_UptimeRobot( 6 )
 			);
-			$oWp->setTransient( $this->prefix( 'serviceips_uptimerobot' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -126,7 +136,29 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_AppleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIp_BaiduBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_baidubot' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BaiduBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -148,7 +180,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BingBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -184,7 +216,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$bIsBot = false;
 		// We check the useragent if available
 		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'DuckDuckBot' ) !== false ) {
-			$bIsBot = in_array( $sIp, array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' ) );
+			$bIsBot = in_array( $sIp, $this->getIps_DuckDuckGo() );
 		}
 		return $bIsBot;
 	}
@@ -206,7 +238,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_GoogleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -271,7 +303,30 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YandexBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+		}
+
+		return in_array( $sIp, $aIps );
+	}
+
+	/**
+	 * https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.html
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	public function isIp_YahooBot( $sIp, $sUserAgent ) {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_yahoobot' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( !is_array( $aIps ) ) {
+			$aIps = array();
+		}
+
+		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YahooBot( $sIp, $sUserAgent ) ) {
+			$aIps[] = $sIp;
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -288,6 +343,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	private function verifyIp_AppleBot( $sIp, $sUserAgent = '' ) {
 		return ( $this->loadIpService()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
 			   && $this->isIpOfBot( 'Applebot/', '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	private function verifyIp_BaiduBot( $sIp, $sUserAgent = '' ) {
+		return $this->isIpOfBot( 'baidu', '#.*\.crawl\.baidu\.(com|jp)\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -318,7 +382,17 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @param string $sUserAgent
+	 * @return bool
+	 */
+	private function verifyIp_YahooBot( $sIp, $sUserAgent = '' ) {
+		return $this->isIpOfBot( 'yahoo!', '#.*\.crawl\.yahoo\.net\.?$#i', $sIp, $sUserAgent );
+	}
+
+	/**
 	 * Will test useragent, then attempt to resolve to hostname and back again
+	 * https://www.elephate.com/detect-verify-crawlers/
 	 * @param string $sBotUserAgent
 	 * @param string $sBotHostPattern
 	 * @param string $sReqIp
@@ -343,9 +417,16 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @param int $sIpVersion
 	 * @return string[]
 	 */
+	private function downloadServiceIps_Cloudflare( $sIpVersion = 4 ) {
+		return $this->downloadServiceIps_Standard( 'https://www.cloudflare.com/ips-v%s', $sIpVersion );
+	}
+
+	/**
+	 * @param int $sIpVersion
+	 * @return string[]
+	 */
 	private function downloadServiceIps_Pingdom( $sIpVersion = 4 ) {
-		$sUrl = sprintf( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion );
-		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+		return $this->downloadServiceIps_Standard( 'https://my.pingdom.com/probes/ipv%s', $sIpVersion );
 	}
 
 	/**
@@ -357,7 +438,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 									->getUrlContent( 'https://app.statuscake.com/Workfloor/Locations.php?format=json' ), true );
 		if ( is_array( $aData ) ) {
 			foreach ( $aData as $aItem ) {
-				$aIps[] = $aItem[ 'ip' ];
+				if ( !empty( $aItem[ 'ip' ] ) ) {
+					$aIps[] = $aItem[ 'ip' ];
+				}
 			}
 		}
 		return $aIps;
@@ -368,7 +451,20 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_UptimeRobot( $sIpVersion = 4 ) {
-		$sUrl = sprintf( 'https://uptimerobot.com/inc/files/ips/IPv%s.txt', $sIpVersion );
-		return array_filter( array_map( 'trim', explode( "\n", $this->loadFS()->getUrlContent( $sUrl ) ) ) );
+		return $this->downloadServiceIps_Standard( 'https://uptimerobot.com/inc/files/ips/IPv%s.txt', $sIpVersion );
+	}
+
+	/**
+	 * @param string $sSourceUrl must have an sprintf %s placeholder
+	 * @param int    $sIpVersion
+	 * @return string[]
+	 */
+	private function downloadServiceIps_Standard( $sSourceUrl, $sIpVersion = 4 ) {
+		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
+			$sIpVersion = 4;
+		}
+		$sRaw = $this->loadFS()->getUrlContent( sprintf( $sSourceUrl, $sIpVersion ) );
+		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
+		return array_filter( array_map( 'trim', $aIps ) );
 	}
 }

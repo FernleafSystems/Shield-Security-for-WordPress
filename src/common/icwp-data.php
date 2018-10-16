@@ -49,6 +49,16 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param array $aA
+	 * @return array
+	 */
+	public function shuffleArray( $aA ) {
+		$aKeys = array_keys( $aA );
+		shuffle( $aKeys );
+		return array_merge( array_flip( $aKeys ), $aA );
+	}
+
+	/**
 	 * @param array $aArray1
 	 * @param array $aArray2
 	 * @return array
@@ -560,7 +570,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @param bool $bSsl
 	 * @return bool
 	 */
-	public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = false ) {
+	public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = true ) {
 		$_COOKIE[ $sKey ] = $mValue;
 		if ( function_exists( 'headers_sent' ) && headers_sent() ) {
 			return false;
@@ -571,7 +581,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 			(int)( $this->time() + $nExpireLength ),
 			( is_null( $sPath ) && defined( 'COOKIEPATH' ) ) ? COOKIEPATH : $sPath,
 			( is_null( $sDomain ) && defined( 'COOKIE_DOMAIN' ) ) ? COOKIE_DOMAIN : $sDomain,
-			$bSsl
+			$bSsl && is_ssl()
 		);
 	}
 

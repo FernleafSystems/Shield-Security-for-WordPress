@@ -178,6 +178,14 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @return boolean
+	 */
+	public function isValidIpOrRange( $sIp ) {
+		return $this->isValidIp_PublicRemote( $sIp ) || $this->isValidIpRange( $sIp );
+	}
+
+	/**
 	 * Assumes a valid IPv4 address is provided as we're only testing for a whether the IP is public or not.
 	 * @param string $sIp
 	 * @return boolean

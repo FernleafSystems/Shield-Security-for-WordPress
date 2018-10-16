@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.9.4
+Stable tag: 6.10.1
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -345,6 +345,8 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Changelog ==
 
+** IMPORTANT ** : Shield Security v7+ will support only [PHP versions 5.4 and above](https://icwp.io/dh).
+
 Shield Pro brings exclusive features to the serious webmaster to maximise site security.
 You'll also have access to our email technical support team.
 
@@ -352,47 +354,24 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.10.0 - Series =
+= 6.10.1 - Current Release =
+*Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
-* **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - users can create a backup login code in-case they MFA factors are unavailable.
+= 6.10 - Series =
+*Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
-= 6.9.4 - Current Release =
-*Released: 13th September, 2018*
-
-* **(v.4)**  FIXED:		Bug where 2FA by email user roles get reset in some cases.
-* **(v.3)**  ADDED:		Support for AppleBot in the [Traffic Watcher](https://icwp.io/dc).
-* **(v.3)**  FIXED:		[Plugin/Theme Guard](https://icwp.io/bq) bug not capturing updates correctly.
-* **(v.3)**  FIXED:		Google Authenticator could not be removed from profile.
-
-= 6.9.0 - Series =
-*Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
-
-* **(v.2)**  FIXED:		Prevent crashing on sites with PHP < v5.4
-* **(v.1)**  ADDED:		Support for Yandex search engine in the [Traffic Watcher](https://icwp.io/dc).
-* **(v.1)**  IMPROVED:	WooCommerce checkout handling with reCAPTCHA.
-* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/dc) - live tracking of all requests to your site.
-* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/dc) - Allows for multiple Yubikeys on the same user profile.
-* **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
-* **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
-* **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
-* **(v.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
-* **(v.0)**  CHANGED:	Password Policies now requires minimum WordPress v4.4.
-* **(v.0)**  IMPROVED:	Password expiration now redirects to the 'set password' screen, instead of the user profile.
-* **(v.0)**  IMPROVED:	Password capture for purposes of password policies is improved.
-* **(v.0)**  IMPROVED:	You can now delete the 'forceoff' file from inside the WP Admin.
-* **(v.0)**  IMPROVED:	Audit Trail entries for emails will identify the file that's calling the `wp_mail` function.
-* **(v.0)**  IMPROVED:	Audit Trail entries for post editing will identify the post type wherever possible.
-* **(v.0)**  IMPROVED:	Audit Trail entries will try to display all message text correctly.
-* **(v.0)**  IMPROVED:	Login/Register/Password forms are only checked when visitor is not logged-in.
-* **(v.0)**  IMPROVED:	Major database code refactoring and other code improvements.
-* **(v.0)**  IMPROVED:	User sessions handling.
-* **(v.0)**  IMPROVED:	Security Admin UX - ajax session checking, with admin notifications and auto-page reload.
-* **(v.0)**  IMPROVED:	Security Admin password setting now requires a confirmation password entry.
-* **(v.0)**  IMPROVED:	Refined Cooldown timing system.
-* **(v.0)**  IMPROVED:	Refined Bot checkbox Javascript.
-* **(v.0)**  IMPROVED:	Cron entry cleanup after deactivation.
-* **(v.0)**  UPDATED:	Bootstrap libraries to latest release v4.1.3.
-* **(v.0)**  FIXED:		Potential bug with Plugin/Themes guard scanning.
-* **(v.0)**  FIXED:		PHP Warning(s).
+* **(v.1)**  FIXED:		Googlebot PHP error notice.
+* **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.
+* **(v.0)**  NEW:		[**PRO**] White Label - you can now specify custom image for 2FA login screen.
+* **(v.0)**  ADDED:		[**PRO**] Custom Exclusion Rules for Traffic Watcher so you can exclude certain User Agents and request paths.
+* **(v.0)**  ADDED:		Detection of official spiders/bots for Google, Bing, Apple and Yandex - these visitors will never get blacklisted.
+* **(v.0)**  IMPROVED:	Two-Factor Authentication system much improved (+ critical bug fix).
+* **(v.0)**  IMPROVED:	Audit Trail entries for 2FA login factors.
+* **(v.0)**  IMPROVED:	Fixes for Two-Factor Authentication wizard UX.
+* **(v.0)**  IMPROVED:	Traffic Watcher now honours the IP Whitelist.
+* **(v.0)**  IMPROVED:	Security Admin restriction for creating/editing/deleting Administrator users is much improved.
+* **(v.0)**  IMPROVED:	All Shield cookies are SSL-only by default for HTTPS sites.
+* **(v.0)**  FIXED:		GASP checkbox Javascript breaking in a particular scenario.
+* **(v.0)**  ADDED:		Optional plugin deactivation survey.
 
 #### [Full Changelog](https://ps.w.org/wp-simple-firewall/trunk/changelog.html)
