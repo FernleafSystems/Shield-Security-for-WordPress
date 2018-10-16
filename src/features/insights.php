@@ -517,7 +517,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
-				'val'     => count( $oIPs->getAutoBlacklistData() ),
+				'val'     => count( $oIPs->getAutoBlacklistIpsData() ),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
 			'pro'            => array(
