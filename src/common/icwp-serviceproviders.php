@@ -33,13 +33,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_CloudFlare() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_cloudflare' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_cloudflare' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = array(
 				4 => $this->downloadServiceIps_Cloudflare( 4 ),
 				6 => $this->downloadServiceIps_Cloudflare( 6 )
 			);
-			$oWp->setTransient( $this->prefix( 'serviceips_cloudflare' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -72,13 +74,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_Pingdom() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_pingdom' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_pingdom' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = array(
 				4 => $this->downloadServiceIps_Pingdom( 4 ),
 				6 => $this->downloadServiceIps_Pingdom( 6 )
 			);
-			$oWp->setTransient( $this->prefix( 'serviceips_pingdom' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -88,10 +92,12 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_Statuscake() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_statuscake' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_statuscake' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) || !is_array( $aIps ) ) {
 			$aIps = $this->downloadServiceIps_StatusCake();
-			$oWp->setTransient( $this->prefix( 'serviceips_statuscake' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -101,13 +107,15 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_UptimeRobot() {
 		$oWp = $this->loadWp();
-		$aIps = $oWp->getTransient( $this->prefix( 'serviceips_uptimerobot' ) );
+
+		$sStoreKey = $this->prefix( 'serviceips_uptimerobot' );
+		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = array(
 				4 => $this->downloadServiceIps_UptimeRobot( 4 ),
 				6 => $this->downloadServiceIps_UptimeRobot( 6 )
 			);
-			$oWp->setTransient( $this->prefix( 'serviceips_uptimerobot' ), $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
 	}
@@ -128,7 +136,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_AppleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -150,7 +158,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BaiduBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -172,7 +180,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BingBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -230,7 +238,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_GoogleBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -295,7 +303,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YandexBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );
@@ -318,7 +326,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YahooBot( $sIp, $sUserAgent ) ) {
 			$aIps[] = $sIp;
-			$aIps = $oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 
 		return in_array( $sIp, $aIps );

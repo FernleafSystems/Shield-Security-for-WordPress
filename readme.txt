@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 4.9
-Stable tag: 6.10.0
+Stable tag: 6.10.1
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -354,12 +354,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.10.0 - Current Release =
+= 6.10.1 - Current Release =
 *Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
 = 6.10 - Series =
 *Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
+* **(v.1)**  FIXED:		Googlebot PHP error notice.
 * **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.
 * **(v.0)**  NEW:		[**PRO**] White Label - you can now specify custom image for 2FA login screen.
 * **(v.0)**  ADDED:		[**PRO**] Custom Exclusion Rules for Traffic Watcher so you can exclude certain User Agents and request paths.
