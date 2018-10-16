@@ -11,14 +11,9 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	protected static $oInstance = null;
 
 	/**
-	 * @var bool
+	 * @var int
 	 */
-	public static $bUseFilterInput = false;
-
-	/**
-	 * @var integer
-	 */
-	protected static $nRequestTime;
+	protected static $nRequestTime = null;
 
 	/**
 	 * @var array
@@ -36,16 +31,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 			self::$oInstance = new self();
 		}
 		return self::$oInstance;
-	}
-
-	/**
-	 * @return int
-	 */
-	public static function GetRequestTime() {
-		if ( empty( self::$nRequestTime ) ) {
-			self::$nRequestTime = time();
-		}
-		return self::$nRequestTime;
 	}
 
 	/**
@@ -77,12 +62,32 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sKey
-	 * @param null   $mDefault
+	 * @param string $mDefault
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
 	 */
 	public function cookie( $sKey, $mDefault = null, $bTrim = true ) {
-		$mVal = $this->FetchCookie( $sKey, $mDefault );
+		$mVal = $this->arrayFetch( $_COOKIE, $sKey, $mDefault );
+		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param mixed  $mDefault
+	 * @return mixed|null
+	 */
+	public function env( $sKey, $mDefault = null ) {
+		return $this->arrayFetch( $_ENV, $sKey, $mDefault );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param null   $mDefault
+	 * @param bool   $bTrim -automatically trim whitespace
+	 * @return mixed|null
+	 */
+	public function post( $sKey, $mDefault = null, $bTrim = true ) {
+		$mVal = $this->arrayFetch( $_POST, $sKey, $mDefault );
 		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
 	}
 
@@ -93,18 +98,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	public function query( $sKey, $mDefault = null, $bTrim = true ) {
-		$mVal = $this->FetchGet( $sKey, $mDefault );
-		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @param null   $mDefault
-	 * @param bool   $bTrim -automatically trim whitespace
-	 * @return mixed|null
-	 */
-	public function post( $sKey, $mDefault = null, $bTrim = true ) {
-		$mVal = $this->FetchPost( $sKey, $mDefault );
+		$mVal = $this->arrayFetch( $_GET, $sKey, $mDefault );
 		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
 	}
 
@@ -115,7 +109,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	public function server( $sKey, $mDefault = null, $bTrim = true ) {
-		$mVal = $this->FetchServer( $sKey, $mDefault );
+		$mVal = $this->arrayFetch( $_SERVER, $sKey, $mDefault );
 		return ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
 	}
 
@@ -131,7 +125,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 		if ( is_null( $mVal ) ) {
 			$mVal = $this->query( $sKey, null, $bTrim );
 			if ( is_null( $mVal && $bIncludeCookie ) ) {
-				$mVal = self::FetchCookie( $sKey );
+				$mVal = $this->cookie( $sKey );
 			}
 		}
 		return is_null( $mVal ) ? $mDefault : ( $bTrim && is_scalar( $mVal ) ) ? trim( $mVal ) : $mVal;
@@ -149,14 +143,14 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getRequestUri() {
-		return $this->FetchServer( 'REQUEST_URI' );
+		return $this->server( 'REQUEST_URI' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getUserAgent() {
-		return $this->FetchServer( 'HTTP_USER_AGENT' );
+		return $this->server( 'HTTP_USER_AGENT' );
 	}
 
 	/**
@@ -332,7 +326,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getRequestMethod() {
-		$sRequestMethod = self::FetchServer( 'REQUEST_METHOD' );
+		$sRequestMethod = $this->server( 'REQUEST_METHOD' );
 		return ( empty( $sRequestMethod ) ? 'get' : strtolower( $sRequestMethod ) );
 	}
 
@@ -344,11 +338,12 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * TODO: scrap?
 	 * Taken from http://www.phacks.net/detecting-search-engine-bot-and-web-spiders/
 	 */
-	public static function IsSearchEngineBot() {
+	public function isSearchEngineBot() {
 
-		$sUserAgent = self::FetchServer( 'HTTP_USER_AGENT' );
+		$sUserAgent = $this->server( 'HTTP_USER_AGENT' );
 		if ( empty( $sUserAgent ) ) {
 			return false;
 		}
@@ -366,7 +361,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @param boolean $bIgnoreAmb
 	 * @return string
 	 */
-	static public function GenerateRandomString( $nLength = 10, $nStrength = 7, $bIgnoreAmb = true ) {
+	public function generateRandomString( $nLength = 10, $nStrength = 7, $bIgnoreAmb = true ) {
 		$aChars = array( 'abcdefghijkmnopqrstuvwxyz' );
 
 		if ( $nStrength & 2 ) {
@@ -396,114 +391,27 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	static public function GenerateRandomLetter() {
+	public function generateRandomLetter() {
 		$sAtoZ = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		$nRandomInt = rand( 0, ( strlen( $sAtoZ ) - 1 ) );
-		return $sAtoZ[ $nRandomInt ];
+		return $sAtoZ[ wp_rand( 0, ( strlen( $sAtoZ ) - 1 ) ) ];
 	}
 
 	/**
 	 * @return string|null
 	 */
-	static public function GetScriptName() {
-		$sScriptName = self::FetchServer( 'SCRIPT_NAME' );
-		return !empty( $sScriptName ) ? $sScriptName : self::FetchServer( 'PHP_SELF' );
+	public function getScriptName() {
+		$sScriptName = $this->server( 'SCRIPT_NAME' );
+		return !empty( $sScriptName ) ? $sScriptName : $this->server( 'PHP_SELF' );
 	}
 
 	/**
-	 * @return bool
-	 */
-	static public function GetUseFilterInput() {
-		return self::$bUseFilterInput && function_exists( 'filter_input' );
-	}
-
-	/**
-	 * @param array  $aArray
-	 * @param string $sKey The array key to fetch
-	 * @param mixed  $mDefault
-	 * @return mixed|null
-	 */
-	public static function ArrayFetch( &$aArray, $sKey, $mDefault = null ) {
-		if ( !isset( $aArray[ $sKey ] ) ) {
-			return $mDefault;
-		}
-		return $aArray[ $sKey ];
-	}
-
-	/**
-	 * @param string $sKey The $_COOKIE key
-	 * @param mixed  $mDefault
-	 * @return mixed|null
-	 */
-	public static function FetchCookie( $sKey, $mDefault = null ) {
-		if ( self::GetUseFilterInput() && defined( 'INPUT_COOKIE' ) ) {
-			$mPossible = filter_input( INPUT_COOKIE, $sKey );
-			if ( !empty( $mPossible ) ) {
-				return $mPossible;
-			}
-		}
-		return self::ArrayFetch( $_COOKIE, $sKey, $mDefault );
-	}
-
-	/**
+	 * @param array  $aA
 	 * @param string $sKey
 	 * @param mixed  $mDefault
 	 * @return mixed|null
 	 */
-	public static function FetchEnv( $sKey, $mDefault = null ) {
-		if ( self::GetUseFilterInput() && defined( 'INPUT_ENV' ) ) {
-			$sPossible = filter_input( INPUT_ENV, $sKey );
-			if ( !empty( $sPossible ) ) {
-				return $sPossible;
-			}
-		}
-		return self::ArrayFetch( $_ENV, $sKey, $mDefault );
-	}
-
-	/**
-	 * @deprecated
-	 * @param string $sKey
-	 * @param mixed  $mDefault
-	 * @return mixed|null
-	 */
-	public static function FetchGet( $sKey, $mDefault = null ) {
-		if ( self::GetUseFilterInput() && defined( 'INPUT_GET' ) ) {
-			$mPossible = filter_input( INPUT_GET, $sKey );
-			if ( !empty( $mPossible ) ) {
-				return $mPossible;
-			}
-		}
-		return self::ArrayFetch( $_GET, $sKey, $mDefault );
-	}
-
-	/**
-	 * @param string $sKey The $_POST key
-	 * @param mixed  $mDefault
-	 * @return mixed|null
-	 */
-	public static function FetchPost( $sKey, $mDefault = null ) {
-		if ( self::GetUseFilterInput() && defined( 'INPUT_POST' ) ) {
-			$mPossible = filter_input( INPUT_POST, $sKey );
-			if ( !empty( $mPossible ) ) {
-				return $mPossible;
-			}
-		}
-		return self::ArrayFetch( $_POST, $sKey, $mDefault );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @param mixed  $mDefault
-	 * @return mixed|null
-	 */
-	public static function FetchServer( $sKey, $mDefault = null ) {
-		if ( self::GetUseFilterInput() && defined( 'INPUT_SERVER' ) ) {
-			$sPossible = filter_input( INPUT_SERVER, $sKey );
-			if ( !empty( $sPossible ) ) {
-				return $sPossible;
-			}
-		}
-		return self::ArrayFetch( $_SERVER, $sKey, $mDefault );
+	public function arrayFetch( &$aA, $sKey, $mDefault = null ) {
+		return isset( $aA[ $sKey ] ) ? $aA[ $sKey ] : $mDefault;
 	}
 
 	/**
@@ -536,7 +444,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sStringContent
 	 * @param string $sFilename
-	 * @return bool
 	 */
 	public function downloadStringAsFile( $sStringContent, $sFilename ) {
 		header( "Content-type: application/octet-stream" );
@@ -740,6 +647,9 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return int
 	 */
 	public function time() {
-		return self::GetRequestTime();
+		if ( !isset( self::$nRequestTime ) ) {
+			self::$nRequestTime = time();
+		}
+		return self::$nRequestTime;
 	}
 }

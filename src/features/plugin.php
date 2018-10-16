@@ -107,7 +107,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
-			$sIp = $oDp->FetchServer( $this->getVisitorAddressSource() );
+			$sIp = $oDp->server( $this->getVisitorAddressSource() );
 			if ( $oIpService->isViablePublicVisitorIp( $sIp, $this->getMyServerIp() ) ) {
 				$oIpService->setRequestIpAddress( $sIp );
 			}
@@ -122,7 +122,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sSource = $oIpService->setServerIpAddress( $this->getMyServerIp() )
 								  ->discoverViableRequestIpSource();
 			if ( !empty( $sSource ) ) {
-				$oIpService->setRequestIpAddress( $oDp->FetchServer( $sSource ) );
+				$oIpService->setRequestIpAddress( $oDp->server( $sSource ) );
 				$this->setVisitorAddressSource( $sSource );
 			}
 		}

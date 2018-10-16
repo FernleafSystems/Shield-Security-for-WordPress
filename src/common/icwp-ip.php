@@ -272,7 +272,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		$sBestSource = null;
 		foreach ( $this->getIpSourceOptions() as $sSource ) {
 
-			$sIpToTest = $oDp->FetchServer( $sSource );
+			$sIpToTest = $oDp->server( $sSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}

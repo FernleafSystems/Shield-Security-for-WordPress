@@ -1625,7 +1625,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = $this->loadDP()->FetchCookie( $this->getPluginPrefix(), '' );
+			self::$sSessionId = $this->loadDP()->cookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();

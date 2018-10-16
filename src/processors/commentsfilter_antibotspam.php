@@ -245,7 +245,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getUniqueFormId() {
 		if ( !isset( $this->sFormId ) ) {
 			$oDp = $this->loadDP();
-			$sId = $oDp->GenerateRandomLetter().$oDp->GenerateRandomString( rand( 7, 23 ), 7 );
+			$sId = $oDp->generateRandomLetter().$oDp->generateRandomString( rand( 7, 23 ), 7 );
 			$this->sFormId = preg_replace(
 				'#[^a-zA-Z0-9]#', '',
 				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
