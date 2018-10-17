@@ -405,7 +405,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function addFilterIpsToWhiteList() {
-		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
+		$oSp = $this->loadServiceProviders();
+
+		$aMwp = function_exists( 'mwp_init' ) ? array_flip( $oSp->getIps_ManageWp() ) : array();
+		foreach ( $aMwp as $sIp => $n ) {
+			$aMwp[ $sIp ] = 'ManageWP';
+		}
+
+		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aMwp );
+
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
