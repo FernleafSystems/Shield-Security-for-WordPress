@@ -19,7 +19,21 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return boolean
 	 */
 	public function getIfCheckCommentToken() {
-		return ( $this->getOpt( 'comments_token_expire_interval' ) > 0 || $this->getOpt( 'comments_cooldown_interval' ) > 0 );
+		return ( $this->getTokenExpireInterval() > 0 || $this->getTokenCooldown() > 0 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTokenCooldown() {
+		return (int)$this->getOpt( 'comments_cooldown_interval' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTokenExpireInterval() {
+		return (int)$this->getOpt( 'comments_token_expire_interval' );
 	}
 
 	/**
@@ -60,16 +74,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doExtraSubmitProcessing() {
-
-		if ( $this->getOpt( 'comments_cooldown_interval' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'comments_cooldown_interval' );
-		}
-
-		if ( $this->getOpt( 'comments_token_expire_interval' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'comments_token_expire_interval' );
-		}
-
-		if ( $this->getOpt( 'comments_token_expire_interval' ) != 0 && $this->getOpt( 'comments_cooldown_interval' ) > $this->getOpt( 'comments_token_expire_interval' ) ) {
+		if ( $this->getTokenExpireInterval() != 0 && $this->getTokenCooldown() > $this->getTokenExpireInterval() ) {
 			$this->getOptionsVo()->resetOptToDefault( 'comments_cooldown_interval' );
 			$this->getOptionsVo()->resetOptToDefault( 'comments_token_expire_interval' );
 		}
@@ -84,10 +89,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		// TODO: remove as it's a temporary transition for clashing options
-		if ( $this->isOpt( 'enable_google_recaptcha', 'Y' ) ) {
-			$this->setOpt( 'enable_google_recaptcha_comments', 'Y' );
-		}
 	}
 
 	/**

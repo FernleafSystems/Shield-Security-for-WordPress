@@ -157,26 +157,26 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * TODO: maybe create audit Entry VO at the time of registering entries
 	 */
 	protected function commitAuditTrial() {
+		$oDp = $this->loadDP();
+
 		$aEntries = apply_filters(
 			$this->getMod()->prefix( 'collect_audit_trail' ),
 			$this->getBaseAuditor()->getAuditTrailEntries( true )
 		);
-		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
-			return;
-		}
 
-		$sReqId = $this->getController()->getShortRequestId();
-		foreach ( $aEntries as $aEntry ) {
-			if ( empty( $aEntry[ 'ip' ] ) ) {
-				$aEntry[ 'ip' ] = $this->ip();
+		if ( !empty( $aEntries ) && is_array( $aEntries ) ) {
+			$sReqId = $this->getController()->getShortRequestId();
+
+			$oInsert = $this->getQueryInserter();
+			foreach ( $aEntries as $aE ) {
+				$oEntry = $this->getEntryVo()
+							   ->setRowData( $oDp->convertArrayToStdClass( $aE ) );
+				$oEntry->rid = $sReqId;
+				$oInsert->insert( $oEntry );
 			}
-			if ( is_array( $aEntry[ 'message' ] ) ) {
-				$aEntry[ 'message' ] = implode( ' ', $aEntry[ 'message' ] );
-			}
-			$aEntry[ 'rid' ] = $sReqId;
-			$this->insertData( $aEntry );
 		}
 	}
 
@@ -225,6 +225,14 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return ICWP_WPSF_AuditTrailEntryVO
+	 */
+	protected function getEntryVo() {
+		$this->queryRequireLib( 'ICWP_WPSF_AuditTrailEntryVO.php' );
+		return new ICWP_WPSF_AuditTrailEntryVO();
+	}
+
+	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Count
 	 */
 	public function getQueryCounter() {
@@ -239,6 +247,15 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	public function getQueryDeleter() {
 		$this->queryRequireLib( 'delete.php' );
 		$oQ = new ICWP_WPSF_Query_AuditTrail_Delete();
+		return $oQ->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_AuditTrail_Insert
+	 */
+	public function getQueryInserter() {
+		$this->queryRequireLib( 'insert.php' );
+		$oQ = new ICWP_WPSF_Query_AuditTrail_Insert();
 		return $oQ->setTable( $this->getTableName() );
 	}
 

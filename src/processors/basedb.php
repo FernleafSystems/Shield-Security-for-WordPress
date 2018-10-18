@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -146,22 +146,19 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param integer $nTimeStamp
-	 * @return bool|int
+	 * @param int $nTimeStamp
+	 * @return bool
 	 */
-	protected function deleteAllRowsOlderThan( $nTimeStamp ) {
-		$sQuery = "
-				DELETE from `%s`
-				WHERE
-					`created_at` < '%s'
-			";
-		$sQuery = sprintf(
-			$sQuery,
-			$this->getTableName(),
-			esc_sql( $nTimeStamp )
-		);
-		return $this->loadDbProcessor()->doSql( $sQuery );
+	protected function deleteRowsOlderThan( $nTimeStamp ) {
+		return $this->getQueryDeleter()
+					->addWhereOlderThan( $nTimeStamp )
+					->query();
 	}
+
+	/**
+	 * @return ICWP_WPSF_Query_BaseDelete
+	 */
+	abstract protected function getQueryDeleter();
 
 	/**
 	 * @return string
@@ -269,7 +266,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
-		return $this->deleteAllRowsOlderThan( $nTimeStamp );
+		return $this->deleteRowsOlderThan( $nTimeStamp );
 	}
 
 	/**
