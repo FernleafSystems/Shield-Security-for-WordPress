@@ -292,11 +292,10 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string|false
+	 * @return array
 	 */
 	public function discoverViableRequestIpSource() {
-		$aResult = $this->findViableVisitorIp( true );
-		return $aResult[ 'source' ];
+		return $this->findViableVisitorIp( true );
 	}
 
 	/**
@@ -311,9 +310,9 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		$sIpToReturn = false;
 		$sSource = false;
 		$oDp = $this->loadDP();
-		foreach ( $this->getIpSourceOptions() as $sSource ) {
+		foreach ( $this->getIpSourceOptions() as $sMaybeSource ) {
 
-			$sIpToTest = $oDp->server( $sSource );
+			$sIpToTest = $oDp->server( $sMaybeSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}
@@ -324,6 +323,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 				if ( $this->isViablePublicVisitorIp( $sIp ) ) {
 					$sIpToReturn = $sIp;
+					$sSource = $sMaybeSource;
 					break( 2 );
 				}
 			}

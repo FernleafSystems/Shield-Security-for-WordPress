@@ -107,23 +107,28 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
-			$sIp = $oDp->server( $this->getVisitorAddressSource() );
-			if ( $oIpService->isViablePublicVisitorIp( $sIp, $this->getMyServerIp() ) ) {
-				$oIpService->setRequestIpAddress( $sIp );
-			}
-			else {
-				$sIp = null;
+			$sMaybeIp = $oDp->server( $this->getVisitorAddressSource() );
+
+			if ( !empty( $sMaybeIp ) ) {
+				$aMaybeIps = array_map( 'trim', explode( ',', $sMaybeIp ) ); // TODO:streamline this comma handling
+				foreach ( $aMaybeIps as $sMaybeIp ) {
+					if ( $oIpService->isViablePublicVisitorIp( $sMaybeIp, $this->getMyServerIp() ) ) {
+						$oIpService->setRequestIpAddress( $sMaybeIp );
+						$sIp = $sMaybeIp;
+						break;
+					}
+				}
 			}
 		}
 
 		// If the address at this stage is null, then the current setting is failing for IP detection
 		// So we try and rediscover a more correct source for the Request IP Address.
 		if ( empty( $sIp ) ) {
-			$sSource = $oIpService->setServerIpAddress( $this->getMyServerIp() )
-								  ->discoverViableRequestIpSource();
-			if ( !empty( $sSource ) ) {
-				$oIpService->setRequestIpAddress( $oDp->server( $sSource ) );
-				$this->setVisitorAddressSource( $sSource );
+			$aSourceAndIp = $oIpService->setServerIpAddress( $this->getMyServerIp() )
+									   ->discoverViableRequestIpSource();
+			if ( !empty( $aSourceAndIp[ 'source' ] ) ) {
+				$oIpService->setRequestIpAddress( $aSourceAndIp[ 'ip' ] );
+				$this->setVisitorAddressSource( $aSourceAndIp[ 'source' ] );
 			}
 		}
 	}
