@@ -222,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		try {
-			$oFinder = $oProc->getAuditTrailSelector()
+			$oFinder = $oProc->getQuerySelector()
 							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
@@ -259,7 +259,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		try {
 			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
-			$oProc->getAuditTrailDelete()
+			$oProc->getQueryDeleter()
 				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
 			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );

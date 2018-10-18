@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getMod();
 		try {
-			$this->getAuditTrailDelete()
+			$this->getQueryDeleter()
 				 ->deleteExcess( $oFO->getMaxEntries() );
 		}
 		catch ( Exception $oE ) {
@@ -227,7 +227,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Count
 	 */
-	public function getAuditTrailCounter() {
+	public function getQueryCounter() {
 		$this->queryRequireLib( 'count.php' );
 		$oQ = new ICWP_WPSF_Query_AuditTrail_Count();
 		return $oQ->setTable( $this->getTableName() );
@@ -236,7 +236,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Delete
 	 */
-	public function getAuditTrailDelete() {
+	public function getQueryDeleter() {
 		$this->queryRequireLib( 'delete.php' );
 		$oQ = new ICWP_WPSF_Query_AuditTrail_Delete();
 		return $oQ->setTable( $this->getTableName() );
@@ -245,7 +245,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Select
 	 */
-	public function getAuditTrailSelector() {
+	public function getQuerySelector() {
 		$this->queryRequireLib( 'select.php' );
 		$oQ = new ICWP_WPSF_Query_AuditTrail_Select();
 		return $oQ->setTable( $this->getTableName() );

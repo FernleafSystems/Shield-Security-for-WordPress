@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_Tally_Delete
 	 */
-	public function getDeleter() {
+	public function getQueryDeleter() {
 		$this->queryRequireLib( 'tally_delete.php' );
 		return ( new ICWP_WPSF_Query_Tally_Delete() )->setTable( $this->getTableName() );
 	}
@@ -152,7 +152,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			$nAdditionalTally = 0;
 			foreach ( $aAll as $oTally ) {
 				$nAdditionalTally += $oTally->tally;
-				$this->getDeleter()->deleteById( $oTally->id );
+				$this->getQueryDeleter()->deleteById( $oTally->id );
 			}
 
 			$this->getUpdater()->incrementTally( $oPrimary, $nAdditionalTally );

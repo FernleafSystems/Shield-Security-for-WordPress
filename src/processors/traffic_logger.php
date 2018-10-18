@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getMod();
 		try {
-			$this->getTrafficEntryDeleter()
+			$this->getQueryDeleter()
 				 ->deleteExcess( $oFO->getMaxEntries() );
 		}
 		catch ( Exception $oE ) {
@@ -157,7 +157,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Delete
 	 */
-	public function getTrafficEntryDeleter() {
+	public function getQueryDeleter() {
 		$this->queryRequireLib( 'delete.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Delete() )->setTable( $this->getTableName() );
 	}

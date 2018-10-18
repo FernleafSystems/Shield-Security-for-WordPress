@@ -561,7 +561,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  ->getModule( 'audit_trail' )
 					  ->getProcessor();
 		try {
-			$aItems = $oProc->getAuditTrailSelector()
+			$aItems = $oProc->getQuerySelector()
 							->setLimit( 20 )
 							->query();
 		}

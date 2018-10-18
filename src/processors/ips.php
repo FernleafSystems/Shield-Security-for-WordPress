@@ -501,19 +501,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param int $nTimeStamp
 	 * @return bool|int
 	 */
-	protected function deleteAllRowsOlderThan( $nTimeStamp ) {
-		$sQuery = "
-				DELETE from `%s`
-				WHERE
-					`last_access_at`	< %s
-					AND `list`			= '%s'
-			";
-		$sQuery = sprintf( $sQuery,
-			$this->getTableName(),
-			esc_sql( $nTimeStamp ),
-			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK
-		);
-		return $this->loadDbProcessor()->doSql( $sQuery );
+	protected function deleteRowsOlderThan( $nTimeStamp ) {
+		return $this->getQueryDeleter()
+					->addWhereEquals( 'list', ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+					->addWhereOlderThan( $nTimeStamp, 'last_access_at' )
+					->query();
 	}
 
 	/**
