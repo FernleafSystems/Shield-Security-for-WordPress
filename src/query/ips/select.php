@@ -13,34 +13,37 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @return $this
+	 */
+	public function filterByIp( $sIp ) {
+		return $this->addWhereEquals( 'ip', $sIp );
+	}
+
+	/**
+	 * @param string $nLastAccessAfter
+	 * @return $this
+	 */
+	public function filterByLastAccessAfter( $nLastAccessAfter ) {
+		return $this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
+	}
+
+	/**
+	 * @param string $sList
+	 * @return $this
+	 */
+	public function filterByList( $sList ) {
+		return $this->addWhereEquals( 'list', $sList );
+	}
+
+	/**
 	 * @param string $sList
 	 * @return ICWP_WPSF_IpsEntryVO[]
 	 */
 	public function allFromList( $sList ) {
 		return $this->reset()
-					->addWhereEquals( 'list', $sList )
+					->filterByList( $sList )
 					->query();
-	}
-
-	/**
-	 * @param string $sIp
-	 * @param string $sList
-	 * @param int    $nLastAccessAfter
-	 * @return ICWP_WPSF_IpsEntryVO|null
-	 */
-	public function getIpFromList( $sIp, $sList, $nLastAccessAfter = 0 ) {
-		$oIp = null;
-		if ( $this->loadIpService()->isValidIpOrRange( $sIp ) && !empty( $sList ) ) {
-			/** @var ICWP_WPSF_IpsEntryVO $oIp */
-			$this->reset()
-				 ->addWhereEquals( 'ip', $sIp )
-				 ->addWhereEquals( 'list', $sList );
-			if ( $nLastAccessAfter > 0 ) {
-				$this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
-			}
-			$oIp = $this->first();
-		}
-		return $oIp;
 	}
 
 	/**

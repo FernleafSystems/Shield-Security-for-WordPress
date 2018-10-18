@@ -403,8 +403,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function addIpToWhiteList( $sIp, $sLabel = '' ) {
 		$sIp = trim( $sIp );
 
+		/** @var ICWP_WPSF_IpsEntryVO $oIp */
 		$oIp = $this->getQuerySelector()
-					->getIpFromList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+					->filterByIp( $sIp )
+					->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE )
+					->first();
 
 		if ( empty( $oIp ) ) {
 			$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, $sLabel );
@@ -461,12 +464,13 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	protected function getAutoBlackListIp( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		return $this->getQuerySelector()
-					->getIpFromList(
-						$sIp,
-						ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-						$this->time() - $oFO->getAutoExpireTime()
-					);
+		/** @var ICWP_WPSF_IpsEntryVO $oIp */
+		$oIp = $this->getQuerySelector()
+					->filterByIp( $sIp )
+					->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+					->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					->first();
+		return $oIp;
 	}
 
 	/**

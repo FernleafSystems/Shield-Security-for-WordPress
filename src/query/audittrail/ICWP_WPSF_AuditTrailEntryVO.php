@@ -8,6 +8,7 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/ICWP_WPSF_BaseEntryVO.php' )
  * @property string message
  * @property string wp_username
  * @property string rid
+ * @property string event
  */
 class ICWP_WPSF_AuditTrailEntryVO extends ICWP_WPSF_BaseEntryVO {
 
@@ -16,6 +17,13 @@ class ICWP_WPSF_AuditTrailEntryVO extends ICWP_WPSF_BaseEntryVO {
 	 */
 	public function getIp() {
 		return (string)$this->ip;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getEvent() {
+		return (string)$this->event;
 	}
 
 	/**

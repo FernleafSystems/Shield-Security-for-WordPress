@@ -131,23 +131,19 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sOrder
 	 * @param int    $nPage
 	 * @param int    $nLimit
-	 * @return array|bool
+	 * @return ICWP_WPSF_AuditTrailEntryVO[]
 	 */
 	public function getAuditEntriesForContext( $sContext, $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
-		$sOffset = ( $nPage - 1 )*$nLimit;
-		$sQuery = "
-				SELECT *
-				FROM `%s`
-				WHERE
-					%s `deleted_at`	= 0
-				ORDER BY `%s` %s
-				LIMIT %s OFFSET %s
-			";
+		$oSelect = $this->getQuerySelector()
+						->setResultsAsVo( true )
+						->setOrderBy( $sOrderBy, $sOrder )
+						->setLimit( $nLimit )
+						->setPage( $nPage );
+		if ( $sContext != 'all' ) {
+			$oSelect->filterByContext( $sContext );
+		}
 
-		$sContext = ( $sContext == 'all' ) ? '' : sprintf( "`context`= '%s' AND", $sContext );
-
-		$sQuery = sprintf( $sQuery, $this->getTableName(), $sContext, $sOrderBy, $sOrder, $nLimit, $sOffset );
-		return $this->selectCustom( $sQuery );
+		return $oSelect->query();
 	}
 
 	/**

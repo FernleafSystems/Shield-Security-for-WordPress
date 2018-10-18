@@ -13,6 +13,24 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
+	 * @param string $sContext
+	 * @return $this
+	 */
+	public function filterByContext( $sContext ) {
+		return $this->addWhereEquals( 'context', $sContext );
+	}
+
+	/**
+	 * @param string $sContext
+	 * @return ICWP_WPSF_AuditTrailEntryVO[]|stdClass[]
+	 */
+	public function forContext( $sContext ) {
+		return $this->reset()
+					->addWhereEquals( 'context', $sContext )
+					->query();
+	}
+
+	/**
 	 * @return ICWP_WPSF_AuditTrailEntryVO[]|stdClass[]
 	 */
 	public function query() {
