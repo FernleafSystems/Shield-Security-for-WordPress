@@ -121,14 +121,8 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array|bool
 	 */
 	public function countAuditEntriesForContext( $sContext ) {
-		$sContext = ( $sContext == 'all' ) ? '' : sprintf( "`context`= '%s' AND", $sContext );
-		$sQuery = "
-				SELECT COUNT(*)
-				FROM `%s`
-				WHERE
-					%s `deleted_at`	= 0
-			";
-		return $this->loadDbProcessor()->getVar( sprintf( $sQuery, $this->getTableName(), $sContext ) );
+		$oCounter = $this->getQueryCounter();
+		return ( $sContext == 'all' ) ? $oCounter->all() : $oCounter->forContext( $sContext );
 	}
 
 	/**
