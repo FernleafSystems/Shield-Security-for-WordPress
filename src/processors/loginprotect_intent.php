@@ -23,7 +23,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		add_action( 'init', array( $this, 'onWpInit' ), 0 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
 
 		// 100 priority is important as this takes priority
@@ -45,6 +44,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function onWpInit() {
+		parent::onWpInit();
 		$this->setupLoginIntent();
 	}
 

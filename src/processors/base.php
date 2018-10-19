@@ -37,10 +37,14 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
 		}
 
+		add_action( 'init', array( $this, 'onWpInit' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
 
 		$this->init();
+	}
+
+	public function onWpInit() {
 	}
 
 	/**
