@@ -441,7 +441,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$this->getQueryDeleter()
 			 ->deleteIpOnList( $sIp, $sList );
 
-		$oTempIp = $this->getEntryVo();
+		/** @var ICWP_WPSF_IpsEntryVO $oTempIp */
+		$oTempIp = $this->getQuerySelector()->getVo();
 		$oTempIp->ip = $sIp;
 		$oTempIp->list = $sList;
 		$oTempIp->label = empty( $sLabel ) ? _wpsf__( 'No Label' ) : $sLabel;
@@ -554,14 +555,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function queryGetDir() {
 		return parent::queryGetDir().'ips/';
-	}
-
-	/**
-	 * @return ICWP_WPSF_IpsEntryVO
-	 */
-	protected function getEntryVo() {
-		$this->queryRequireLib( 'ICWP_WPSF_IpsEntryVO.php' );
-		return new ICWP_WPSF_IpsEntryVO();
 	}
 
 	/**

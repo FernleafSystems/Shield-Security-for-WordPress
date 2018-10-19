@@ -157,9 +157,10 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			$sReqId = $this->getController()->getShortRequestId();
 
 			$oInsert = $this->getQueryInserter();
+			$oSelector = $this->getQuerySelector();
 			foreach ( $aEntries as $aE ) {
-				$oEntry = $this->getEntryVo()
-							   ->setRawData( $oDp->convertArrayToStdClass( $aE ) );
+				/** @var ICWP_WPSF_AuditTrailEntryVO $oEntry */
+				$oEntry = $oSelector->getVo()->setRawData( $oDp->convertArrayToStdClass( $aE ) );
 				$oEntry->rid = $sReqId;
 				$oInsert->insert( $oEntry );
 			}
@@ -214,8 +215,10 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return ICWP_WPSF_AuditTrailEntryVO
 	 */
 	protected function getEntryVo() {
-		$this->queryRequireLib( 'ICWP_WPSF_AuditTrailEntryVO.php' );
-		return new ICWP_WPSF_AuditTrailEntryVO();
+		/** @var ICWP_WPSF_AuditTrailEntryVO $oVo */
+		$oVo = $this->getQuerySelector()
+					->getVo();
+		return $oVo;
 	}
 
 	/**

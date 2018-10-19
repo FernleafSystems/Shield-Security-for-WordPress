@@ -205,7 +205,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			return;
 		}
 
-		$oToken = $this->getEntryVo();
+		/** @var ICWP_WPSF_CommentsEntryVO $oToken */
+		$oToken = $this->getQuerySelector()->getVo();
 		$oToken->post_id = $this->loadWp()->getCurrentPostId();
 		$oToken->unique_token = md5( $this->getController()->getUniqueRequestId( false ) );
 		$this->getQueryInserter()->insert( $oToken );
@@ -265,10 +266,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	protected function getGaspCommentsHookHtml( $oToken ) {
-		$sReturn = '<p id="'.$this->getUniqueFormId().'"></p>'; // we use this unique <p> to hook onto using javascript
-		$sReturn .= '<input type="hidden" id="_sugar_sweet_email" name="sugar_sweet_email" value="" />';
-		$sReturn .= sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />', $oToken->getToken() );
-		return $sReturn;
+		$aHtml = array(
+			'<p id="'.$this->getUniqueFormId().'"></p>', // we use this unique <p> to hook onto using javascript
+			'<input type="hidden" id="_sugar_sweet_email" name="sugar_sweet_email" value="" />',
+			sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />', $oToken->getToken() )
+		);
+		return implode( '', $aHtml );
 	}
 
 	/**
@@ -467,14 +470,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getTokenExpireInterval();
-	}
-
-	/**
-	 * @return ICWP_WPSF_CommentsEntryVO
-	 */
-	protected function getEntryVo() {
-		$this->queryRequireLib( 'ICWP_WPSF_CommentsEntryVO.php' );
-		return new ICWP_WPSF_CommentsEntryVO();
 	}
 
 	/**
