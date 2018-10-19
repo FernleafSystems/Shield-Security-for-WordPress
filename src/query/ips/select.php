@@ -8,10 +8,6 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
 
 class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 
-	protected function customInit() {
-		require_once( dirname( __FILE__ ).'/ICWP_WPSF_IpsEntryVO.php' );
-	}
-
 	/**
 	 * @param string $sIp
 	 * @return $this
@@ -47,18 +43,9 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return ICWP_WPSF_IpsEntryVO[]|stdClass[]
+	 * @return string
 	 */
-	public function query() {
-
-		$aData = parent::query();
-
-		if ( $this->isResultsAsVo() ) {
-			foreach ( $aData as $nKey => $oAudit ) {
-				$aData[ $nKey ] = new ICWP_WPSF_IpsEntryVO( $oAudit );
-			}
-		}
-
-		return $aData;
+	protected function getVoName() {
+		return 'ICWP_WPSF_IpsEntryVO';
 	}
 }

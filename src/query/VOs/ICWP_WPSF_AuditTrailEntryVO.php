@@ -1,6 +1,6 @@
 <?php
 
-require_once( dirname( dirname( __FILE__ ) ).'/base/ICWP_WPSF_BaseEntryVO.php' );
+require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
 
 /**
  * Class ICWP_WPSF_AuditTrailEntryVO

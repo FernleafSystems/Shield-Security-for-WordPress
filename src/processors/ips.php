@@ -513,15 +513,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Ips_Count
-	 */
-	public function getQueryCounter() {
-		$this->queryRequireLib( 'count.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Count();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Query_Ips_Delete
 	 */
 	public function getQueryDeleter() {

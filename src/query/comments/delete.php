@@ -17,11 +17,11 @@ class ICWP_WPSF_Query_Comments_Delete extends ICWP_WPSF_Query_BaseDelete {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Comments_Count
+	 * @return ICWP_WPSF_Query_Comments_Select
 	 */
-	protected function getCounter() {
-		require_once( dirname( __FILE__ ).'/count.php' );
-		$oCounter = new ICWP_WPSF_Query_Comments_Count();
+	protected function getSelector() {
+		require_once( dirname( __FILE__ ).'/select.php' );
+		$oCounter = new ICWP_WPSF_Query_Comments_Select();
 		return $oCounter->setTable( $this->getTable() );
 	}
 }

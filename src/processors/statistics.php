@@ -230,6 +230,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * TODO: Not properly implemented
 	 * @return ICWP_WPSF_Processor_Statistics_Reporting
 	 */
 	protected function getReportingProcessor() {

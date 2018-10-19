@@ -9,9 +9,9 @@ require_once( dirname( __FILE__ ).'/query.php' );
 abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
-	 * @return ICWP_WPSF_Query_BaseCount
+	 * @return ICWP_WPSF_Query_BaseSelect
 	 */
-	abstract protected function getCounter();
+	abstract protected function getSelector();
 
 	/**
 	 * @return bool
@@ -47,9 +47,9 @@ abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 		$nEntriesDeleted = 0;
 
 		// The same WHEREs should apply
-		$nTotal = $this->getCounter()
+		$nTotal = $this->getSelector()
 					   ->setWheres( $this->getWheres() )
-					   ->query();
+					   ->count();
 		$nToDelete = $nTotal - $nMaxEntries;
 
 		if ( $nToDelete > 0 ) {

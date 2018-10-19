@@ -52,7 +52,7 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @param stdClass $oRowData
 	 * @return $this
 	 */
-	public function setRowData( $oRowData ) {
+	public function setRawData( $oRowData ) {
 		$this->oRowData = $oRowData;
 		return $this;
 	}

@@ -35,14 +35,6 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Tally_Update
-	 */
-	public function getUpdater() {
-		$this->queryRequireLib( 'tally_update.php' );
-		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Query_Tally_Select
 	 */
 	public function getSelector() {
@@ -51,6 +43,14 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true )
 			->setColumnsDefinition( $this->getTableColumnsByDefinition() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Tally_Update
+	 */
+	public function getUpdater() {
+		$this->queryRequireLib( 'tally_update.php' );
+		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
 	}
 
 	public function onModuleShutdown() {

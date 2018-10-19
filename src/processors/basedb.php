@@ -90,62 +90,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param array $aData
-	 * @return bool|int
-	 */
-	public function insertData( $aData ) {
-		return $this->loadDbProcessor()->insertDataIntoTable( $this->getTableName(), $aData );
-	}
-
-	/**
-	 * Returns all active, non-deleted rows
-	 * @return array
-	 */
-	public function selectAll() {
-		return $this->query_selectAll();
-	}
-
-	/**
-	 * @param array $aColumns Leave empty to select all (*) columns
-	 * @param bool  $bExcludeDeletedRows
-	 * @return array
-	 */
-	protected function query_selectAll( $aColumns = array(), $bExcludeDeletedRows = true ) {
-
-		// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
-		$sQuery = "SELECT %s FROM `%s` %s";
-
-		$aColumns = $this->validateColumnsParameter( $aColumns );
-		$sColumnsSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
-
-		$sQuery = sprintf( $sQuery,
-			$sColumnsSelection,
-			$this->getTableName(),
-			( $bExcludeDeletedRows && $this->getHasColumn( 'deleted_at' ) ) ? "WHERE `deleted_at` = 0" : ''
-		);
-		$mResult = $this->selectCustom( $sQuery );
-		return ( is_array( $mResult ) && isset( $mResult[ 0 ] ) ) ? $mResult : array();
-	}
-
-	/**
-	 * @param string $sQuery
-	 * @param        $nFormat
-	 * @return array|boolean
-	 */
-	public function selectCustom( $sQuery, $nFormat = ARRAY_A ) {
-		return $this->loadDbProcessor()->selectCustom( $sQuery, $nFormat );
-	}
-
-	/**
-	 * @param array $aData  - new insert data (associative array, column=>data)
-	 * @param array $aWhere - insert where (associative array)
-	 * @return integer|boolean (number of rows affected)
-	 */
-	public function updateRowsWhere( $aData, $aWhere ) {
-		return $this->loadDbProcessor()->updateRowsFromTableWhere( $this->getTableName(), $aData, $aWhere );
-	}
-
-	/**
 	 * @param int $nTimeStamp
 	 * @return bool
 	 */

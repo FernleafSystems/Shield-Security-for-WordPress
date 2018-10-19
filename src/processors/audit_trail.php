@@ -110,19 +110,15 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return array|bool
-	 */
-	public function getAllAuditEntries() {
-		return array_reverse( $this->selectAll() );
-	}
-
-	/**
 	 * @param string $sContext
 	 * @return array|bool
 	 */
 	public function countAuditEntriesForContext( $sContext ) {
-		$oCounter = $this->getQueryCounter();
-		return ( $sContext == 'all' ) ? $oCounter->all() : $oCounter->forContext( $sContext );
+		$oCounter = $this->getQuerySelector();
+		if ( $sContext != 'all' ) {
+			$oCounter->filterByContext( $sContext );
+		}
+		return $oCounter->count();
 	}
 
 	/**
@@ -163,7 +159,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			$oInsert = $this->getQueryInserter();
 			foreach ( $aEntries as $aE ) {
 				$oEntry = $this->getEntryVo()
-							   ->setRowData( $oDp->convertArrayToStdClass( $aE ) );
+							   ->setRawData( $oDp->convertArrayToStdClass( $aE ) );
 				$oEntry->rid = $sReqId;
 				$oInsert->insert( $oEntry );
 			}

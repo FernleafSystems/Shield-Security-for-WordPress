@@ -139,27 +139,19 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
-	 */
-	public function getTrafficInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_TrafficEntry_Count
-	 */
-	public function getTrafficEntryCounter() {
-		$this->queryRequireLib( 'count.php' );
-		return ( new ICWP_WPSF_Query_TrafficEntry_Count() )->setTable( $this->getTableName() );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Delete
 	 */
 	public function getQueryDeleter() {
 		$this->queryRequireLib( 'delete.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Delete() )->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
+	 */
+	public function getTrafficInserter() {
+		$this->queryRequireLib( 'insert.php' );
+		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
 	}
 
 	/**

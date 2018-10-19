@@ -426,8 +426,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
 		$nCount = $oTrafficPro->getProcessorLogger()
-							  ->getTrafficEntryCounter()
-							  ->all();
+							  ->getTrafficEntrySelector()
+							  ->count();
 		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
 	}
 
