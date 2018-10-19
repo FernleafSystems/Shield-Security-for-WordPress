@@ -219,15 +219,6 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_AuditTrail_Count
-	 */
-	public function getQueryCounter() {
-		$this->queryRequireLib( 'count.php' );
-		$oQ = new ICWP_WPSF_Query_AuditTrail_Count();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Query_AuditTrail_Delete
 	 */
 	public function getQueryDeleter() {

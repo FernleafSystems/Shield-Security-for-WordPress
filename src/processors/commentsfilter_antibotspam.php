@@ -271,6 +271,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		return $sReturn;
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function getGaspCommentsHtml() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
