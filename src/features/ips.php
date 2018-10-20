@@ -112,7 +112,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$oDp = $this->loadDP();
 
 		foreach ( $aListData as $nKey => $oIp ) {
-			$aItem = $oDp->convertStdClassToArray( $oIp->getRowData() );
+			$aItem = $oDp->convertStdClassToArray( $oIp->getRawData() );
 			$sIp = $oIp->getIp();
 
 			$aItem[ 'ip_link' ] =

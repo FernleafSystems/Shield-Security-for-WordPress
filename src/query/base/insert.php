@@ -30,7 +30,7 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 			array(
 				'created_at' => $oDP->time(),
 			),
-			$oDP->convertStdClassToArray( $oEntry->getRowData() )
+			$oDP->convertStdClassToArray( $oEntry->getRawData() )
 		);
 		return $this->setInsertData( $aData )->query() === 1;
 	}

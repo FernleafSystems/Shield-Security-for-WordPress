@@ -44,7 +44,7 @@ class ICWP_WPSF_BaseEntryVO {
 	/**
 	 * @return stdClass
 	 */
-	public function getRowData() {
+	public function getRawData() {
 		return $this->oRowData;
 	}
 
@@ -62,7 +62,7 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return mixed
 	 */
 	public function __get( $sKey ) {
-		$oD = $this->getRowData();
+		$oD = $this->getRawData();
 		return isset( $oD->{$sKey} ) ? $oD->{$sKey} : null;
 	}
 
@@ -71,7 +71,7 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return bool
 	 */
 	public function __isset( $sKey ) {
-		return isset( $this->getRowData()->{$sKey} );
+		return isset( $this->getRawData()->{$sKey} );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return $this
 	 */
 	public function __set( $sKey, $mValue ) {
-		$this->getRowData()->{$sKey} = $mValue;
+		$this->getRawData()->{$sKey} = $mValue;
 		return $this;
 	}
 }
