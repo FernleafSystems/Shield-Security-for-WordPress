@@ -87,7 +87,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 							  ->retrieveStat( $sStatKey, $sParentStatKey );
 
 				if ( empty( $oStat ) ) {
-					$this->getInserter()->insert( $sStatKey, $nTally, $sParentStatKey );
+					$this->getInserter()->create( $sStatKey, $nTally, $sParentStatKey );
 				}
 				else {
 					$this->getUpdater()->incrementTally( $oStat, $nTally );

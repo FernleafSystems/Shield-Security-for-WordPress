@@ -14,7 +14,7 @@ class ICWP_WPSF_Query_Tally_Insert extends ICWP_WPSF_Query_BaseInsert {
 	 * @param int    $nTally
 	 * @return bool
 	 */
-	public function insert( $sStatKey, $nTally, $sParent = '' ) {
+	public function create( $sStatKey, $nTally, $sParent = '' ) {
 		if ( !preg_match( '#[a-z]{1,}\.[a-z]{1,}#i', $sStatKey ) || empty( $nTally )
 			 || !is_numeric( $nTally ) || $nTally < 0 ) {
 			return false;
