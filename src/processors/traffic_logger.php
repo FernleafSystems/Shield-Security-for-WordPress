@@ -125,7 +125,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	protected function logTraffic() {
 		$oDP = $this->loadDP();
-		$oEntry = $this->getTrafficEntryVO();
+		/** @var ICWP_WPSF_TrafficEntryVO $oEntry */
+		$oEntry = $this->getQuerySelector()->getVo();
 		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
@@ -135,7 +136,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->ua = (string)$oDP->server( 'HTTP_USER_AGENT' );
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
-		$this->getTrafficInserter()->insert( $oEntry );
+		$this->getQueryInserter()->insert( $oEntry );
 	}
 
 	/**
@@ -149,7 +150,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
 	 */
-	public function getTrafficInserter() {
+	public function getQueryInserter() {
 		$this->queryRequireLib( 'insert.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
 	}
@@ -157,19 +158,11 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_TrafficEntry_Select
 	 */
-	public function getTrafficEntrySelector() {
+	public function getQuerySelector() {
 		$this->queryRequireLib( 'select.php' );
 		return ( new ICWP_WPSF_Query_TrafficEntry_Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );
-	}
-
-	/**
-	 * @return ICWP_WPSF_TrafficEntryVO
-	 */
-	protected function getTrafficEntryVO() {
-		$this->queryRequireLib( 'ICWP_WPSF_TrafficEntryVO.php' );
-		return new ICWP_WPSF_TrafficEntryVO();
 	}
 
 	/**

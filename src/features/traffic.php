@@ -279,7 +279,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
 		$oSelector = $oTrafficPro->getProcessorLogger()
-								 ->getTrafficEntrySelector()
+								 ->getQuerySelector()
 								 ->setPage( $nPage )
 								 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
 								 ->setLimit( $this->getDefaultPerPage() )
@@ -426,7 +426,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
 		$nCount = $oTrafficPro->getProcessorLogger()
-							  ->getTrafficEntrySelector()
+							  ->getQuerySelector()
 							  ->count();
 		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
 	}
