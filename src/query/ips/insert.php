@@ -14,19 +14,10 @@ class ICWP_WPSF_Query_Ips_Insert extends ICWP_WPSF_Query_BaseInsert {
 	 * @return bool
 	 */
 	public function insert( $oIp ) {
-
 		$bSuccess = false;
 		if ( $this->loadIpService()->isValidIpOrRange( $oIp->ip ) && !empty( $oIp->list ) ) {
-			$oDP = $this->loadDP();
 			$oIp->is_range = strpos( $oIp->getIp(), '/' ) !== false;
-
-			$aData = array_merge(
-				array(
-					'created_at' => $oDP->time(),
-				),
-				$oDP->convertStdClassToArray( $oIp->getRowData() )
-			);
-			$bSuccess = $this->setInsertData( $aData )->query() === 1;
+			$bSuccess = parent::insert( $oIp );
 		}
 		return $bSuccess;
 	}

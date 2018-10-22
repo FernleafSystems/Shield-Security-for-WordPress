@@ -53,8 +53,6 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}
-
-		add_action( 'init', array( $this, 'onWpInit' ), 5 );
 	}
 
 	/**
@@ -69,6 +67,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function onWpInit() {
+		parent::onWpInit();
 		if ( $this->loadWp()->isRest() ) {
 			$this->processRestApi();
 		}

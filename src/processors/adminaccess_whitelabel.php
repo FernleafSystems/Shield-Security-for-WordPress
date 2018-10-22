@@ -16,11 +16,11 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 		add_filter( $this->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $oFO->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
-		add_action( 'init', array( $this, 'onWpInit' ) );
 		add_action( 'admin_print_footer_scripts-plugin-editor.php', array( $this, 'hideFromPluginEditor' ) );
 	}
 
 	public function onWpInit() {
+		parent::onWpInit();
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getController();

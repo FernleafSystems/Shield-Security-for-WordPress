@@ -74,27 +74,6 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function updateSession( $oSession, $aUpdateData = array() ) {
-		$bSuccess = false;
-		if ( !empty( $aUpdateData ) && $oSession instanceof ICWP_WPSF_SessionVO ) {
-			$mResult = $this
-				->setUpdateData( $aUpdateData )
-				->setUpdateWheres(
-					array(
-						'session_id'  => $oSession->getSessionId(),
-						'wp_username' => $oSession->getUsername(),
-						'deleted_at'  => 0
-					)
-				)
-				->query();
-			$bSuccess = is_numeric( $mResult ) && $mResult === 1;
-
-			if ( $bSuccess ) {
-				foreach ( $aUpdateData as $sColumn => $mValue ) {
-					$oSession->{$sColumn} = $mValue;
-				}
-			}
-		}
-
-		return $bSuccess;
+		return ( $oSession instanceof ICWP_WPSF_SessionVO ) && parent::updateEntry( $oSession, $aUpdateData );
 	}
 }

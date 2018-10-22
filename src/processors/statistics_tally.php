@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_Tally_Delete
 	 */
-	public function getDeleter() {
+	public function getQueryDeleter() {
 		$this->queryRequireLib( 'tally_delete.php' );
 		return ( new ICWP_WPSF_Query_Tally_Delete() )->setTable( $this->getTableName() );
 	}
@@ -29,9 +29,20 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return ICWP_WPSF_Query_Tally_Insert
 	 */
-	public function getInserter() {
+	public function getQueryInserter() {
 		$this->queryRequireLib( 'tally_insert.php' );
 		return ( new ICWP_WPSF_Query_Tally_Insert() )->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Query_Tally_Select
+	 */
+	public function getQuerySelector() {
+		$this->queryRequireLib( 'tally_select.php' );
+		return ( new ICWP_WPSF_Query_Tally_Select() )
+			->setTable( $this->getTableName() )
+			->setResultsAsVo( true )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() );
 	}
 
 	/**
@@ -40,17 +51,6 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	public function getUpdater() {
 		$this->queryRequireLib( 'tally_update.php' );
 		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Tally_Select
-	 */
-	public function getSelector() {
-		$this->queryRequireLib( 'tally_select.php' );
-		return ( new ICWP_WPSF_Query_Tally_Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() );
 	}
 
 	public function onModuleShutdown() {
@@ -75,6 +75,9 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 			return;
 		}
+
+		/** @var ICWP_WPSF_TallyVO $oStat */
+		$oSel = $this->getQuerySelector();
 		foreach ( $aEntries as $aCollection ) {
 			foreach ( $aCollection as $sStatKey => $nTally ) {
 
@@ -83,11 +86,15 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 					list( $sStatKey, $sParentStatKey ) = explode( ':', $sStatKey, 2 );
 				}
 
-				$oStat = $this->getSelector()
+				$oStat = $this->getQuerySelector()
 							  ->retrieveStat( $sStatKey, $sParentStatKey );
 
 				if ( empty( $oStat ) ) {
-					$this->getInserter()->insert( $sStatKey, $nTally, $sParentStatKey );
+					$oStat = $oSel->getVo();
+					$oStat->stat_key = $sStatKey;
+					$oStat->tally = $nTally;
+					$oStat->parent_stat_key = $sParentStatKey;
+					$this->getQueryInserter()->insert( $oStat );
 				}
 				else {
 					$this->getUpdater()->incrementTally( $oStat, $nTally );
@@ -124,7 +131,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function consolidateDuplicateKeys() {
 		/** @var ICWP_WPSF_TallyVO[] $aAll */
-		$aAll = $this->getSelector()
+		$aAll = $this->getQuerySelector()
 					 ->all();
 
 		$aKeys = array();
@@ -144,7 +151,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 
 		foreach ( $aKeys as $sKey ) {
 			/** @var ICWP_WPSF_TallyVO[] $aAll */
-			$aAll = $this->getSelector()
+			$aAll = $this->getQuerySelector()
 						 ->filterByStatKey( $sKey )
 						 ->query();
 			$oPrimary = array_pop( $aAll );
@@ -152,7 +159,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			$nAdditionalTally = 0;
 			foreach ( $aAll as $oTally ) {
 				$nAdditionalTally += $oTally->tally;
-				$this->getDeleter()->deleteById( $oTally->id );
+				$this->getQueryDeleter()->deleteById( $oTally->id );
 			}
 
 			$this->getUpdater()->incrementTally( $oPrimary, $nAdditionalTally );
