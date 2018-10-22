@@ -10,12 +10,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	/**
 	 * The unique comment token assigned to this page
-	 * @var integer
-	 */
-	protected $sUniqueCommentToken;
-
-	/**
-	 * The unique comment token assigned to this page
 	 * @var string
 	 */
 	protected $sFormId;
@@ -31,11 +25,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected $sCommentStatusExplanation;
 
 	/**
-	 * @var array
-	 */
-	private $aRawCommentData;
-
-	/**
 	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon ) {
@@ -43,61 +32,22 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @param bool $fIfDoCheck
-	 * @return bool
-	 */
-	public function getIfDoCommentsCheck( $fIfDoCheck ) {
-		if ( !$fIfDoCheck ) {
-			return $fIfDoCheck;
-		}
-
-		$oWpComments = $this->loadWpComments();
-
-		// 1st are comments enabled on this post?
-		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
-		$oPost = $nPostId ? $this->loadWp()->getPostById( $nPostId ) : null;
-		if ( $oPost ) {
-			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
-		}
-
-		if ( $fIfDoCheck && $oWpComments->getIfCommentsMustBePreviouslyApproved()
-			 && $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
-			$fIfDoCheck = false;
-		}
-
-		return $fIfDoCheck;
-	}
-
-	/**
 	 */
 	public function run() {
-		if ( !$this->isReadyToRun() ) {
-			return;
+		if ( $this->isReadyToRun() ) {
+			// Add GASP checking to the comment form.
+			add_action( 'wp', array( $this, 'setupForm' ) );
+
+			add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 5 );
+			add_filter( $this->getMod()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
+			add_filter( $this->getMod()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 		}
-
-		add_filter( $this->getMod()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-
-		// Add GASP checking to the comment form.
-		add_action( 'comment_form', array( $this, 'printGaspFormHook_Action' ), 1 );
-		add_action( 'comment_form', array( $this, 'printGaspFormParts_Action' ), 2 );
-		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
-
-		add_filter( $this->getMod()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $this->getMod()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
 
-	/**
-	 * @param string $sKey
-	 * @return array|mixed|null
-	 */
-	public function getRawCommentData( $sKey = '' ) {
-		if ( !isset( $this->aRawCommentData ) ) {
-			$this->aRawCommentData = array();
+	public function setupForm() {
+		if ( !$this->loadDP()->isMethodPost() && $this->getIfDoGaspCheck() ) {
+			add_action( 'comment_form', array( $this, 'printGaspFormItems' ), 1 );
 		}
-		if ( !empty( $sKey ) ) {
-			return isset( $this->aRawCommentData[ $sKey ] ) ? $this->aRawCommentData[ $sKey ] : null;
-		}
-		return $this->aRawCommentData;
 	}
 
 	/**
@@ -123,20 +73,17 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return array
 	 */
 	public function doCommentChecking( $aCommentData ) {
-		$this->aRawCommentData = $aCommentData;
-
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->getIfDoCommentsCheck() ) {
-			return $aCommentData;
-		}
 
-		$this->doGaspCommentCheck( $aCommentData[ 'comment_post_ID' ] );
+		if ( $oFO->getIfDoCommentsCheck() ) {
+			$this->doGaspCommentCheck( $oFO->getCommentItem( 'comment_post_ID' ) );
 
-		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
-		if ( $this->sCommentStatus == 'reject' ) {
-			$oWp = $this->loadWp();
-			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
+			if ( $this->sCommentStatus == 'reject' ) {
+				$oWp = $this->loadWp();
+				$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+			}
 		}
 
 		return $aCommentData;
@@ -147,7 +94,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @param $nPostId
 	 */
 	protected function doGaspCommentCheck( $nPostId ) {
-
 		if ( !$this->getIfDoGaspCheck() ) {
 			return;
 		}
@@ -156,7 +102,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$oFO = $this->getMod();
 
 		// Check that we haven't already marked the comment through another scan
-		if ( !empty( $this->sCommentStatus ) || !$oFO->isOpt( 'enable_comments_gasp_protection', 'Y' ) ) {
+		if ( !empty( $this->sCommentStatus ) ) {
 			return;
 		}
 
@@ -197,21 +143,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		}
 	}
 
-	/**
-	 * @return void
-	 */
-	public function printGaspFormHook_Action() {
-		if ( !$this->getIfDoGaspCheck() ) {
-			return;
+	public function printGaspFormItems() {
+		$oToken = $this->initCommentFormToken();
+		if ( $oToken instanceof ICWP_WPSF_CommentsEntryVO ) {
+			echo $this->getGaspCommentsHookHtml( $oToken );
+			echo $this->getGaspCommentsHtml();
 		}
-
-		/** @var ICWP_WPSF_CommentsEntryVO $oToken */
-		$oToken = $this->getQuerySelector()->getVo();
-		$oToken->post_id = $this->loadWp()->getCurrentPostId();
-		$oToken->unique_token = md5( $this->getController()->getUniqueRequestId( false ) );
-		$this->getQueryInserter()->insert( $oToken );
-
-		echo $this->getGaspCommentsHookHtml( $oToken );
 	}
 
 	/**
@@ -221,44 +158,22 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getIfDoGaspCheck() {
 		$bCheck = true;
 
-		if ( !$this->getMod()->isOpt( 'enable_comments_gasp_protection', 'Y' ) ) {
-			$bCheck = false;
-		}
-		else if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-			$bCheck = false;
-		}
-		else if ( function_exists( 'WPWall_Init' ) ) {
-			// Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
-			if ( !is_null( $this->loadDP()->post( 'submit_wall_post' ) ) ) {
-				$bCheck = false;
-			}
+		if ( function_exists( 'WPWall_Init' ) && !is_null( $this->loadDP()->post( 'submit_wall_post' ) ) ) {
+			$bCheck = false; // Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
 		}
 
 		return $bCheck;
 	}
 
 	/**
-	 * @return string
+	 * @return ICWP_WPSF_CommentsEntryVO|null
 	 */
-	protected function getUniqueFormId() {
-		if ( !isset( $this->sFormId ) ) {
-			$oDp = $this->loadDP();
-			$sId = $oDp->generateRandomLetter().$oDp->generateRandomString( rand( 7, 23 ), 7 );
-			$this->sFormId = preg_replace(
-				'#[^a-zA-Z0-9]#', '',
-				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
-		}
-		return $this->sFormId;
-	}
-
-	/**
-	 * @return void
-	 */
-	public function printGaspFormParts_Action() {
-		if ( !$this->getIfDoGaspCheck() ) {
-			return;
-		}
-		echo $this->getGaspCommentsHtml();
+	protected function initCommentFormToken() {
+		/** @var ICWP_WPSF_CommentsEntryVO $oToken */
+		$oToken = $this->getQuerySelector()->getVo();
+		$oToken->post_id = $this->loadWp()->getCurrentPostId();
+		$oToken->unique_token = md5( $this->getController()->getUniqueRequestId( false ) );
+		return $this->getQueryInserter()->insert( $oToken ) ? $oToken : null;
 	}
 
 	/**
@@ -374,6 +289,20 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			</script>
 		";
 		return $sReturn;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getUniqueFormId() {
+		if ( !isset( $this->sFormId ) ) {
+			$oDp = $this->loadDP();
+			$sId = $oDp->generateRandomLetter().$oDp->generateRandomString( rand( 7, 23 ), 7 );
+			$this->sFormId = preg_replace(
+				'#[^a-zA-Z0-9]#', '',
+				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
+		}
+		return $this->sFormId;
 	}
 
 	/**

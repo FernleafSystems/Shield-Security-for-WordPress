@@ -9,10 +9,49 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @var array
+	 */
+	private $aCommentData;
+
+	public function doPostConstruction() {
+		add_filter( 'preprocess_comment', array( $this, 'gatherRawCommentData' ), 1 );
+	}
+
+	/**
+	 * @param array $aRawCommentData
+	 * @return array
+	 */
+	public function gatherRawCommentData( $aRawCommentData ) {
+		$this->aCommentData = $aRawCommentData;
+		return $aRawCommentData;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCommentData() {
+		return ( isset( $this->aCommentData ) && is_array( $this->aCommentData ) ) ? $this->aCommentData : array();
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return array|mixed
+	 */
+	public function getCommentItem( $sKey ) {
+		$aD = $this->getCommentData();
+		return isset( $aD[ $sKey ] ) ? $aD[ $sKey ] : null;
+	}
+
+	/**
 	 * @return boolean
 	 */
 	public function getIfDoCommentsCheck() {
-		return apply_filters( $this->prefix( 'if-do-comments-check' ), true );
+		$oWpComments = $this->loadWpComments();
+
+		// 1st are comments enabled on this post?
+		$oPost = $this->loadWp()->getPostById( $this->getCommentItem( 'comment_post_ID' ) );
+		return ( $oPost instanceof WP_Post ) && $oWpComments->isCommentsOpen( $oPost )
+			   && ( !$oWpComments->getIfAllowCommentsByPreviouslyApproved() || !$oWpComments->isAuthorApproved( $this->getCommentItem( 'comment_author_email' ) ) );
 	}
 
 	/**

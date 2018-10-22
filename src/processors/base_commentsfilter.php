@@ -9,11 +9,6 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
-	 * @var array
-	 */
-	static protected $aRawCommentData;
-
-	/**
 	 * @var string
 	 */
 	static protected $sCommentStatus;
@@ -36,7 +31,7 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function run() {
 		$oFO = $this->getMod();
-		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 1, 1 );
+		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 5 );
 		add_filter( $oFO->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
 		add_filter( $oFO->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
 	}
@@ -46,9 +41,6 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	 * @return array
 	 */
 	public function doCommentChecking( $aCommentData ) {
-		if ( empty( self::$aRawCommentData ) ) {
-			self::$aRawCommentData = $aCommentData;
-		}
 		return $aCommentData;
 	}
 
@@ -66,20 +58,6 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getExpanation() {
 		return self::$sCommentStatusExplanation;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return string|array|null
-	 */
-	protected function getRawCommentData( $sKey = '' ) {
-		if ( !isset( self::$aRawCommentData ) ) {
-			self::$aRawCommentData = array();
-		}
-		if ( !empty( $sKey ) ) {
-			return isset( self::$aRawCommentData[ $sKey ] ) ? self::$aRawCommentData[ $sKey ] : null;
-		}
-		return self::$aRawCommentData;
 	}
 
 	/**
