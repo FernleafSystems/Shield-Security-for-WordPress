@@ -222,14 +222,16 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_TallyVO[]
 	 */
 	protected function getAllTallys() {
-		return $this->getTallyProcessor()
-					->getSelector()
-					->setResultsAsVo( true )
-					->setColumnsToSelect( array( 'stat_key', 'tally' ) )
-					->query();
+		/** @var ICWP_WPSF_TallyVO[] $aRes */
+		$aRes = $this->getTallyProcessor()
+					 ->getQuerySelector()
+					 ->setColumnsToSelect( array( 'stat_key', 'tally' ) )
+					 ->query();
+		return $aRes;
 	}
 
 	/**
+	 * TODO: Not properly implemented
 	 * @return ICWP_WPSF_Processor_Statistics_Reporting
 	 */
 	protected function getReportingProcessor() {

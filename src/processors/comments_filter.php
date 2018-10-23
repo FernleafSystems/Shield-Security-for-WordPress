@@ -11,9 +11,17 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	public function run() {
+	}
+
+	public function onWpInit() {
+		parent::onWpInit();
+
+		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+			return;
+		}
+
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
 
 		if ( $oFO->isEnabledGaspCheck() ) {
 			require_once( dirname( __FILE__ ).'/commentsfilter_antibotspam.php' );
@@ -27,27 +35,15 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$oHumanSpamProcessor->run();
 		}
 
-		if ( $oFO->isGoogleRecaptchaEnabled() ) {
+		if ( $oFO->isGoogleRecaptchaEnabled() && $oFO->isGoogleRecaptchaReady() ) {
 			require_once( dirname( __FILE__ ).'/commentsfilter_googlerecaptcha.php' );
-			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
-			$oHumanSpamProcessor->run();
+			$oReCap = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
+			$oReCap->run();
 		}
 
 		add_filter( 'pre_comment_approved', array( $this, 'doSetCommentStatus' ), 1 );
 		add_filter( 'pre_comment_content', array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
-		add_filter( 'comment_notification_recipients', array(
-			$this,
-			'doClearCommentNotificationEmail_Filter'
-		), 100, 1 );
-	}
-
-	/**
-	 * Always default to true, and if false, return that.
-	 * @param boolean $bDoCheck
-	 * @return boolean
-	 */
-	public function getIfDoCommentsCheck( $bDoCheck ) {
-		return $bDoCheck && !$this->loadWpUsers()->isUserLoggedIn();
+		add_filter( 'comment_notification_recipients', array( $this, 'clearCommentNotificationEmail' ), 100, 1 );
 	}
 
 	/**
@@ -112,7 +108,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param array $aEmails
 	 * @return array
 	 */
-	public function doClearCommentNotificationEmail_Filter( $aEmails ) {
+	public function clearCommentNotificationEmail( $aEmails ) {
 		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
 		if ( in_array( $sStatus, array( 'reject', 'trash' ) ) ) {
 			$aEmails = array();

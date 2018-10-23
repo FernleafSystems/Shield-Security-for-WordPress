@@ -235,6 +235,13 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
+	public function hasWheres() {
+		return count( $this->getWheres() ) > 0;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isExcludeDeleted() {
 		return isset( $this->bExcludeDeleted ) ? (bool)$this->bExcludeDeleted : true;
 	}
@@ -326,6 +333,17 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param ICWP_WPSF_BaseEntryVO $oVo
+	 * @return $this
+	 */
+	public function setWheresFromVo( $oVo ) {
+		foreach ( $this->loadDP()->convertStdClassToArray( $oVo->getRawData() ) as $sCol => $mVal ) {
+			$this->addWhereEquals( $sCol, $mVal );
+		}
+		return $this;
+	}
+
+	/**
 	 * Very basic
 	 * @param string $sOp
 	 * @return bool
@@ -333,7 +351,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	protected function isValidComparisonOperator( $sOp ) {
 		return in_array(
 			strtoupper( $sOp ),
-			array( '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'LIKE' )
+			array( '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'LIKE', 'NOT LIKE' )
 		);
 	}
 }

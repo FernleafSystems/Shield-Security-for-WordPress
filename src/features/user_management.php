@@ -27,7 +27,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
 		foreach ( $aActiveSessions as $oSession ) {
-			$aSession = (array)$oSession->getRowData();
+			$aSession = (array)$oSession->getRawData();
 			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLoggedInAt() );
 			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLastActivityAt() );
 			$aSession[ 'is_secadmin' ] = ( $oSession->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );

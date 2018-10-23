@@ -454,6 +454,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$oRetriever = $oProc->getSubProcessorNotes()
 							->getQuerySelector();
+		/** @var stdClass[] $aNotes */
 		$aNotes = $oRetriever->setLimit( 10 )
 							 ->setResultsAsVo( false )
 							 ->query();
@@ -517,7 +518,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
-				'val'     => count( $oIPs->getAutoBlacklistData() ),
+				'val'     => $oIPs->getQuerySelector()
+								  ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+								  ->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
 			'pro'            => array(
@@ -561,7 +564,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  ->getModule( 'audit_trail' )
 					  ->getProcessor();
 		try {
-			$aItems = $oProc->getAuditTrailSelector()
+			$aItems = $oProc->getQuerySelector()
 							->setLimit( 20 )
 							->query();
 		}
@@ -597,7 +600,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
 			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
 			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()->getHumanName() ),
+			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()
+																									->getHumanName() ),
 			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
 		);
 	}

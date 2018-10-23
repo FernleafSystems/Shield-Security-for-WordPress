@@ -23,19 +23,6 @@ class ICWP_WPSF_Query_Tally_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function updateStat( $oStat, $aUpdateData = array() ) {
-		$mResult = false;
-		if ( !empty( $aUpdateData ) && $oStat instanceof ICWP_WPSF_TallyVO ) {
-			$mResult = $this
-				->setUpdateData( $aUpdateData )
-				->setUpdateWheres(
-					array(
-						'stat_key'        => $oStat->stat_key,
-						'parent_stat_key' => $oStat->parent_stat_key,
-						'deleted_at'      => 0
-					)
-				)
-				->query();
-		}
-		return is_numeric( $mResult ) && $mResult === 1;
+		return ( $oStat instanceof ICWP_WPSF_TallyVO ) && parent::updateEntry( $oStat, $aUpdateData );
 	}
 }

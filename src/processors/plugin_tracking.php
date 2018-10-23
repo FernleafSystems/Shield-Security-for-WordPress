@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'slug'            => $this->getController()->getPluginSlug(),
 					'version'         => $this->getController()->getVersion(),
 					'is_wpms'         => $oWP->isMultisite() ? 1 : 0,
-					'ssl'             => ( $oDP->FetchServer( 'HTTPS' ) == 'on' ) ? 1 : 0,
+					'ssl'             => is_ssl() ? 1 : 0,
 					'locale'          => get_locale(),
 					'plugins_total'   => count( $oWpPlugins->getPlugins() ),
 					'plugins_active'  => count( $oWpPlugins->getActivePlugins() ),

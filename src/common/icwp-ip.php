@@ -178,6 +178,14 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @return boolean
+	 */
+	public function isValidIpOrRange( $sIp ) {
+		return $this->isValidIp_PublicRemote( $sIp ) || $this->isValidIpRange( $sIp );
+	}
+
+	/**
 	 * Assumes a valid IPv4 address is provided as we're only testing for a whether the IP is public or not.
 	 * @param string $sIp
 	 * @return boolean
@@ -264,7 +272,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		$sBestSource = null;
 		foreach ( $this->getIpSourceOptions() as $sSource ) {
 
-			$sIpToTest = $oDp->FetchServer( $sSource );
+			$sIpToTest = $oDp->server( $sSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}
@@ -284,11 +292,10 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string|false
+	 * @return array
 	 */
 	public function discoverViableRequestIpSource() {
-		$aResult = $this->findViableVisitorIp( true );
-		return $aResult[ 'source' ];
+		return $this->findViableVisitorIp( true );
 	}
 
 	/**
@@ -303,9 +310,9 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 		$sIpToReturn = false;
 		$sSource = false;
 		$oDp = $this->loadDP();
-		foreach ( $this->getIpSourceOptions() as $sSource ) {
+		foreach ( $this->getIpSourceOptions() as $sMaybeSource ) {
 
-			$sIpToTest = $oDp->server( $sSource );
+			$sIpToTest = $oDp->server( $sMaybeSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}
@@ -316,6 +323,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 				if ( $this->isViablePublicVisitorIp( $sIp ) ) {
 					$sIpToReturn = $sIp;
+					$sSource = $sMaybeSource;
 					break( 2 );
 				}
 			}

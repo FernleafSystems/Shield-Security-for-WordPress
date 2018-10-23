@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$bPerformScan = false;
 		}
 
-		if ( $bPerformScan && $this->getOption( 'ignore_search_engines' ) == 'Y' && $oDp->IsSearchEngineBot() ) {
+		if ( $bPerformScan && $this->getOption( 'ignore_search_engines' ) == 'Y' && $oDp->isSearchEngineBot() ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Visitor detected as Search Engine Bot' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;

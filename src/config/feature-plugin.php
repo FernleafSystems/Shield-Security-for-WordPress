@@ -152,6 +152,10 @@
           "text":      "HTTP_INCAP_CLIENT_IP"
         },
         {
+          "value_key": "HTTP_X_SP_FORWARDED_IP",
+          "text":      "HTTP_X_SP_FORWARDED_IP"
+        },
+        {
           "value_key": "HTTP_FORWARDED",
           "text":      "HTTP_FORWARDED"
         },

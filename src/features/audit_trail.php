@@ -125,19 +125,22 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * Move to table
-	 * @param $aEntries
+	 * @param ICWP_WPSF_AuditTrailEntryVO[] $aEntries
 	 * @return array
 	 */
 	public function formatEntriesForDisplay( $aEntries ) {
+		$oDp = $this->loadDP();
 		$sYou = $this->loadIpService()->getRequestIp();
 		if ( is_array( $aEntries ) ) {
-			foreach ( $aEntries as &$aEntry ) {
-				$aEntry[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $aEntry[ 'event' ] ) );
-				$aEntry[ 'message' ] = stripslashes( sanitize_text_field( $aEntry[ 'message' ] ) );
-				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $aEntry[ 'created_at' ] );
-				if ( $aEntry[ 'ip' ] == $sYou ) {
-					$aEntry[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$aE = $oDp->convertStdClassToArray( $oEntry->getRawData() );
+				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->getEvent() ) );
+				$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->getMessage() ) );
+				$aE[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $oEntry->getCreatedAt() );
+				if ( $oEntry->getIp() == $sYou ) {
+					$aE[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
 				}
+				$aEntries[ $nKey ] = $aE;
 			}
 		}
 		return $aEntries;
@@ -222,7 +225,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		try {
-			$oFinder = $oProc->getAuditTrailSelector()
+			$oFinder = $oProc->getQuerySelector()
 							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
@@ -259,7 +262,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		try {
 			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
-			$oProc->getAuditTrailDelete()
+			$oProc->getQueryDeleter()
 				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
 			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );

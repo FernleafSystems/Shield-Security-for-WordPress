@@ -91,7 +91,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getFormatedData_WhiteList() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getWhitelistData() );
+		return $this->formatIpListData( $oProcessor->getWhitelistIpsData() );
 	}
 
 	/**
@@ -100,28 +100,34 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getFormatedData_AutoBlackList() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getAutoBlacklistData() );
+		return $this->formatIpListData( $oProcessor->getAutoBlacklistIpsData() );
 	}
 
 	/**
-	 * @param array $aListData
+	 * @param ICWP_WPSF_IpsEntryVO[] $aListData
 	 * @return array
 	 */
 	protected function formatIpListData( $aListData ) {
 		$oWp = $this->loadWp();
+		$oDp = $this->loadDP();
 
-		foreach ( $aListData as &$aListItem ) {
-			$aListItem[ 'ip_link' ] =
+		foreach ( $aListData as $nKey => $oIp ) {
+			$aItem = $oDp->convertStdClassToArray( $oIp->getRawData() );
+			$sIp = $oIp->getIp();
+
+			$aItem[ 'ip_link' ] =
 				sprintf( '<a href="%s" target="_blank">%s</a>',
 					(
-					( $this->loadIpService()->getIpVersion( $aListItem[ 'ip' ] ) == 4 ) ?
-						'http://whois.domaintools.com/'.$aListItem[ 'ip' ]
-						: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $aListItem[ 'ip' ] )
+					( $this->loadIpService()->getIpVersion( $sIp ) == 4 ) ?
+						'http://whois.domaintools.com/'.$sIp
+						: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $sIp )
 					),
-					$aListItem[ 'ip' ]
+					$sIp
 				);
-			$aListItem[ 'last_access_at' ] = $oWp->getTimeStringForDisplay( $aListItem[ 'last_access_at' ] );
-			$aListItem[ 'created_at' ] = $oWp->getTimeStringForDisplay( $aListItem[ 'created_at' ] );
+			$aItem[ 'last_access_at' ] = $oWp->getTimeStringForDisplay( $oIp->getLastAccessAt() );
+			$aItem[ 'created_at' ] = $oWp->getTimeStringForDisplay( $oIp->getCreatedAt() );
+
+			$aListData[ $nKey ] = $aItem;
 		}
 		return $aListData;
 	}
@@ -180,11 +186,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	public function ajaxExec_RemoveIpFromList() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
 		$oDp = $this->loadDP();
-
-		$oProcessor->removeIpFromList( $oDp->post( 'ip' ), $oDp->post( 'list' ) );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getQueryDeleter()
+			 ->deleteIpOnList( $oDp->post( 'ip' ), $oDp->post( 'list' ) );
 
 		return array(
 			'success' => true,
@@ -193,9 +199,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function ajaxExec_AddIpToWhitelist() {
+		$oDp = $this->loadDP();
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		$oDp = $this->loadDP();
 
 		$sIp = $oDp->post( 'ip', '' );
 		$sLabel = $oDp->post( 'label', '' );
@@ -404,13 +410,27 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		parent::action_doFeatureShutdown(); //save
 	}
 
+	/**
+	 */
 	protected function addFilterIpsToWhiteList() {
-		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', array() );
+		$oSp = $this->loadServiceProviders();
+
+		$aMwp = function_exists( 'mwp_init' ) ? array_flip( $oSp->getIps_ManageWp() ) : array();
+		foreach ( $aMwp as $sIp => $n ) {
+			$aMwp[ $sIp ] = 'ManageWP';
+		}
+
+		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aMwp );
+
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-			$oProcessor = $this->getProcessor();
+			/** @var ICWP_WPSF_Processor_Ips $oPro */
+			$oPro = $this->getProcessor();
+
+			$aWhiteIps = $oPro->getWhitelistIps();
 			foreach ( $aIps as $sIP => $sLabel ) {
-				$oProcessor->addIpToWhiteList( $sIP, $sLabel );
+				if ( !in_array( $sIP, $aWhiteIps ) ) {
+					$oPro->addIpToWhiteList( $sIP, $sLabel );
+				}
 			}
 		}
 	}
@@ -420,7 +440,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !$this->isModuleEnabled() ) {
 			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 			$oProcessor = $this->getProcessor();
-			if ( count( $oProcessor->getWhitelistData() ) > 0 ) {
+			if ( count( $oProcessor->getWhitelistIpsData() ) > 0 ) {
 				$this->setIsMainFeatureEnabled( true );
 				$this->setFlashAdminNotice(
 					sprintf( _wpsf__( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List' ), $this->getMainFeatureName() )

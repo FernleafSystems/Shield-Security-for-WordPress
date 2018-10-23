@@ -25,18 +25,20 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		if ( !$fIfDoCheck ) {
 			return $fIfDoCheck;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getMod();
 
 		$oWpComments = $this->loadWpComments();
 
 		// 1st are comments enabled on this post?
-		$nPostId = $this->getRawCommentData( 'comment_post_ID' );
+		$nPostId = $oFO->getCommentItem( 'comment_post_ID' );
 		$oPost = $nPostId ? $this->loadWp()->getPostById( $nPostId ) : null;
 		if ( $oPost ) {
 			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
 		}
 
-		if ( $fIfDoCheck && $oWpComments->getIfCommentsMustBePreviouslyApproved()
-			 && $oWpComments->isCommentAuthorPreviouslyApproved( $this->getRawCommentData( 'comment_author_email' ) ) ) {
+		if ( $fIfDoCheck && $oWpComments->getIfAllowCommentsByPreviouslyApproved()
+			 && $oWpComments->isAuthorApproved( $oFO->getCommentItem( 'comment_author_email' ) ) ) {
 			$fIfDoCheck = false;
 		}
 
@@ -48,37 +50,28 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return array
 	 */
 	public function doCommentChecking( $aCommentData ) {
-		parent::doCommentChecking( $aCommentData );
-
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->getIfDoCommentsCheck() ) {
-			return $aCommentData;
-		}
 
-		$this->doBlacklistSpamCheck( $aCommentData );
+		if ( $oFO->getIfDoCommentsCheck() ) {
 
-		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
-		if ( self::$sCommentStatus == 'reject' ) {
-			$oWp = $this->loadWp();
-			$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+			$this->performBlacklistSpamCheck(
+				$aCommentData[ 'comment_author' ],
+				$aCommentData[ 'comment_author_email' ],
+				$aCommentData[ 'comment_author_url' ],
+				$aCommentData[ 'comment_content' ],
+				$this->ip(),
+				substr( $this->loadDP()->server( 'HTTP_USER_AGENT', '' ), 0, 254 )
+			);
+
+			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
+			if ( self::$sCommentStatus == 'reject' ) {
+				$oWp = $this->loadWp();
+				$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+			}
 		}
 
 		return $aCommentData;
-	}
-
-	/**
-	 * @param $aCommentData
-	 */
-	protected function doBlacklistSpamCheck( $aCommentData ) {
-		$this->doBlacklistSpamCheck_Action(
-			$aCommentData[ 'comment_author' ],
-			$aCommentData[ 'comment_author_email' ],
-			$aCommentData[ 'comment_author_url' ],
-			$aCommentData[ 'comment_content' ],
-			$this->ip(),
-			substr( $this->loadDP()->FetchServer( 'HTTP_USER_AGENT', '' ), 0, 254 )
-		);
 	}
 
 	/**
@@ -92,7 +85,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @param string $sUserIp
 	 * @param string $sUserAgent
 	 */
-	public function doBlacklistSpamCheck_Action( $sAuthor, $sEmail, $sUrl, $sComment, $sUserIp, $sUserAgent ) {
+	public function performBlacklistSpamCheck( $sAuthor, $sEmail, $sUrl, $sComment, $sUserIp, $sUserAgent ) {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
 

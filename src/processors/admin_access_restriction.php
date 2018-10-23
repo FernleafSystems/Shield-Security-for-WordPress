@@ -24,15 +24,13 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
 		}
 
-		// Setup all the sec admin hooks
-		add_action( 'init', array( $this, 'onWpInit' ) );
-
 		if ( $oFO->isWlEnabled() ) {
 			$this->runWhiteLabel();
 		}
 	}
 
 	public function onWpInit() {
+		parent::onWpInit();
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 		if ( !$this->loadWpUsers()->isUserLoggedIn() || $this->isSecurityAdmin() ) {

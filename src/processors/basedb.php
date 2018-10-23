@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -90,78 +90,19 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param array $aData
-	 * @return bool|int
+	 * @param int $nTimeStamp
+	 * @return bool
 	 */
-	public function insertData( $aData ) {
-		return $this->loadDbProcessor()->insertDataIntoTable( $this->getTableName(), $aData );
+	protected function deleteRowsOlderThan( $nTimeStamp ) {
+		return $this->getQueryDeleter()
+					->addWhereOlderThan( $nTimeStamp )
+					->query();
 	}
 
 	/**
-	 * Returns all active, non-deleted rows
-	 * @return array
+	 * @return ICWP_WPSF_Query_BaseDelete
 	 */
-	public function selectAll() {
-		return $this->query_selectAll();
-	}
-
-	/**
-	 * @param array $aColumns Leave empty to select all (*) columns
-	 * @param bool  $bExcludeDeletedRows
-	 * @return array
-	 */
-	protected function query_selectAll( $aColumns = array(), $bExcludeDeletedRows = true ) {
-
-		// Try to get the database entry that corresponds to this set of data. If we get nothing, fail.
-		$sQuery = "SELECT %s FROM `%s` %s";
-
-		$aColumns = $this->validateColumnsParameter( $aColumns );
-		$sColumnsSelection = empty( $aColumns ) ? '*' : implode( ',', $aColumns );
-
-		$sQuery = sprintf( $sQuery,
-			$sColumnsSelection,
-			$this->getTableName(),
-			( $bExcludeDeletedRows && $this->getHasColumn( 'deleted_at' ) ) ? "WHERE `deleted_at` = 0" : ''
-		);
-		$mResult = $this->selectCustom( $sQuery );
-		return ( is_array( $mResult ) && isset( $mResult[ 0 ] ) ) ? $mResult : array();
-	}
-
-	/**
-	 * @param string $sQuery
-	 * @param        $nFormat
-	 * @return array|boolean
-	 */
-	public function selectCustom( $sQuery, $nFormat = ARRAY_A ) {
-		return $this->loadDbProcessor()->selectCustom( $sQuery, $nFormat );
-	}
-
-	/**
-	 * @param array $aData  - new insert data (associative array, column=>data)
-	 * @param array $aWhere - insert where (associative array)
-	 * @return integer|boolean (number of rows affected)
-	 */
-	public function updateRowsWhere( $aData, $aWhere ) {
-		return $this->loadDbProcessor()->updateRowsFromTableWhere( $this->getTableName(), $aData, $aWhere );
-	}
-
-	/**
-	 * @param integer $nTimeStamp
-	 * @return bool|int
-	 */
-	protected function deleteAllRowsOlderThan( $nTimeStamp ) {
-		$sQuery = "
-				DELETE from `%s`
-				WHERE
-					`created_at` < '%s'
-			";
-		$sQuery = sprintf(
-			$sQuery,
-			$this->getTableName(),
-			esc_sql( $nTimeStamp )
-		);
-		return $this->loadDbProcessor()->doSql( $sQuery );
-	}
+	abstract protected function getQueryDeleter();
 
 	/**
 	 * @return string
@@ -269,7 +210,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
-		return $this->deleteAllRowsOlderThan( $nTimeStamp );
+		return $this->deleteRowsOlderThan( $nTimeStamp );
 	}
 
 	/**
