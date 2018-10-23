@@ -28,16 +28,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * We clean the database after saving.
 	 */
-	protected function doPrePluginOptionsSave() {
-		/** @var ICWP_WPSF_Processor_Traffic $oPro */
-		$oPro = $this->getProcessor();
-		$oPro->getProcessorLogger()
-			 ->cleanupDatabase();
-	}
-
-	/**
-	 * We clean the database after saving.
-	 */
 	protected function doExtraSubmitProcessing() {
 		/** @var ICWP_WPSF_Processor_Traffic $oPro */
 		$oPro = $this->getProcessor();
