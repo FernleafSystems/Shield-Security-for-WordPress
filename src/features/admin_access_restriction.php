@@ -133,7 +133,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->getOpt( 'admin_access_key' );
 	}
 
-	/** TODO
+	/**
 	 * @return bool
 	 */
 	public function getAdminAccessArea_Options() {
