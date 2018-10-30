@@ -293,6 +293,7 @@
         "comment"
       ],
       "*":                             [
+        "ajaxurl",
         "g-recaptcha-response",
         "verify_sign",
         "txn_id",

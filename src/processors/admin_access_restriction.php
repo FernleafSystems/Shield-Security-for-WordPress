@@ -31,38 +31,38 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	public function onWpInit() {
 		parent::onWpInit();
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		if ( !$this->loadWpUsers()->isUserLoggedIn() || $this->isSecurityAdmin() ) {
-			return;
-		}
 
-		if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
-			add_filter( 'editable_roles', array( $this, 'restrictEditableRoles' ), 100, 1 );
-			add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 100, 3 );
-			add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 100, 1 );
-			add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
-			add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
-			add_action( 'set_user_role', array( $this, 'restrictSetUserRole' ), 100, 3 );
-		}
+		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->isSecurityAdmin() ) {
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+			$oFO = $this->getMod();
 
-		$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
-		if ( !empty( $aPluginRestrictions ) ) {
-			add_filter( 'user_has_cap', array( $this, 'disablePluginManipulation' ), 0, 3 );
-		}
+			if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
+				add_filter( 'editable_roles', array( $this, 'restrictEditableRoles' ), 100, 1 );
+				add_filter( 'user_has_cap', array( $this, 'restrictAdminUserChanges' ), 100, 3 );
+				add_action( 'delete_user', array( $this, 'restrictAdminUserDelete' ), 100, 1 );
+				add_action( 'add_user_role', array( $this, 'restrictAddUserRole' ), 100, 2 );
+				add_action( 'remove_user_role', array( $this, 'restrictRemoveUserRole' ), 100, 2 );
+				add_action( 'set_user_role', array( $this, 'restrictSetUserRole' ), 100, 3 );
+			}
 
-		$aThemeRestrictions = $oFO->getAdminAccessArea_Themes();
-		if ( !empty( $aThemeRestrictions ) ) {
-			add_filter( 'user_has_cap', array( $this, 'disableThemeManipulation' ), 0, 3 );
-		}
+			$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
+			if ( !empty( $aPluginRestrictions ) ) {
+				add_filter( 'user_has_cap', array( $this, 'disablePluginManipulation' ), 0, 3 );
+			}
 
-		$aPostRestrictions = $oFO->getAdminAccessArea_Posts();
-		if ( !empty( $aPostRestrictions ) ) {
-			add_filter( 'user_has_cap', array( $this, 'disablePostsManipulation' ), 0, 3 );
-		}
+			$aThemeRestrictions = $oFO->getAdminAccessArea_Themes();
+			if ( !empty( $aThemeRestrictions ) ) {
+				add_filter( 'user_has_cap', array( $this, 'disableThemeManipulation' ), 0, 3 );
+			}
 
-		if ( !$this->getController()->isThisPluginModuleRequest() ) {
-			add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+			$aPostRestrictions = $oFO->getAdminAccessArea_Posts();
+			if ( !empty( $aPostRestrictions ) ) {
+				add_filter( 'user_has_cap', array( $this, 'disablePostsManipulation' ), 0, 3 );
+			}
+
+			if ( !$this->getController()->isThisPluginModuleRequest() ) {
+				add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
+			}
 		}
 	}
 
@@ -540,6 +540,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		$oFO = $this->getMod();
 
 		$aRenderData = array(
+			'flags'       => array(
+				'restrict_options' => $oFO->getAdminAccessArea_Options()
+			),
 			'strings'     => array(
 				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
 				'unlock_link'        => $this->getUnlockLinkHtml(),
