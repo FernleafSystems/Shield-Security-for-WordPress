@@ -322,7 +322,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			if ( !$oCon->getHasPermissionToManage() ) {
 				$this->loadWp()->wpDie(
 					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
-					._wpsf__( 'You need to authenticate first.' )
+					.' '._wpsf__( 'You need to authenticate first.' )
 				);
 			}
 		}

@@ -1,3 +1,16 @@
+var iCWP_WPSF_JSErrorTrack = new function () {
+	var bHasError = false;
+	this.initialise = function () {
+		window.onerror = function ( error ) {
+			bHasError = true;
+		};
+	};
+	this.hasError = function () {
+		return bHasError;
+	};
+}();
+iCWP_WPSF_JSErrorTrack.initialise();
+
 var iCWP_WPSF_SecurityAdmin = new function () {
 
 	this.initialise = function () {
@@ -294,10 +307,12 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 		this.initialise = function () {
 			jQuery( document ).ready( function () {
 
-				jQuery( document ).on( "click",
-					'[data-plugin="' + icwp_wpsf_vars_plugin.file + '"] span.deactivate a',
-					promptSurvey
-				);
+				if ( !iCWP_WPSF_JSErrorTrack.hasError() ) {
+					jQuery( document ).on( "click",
+						'[data-plugin="' + icwp_wpsf_vars_plugin.file + '"] span.deactivate a',
+						promptSurvey
+					);
+				}
 
 				var oShareSettings = {
 					title: 'Care To Share?',

@@ -322,7 +322,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			add_action( 'wp_dashboard_setup', array( $this, 'onWpDashboardSetup' ) );
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminCss' ), 100 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 99 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 5 );
 	}
 
 	/**
