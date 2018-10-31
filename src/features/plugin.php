@@ -20,10 +20,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
-		var_dump( $this->loadRequest()->ts() );
-		var_dump( $this->loadRequest()->mts() );
-		var_dump( $this->loadRequest()->mts( true ) );
-		die();
 		parent::onWpInit();
 		$this->getImportExportSecretKey();
 	}
