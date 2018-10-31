@@ -125,13 +125,17 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	protected function logTraffic() {
 		$oReq = $this->loadRequest();
+
+		// For multisites that are separated by sub-domains we also show the host.
+		$sLeadingPath = $this->loadWp()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
+
 		/** @var ICWP_WPSF_TrafficEntryVO $oEntry */
 		$oEntry = $this->getQuerySelector()->getVo();
 		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
 		$oEntry->verb = $oReq->getMethod();
-		$oEntry->path = $oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
+		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
 		$oEntry->ua = (string)$oReq->server( 'HTTP_USER_AGENT' );
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;

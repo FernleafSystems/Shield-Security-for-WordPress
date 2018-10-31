@@ -30,11 +30,6 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	protected $sWpVersion;
 
-	/**
-	 * @var boolean
-	 */
-	protected $bIsMultisite;
-
 	public function __construct() {
 	}
 
@@ -717,10 +712,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isMultisite() {
-		if ( !isset( $this->bIsMultisite ) ) {
-			$this->bIsMultisite = function_exists( 'is_multisite' ) && is_multisite();
-		}
-		return $this->bIsMultisite;
+		return function_exists( 'is_multisite' ) && is_multisite();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMultisite_SubdomainInstall() {
+		return $this->isMultisite() && defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL;
 	}
 
 	/**
