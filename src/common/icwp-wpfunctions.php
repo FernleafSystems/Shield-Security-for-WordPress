@@ -405,7 +405,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	public function redirectHere() {
-		$this->doRedirect( $this->loadDP()->getRequestUri() );
+		$this->doRedirect( $this->loadRequest()->getUri() );
 	}
 
 	/**
@@ -438,14 +438,14 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 		$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		// we prevent any repetitive redirect loops
 		if ( $bProtectAgainstInfiniteLoops ) {
-			if ( $oDp->cookie( 'icwp-isredirect' ) == 'yes' ) {
+			if ( $oReq->cookie( 'icwp-isredirect' ) == 'yes' ) {
 				return;
 			}
 			else {
-				$oDp->setCookie( 'icwp-isredirect', 'yes', 5 );
+				$oReq->setCookie( 'icwp-isredirect', 'yes', 5 );
 			}
 		}
 
@@ -541,7 +541,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 
 		//special case for plugin admin pages.
 		if ( $sPage == 'admin.php' ) {
-			$sSubPage = $this->loadDP()->query( 'page' );
+			$sSubPage = $this->loadRequest()->query( 'page' );
 			if ( !empty( $sSubPage ) ) {
 				$aQueryArgs = array(
 					'page' => $sSubPage,
@@ -581,33 +581,33 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isRequestLoginUrl() {
-		return $this->isLoginUrl( $this->loadDP()->getRequestPath() );
+		return $this->isLoginUrl( $this->loadRequest()->getPath() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isRequestUserLogin() {
-		$oDp = $this->loadDP();
-		return $this->isRequestLoginUrl() && $oDp->isMethodPost()
-			   && !is_null( $oDp->post( 'log' ) ) && !is_null( $oDp->post( 'pwd' ) );
+		$oReq = $this->loadRequest();
+		return $this->isRequestLoginUrl() && $oReq->isMethodPost()
+			   && !is_null( $oReq->post( 'log' ) ) && !is_null( $oReq->post( 'pwd' ) );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isRequestUserRegister() {
-		$oDp = $this->loadDP();
-		return $oDp->isMethodPost() && !is_null( $oDp->post( 'user_login' ) )
-			   && !is_null( $oDp->post( 'user_email' ) ) && $this->isRequestLoginUrl();
+		$oReq = $this->loadRequest();
+		return $oReq->isMethodPost() && !is_null( $oReq->post( 'user_login' ) )
+			   && !is_null( $oReq->post( 'user_email' ) ) && $this->isRequestLoginUrl();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isRequestUserResetPasswordStart() {
-		$oDp = $this->loadDP();
-		return $this->isRequestLoginUrl() && $oDp->isMethodPost() && !is_null( $oDp->post( 'user_login' ) );
+		$oReq = $this->loadRequest();
+		return $this->isRequestLoginUrl() && $oReq->isMethodPost() && !is_null( $oReq->post( 'user_login' ) );
 	}
 
 	/**
@@ -732,7 +732,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		if ( !$bIsRest && function_exists( 'rest_url' ) ) {
 			$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 			$sRestPath = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
-			$sRequestPath = trim( $this->loadDP()->getRequestPath(), '/' );
+			$sRequestPath = trim( $this->loadRequest()->getPath(), '/' );
 			$bIsRest = !empty( $sRequestPath ) && !empty( $sRestPath )
 					   && ( strpos( $sRequestPath, $sRestPath ) === 0 );
 		}
@@ -763,11 +763,11 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		$sPath = null;
 
 		if ( $this->isRest() ) {
-			$oDP = $this->loadDP();
+			$oReq = $this->loadRequest();
 
-			$sPath = $oDP->request( 'rest_route' );
+			$sPath = $oReq->request( 'rest_route' );
 			if ( empty( $sPath ) && $this->isPermalinksEnabled() ) {
-				$sFullUri = $this->loadWp()->getHomeUrl( $oDP->getRequestPath() );
+				$sFullUri = $this->loadWp()->getHomeUrl( $oReq->getPath() );
 				$sPath = substr( $sFullUri, strlen( get_rest_url( get_current_blog_id() ) ) );
 			}
 		}
@@ -814,10 +814,10 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function getCurrentWpAdminPage() {
 
-		$oDp = $this->loadDP();
-		$sScript = $oDp->getScriptName();
+		$oReq = $this->loadRequest();
+		$sScript = $oReq->getScriptName();
 		if ( is_admin() && !empty( $sScript ) && basename( $sScript ) == 'admin.php' ) {
-			$sCurrentPage = $oDp->query( 'page' );
+			$sCurrentPage = $oReq->query( 'page' );
 		}
 		return empty( $sCurrentPage ) ? '' : $sCurrentPage;
 	}
@@ -829,7 +829,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getTimeStringForDisplay( $nTime = null, $bShowTime = true, $bShowDate = true ) {
-		$nTime = empty( $nTime ) ? $this->loadDP()->time() : $nTime;
+		$nTime = empty( $nTime ) ? $this->loadRequest()->ts() : $nTime;
 
 		$sFullTimeString = $bShowTime ? $this->getTimeFormat() : '';
 		if ( empty( $sFullTimeString ) ) {
@@ -846,7 +846,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getTimeStampForDisplay( $nTime = null ) {
-		$nTime = empty( $nTime ) ? $this->loadDP()->time() : $nTime;
+		$nTime = empty( $nTime ) ? $this->loadRequest()->ts() : $nTime;
 		return date_i18n( DATE_RFC2822, $this->getTimeAsGmtOffset( $nTime ) );
 	}
 
@@ -864,7 +864,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			}
 		}
 
-		$nTime = is_null( $nTime ) ? $this->loadDP()->time() : $nTime;
+		$nTime = is_null( $nTime ) ? $this->loadRequest()->ts() : $nTime;
 		return $nTime + ( $nTimezoneOffset*HOUR_IN_SECONDS );
 	}
 

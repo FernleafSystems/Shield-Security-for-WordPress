@@ -42,7 +42,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 
 		switch ( $sStep ) {
 			case 'security_admin_verify':
-				$aAdditional = array( 'current_index' => $this->loadDP()->post( 'current_index' ) );
+				$aAdditional = array( 'current_index' => $this->loadRequest()->post( 'current_index' ) );
 				break;
 			default:
 				$aAdditional = parent::getRenderData_SlideExtra( $sStep );
@@ -97,7 +97,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardSecurityAdminVerify() {
-		$sKey = $this->loadDP()->post( 'AccessKey' );
+		$sKey = $this->loadRequest()->post( 'AccessKey' );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 

@@ -37,7 +37,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * Ensure to only ever process supported wizards
 	 */
 	public function ajaxExec_WizRenderStep() {
-		$oDP = $this->loadDP();
+		$oReq = $this->loadRequest();
 
 		$aResponse = array(
 			'success'   => false,
@@ -45,11 +45,11 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		);
 
 		try {
-			$this->setCurrentWizard( $oDP->post( 'wizard_slug' ) );
+			$this->setCurrentWizard( $oReq->post( 'wizard_slug' ) );
 			if ( $this->getUserCan() ) {
 				$aNextStep = $this->buildNextStep(
-					$oDP->post( 'wizard_steps' ),
-					(int)$oDP->post( 'current_index' )
+					$oReq->post( 'wizard_steps' ),
+					(int)$oReq->post( 'current_index' )
 				);
 				$aResponse[ 'success' ] = true;
 				$aResponse[ 'next_step' ] = $aNextStep;
@@ -68,7 +68,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * TODO: does not honour 'min_user_permissions' from the wizard definition
 	 */
 	public function onWpLoaded() {
-		$sWizard = $this->loadDP()->query( 'wizard' );
+		$sWizard = $this->loadRequest()->query( 'wizard' );
 		try {
 			$this->setCurrentWizard( $sWizard );
 
@@ -185,7 +185,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function ajaxExec_WizProcessStep() {
 		$this->loadAutoload(); // for Response
-		$oResponse = $this->processWizardStep( $this->loadDP()->post( 'wizard-step' ) );
+		$oResponse = $this->processWizardStep( $this->loadRequest()->post( 'wizard-step' ) );
 		if ( !empty( $oResponse ) ) {
 			$this->buildWizardResponse( $oResponse );
 		}
@@ -312,7 +312,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			),
 			'data'    => array(),
 			'hrefs'   => array(
-				'form_action'      => $this->loadDP()->getRequestUri(),
+				'form_action'      => $this->loadRequest()->getUri(),
 				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
 				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),

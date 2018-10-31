@@ -76,7 +76,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function process_Exclusions() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
-		$oFO->setUfcFileExclusions( explode( "\n", $this->loadDP()->post( 'exclusions' ) ) );
+		$oFO->setUfcFileExclusions( explode( "\n", $this->loadRequest()->post( 'exclusions' ) ) );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		return $oResponse->setSuccessful( true )
@@ -91,7 +91,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oFO = $this->getModCon();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		if ( $this->loadDP()->post( 'DeleteFiles' ) === 'Y' ) {
+		if ( $this->loadRequest()->post( 'DeleteFiles' ) === 'Y' ) {
 			// First get the current setting and if necessary, modify it and then reset it.
 			$sDesiredOption = 'enabled_delete_only';
 			$sCurrentOption = $oFO->getUnrecognisedFileScannerOption();
@@ -124,7 +124,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 
-		if ( $this->loadDP()->post( 'RestoreFiles' ) === 'Y' ) {
+		if ( $this->loadRequest()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
 			$oProc->getSubProcessorChecksumScan()->doChecksumScan( true );
@@ -147,7 +147,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 
-		$sSetting = $this->loadDP()->post( 'enable_scan' );
+		$sSetting = $this->loadRequest()->post( 'enable_scan' );
 		$oFO->setPtgEnabledOption( $sSetting )
 			->savePluginOptions();
 
@@ -172,7 +172,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 
-		$sSetting = $this->loadDP()->post( 'enable_scan' );
+		$sSetting = $this->loadRequest()->post( 'enable_scan' );
 		$oFO->setUfcOption( $sSetting )
 			->savePluginOptions();
 
@@ -202,7 +202,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 
-		$sSetting = $this->loadDP()->post( 'enable_scan' );
+		$sSetting = $this->loadRequest()->post( 'enable_scan' );
 
 		$bEnabled = true;
 		$bRestore = false;
@@ -254,11 +254,11 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function process_AssetAction() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
-		$oDP = $this->loadDP();
+		$oReq = $this->loadRequest();
 
-		$sSlug = $oDP->post( 'slug' );
-		$sContext = $oDP->post( 'context' );
-		$sItemAction = $oDP->post( 'ptgaction' );
+		$sSlug = $oReq->post( 'slug' );
+		$sContext = $oReq->post( 'context' );
+		$sItemAction = $oReq->post( 'ptgaction' );
 
 		$oWpPlugins = $this->loadWpPlugins();
 		$oWpThemes = $this->loadWpThemes();

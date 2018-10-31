@@ -297,7 +297,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return int
 	 */
 	protected function time() {
-		return $this->loadDP()->time();
+		return $this->loadRequest()->ts();
 	}
 
 	/**

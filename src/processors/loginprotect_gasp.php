@@ -49,9 +49,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @throws Exception
 	 */
 	protected function performCheckWithException() {
-		$oDp = $this->loadDP();
-		$sGaspCheckBox = $oDp->post( $this->getGaspCheckboxName() );
-		$sHoney = $oDp->post( 'icwp_wpsf_login_email' );
+		$oReq = $this->loadRequest();
+		$sGaspCheckBox = $oReq->post( $this->getGaspCheckboxName() );
+		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
 
 		$sUsername = $this->getUserToAudit();
 		$sActionAttempted = $this->getActionToAudit();
@@ -96,9 +96,9 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @throws Exception
 	 */
 	protected function doGaspChecks( $sUsername, $sActionAttempted = 'login' ) {
-		$oDp = $this->loadDP();
-		$sGaspCheckBox = $oDp->post( $this->getGaspCheckboxName() );
-		$sHoney = $oDp->post( 'icwp_wpsf_login_email' );
+		$oReq = $this->loadRequest();
+		$sGaspCheckBox = $oReq->post( $this->getGaspCheckboxName() );
+		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
 
 		$bValid = false;
 		$sDieMessage = '';

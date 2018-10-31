@@ -18,7 +18,7 @@ class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 			$oIp,
 			array(
 				'transgressions' => $oIp->getTransgressions() + 1,
-				'last_access_at' => $this->loadDP()->time()
+				'last_access_at' => $this->loadRequest()->ts()
 			)
 		);
 	}
@@ -40,7 +40,7 @@ class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 	public function updateLastAccessAt( $oIp ) {
 		return $this->updateIp(
 			$oIp,
-			array( 'last_access_at' => $this->loadDP()->time() )
+			array( 'last_access_at' => $this->loadRequest()->ts() )
 		);
 	}
 

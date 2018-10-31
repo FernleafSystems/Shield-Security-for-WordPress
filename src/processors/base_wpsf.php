@@ -49,7 +49,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		if ( empty( $nTimeInstalled ) ) {
 			return 0;
 		}
-		return (int)round( ( $this->loadDP()->time() - $nTimeInstalled )/DAY_IN_SECONDS );
+		return (int)round( ( $this->loadRequest()->ts() - $nTimeInstalled )/DAY_IN_SECONDS );
 	}
 
 	/**
@@ -82,7 +82,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return string
 	 */
 	protected function getRecaptchaResponse() {
-		return $this->loadDP()->post( 'g-recaptcha-response' );
+		return $this->loadRequest()->post( 'g-recaptcha-response' );
 	}
 
 	/**

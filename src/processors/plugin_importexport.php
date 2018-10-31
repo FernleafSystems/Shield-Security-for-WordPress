@@ -50,8 +50,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function runAction() {
-		$oDP = $this->loadDP();
-		switch ( $oDP->query( 'shield_action' ) ) {
+		switch ( $this->loadRequest()->query( 'shield_action' ) ) {
 
 			case 'importexport_export':
 				add_action( 'init', array( $this, 'runOptionsExport' ) );
@@ -79,7 +78,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPremium() && $oFO->isImportExportPermitted() &&
-			 ( $this->loadDP()->time() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
+			 ( $this->loadRequest()->ts() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
 			echo json_encode( array( 'success' => true ) );
 			die();
 		}
@@ -102,9 +101,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !wp_next_scheduled( $sCronHook ) ) {
 
-			wp_schedule_single_event( $this->loadDP()->time() + 12, $sCronHook );
+			wp_schedule_single_event( $this->loadRequest()->ts() + 12, $sCronHook );
 
-			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $this->loadDP()->server( 'HTTP_USER_AGENT' ), $aMatches );
+			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $this->loadRequest()->server( 'HTTP_USER_AGENT' ), $aMatches );
 			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
 				$sUrl = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
 				if ( !empty( $sUrl ) ) {
@@ -130,11 +129,11 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runOptionsExport() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oDP = $this->loadDP();
+		$oReq = $this->loadRequest();
 
-		$sSecretKey = $oDP->query( 'secret', '' );
-		$bNetwork = $oDP->query( 'network', '' ) === 'Y';
-		$sUrl = $oDP->validateSimpleHttpUrl( $oDP->query( 'url', '' ) );
+		$sSecretKey = $oReq->query( 'secret', '' );
+		$bNetwork = $oReq->query( 'network', '' ) === 'Y';
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
 
 		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs

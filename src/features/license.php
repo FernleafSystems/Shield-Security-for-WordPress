@@ -143,7 +143,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'license_handling':
 					$aAjaxResponse = $this->ajaxExec_LicenseHandling();
@@ -167,7 +167,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$bSuccess = false;
 		$sMessage = 'Unsupported license action';
 
-		$sLicenseAction = $this->loadDP()->post( 'license-action' );
+		$sLicenseAction = $this->loadRequest()->post( 'license-action' );
 
 		$nCheckInterval = $this->getLicenseNotCheckedForInterval();
 		if ( $nCheckInterval < 20 ) {
@@ -266,7 +266,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	public function verifyLicense( $bForceCheck = true ) {
-		$nNow = $this->loadDP()->time();
+		$nNow = $this->loadRequest()->ts();
 		$oCurrent = $this->loadLicense();
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
@@ -343,7 +343,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	protected function sendLicenseWarningEmail() {
-		$nNow = $this->loadDP()->time();
+		$nNow = $this->loadRequest()->ts();
 		$bCanSend = $nNow - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
 
 		if ( $bCanSend ) {
@@ -478,7 +478,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return int
 	 */
 	private function getLicenseNotCheckedForInterval() {
-		return ( $this->loadDP()->time() - $this->getLicenseLastCheckedAt() );
+		return ( $this->loadRequest()->ts() - $this->getLicenseLastCheckedAt() );
 	}
 
 	/**
@@ -524,7 +524,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isLastVerifiedExpired() {
-		return ( $this->loadDP()->time() - $this->loadLicense()->getLastVerifiedAt() )
+		return ( $this->loadRequest()->ts() - $this->loadLicense()->getLastVerifiedAt() )
 			   > $this->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS;
 	}
 
@@ -534,7 +534,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function isLastVerifiedGraceExpired() {
 		$nGracePeriod = ( $this->getDef( 'lic_verify_expire_days' ) + $this->getDef( 'lic_verify_expire_grace_days' ) )
 						*DAY_IN_SECONDS;
-		return ( $this->loadDP()->time() - $this->loadLicense()->getLastVerifiedAt() ) > $nGracePeriod;
+		return ( $this->loadRequest()->ts() - $this->loadLicense()->getLastVerifiedAt() ) > $nGracePeriod;
 	}
 
 	/**
@@ -646,7 +646,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	public function isKeylessHandshakeExpired() {
-		return ( $this->loadDP()->time() - $this->getKeylessRequestAt() )
+		return ( $this->loadRequest()->ts() - $this->getKeylessRequestAt() )
 			   > $this->getDef( 'keyless_handshake_expire' );
 	}
 
@@ -663,7 +663,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	public function setKeylessRequestAt( $nTime = null ) {
-		$nTime = is_numeric( $nTime ) ? $nTime : $this->loadDP()->time();
+		$nTime = is_numeric( $nTime ) ? $nTime : $this->loadRequest()->ts();
 		return $this->setOpt( 'keyless_request_at', $nTime );
 	}
 

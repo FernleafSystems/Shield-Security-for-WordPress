@@ -275,7 +275,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			$oSp = $this->loadServiceProviders();
 
 			$sIp = $this->loadIpService()->getRequestIp();
-			$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+			$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';
 			}

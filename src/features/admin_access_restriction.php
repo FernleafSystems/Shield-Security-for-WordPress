@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'sec_admin_check':
 					$aAjaxResponse = $this->ajaxExec_SecAdminCheck();
@@ -269,7 +269,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
 		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadDP()->time() - $this->getSession()->getSecAdminAt() );
+			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->getSecAdminAt() );
 		}
 		return max( 0, $nLeft );
 	}
@@ -296,7 +296,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function checkAdminAccessKeySubmission() {
-		$sAccessKeyRequest = $this->loadDP()->post( 'admin_access_key_request', '' );
+		$sAccessKeyRequest = $this->loadRequest()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
 			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
@@ -308,7 +308,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isAccessKeyRequest() {
-		return strlen( $this->loadDP()->post( 'admin_access_key_request', '' ) ) > 0;
+		return strlen( $this->loadRequest()->post( 'admin_access_key_request', '' ) ) > 0;
 	}
 
 	/**

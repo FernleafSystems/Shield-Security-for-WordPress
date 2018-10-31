@@ -263,12 +263,12 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function determineSourceFromIp( $sVisitorIp ) {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 
 		$sBestSource = null;
 		foreach ( $this->getIpSourceOptions() as $sSource ) {
 
-			$sIpToTest = $oDp->server( $sSource );
+			$sIpToTest = $oReq->server( $sSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}
@@ -305,10 +305,10 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 		$sIpToReturn = false;
 		$sSource = false;
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		foreach ( $this->getIpSourceOptions() as $sMaybeSource ) {
 
-			$sIpToTest = $oDp->server( $sMaybeSource );
+			$sIpToTest = $oReq->server( $sMaybeSource );
 			if ( empty( $sIpToTest ) ) {
 				continue;
 			}

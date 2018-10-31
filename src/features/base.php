@@ -166,7 +166,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'mod_options':
 					$aAjaxResponse = $this->ajaxExec_ModOptions();
@@ -295,7 +295,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function importOptions() {
 		// So we don't poll for the file every page load.
-		if ( $this->loadDP()->query( 'icwp_shield_import' ) == 1 ) {
+		if ( $this->loadRequest()->query( 'icwp_shield_import' ) == 1 ) {
 			$aOptions = self::getConn()->getOptionsImportFromFile();
 			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
@@ -829,7 +829,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isModuleRequest() {
-		return ( $this->getModSlug() == $this->loadDP()->request( 'mod_slug' ) );
+		return ( $this->getModSlug() == $this->loadRequest()->request( 'mod_slug' ) );
 	}
 
 	/**
@@ -1243,15 +1243,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	protected function updatePluginOptionsFromSubmit() {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 
-		if ( $oDp->post( 'plugin_form_submit' ) !== 'Y' ) {
+		if ( $oReq->post( 'plugin_form_submit' ) !== 'Y' ) {
 			return;
 		}
 
 		foreach ( $this->getAllFormOptionsAndTypes() as $sOptionKey => $sOptionType ) {
 
-			$sOptionValue = $oDp->post( $sOptionKey );
+			$sOptionValue = $oReq->post( $sOptionKey );
 			if ( is_null( $sOptionValue ) ) {
 
 				if ( $sOptionType == 'text' || $sOptionType == 'email' ) { //if it was a text box, and it's null, don't update anything
@@ -1281,7 +1281,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 						continue;
 					}
 
-					$sConfirm = trim( (string)$oDp->post( $sOptionKey.'_confirm', '' ) );
+					$sConfirm = $oReq->post( $sOptionKey.'_confirm', '' );
 					if ( $sTempValue !== $sConfirm ) {
 						throw new Exception( _wpsf__( 'Password values do not match.' ) );
 					}
@@ -1292,7 +1292,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
 				else if ( $sOptionType == 'comma_separated_lists' ) {
-					$sOptionValue = $oDp->extractCommaSeparatedList( $sOptionValue );
+					$sOptionValue = $this->loadDP()->extractCommaSeparatedList( $sOptionValue );
 				}
 				else if ( $sOptionType == 'multiple_select' ) {
 				}
@@ -1309,7 +1309,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
 			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( $this->loadDP()->time() + 15, $this->prefix( 'importexport_notify' ) );
+				wp_schedule_single_event( $this->loadRequest()->ts() + 15, $this->prefix( 'importexport_notify' ) );
 			}
 		}
 	}
@@ -1336,28 +1336,28 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isModulePage() {
-		return strpos( $this->loadDP()->query( 'page' ), $this->prefix() ) === 0;
+		return strpos( $this->loadRequest()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isThisModulePage() {
-		return $this->loadDP()->query( 'page' ) == $this->getModSlug();
+		return $this->loadRequest()->query( 'page' ) == $this->getModSlug();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isModuleOptionsRequest() {
-		return $this->loadDP()->post( 'mod_slug' ) === $this->getModSlug();
+		return $this->loadRequest()->post( 'mod_slug' ) === $this->getModSlug();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isWizardPage() {
-		return ( $this->loadDP()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
+		return ( $this->loadRequest()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
 	}
 
 	/**
@@ -1986,7 +1986,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	protected function setOptAt( $sOpt, $nAt = null ) {
-		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadDP()->time() : max( 0, (int)$nAt ) );
+		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadRequest()->ts() : max( 0, (int)$nAt ) );
 	}
 
 	/**

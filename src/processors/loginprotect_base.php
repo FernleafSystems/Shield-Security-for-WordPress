@@ -208,7 +208,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function checkReqLostPassword_Wp( $oWpError ) {
 		try {
-			$this->setUserToAudit( $this->loadDP()->post( 'user_login', '' ) )
+			$this->setUserToAudit( $this->loadRequest()->post( 'user_login', '' ) )
 				 ->setActionToAudit( 'reset-password' )
 				 ->performCheckWithException();
 		}
@@ -240,9 +240,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function checkReqResetPassword_Wp( $oWpError ) {
 		try {
-			$oDP = $this->loadDP();
-			if ( $oDP->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
-				list( $sUser, $null ) = explode( ':', wp_unslash( $oDP->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
+			$oReq = $this->loadRequest();
+			if ( $oReq->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
+				list( $sUser, $null ) = explode( ':', wp_unslash( $oReq->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
 				$this->setUserToAudit( $sUser )
 					 ->setActionToAudit( 'set-password' )
 					 ->performCheckWithException();
@@ -260,7 +260,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return array
 	 */
 	public function checkPreUserInsert_Wp( $aData ) {
-		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadDP()->isMethodPost() ) {
+		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadRequest()->isMethodPost() ) {
 			$this->setActionToAudit( 'register' )
 				 ->performCheckWithDie();
 		}

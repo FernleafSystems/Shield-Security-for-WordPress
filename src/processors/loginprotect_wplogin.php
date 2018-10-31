@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ) {
 	return;
 }
 
-require_once( dirname(__FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -84,14 +84,13 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return bool
 	 */
 	protected function checkForUnsupportedConfiguration() {
-		$oDp = $this->loadDP();
-		$aRequestParts =  $oDp->getRequestUriParts();
-		if ( $aRequestParts === false || empty( $aRequestParts['path'] ) )  {
+		$aRequestParts = $this->loadRequest()->getUriParts();
+		if ( $aRequestParts === false || empty( $aRequestParts[ 'path' ] ) ) {
 
 			$sNoticeMessage = sprintf(
 				'<strong>%s</strong>: %s',
 				_wpsf__( 'Warning' ),
-				_wpsf__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.')
+				_wpsf__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.' )
 			);
 			$this->loadWpNotices()->addRawAdminNotice( $sNoticeMessage, 'error' );
 			return true;
@@ -108,7 +107,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
-			$sPath = trim( $this->loadDP()->getRequestPath(), '/' );
+			$sPath = trim( $this->loadRequest()->getPath(), '/' );
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
@@ -119,7 +118,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 				trim( site_url( 'login', 'relative' ), '/' )
 			);
 			$bDoBlock = !empty( $sPath )
-				&& ( in_array( $sPath, $aPossiblePaths ) || preg_match( '/wp-login\.php/i', $sPath ));
+						&& ( in_array( $sPath, $aPossiblePaths ) || preg_match( '/wp-login\.php/i', $sPath ) );
 		}
 
 		if ( $bDoBlock ) {
@@ -150,8 +149,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 			$sLoginUrl = home_url( $this->getLoginPath() );
 			$aQueryArgs = explode( '?', $sLocation );
-			if ( !empty( $aQueryArgs[1] ) ) {
-				parse_str( $aQueryArgs[1], $aNewQueryArgs );
+			if ( !empty( $aQueryArgs[ 1 ] ) ) {
+				parse_str( $aQueryArgs[ 1 ], $aNewQueryArgs );
 				$sLoginUrl = add_query_arg( $aNewQueryArgs, $sLoginUrl );
 			}
 			return $sLoginUrl;
@@ -181,7 +180,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return string
 	 */
 	public function blockRegisterUrlRedirect( $sUrl ) {
-		$aParts = $this->loadDP()->getRequestUriParts();
+		$aParts = $this->loadRequest()->getUriParts();
 		if ( is_array( $aParts ) && !empty( $aParts[ 'path' ] ) && strpos( $aParts[ 'path' ], 'wp-register.php' ) ) {
 			$this->doWpLoginFailedRedirect404();
 			die();
@@ -194,7 +193,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 */
 	public function aLoadWpLogin() {
 		if ( $this->loadWp()->isRequestLoginUrl() ) {
-			@require_once( ABSPATH . 'wp-login.php' );
+			@require_once( ABSPATH.'wp-login.php' );
 			die();
 		}
 	}
@@ -210,7 +209,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 	/**
 	 * Add the custom login URL to the Elegant Themes Maintenance Mode plugin URL exceptions list
-	 *
 	 * @param array $aUrlExceptions
 	 * @return array
 	 */
@@ -234,7 +232,6 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			}
 		}
 
-		$this->loadDP()
-			 ->doSendApache404( '', $this->loadWp()->getHomeUrl() );
+		$this->loadRequest()->sendResponseApache404( '', $this->loadWp()->getHomeUrl() );
 	}
 }
