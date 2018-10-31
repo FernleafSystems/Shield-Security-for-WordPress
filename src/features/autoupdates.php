@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	protected function doPostConstruction() {
 		// Force run automatic updates
-		if ( $this->loadDP()->query( 'force_run_auto_updates' ) == 'now' ) {
+		if ( $this->loadRequest()->query( 'force_run_auto_updates' ) == 'now' ) {
 			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
 		}
 	}
@@ -109,7 +109,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'toggle_plugin_autoupdate':
 					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isValidAdminArea() ) {
@@ -132,7 +132,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		$bSuccess = false;
 
 		$oWpPlugins = $this->loadWpPlugins();
-		$sFile = $this->loadDP()->post( 'pluginfile' );
+		$sFile = $this->loadRequest()->post( 'pluginfile' );
 		if ( $oWpPlugins->isInstalled( $sFile ) ) {
 			$this->setPluginToAutoUpdate( $sFile );
 

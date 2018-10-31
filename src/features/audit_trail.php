@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'render_audit_table':
 					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
@@ -35,7 +35,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	public function ajaxExec_RenderAuditTable() {
-		$sContext = $this->loadDP()->post( 'auditcontext' );
+		$sContext = $this->loadRequest()->post( 'auditcontext' );
 		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
 		return array(
 			'success' => true,

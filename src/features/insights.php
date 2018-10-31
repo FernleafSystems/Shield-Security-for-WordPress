@@ -84,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'admin_note_new':
 					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
@@ -109,10 +109,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function ajaxExec_AdminNoteNew() {
-		$oDP = $this->loadDP();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getConn()->getModule( 'plugin' );
-		$sNote = trim( $oDP->post( 'admin_note', '' ) );
+		$sNote = $this->loadRequest()->post( 'admin_note', '' );
 		$bSuccess = false;
 		if ( !$oMod->getCanAdminNotes() ) {
 			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
@@ -139,14 +138,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function ajaxExec_AdminNotesDelete() {
-		$oDP = $this->loadDP();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getConn()->getModule( 'plugin' );
-		/** @var ICWP_WPSF_Processor_Plugin $oP */
-		$oP = $oMod->getProcessor();
 
-		$nNoteId = (int)trim( $oDP->post( 'note_id', 0 ) );
+		$nNoteId = (int)$this->loadRequest()->post( 'note_id', 0 );
 		if ( $nNoteId >= 0 ) {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+			$oMod = $this->getConn()->getModule( 'plugin' );
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $oMod->getProcessor();
 			$oP->getSubProcessorNotes()
 			   ->getQueryDeleter()
 			   ->deleteById( $nNoteId );
@@ -249,7 +247,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	protected function getNoticesSite() {
-		$oDp = $this->loadDP();
 		$oSslService = $this->loadSslService();
 
 		$aNotices = array(
@@ -270,7 +267,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				// If we didn't throw and exception, we got it.
 				$nExpiresAt = $oSslService->getExpiresAt( $sHomeUrl );
 				if ( $nExpiresAt > 0 ) {
-					$nTimeLeft = ( $nExpiresAt - $oDp->time() );
+					$nTimeLeft = ( $nExpiresAt - $this->loadRequest()->ts() );
 					$bExpired = $nTimeLeft < 0;
 					$nDaysLeft = $bExpired ? 0 : (int)round( $nTimeLeft/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
 

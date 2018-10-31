@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	private function captureLogin( $oUser ) {
 		$sPassword = $this->getLoginPassword();
 
-		if ( $this->loadDP()->isMethodPost() && !$this->isLoginCaptured()
+		if ( $this->loadRequest()->isMethodPost() && !$this->isLoginCaptured()
 			 && $oUser instanceof WP_User && !empty( $sPassword ) ) {
 			$this->setLoginCaptured();
 			try {
@@ -61,7 +61,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( !$this->loadDP()->isMethodPost() && $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( !$this->loadRequest()->isMethodPost() && $this->loadWpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 			$this->processFailedCheckPassword();
 		}
@@ -138,7 +138,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		$oWp = $this->loadWp();
 		$oWpUsers = $this->loadWpUsers();
-		$sAction = $this->loadDP()->query( 'action' );
+		$sAction = $this->loadRequest()->query( 'action' );
 		$oUser = $oWpUsers->getCurrentWpUser();
 		if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, array( 'rp', 'resetpass' ) ) ) ) {
 
@@ -390,7 +390,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		// Edd: edd_user_pass; Woo: password;
 		foreach ( array( 'pwd', 'pass1' ) as $sKey ) {
-			$sP = $this->loadDP()->post( $sKey );
+			$sP = $this->loadRequest()->post( $sKey );
 			if ( !empty( $sP ) ) {
 				$sPass = $sP;
 				break;

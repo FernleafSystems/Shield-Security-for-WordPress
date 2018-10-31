@@ -33,7 +33,7 @@ class ICWP_WPSF_Query_Tally_Insert extends ICWP_WPSF_Query_BaseInsert {
 			return false;
 		}
 
-		$nTimeStamp = $this->loadDP()->time();
+		$nTimeStamp = $this->loadRequest()->ts();
 		$aData = array(
 			'stat_key'        => $sStatKey,
 			'parent_stat_key' => $sParent,

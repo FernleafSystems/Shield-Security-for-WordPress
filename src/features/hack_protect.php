@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'plugin_reinstall':
 					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
@@ -392,7 +392,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function canPtgWriteToDisk() {
 		$bCan = (bool)$this->getOpt( 'ptg_candiskwrite' );
-		$nNow = $this->loadDP()->time();
+		$nNow = $this->loadRequest()->ts();
 
 		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
 		if ( !$bCan && $bLastCheckExpired ) {
@@ -517,7 +517,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	public function setPtgLastBuildAt( $nTime = null ) {
-		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadDP()->time() : $nTime );
+		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? $this->loadRequest()->ts() : $nTime );
 	}
 
 	/**
@@ -532,10 +532,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function ajaxExec_PluginReinstall() {
-		$oDP = $this->loadDP();
-		$bReinstall = (bool)$oDP->post( 'reinstall' );
-		$bActivate = (bool)$oDP->post( 'activate' );
-		$sFile = sanitize_text_field( wp_unslash( $oDP->post( 'file' ) ) );
+		$oReq = $this->loadRequest();
+		$bReinstall = (bool)$oReq->post( 'reinstall' );
+		$bActivate = (bool)$oReq->post( 'activate' );
+		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
 		$oWpP = $this->loadWpPlugins();
 
 		if ( $bReinstall ) {

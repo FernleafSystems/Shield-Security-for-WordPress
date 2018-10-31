@@ -135,19 +135,19 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getMod();
 
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
-			$oDp = $this->loadDP();
+			$oReq = $this->loadRequest();
 
-			$bIsLoginIntentSubmission = $oDp->request( $oFO->getLoginIntentRequestFlag() ) == 1;
+			$bIsLoginIntentSubmission = $oReq->request( $oFO->getLoginIntentRequestFlag() ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
 
-				if ( $oDp->post( 'cancel' ) == 1 ) {
+				if ( $oReq->post( 'cancel' ) == 1 ) {
 					$oWpUsers->logoutUser(); // clears the login and login intent
 					$this->loadWp()->redirectToLogin();
 					return;
 				}
 
 				if ( $this->isLoginIntentValid() ) {
-					if ( $oDp->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
+					if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
 					}
 
@@ -271,7 +271,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$sMessageType = 'warning';
 		}
 
-		$sRedirectTo = rawurlencode( $this->loadDP()->getRequestUri() ); // not actually used
+		$sRedirectTo = rawurlencode( $this->loadRequest()->getUri() ); // not actually used
 
 		$aLabels = $oCon->getPluginLabels();
 		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
@@ -300,7 +300,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'login_intent_flag' => $oFO->getLoginIntentRequestFlag()
 			),
 			'hrefs'   => array(
-				'form_action'   => $this->loadDP()->getRequestUri(),
+				'form_action'   => $this->loadRequest()->getUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',

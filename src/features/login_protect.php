@@ -14,10 +14,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function onWpInit() {
 		parent::onWpInit();
 
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		// User has clicked a link in their email to verify they can send email.
-		if ( $oDp->query( 'shield_action' ) == 'emailsendverify' ) {
-			if ( $oDp->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
+		if ( $oReq->query( 'shield_action' ) == 'emailsendverify' ) {
+			if ( $oReq->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
 				$this->setIfCanSendEmail( true )
 					 ->savePluginOptions();
 
@@ -224,9 +224,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aHashes = $this->getMfaLoginHashes( $oUser );
 			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
 
-			$sHash = md5( $this->loadDP()->getUserAgent() );
+			$sHash = md5( $this->loadRequest()->getUserAgent() );
 			$bCanSkip = isset( $aHashes[ $sHash ] )
-						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadDP()->time();
+						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadRequest()->ts();
 		}
 		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
@@ -241,10 +241,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return $this
 	 */
 	public function addMfaLoginHash( $oUser ) {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		$aHashes = $this->getMfaLoginHashes( $oUser );
-		$aHashes[ md5( $oDp->getUserAgent() ) ] = $oDp->time();
-		$this->getController()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
+		$aHashes[ md5( $oReq->getUserAgent() ) ] = $oReq->ts();
+		$this->getConn()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
 		return $this;
 	}
 
@@ -386,7 +386,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function setIfCanSendEmail( $bCan ) {
 		$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
 		if ( $bCan ) {
-			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadDP()->time() : $nCurrentDateAt;
+			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadRequest()->ts() : $nCurrentDateAt;
 		}
 		else {
 			$nDateAt = 0;
@@ -522,7 +522,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'gen_backup_codes':
 					$aAjaxResponse = $this->ajaxExec_GenBackupCodes();

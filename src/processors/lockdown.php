@@ -209,7 +209,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	public function interceptCanonicalRedirects() {
 
 		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
-			$sAuthor = $this->loadDP()->query( 'author', '' );
+			$sAuthor = $this->loadRequest()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
 				$this->loadWp()->wpDie( sprintf(
 					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )

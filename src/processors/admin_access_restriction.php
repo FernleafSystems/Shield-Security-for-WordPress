@@ -228,14 +228,14 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		if ( in_array( $sUserCap, $aReleventCaps ) ) {
 			$bBlockCapability = false;
 
-			$oDp = $this->loadDP();
+			$oReq = $this->loadRequest();
 			$oWpUsers = $this->loadWpUsers();
 
 			// Find the WP_User for the POST
 			$oPostUser = false;
-			$sPostUserlogin = $oDp->post( 'user_login' );
+			$sPostUserlogin = $oReq->post( 'user_login' );
 			if ( empty( $sPostUserlogin ) ) {
-				$nPostUserId = $oDp->post( 'user_id' );
+				$nPostUserId = $oReq->post( 'user_id' );
 				if ( !empty( $nPostUserId ) ) {
 					$oPostUser = $oWpUsers->getUserById( $nPostUserId );
 				}
@@ -244,7 +244,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				$oPostUser = $oWpUsers->getUserByUsername( $sPostUserlogin );
 			}
 
-			$sRequestRole = strtolower( $oDp->post( 'role', '' ) );
+			$sRequestRole = strtolower( $oReq->post( 'role', '' ) );
 
 			if ( $oPostUser instanceof WP_User ) {
 				// editing an existing user other than yourself?
@@ -281,7 +281,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		}
 
 		$sCurrentPage = $this->loadWp()->getCurrentPage();
-		$sCurrentGetPage = $this->loadDP()->query( 'page' );
+		$sCurrentGetPage = $this->loadRequest()->query( 'page' );
 		if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 			return;
 		}
@@ -411,10 +411,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
-
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -422,8 +421,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		// special case for plugin info thickbox for changelog
 		$bIsChangelog = defined( 'IFRAME_REQUEST' )
 						&& ( $sRequestedCapability === 'install_plugins' )
-						&& ( $oDp->query( 'section' ) == 'changelog' )
-						&& $oDp->query( 'plugin' );
+						&& ( $oReq->query( 'section' ) == 'changelog' )
+						&& $oReq->query( 'plugin' );
 		if ( $bIsChangelog ) {
 			return $aAllCaps;
 		}

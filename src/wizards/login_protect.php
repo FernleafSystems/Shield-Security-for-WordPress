@@ -49,16 +49,16 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function processAuthEmail() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getModCon();
-		$oDP = $this->loadDP();
+		$oReq = $this->loadRequest();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 
-		$sEmail = $oDP->post( 'email' );
-		$sCode = $oDP->post( 'code' );
-		$bFa = $oDP->post( 'Email2FAOption' ) === 'Y';
+		$sEmail = $oReq->post( 'email' );
+		$sCode = $oReq->post( 'code' );
+		$bFa = $oReq->post( 'Email2FAOption' ) === 'Y';
 
-		if ( !$oDP->validEmail( $sEmail ) ) {
+		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
 			$sMessage = _wpsf__( 'Invalid email address' );
 		}
 		else {
@@ -104,13 +104,13 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function processAuthGa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getModCon();
-		$oDP = $this->loadDP();
+		$oReq = $this->loadRequest();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 
-		$sCode = $oDP->post( 'gacode' );
-		$bEnableGa = $oDP->post( 'enablega' ) === 'Y';
+		$sCode = $oReq->post( 'gacode' );
+		$bEnableGa = $oReq->post( 'enablega' ) === 'Y';
 
 		$sMessage = '';
 		if ( $sCode != 'ignore' ) {
@@ -156,7 +156,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getModCon();
 
-		$bEnabledMulti = $this->loadDP()->post( 'multiselect' ) === 'Y';
+		$bEnabledMulti = $this->loadRequest()->post( 'multiselect' ) === 'Y';
 		$oFO->setIsChainedAuth( $bEnabledMulti );
 		$sMessage = sprintf( _wpsf__( 'Multi-Factor Authentication was %s for the site.' ),
 			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )

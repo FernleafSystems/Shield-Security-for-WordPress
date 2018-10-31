@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function run() {
 		parent::run();
-		if ( $this->loadDP()->query( 'shield_action' ) == 'garemovalconfirm' ) {
+		if ( $this->loadRequest()->query( 'shield_action' ) == 'garemovalconfirm' ) {
 			add_action( 'wp_loaded', array( $this, 'validateUserGaRemovalLink' ), 10 );
 		}
 	}
@@ -85,14 +85,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param int $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
-		$oDp = $this->loadDP();
 
 		// Can only edit other users if you're admin/security-admin
 		if ( $this->getController()->getHasPermissionToManage() ) {
 			$oWpUsers = $this->loadWpUsers();
 			$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
-			$sShieldTurnOff = $oDp->post( 'shield_turn_off_google_authenticator' );
+			$sShieldTurnOff = $this->loadRequest()->post( 'shield_turn_off_google_authenticator' );
 			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
 
 				$bPermissionToRemoveGa = true;
@@ -143,7 +142,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		$sMessageOtpInvalid = _wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' );
 
-		$sShieldTurnOff = $this->loadDP()->post( 'shield_turn_off_google_authenticator' );
+		$sShieldTurnOff = $this->loadRequest()->post( 'shield_turn_off_google_authenticator' );
 		if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
 
 			$bError = false;
@@ -244,7 +243,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		}
 
 		// Session IDs must be the same
-		$sSessionId = $this->loadDP()->query( 'sessionid' );
+		$sSessionId = $this->loadRequest()->query( 'sessionid' );
 		if ( empty( $sSessionId ) || ( $sSessionId !== $this->getController()->getSessionId() ) ) {
 			return;
 		}

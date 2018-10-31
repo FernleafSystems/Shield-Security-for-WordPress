@@ -143,7 +143,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 	 * @return int
 	 */
 	public function getDateTo() {
-		return isset( $this->nDateTo ) ? (int)$this->nDateTo : $this->loadDP()->time();
+		return isset( $this->nDateTo ) ? (int)$this->nDateTo : $this->loadRequest()->ts();
 	}
 
 	/**
