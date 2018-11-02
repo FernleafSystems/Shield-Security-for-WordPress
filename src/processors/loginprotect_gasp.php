@@ -19,13 +19,15 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @return string
 	 */
 	private function getGaspLoginHtml() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		return $this->getMod()->renderTemplate(
 			'snippets/gasp_js.php',
 			array(
-				'sCbName'   => $this->getGaspCheckboxName(),
-				'sLabel'    => $this->getTextImAHuman(),
-				'sAlert'    => $this->getTextPleaseCheckBox(),
+				'sCbName'   => $oFO->getGaspKey(),
+				'sLabel'    => $oFO->getTextImAHuman(),
+				'sAlert'    => $oFO->getTextPleaseCheckBox(),
 				'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
 				'sUniqId'   => $sUniqId,
 				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
@@ -37,25 +39,18 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function getGaspCheckboxName() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getGaspKey() );
-	}
-
-	/**
 	 * @throws Exception
 	 */
 	protected function performCheckWithException() {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
 		$this->setFactorTested( true );
 
 		$oReq = $this->loadRequest();
-		$sGaspCheckBox = $oReq->post( $this->getGaspCheckboxName() );
+		$sGaspCheckBox = $oReq->post( $oFO->getGaspKey() );
 		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
 
 		$sUsername = $this->getUserToAudit();
@@ -101,8 +96,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @throws Exception
 	 */
 	protected function doGaspChecks( $sUsername, $sActionAttempted = 'login' ) {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
 		$oReq = $this->loadRequest();
-		$sGaspCheckBox = $oReq->post( $this->getGaspCheckboxName() );
+		$sGaspCheckBox = $oReq->post( $oFO->getGaspKey() );
 		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
 
 		$bValid = false;
@@ -138,19 +135,5 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		}
 
 		return $bValid;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getTextImAHuman() {
-		return $this->getMod()->getTextOpt( 'text_imahuman' );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getTextPleaseCheckBox() {
-		return $this->getMod()->getTextOpt( 'text_pleasecheckbox' );
 	}
 }
