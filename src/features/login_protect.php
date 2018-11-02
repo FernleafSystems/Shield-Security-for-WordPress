@@ -196,7 +196,21 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sKey = uniqid();
 			$this->setOpt( 'gasp_key', $sKey );
 		}
-		return $sKey;
+		return $this->prefix( $sKey );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTextImAHuman() {
+		return stripslashes( $this->getTextOpt( 'text_imahuman' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTextPleaseCheckBox() {
+		return stripslashes( $this->getTextOpt( 'text_pleasecheckbox' ) );
 	}
 
 	/**
@@ -576,8 +590,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		);
 	}
 
-	public function insertCustomJsVars() {
-		parent::insertCustomJsVars();
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(
 			$this->prefix( 'global-plugin' ),
