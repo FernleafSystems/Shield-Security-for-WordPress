@@ -590,8 +590,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		);
 	}
 
-	public function insertCustomJsVars() {
-		parent::insertCustomJsVars();
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(
 			$this->prefix( 'global-plugin' ),

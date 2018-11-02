@@ -126,8 +126,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
-
-			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars' ), 100 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars_Admin' ), 100 );
 
 			if ( $this->isAdminOptionsPage() ) {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
@@ -1720,7 +1719,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * Override this with custom JS vars for your particular module.
 	 */
-	public function insertCustomJsVars() {
+	public function insertCustomJsVars_Admin() {
 	}
 
 	/**

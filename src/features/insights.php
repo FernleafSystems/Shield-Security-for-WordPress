@@ -62,8 +62,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
 	}
 
-	public function insertCustomJsVars() {
-		parent::insertCustomJsVars();
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {
 			wp_localize_script(
