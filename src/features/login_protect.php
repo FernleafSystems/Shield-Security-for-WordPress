@@ -57,6 +57,18 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
 		}
 
+		$aIds = $this->getAntiBotFormIds();
+		foreach ( $aIds as $nKey => $sId ) {
+			$sId = preg_replace( '/\s/', '', strip_tags( trim( $sId ) ) );
+			if ( empty( $sId ) ) {
+				unset( $aIds[ $nKey ] );
+			}
+			else {
+				$aIds[ $nKey ] = $sId;
+			}
+		}
+		$this->setOpt( 'antibot_form_ids', array_values( array_unique( $aIds ) ) );
+
 		$this->cleanLoginUrlPath();
 	}
 
@@ -557,7 +569,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	protected function ajaxExec_GenBackupCodes() {
-
 		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
 		$oPro = $this->loadProcessor();
 		$sPass = $oPro->getProcessorLoginIntent()
@@ -572,6 +583,66 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			'code'    => $sPass,
 			'success' => true
 		);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledBotJs() {
+		return $this->isPremium() && $this->isOpt( 'enable_antibot_js', 'Y' )
+			   && count( $this->getAntiBotFormIds() ) > 0
+			   && ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAntiBotFormIds() {
+		$aIds = $this->getOpt( 'antibot_form_ids', array() );
+		return is_array( $aIds ) ? $aIds : array();
+	}
+
+	public function onWpEnqueueJs() {
+		parent::onWpEnqueueJs();
+
+		if ( $this->isEnabledBotJs() ) {
+			$oConn = $this->getConn();
+
+			$sAsset = 'shield-antibot';
+			$sUnique = $this->prefix( $sAsset );
+			wp_register_script(
+				$sUnique,
+				$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+				array( 'jquery' ),
+				$oConn->getVersion(),
+				true
+			);
+			wp_enqueue_script( $sUnique );
+
+			wp_localize_script(
+				$sUnique,
+				'icwp_wpsf_vars_lpantibot',
+				array(
+					'form_ids' => array( 'ihc_login_form', 'commentform' ),
+					'uniq'     => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+					'cbname'   => $this->getGaspKey(),
+					'strings'  => array(
+						'label' => $this->getTextImAHuman(),
+						'alert' => $this->getTextPleaseCheckBox(),
+					),
+					'flags'    => array(
+						'gasp'  => $this->isEnabledGaspCheck(),
+						'recap' => $this->isGoogleRecaptchaEnabled(),
+					)
+				)
+			);
+
+			if ( $this->isGoogleRecaptchaEnabled() ) {
+				/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
+				$oPro = $this->getProcessor();
+				$oPro->setRecaptchaToEnqueue();
+			}
+		}
 	}
 
 	/**
@@ -788,6 +859,18 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sSummary = _wpsf__( 'Protect WP Login From Automated Login Attempts By Bots' );
 				$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.' )
 								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Recommendation' ), _wpsf__( 'ON' ) );
+				break;
+
+			case 'enable_antibot_js' :
+				$sName = _wpsf__( 'AntiBot JS' );
+				$sSummary = _wpsf__( 'Use AntiBot JS Includes For Custom 3rd Party' );
+				$sDescription = _wpsf__( 'AntiBot JS' );
+				break;
+
+			case 'antibot_form_ids' :
+				$sName = _wpsf__( 'AntiBot Forms' );
+				$sSummary = _wpsf__( 'Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS' );
+				$sDescription = _wpsf__( 'For Use With AnitBot JS (above).' );
 				break;
 
 			case 'login_limit_interval' :
