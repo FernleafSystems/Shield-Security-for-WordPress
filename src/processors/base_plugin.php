@@ -168,7 +168,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 					'dismiss'      => _wpsf__( 'Dismiss this notice' )
 				),
 				'hrefs'             => array(
-					'upgrade_link' => $oWpPlugins->getLinkPluginUpgrade( $sBaseFile )
+					'upgrade_link' => $oWpPlugins->getUrl_Upgrade( $sBaseFile )
 				)
 			);
 			$this->insertAdminNotice( $aRenderData );

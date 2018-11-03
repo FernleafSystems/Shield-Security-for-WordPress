@@ -83,7 +83,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 			add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
 
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
-			foreach ( array_keys( $this->loadWpPlugins()->getPlugins() ) as $sPluginFile ) {
+			foreach ( $this->loadWpPlugins()->getInstalledBaseFiles() as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
 		}
@@ -265,7 +265,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		if ( !isset( $this->aPluginVulnerabilities ) || !is_array( $this->aPluginVulnerabilities ) ) {
 			$this->aPluginVulnerabilities = array();
 
-			foreach ( $this->loadWpPlugins()->getInstalledPluginFiles() as $sFile ) {
+			foreach ( $this->loadWpPlugins()->getInstalledBaseFiles() as $sFile ) {
 
 				$aThisVulns = $this->getPluginVulnerabilities( $sFile );
 				if ( !empty( $aThisVulns ) ) {

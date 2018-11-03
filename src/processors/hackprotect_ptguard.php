@@ -265,7 +265,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		$oWpPl = $this->loadWpPlugins();
 
 		$aSnapshot = array();
-		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
+		foreach ( $oWpPl->getInstalledBaseFiles() as $sBaseName ) {
 			if ( $oWpPl->isActive( $sBaseName ) ) {
 				$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
 			}

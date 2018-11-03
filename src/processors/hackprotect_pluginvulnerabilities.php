@@ -56,9 +56,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 			/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 			$oFO = $this->getMod();
 
-			$aPlugins = $this->loadWpPlugins()->getPlugins();
-
-			foreach( $aPlugins as $sPluginFile => $aPluginData ) {
+			foreach( $this->loadWpPlugins()->getPlugins() as $sPluginFile => $aPluginData ) {
 				$aPluginVulnerabilityData = $this->getPluginVulnerabilityData( $sPluginFile, $aPluginData );
 				if ( is_array( $aPluginVulnerabilityData ) ) {
 					$this->addPluginVulnerabilityToEmail( $aPluginData, $aPluginVulnerabilityData );
@@ -122,8 +120,7 @@ if ( !class_exists( 'ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities', fal
 		}
 
 		public function addPluginVulnerabilityRows() {
-			$aPlugins = $this->loadWpPlugins()->getPlugins();
-			foreach( array_keys( $aPlugins ) as $sPluginFile ) {
+			foreach( $this->loadWpPlugins()->getInstalledBaseFiles() as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
 		}

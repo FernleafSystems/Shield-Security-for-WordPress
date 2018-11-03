@@ -576,13 +576,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getReinstallablePlugins() {
 		$oWPP = $this->loadWpPlugins();
-		$aP = array();
-		foreach ( $oWPP->getPlugins() as $sPluginFile => $aData ) {
-			if ( $oWPP->isWpOrg( $sPluginFile ) ) {
-				$aP[] = $sPluginFile;
+		$aP = $oWPP->getInstalledBaseFiles();
+		foreach ( $aP as $nKey => $sPluginFile ) {
+			if ( !$oWPP->isWpOrg( $sPluginFile ) ) {
+				unset( $aP[ $nKey ] );
 			}
 		}
-		return $aP;
+		return array_values( $aP );
 	}
 
 	/**

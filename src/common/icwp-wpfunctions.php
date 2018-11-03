@@ -101,7 +101,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			 || ( isset( $GLOBALS[ 'pagenow' ] ) && $GLOBALS[ 'pagenow' ] == 'update.php' ) ) {
 			return true;
 		}
-		wp_redirect( $oWpPlugins->getLinkPluginUpgrade( $sPluginFile ) );
+		wp_redirect( $oWpPlugins->getUrl_Upgrade( $sPluginFile ) );
 		exit();
 	}
 
