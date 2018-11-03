@@ -47,7 +47,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
-		$this->processLoginAttempt_Filter( $oUser );
+		$this->processLoginAttempt( $oUser );
 	}
 
 	/**
@@ -57,7 +57,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->processLoginAttempt_Filter( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->processLoginAttempt( $this->loadWpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -247,7 +247,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param WP_Error|WP_User $oUser
 	 * @return WP_Error|WP_User
 	 */
-	public function processLoginAttempt_Filter( $oUser ) {
+	public function processLoginAttempt( $oUser ) {
 		return $oUser;
 	}
 
