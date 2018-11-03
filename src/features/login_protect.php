@@ -623,7 +623,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sUnique,
 				'icwp_wpsf_vars_lpantibot',
 				array(
-					'form_ids' => array( 'ihc_login_form', 'commentform' ),
+					'form_ids' => $this->getAntiBotFormIds(),
 					'uniq'     => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
 					'cbname'   => $this->getGaspKey(),
 					'strings'  => array(
