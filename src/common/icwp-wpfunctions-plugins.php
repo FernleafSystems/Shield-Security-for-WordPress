@@ -253,17 +253,16 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return null|string
 	 */
 	public function findPluginBy( $sValueToCompare, $sKey = 'Name' ) {
-		$sFilename = null;
+		$sFile = null;
 
-		if ( !empty( $sValueToCompare ) ) {
-			foreach ( $this->getPlugins() as $sBaseFileName => $aPluginData ) {
-				if ( isset( $aPluginData[ $sKey ] ) && $sValueToCompare == $aPluginData[ $sKey ] ) {
-					$sFilename = $sBaseFileName;
-				}
+		foreach ( $this->getPlugins() as $sBaseFileName => $aPluginData ) {
+			if ( isset( $aPluginData[ $sKey ] ) && $sValueToCompare == $aPluginData[ $sKey ] ) {
+				$sFile = $sBaseFileName;
+				break;
 			}
 		}
 
-		return $sFilename;
+		return $sFile;
 	}
 
 	/**
@@ -276,57 +275,12 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getLinkPluginActivate( $sPluginFile ) {
-		$sUrl = self_admin_url( 'plugins.php' );
-		$aQueryArgs = array(
-			'action'   => 'activate',
-			'plugin'   => urlencode( $sPluginFile ),
-			'_wpnonce' => wp_create_nonce( 'activate-plugin_'.$sPluginFile )
-		);
-		return add_query_arg( $aQueryArgs, $sUrl );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getUrl_Deactivate( $sPluginFile ) {
-		return add_query_arg(
-			array(
-				'action'   => 'deactivate',
-				'plugin'   => urlencode( $sPluginFile ),
-				'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sPluginFile )
-			),
-			self_admin_url( 'plugins.php' )
-		);
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return string
-	 */
-	public function getLinkPluginUpgrade( $sPluginFile ) {
-		$sUrl = self_admin_url( 'update.php' );
-		$aQueryArgs = array(
-			'action'   => 'upgrade-plugin',
-			'plugin'   => urlencode( $sPluginFile ),
-			'_wpnonce' => wp_create_nonce( 'upgrade-plugin_'.$sPluginFile )
-		);
-		return add_query_arg( $aQueryArgs, $sUrl );
-	}
-
-	/**
-	 * @param string $sPluginFile
 	 * @return array|null
 	 */
 	public function getPlugin( $sPluginFile ) {
 		$aPlugin = null;
-
-		$aPlugins = $this->getPlugins();
-		if ( !empty( $sPluginFile ) && !empty( $aPlugins )
-			 && is_array( $aPlugins ) && array_key_exists( $sPluginFile, $aPlugins ) ) {
+		if ( $this->isInstalled( $sPluginFile ) ) {
+			$aPlugins = $this->getPlugins();
 			$aPlugin = $aPlugins[ $sPluginFile ];
 		}
 		return $aPlugin;
@@ -339,7 +293,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function getFileFromDirName( $sDirName ) {
 		$sFile = null;
 		if ( !empty( $sDirName ) ) {
-			foreach ( $this->getInstalledPluginFiles() as $sF ) {
+			foreach ( $this->getInstalledBaseFiles() as $sF ) {
 				if ( strpos( $sFile, $sDirName.'/' ) === 0 ) {
 					$sFile = $sF;
 					break;
@@ -372,14 +326,14 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 */
 	public function getActivePlugins() {
 		$oWp = $this->loadWp();
-		$sOptionKey = $oWp->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins';
-		return $oWp->getOption( $sOptionKey );
+		$aActive = $oWp->getOption( ( $oWp->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins' ) );
+		return is_array( $aActive ) ? $aActive : array();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getInstalledPluginFiles() {
+	public function getInstalledBaseFiles() {
 		return array_keys( $this->getPlugins() );
 	}
 
@@ -390,7 +344,8 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		if ( !function_exists( 'get_plugins' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 		}
-		return function_exists( 'get_plugins' ) ? get_plugins() : array();
+		$aP = function_exists( 'get_plugins' ) ? get_plugins() : array();
+		return is_array( $aP ) ? $aP : array();
 	}
 
 	/**
@@ -438,15 +393,6 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sBaseName
-	 * @return bool
-	 */
-	public function isWpOrg( $sBaseName ) {
-		$oPluginInfo = $this->getExtendedData( $sBaseName );
-		return isset( $oPluginInfo->id ) ? strpos( $oPluginInfo->id, 'w.org/' ) === 0 : false;
-	}
-
-	/**
 	 * @param string $sFile
 	 * @return stdClass|null
 	 */
@@ -478,6 +424,46 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sPluginFile
+	 * @return string
+	 */
+	public function getUrl_Activate( $sPluginFile ) {
+		return $this->getUrl_Action( $sPluginFile, 'activate' );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @return string
+	 */
+	public function getUrl_Deactivate( $sPluginFile ) {
+		return $this->getUrl_Action( $sPluginFile, 'deactivate' );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @return string
+	 */
+	public function getUrl_Upgrade( $sPluginFile ) {
+		return $this->getUrl_Action( $sPluginFile, 'upgrade' );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @param string $sAction
+	 * @return string
+	 */
+	protected function getUrl_Action( $sPluginFile, $sAction ) {
+		return add_query_arg(
+			array(
+				'action'   => $sAction.'-plugin',
+				'plugin'   => urlencode( $sPluginFile ),
+				'_wpnonce' => wp_create_nonce( $sAction.'-plugin_'.$sPluginFile )
+			),
+			self_admin_url( 'plugins.php' )
+		);
+	}
+
+	/**
 	 * @param string $sFile
 	 * @return bool
 	 */
@@ -490,7 +476,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isInstalled( $sFile ) {
-		return !empty( $sFile ) && !is_null( $this->getPlugin( $sFile ) );
+		return in_array( $sFile, $this->getInstalledBaseFiles() );
 	}
 
 	/**
@@ -499,6 +485,15 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 */
 	public function isUpdateAvailable( $sFile ) {
 		return !is_null( $this->getUpdateInfo( $sFile ) );
+	}
+
+	/**
+	 * @param string $sBaseName
+	 * @return bool
+	 */
+	public function isWpOrg( $sBaseName ) {
+		$oPluginInfo = $this->getExtendedData( $sBaseName );
+		return isset( $oPluginInfo->id ) ? strpos( $oPluginInfo->id, 'w.org/' ) === 0 : false;
 	}
 
 	/**
@@ -535,5 +530,22 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 */
 	public function setActivePluginLoadLast( $sFile ) {
 		$this->setActivePluginLoadPosition( $sFile, 1000 );
+	}
+
+	/**
+	 * @deprecated
+	 * @param string $sPluginFile
+	 * @return string
+	 */
+	public function getLinkPluginUpgrade( $sPluginFile ) {
+		return $this->getUrl_Upgrade( $sPluginFile );
+	}
+
+	/**
+	 * @deprecated
+	 * @return array
+	 */
+	public function getInstalledPluginFiles() {
+		return $this->getInstalledBaseFiles();
 	}
 }

@@ -329,13 +329,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		);
 
 		{// Inactive
-			$nCount = 0;
-			$aActivePlugs = $oWpPlugins->getActivePlugins();
-			foreach ( $oWpPlugins->getPlugins() as $sFile => $aPlugData ) {
-				if ( !in_array( $sFile, $aActivePlugs ) ) {
-					$nCount++;
-				}
-			}
+			$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
