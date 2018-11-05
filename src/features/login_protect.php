@@ -863,14 +863,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'enable_antibot_js' :
 				$sName = _wpsf__( 'AntiBot JS' );
-				$sSummary = _wpsf__( 'Use AntiBot JS Includes For Custom 3rd Party' );
-				$sDescription = _wpsf__( 'AntiBot JS' );
+				$sSummary = _wpsf__( 'Use AntiBot JS Includes For Custom 3rd Party Form' );
+				$sDescription = _wpsf__( 'Important: This is experimental. Please contact support for further assistance.' );
 				break;
 
 			case 'antibot_form_ids' :
 				$sName = _wpsf__( 'AntiBot Forms' );
 				$sSummary = _wpsf__( 'Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS' );
-				$sDescription = _wpsf__( 'For Use With AnitBot JS (above).' );
+				$sDescription = _wpsf__( 'For use with the AntiBot JS option.' );
 				break;
 
 			case 'login_limit_interval' :
