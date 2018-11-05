@@ -343,11 +343,11 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/di",
       "link_blog":   "",
       "name":        "AntiBot JS",
       "summary":     "Load Anti-Bot JS For 3rd Party Login Forms",
-      "description": "Important: This is experimental."
+      "description": "Important: This is experimental. Please contact support for further assistance."
     },
     {
       "key":         "antibot_form_ids",
