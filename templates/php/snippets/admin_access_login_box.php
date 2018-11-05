@@ -4,12 +4,14 @@
 
 <script type="text/javascript">
 
-	jQuery( document ).ready(
-		function () {
-			aItems = [ <?php echo $js_snippets[ 'options_to_restrict' ]; ?> ];
-			aItems.forEach( disable_input );
-		}
-	);
+	<?php if ( $flags[ 'restrict_options' ] ) : ?>
+		jQuery( document ).ready(
+			function () {
+				aItems = [ <?php echo $js_snippets[ 'options_to_restrict' ]; ?> ];
+				aItems.forEach( disable_input );
+			}
+		);
+	<?php endif; ?>
 
 	function disable_input( element, index, array ) {
 		$oItem = jQuery( 'input[name=' + element + ']' );

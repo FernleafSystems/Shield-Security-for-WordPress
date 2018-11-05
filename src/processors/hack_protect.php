@@ -15,7 +15,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$sPath = $this->loadDP()->getRequestPath();
+		$sPath = $this->loadRequest()->getPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
 			$this->revSliderPatch_LFI();
 			$this->revSliderPatch_AFU();
@@ -160,10 +160,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_LFI() {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 
-		$sAction = $oDp->query( 'action', '' );
-		$sFileExt = strtolower( $oDp->getExtension( $oDp->query( 'img', '' ) ) );
+		$sAction = $oReq->query( 'action', '' );
+		$sFileExt = strtolower( $this->loadDP()->getExtension( $oReq->query( 'img', '' ) ) );
 		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
 			if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
 				die( 'RevSlider Local File Inclusion Attempt' );
@@ -172,10 +172,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_AFU() {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 
-		$sAction = strtolower( $oDp->request( 'action', '' ) );
-		$sClientAction = strtolower( $oDp->request( 'client_action', '' ) );
+		$sAction = strtolower( $oReq->request( 'action', '' ) );
+		$sClientAction = strtolower( $oReq->request( 'client_action', '' ) );
 		if ( ( strpos( $sAction, 'revslider_ajax_action' ) !== false || strpos( $sAction, 'showbiz_ajax_action' ) !== false ) && $sClientAction == 'update_plugin' ) {
 			die( 'RevSlider Arbitrary File Upload Attempt' );
 		}

@@ -235,7 +235,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isThisPluginModuleRequest() {
-		return strpos( $this->loadDP()->query( 'page' ), $this->prefix() ) === 0;
+		return strpos( $this->loadRequest()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**
@@ -322,7 +322,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			add_action( 'wp_dashboard_setup', array( $this, 'onWpDashboardSetup' ) );
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminCss' ), 100 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 99 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 5 );
 	}
 
 	/**
@@ -396,14 +396,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @uses die()
 	 */
 	private function downloadOptionsExport() {
-		$oDp = $this->loadDP();
+		$oDp = $this->loadRequest();
 		if ( $oDp->query( 'icwp_shield_export' ) == 1 ) {
 			$aExportOptions = apply_filters( $this->prefix( 'gather_options_for_export' ), array() );
 			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
 				$oDp->downloadStringAsFile(
 					wp_json_encode( $aExportOptions ),
 					'shield_options_export-'
-					.$oDp->urlStripSchema( $this->loadWp()->getHomeUrl() )
+					.$this->loadDP()->urlStripSchema( $this->loadWp()->getHomeUrl() )
 					.'-'.date( 'y-m-d__H-i-s' ).'.txt'
 				);
 			}
@@ -411,7 +411,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	public function ajaxAction() {
-		$sNonceAction = $this->loadDP()->request( 'exec' );
+		$sNonceAction = $this->loadRequest()->request( 'exec' );
 		check_ajax_referer( $sNonceAction, 'exec_nonce' );
 
 		$sAction = $this->loadWpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
@@ -760,7 +760,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$oConOptions->update_first_detected = array();
 				}
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
-					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadDP()->time();
+					$oConOptions->update_first_detected[ $sNewVersion ] = $this->loadRequest()->ts();
 				}
 
 				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
@@ -823,7 +823,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sNewVersion = $oWpPlugins->getUpdateNewVersion( $sFile );
 					if ( !empty( $sNewVersion ) ) {
 						$nFirstDetected = isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ? $oConOptions->update_first_detected[ $sNewVersion ] : 0;
-						$nTimeUpdateAvailable = $this->loadDP()->time() - $nFirstDetected;
+						$nTimeUpdateAvailable = $this->loadRequest()->ts() - $nFirstDetected;
 						$bDoAutoUpdate = ( $nFirstDetected > 0 && ( $nTimeUpdateAvailable > DAY_IN_SECONDS*$nAutoupdateDays ) );
 					}
 					break;
@@ -1161,9 +1161,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$aFormSubmitOptions = array( 'plugin_form_submit', 'icwp_link_action' );
 
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		foreach ( $aFormSubmitOptions as $sOption ) {
-			if ( !is_null( $oDp->request( $sOption, false ) ) ) {
+			if ( !is_null( $oReq->request( $sOption, false ) ) ) {
 				return true;
 			}
 		}
@@ -1584,7 +1584,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadDP()->setDeleteCookie( $this->getPluginPrefix() );
+		$this->loadRequest()->setDeleteCookie( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1625,7 +1625,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = $this->loadDP()->cookie( $this->getPluginPrefix(), '' );
+			self::$sSessionId = $this->loadRequest()->cookie( $this->getPluginPrefix(), '' );
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
@@ -1640,9 +1640,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getUniqueRequestId( $bSetIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
-			$oDp = $this->loadDP();
 			self::$sRequestId = md5(
-				$this->getSessionId( $bSetIfNeeded ).$this->loadIpService()->getRequestIp().$oDp->time().wp_rand()
+				$this->getSessionId( $bSetIfNeeded ).$this->loadIpService()->getRequestIp().$this->loadRequest()->ts().wp_rand()
 			);
 		}
 		return self::$sRequestId;
@@ -1667,11 +1666,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function setSessionCookie() {
 		$oWp = $this->loadWp();
-		$oDP = $this->loadDP();
-		$oDP->setCookie(
+		$oReq = $this->loadRequest();
+		$oReq->setCookie(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$oDP->time() + DAY_IN_SECONDS*30,
+			$oReq->ts() + DAY_IN_SECONDS*30,
 			$oWp->getCookiePath(),
 			$oWp->getCookieDomain(),
 			false

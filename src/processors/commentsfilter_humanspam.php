@@ -61,7 +61,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				$aCommentData[ 'comment_author_url' ],
 				$aCommentData[ 'comment_content' ],
 				$this->ip(),
-				substr( $this->loadDP()->server( 'HTTP_USER_AGENT', '' ), 0, 254 )
+				substr( $this->loadRequest()->server( 'HTTP_USER_AGENT', '' ), 0, 254 )
 			);
 
 			// Now we check whether comment status is to completely reject and then we simply redirect to "home"

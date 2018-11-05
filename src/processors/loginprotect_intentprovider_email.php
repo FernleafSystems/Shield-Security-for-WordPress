@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return WP_Error|WP_User|null    - WP_User when the login success AND the IP is authenticated. null when login
 	 *                                  not successful but IP is valid. WP_Error otherwise.
 	 */
-	public function processLoginAttempt_Filter( $oUser ) {
+	public function processLoginAttempt( $oUser ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 

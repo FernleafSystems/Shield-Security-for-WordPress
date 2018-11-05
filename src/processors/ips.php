@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				$this->setIpTransgressed(); // We now black mark this IP
 			}
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadDP()->getRequestPath() ),
+				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadRequest()->getPath() ),
 				2, 'request_tracking_404'
 			);
 		}

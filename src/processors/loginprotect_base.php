@@ -39,7 +39,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function run() {
 		$this->setFactorTested( false );
-		add_action( 'init', array( $this, 'addHooks' ) );
+		add_action( 'init', array( $this, 'addHooks' ), -100 );
 	}
 
 	/**
@@ -69,6 +69,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// MemberPress
 				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MePr' ), 100 );
+				// Ultimate Member
+				add_action( 'um_after_login_fields', array( $this, 'printFormItems_UltMem' ), 100 );
+				add_action( 'um_submit_form_login', array( $this, 'checkReqLogin_UltMem' ), 100 );
+
+				// LearnPress
+				add_action( 'learn-press/after-form-login-fields', array( $this, 'printFormItems_LearnPress' ), 100 );
+				add_action( 'learn-press/before-checkout-form-login-button', array( $this, 'printFormItems_LearnPress' ), 100 );
+				add_filter( 'learn-press/login-validate-field', array( $this, 'checkReqLogin_LearnPress' ), 100 );
 			}
 		}
 
@@ -86,6 +94,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// MemberPress
 				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
+				// Ultimate Member
+				add_action( 'um_after_password_reset_fields', array( $this, 'printFormItems_UltMem' ), 100 );
+				add_action( 'um_submit_form_password_reset', array( $this, 'checkReqLostPassword_UltMem' ), 5, 0 );
 			}
 		}
 
@@ -112,6 +123,12 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				// MemberPress - Checkout == Registration
 				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MePr' ), 10 );
 				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MePr' ), 10, 2 );
+				// Ultimate Member
+				add_action( 'um_after_register_fields', array( $this, 'printFormItems_UltMem' ), 100 );
+				add_action( 'um_submit_form_register', array( $this, 'checkReqRegistration_UltMem' ), 5, 0 );
+				// LearnPress
+				add_action( 'learn-press/after-form-register-fields', array( $this, 'printFormItems_LearnPress' ), 100 );
+				add_filter( 'learn-press/register-validate-field', array( $this, 'checkReqRegistration_LearnPress' ), 100, 1 );
 			}
 		}
 
@@ -135,6 +152,23 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		catch ( Exception $oE ) {
 			$this->loadWp()->wpDie( $oE->getMessage() );
 		}
+	}
+
+	/**
+	 * @param string|WP_Error $sFieldNameOrError
+	 * @return string|WP_Error
+	 */
+	public function checkReqLogin_LearnPress( $sFieldNameOrError ) {
+		if ( !empty( $sFieldNameOrError ) || !is_wp_error( $sFieldNameOrError ) ) {
+			try {
+				$this->setActionToAudit( 'learnpress-login' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				$sFieldNameOrError = new WP_Error( 'shield-fail-login', $oE->getMessage() );
+			}
+		}
+		return $sFieldNameOrError;
 	}
 
 	/**
@@ -179,12 +213,27 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 *
+	 */
+	public function checkReqLogin_UltMem() {
+		if ( $this->isUltimateMember() ) {
+			try {
+				$this->setActionToAudit( 'ultimatemember-login' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
+			}
+		}
+	}
+
+	/**
 	 * @param WP_Error $oWpError
 	 * @return WP_Error
 	 */
 	public function checkReqLostPassword_Wp( $oWpError ) {
 		try {
-			$this->setUserToAudit( $this->loadDP()->post( 'user_login', '' ) )
+			$this->setUserToAudit( $this->loadRequest()->post( 'user_login', '' ) )
 				 ->setActionToAudit( 'reset-password' )
 				 ->performCheckWithException();
 		}
@@ -196,15 +245,29 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 */
+	public function checkReqLostPassword_UltMem() {
+		if ( $this->isUltimateMember() ) {
+			try {
+				$this->setActionToAudit( 'ultimatemember-lostpassword' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				UM()->form()->add_error( 'shield-fail-lostpassword', $oE->getMessage() );
+			}
+		}
+	}
+
+	/**
 	 * This is for the request where the User actually enters their new password
 	 * @param WP_Error $oWpError
 	 * @return WP_Error
 	 */
 	public function checkReqResetPassword_Wp( $oWpError ) {
 		try {
-			$oDP = $this->loadDP();
-			if ( $oDP->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
-				list( $sUser, $null ) = explode( ':', wp_unslash( $oDP->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
+			$oReq = $this->loadRequest();
+			if ( $oReq->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
+				list( $sUser, $null ) = explode( ':', wp_unslash( $oReq->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
 				$this->setUserToAudit( $sUser )
 					 ->setActionToAudit( 'set-password' )
 					 ->performCheckWithException();
@@ -222,7 +285,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return array
 	 */
 	public function checkPreUserInsert_Wp( $aData ) {
-		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadDP()->isMethodPost() ) {
+		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadRequest()->isMethodPost() ) {
 			$this->setActionToAudit( 'register' )
 				 ->performCheckWithDie();
 		}
@@ -307,6 +370,37 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
+	 * @param string|WP_Error $sFieldNameOrError
+	 * @return string|WP_Error
+	 */
+	public function checkReqRegistration_LearnPress( $sFieldNameOrError ) {
+		if ( !empty( $sFieldNameOrError ) || !is_wp_error( $sFieldNameOrError ) ) {
+			try {
+				$this->setActionToAudit( 'learnpress-register' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				$sFieldNameOrError = new WP_Error( 'shield-fail-register', $oE->getMessage() );
+			}
+		}
+		return $sFieldNameOrError;
+	}
+
+	/**
+	 */
+	public function checkReqRegistration_UltMem() {
+		if ( $this->isUltimateMember() ) {
+			try {
+				$this->setActionToAudit( 'ultimatemember-register' )
+					 ->performCheckWithException();
+			}
+			catch ( Exception $oE ) {
+				UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
+			}
+		}
+	}
+
+	/**
 	 * @param WP_Error $oWpError
 	 * @param  string  $sUsername
 	 * @return WP_Error
@@ -368,6 +462,23 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return void
 	 */
 	public function printLoginFormItems_MePr() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * LearnPress
+	 * @return void
+	 */
+	public function printFormItems_LearnPress() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * Ultimate Member Forms
+	 * https://wordpress.org/plugins/ultimate-member/
+	 * @return void
+	 */
+	public function printFormItems_UltMem() {
 		$this->printLoginFormItems();
 	}
 
@@ -481,6 +592,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function isFactorTested() {
 		return (bool)$this->bFactorTested;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isUltimateMember() {
+		return function_exists( 'UM' ) && class_exists( 'UM' ) && method_exists( 'UM', 'form' );
 	}
 
 	/**

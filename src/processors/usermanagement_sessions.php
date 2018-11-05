@@ -270,7 +270,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 			$oError = new WP_Error();
 		}
 
-		$sForceLogout = $this->loadDP()->query( 'wpsf-forcelogout' );
+		$sForceLogout = $this->loadRequest()->query( 'wpsf-forcelogout' );
 		if ( $sForceLogout ) {
 
 			switch ( $sForceLogout ) {

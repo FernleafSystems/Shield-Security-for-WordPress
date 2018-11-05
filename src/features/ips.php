@@ -154,7 +154,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'get_ip_list':
 					$aAjaxResponse = $this->ajaxExec_GetIpList();
@@ -181,37 +181,37 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function ajaxExec_GetIpList() {
 		return array(
 			'success' => true,
-			'html'    => $this->renderListTable( $this->loadDP()->post( 'list', '' ) )
+			'html'    => $this->renderListTable( $this->loadRequest()->post( 'list', '' ) )
 		);
 	}
 
 	public function ajaxExec_RemoveIpFromList() {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->getProcessor();
 		$oPro->getQueryDeleter()
-			 ->deleteIpOnList( $oDp->post( 'ip' ), $oDp->post( 'list' ) );
+			 ->deleteIpOnList( $oReq->post( 'ip' ), $oReq->post( 'list' ) );
 
 		return array(
 			'success' => true,
-			'html'    => $this->renderListTable( $oDp->post( 'list', '' ) ),
+			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
 		);
 	}
 
 	protected function ajaxExec_AddIpToWhitelist() {
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
 
-		$sIp = $oDp->post( 'ip', '' );
-		$sLabel = $oDp->post( 'label', '' );
+		$sIp = $oReq->post( 'ip', '' );
+		$sLabel = $oReq->post( 'label', '' );
 		if ( !empty( $sIp ) ) {
 			$oProcessor->addIpToWhiteList( $sIp, $sLabel );
 		}
 
 		return array(
 			'success' => true,
-			'html'    => $this->renderListTable( $oDp->post( 'list', '' ) ),
+			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
 		);
 	}
 

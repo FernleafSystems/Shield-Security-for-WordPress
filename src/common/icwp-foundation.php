@@ -136,6 +136,18 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Request
+	 */
+	public function loadRequest() {
+		$sKey = 'icwp-request';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::requireCommonLib( $sKey.'.php' );
+			self::setService( $sKey, ICWP_WPSF_Request::GetInstance() );
+		}
+		return self::getService( $sKey );
+	}
+
+	/**
 	 * @return ICWP_WPSF_ServiceProviders
 	 */
 	public function loadServiceProviders() {

@@ -53,7 +53,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
-		return ( ( $this->loadDP()->time() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
+		return ( ( $this->loadRequest()->ts() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}
 			// we always update so we don't forever check on every single page load
-			$this->setOpt( 'this_server_ip_last_check_at', $this->loadDP()->time() );
+			$this->setOpt( 'this_server_ip_last_check_at', $this->loadRequest()->ts() );
 		}
 		return $sThisServerIp;
 	}
@@ -86,7 +86,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isDisplayPluginBadge() {
 		return $this->isOpt( 'display_plugin_badge', 'Y' )
-			   && ( $this->loadDP()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
+			   && ( $this->loadRequest()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
 	/**
@@ -103,11 +103,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function setVisitorIp() {
 		$sIp = null;
 		$oIpService = $this->loadIpService();
-		$oDp = $this->loadDP();
 
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 
-			$sMaybeIp = $oDp->server( $this->getVisitorAddressSource() );
+			$sMaybeIp = $this->loadRequest()->server( $this->getVisitorAddressSource() );
 
 			if ( !empty( $sMaybeIp ) ) {
 				$aMaybeIps = array_map( 'trim', explode( ',', $sMaybeIp ) ); // TODO:streamline this comma handling
@@ -169,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function handleAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 				case 'plugin_badge_close':
 					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
 					break;
@@ -193,7 +192,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'delete_forceoff':
 					$aAjaxResponse = $this->ajaxExec_DeleteForceOff();
@@ -210,7 +209,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_PluginBadgeClose() {
-		$bSuccess = $this->loadDP()
+		$bSuccess = $this->loadRequest()
 						 ->setCookie(
 							 $this->getCookieIdBadgeState(),
 							 'closed',
@@ -227,7 +226,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_SetPluginTrackingPerm() {
-		$this->setPluginTrackingPermission( (bool)$this->loadDP()->query( 'agree', false ) );
+		$this->setPluginTrackingPermission( (bool)$this->loadRequest()->query( 'agree', false ) );
 		return array( 'success' => true );
 	}
 
@@ -269,7 +268,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
 		$this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
-			 ->setOpt( 'tracking_permission_set_at', $this->loadDP()->time() )
+			 ->setOpt( 'tracking_permission_set_at', $this->loadRequest()->ts() )
 			 ->savePluginOptions();
 		return $this;
 	}
@@ -322,7 +321,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			if ( !$oCon->getHasPermissionToManage() ) {
 				$this->loadWp()->wpDie(
 					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
-					._wpsf__( 'You need to authenticate first.' )
+					.' '._wpsf__( 'You need to authenticate first.' )
 				);
 			}
 		}
@@ -364,14 +363,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', $this->loadDP()->time() );
+		return $this->setOpt( 'tracking_last_sent_at', $this->loadRequest()->ts() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function readyToSendTrackingData() {
-		return ( ( $this->loadDP()->time() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
+		return ( ( $this->loadRequest()->ts() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -388,11 +387,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$nInstalledAt = $this->getPluginInstallationTime();
 		if ( empty( $nInstalledAt ) || $nInstalledAt <= 0 ) {
-			$this->setOpt( 'installation_time', $this->loadDP()->time() );
+			$this->setOpt( 'installation_time', $this->loadRequest()->ts() );
 		}
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
-			$this->setOpt( 'tracking_permission_set_at', $this->loadDP()->time() );
+			$this->setOpt( 'tracking_permission_set_at', $this->loadRequest()->ts() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -484,7 +483,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int
 	 */
 	public function getImportExportHandshakeExpiresAt() {
-		return $this->getOpt( 'importexport_handshake_expires_at', $this->loadDP()->time() );
+		return $this->getOpt( 'importexport_handshake_expires_at', $this->loadRequest()->ts() );
 	}
 
 	/**
@@ -510,7 +509,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
 			$sId = sha1( $this->getPluginInstallationId().wp_rand( 0, PHP_INT_MAX ) );
 			$this->setOpt( 'importexport_secretkey', $sId )
-				 ->setOpt( 'importexport_secretkey_expires_at', $this->loadDP()->time() + HOUR_IN_SECONDS );
+				 ->setOpt( 'importexport_secretkey_expires_at', $this->loadRequest()->ts() + HOUR_IN_SECONDS );
 		}
 		return $sId;
 	}
@@ -526,7 +525,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	protected function isImportExportSecretKeyExpired() {
-		return ( $this->loadDP()->time() > $this->getOpt( 'importexport_secretkey_expires_at' ) );
+		return ( $this->loadRequest()->ts() > $this->getOpt( 'importexport_secretkey_expires_at' ) );
 	}
 
 	/**
@@ -592,7 +591,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function startImportExportHandshake() {
-		$this->setOpt( 'importexport_handshake_expires_at', $this->loadDP()->time() + 30 )
+		$this->setOpt( 'importexport_handshake_expires_at', $this->loadRequest()->ts() + 30 )
 			 ->savePluginOptions();
 		return $this;
 	}
@@ -627,20 +626,22 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function buildIpAddressMap() {
+		$oReq = $this->loadRequest();
+		$oIp = $this->loadIpService();
+
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
 
-		$oDp = $this->loadDP();
 		$aMap = array();
 		$aEmpties = array();
 		foreach ( $aValueOptions as $aOptionValue ) {
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = $oDp->loadIpService()->getRequestIp();
+				$sIp = $oIp->getRequestIp();
 			}
 			else {
-				$sIp = $oDp->server( $sKey );
+				$sIp = $oReq->server( $sKey );
 			}
 			if ( empty( $sIp ) ) {
 				$aEmpties[] = sprintf( '%s- %s', $sKey, 'ip not available' );
@@ -738,8 +739,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->prefixOptionKey( $this->getDef( 'db_notes_name' ) );
 	}
 
-	public function insertCustomJsVars() {
-		parent::insertCustomJsVars();
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
 
 		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) ) {
 			$sFile = $this->getConn()->getPluginBaseFile();
