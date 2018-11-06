@@ -8,26 +8,26 @@
 {% block body_main %}
 	<div class="row">
 		{#<div class="col-6">#}
-			{#{% include '/wpadmin_pages/insights/title.twig' %}#}
+			{#{% include '/wpadmin_pages/insights_new/original/title.twig' %}#}
 		{#</div>#}
 		<div class="col-12">
-			{% include '/wpadmin_pages/insights/stats.twig' %}
+			{% include '/wpadmin_pages/insights_new/original/stats.twig' %}
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-lg-7">
-			{% include '/wpadmin_pages/insights/notices.twig' %}
+			{% include '/wpadmin_pages/insights_new/original/notices.twig' %}
 		</div>
 		<div class="col-lg-5">
-			{% include '/wpadmin_pages/insights/admin_notes.twig' %}
+			{% include '/wpadmin_pages/insights_new/notes/admin_notes.twig' %}
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-lg-7">
-			{% include '/wpadmin_pages/insights/audit_trail.twig' %}
+			{% include '/wpadmin_pages/insights_new/audit/audit_trail.twig' %}
 		</div>
 		<div class="col-lg-5">
-			{% include '/wpadmin_pages/insights/recent_events.twig' %}
+			{% include '/wpadmin_pages/insights_new/original/recent_events.twig' %}
 		</div>
 	</div>
 	<div class="row">
@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% block body_foot %}
-	{% include '/wpadmin_pages/insights/mod_summary.twig' %}
+	{% include '/wpadmin_pages/insights_new/original/mod_summary.twig' %}
 {% endblock %}
 
 {% block inline_styles %}

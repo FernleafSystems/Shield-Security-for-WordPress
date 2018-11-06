@@ -950,3 +950,7 @@ td.cell_delete_note {
 	font-size: x-large;
 	padding: 0.5rem;
 }
+
+#odp-BodyMain .card.config {
+	margin-top: 20px;
+}

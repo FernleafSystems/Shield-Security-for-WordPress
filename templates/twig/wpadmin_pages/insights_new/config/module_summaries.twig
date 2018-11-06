@@ -1,0 +1,19 @@
+<div class="row" id="SectionModuleSummaries">
+
+	{% for config_card in vars.config_cards %}
+		<div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+			<div class="card config">
+				<div class="card-header">
+					<h5 class="card-title">{{ config_card.strings.title }}</h5>
+					<h6 class="card-subtitle mb-2 text-muted">{{ config_card.strings.sub }}</h6>
+				</div>
+				<div class="card-body overflow_container">
+					<div class="overflow_inner">
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+
+
+</div>
