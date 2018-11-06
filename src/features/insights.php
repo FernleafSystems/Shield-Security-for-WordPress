@@ -62,8 +62,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
 	}
 
-	public function insertCustomJsVars() {
-		parent::insertCustomJsVars();
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {
 			wp_localize_script(
@@ -84,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'admin_note_new':
 					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
@@ -109,10 +109,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function ajaxExec_AdminNoteNew() {
-		$oDP = $this->loadDP();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getConn()->getModule( 'plugin' );
-		$sNote = trim( $oDP->post( 'admin_note', '' ) );
+		$sNote = $this->loadRequest()->post( 'admin_note', '' );
 		$bSuccess = false;
 		if ( !$oMod->getCanAdminNotes() ) {
 			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
@@ -139,14 +138,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function ajaxExec_AdminNotesDelete() {
-		$oDP = $this->loadDP();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getConn()->getModule( 'plugin' );
-		/** @var ICWP_WPSF_Processor_Plugin $oP */
-		$oP = $oMod->getProcessor();
 
-		$nNoteId = (int)trim( $oDP->post( 'note_id', 0 ) );
+		$nNoteId = (int)$this->loadRequest()->post( 'note_id', 0 );
 		if ( $nNoteId >= 0 ) {
+			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+			$oMod = $this->getConn()->getModule( 'plugin' );
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $oMod->getProcessor();
 			$oP->getSubProcessorNotes()
 			   ->getQueryDeleter()
 			   ->deleteById( $nNoteId );
@@ -249,7 +247,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	protected function getNoticesSite() {
-		$oDp = $this->loadDP();
 		$oSslService = $this->loadSslService();
 
 		$aNotices = array(
@@ -270,7 +267,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				// If we didn't throw and exception, we got it.
 				$nExpiresAt = $oSslService->getExpiresAt( $sHomeUrl );
 				if ( $nExpiresAt > 0 ) {
-					$nTimeLeft = ( $nExpiresAt - $oDp->time() );
+					$nTimeLeft = ( $nExpiresAt - $this->loadRequest()->ts() );
 					$bExpired = $nTimeLeft < 0;
 					$nDaysLeft = $bExpired ? 0 : (int)round( $nTimeLeft/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
 
@@ -332,13 +329,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		);
 
 		{// Inactive
-			$nCount = 0;
-			$aActivePlugs = $oWpPlugins->getActivePlugins();
-			foreach ( $oWpPlugins->getPlugins() as $sFile => $aPlugData ) {
-				if ( !in_array( $sFile, $aActivePlugs ) ) {
-					$nCount++;
-				}
-			}
+			$nCount = count( $oWpPlugins->getPlugins() ) - count( $oWpPlugins->getActivePlugins() );
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = array(
 					'title'   => 'Inactive',
@@ -454,6 +445,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$oRetriever = $oProc->getSubProcessorNotes()
 							->getQuerySelector();
+		/** @var stdClass[] $aNotes */
 		$aNotes = $oRetriever->setLimit( 10 )
 							 ->setResultsAsVo( false )
 							 ->query();
@@ -517,7 +509,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
-				'val'     => $oIPs->getQueryCounter()->forList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK ),
+				'val'     => $oIPs->getQuerySelector()
+								  ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+								  ->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
 			'pro'            => array(
@@ -561,7 +555,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  ->getModule( 'audit_trail' )
 					  ->getProcessor();
 		try {
-			$aItems = $oProc->getAuditTrailSelector()
+			$aItems = $oProc->getQuerySelector()
 							->setLimit( 20 )
 							->query();
 		}
@@ -597,7 +591,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
 			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
 			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()->getHumanName() ),
+			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()
+																									->getHumanName() ),
 			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
 		);
 	}

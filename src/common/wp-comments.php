@@ -25,7 +25,7 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function getIfCommentsMustBePreviouslyApproved() {
+	public function getIfAllowCommentsByPreviouslyApproved() {
 		return ( $this->loadWp()->getOption( 'comment_whitelist' ) == 1 );
 	}
 
@@ -52,7 +52,7 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 * @param string $sAuthorEmail
 	 * @return bool
 	 */
-	public function isCommentAuthorPreviouslyApproved( $sAuthorEmail ) {
+	public function isAuthorApproved( $sAuthorEmail ) {
 
 		if ( !$this->loadDP()->validEmail( $sAuthorEmail ) ) {
 			return false;
@@ -80,6 +80,6 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isCommentPost() {
-		return $this->loadDP()->isMethodPost() && $this->loadWp()->isCurrentPage( 'wp-comments-post.php' );
+		return $this->loadRequest()->isMethodPost() && $this->loadWp()->isCurrentPage( 'wp-comments-post.php' );
 	}
 }

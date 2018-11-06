@@ -40,22 +40,9 @@ class ICWP_WPSF_Query_Tally_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return ICWP_WPSF_TallyVO[]|stdClass[]
+	 * @return string
 	 */
-	public function query() {
-		$aData = parent::query();
-		if ( $this->isResultsAsVo() ) {
-			$aData = array_map(
-				function ( $oResult ) {
-					return ( new ICWP_WPSF_TallyVO() )->setRawData( $oResult );
-				},
-				$aData
-			);
-		}
-		return $aData;
-	}
-
-	protected function customInit() {
-		require_once( dirname( __FILE__ ).'/ICWP_WPSF_TallyVO.php' );
+	protected function getVoName() {
+		return 'ICWP_WPSF_TallyVO';
 	}
 }

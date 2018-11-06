@@ -338,6 +338,32 @@
       "description": "Use Google reCAPTCHA on the login screen."
     },
     {
+      "key":         "enable_antibot_js",
+      "section":     "section_brute_force_login_protection",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://icwp.io/di",
+      "link_blog":   "",
+      "name":        "AntiBot JS",
+      "summary":     "Load Anti-Bot JS For 3rd Party Login Forms",
+      "description": "Important: This is experimental. Please contact support for further assistance."
+    },
+    {
+      "key":         "antibot_form_ids",
+      "section":     "section_brute_force_login_protection",
+      "type":        "array",
+      "default":     [
+      	"ihc_login_form",
+      	"createuser"
+      ],
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "AntiBot Forms",
+      "summary":     "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",
+      "description": "For Use With AnitBot JS (above)."
+    },
+    {
       "key":         "enable_yubikey",
       "section":     "section_yubikey_authentication",
       "default":     "N",

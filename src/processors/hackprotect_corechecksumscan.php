@@ -15,12 +15,12 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 //		$this->cron_dailyChecksumScan();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$oDp = $this->loadDP();
+			$oReq = $this->loadRequest();
 
-			switch ( $oDp->query( 'shield_action' ) ) {
+			switch ( $oReq->query( 'shield_action' ) ) {
 
 				case 'repair_file':
-					$sPath = '/'.trim( $oDp->query( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
+					$sPath = '/'.trim( $oReq->query( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
 					$sMd5FilePath = urldecode( esc_url( $sPath ) );
 					if ( !empty( $sMd5FilePath ) ) {
 						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
@@ -143,7 +143,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadDP()->query( 'checksum_repair' ) == 1 );
+		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadRequest()->query( 'checksum_repair' ) == 1 );
 
 		$aFiles = $this->doChecksumScan( $bOptionRepair );
 		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {

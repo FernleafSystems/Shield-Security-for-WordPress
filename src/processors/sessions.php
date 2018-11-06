@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
 		$oFO = $this->getMod();
 		$oWpUsers = $this->loadWpUsers();
-		$sAction = $this->loadDP()->query( 'action' );
+		$sAction = $this->loadRequest()->query( 'action' );
 
 		if ( $oWpUsers->isUserLoggedIn() && $oFO->hasSession() && ( empty( $sAction ) || $sAction == 'login' ) ) {
 			$sMessage = sprintf(

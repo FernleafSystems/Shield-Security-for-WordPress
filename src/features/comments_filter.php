@@ -9,17 +9,70 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @var array
+	 */
+	private $aCommentData;
+
+	public function doPostConstruction() {
+		add_filter( 'preprocess_comment', array( $this, 'gatherRawCommentData' ), 1 );
+	}
+
+	/**
+	 * @param array $aRawCommentData
+	 * @return array
+	 */
+	public function gatherRawCommentData( $aRawCommentData ) {
+		$this->aCommentData = $aRawCommentData;
+		return $aRawCommentData;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCommentData() {
+		return ( isset( $this->aCommentData ) && is_array( $this->aCommentData ) ) ? $this->aCommentData : array();
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return array|mixed
+	 */
+	public function getCommentItem( $sKey ) {
+		$aD = $this->getCommentData();
+		return isset( $aD[ $sKey ] ) ? $aD[ $sKey ] : null;
+	}
+
+	/**
 	 * @return boolean
 	 */
 	public function getIfDoCommentsCheck() {
-		return apply_filters( $this->prefix( 'if-do-comments-check' ), true );
+		$oWpComments = $this->loadWpComments();
+
+		// 1st are comments enabled on this post?
+		$oPost = $this->loadWp()->getPostById( $this->getCommentItem( 'comment_post_ID' ) );
+		return ( $oPost instanceof WP_Post ) && $oWpComments->isCommentsOpen( $oPost )
+			   && ( !$oWpComments->getIfAllowCommentsByPreviouslyApproved() || !$oWpComments->isAuthorApproved( $this->getCommentItem( 'comment_author_email' ) ) );
 	}
 
 	/**
 	 * @return boolean
 	 */
 	public function getIfCheckCommentToken() {
-		return ( $this->getOpt( 'comments_token_expire_interval' ) > 0 || $this->getOpt( 'comments_cooldown_interval' ) > 0 );
+		return ( $this->getTokenExpireInterval() > 0 || $this->getTokenCooldown() > 0 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTokenCooldown() {
+		return (int)$this->getOpt( 'comments_cooldown_interval' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getTokenExpireInterval() {
+		return (int)$this->getOpt( 'comments_token_expire_interval' );
 	}
 
 	/**
@@ -60,16 +113,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doExtraSubmitProcessing() {
-
-		if ( $this->getOpt( 'comments_cooldown_interval' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'comments_cooldown_interval' );
-		}
-
-		if ( $this->getOpt( 'comments_token_expire_interval' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'comments_token_expire_interval' );
-		}
-
-		if ( $this->getOpt( 'comments_token_expire_interval' ) != 0 && $this->getOpt( 'comments_cooldown_interval' ) > $this->getOpt( 'comments_token_expire_interval' ) ) {
+		if ( $this->getTokenExpireInterval() != 0 && $this->getTokenCooldown() > $this->getTokenExpireInterval() ) {
 			$this->getOptionsVo()->resetOptToDefault( 'comments_cooldown_interval' );
 			$this->getOptionsVo()->resetOptToDefault( 'comments_token_expire_interval' );
 		}
@@ -84,10 +128,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		// TODO: remove as it's a temporary transition for clashing options
-		if ( $this->isOpt( 'enable_google_recaptcha', 'Y' ) ) {
-			$this->setOpt( 'enable_google_recaptcha_comments', 'Y' );
-		}
 	}
 
 	/**

@@ -7,8 +7,8 @@ Tags: security, all in one, scan, firewall, two factor authentication, spam, wor
 Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
-Tested up to: 4.9
-Stable tag: 6.10.1
+Tested up to: 5.0
+Stable tag: 6.10.3
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -354,12 +354,24 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.10.1 - Current Release =
-*Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
+= 6.10.3 - Current Release =
+*Released: 5th November, 2018* - [Release Notes](https://icwp.io/dg)
+
+* **(v.3)**  ADDED:		Support for Ultimate Member forms
+* **(v.3)**  ADDED:		Support for LearnPress login/registration forms
+* **(v.3)**  FIXED:		Security Admin now correctly honours the WordPress Options zone setting.
+* **(v.3)**  IMPROVED:	Distinguish which sub-site (sub-domain) for WPMS installations on [Traffic Watcher](https://icwp.io/c1).
+* **(v.3)**  IMPROVED:	Server's own IP lookup is only attempted once.
+* **(v.3)**  ADDED:		Experimental feature to help with some custom 3rd party login/registration forms
 
 = 6.10 - Series =
 *Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
+* **(v.2)**  IMPROVED:	Visitor IP address detection
+* **(v.2)**  IMPROVED:	Automatic whitelisting of Manage WP IP addresses
+* **(v.2)**  IMPROVED:	SPAM Comments code enhanced and optimised
+* **(v.2)**  IMPROVED:	IP Whitelisting code enhanced and optimised
+* **(v.2)**  IMPROVED:	Code cleaning and refactoring.
 * **(v.1)**  FIXED:		Googlebot PHP error notice.
 * **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.
 * **(v.0)**  NEW:		[**PRO**] White Label - you can now specify custom image for 2FA login screen.

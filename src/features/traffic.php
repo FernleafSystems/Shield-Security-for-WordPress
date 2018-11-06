@@ -17,22 +17,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function action_doFeatureShutdown() {
-		if ( $this->isAutoDisable() && $this->loadDP()->time() - $this->getAutoDisableAt() > 0 ) {
+		if ( $this->isAutoDisable() && $this->loadRequest()->ts() - $this->getAutoDisableAt() > 0 ) {
 			$this->setOpt( 'auto_disable', 'N' )
 				 ->setOpt( 'autodisable_at', 0 )
 				 ->setIsMainFeatureEnabled( false );
 		}
 		parent::action_doFeatureShutdown();
-	}
-
-	/**
-	 * We clean the database after saving.
-	 */
-	protected function doPrePluginOptionsSave() {
-		/** @var ICWP_WPSF_Processor_Traffic $oPro */
-		$oPro = $this->getProcessor();
-		$oPro->getProcessorLogger()
-			 ->cleanupDatabase();
 	}
 
 	/**
@@ -44,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oPro->getProcessorLogger()
 			 ->cleanupDatabase();
 
-		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? $this->loadDP()->time() + WEEK_IN_SECONDS : 0 );
+		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? $this->loadRequest()->ts() + WEEK_IN_SECONDS : 0 );
 
 		$aExcls = $this->getCustomExclusions();
 		foreach ( $aExcls as &$sExcl ) {
@@ -209,7 +199,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadDP()->request( 'exec' ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'render_traffic_table':
 					$aAjaxResponse = $this->ajaxExec_RenderTrafficTable();
@@ -223,8 +213,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	protected function ajaxExec_RenderTrafficTable() {
-		$oDP = $this->loadDP();
-		parse_str( $oDP->post( 'filters', '' ), $aFilters );
+		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(
@@ -279,7 +268,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
 		$oSelector = $oTrafficPro->getProcessorLogger()
-								 ->getTrafficEntrySelector()
+								 ->getQuerySelector()
 								 ->setPage( $nPage )
 								 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
 								 ->setLimit( $this->getDefaultPerPage() )
@@ -426,8 +415,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $this->loadProcessor();
 		$nCount = $oTrafficPro->getProcessorLogger()
-							  ->getTrafficEntryCounter()
-							  ->all();
+							  ->getQuerySelector()
+							  ->count();
 		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
 	}
 

@@ -27,7 +27,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
 		foreach ( $aActiveSessions as $oSession ) {
-			$aSession = (array)$oSession->getRowData();
+			$aSession = (array)$oSession->getRawData();
 			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLoggedInAt() );
 			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLastActivityAt() );
 			$aSession[ 'is_secadmin' ] = ( $oSession->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
@@ -44,8 +44,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadDP()
-																												  ->time() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadRequest()->ts() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 	}
@@ -170,10 +169,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	public function isAutoAddSessions() {
 		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
 		if ( $nStartedAt < 1 ) {
-			$nStartedAt = $this->loadDP()->time();
+			$nStartedAt = $this->loadRequest()->ts();
 			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
 		}
-		return ( $this->loadDP()->time() - $nStartedAt ) < 20;
+		return ( $this->loadRequest()->ts() - $nStartedAt ) < 20;
 	}
 
 	/**

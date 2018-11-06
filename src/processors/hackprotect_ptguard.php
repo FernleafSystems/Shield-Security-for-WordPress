@@ -235,7 +235,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			'meta'   => array(
 				'name'    => $aPlugin[ 'Name' ],
 				'version' => $aPlugin[ 'Version' ],
-				'ts'      => $this->loadDP()->time(),
+				'ts'      => $this->loadRequest()->ts(),
 			),
 			'hashes' => $this->hashPluginFiles( $sBaseFile )
 		);
@@ -252,7 +252,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 			'meta'   => array(
 				'name'    => $oTheme->get( 'Name' ),
 				'version' => $oTheme->get( 'Version' ),
-				'ts'      => $this->loadDP()->time(),
+				'ts'      => $this->loadRequest()->ts(),
 			),
 			'hashes' => $this->hashThemeFiles( $sSlug )
 		);
@@ -265,7 +265,7 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 		$oWpPl = $this->loadWpPlugins();
 
 		$aSnapshot = array();
-		foreach ( $oWpPl->getInstalledPluginFiles() as $sBaseName ) {
+		foreach ( $oWpPl->getInstalledBaseFiles() as $sBaseName ) {
 			if ( $oWpPl->isActive( $sBaseName ) ) {
 				$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
 			}

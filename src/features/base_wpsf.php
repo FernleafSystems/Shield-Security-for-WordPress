@@ -40,8 +40,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
 	}
 
-	public function insertCustomJsVars() {
-		parent::insertCustomJsVars();
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(
 			$this->prefix( 'plugin' ),
@@ -275,7 +275,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			$oSp = $this->loadServiceProviders();
 
 			$sIp = $this->loadIpService()->getRequestIp();
-			$sAgent = (string)$this->loadDP()->server( 'HTTP_USER_AGENT' );
+			$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';
 			}

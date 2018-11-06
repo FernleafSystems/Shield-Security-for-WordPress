@@ -18,7 +18,7 @@ class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 			$oIp,
 			array(
 				'transgressions' => $oIp->getTransgressions() + 1,
-				'last_access_at' => $this->loadDP()->time()
+				'last_access_at' => $this->loadRequest()->ts()
 			)
 		);
 	}
@@ -40,7 +40,7 @@ class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 	public function updateLastAccessAt( $oIp ) {
 		return $this->updateIp(
 			$oIp,
-			array( 'last_access_at' => $this->loadDP()->time() )
+			array( 'last_access_at' => $this->loadRequest()->ts() )
 		);
 	}
 
@@ -50,23 +50,6 @@ class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function updateIp( $oIp, $aUpdateData = array() ) {
-
-		$bSuccess = false;
-		if ( !empty( $aUpdateData ) && $oIp instanceof ICWP_WPSF_IpsEntryVO ) {
-
-			$mResult = $this
-				->setUpdateWheres( array( 'id' => $oIp->getId() ) )
-				->setUpdateData( $aUpdateData )
-				->query();
-			$bSuccess = is_numeric( $mResult ) && $mResult === 1;
-
-			if ( $bSuccess ) {
-				foreach ( $aUpdateData as $sColumn => $mValue ) {
-					$oIp->{$sColumn} = $mValue;
-				}
-			}
-		}
-
-		return $bSuccess;
+		return ( $oIp instanceof ICWP_WPSF_IpsEntryVO ) && parent::updateEntry( $oIp, $aUpdateData );
 	}
 }

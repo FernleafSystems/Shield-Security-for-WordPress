@@ -19,11 +19,11 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$this->setupChecksumCron();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$oDp = $this->loadDP();
+			$oReq = $this->loadRequest();
 
-			switch ( $oDp->query( 'shield_action' ) ) {
+			switch ( $oReq->query( 'shield_action' ) ) {
 				case 'delete_unrecognised_file':
-					$sPath = '/'.trim( $oDp->query( 'repair_file_path' ) ); // "/" prevents esc_url() from prepending http.
+					$sPath = '/'.$oReq->query( 'repair_file_path' ); // "/" prevents esc_url() from prepending http.
 					break;
 			}
 		}

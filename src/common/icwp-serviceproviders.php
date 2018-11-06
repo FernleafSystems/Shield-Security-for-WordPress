@@ -72,6 +72,21 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array[]
 	 */
+	public function getIps_ManageWp() {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_managewp' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( empty( $aIps ) ) {
+			$aIps = $this->downloadServiceIps_ManageWp();
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+		}
+		return $aIps;
+	}
+
+	/**
+	 * @return array[]
+	 */
 	public function getIps_Pingdom() {
 		$oWp = $this->loadWp();
 
@@ -422,6 +437,13 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	private function downloadServiceIps_ManageWp() {
+		return $this->downloadServiceIps_Standard( 'https://managewp.com/wp-content/uploads/2016/11/managewp-ips.txt' );
+	}
+
+	/**
 	 * @param int $sIpVersion
 	 * @return string[]
 	 */
@@ -459,11 +481,14 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @param int    $sIpVersion
 	 * @return string[]
 	 */
-	private function downloadServiceIps_Standard( $sSourceUrl, $sIpVersion = 4 ) {
-		if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
-			$sIpVersion = 4;
+	private function downloadServiceIps_Standard( $sSourceUrl, $sIpVersion = null ) {
+		if ( !is_null( $sIpVersion ) ) {
+			if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
+				$sIpVersion = 4;
+			}
+			$sSourceUrl = $this->loadFS()->getUrlContent( sprintf( $sSourceUrl, $sIpVersion ) );
 		}
-		$sRaw = $this->loadFS()->getUrlContent( sprintf( $sSourceUrl, $sIpVersion ) );
+		$sRaw = $this->loadFS()->getUrlContent( $sSourceUrl );
 		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
 		return array_filter( array_map( 'trim', $aIps ) );
 	}

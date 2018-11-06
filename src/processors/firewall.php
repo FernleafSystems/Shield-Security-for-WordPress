@@ -58,14 +58,14 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getIfPerformFirewallScan() {
 		$bPerformScan = true;
-		$oDp = $this->loadDP();
+		$oReq = $this->loadRequest();
 
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
 
 		// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
-		$aRequestParts = $oDp->getRequestUriParts();
+		$aRequestParts = $oReq->getUriParts();
 		if ( $bPerformScan && empty( $aRequestParts ) ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$bPerformScan = false;
 		}
 
-		if ( $bPerformScan && $this->getOption( 'ignore_search_engines' ) == 'Y' && $oDp->IsSearchEngineBot() ) {
+		if ( $bPerformScan && $this->getOption( 'ignore_search_engines' ) == 'Y' && $oReq->isSearchEngineBot() ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Visitor detected as Search Engine Bot' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
@@ -358,10 +358,9 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			return $this->aPageParams;
 		}
 
-		$oDp = $this->loadDP();
 		$this->aPageParams = $this->getRawRequestParams();
 		$aWhitelistPages = $this->getWhitelistPages();
-		$aRequestUriParts = $oDp->getRequestUriParts();
+		$aRequestUriParts = $this->loadRequest()->getUriParts();
 		$sRequestPage = $aRequestUriParts[ 'path' ];
 
 		// first we remove globally whitelisted request parameters
@@ -415,7 +414,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRawRequestParams() {
-		return $this->loadDP()->getRequestParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
+		return $this->loadRequest()->getParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
 	}
 
 	/**

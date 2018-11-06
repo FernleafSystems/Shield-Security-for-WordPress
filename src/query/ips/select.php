@@ -8,8 +8,28 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
 
 class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 
-	protected function customInit() {
-		require_once( dirname( __FILE__ ).'/ICWP_WPSF_IpsEntryVO.php' );
+	/**
+	 * @param string $sIp
+	 * @return $this
+	 */
+	public function filterByIp( $sIp ) {
+		return $this->addWhereEquals( 'ip', $sIp );
+	}
+
+	/**
+	 * @param string $nLastAccessAfter
+	 * @return $this
+	 */
+	public function filterByLastAccessAfter( $nLastAccessAfter ) {
+		return $this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
+	}
+
+	/**
+	 * @param string $sList
+	 * @return $this
+	 */
+	public function filterByList( $sList ) {
+		return $this->addWhereEquals( 'list', $sList );
 	}
 
 	/**
@@ -17,45 +37,17 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return ICWP_WPSF_IpsEntryVO[]
 	 */
 	public function allFromList( $sList ) {
-		return $this->reset()
-					->addWhereEquals( 'list', $sList )
-					->query();
+		/** @var ICWP_WPSF_IpsEntryVO[] $aRes */
+		$aRes = $this->reset()
+					 ->filterByList( $sList )
+					 ->query();
+		return $aRes;
 	}
 
 	/**
-	 * @param string $sIp
-	 * @param string $sList
-	 * @param int    $nLastAccessAfter
-	 * @return ICWP_WPSF_IpsEntryVO|null
+	 * @return string
 	 */
-	public function getIpFromList( $sIp, $sList, $nLastAccessAfter = 0 ) {
-		$oIp = null;
-		if ( $this->loadIpService()->isValidIpOrRange( $sIp ) && !empty( $sList ) ) {
-			/** @var ICWP_WPSF_IpsEntryVO $oIp */
-			$this->reset()
-				 ->addWhereEquals( 'ip', $sIp )
-				 ->addWhereEquals( 'list', $sList );
-			if ( $nLastAccessAfter > 0 ) {
-				$this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
-			}
-			$oIp = $this->first();
-		}
-		return $oIp;
-	}
-
-	/**
-	 * @return ICWP_WPSF_IpsEntryVO[]|stdClass[]
-	 */
-	public function query() {
-
-		$aData = parent::query();
-
-		if ( $this->isResultsAsVo() ) {
-			foreach ( $aData as $nKey => $oAudit ) {
-				$aData[ $nKey ] = new ICWP_WPSF_IpsEntryVO( $oAudit );
-			}
-		}
-
-		return $aData;
+	protected function getVoName() {
+		return 'ICWP_WPSF_IpsEntryVO';
 	}
 }

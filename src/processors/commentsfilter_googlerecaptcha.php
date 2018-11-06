@@ -11,13 +11,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->isGoogleRecaptchaReady() ) {
-			return;
-		}
 		parent::run();
-
 		add_action( 'wp', array( $this, 'setup' ) );
 	}
 
@@ -58,42 +52,32 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 * @return array
 	 */
 	public function doCommentChecking( $aCommentData ) {
-		parent::doCommentChecking( $aCommentData );
-
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->getIfDoCommentsCheck() ) {
-			return $aCommentData;
-		}
 
-		$bIsSpam = false;
-		$sStatKey = '';
-		$sExplanation = '';
-		try {
-			$this->checkRequestRecaptcha();
-		}
-		catch ( Exception $oE ) {
-			$sStatKey = ( $oE->getCode() == 1 ) ? 'empty' : 'failed';
-			$sExplanation = $oE->getMessage();
-			$bIsSpam = true;
-		}
+		if ( $oFO->getIfDoCommentsCheck() ) {
 
-		// Now we check whether comment status is to completely reject and then we simply redirect to "home"
+			try {
+				$this->checkRequestRecaptcha();
+			}
+			catch ( Exception $oE ) {
+				$sStatKey = ( $oE->getCode() == 1 ) ? 'empty' : 'failed';
+				$sExplanation = $oE->getMessage();
 
-		if ( $bIsSpam ) {
-			$this->doStatIncrement( sprintf( 'spam.recaptcha.%s', $sStatKey ) );
-			self::$sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
-			$this->setCommentStatusExplanation( $sExplanation );
+				$this->doStatIncrement( sprintf( 'spam.recaptcha.%s', $sStatKey ) );
+				self::$sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
+				$this->setCommentStatusExplanation( $sExplanation );
 
-			$oFO->setOptInsightsAt( 'last_comment_block_at' );
-			$this->setIpTransgressed(); // black mark this IP
+				$oFO->setOptInsightsAt( 'last_comment_block_at' );
+				$this->setIpTransgressed(); // black mark this IP
 
-
-			if ( self::$sCommentStatus == 'reject' ) {
-				$oWp = $this->loadWp();
-				$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+				if ( self::$sCommentStatus == 'reject' ) {
+					$oWp = $this->loadWp();
+					$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+				}
 			}
 		}
+
 		return $aCommentData;
 	}
 }

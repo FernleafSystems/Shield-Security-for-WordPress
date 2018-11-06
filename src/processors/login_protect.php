@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorGasp()->run();
 		}
 
-		if ( $oFO->isCooldownEnabled() && $this->loadDP()->isMethodPost() ) {
+		if ( $oFO->isCooldownEnabled() && $this->loadRequest()->isMethodPost() ) {
 			$this->getProcessorCooldown()->run();
 		}
 

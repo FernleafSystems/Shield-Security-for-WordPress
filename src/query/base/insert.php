@@ -21,6 +21,20 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * @param ICWP_WPSF_BaseEntryVO $oEntry
+	 * @return bool
+	 */
+	public function insert( $oEntry ) {
+		$aData = array_merge(
+			array(
+				'created_at' => $this->loadRequest()->ts(),
+			),
+			$this->loadDP()->convertStdClassToArray( $oEntry->getRawData() )
+		);
+		return $this->setInsertData( $aData )->query() === 1;
+	}
+
+	/**
 	 * @param array $aInsertData
 	 * @return $this
 	 */
