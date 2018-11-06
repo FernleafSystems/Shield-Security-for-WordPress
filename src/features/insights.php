@@ -281,26 +281,24 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aParsed = array();
 
 		$oIpService = $this->loadIpService();
+		$oDp = $this->loadDP();
 		$oCarbon = new \Carbon\Carbon();
 		foreach ( $aList as $oIp ) {
-			try {
-				$bYou = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
-			}
-			catch ( Exception $oE ) {
-				$bYou = false;
-			}
 
 			$nTrans = $oIp->getTransgressions();
-			$aIp = array(
-				'ip'             => $oIp->getIp(),
-				'trans'          => sprintf( _n( '%s offence', '%s offences', $nTrans, 'wp-simple-firewall' ), $nTrans ),
-				'last_access_at' => $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
-				'blocked'        => $nTrans >= $oMod->getOptTransgressionLimit(),
-				'is_you'         => $bYou,
-				'label'          => $oIp->getLabel(),
-			);
+			$aIp = $oDp->convertStdClassToArray( $oIp->getRawData() );
+			$aIp[ 'trans' ] = sprintf( _n( '%s offence', '%s offences', $nTrans, 'wp-simple-firewall' ), $nTrans );
+			$aIp[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans();
+			$aIp[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans();
+			$aIp[ 'blocked' ] = $nTrans >= $oMod->getOptTransgressionLimit();
+			try {
+				$aIp[ 'is_you' ] = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
+			}
+			catch ( Exception $oE ) {
+				$aIp[ 'is_you' ] = false;
+			}
 
-			$bYou ? array_unshift( $aParsed, $aIp ) : array_push( $aParsed, $aIp );
+			$aIp[ 'is_you' ] ? array_unshift( $aParsed, $aIp ) : array_push( $aParsed, $aIp );
 		}
 		return $aParsed;
 	}
