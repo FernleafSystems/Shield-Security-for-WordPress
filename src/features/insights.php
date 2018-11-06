@@ -260,6 +260,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					 ->getModule( 'ips' );
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $oMod->getProcessor();
+		$oIpService = $this->loadIpService();
+		$sYourIp = $oIpService->getRequestIp();
 
 		$aData = array(
 			'white' => array(),
@@ -267,20 +269,22 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		);
 		foreach ( $oPro->getWhitelistIpsData() as $oIp ) {
 			$aData[ 'white' ][] = array(
-				'ip'    => $oIp->getIp(),
-				'label' => $oIp->getLabel(),
+				'ip'     => $oIp->getIp(),
+				'label'  => $oIp->getLabel(),
+				'is_you' => $oIpService->checkIp( $sYourIp, $oIp->getIp() ),
 			);
 		}
 
 		$nLimit = $oMod->getOptTransgressionLimit();
 		$oCarbon = new \Carbon\Carbon();
 		foreach ( $oPro->getAutoBlacklistIpsData() as $oIp ) {
+			$nTrans = $oIp->getTransgressions();
 			$aData[ 'black' ][] = array(
 				'ip'             => $oIp->getIp(),
-				'trans'          => $oIp->getTransgressions(),
-				//				'last_access_at' => $oWp->getTimeStampForDisplay( $oIp->getLastAccessAt() ),
+				'trans'          => sprintf( _n( '%s transgression', '%s transgressions', $nTrans, 'wp-simple-firewall' ), $nTrans ),
 				'last_access_at' => $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
-				'blocked'        => $oIp->getTransgressions() >= $nLimit,
+				'blocked'        => $nTrans >= $nLimit,
+				'is_you'         => $oIpService->checkIp( $sYourIp, $oIp->getIp() ),
 			);
 		}
 

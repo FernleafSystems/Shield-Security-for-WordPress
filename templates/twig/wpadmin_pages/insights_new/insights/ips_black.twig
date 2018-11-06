@@ -1,7 +1,7 @@
 <div id="SectionIpsBlack" class="insights_widget card w-100">
 	<div class="card-header">
 		<h5 class="card-title">Black Listed Ips</h5>
-		<h6 class="card-subtitle mb-2 text-muted">Black Listed IPs <em>right now</em></h6>
+		<h6 class="card-subtitle mb-2 text-muted">All Black Listed and Blocked IPs <em>right now</em></h6>
 	</div>
 	<div class="card-body overflow_container">
 		<div class="overflow_inner">
@@ -10,17 +10,19 @@
 					<thead>
 						<tr>
 							<th>IP Address</th>
-							<th>Last Access At</th>
-							<th>Transgressions</th>
+							<th>Transgressions
+								<br />(Last Access At)</th>
 							<th>Blocked?</th>
 						</tr>
 					</thead>
 					<tbody>
 					{% for ip in vars.insight_ips.black %}
 						<tr>
-							<td>{{ ip.ip }}</td>
-							<td>{{ ip.last_access_at }}</td>
-							<td>{{ ip.trans }}</td>
+							<td>{{ ip.ip }}
+								{% if ip.is_you %}<br/>(you){% endif %}
+							</td>
+							<td>{{ ip.trans }}
+								<br />({{ ip.last_access_at }})</td>
 							<td>{% if ip.blocked %}Yes{% else %}No{% endif %}</td>
 						</tr>
 					{% endfor %}
