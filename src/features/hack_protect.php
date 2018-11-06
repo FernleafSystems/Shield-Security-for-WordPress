@@ -745,7 +745,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Hack Guard' ),
-				'sub'   => _wpsf__( 'Automatic Scanning For Threats And Intrusion' ),
+				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
 			)
 		);
 		return $aAllSummaryData;

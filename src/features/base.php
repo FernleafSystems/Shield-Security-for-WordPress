@@ -494,9 +494,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function isModuleEnabled() {
 		$oOpts = $this->getOptionsVo();
 
-		$bEnabled = $this->isOpt( 'enable_'.$this->getSlug(), 'Y' )
-					|| $this->isOpt( 'enable_'.$this->getSlug(), true, true );
-
 		if ( $this->isAutoEnabled() ) {
 			$bEnabled = true;
 		}
@@ -509,8 +506,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
+		else {
+			$bEnabled = $this->isModOptEnabled();
+		}
 
 		return $bEnabled;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isModOptEnabled() {
+		return $this->isOpt( 'enable_'.$this->getSlug(), 'Y' )
+			   || $this->isOpt( 'enable_'.$this->getSlug(), true, true );
 	}
 
 	/**

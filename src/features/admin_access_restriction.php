@@ -417,7 +417,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Security Admin' ),
-				'sub'   => _wpsf__( 'Protection Against Shield Security Tampering' ),
+				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
 			)
 		);
 		return $aAllSummaryData;

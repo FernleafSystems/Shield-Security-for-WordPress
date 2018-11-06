@@ -180,7 +180,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Automatic Updates' ),
-				'sub'   => _wpsf__( 'Fine Control Over WordPress Automatic Updates' ),
+				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
 			)
 		);
 		return $aAllSummaryData;

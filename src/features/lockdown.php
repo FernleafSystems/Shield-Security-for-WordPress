@@ -79,7 +79,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'WordPress Lockdown' ),
-				'sub'   => _wpsf__( 'Switch Off Core WordPress Functionality e.g. XMLRPC & REST API' ),
+				'sub'   => _wpsf__( 'Restrict WP Functionality e.g. XMLRPC & REST API' ),
 			)
 		);
 		return $aAllSummaryData;

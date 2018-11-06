@@ -954,3 +954,7 @@ td.cell_delete_note {
 #odp-BodyMain .card.config {
 	margin-top: 20px;
 }
+
+#SectionModuleSummaries .card-body table {
+	margin-bottom: 0;
+}

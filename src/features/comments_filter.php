@@ -138,7 +138,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'SPAM Blocking' ),
-				'sub'   => _wpsf__( 'Bot & Human Comment SPAM Protection' ),
+				'sub'   => _wpsf__( 'Block Bot & Human Comment SPAM' ),
 			)
 		);
 		return $aAllSummaryData;

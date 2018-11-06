@@ -305,7 +305,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'User Management' ),
-				'sub'   => _wpsf__( 'Restrict Account Sessions And Manage Passwords' ),
+				'sub'   => _wpsf__( 'Sessions Control & Password Policies' ),
 			)
 		);
 		return $aAllSummaryData;

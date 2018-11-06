@@ -1,4 +1,4 @@
-<div class="row" id="SectionModuleSummaries">
+<div class="row insights_widget" id="SectionModuleSummaries">
 
 	{% for config_card in vars.config_cards %}
 		<div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
@@ -7,8 +7,18 @@
 					<h5 class="card-title">{{ config_card.strings.title }}</h5>
 					<h6 class="card-subtitle mb-2 text-muted">{{ config_card.strings.sub }}</h6>
 				</div>
-				<div class="card-body overflow_container">
-					<div class="overflow_inner">
+				<div class="card-body">
+					<div class="">
+						<table class="table table-borderless">
+							{% for opt_key,opt in config_card.key_opts|default([]) %}
+								<tr class="table-row-{{ opt_key }}">
+									<th>{{ opt.name }}</th>
+									<td>{{ opt.summary }}</td>
+									<td>{{ opt.enabled }}</td>
+								</tr>
+
+							{% endfor %}
+						</table>
 					</div>
 				</div>
 			</div>

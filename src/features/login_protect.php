@@ -684,7 +684,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Login Guard' ),
-				'sub'   => _wpsf__( 'Brute Force and User Identity Protection' ),
+				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
 			)
 		);
 		return $aAllSummaryData;

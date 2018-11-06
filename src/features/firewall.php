@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aAllSummaryData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Firewall' ),
-				'sub'   => _wpsf__( 'Protection Against Malicious Requests & Data' ),
+				'sub'   => _wpsf__( 'Block Malicious Requests' ),
 			)
 		);
 		return $aAllSummaryData;

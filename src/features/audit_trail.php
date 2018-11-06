@@ -285,9 +285,16 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function addInsightsConfigData( $aAllSummaryData ) {
 		$aAllSummaryData[ $this->getSlug() ] = array(
-			'strings' => array(
+			'strings'  => array(
 				'title' => _wpsf__( 'Activity Audit Log' ),
-				'sub'   => _wpsf__( 'Track Actions: When, Who, What and Where' ),
+				'sub'   => _wpsf__( 'Track Activity: What, Who, When, Where' ),
+			),
+			'key_opts' => array(
+				'mod' => array(
+					'name'    => _wpsf__( 'Audit Trail' ),
+					'enabled' => $this->isModOptEnabled(),
+					'summary' => sprintf( _wpsf__( 'Audit Trail module is %s' ), $this->isModOptEnabled() ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' ) )
+				)
 			)
 		);
 		return $aAllSummaryData;
