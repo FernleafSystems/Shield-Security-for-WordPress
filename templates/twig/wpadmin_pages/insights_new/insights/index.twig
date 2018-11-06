@@ -1,6 +1,11 @@
 {% extends '/wpadmin_pages/insights_new/base.twig' %}
 
 {% block body_main %}
+	<div class="row">
+		<div class="col-12">
+			{% include '/wpadmin_pages/insights_new/insights/stats.twig' %}
+		</div>
+	</div>
 {% endblock %}
 
 {% block body_foot %}

@@ -238,6 +238,7 @@ class ICWP_WPSF_Foundation {
 			self::setService( $sKey, $oR );
 		}
 
+		/** @var ICWP_WPSF_Render $oR */
 		$oR = self::getService( $sKey );
 		if ( !empty( $sTemplatePath ) ) {
 			$oR->setTemplateRoot( $sTemplatePath );
