@@ -455,7 +455,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	protected function getUrl_Action( $sPluginFile, $sAction ) {
 		return add_query_arg(
 			array(
-				'action'   => $sAction.'-plugin',
+				'action'   => $sAction,
 				'plugin'   => urlencode( $sPluginFile ),
 				'_wpnonce' => wp_create_nonce( $sAction.'-plugin_'.$sPluginFile )
 			),
