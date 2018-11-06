@@ -444,7 +444,12 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getUrl_Upgrade( $sPluginFile ) {
-		return $this->getUrl_Action( $sPluginFile, 'upgrade' );
+		$aQueryArgs = array(
+			'action'   => 'upgrade-plugin',
+			'plugin'   => urlencode( $sPluginFile ),
+			'_wpnonce' => wp_create_nonce( 'upgrade-plugin_'.$sPluginFile )
+		);
+		return add_query_arg( $aQueryArgs, self_admin_url( 'update.php' ) );
 	}
 
 	/**
