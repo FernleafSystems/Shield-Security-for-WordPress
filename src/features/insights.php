@@ -22,44 +22,76 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
 		}
 
-		$aData = array(
-			'vars'    => array(
-				'summary'               => $this->getInsightsModsSummary(),
-				'audit_trail_recent'    => $aRecentAuditTrail,
-				'insight_events'        => $this->getRecentEvents(),
-				'insight_notices'       => $aSecNotices,
-				'insight_notices_count' => $nNoticesCount,
-				'insight_stats'         => $this->getStats(),
-				'insight_notes'         => $aNotes,
-			),
-			'inputs'  => array(
-				'license_key' => array(
-					'name'      => $this->prefixOptionKey( 'license_key' ),
-					'maxlength' => $this->getDef( 'license_key_length' ),
-				)
-			),
-			'ajax'    => array(
-				'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
-				'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-				'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-			),
-			'hrefs'   => array(
-				'shield_pro_url'           => 'https://icwp.io/shieldpro',
-				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
-			),
-			'flags'   => array(
-				'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
-				'show_ads'                => false,
-				'show_standard_options'   => false,
-				'show_alt_content'        => true,
-				'is_pro'                  => $this->isPremium(),
-				'has_notices'             => count( $aSecNotices ) > 0,
-				'has_notes'               => count( $aNotes ) > 0,
-				'can_notes'               => $this->isPremium() //not the way to determine
-			),
-			'strings' => $this->getDisplayStrings(),
-		);
-		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
+		$sSubNavSection = $this->loadRequest()->query( 'subnav' );
+
+		switch ( $sSubNavSection ) {
+
+			case 'config':
+				break;
+
+			case 'scan':
+				break;
+
+			case 'insights':
+			case 'index':
+			default:
+				$sSubNavSection = 'insights';
+				$aData = array(
+					'vars'   => array(
+						'summary'               => $this->getInsightsModsSummary(),
+						'audit_trail_recent'    => $aRecentAuditTrail,
+						'insight_events'        => $this->getRecentEvents(),
+						'insight_notices'       => $aSecNotices,
+						'insight_notices_count' => $nNoticesCount,
+						'insight_stats'         => $this->getStats(),
+						'insight_notes'         => $aNotes,
+					),
+					'inputs' => array(
+						'license_key' => array(
+							'name'      => $this->prefixOptionKey( 'license_key' ),
+							'maxlength' => $this->getDef( 'license_key_length' ),
+						)
+					),
+					'ajax'   => array(
+						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
+						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+					),
+					'hrefs'  => array(
+						'shield_pro_url'           => 'https://icwp.io/shieldpro',
+						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
+					),
+					'flags'  => array(
+						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
+						'show_ads'                => false,
+						'show_standard_options'   => false,
+						'show_alt_content'        => true,
+						'is_pro'                  => $this->isPremium(),
+						'has_notices'             => count( $aSecNotices ) > 0,
+						'has_notes'               => count( $aNotes ) > 0,
+						'can_notes'               => $this->isPremium() //not the way to determine
+					),
+				);
+				break;
+		}
+
+		$aPageBase = $this->getUrl_AdminPage();
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive(
+						  array(
+							  'hrefs'   => array(
+								  'nav' => array(
+									  'insights' => add_query_arg( [ 'subnav' => 'insights' ], $aPageBase ),
+									  'config'   => add_query_arg( [ 'subnav' => 'config' ], $aPageBase ),
+									  'scan'     => add_query_arg( [ 'subnav' => 'scan' ], $aPageBase )
+								  )
+							  ),
+							  'strings' => $this->getDisplayStrings(),
+						  ),
+						  $aData
+					  );
+
+		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
 
 	public function insertCustomJsVars_Admin() {
