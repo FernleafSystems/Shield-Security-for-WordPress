@@ -1,7 +1,7 @@
-<div class="row p-2" id="SectionStats">
+<div class="row" id="SectionStats">
 	{% for stat in vars.insight_stats %}
 		<div class="col-lg-2">
-			<div class="stat card text-center p-0 m-0"
+			<div class="stat card text-center"
 					{% if stat.tooltip is defined %}
 						title="{{ stat.tooltip }}"
 					{% endif %}

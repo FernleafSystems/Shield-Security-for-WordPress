@@ -888,12 +888,55 @@ th.column-request_info {
 	width: 100px;
 }
 /** INSIGHTS **/
+#odp-BodyContainer .card {
+	box-shadow: none;
+	margin-top: 0;
+	max-width: none;
+	padding: 0;
+}
+#odp-BodyMain {
+	font-size: 13px;
+}
+
+.insights_section {
+	margin-top: 20px;
+}
+.insights_widget .card-body {
+	padding: 0 0 0 0;
+}
+.overflow_container {
+	max-height: 350px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding-bottom: 1rem;
+}
+.overflow_inner {
+	padding: 1rem;
+}
+.overflow_inner dl {
+	margin-bottom: 1px;
+}
+.title_row th,
+.title_row td {
+	background-color: #fbfbfb;
+}
+.message_row th,
+.message_row td {
+	border-top: 1px solid #e9edf1; /** make bootstrap border lighter */
+}
+td.cell_delete_note {
+	max-width: 20px;
+}
+.icon-sign {
+	font-size: 14px;
+}
+
+
 #SectionStats {
 	max-height: 300px;
 	overflow: auto;
 }
 .stat.card {
-	padding: 0;
 }
 .stat.card .card-header {
 	font-size: smaller;

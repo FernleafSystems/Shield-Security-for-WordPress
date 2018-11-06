@@ -83,13 +83,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  'nav' => array(
 									  'insights' => add_query_arg( [ 'subnav' => 'insights' ], $aPageBase ),
 									  'config'   => add_query_arg( [ 'subnav' => 'config' ], $aPageBase ),
-									  'scan'     => add_query_arg( [ 'subnav' => 'scan' ], $aPageBase )
+									  'scan'     => add_query_arg( [ 'subnav' => 'scan' ], $aPageBase ),
+									  'original' => add_query_arg( [ 'subnav' => 'original' ], $aPageBase )
 								  )
 							  ),
 							  'strings' => $this->getDisplayStrings(),
 						  ),
 						  $aData
 					  );
+
+		// TODO: Remove
+		if ( $this->loadRequest()->query( 'subnav' ) == 'original' ) {
+			echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
+			return;
+		}
 
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
@@ -524,11 +531,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'val'     => $aStats[ 'comments.blocked.all' ],
 				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
 			),
-//			'sessions'       => array(
-//				'title'   => _wpsf__( 'Active Sessions' ),
-//				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
-//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
-//			),
+			//			'sessions'       => array(
+			//				'title'   => _wpsf__( 'Active Sessions' ),
+			//				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
+			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+			//			),
 			'transgressions' => array(
 				'title'   => _wpsf__( 'Transgressions' ),
 				'val'     => $aStats[ 'ip.transgression.incremented' ],
@@ -546,11 +553,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  ->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
-//			'pro'            => array(
-//				'title'   => _wpsf__( 'Pro' ),
-//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-//				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
-//			),
+			//			'pro'            => array(
+			//				'title'   => _wpsf__( 'Pro' ),
+			//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
+			//				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
+			//			),
 		);
 	}
 
