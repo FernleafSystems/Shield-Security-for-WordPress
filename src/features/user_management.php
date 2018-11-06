@@ -44,7 +44,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadRequest()->ts() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadRequest()
+																												  ->ts() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 	}
@@ -283,7 +284,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$aNotices[ 'messages' ][ 'password' ] = array(
 					'title'   => 'Password Policies',
 					'message' => _wpsf__( "Strong password policies are not enforced." ),
-					'href'    => $this->getUrl_AdminPage(),
+					'href'    => $this->getUrl_AdminPage().'#pills-section_passwords',
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Password policies should be turned-on.' )
 				);

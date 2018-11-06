@@ -1,0 +1,20 @@
+<div id="SectionIpsBlack" class="insights_widget card w-100">
+	<div class="card-header">
+		<h5 class="card-title">White Listed Ips</h5>
+		<h6 class="card-subtitle mb-2 text-muted">White Listed IPs <em>right now</em></h6>
+	</div>
+	<div class="card-body overflow_container">
+		<div class="overflow_inner">
+			{% if vars.insight_ips.has_white %}
+				{% for ip in vars.insight_ips.white %}
+					<dl class="row">
+						<dt class="col-6">{{ ip.ip }}:</dt>
+						<dd class="col-6">{{ ip.label }}</dd>
+					</dl>
+				{% endfor %}
+			{% else %}
+				There are currently no whitelisted IP addresses.
+			{% endif %}
+		</div>
+	</div>
+</div>

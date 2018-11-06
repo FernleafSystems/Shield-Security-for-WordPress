@@ -1,0 +1,21 @@
+<div id="SectionIpsBlack" class="insights_widget card w-100">
+	<div class="card-header">
+		<h5 class="card-title">Black Listed Ips</h5>
+		<h6 class="card-subtitle mb-2 text-muted">Black Listed IPs <em>right now</em></h6>
+	</div>
+	<div class="card-body overflow_container">
+		<div class="overflow_inner">
+			{% if vars.insight_ips.has_black %}
+				{% for ip in vars.insight_ips.black %}
+					<dl class="row">
+						<dt class="col-6">{{ ip.ip }}:</dt>
+						<dd class="col-2">{{ ip.trans }}</dd>
+						<dd class="col-4">{{ ip.last_access_at }}</dd>
+					</dl>
+				{% endfor %}
+			{% else %}
+				There are currently no blacklisted IP addresses.
+			{% endif %}
+		</div>
+	</div>
+</div>

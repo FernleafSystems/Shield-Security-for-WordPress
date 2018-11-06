@@ -894,10 +894,16 @@ th.column-request_info {
 	max-width: none;
 	padding: 0;
 }
+#odp-BodyHead {
+}
+#odp-BodyHead .nav-link {
+	/*border: 1px solid rgba(0, 0, 0, 0.1);*/
+	/*border-radius: 2px;*/
+	/*margin-left: 3px;*/
+}
 #odp-BodyMain {
 	font-size: 13px;
 }
-
 .insights_section {
 	margin-top: 20px;
 }
@@ -930,8 +936,6 @@ td.cell_delete_note {
 .icon-sign {
 	font-size: 14px;
 }
-
-
 #SectionStats {
 	max-height: 300px;
 	overflow: auto;

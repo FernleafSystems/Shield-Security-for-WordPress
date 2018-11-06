@@ -45,6 +45,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'insight_notices_count' => $nNoticesCount,
 						'insight_stats'         => $this->getStats(),
 						'insight_notes'         => $aNotes,
+						'insight_ips'           => $this->getIps(),
 					),
 					'inputs' => array(
 						'license_key' => array(
@@ -248,6 +249,42 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 		return $aMods;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getIps() {
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->getConn()
+					 ->getModule( 'ips' )
+					 ->getProcessor();
+
+		$aData = array(
+			'white' => array(),
+			'black' => array(),
+		);
+		foreach ( $oPro->getWhitelistIpsData() as $oIp ) {
+			$aData[ 'white' ][] = array(
+				'ip'    => $oIp->getIp(),
+				'label' => $oIp->getLabel(),
+			);
+		}
+
+		$oCarbon = new \Carbon\Carbon();
+		foreach ( $oPro->getAutoBlacklistIpsData() as $oIp ) {
+			$aData[ 'black' ][] = array(
+				'ip'             => $oIp->getIp(),
+				'trans'          => $oIp->getTransgressions(),
+//				'last_access_at' => $oWp->getTimeStampForDisplay( $oIp->getLastAccessAt() ),
+				'last_access_at' => $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
+			);
+		}
+
+		$aData[ 'has_white' ] = !empty( $aData[ 'white' ] );
+		$aData[ 'has_black' ] = !empty( $aData[ 'black' ] );
+
+		return $aData;
 	}
 
 	/**
