@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 5.0
-Stable tag: 6.10.3
+Stable tag: 6.10.4
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -354,9 +354,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.10.3 - Current Release =
+= 6.10.4 - Current Release =
 *Released: 5th November, 2018* - [Release Notes](https://icwp.io/dg)
 
+* **(v.4)**  FIXED:		Couldn't deactivate plugin.
 * **(v.3)**  ADDED:		Support for Ultimate Member forms
 * **(v.3)**  ADDED:		Support for LearnPress login/registration forms
 * **(v.3)**  FIXED:		Security Admin now correctly honours the WordPress Options zone setting.
