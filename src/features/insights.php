@@ -262,54 +262,53 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oPro = $oMod->getProcessor();
 
 		$aData = array(
-			'white' => array(),
-			'black' => array(),
+			'white' => $this->parseIpList( $oPro->getWhitelistIpsData() ),
+			'black' => $this->parseIpList( $oPro->getAutoBlacklistIpsData() ),
 		);
-		foreach ( $oPro->getWhitelistIpsData() as $oIp ) {
-			$aData[ 'white' ][] = $this->parseIp( $oIp );
-		}
-		foreach ( $oPro->getAutoBlacklistIpsData() as $oIp ) {
-			$aData[ 'black' ][] = $this->parseIp( $oIp );
-		}
-
 		$aData[ 'has_white' ] = !empty( $aData[ 'white' ] );
 		$aData[ 'has_black' ] = !empty( $aData[ 'black' ] );
-
 		return $aData;
 	}
 
 	/**
-	 * @param ICWP_WPSF_IpsEntryVO $oIp
-	 * @return array
+	 * @param ICWP_WPSF_IpsEntryVO[] $aList
+	 * @return array[]
 	 */
-	private function parseIp( $oIp ) {
+	private function parseIpList( $aList ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getConn()
 					 ->getModule( 'ips' );
-		$oIpService = $this->loadIpService();
-		$nTrans = $oIp->getTransgressions();
-		try {
-			$bYou = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
-		}
-		catch ( Exception $oE ) {
-			$bYou = false;
-		}
+		$aParsed = array();
 
-		return array(
-			'ip'             => $oIp->getIp(),
-			'trans'          => sprintf( _n( '%s transgression', '%s transgressions', $nTrans, 'wp-simple-firewall' ), $nTrans ),
-			'last_access_at' => ( new \Carbon\Carbon() )->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
-			'blocked'        => $nTrans >= $oMod->getOptTransgressionLimit(),
-			'is_you'         => $bYou,
-			'label'          => $oIp->getLabel(),
-		);
+		$oIpService = $this->loadIpService();
+		$oCarbon = new \Carbon\Carbon();
+		foreach ( $aList as $oIp ) {
+			try {
+				$bYou = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
+			}
+			catch ( Exception $oE ) {
+				$bYou = false;
+			}
+
+			$nTrans = $oIp->getTransgressions();
+			$aIp = array(
+				'ip'             => $oIp->getIp(),
+				'trans'          => sprintf( _n( '%s offence', '%s offences', $nTrans, 'wp-simple-firewall' ), $nTrans ),
+				'last_access_at' => $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
+				'blocked'        => $nTrans >= $oMod->getOptTransgressionLimit(),
+				'is_you'         => $bYou,
+				'label'          => $oIp->getLabel(),
+			);
+
+			$bYou ? array_unshift( $aParsed, $aIp ) : array_push( $aParsed, $aIp );
+		}
+		return $aParsed;
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function getNotices() {
-
 		$aAll = apply_filters(
 			$this->prefix( 'collect_notices' ),
 			array(
