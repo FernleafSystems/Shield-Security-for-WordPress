@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
-			case 'configuration':
+			case 'config':
 				$aData = array();
 				break;
 
@@ -70,6 +70,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array();
 				break;
 
+			case 'original':
+				break;
 			case 'insights':
 			case 'index':
 			default:
@@ -134,12 +136,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						  ),
 						  $aData
 					  );
-
-		// TODO: Remove
-		if ( $this->loadRequest()->query( 'subnav' ) == 'original' ) {
-			echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
-			return;
-		}
 
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
