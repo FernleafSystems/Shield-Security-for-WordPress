@@ -26,10 +26,29 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		switch ( $sSubNavSection ) {
 
+			case 'notes':
+				$aData = array(
+					'vars'  => array(
+						'insight_notes' => $aNotes,
+					),
+					'ajax'  => array(
+						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
+						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+					),
+					'flags' => array(
+						'has_notes' => count( $aNotes ) > 0,
+						'can_notes' => $this->isPremium() //not the way to determine
+					)
+				);
+				break;
+
 			case 'config':
+				$aData = array();
 				break;
 
 			case 'scan':
+				$aData = array();
 				break;
 
 			case 'insights':
@@ -53,11 +72,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							'maxlength' => $this->getDef( 'license_key_length' ),
 						)
 					),
-					'ajax'   => array(
-						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
-						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-					),
+					'ajax'   => array(),
 					'hrefs'  => array(
 						'shield_pro_url'           => 'https://icwp.io/shieldpro',
 						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
@@ -69,24 +84,28 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'show_alt_content'        => true,
 						'is_pro'                  => $this->isPremium(),
 						'has_notices'             => count( $aSecNotices ) > 0,
-						'has_notes'               => count( $aNotes ) > 0,
-						'can_notes'               => $this->isPremium() //not the way to determine
 					),
 				);
 				break;
 		}
 
+		$aNav = array_flip( array(
+			'insights',
+			'config',
+			'scan',
+			'notes',
+			'original',
+		) );
 		$aPageBase = $this->getUrl_AdminPage();
+		foreach ( $aNav as $sNavItem => &$sLink ) {
+			$sLink = add_query_arg( [ 'subnav' => $sNavItem ], $aPageBase );
+		}
+
 		$aData = $this->loadDP()
 					  ->mergeArraysRecursive(
 						  array(
 							  'hrefs'   => array(
-								  'nav' => array(
-									  'insights' => add_query_arg( [ 'subnav' => 'insights' ], $aPageBase ),
-									  'config'   => add_query_arg( [ 'subnav' => 'config' ], $aPageBase ),
-									  'scan'     => add_query_arg( [ 'subnav' => 'scan' ], $aPageBase ),
-									  'original' => add_query_arg( [ 'subnav' => 'original' ], $aPageBase )
-								  )
+								  'nav' => $aNav
 							  ),
 							  'strings' => $this->getDisplayStrings(),
 						  ),
@@ -201,7 +220,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function ajaxExec_AdminNotesRender() {
 		$aNotes = $this->getNotes();
 		$sHtml = $this->renderTemplate(
-			'/wpadmin_pages/insights/admin_notes_table.twig',
+			'/wpadmin_pages/insights_new/notes/admin_notes_table.twig',
 			array(
 				'vars'  => array(
 					'insight_notes' => $aNotes,
