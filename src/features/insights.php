@@ -46,20 +46,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'config':
 				$aData = array(
 					'vars' => array(
-						'config_cards' => array(
-							'lg' => array(
-								'strings' => array(
-									'title' => _wpsf__( 'Login Guard' ),
-									'sub'   => _wpsf__( 'Brute Force and User Identity Protection' ),
-								)
-							),
-							'fw' => array(
-								'strings' => array(
-									'title' => _wpsf__( 'Firewall' ),
-									'sub'   => _wpsf__( 'Protection Against Malicious Requests & Data' ),
-								)
-							),
-						)
+						'config_cards' => $this->getConfigCardsData()
 					)
 				);
 				break;
@@ -392,6 +379,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aIp[ 'is_you' ] ? array_unshift( $aParsed, $aIp ) : array_push( $aParsed, $aIp );
 		}
 		return $aParsed;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getConfigCardsData() {
+		$aAll = apply_filters( $this->prefix( 'collect_summary' ), array() );
+
+		return $aAll;
 	}
 
 	/**

@@ -131,6 +131,20 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @param array $aAllSummaryData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllSummaryData ) {
+		$aAllSummaryData[ $this->getSlug() ] = array(
+			'strings' => array(
+				'title' => _wpsf__( 'SPAM Blocking' ),
+				'sub'   => _wpsf__( 'Bot & Human Comment SPAM Protection' ),
+			)
+		);
+		return $aAllSummaryData;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
