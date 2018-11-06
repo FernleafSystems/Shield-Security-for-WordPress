@@ -6,13 +6,26 @@
 	<div class="card-body overflow_container">
 		<div class="overflow_inner">
 			{% if vars.insight_ips.has_black %}
-				{% for ip in vars.insight_ips.black %}
-					<dl class="row">
-						<dt class="col-6">{{ ip.ip }}:</dt>
-						<dd class="col-2">{{ ip.trans }}</dd>
-						<dd class="col-4">{{ ip.last_access_at }}</dd>
-					</dl>
-				{% endfor %}
+				<table class="table mb-0 table-borderless">
+					<thead>
+						<tr>
+							<th>IP Address</th>
+							<th>Last Access At</th>
+							<th>Transgressions</th>
+							<th>Blocked?</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for ip in vars.insight_ips.black %}
+						<tr>
+							<td>{{ ip.ip }}</td>
+							<td>{{ ip.last_access_at }}</td>
+							<td>{{ ip.trans }}</td>
+							<td>{% if ip.blocked %}Yes{% else %}No{% endif %}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
 			{% else %}
 				There are currently no blacklisted IP addresses.
 			{% endif %}

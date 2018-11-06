@@ -255,10 +255,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getIps() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getConn()
+					 ->getModule( 'ips' );
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getConn()
-					 ->getModule( 'ips' )
-					 ->getProcessor();
+		$oPro = $oMod->getProcessor();
 
 		$aData = array(
 			'white' => array(),
@@ -271,13 +272,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			);
 		}
 
+		$nLimit = $oMod->getOptTransgressionLimit();
 		$oCarbon = new \Carbon\Carbon();
 		foreach ( $oPro->getAutoBlacklistIpsData() as $oIp ) {
 			$aData[ 'black' ][] = array(
 				'ip'             => $oIp->getIp(),
 				'trans'          => $oIp->getTransgressions(),
-//				'last_access_at' => $oWp->getTimeStampForDisplay( $oIp->getLastAccessAt() ),
+				//				'last_access_at' => $oWp->getTimeStampForDisplay( $oIp->getLastAccessAt() ),
 				'last_access_at' => $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
+				'blocked'        => $oIp->getTransgressions() >= $nLimit,
 			);
 		}
 
