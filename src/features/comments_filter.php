@@ -131,11 +131,11 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings'  => array(
 				'title' => _wpsf__( 'SPAM Blocking' ),
 				'sub'   => _wpsf__( 'Block Bot & Human Comment SPAM' ),
@@ -146,18 +146,20 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 					'enabled' => $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled(),
 					'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
 						_wpsf__( 'Bot SPAM comments are being blocked' )
-						: _wpsf__( 'There is no protection against Bot SPAM comments' )
+						: _wpsf__( 'There is no protection against Bot SPAM comments' ),
+					'weight'  => 2
 				),
 				'human' => array(
 					'name'    => _wpsf__( 'Human SPAM' ),
 					'enabled' => $this->isEnabledHumanCheck(),
 					'summary' => $this->isEnabledHumanCheck() ?
 						_wpsf__( 'Comments by humans are being checked for SPAM' )
-						: _wpsf__( 'Comments by humans are not being checked for SPAM' )
+						: _wpsf__( 'Comments by humans are not being checked for SPAM' ),
+					'weight'  => 1
 				),
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**

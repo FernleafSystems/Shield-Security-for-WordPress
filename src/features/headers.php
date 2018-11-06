@@ -107,17 +107,17 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'HTTP Security Headers' ),
 				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**

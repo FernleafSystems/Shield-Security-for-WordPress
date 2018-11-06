@@ -470,7 +470,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->isOpt( 'enable_login_gasp_check', 'Y' );
+		return $this->isModOptEnabled() && $this->isOpt( 'enable_login_gasp_check', 'Y' );
 	}
 
 	/**
@@ -677,17 +677,49 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
-			'strings' => array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
 				'title' => _wpsf__( 'Login Guard' ),
 				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
-			)
+			),
+			'key_opts' => array()
 		);
-		return $aAllSummaryData;
+
+		$bHasBotCheck = $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
+
+		$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
+		$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
+		$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
+		$aThis[ 'key_opts' ][ 'bot_login' ] = array(
+			'name'    => _wpsf__( 'Brute Force Login' ),
+			'enabled' => $bBotLogin,
+			'summary' => $bBotLogin ?
+				_wpsf__( 'Login forms are protected against bot attacks' )
+				: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
+			'weight'  => 2
+		);
+		$aThis[ 'key_opts' ][ 'bot_register' ] = array(
+			'name'    => _wpsf__( 'Bot User Register' ),
+			'enabled' => $bBotRegister,
+			'summary' => $bBotRegister ?
+				_wpsf__( 'Registration forms are protected against bot attacks' )
+				: _wpsf__( 'Registration forms are not protected against automated bots' ),
+			'weight'  => 2
+		);
+		$aThis[ 'key_opts' ][ 'bot_password' ] = array(
+			'name'    => _wpsf__( 'Brute Force Lost Password' ),
+			'enabled' => $bBotPassword,
+			'summary' => $bBotPassword ?
+				_wpsf__( 'Lost Password forms are protected against bot attacks' )
+				: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
+			'weight'  => 2
+		);
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
 	}
 
 	/**

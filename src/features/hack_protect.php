@@ -738,17 +738,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Hack Guard' ),
 				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**

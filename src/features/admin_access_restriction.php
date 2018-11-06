@@ -411,11 +411,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings'  => array(
 				'title' => _wpsf__( 'Security Admin' ),
 				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
@@ -426,11 +426,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					'enabled' => $this->isEnabledForUiSummary(),
 					'summary' => $this->isEnabledForUiSummary() ?
 						_wpsf__( 'Security plugin is protected against tampering' )
-						: _wpsf__( 'Security plugin is vulnerable to tampering' )
+						: _wpsf__( 'Security plugin is vulnerable to tampering' ),
+					'weight'  => 2
 				)
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**

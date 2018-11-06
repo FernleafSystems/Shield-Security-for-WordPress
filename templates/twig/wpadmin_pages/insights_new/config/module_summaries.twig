@@ -11,7 +11,21 @@
 					<div class="">
 						<table class="table table-borderless table-key_opts">
 							{% for opt_key,opt in config_card.key_opts|default([]) %}
-								<tr class="row-{{ opt_key }} row-key_opt {%  if opt.enabled %}table-success{% else %}table-warning{% endif %}">
+								<tr class="row-{{ opt_key }} row-key_opt
+								{% if opt.enabled %}
+									{% if opt.weight|default( 2 ) == 1 %}
+										table-info
+									{% else %}
+										table-success
+									{% endif %}
+								{% else %}
+									{% if opt.weight|default( 2 ) == 1 %}
+										table-warning
+									{% else %}
+										table-danger
+									{% endif %}
+								{% endif %}"
+								>
 									<th>{{ opt.name }}</th>
 									<td>{{ opt.summary }}</td>
 									<td>{{ opt.enabled }}</td>

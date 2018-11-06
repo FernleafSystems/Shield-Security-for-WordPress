@@ -280,11 +280,11 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings'  => array(
 				'title' => _wpsf__( 'Activity Audit Log' ),
 				'sub'   => _wpsf__( 'Track Activity: What, Who, When, Where' ),
@@ -295,11 +295,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					'enabled' => $this->isModOptEnabled(),
 					'summary' => $this->isModOptEnabled() ?
 						_wpsf__( 'Important events on your site are being logged' )
-						: _wpsf__( 'Important events on your site are not being logged' )
+						: _wpsf__( 'Important events on your site are not being logged' ),
+					'weight'  => 2
 				)
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**

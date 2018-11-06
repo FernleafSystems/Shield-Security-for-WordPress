@@ -647,11 +647,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		return $aAllSummaryData;
+	public function addInsightsConfigData( $aAllData ) {
+		return $aAllData;
 	}
 
 	/**

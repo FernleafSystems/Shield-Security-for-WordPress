@@ -55,11 +55,11 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'Firewall' ),
 				'sub'   => _wpsf__( 'Block Malicious Requests' ),
@@ -70,11 +70,12 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 					'enabled' => $this->isModOptEnabled(),
 					'summary' => $this->isModOptEnabled() ?
 						_wpsf__( 'Your site is protected against malicious requests' )
-						: _wpsf__( 'Your site is not protected against malicious requests' )
+						: _wpsf__( 'Your site is not protected against malicious requests' ),
+					'weight'  => 2
 				)
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**

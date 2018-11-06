@@ -298,17 +298,17 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @param array $aAllSummaryData
+	 * @param array $aAllData
 	 * @return array
 	 */
-	public function addInsightsConfigData( $aAllSummaryData ) {
-		$aAllSummaryData[ $this->getSlug() ] = array(
+	public function addInsightsConfigData( $aAllData ) {
+		$aAllData[ $this->getSlug() ] = array(
 			'strings' => array(
 				'title' => _wpsf__( 'User Management' ),
 				'sub'   => _wpsf__( 'Sessions Control & Password Policies' ),
 			)
 		);
-		return $aAllSummaryData;
+		return $aAllData;
 	}
 
 	/**
