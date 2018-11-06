@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
-			case 'config':
+			case 'configuration':
 				$aData = array();
 				break;
 
@@ -89,7 +89,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 		}
 
-		$aNav = array_flip( array(
+		$aTopNav = array_flip( array(
 			'insights',
 			'config',
 			'scan',
@@ -97,15 +97,33 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'original',
 		) );
 		$aPageBase = $this->getUrl_AdminPage();
-		foreach ( $aNav as $sNavItem => &$sLink ) {
+		foreach ( $aTopNav as $sNavItem => &$sLink ) {
 			$sLink = add_query_arg( [ 'subnav' => $sNavItem ], $aPageBase );
 		}
+
+		$aTopNav = array_map(
+			function ( $sKey ) use ( $sSubNavSection ) {
+				return array(
+					'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
+					'name'   => ucfirst( $sKey ),
+					'active' => $sKey === $sSubNavSection
+				);
+			},
+			array(
+				'insights',
+				'configuration',
+				'scan',
+				'notes',
+				'original',
+			)
+		);
 
 		$aData = $this->loadDP()
 					  ->mergeArraysRecursive(
 						  array(
 							  'hrefs'   => array(
-								  'nav' => $aNav
+								  'nav_home' => $aPageBase,
+								  'top_nav'  => $aTopNav,
 							  ),
 							  'strings' => $this->getDisplayStrings(),
 						  ),

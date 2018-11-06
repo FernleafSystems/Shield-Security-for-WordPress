@@ -6,21 +6,18 @@
 	<div class="row">
 		<div class="col-12">
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
-				<a class="navbar-brand" href="{{ hrefs.nav.insights }}">Shield Security</a>
+				<a class="navbar-brand" href="{{ hrefs.nav_home }}">Shield Security</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
 						aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 				<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 					<div class="navbar-nav">
-						<a class="nav-item nav-link active" href="{{ hrefs.nav.insights }}">
-							Insights <span class="sr-only">(current)</span>
-						</a>
-						<a class="nav-item nav-link" href="{{ hrefs.nav.config }}">Configuration</a>
-						<a class="nav-item nav-link" href="{{ hrefs.nav.scan }}">Scan</a>
-						<a class="nav-item nav-link" href="{{ hrefs.nav.notes }}">Notes</a>
-						<a class="nav-item nav-link" href="{{ hrefs.nav.original }}" style="color: darkred;">Original</a>
-						<a class="nav-item nav-link disabled" href="#">Disabled</a>
+						{% for navkey,navdata in hrefs.top_nav %}
+							<a class="nav-item nav-link{% if navdata.active %} active{% endif %}"
+							   href="{{ navdata.href }}">{{ navdata.name }}
+								{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
+						{% endfor %}
 					</div>
 				</div>
 				<form class="form-inline">
