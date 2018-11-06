@@ -18,11 +18,8 @@
 					<tbody>
 					{% for ip in vars.insight_ips.black %}
 						<tr>
-							<td>{{ ip.ip }}
-								{% if ip.is_you %}<br/>(you){% endif %}
-							</td>
-							<td>{{ ip.trans }}
-								<br />({{ ip.last_access_at }})</td>
+							<td>{{ ip.ip }}{% if ip.is_you %}<br/>(you){% endif %}</td>
+							<td>{{ ip.trans }}<br />({{ ip.last_access_at }})</td>
 							<td>{% if ip.blocked %}Yes{% else %}No{% endif %}</td>
 						</tr>
 					{% endfor %}

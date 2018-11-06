@@ -260,38 +260,49 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					 ->getModule( 'ips' );
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $oMod->getProcessor();
-		$oIpService = $this->loadIpService();
-		$sYourIp = $oIpService->getRequestIp();
 
 		$aData = array(
 			'white' => array(),
 			'black' => array(),
 		);
 		foreach ( $oPro->getWhitelistIpsData() as $oIp ) {
-			$aData[ 'white' ][] = array(
-				'ip'     => $oIp->getIp(),
-				'label'  => $oIp->getLabel(),
-				'is_you' => $oIpService->checkIp( $sYourIp, $oIp->getIp() ),
-			);
+			$aData[ 'white' ][] = $this->parseIp( $oIp );
 		}
-
-		$nLimit = $oMod->getOptTransgressionLimit();
-		$oCarbon = new \Carbon\Carbon();
 		foreach ( $oPro->getAutoBlacklistIpsData() as $oIp ) {
-			$nTrans = $oIp->getTransgressions();
-			$aData[ 'black' ][] = array(
-				'ip'             => $oIp->getIp(),
-				'trans'          => sprintf( _n( '%s transgression', '%s transgressions', $nTrans, 'wp-simple-firewall' ), $nTrans ),
-				'last_access_at' => $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
-				'blocked'        => $nTrans >= $nLimit,
-				'is_you'         => $oIpService->checkIp( $sYourIp, $oIp->getIp() ),
-			);
+			$aData[ 'black' ][] = $this->parseIp( $oIp );
 		}
 
 		$aData[ 'has_white' ] = !empty( $aData[ 'white' ] );
 		$aData[ 'has_black' ] = !empty( $aData[ 'black' ] );
 
 		return $aData;
+	}
+
+	/**
+	 * @param ICWP_WPSF_IpsEntryVO $oIp
+	 * @return array
+	 */
+	private function parseIp( $oIp ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getConn()
+					 ->getModule( 'ips' );
+		$oIpService = $this->loadIpService();
+		$nTrans = $oIp->getTransgressions();
+		try {
+			$bYou = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
+		}
+		catch ( Exception $oE ) {
+			$bYou = false;
+		}
+
+		return array(
+			'ip'             => $oIp->getIp(),
+			'trans'          => sprintf( _n( '%s transgression', '%s transgressions', $nTrans, 'wp-simple-firewall' ), $nTrans ),
+			'last_access_at' => ( new \Carbon\Carbon() )->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans(),
+			'blocked'        => $nTrans >= $oMod->getOptTransgressionLimit(),
+			'is_you'         => $bYou,
+			'label'          => $oIp->getLabel(),
+		);
 	}
 
 	/**
