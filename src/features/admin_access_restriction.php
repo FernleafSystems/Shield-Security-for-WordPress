@@ -269,7 +269,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
 		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->getSecAdminAt() );
+			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()
+																					   ->getSecAdminAt() );
 		}
 		return max( 0, $nLeft );
 	}
@@ -415,9 +416,18 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function addInsightsConfigData( $aAllSummaryData ) {
 		$aAllSummaryData[ $this->getSlug() ] = array(
-			'strings' => array(
+			'strings'  => array(
 				'title' => _wpsf__( 'Security Admin' ),
 				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
+			),
+			'key_opts' => array(
+				'mod' => array(
+					'name'    => _wpsf__( 'Security Admin' ),
+					'enabled' => $this->isEnabledForUiSummary(),
+					'summary' => $this->isEnabledForUiSummary() ?
+						_wpsf__( 'Security plugin is protected against tampering' )
+						: _wpsf__( 'Security plugin is vulnerable to tampering' )
+				)
 			)
 		);
 		return $aAllSummaryData;

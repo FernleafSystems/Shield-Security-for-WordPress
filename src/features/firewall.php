@@ -63,6 +63,15 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 			'strings' => array(
 				'title' => _wpsf__( 'Firewall' ),
 				'sub'   => _wpsf__( 'Block Malicious Requests' ),
+			),
+			'key_opts' => array(
+				'mod' => array(
+					'name'    => _wpsf__( 'Firewall' ),
+					'enabled' => $this->isModOptEnabled(),
+					'summary' => $this->isModOptEnabled() ?
+						_wpsf__( 'Your site is protected against malicious requests' )
+						: _wpsf__( 'Your site is not protected against malicious requests' )
+				)
 			)
 		);
 		return $aAllSummaryData;

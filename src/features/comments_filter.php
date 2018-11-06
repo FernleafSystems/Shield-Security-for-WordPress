@@ -136,9 +136,25 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function addInsightsConfigData( $aAllSummaryData ) {
 		$aAllSummaryData[ $this->getSlug() ] = array(
-			'strings' => array(
+			'strings'  => array(
 				'title' => _wpsf__( 'SPAM Blocking' ),
 				'sub'   => _wpsf__( 'Block Bot & Human Comment SPAM' ),
+			),
+			'key_opts' => array(
+				'bot'   => array(
+					'name'    => _wpsf__( 'Bot SPAM' ),
+					'enabled' => $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled(),
+					'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
+						_wpsf__( 'Bot SPAM comments are being blocked' )
+						: _wpsf__( 'There is no protection against Bot SPAM comments' )
+				),
+				'human' => array(
+					'name'    => _wpsf__( 'Human SPAM' ),
+					'enabled' => $this->isEnabledHumanCheck(),
+					'summary' => $this->isEnabledHumanCheck() ?
+						_wpsf__( 'Comments by humans are being checked for SPAM' )
+						: _wpsf__( 'Comments by humans are not being checked for SPAM' )
+				),
 			)
 		);
 		return $aAllSummaryData;
@@ -204,7 +220,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isGoogleRecaptchaEnabled() {
-		return ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isGoogleRecaptchaReady() );
+		return $this->isModOptEnabled() &&
+			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isGoogleRecaptchaReady() );
 	}
 
 	/**
@@ -218,10 +235,18 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->isOpt( 'enable_comments_gasp_protection', 'Y' );
+		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' );
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledHumanCheck() {
+		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_human_spam_filter', 'Y' );
+	}
+
+	/**
+	 * @param bool $bEnabled
 	 * @return $this
 	 */
 	public function setEnabledGasp( $bEnabled = true ) {

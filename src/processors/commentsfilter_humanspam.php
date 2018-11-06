@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 
 		$sCurrentStatus = $this->getStatus();
 		// Check that we haven't already marked the comment through another scan, say GASP
-		if ( !empty( $sCurrentStatus ) || !$oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) ) {
+		if ( !empty( $sCurrentStatus ) ) {
 			return;
 		}
 		// read the file of spam words

@@ -293,7 +293,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				'mod' => array(
 					'name'    => _wpsf__( 'Audit Trail' ),
 					'enabled' => $this->isModOptEnabled(),
-					'summary' => sprintf( _wpsf__( 'Audit Trail module is %s' ), $this->isModOptEnabled() ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' ) )
+					'summary' => $this->isModOptEnabled() ?
+						_wpsf__( 'Important events on your site are being logged' )
+						: _wpsf__( 'Important events on your site are not being logged' )
 				)
 			)
 		);

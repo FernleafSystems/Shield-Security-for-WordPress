@@ -9,9 +9,9 @@
 				</div>
 				<div class="card-body">
 					<div class="">
-						<table class="table table-borderless">
+						<table class="table table-borderless table-key_opts">
 							{% for opt_key,opt in config_card.key_opts|default([]) %}
-								<tr class="table-row-{{ opt_key }}">
+								<tr class="row-{{ opt_key }} row-key_opt {%  if opt.enabled %}table-success{% else %}table-warning{% endif %}">
 									<th>{{ opt.name }}</th>
 									<td>{{ opt.summary }}</td>
 									<td>{{ opt.enabled }}</td>

@@ -181,6 +181,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			'strings' => array(
 				'title' => _wpsf__( 'Automatic Updates' ),
 				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
+			),
+			'key_opts' => array(
+				'mod' => array(
+					'name'    => _wpsf__( 'Audit Trail' ),
+					'enabled' => $this->isModOptEnabled(),
+					'summary' => sprintf( _wpsf__( 'Audit Trail module is %s' ), $this->isModOptEnabled() ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' ) )
+				)
 			)
 		);
 		return $aAllSummaryData;
