@@ -509,16 +509,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aStats = $oStats->getInsightsStats();
 		return array(
-			'transgressions' => array(
-				'title'   => _wpsf__( 'Transgressions' ),
-				'val'     => $aStats[ 'ip.transgression.incremented' ],
-				'tooltip' => _wpsf__( 'Total transgression against the site.' )
-			),
-			'ip_blocks'      => array(
-				'title'   => _wpsf__( 'IP Blocks' ),
-				'val'     => $aStats[ 'ip.connection.killed' ],
-				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
-			),
 			'login'          => array(
 				'title'   => _wpsf__( 'Login Blocks' ),
 				'val'     => $aStats[ 'login.blocked.all' ],
@@ -534,10 +524,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'val'     => $aStats[ 'comments.blocked.all' ],
 				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
 			),
-			'sessions'       => array(
-				'title'   => _wpsf__( 'Active Sessions' ),
-				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
-				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+//			'sessions'       => array(
+//				'title'   => _wpsf__( 'Active Sessions' ),
+//				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
+//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+//			),
+			'transgressions' => array(
+				'title'   => _wpsf__( 'Transgressions' ),
+				'val'     => $aStats[ 'ip.transgression.incremented' ],
+				'tooltip' => _wpsf__( 'Total transgression against the site.' )
+			),
+			'ip_blocks'      => array(
+				'title'   => _wpsf__( 'IP Blocks' ),
+				'val'     => $aStats[ 'ip.connection.killed' ],
+				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
@@ -546,11 +546,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  ->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
-			'pro'            => array(
-				'title'   => _wpsf__( 'Pro' ),
-				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
-			),
+//			'pro'            => array(
+//				'title'   => _wpsf__( 'Pro' ),
+//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
+//				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
+//			),
 		);
 	}
 
