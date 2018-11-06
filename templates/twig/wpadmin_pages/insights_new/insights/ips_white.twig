@@ -6,14 +6,22 @@
 	<div class="card-body overflow_container">
 		<div class="overflow_inner">
 			{% if vars.insight_ips.has_white %}
-				{% for ip in vars.insight_ips.white %}
-					<dl class="row">
-						<dt class="col-6">{{ ip.ip }}
-							{% if ip.is_you %}<br/>(you){% endif %}
-						</dt>
-						<dd class="col-6">{{ ip.label }}</dd>
-					</dl>
-				{% endfor %}
+				<table class="table mb-0 table-borderless">
+					<thead>
+						<tr>
+							<th>IP Address</th>
+							<th>Label</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for ip in vars.insight_ips.white %}
+						<tr>
+							<td>{{ ip.ip }}{% if ip.is_you %}<br/>(you){% endif %}</td>
+							<td>{{ ip.label }}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
 			{% else %}
 				There are currently no whitelisted IP addresses.
 			{% endif %}
