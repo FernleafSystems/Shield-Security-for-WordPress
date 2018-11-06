@@ -47,6 +47,25 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array();
 				break;
 
+			case 'ips':
+				$aData = array(
+					'vars' => array(
+						'insight_ips' => $this->getIps(),
+					),
+				);
+				break;
+
+			case 'audit':
+				$aData = array(
+					'vars'  => array(
+						'audit_trail_recent' => $aRecentAuditTrail,
+					),
+					'flags' => array(
+						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
+					),
+				);
+				break;
+
 			case 'scan':
 				$aData = array();
 				break;
@@ -58,13 +77,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array(
 					'vars'   => array(
 						'summary'               => $this->getInsightsModsSummary(),
-						'audit_trail_recent'    => $aRecentAuditTrail,
 						'insight_events'        => $this->getRecentEvents(),
 						'insight_notices'       => $aSecNotices,
 						'insight_notices_count' => $nNoticesCount,
 						'insight_stats'         => $this->getStats(),
-						'insight_notes'         => $aNotes,
-						'insight_ips'           => $this->getIps(),
 					),
 					'inputs' => array(
 						'license_key' => array(
@@ -89,40 +105,29 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 		}
 
-		$aTopNav = array_flip( array(
-			'insights',
-			'config',
-			'scan',
-			'notes',
-			'original',
-		) );
-		$aPageBase = $this->getUrl_AdminPage();
-		foreach ( $aTopNav as $sNavItem => &$sLink ) {
-			$sLink = add_query_arg( [ 'subnav' => $sNavItem ], $aPageBase );
-		}
-
-		$aTopNav = array_map(
-			function ( $sKey ) use ( $sSubNavSection ) {
-				return array(
-					'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
-					'name'   => ucfirst( $sKey ),
-					'active' => $sKey === $sSubNavSection
-				);
-			},
-			array(
-				'insights',
-				'configuration',
-				'scan',
-				'notes',
-				'original',
-			)
+		$aTopNav = array(
+			'insights' => _wpsf__( 'Overview' ),
+			'config'   => _wpsf__( 'Configuration' ),
+			'scan'     => _wpsf__( 'Scan' ),
+			'ips'      => _wpsf__( 'IP Lists' ),
+			'audit'    => _wpsf__( 'Audit Trail' ),
+			'traffic'  => _wpsf__( 'Traffic' ),
+			'notes'    => _wpsf__( 'Notes' ),
+			'original' => _wpsf__( 'ORIGINAL' ),
 		);
+		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
+			$sName = array(
+				'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
+				'name'   => $sName,
+				'active' => $sKey === $sSubNavSection
+			);
+		} );
 
 		$aData = $this->loadDP()
 					  ->mergeArraysRecursive(
 						  array(
 							  'hrefs'   => array(
-								  'nav_home' => $aPageBase,
+								  'nav_home' => $this->getUrl_AdminPage(),
 								  'top_nav'  => $aTopNav,
 							  ),
 							  'strings' => $this->getDisplayStrings(),
