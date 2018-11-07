@@ -704,7 +704,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'summary' => $bBotLogin ?
 					_wpsf__( 'Login forms are protected against bot attacks' )
 					: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			);
 			$aThis[ 'key_opts' ][ 'bot_register' ] = array(
 				'name'    => _wpsf__( 'Bot User Register' ),
@@ -712,7 +713,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'summary' => $bBotRegister ?
 					_wpsf__( 'Registration forms are protected against bot attacks' )
 					: _wpsf__( 'Registration forms are not protected against automated bots' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			);
 			$aThis[ 'key_opts' ][ 'bot_password' ] = array(
 				'name'    => _wpsf__( 'Brute Force Lost Password' ),
@@ -720,7 +722,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'summary' => $bBotPassword ?
 					_wpsf__( 'Lost Password forms are protected against bot attacks' )
 					: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			);
 
 			$bHas2Fa = $this->isEmailAuthenticationActive()
@@ -731,7 +734,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'summary' => $bHas2Fa ?
 					_wpsf__( 'At least 1 2FA option is enabled' )
 					: _wpsf__( 'No 2FA options, such as Google Authenticator, are active' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_2fa_email' ),
 			);
 		}
 

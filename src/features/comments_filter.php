@@ -153,7 +153,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
 					_wpsf__( 'Bot SPAM comments are being blocked' )
 					: _wpsf__( 'There is no protection against Bot SPAM comments' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_bot_comment_spam_protection_filter' ),
 			);
 			$aThis[ 'key_opts' ][ 'human' ] = array(
 				'name'    => _wpsf__( 'Human SPAM' ),
@@ -161,7 +162,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				'summary' => $this->isEnabledHumanCheck() ?
 					_wpsf__( 'Comments by humans are being checked for SPAM' )
 					: _wpsf__( 'Comments by humans are not being checked for SPAM' ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_human_spam_filter' ),
 			);
 		}
 

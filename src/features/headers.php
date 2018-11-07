@@ -152,7 +152,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'summary' => $bAllEnabled ?
 					_wpsf__( 'All important security Headers have been set' )
 					: _wpsf__( "At least one of the HTTP Headers hasn't been set" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_security_headers' ),
 			);
 			$bCsp = $this->isContentSecurityPolicyEnabled();
 			$aThis[ 'key_opts' ][ 'csp' ] = array(
@@ -161,7 +162,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'summary' => $bCsp ?
 					_wpsf__( 'Content Security Policy is turned on' )
 					: _wpsf__( "Content Security Policies aren't active" ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
 			);
 		}
 

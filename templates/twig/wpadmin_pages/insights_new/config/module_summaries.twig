@@ -33,7 +33,12 @@
 								>
 									<th>{{ opt.name }}</th>
 									<td>{{ opt.summary }}</td>
-									<td>{{ opt.enabled }}</td>
+									<td>
+										{% if opt.href is defined %}
+											<a href="{{ opt.href }}" target="_blank"
+											   title="Go To Options">&nearr;</a>
+										{% endif %}
+									</td>
 								</tr>
 
 							{% endfor %}

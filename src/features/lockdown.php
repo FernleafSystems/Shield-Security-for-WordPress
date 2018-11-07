@@ -109,7 +109,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'summary' => $bEditing ?
 					_wpsf__( 'File editing is disabled' )
 					: _wpsf__( "File editing is permitted through WP admin" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
 			);
 
 			$bXml = $this->isXmlrpcDisabled();
@@ -119,7 +120,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'summary' => $bXml ?
 					_wpsf__( 'XML-RPC is disabled' )
 					: _wpsf__( "XML-RPC is not blocked" ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'disable_xmlrpc' ),
 			);
 
 			$bApi = $this->isRestApiAnonymousAccessDisabled();
@@ -129,7 +131,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'summary' => $bApi ?
 					_wpsf__( 'Anonymous REST API access is disabled' )
 					: _wpsf__( "Anonymous REST API access is allowed" ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'disable_anonymous_restapi' ),
 			);
 		}
 

@@ -350,7 +350,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				'summary' => $this->isModOptEnabled() ?
 					_wpsf__( 'Important events on your site are being logged' )
 					: _wpsf__( 'Important events on your site are not being logged' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_audit_trail' ),
 			);
 
 			$aAudit = array();
@@ -368,7 +369,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					'name'    => _wpsf__( 'Audit Areas' ),
 					'enabled' => true,
 					'summary' => sprintf( _wpsf__( 'All important areas are audited: %s' ), implode( ', ', $aAudit ) ),
-					'weight'  => 2
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				);
 			}
 			else if ( empty( $aAudit ) ) {
@@ -376,7 +378,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					'name'    => _wpsf__( 'Audit Areas' ),
 					'enabled' => false,
 					'summary' => sprintf( _wpsf__( 'No areas are set to be audited: %s' ), implode( ', ', $aAudit ) ),
-					'weight'  => 2
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				);
 			}
 			else {
@@ -384,20 +387,23 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					'name'    => _wpsf__( 'Audit Areas' ),
 					'enabled' => true,
 					'summary' => sprintf( _wpsf__( 'Important areas are being audited: %s' ), implode( ', ', $aAudit ) ),
-					'weight'  => 2
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				);
 				$aThis[ 'key_opts' ][ 'nonaudit' ] = array(
 					'name'    => _wpsf__( 'Audit Areas' ),
 					'enabled' => false,
 					'summary' => sprintf( _wpsf__( "Important areas aren't being audited: %s" ), implode( ', ', $aNonAudit ) ),
-					'weight'  => 2
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				);
 
 				$aThis[ 'key_opts' ][ 'length' ] = array(
 					'name'    => _wpsf__( 'Audit Trail' ),
 					'enabled' => true,
 					'summary' => sprintf( _wpsf__( 'Maximum Audit Trail entries limited to %s' ), $this->getMaxEntries() ),
-					'weight'  => 0
+					'weight'  => 0,
+					'href'    => $this->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
 				);
 			}
 		}

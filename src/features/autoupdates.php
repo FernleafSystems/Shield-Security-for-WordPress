@@ -68,6 +68,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
+	public function isAllAutomaticUpdatesDisabled() {
+		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isAutoupdateAllPlugins() {
 		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
 	}
@@ -189,26 +196,43 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$oWp = $this->loadWp();
-			$bCanCore = $oWp->canCoreUpdateAutomatically();
-			$aThis[ 'key_opts' ][ 'core_minor' ] = array(
-				'name'    => _wpsf__( 'Core Updates' ),
-				'enabled' => $bCanCore,
-				'summary' => $bCanCore ?
-					_wpsf__( 'Minor WP Core updates will be installed automatically' )
-					: _wpsf__( 'Minor WP Core updates will not be installed automatically' ),
-				'weight'  => 2
-			);
 
-			$bHasDelay = $this->isModOptEnabled() && $this->getDelayUpdatesPeriod();
-			$aThis[ 'key_opts' ][ 'delay' ] = array(
-				'name'    => _wpsf__( 'Update Delay' ),
-				'enabled' => $bHasDelay,
-				'summary' => $bHasDelay ?
-					_wpsf__( 'Automatic updates are applied after a short delay' )
-					: _wpsf__( 'Automatic updates are applied immediately' ),
-				'weight'  => 1
-			);
+			$bAllDisabled = $this->isAllAutomaticUpdatesDisabled();
+			if ( $bAllDisabled ) {
+				$aThis[ 'key_opts' ][ 'disabled' ] = array(
+					'name'    => _wpsf__( 'Disabled All' ),
+					'enabled' => !$bAllDisabled,
+					'summary' => $bAllDisabled ?
+						_wpsf__( 'All automatic updates on this site are disabled' )
+						: _wpsf__( 'The automatic updates system is enabled' ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+				);
+			}
+			else {
+				$oWp = $this->loadWp();
+				$bCanCore = $oWp->canCoreUpdateAutomatically();
+				$aThis[ 'key_opts' ][ 'core_minor' ] = array(
+					'name'    => _wpsf__( 'Core Updates' ),
+					'enabled' => $bCanCore,
+					'summary' => $bCanCore ?
+						_wpsf__( 'Minor WP Core updates will be installed automatically' )
+						: _wpsf__( 'Minor WP Core updates will not be installed automatically' ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_core' ),
+				);
+
+				$bHasDelay = $this->isModOptEnabled() && $this->getDelayUpdatesPeriod();
+				$aThis[ 'key_opts' ][ 'delay' ] = array(
+					'name'    => _wpsf__( 'Update Delay' ),
+					'enabled' => $bHasDelay,
+					'summary' => $bHasDelay ?
+						_wpsf__( 'Automatic updates are applied after a short delay' )
+						: _wpsf__( 'Automatic updates are applied immediately' ),
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToOption( 'update_delay' ),
+				);
+			}
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;

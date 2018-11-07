@@ -440,7 +440,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'summary' => $this->isEnabledForUiSummary() ?
 					_wpsf__( 'Security plugin is protected against tampering' )
 					: _wpsf__( 'Security plugin is vulnerable to tampering' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_key' ),
 			);
 
 			$bWpOpts = $this->getAdminAccessArea_Options();
@@ -450,7 +451,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'summary' => $bWpOpts ?
 					_wpsf__( 'Important WP options are protected against tampering' )
 					: _wpsf__( "Important WP options aren't protected against tampering" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
 			);
 
 			$bUsers = $this->isAdminAccessAdminUsersEnabled();
@@ -460,7 +462,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'summary' => $bUsers ?
 					_wpsf__( 'Admin users are protected against tampering' )
 					: _wpsf__( "Admin users aren't protected against tampering" ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
 			);
 		}
 
@@ -480,7 +483,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		);
 
 		{//sec admin
-			if ( ! $this->isEnabledSecurityAdmin() ) {
+			if ( !$this->isEnabledSecurityAdmin() ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(

@@ -84,7 +84,8 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				'summary' => $this->isModOptEnabled() ?
 					_wpsf__( 'Your site is protected against malicious requests' )
 					: _wpsf__( 'Your site is not protected against malicious requests' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
 			);
 
 			//ignoring admin isn't a good idea
@@ -95,7 +96,8 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				'summary' => $bAdminIncluded ?
 					_wpsf__( "Firewall rules are also applied to admins" )
 					: _wpsf__( "Firewall rules aren't applied to admins" ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'whitelist_admins' ),
 			);
 		}
 

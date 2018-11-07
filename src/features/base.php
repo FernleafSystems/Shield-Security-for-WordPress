@@ -463,6 +463,31 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sOptKey
+	 * @return string
+	 */
+	protected function getUrl_DirectLinkToOption( $sOptKey ) {
+		$sUrl = $this->getUrl_AdminPage();
+		$aDef = $this->getOptionsVo()->getOptDefinition( $sOptKey );
+		if ( !empty( $aDef[ 'section' ] ) ) {
+			$sUrl = $this->getUrl_DirectLinkToSection( $aDef[ 'section' ] );
+		}
+		return $sUrl;
+	}
+
+	/**
+	 * @param string $sSection
+	 * @return string
+	 */
+	protected function getUrl_DirectLinkToSection( $sSection ) {
+		if ( $sSection == 'primary' ) {
+			$aSec = $this->getOptionsVo()->getPrimarySection();
+			$sSection = $aSec[ 'slug' ];
+		}
+		return $this->getUrl_AdminPage().'#pills-'.$sSection;
+	}
+
+	/**
 	 * TODO: Get rid of this crap and/or handle the Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
 	 */
@@ -517,8 +542,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isModOptEnabled() {
-		return $this->isOpt( 'enable_'.$this->getSlug(), 'Y' )
-			   || $this->isOpt( 'enable_'.$this->getSlug(), true, true );
+		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
+			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getEnableModOptKey() {
+		return 'enable_'.$this->getSlug();
 	}
 
 	/**

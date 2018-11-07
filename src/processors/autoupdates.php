@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
 		}
 
-		if ( $oFO->isOpt( 'enable_autoupdate_disable_all', 'Y' ) ) {
+		if ( $oFO->isAllAutomaticUpdatesDisabled() ) {
 			add_filter( 'automatic_updater_disabled', '__return_true', $nFilterPriority );
 		}
 

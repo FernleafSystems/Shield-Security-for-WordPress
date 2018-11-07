@@ -754,6 +754,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
+			$bGoodFrequency = $this->getScanFrequency() > 1;
+			$aThis[ 'key_opts' ][ 'frequency' ] = array(
+				'name'    => _wpsf__( 'Scan Frequency' ),
+				'enabled' => $bGoodFrequency,
+				'summary' => $bGoodFrequency ?
+					_wpsf__( 'Automatic scanners run more than once per day' )
+					: _wpsf__( "Automatic scanners only run once per day" ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
+			);
+
 			$bCore = $this->isWcfScanEnabled();
 			$aThis[ 'key_opts' ][ 'wcf' ] = array(
 				'name'    => _wpsf__( 'WP Core File Scan' ),
@@ -761,7 +772,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'summary' => $bCore ?
 					_wpsf__( 'Regularly scanning of Core files are for hacks' )
 					: _wpsf__( "Core files are never scanned for hacks!" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 			);
 			if ( $bCore && !$this->isWcfScanAutoRepair() ) {
 				$aThis[ 'key_opts' ][ 'wcf_repair' ] = array(
@@ -770,7 +782,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'summary' => $this->isWcfScanAutoRepair() ?
 						_wpsf__( 'Core files are automatically repaired' )
 						: _wpsf__( "Core files aren't automatically repaired!" ),
-					'weight'  => 1
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 				);
 			}
 
@@ -781,7 +794,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'summary' => $bUcf ?
 					_wpsf__( 'Regularly scanning for unrecognised files' )
 					: _wpsf__( "WP Core is never scanned for unrecognised files!" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 			);
 			if ( $bUcf && !$this->isUfcDeleteFiles() ) {
 				$aThis[ 'key_opts' ][ 'ufc_repair' ] = array(
@@ -790,7 +804,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'summary' => $this->isUfcDeleteFiles() ?
 						_wpsf__( 'Unrecognised files are automatically removed' )
 						: _wpsf__( "Unrecognised files aren't automatically removed!" ),
-					'weight'  => 1
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 				);
 			}
 
@@ -801,7 +816,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'summary' => $bWpv ?
 					_wpsf__( 'Regularly scanning for known vulnerabilities' )
 					: _wpsf__( "Plugins/Themes never scanned for vulnerabilities!" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 			);
 			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
 				$aThis[ 'key_opts' ][ 'wpv_repair' ] = array(
@@ -810,7 +826,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
 						_wpsf__( 'Vulnerable items are automatically updated' )
 						: _wpsf__( "Vulnerable items aren't automatically updated!" ),
-					'weight'  => 1
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 				);
 			}
 
@@ -821,7 +838,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'summary' => $bPtg ?
 					_wpsf__( 'Plugins and Themes are guarded against tampering' )
 					: _wpsf__( "Plugins and Themes are never scanned for tampering!" ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 			);
 		}
 

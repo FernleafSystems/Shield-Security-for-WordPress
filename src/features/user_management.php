@@ -328,7 +328,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				'summary' => $bHadIdle ?
 					_wpsf__( 'Idle sessions will be terminated' )
 					: _wpsf__( 'Idle sessions wont be terminated' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
 			);
 
 			$bLocked = $this->isLockToIp();
@@ -338,7 +339,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				'summary' => $bLocked ?
 					_wpsf__( 'Sessions are locked to IP address' )
 					: _wpsf__( "Sessions aren't locked to IP address" ),
-				'weight'  => 1
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'session_lock_location' ),
 			);
 
 			$bPolicies = $this->isPasswordPoliciesEnabled();
@@ -350,7 +352,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				'summary' => $bPwned ?
 					_wpsf__( 'Pwned passwords are blocked on this site' )
 					: _wpsf__( 'Pwned passwords are allowed on this site' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
 			);
 
 			$bIndepthPolices = $bPolicies && $this->isPremium();
@@ -360,7 +363,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				'summary' => $bIndepthPolices ?
 					_wpsf__( 'Several password policies are active' )
 					: _wpsf__( 'Limited or no password polices are active' ),
-				'weight'  => 2
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
 			);
 		}
 

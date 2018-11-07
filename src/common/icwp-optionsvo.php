@@ -256,6 +256,20 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getPrimarySection() {
+		$aSec = array();
+		foreach ( $this->getSections() as $aS ) {
+			if ( isset( $aS[ 'primary' ] ) && $aS[ 'primary' ] ) {
+				$aSec = $aS;
+				break;
+			}
+		}
+		return $aSec;
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return array
 	 */
@@ -422,6 +436,21 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $mDefault;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return array
+	 */
+	public function getOptDefinition( $sOptionKey ) {
+		$aDef = array();
+		foreach ( $this->getRawData_AllOptions() as $aOption ) {
+			if ( $aOption[ 'key' ] == $sOptionKey ) {
+				$aDef = $aOption;
+				break;
+			}
+		}
+		return $aDef;
 	}
 
 	/**
@@ -730,7 +759,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $mNewValue );
 		// basically if we're actually resetting back to the original value
 		$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $sOptKey )
-						   && ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
+						&& ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
 
 		if ( $bValueIsDifferent && $this->verifyCanSet( $sOptKey, $mNewValue ) ) {
 			$this->setNeedSave( true );
