@@ -75,13 +75,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			case 'traffic':
 				$aData = array(
-					'ajax'              => array(
+					'ajax'    => array(
 						'render_table' => $oTrafficMod->getAjaxActionData( 'render_traffic_table', true )
 					),
-					'vars'  => array(
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
 					),
-					'flags' => array(
-					)
+					'vars'  => array(),
+					'flags' => array()
 				);
 				break;
 

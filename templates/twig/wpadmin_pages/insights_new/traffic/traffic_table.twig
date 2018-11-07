@@ -1,5 +1,71 @@
+<div class="row insights_widget" id="SectionTrafficTable">
 
-<div class="icwpAjaxTableContainer"></div>
+	<div class="col-lg-10 col-md-9 col-sm-8">
+		<div class="icwpAjaxTableContainer"></div>
+	</div>
+
+	<div class="col-lg-2 col-md-3 col-sm-4">
+
+		<h6 class="mt-3">{{ strings.title_filter_form }}</h6>
+		<div class="" id="">
+			<p class="alert alert-info">Use the form items below to filter display of entries in the log table.</p>
+			<form id="TrafficFilter">
+				<div class="form-group">
+					<label for="_fIp">IP Address</label>
+					<input type="text" id="_fIp" name="fIp" placeholder="IP Address"
+						   class="form-control-plaintext" />
+					<small id="emailHelp" class="form-text text-muted">asdfasdf.</small>
+				</div>
+				<div class="form-group">
+					<label for="_fIp">IP Address</label>
+					<input type="text" id="_fPath" name="fPath" placeholder="Page/Path Contains..."
+						   class="form-control-plaintext" />
+				</div>
+				<div class="form-group">
+					<label for="_fResponse">Response</label>
+					<input type="text" id="_fResponse" name="fResponse" placeholder="e.g. 200"
+						   class="form-control-plaintext" />
+				</div>
+				<div class="form-group">
+					<label for="_fUsername">Username (ignores 'Logged-In' filter)</label>
+					<input type="text" id="_fUsername" name="fUsername"
+						   placeholder=""
+						   class="form-control-plaintext" />
+				</div>
+				<div class="form-group">
+					<label for="_fLoggedIn">Logged-In?</label>
+					<select id="_fLoggedIn" name="fLoggedIn" class="form-control">
+						<option value="-1" selected>-- select --</option>
+						<option value="1">Yes</option>
+						<option value="0">No</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="_fTransgression">Transgression?</label>
+					<select id="_fTransgression" name="fTransgression" class="form-control">
+						<option value="-1" selected>-- select --</option>
+						<option value="1">Yes</option>
+						<option value="0">No</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label class="form-check-label" for="_fExludeYou" title="<?php echo $sYourIp; ?>">
+						Exclude Your Current IP?</label>
+					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
+						   class="form-control" />
+				</div>
+				<div class="form-group">
+					<a id="ClearForm" href="#" class="btn btn-outline-danger">Clear Filters</a>
+				</div>
+
+			</form>
+		</div>
+	</div>
+
+</div>
+
+
+
 
 <script>
 
