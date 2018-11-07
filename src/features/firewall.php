@@ -86,6 +86,17 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 					: _wpsf__( 'Your site is not protected against malicious requests' ),
 				'weight'  => 2
 			);
+
+			//ignoring admin isn't a good idea
+			$bAdminIncluded = !$this->isIgnoreAdmin();
+			$aThis[ 'key_opts' ][ 'admin' ] = array(
+				'name'    => _wpsf__( 'Ignore Admins' ),
+				'enabled' => $bAdminIncluded,
+				'summary' => $bAdminIncluded ?
+					_wpsf__( "Firewall rules are also applied to admins" )
+					: _wpsf__( "Firewall rules aren't applied to admins" ),
+				'weight'  => 1
+			);
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -243,6 +254,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sDescription = _wpsf__( 'Authenticated administrator users will not be processed by the firewall rules.' );
 				break;
 
+			/** removed */
 			case 'ignore_search_engines' :
 				$sName = sprintf( _wpsf__( 'Ignore %s' ), _wpsf__( 'Search Engines' ) );
 				$sSummary = _wpsf__( 'Ignore Search Engine Bot Traffic' );

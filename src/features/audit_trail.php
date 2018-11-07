@@ -383,7 +383,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$aThis[ 'key_opts' ][ 'audit' ] = array(
 					'name'    => _wpsf__( 'Audit Areas' ),
 					'enabled' => true,
-					'summary' => sprintf( _wpsf__( 'Important areas that are audited: %s' ), implode( ', ', $aAudit ) ),
+					'summary' => sprintf( _wpsf__( 'Important areas are being audited: %s' ), implode( ', ', $aAudit ) ),
 					'weight'  => 2
 				);
 				$aThis[ 'key_opts' ][ 'nonaudit' ] = array(

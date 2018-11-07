@@ -445,11 +445,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 			$bWpOpts = $this->getAdminAccessArea_Options();
 			$aThis[ 'key_opts' ][ 'wpopts' ] = array(
-				'name'    => _wpsf__( 'WP Options' ),
+				'name'    => _wpsf__( 'Important Options' ),
 				'enabled' => $bWpOpts,
 				'summary' => $bWpOpts ?
-					_wpsf__( 'Important options are protected against tampering' )
-					: _wpsf__( "Important options aren't protected against tampering" ),
+					_wpsf__( 'Important WP options are protected against tampering' )
+					: _wpsf__( "Important WP options aren't protected against tampering" ),
 				'weight'  => 2
 			);
 

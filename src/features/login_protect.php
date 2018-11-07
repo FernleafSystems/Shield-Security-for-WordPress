@@ -730,7 +730,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'enabled' => $bHas2Fa,
 				'summary' => $bHas2Fa ?
 					_wpsf__( 'At least 1 2FA option is enabled' )
-					: _wpsf__( 'No 2FA options are enabled' ),
+					: _wpsf__( 'No 2FA options, such as Google Authenticator, are active' ),
 				'weight'  => 2
 			);
 		}
