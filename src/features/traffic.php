@@ -240,7 +240,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @param array  $aParams
 	 * @return string
 	 */
-	protected function renderLiveTrafficTable( $aParams = array() ) {
+	public function renderLiveTrafficTable( $aParams = array() ) {
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
@@ -322,7 +322,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function formatEntriesForDisplay( $aEntries ) {
 
 		if ( is_array( $aEntries ) ) {
-			$oCon = $this->getController();
+			$oCon = $this->getConn();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();

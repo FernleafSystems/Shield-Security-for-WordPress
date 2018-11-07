@@ -24,6 +24,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$sSubNavSection = $this->loadRequest()->query( 'subnav' );
 
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
+		$oTrafficMod = $this->getConn()->getModule( 'traffic' );
+
 		switch ( $sSubNavSection ) {
 
 			case 'notes':
@@ -67,6 +70,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'flags' => array(
 						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
 					),
+				);
+				break;
+
+			case 'traffic':
+				$aData = array(
+					'ajax'              => array(
+						'render_table' => $oTrafficMod->getAjaxActionData( 'render_traffic_table', true )
+					),
+					'vars'  => array(
+					),
+					'flags' => array(
+					)
 				);
 				break;
 
@@ -178,6 +193,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  );
 
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTrafficTable() {
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oMod */
+		$oMod = $this->getConn()->getModule( 'traffic' );
+		return $oMod->renderLiveTrafficTable();
 	}
 
 	public function insertCustomJsVars_Admin() {

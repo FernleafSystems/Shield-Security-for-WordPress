@@ -1850,14 +1850,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_Plugin_Controller
-	 */
-	static public function getController() {
-		return self::getConn();
-	}
-
-	/**
 	 * @param array $aTransferableOptions
 	 * @return array
 	 */
@@ -1912,11 +1904,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $aData;
 	}
 
+	/** Help Video options */
+
 	/**
 	 * @return array
 	 */
-
-	/** Help Video options */
 
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', array() );
@@ -2102,5 +2094,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		return implode( '--SEP--', $aToJoin );
+	}
+
+	/**
+	 * @deprecated v7
+	 * @return ICWP_WPSF_Plugin_Controller
+	 */
+	static public function getController() {
+		return self::getConn();
 	}
 }
