@@ -88,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return int
 	 */
-	public function getSessionIdleTimeoutInterval() {
+	public function getIdleTimeoutInterval() {
 		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
 	}
 
@@ -103,7 +103,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function hasSessionIdleTimeout() {
-		return $this->isModuleEnabled() && ( $this->getSessionIdleTimeoutInterval() > 0 );
+		return $this->isModuleEnabled() && ( $this->getIdleTimeoutInterval() > 0 );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doPrePluginOptionsSave() {
-		if ( $this->getSessionIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
+		if ( $this->getIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
 			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
 		}
 	}
@@ -321,12 +321,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bHadIdle = $this->hasSessionIdleTimeout();
+			$bHasIdle = $this->hasSessionIdleTimeout();
 			$aThis[ 'key_opts' ][ 'idle' ] = array(
 				'name'    => _wpsf__( 'Idle Users' ),
-				'enabled' => $bHadIdle,
-				'summary' => $bHadIdle ?
-					_wpsf__( 'Idle sessions will be terminated' )
+				'enabled' => $bHasIdle,
+				'summary' => $bHasIdle ?
+					sprintf( _wpsf__( 'Idle sessions are terminated after %s hours' ), $this->getOpt( 'session_idle_timeout_interval' ) )
 					: _wpsf__( 'Idle sessions wont be terminated' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
@@ -543,5 +543,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$aOptionsParams[ 'summary' ] = $sSummary;
 		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
+	}
+
+	/**
+	 * @deprecated
+	 * @return int
+	 */
+	public function getSessionIdleTimeoutInterval() {
+		return $this->getIdleTimeoutInterval();
 	}
 }

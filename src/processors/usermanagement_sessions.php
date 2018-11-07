@@ -180,7 +180,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	public function getLoginIdleExpiredBoundary() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		return $this->time() - $oFO->getSessionIdleTimeoutInterval();
+		return $this->time() - $oFO->getIdleTimeoutInterval();
 	}
 
 	/**
@@ -210,7 +210,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->getLoggedInAt() > $oFO->getSessionTimeoutInterval() ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->getLastActivityAt() > $oFO->getSessionIdleTimeoutInterval() ) ) {
+			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->getLastActivityAt() > $oFO->getIdleTimeoutInterval() ) ) {
 				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
 				$nForceLogOutCode = 2;
 			} // login ip address lock
