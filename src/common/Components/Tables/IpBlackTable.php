@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'BaseIpTable.php' ) ) {
+if ( !class_exists( 'BaseIpTable' ) ) {
 	require_once( dirname( __FILE__ ).'/IpBaseTable.php' );
 }
 

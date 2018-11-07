@@ -211,7 +211,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getTrafficTable() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oMod */
 		$oMod = $this->getConn()->getModule( 'traffic' );
-		return $oMod->renderLiveTrafficTable();
+		return $oMod->renderTable();
 	}
 
 	public function insertCustomJsVars_Admin() {

@@ -24,7 +24,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'render_audit_table':
-					$aAjaxResponse = $this->ajaxExec_RenderAuditTableNew();
+					$aAjaxResponse = $this->ajaxExec_BuildAuditTable();
 					break;
 
 				default:
@@ -34,7 +34,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_RenderAuditTableNew() {
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_BuildAuditTable() {
 		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
@@ -51,16 +54,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 		return array(
 			'success' => true,
-			'html'    => $this->renderAuditTable( $aParams )
-		);
-	}
-
-	public function ajaxExec_RenderAuditTable() {
-		$sContext = $this->loadRequest()->post( 'auditcontext' );
-		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
-		return array(
-			'success' => true,
-			'html'    => $this->renderTableForContext( $sContext, $aParams )
+			'html'    => $this->renderTable( $aParams )
 		);
 	}
 
@@ -68,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @param $aParams
 	 * @return false|string
 	 */
-	protected function renderAuditTable( $aParams ) {
+	protected function renderTable( $aParams ) {
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
@@ -133,20 +127,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @param string $sContext
-	 * @return AuditTrailTable
-	 */
-	protected function getTableRendererForContext( $sContext ) {
-		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadProcessor();
-		$nCount = $oAuditTrail->countAuditEntriesForContext( $sContext );
-
-		$oTable = new AuditTrailTable();
-		return $oTable->setTotalRecords( $nCount );
-	}
-
-	/**
 	 * @return AuditTrailTable
 	 */
 	protected function getTableRenderer() {
@@ -157,49 +137,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$oTable = new AuditTrailTable();
 		return $oTable->setTotalRecords( $nCount );
-	}
-
-	/**
-	 * @param string $sContext
-	 * @param array  $aParams
-	 * @return string
-	 */
-	protected function renderTableForContext( $sContext, $aParams = array() ) {
-		$oTable = $this->getTableRendererForContext( $sContext );
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9_]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-
-		$aParams = array_merge(
-			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
-
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadProcessor();
-		$aEntries = $oAuditTrail->getAuditEntriesForContext(
-			$sContext,
-			$aParams[ 'orderby' ],
-			$aParams[ 'order' ],
-			$nPage,
-			$this->getDefaultPerPage()
-		);
-
-		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-			   ->setPerPage( $this->getDefaultPerPage() )
-			   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
 	}
 
 	/**
@@ -308,27 +245,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'plugins'   => 'Plugins',
 			'themes'    => 'Themes',
 			'emails'    => 'Emails',
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		$aContexts = $this->getAllContexts();
-
-		$aAuditTables = array();
-		foreach ( $aContexts as $sContext => $sTitle ) {
-			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
-		}
-
-		return array(
-			'aAuditTables' => $aAuditTables,
-			'aContexts'    => $aContexts,
-			'sTitle'       => _wpsf__( 'Audit Trail Viewer' ),
-			'ajax'         => array(
-				'render_audit_table' => $this->getAjaxActionData( 'render_audit_table', true )
-			)
 		);
 	}
 

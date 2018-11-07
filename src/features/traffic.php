@@ -179,20 +179,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		return array(
-			'sYourIp'           => $this->loadIpService()->getRequestIp(),
-			'sLiveTrafficTable' => $this->renderLiveTrafficTable(),
-			'sTitle'            => _wpsf__( 'Traffic Watch Viewer' ),
-			'ajax'              => array(
-				'render_table' => $this->getAjaxActionData( 'render_traffic_table', true )
-			)
-		);
-	}
-
-	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
@@ -202,7 +188,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'render_traffic_table':
-					$aAjaxResponse = $this->ajaxExec_RenderTrafficTable();
+					$aAjaxResponse = $this->ajaxExec_BuildTrafficTable();
 					break;
 
 				default:
@@ -212,7 +198,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_RenderTrafficTable() {
+	protected function ajaxExec_BuildTrafficTable() {
 		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
@@ -231,7 +217,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		);
 		return array(
 			'success' => true,
-			'html'    => $this->renderLiveTrafficTable( $aParams )
+			'html'    => $this->renderTable( $aParams )
 		);
 	}
 
@@ -240,7 +226,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @param array  $aParams
 	 * @return string
 	 */
-	public function renderLiveTrafficTable( $aParams = array() ) {
+	public function renderTable( $aParams = array() ) {
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
