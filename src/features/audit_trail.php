@@ -119,8 +119,56 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return int
 	 */
 	public function getMaxEntries() {
-		$nCustom = (int)$this->getOpt( 'audit_trail_max_entries' );
-		return $this->isPremium() ? $nCustom : $this->getDefaultMaxEntries();
+		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditEmails() {
+		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditPlugins() {
+		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditPosts() {
+		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditShield() {
+		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditThemes() {
+		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditUsers() {
+		return $this->isOpt( 'enable_audit_context_users', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditWp() {
+		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
 	}
 
 	/**
@@ -304,6 +352,54 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					: _wpsf__( 'Important events on your site are not being logged' ),
 				'weight'  => 2
 			);
+
+			$aAudit = array();
+			$aNonAudit = array();
+			$this->isAuditShield() ? $aAudit[] = 'Shield' : $aNonAudit[] = 'Shield';
+			$this->isAuditUsers() ? $aAudit[] = _wpsf__( 'users' ) : $aNonAudit[] = _wpsf__( 'users' );
+			$this->isAuditPlugins() ? $aAudit[] = _wpsf__( 'plugins' ) : $aNonAudit[] = _wpsf__( 'plugins' );
+			$this->isAuditThemes() ? $aAudit[] = _wpsf__( 'themes' ) : $aNonAudit[] = _wpsf__( 'themes' );
+			$this->isAuditPosts() ? $aAudit[] = _wpsf__( 'posts' ) : $aNonAudit[] = _wpsf__( 'posts' );
+			$this->isAuditEmails() ? $aAudit[] = _wpsf__( 'emails' ) : $aNonAudit[] = _wpsf__( 'emails' );
+			$this->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
+
+			if ( empty( $aNonAudit ) ) {
+				$aThis[ 'key_opts' ][ 'audit' ] = array(
+					'name'    => _wpsf__( 'Audit Areas' ),
+					'enabled' => true,
+					'summary' => sprintf( _wpsf__( 'All important areas are audited: %s' ), implode( ', ', $aAudit ) ),
+					'weight'  => 2
+				);
+			}
+			else if ( empty( $aAudit ) ) {
+				$aThis[ 'key_opts' ][ 'audit' ] = array(
+					'name'    => _wpsf__( 'Audit Areas' ),
+					'enabled' => false,
+					'summary' => sprintf( _wpsf__( 'No areas are set to be audited: %s' ), implode( ', ', $aAudit ) ),
+					'weight'  => 2
+				);
+			}
+			else {
+				$aThis[ 'key_opts' ][ 'audit' ] = array(
+					'name'    => _wpsf__( 'Audit Areas' ),
+					'enabled' => true,
+					'summary' => sprintf( _wpsf__( 'Important areas that are audited: %s' ), implode( ', ', $aAudit ) ),
+					'weight'  => 2
+				);
+				$aThis[ 'key_opts' ][ 'nonaudit' ] = array(
+					'name'    => _wpsf__( 'Audit Areas' ),
+					'enabled' => false,
+					'summary' => sprintf( _wpsf__( "Important areas aren't being audited: %s" ), implode( ', ', $aNonAudit ) ),
+					'weight'  => 2
+				);
+
+				$aThis[ 'key_opts' ][ 'length' ] = array(
+					'name'    => _wpsf__( 'Audit Trail' ),
+					'enabled' => true,
+					'summary' => sprintf( _wpsf__( 'Maximum Audit Trail entries limited to %s' ), $this->getMaxEntries() ),
+					'weight'  => 0
+				);
+			}
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -377,7 +473,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			case 'audit_trail_max_entries' :
 				$sName = _wpsf__( 'Max Trail Length' );
 				$sSummary = _wpsf__( 'Maximum Audit Trail Length To Keep' );
-				$sDescription = _wpsf__( 'Automatically remove any audit trail entries when this limit is exceeded.' );
+				$sDescription = _wpsf__( 'Automatically remove any audit trail entries when this limit is exceeded.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Default' ), $this->getDefaultMaxEntries() );
 				break;
 
 			case 'audit_trail_auto_clean' :

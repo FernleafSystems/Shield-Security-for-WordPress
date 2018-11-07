@@ -535,7 +535,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	protected function isYubikeyConfigReady() {
+	private function isYubikeyConfigReady() {
 		$sAppId = $this->getOpt( 'yubikey_app_id' );
 		$sApiKey = $this->getOpt( 'yubikey_api_key' );
 		return !empty( $sAppId ) && !empty( $sApiKey );
@@ -720,6 +720,17 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'summary' => $bBotPassword ?
 					_wpsf__( 'Lost Password forms are protected against bot attacks' )
 					: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
+				'weight'  => 2
+			);
+
+			$bHas2Fa = $this->isEmailAuthenticationActive()
+					   || $this->isEnabledGoogleAuthenticator() || $this->isYubikeyActive();
+			$aThis[ 'key_opts' ][ '2fa' ] = array(
+				'name'    => _wpsf__( 'Identity Verification' ),
+				'enabled' => $bHas2Fa,
+				'summary' => $bHas2Fa ?
+					_wpsf__( 'At least 1 2FA option is enabled' )
+					: _wpsf__( 'No 2FA options are enabled' ),
 				'weight'  => 2
 			);
 		}

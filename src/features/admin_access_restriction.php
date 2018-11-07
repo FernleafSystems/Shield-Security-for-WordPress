@@ -430,7 +430,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			'key_opts' => array()
 		);
 
-		if ( !$this->isModOptEnabled() ) {
+		if ( !$this->isEnabledForUiSummary() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
@@ -441,6 +441,26 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					_wpsf__( 'Security plugin is protected against tampering' )
 					: _wpsf__( 'Security plugin is vulnerable to tampering' ),
 				'weight'  => 2
+			);
+
+			$bWpOpts = $this->getAdminAccessArea_Options();
+			$aThis[ 'key_opts' ][ 'wpopts' ] = array(
+				'name'    => _wpsf__( 'WP Options' ),
+				'enabled' => $bWpOpts,
+				'summary' => $bWpOpts ?
+					_wpsf__( 'Important options are protected against tampering' )
+					: _wpsf__( "Important options aren't protected against tampering" ),
+				'weight'  => 2
+			);
+
+			$bUsers = $this->isAdminAccessAdminUsersEnabled();
+			$aThis[ 'key_opts' ][ 'adminusers' ] = array(
+				'name'    => _wpsf__( 'WP Admins' ),
+				'enabled' => $bUsers,
+				'summary' => $bUsers ?
+					_wpsf__( 'Admin users are protected against tampering' )
+					: _wpsf__( "Admin users aren't protected against tampering" ),
+				'weight'  => 1
 			);
 		}
 
