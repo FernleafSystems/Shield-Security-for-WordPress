@@ -36,7 +36,7 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByUsername( $sUsername ) {
-		return $this->addWhereEquals( 'wp_username', $sUsername );
+		return $this->addWhereEquals( 'wp_username', trim( $sUsername ) );
 	}
 
 	/**

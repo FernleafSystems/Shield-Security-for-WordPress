@@ -10,19 +10,16 @@
 		<div class="" id="">
 			<form id="AuditFilter">
 				<div class="form-group">
+					<label for="_fContext">Context</label>
+					<select id="_fContext" name="fContext" class="form-control">
+						{% for context_key,context_name in vars.contexts_for_select %}
+							<option value="{{ context_key }}" selected>{{ context_name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="form-group">
 					<label for="_fIp">IP Address</label>
 					<input type="text" id="_fIp" name="fIp" placeholder="IP Address"
-						   class="form-control-plaintext" />
-					<small id="emailHelp" class="form-text text-muted">asdfasdf.</small>
-				</div>
-				<div class="form-group">
-					<label for="_fIp">IP Address</label>
-					<input type="text" id="_fPath" name="fPath" placeholder="Page/Path Contains..."
-						   class="form-control-plaintext" />
-				</div>
-				<div class="form-group">
-					<label for="_fResponse">Response</label>
-					<input type="text" id="_fResponse" name="fResponse" placeholder="e.g. 200"
 						   class="form-control-plaintext" />
 				</div>
 				<div class="form-group">
@@ -30,18 +27,13 @@
 					<input type="text" id="_fUsername" name="fUsername"
 						   placeholder=""
 						   class="form-control-plaintext" />
+					<small id="fUsernameHelp" class="form-text text-muted">
+						Providing a username will cause the 'logged-in' filter to be ignored.
+					</small>
 				</div>
 				<div class="form-group">
 					<label for="_fLoggedIn">Logged-In?</label>
 					<select id="_fLoggedIn" name="fLoggedIn" class="form-control">
-						<option value="-1" selected>-- select --</option>
-						<option value="1">Yes</option>
-						<option value="0">No</option>
-					</select>
-				</div>
-				<div class="form-group">
-					<label for="_fTransgression">Transgression?</label>
-					<select id="_fTransgression" name="fTransgression" class="form-control">
 						<option value="-1" selected>-- select --</option>
 						<option value="1">Yes</option>
 						<option value="0">No</option>

@@ -76,7 +76,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
 					),
 					'vars'    => array(
-						'audit_trail_recent' => $aRecentAuditTrail,
+						'contexts_for_select' => $oAuditMod->getAllContexts(),
+						'audit_trail_recent'  => $aRecentAuditTrail,
 					),
 				);
 				break;

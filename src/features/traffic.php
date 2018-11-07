@@ -265,14 +265,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		);
 		$nPage = (int)$aParams[ 'paged' ];
 
-		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
-		$oTrafficPro = $this->loadProcessor();
-		$oSelector = $oTrafficPro->getProcessorLogger()
-								 ->getQuerySelector()
-								 ->setPage( $nPage )
-								 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-								 ->setLimit( $this->getDefaultPerPage() )
-								 ->setResultsAsVo( true );
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->loadProcessor();
+		$oSelector = $oPro->getProcessorLogger()
+						  ->getQuerySelector()
+						  ->setPage( $nPage )
+						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						  ->setLimit( $this->getDefaultPerPage() )
+						  ->setResultsAsVo( true );
 		// Filters
 		{
 			$oIp = $this->loadIpService();

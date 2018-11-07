@@ -7,11 +7,6 @@ if ( !class_exists( 'ICWP_BaseTable.php' ) ) {
 class AuditTrailTable extends ICWP_BaseTable {
 
 	/**
-	 * @var string
-	 */
-	protected $sAuditContext;
-
-	/**
 	 * @param array $aItem
 	 * @return string
 	 */
@@ -20,6 +15,14 @@ class AuditTrailTable extends ICWP_BaseTable {
 			max( 2, (int)( strlen( $aItem[ 'message' ] )/50 ) ),
 			sanitize_textarea_field( $aItem[ 'message' ] )
 		);
+	}
+
+	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_ip( $aItem ) {
+		return sprintf( '<div>%s</div>', $aItem[ 'ip' ] );
 	}
 
 	protected function extra_tablenav( $which ) {
@@ -31,28 +34,12 @@ class AuditTrailTable extends ICWP_BaseTable {
 	 */
 	public function get_columns() {
 		return array(
-			'created_at'  => 'Date',
 			'event'       => 'Event',
 			'message'     => 'Message',
 			'wp_username' => 'Username',
 			'ip'          => 'IP Address',
-//			'category'    => 'Category',
+			'created_at'  => 'Date',
+			//			'context'     => 'Context',
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getAuditContext() {
-		return $this->sAuditContext;
-	}
-
-	/**
-	 * @param string $sAuditContext
-	 * @return $this
-	 */
-	public function setAuditContext( $sAuditContext ) {
-		$this->sAuditContext = $sAuditContext;
-		return $this;
 	}
 }

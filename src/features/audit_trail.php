@@ -24,7 +24,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'render_audit_table':
-					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
+					$aAjaxResponse = $this->ajaxExec_RenderAuditTableNew();
 					break;
 
 				default:
@@ -34,6 +34,27 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
+	protected function ajaxExec_RenderAuditTableNew() {
+		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fIp',
+				'fContext',
+				'fUsername',
+				'fLoggedIn',
+				'fExludeYou'
+			) )
+		);
+		return array(
+			'success' => true,
+			'html'    => $this->renderAuditTable( $aParams )
+		);
+	}
+
 	public function ajaxExec_RenderAuditTable() {
 		$sContext = $this->loadRequest()->post( 'auditcontext' );
 		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
@@ -41,6 +62,74 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'success' => true,
 			'html'    => $this->renderTableForContext( $sContext, $aParams )
 		);
+	}
+
+	/**
+	 * @param $aParams
+	 * @return false|string
+	 */
+	protected function renderAuditTable( $aParams ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby'    => 'created_at',
+				'order'      => 'DESC',
+				'paged'      => 1,
+				'fIp'        => '',
+				'fUsername'  => '',
+				'fContext'   => 'all',
+				'fLoggedIn'  => -1,
+				'fExludeYou' => '',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+
+		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
+		$oPro = $this->loadProcessor();
+		$oSelector = $oPro->getQuerySelector()
+						  ->setPage( $nPage )
+						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						  ->setLimit( $this->getDefaultPerPage() )
+						  ->setResultsAsVo( true );
+		// Filters
+		{
+			$oIp = $this->loadIpService();
+			// If an IP is specified, it takes priority
+			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
+				$oSelector->filterByIp( $aParams[ 'fIp' ] );
+			}
+			else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
+				$oSelector->filterByNotIp( $oIp->getRequestIp() );
+			}
+
+			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
+			if ( !empty( $aParams[ 'fUsername' ] ) ) {
+				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
+				if ( !empty( $oUser ) ) {
+					$oSelector->filterByUsername( $oUser->user_login );
+				}
+			}
+			else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+				$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
+			}
+		}
+
+		$aEntries = $oSelector->query();
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( $this->getDefaultPerPage() )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
 	}
 
 	/**
@@ -54,8 +143,20 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$nCount = $oAuditTrail->countAuditEntriesForContext( $sContext );
 
 		$oTable = new AuditTrailTable();
-		return $oTable->setAuditContext( $sContext )
-					  ->setTotalRecords( $nCount );
+		return $oTable->setTotalRecords( $nCount );
+	}
+
+	/**
+	 * @return AuditTrailTable
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
+		$oAuditTrail = $this->loadProcessor();
+		$nCount = $oAuditTrail->countAuditEntriesForContext();
+
+		$oTable = new AuditTrailTable();
+		return $oTable->setTotalRecords( $nCount );
 	}
 
 	/**
@@ -197,8 +298,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return array
 	 */
-	protected function getContentCustomActionsData() {
-		$aContexts = array(
+	public function getAllContexts() {
+		return array(
 			'all'       => 'All', //special
 			'wpsf'      => $this->getConn()->getHumanName(),
 			'wordpress' => 'WordPress',
@@ -208,6 +309,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'themes'    => 'Themes',
 			'emails'    => 'Emails',
 		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getContentCustomActionsData() {
+		$aContexts = $this->getAllContexts();
 
 		$aAuditTables = array();
 		foreach ( $aContexts as $sContext => $sTitle ) {
