@@ -23,6 +23,10 @@ class ICWP_BaseTable extends WP_List_Table {
 	 */
 	protected $aItemEntries;
 
+	protected function extra_tablenav( $which ) {
+		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
+	}
+
 	/**
 	 * @param object $aItem
 	 * @param string $sColName

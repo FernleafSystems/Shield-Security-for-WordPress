@@ -232,7 +232,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			'list_id'      => $sListToRender,
 			'bIsWhiteList' => $sListToRender == self::LIST_MANUAL_WHITE,
 			'time_now'     => sprintf( '%s: %s', _wpsf__( 'now' ), $this->loadWp()->getTimeStringForDisplay() ),
-			'sTableId'     => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
+			'sTableId'     => 'IpWhiteTable'.substr( md5( mt_rand() ), 0, 5 )
 		);
 
 		switch ( $sListToRender ) {

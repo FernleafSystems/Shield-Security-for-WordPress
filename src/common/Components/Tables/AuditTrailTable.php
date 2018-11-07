@@ -18,18 +18,6 @@ class AuditTrailTable extends ICWP_BaseTable {
 	}
 
 	/**
-	 * @param array $aItem
-	 * @return string
-	 */
-	public function column_ip( $aItem ) {
-		return sprintf( '<div>%s</div>', $aItem[ 'ip' ] );
-	}
-
-	protected function extra_tablenav( $which ) {
-		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function get_columns() {
