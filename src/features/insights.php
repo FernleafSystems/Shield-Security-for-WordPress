@@ -26,6 +26,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $this->getConn()->getModule( 'traffic' );
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
+		$oAuditMod = $this->getConn()->getModule( 'audit_trail' );
 
 		switch ( $sSubNavSection ) {
 
@@ -64,11 +66,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			case 'audit':
 				$aData = array(
-					'vars'  => array(
-						'audit_trail_recent' => $aRecentAuditTrail,
+					'ajax'    => array(
+						'render_table' => $oAuditMod->getAjaxActionData( 'render_audit_table', true )
 					),
-					'flags' => array(
+					'flags'   => array(
 						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
+					),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
+					),
+					'vars'    => array(
+						'audit_trail_recent' => $aRecentAuditTrail,
 					),
 				);
 				break;
@@ -78,11 +86,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'ajax'    => array(
 						'render_table' => $oTrafficMod->getAjaxActionData( 'render_traffic_table', true )
 					),
+					'flags'   => array(),
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
 					),
-					'vars'  => array(),
-					'flags' => array()
+					'vars'    => array(),
 				);
 				break;
 

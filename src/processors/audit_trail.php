@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sContext
 	 * @return array|bool
 	 */
-	public function countAuditEntriesForContext( $sContext ) {
+	public function countAuditEntriesForContext( $sContext = 'all' ) {
 		$oCounter = $this->getQuerySelector();
 		if ( $sContext != 'all' ) {
 			$oCounter->filterByContext( $sContext );
@@ -130,7 +130,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param int    $nLimit
 	 * @return ICWP_WPSF_AuditTrailEntryVO[]
 	 */
-	public function getAuditEntriesForContext( $sContext, $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
+	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
 		$oSelect = $this->getQuerySelector()
 						->setResultsAsVo( true )
 						->setOrderBy( $sOrderBy, $sOrder )
