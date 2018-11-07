@@ -570,14 +570,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @deprecated
-	 * Taken from http://www.phacks.net/detecting-search-engine-bot-and-web-spiders/
-	 */
-	public function isSearchEngineBot() {
-		return $this->loadRequest()->isSearchEngineBot();
-	}
-
-	/**
-	 * @deprecated
 	 * @param      $sKey
 	 * @param      $mValue
 	 * @param int  $nExpireLength

@@ -86,9 +86,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		// TODO: are we calling is_super_admin() too early?
-		if ( $bPerformScan && $this->getMod()->isOpt( 'whitelist_admins', 'Y' ) && is_super_admin() ) {
-//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('Logged-in administrators by-pass firewall') );
-//				$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+		if ( $bPerformScan && $oFO->isIgnoreAdmin() && is_super_admin() ) {
 			$bPerformScan = false;
 		}
 

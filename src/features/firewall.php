@@ -55,6 +55,13 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isIgnoreAdmin() {
+		return $this->isOpt( 'whitelist_admins', 'Y' );
+	}
+
+	/**
 	 * @param array $aAllData
 	 * @return array
 	 */
