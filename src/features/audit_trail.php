@@ -23,8 +23,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'render_audit_table':
-					$aAjaxResponse = $this->ajaxExec_BuildAuditTable();
+				case 'render_table_audittrail':
+					$aAjaxResponse = $this->ajaxExec_BuildTableAuditTrail();
 					break;
 
 				default:
@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_BuildAuditTable() {
+	protected function ajaxExec_BuildTableAuditTrail() {
 		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
@@ -131,9 +131,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadProcessor();
-		$nCount = $oAuditTrail->countAuditEntriesForContext();
+		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
+		$oPro = $this->loadProcessor();
+		$nCount = $oPro->countAuditEntriesForContext();
 
 		$oTable = new AuditTrailTable();
 		return $oTable->setTotalRecords( $nCount );

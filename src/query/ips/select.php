@@ -29,7 +29,10 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByList( $sList ) {
-		return $this->addWhereEquals( 'list', $sList );
+		if ( !empty( $sList ) ) {
+			$this->addWhereEquals( 'list', $sList );
+		}
+		return $this;
 	}
 
 	/**

@@ -28,6 +28,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oTrafficMod = $this->getConn()->getModule( 'traffic' );
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
 		$oAuditMod = $this->getConn()->getModule( 'audit_trail' );
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
+		$oIpMod = $this->getConn()->getModule( 'ips' );
 
 		switch ( $sSubNavSection ) {
 
@@ -58,16 +60,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			case 'ips':
 				$aData = array(
-					'vars' => array(
-						'insight_ips' => $this->getIps(),
+					'ajax'    => array(
+						'render_table_ipwhite' => $oIpMod->getAjaxActionData( 'render_table_ipwhite', true ),
+						'render_table_ipblack' => $oIpMod->getAjaxActionData( 'render_table_ipblack', true )
 					),
+					'flags'   => array(),
+					'strings' => array(),
+					'vars'    => array(),
 				);
 				break;
 
 			case 'audit':
 				$aData = array(
 					'ajax'    => array(
-						'render_table' => $oAuditMod->getAjaxActionData( 'render_audit_table', true )
+						'render_table' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
 					),
 					'flags'   => array(
 						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
@@ -85,7 +91,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'traffic':
 				$aData = array(
 					'ajax'    => array(
-						'render_table' => $oTrafficMod->getAjaxActionData( 'render_traffic_table', true )
+						'render_table' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
 					),
 					'flags'   => array(),
 					'strings' => array(
@@ -203,15 +209,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  );
 
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getTrafficTable() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oMod */
-		$oMod = $this->getConn()->getModule( 'traffic' );
-		return $oMod->renderTable();
 	}
 
 	public function insertCustomJsVars_Admin() {

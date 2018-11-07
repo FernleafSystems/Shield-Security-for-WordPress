@@ -91,7 +91,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getFormatedData_WhiteList() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getWhitelistIpsData() );
+		return $this->formatEntriesForDisplay( $oProcessor->getWhitelistIpsData() );
 	}
 
 	/**
@@ -100,14 +100,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getFormatedData_AutoBlackList() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getAutoBlacklistIpsData() );
+		return $this->formatEntriesForDisplay( $oProcessor->getAutoBlacklistIpsData() );
 	}
 
 	/**
 	 * @param ICWP_WPSF_IpsEntryVO[] $aListData
 	 * @return array
 	 */
-	protected function formatIpListData( $aListData ) {
+	protected function formatEntriesForDisplay( $aListData ) {
 		$oWp = $this->loadWp();
 		$oDp = $this->loadDP();
 
@@ -166,6 +166,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 				case 'remove_ip':
 					$aAjaxResponse = $this->ajaxExec_RemoveIpFromList();
+					break;
+
+				case 'render_table_ipblack':
+					$aAjaxResponse = $this->ajaxExec_BuildTableIps( self::LIST_AUTO_BLACK );
+					break;
+
+				case 'render_table_ipwhite':
+					$aAjaxResponse = $this->ajaxExec_BuildTableIps( self::LIST_MANUAL_WHITE );
 					break;
 
 				default:
@@ -252,6 +260,82 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		}
 
 		return $this->renderTemplate( 'snippets/ip_list_table.php', $aRenderData );
+	}
+
+	/**
+	 * @param string $sList
+	 * @return array
+	 */
+	protected function ajaxExec_BuildTableIps( $sList ) {
+		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+			) )
+		);
+
+		$aParams[ 'fList' ] = $sList;
+
+		return array(
+			'success' => true,
+			'html'    => $this->renderTable( $aParams )
+		);
+	}
+
+	/**
+	 * @param array $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams = array() ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->loadProcessor();
+		/** @var ICWP_WPSF_IpsEntryVO[] $aEntries */
+		$aEntries = $oPro->getQuerySelector()
+						 ->setPage( $nPage )
+						 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						 ->setLimit( 25 )
+						 ->setResultsAsVo( true )
+						 ->filterByList( $aParams[ 'fList' ] )
+						 ->query();
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( 25 )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * @return IpWhiteTable
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/IpWhiteTable.php' );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->loadProcessor();
+		$nCount = $oPro->getQuerySelector()->count();
+		return ( new IpWhiteTable() )->setTotalRecords( $nCount );
 	}
 
 	protected function doExtraSubmitProcessing() {

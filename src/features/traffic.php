@@ -187,8 +187,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'render_traffic_table':
-					$aAjaxResponse = $this->ajaxExec_BuildTrafficTable();
+				case 'render_table_traffic':
+					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
 					break;
 
 				default:
@@ -198,7 +198,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_BuildTrafficTable() {
+	protected function ajaxExec_BuildTableTraffic() {
 		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
@@ -222,11 +222,10 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param string $sContext
-	 * @param array  $aParams
+	 * @param array $aParams
 	 * @return string
 	 */
-	public function renderTable( $aParams = array() ) {
+	protected function renderTable( $aParams = array() ) {
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
@@ -289,6 +288,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
 		}
 
+		/** @var ICWP_WPSF_TrafficEntryVO[] $aEntries */
 		$aEntries = $oSelector->query();
 
 		$oTable = $this->getTableRenderer()
@@ -398,11 +398,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/LiveTrafficTable.php' );
-		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
-		$oTrafficPro = $this->loadProcessor();
-		$nCount = $oTrafficPro->getProcessorLogger()
-							  ->getQuerySelector()
-							  ->count();
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->loadProcessor();
+		$nCount = $oPro->getProcessorLogger()
+					   ->getQuerySelector()
+					   ->count();
 		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
 	}
 
