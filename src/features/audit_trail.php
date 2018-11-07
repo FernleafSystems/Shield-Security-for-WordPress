@@ -284,22 +284,29 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
+		$aThis = array(
 			'strings'  => array(
 				'title' => _wpsf__( 'Activity Audit Log' ),
 				'sub'   => _wpsf__( 'Track Activity: What, Who, When, Where' ),
 			),
-			'key_opts' => array(
-				'mod' => array(
-					'name'    => _wpsf__( 'Audit Trail' ),
-					'enabled' => $this->isModOptEnabled(),
-					'summary' => $this->isModOptEnabled() ?
-						_wpsf__( 'Important events on your site are being logged' )
-						: _wpsf__( 'Important events on your site are not being logged' ),
-					'weight'  => 2
-				)
-			)
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Audit Trail' ),
+				'enabled' => $this->isModOptEnabled(),
+				'summary' => $this->isModOptEnabled() ?
+					_wpsf__( 'Important events on your site are being logged' )
+					: _wpsf__( 'Important events on your site are not being logged' ),
+				'weight'  => 2
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 

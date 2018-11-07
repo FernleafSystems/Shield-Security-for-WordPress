@@ -415,22 +415,29 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
+		$aThis = array(
 			'strings'  => array(
 				'title' => _wpsf__( 'Security Admin' ),
 				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
 			),
-			'key_opts' => array(
-				'mod' => array(
-					'name'    => _wpsf__( 'Security Admin' ),
-					'enabled' => $this->isEnabledForUiSummary(),
-					'summary' => $this->isEnabledForUiSummary() ?
-						_wpsf__( 'Security plugin is protected against tampering' )
-						: _wpsf__( 'Security plugin is vulnerable to tampering' ),
-					'weight'  => 2
-				)
-			)
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Security Admin' ),
+				'enabled' => $this->isEnabledForUiSummary(),
+				'summary' => $this->isEnabledForUiSummary() ?
+					_wpsf__( 'Security plugin is protected against tampering' )
+					: _wpsf__( 'Security plugin is vulnerable to tampering' ),
+				'weight'  => 2
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 

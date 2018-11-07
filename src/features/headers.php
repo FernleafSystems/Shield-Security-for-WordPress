@@ -111,12 +111,21 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
+		$aThis = array(
 			'strings' => array(
 				'title' => _wpsf__( 'HTTP Security Headers' ),
 				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
-			)
+			),
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 

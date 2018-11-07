@@ -76,12 +76,21 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
+		$aThis = array(
 			'strings' => array(
 				'title' => _wpsf__( 'WordPress Lockdown' ),
 				'sub'   => _wpsf__( 'Restrict WP Functionality e.g. XMLRPC & REST API' ),
-			)
+			),
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 

@@ -179,6 +179,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
+	public function isLockToIp() {
+		return $this->isOpt( 'session_lock_location', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isSendAdminEmailLoginNotification() {
 		return $this->loadDP()->validEmail( $this->getAdminLoginNotificationEmail() );
 	}
@@ -302,12 +309,62 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
-			'strings' => array(
+		$aThis = array(
+			'strings'  => array(
 				'title' => _wpsf__( 'User Management' ),
 				'sub'   => _wpsf__( 'Sessions Control & Password Policies' ),
-			)
+			),
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bHadIdle = $this->hasSessionIdleTimeout();
+			$aThis[ 'key_opts' ][ 'idle' ] = array(
+				'name'    => _wpsf__( 'Idle Users' ),
+				'enabled' => $bHadIdle,
+				'summary' => $bHadIdle ?
+					_wpsf__( 'Idle sessions will be terminated' )
+					: _wpsf__( 'Idle sessions wont be terminated' ),
+				'weight'  => 2
+			);
+
+			$bLocked = $this->isLockToIp();
+			$aThis[ 'key_opts' ][ 'lock' ] = array(
+				'name'    => _wpsf__( 'Lock To IP' ),
+				'enabled' => $bLocked,
+				'summary' => $bLocked ?
+					_wpsf__( 'Sessions are locked to IP address' )
+					: _wpsf__( "Sessions aren't locked to IP address" ),
+				'weight'  => 1
+			);
+
+			$bPolicies = $this->isPasswordPoliciesEnabled();
+
+			$bPwned = $bPolicies && $this->isPassPreventPwned();
+			$aThis[ 'key_opts' ][ 'pwned' ] = array(
+				'name'    => _wpsf__( 'Pwned Passwords' ),
+				'enabled' => $bPwned,
+				'summary' => $bPwned ?
+					_wpsf__( 'Pwned passwords are blocked on this site' )
+					: _wpsf__( 'Pwned passwords are allowed on this site' ),
+				'weight'  => 2
+			);
+
+			$bIndepthPolices = $bPolicies && $this->isPremium();
+			$aThis[ 'key_opts' ][ 'policies' ] = array(
+				'name'    => _wpsf__( 'Password Policies' ),
+				'enabled' => $bIndepthPolices,
+				'summary' => $bIndepthPolices ?
+					_wpsf__( 'Several password policies are active' )
+					: _wpsf__( 'Limited or no password polices are active' ),
+				'weight'  => 2
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 

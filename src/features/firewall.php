@@ -59,22 +59,29 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
-			'strings' => array(
+		$aThis = array(
+			'strings'  => array(
 				'title' => _wpsf__( 'Firewall' ),
 				'sub'   => _wpsf__( 'Block Malicious Requests' ),
 			),
-			'key_opts' => array(
-				'mod' => array(
-					'name'    => _wpsf__( 'Firewall' ),
-					'enabled' => $this->isModOptEnabled(),
-					'summary' => $this->isModOptEnabled() ?
-						_wpsf__( 'Your site is protected against malicious requests' )
-						: _wpsf__( 'Your site is not protected against malicious requests' ),
-					'weight'  => 2
-				)
-			)
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Firewall' ),
+				'enabled' => $this->isModOptEnabled(),
+				'summary' => $this->isModOptEnabled() ?
+					_wpsf__( 'Your site is protected against malicious requests' )
+					: _wpsf__( 'Your site is not protected against malicious requests' ),
+				'weight'  => 2
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 

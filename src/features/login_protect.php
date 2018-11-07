@@ -689,35 +689,41 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			'key_opts' => array()
 		);
 
-		$bHasBotCheck = $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bHasBotCheck = $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
 
-		$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
-		$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
-		$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
-		$aThis[ 'key_opts' ][ 'bot_login' ] = array(
-			'name'    => _wpsf__( 'Brute Force Login' ),
-			'enabled' => $bBotLogin,
-			'summary' => $bBotLogin ?
-				_wpsf__( 'Login forms are protected against bot attacks' )
-				: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
-			'weight'  => 2
-		);
-		$aThis[ 'key_opts' ][ 'bot_register' ] = array(
-			'name'    => _wpsf__( 'Bot User Register' ),
-			'enabled' => $bBotRegister,
-			'summary' => $bBotRegister ?
-				_wpsf__( 'Registration forms are protected against bot attacks' )
-				: _wpsf__( 'Registration forms are not protected against automated bots' ),
-			'weight'  => 2
-		);
-		$aThis[ 'key_opts' ][ 'bot_password' ] = array(
-			'name'    => _wpsf__( 'Brute Force Lost Password' ),
-			'enabled' => $bBotPassword,
-			'summary' => $bBotPassword ?
-				_wpsf__( 'Lost Password forms are protected against bot attacks' )
-				: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
-			'weight'  => 2
-		);
+			$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
+			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
+			$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
+			$aThis[ 'key_opts' ][ 'bot_login' ] = array(
+				'name'    => _wpsf__( 'Brute Force Login' ),
+				'enabled' => $bBotLogin,
+				'summary' => $bBotLogin ?
+					_wpsf__( 'Login forms are protected against bot attacks' )
+					: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
+				'weight'  => 2
+			);
+			$aThis[ 'key_opts' ][ 'bot_register' ] = array(
+				'name'    => _wpsf__( 'Bot User Register' ),
+				'enabled' => $bBotRegister,
+				'summary' => $bBotRegister ?
+					_wpsf__( 'Registration forms are protected against bot attacks' )
+					: _wpsf__( 'Registration forms are not protected against automated bots' ),
+				'weight'  => 2
+			);
+			$aThis[ 'key_opts' ][ 'bot_password' ] = array(
+				'name'    => _wpsf__( 'Brute Force Lost Password' ),
+				'enabled' => $bBotPassword,
+				'summary' => $bBotPassword ?
+					_wpsf__( 'Lost Password forms are protected against bot attacks' )
+					: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
+				'weight'  => 2
+			);
+		}
+
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}

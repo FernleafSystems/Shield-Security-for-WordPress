@@ -177,19 +177,41 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aAllData[ $this->getSlug() ] = array(
-			'strings' => array(
+		$aThis = array(
+			'strings'  => array(
 				'title' => _wpsf__( 'Automatic Updates' ),
 				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
 			),
-			'key_opts' => array(
-				'mod' => array(
-					'name'    => _wpsf__( 'Audit Trail' ),
-					'enabled' => false,
-					'summary' => sprintf( _wpsf__( 'Audit Trail module is %s' ), $this->isModOptEnabled() ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' ) )
-				)
-			)
+			'key_opts' => array()
 		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$oWp = $this->loadWp();
+			$bCanCore = $oWp->canCoreUpdateAutomatically();
+			$aThis[ 'key_opts' ][ 'core_minor' ] = array(
+				'name'    => _wpsf__( 'Core Updates' ),
+				'enabled' => $bCanCore,
+				'summary' => $bCanCore ?
+					_wpsf__( 'Minor WP Core updates will be installed automatically' )
+					: _wpsf__( 'Minor WP Core updates will not be installed automatically' ),
+				'weight'  => 2
+			);
+
+			$bHasDelay = $this->isModOptEnabled() && $this->getDelayUpdatesPeriod();
+			$aThis[ 'key_opts' ][ 'delay' ] = array(
+				'name'    => _wpsf__( 'Update Delay' ),
+				'enabled' => $bHasDelay,
+				'summary' => $bHasDelay ?
+					_wpsf__( 'Automatic updates are applied after a short delay' )
+					: _wpsf__( 'Automatic updates are applied immediately' ),
+				'weight'  => 1
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
 	}
 
@@ -225,7 +247,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()
-																																									->getHumanName() ) ),
+																																										  ->getHumanName() ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this option turned on.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Self-Update' );
