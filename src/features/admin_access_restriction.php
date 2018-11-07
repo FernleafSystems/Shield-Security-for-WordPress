@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return $this->hasAccessKey() && parent::isReadyToExecute();
+		return $this->isEnabledSecurityAdmin() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -283,6 +283,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledSecurityAdmin() {
+		return $this->isModOptEnabled() && $this->hasAccessKey() && ( $this->getSecAdminTimeout() > 0 );
+	}
+
+	/**
 	 * @param bool $bSetOn
 	 * @return bool
 	 */
@@ -453,7 +460,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		);
 
 		{//sec admin
-			if ( !( $this->isModuleEnabled() && $this->hasAccessKey() ) ) {
+			if ( ! $this->isEnabledSecurityAdmin() ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
@@ -477,7 +484,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
+		return parent::isEnabledForUiSummary() && $this->isEnabledSecurityAdmin();
 	}
 
 	/**

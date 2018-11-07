@@ -743,7 +743,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings' => array(
+			'strings'  => array(
 				'title' => _wpsf__( 'Hack Guard' ),
 				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
 			),
@@ -754,6 +754,75 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
+			$bCore = $this->isWcfScanEnabled();
+			$aThis[ 'key_opts' ][ 'wcf' ] = array(
+				'name'    => _wpsf__( 'WP Core File Scan' ),
+				'enabled' => $bCore,
+				'summary' => $bCore ?
+					_wpsf__( 'Regularly scanning of Core files are for hacks' )
+					: _wpsf__( "Core files are never scanned for hacks!" ),
+				'weight'  => 2
+			);
+			if ( $bCore && !$this->isWcfScanAutoRepair() ) {
+				$aThis[ 'key_opts' ][ 'wcf_repair' ] = array(
+					'name'    => _wpsf__( 'WP Core File Repair' ),
+					'enabled' => $this->isWcfScanAutoRepair(),
+					'summary' => $this->isWcfScanAutoRepair() ?
+						_wpsf__( 'Core files are automatically repaired' )
+						: _wpsf__( "Core files aren't automatically repaired!" ),
+					'weight'  => 1
+				);
+			}
+
+			$bUcf = $this->isUfcEnabled();
+			$aThis[ 'key_opts' ][ 'ufc' ] = array(
+				'name'    => _wpsf__( 'Unrecognised Files' ),
+				'enabled' => $bUcf,
+				'summary' => $bUcf ?
+					_wpsf__( 'Regularly scanning for unrecognised files' )
+					: _wpsf__( "WP Core is never scanned for unrecognised files!" ),
+				'weight'  => 2
+			);
+			if ( $bUcf && !$this->isUfcDeleteFiles() ) {
+				$aThis[ 'key_opts' ][ 'ufc_repair' ] = array(
+					'name'    => _wpsf__( 'Unrecognised Files Removal' ),
+					'enabled' => $this->isUfcDeleteFiles(),
+					'summary' => $this->isUfcDeleteFiles() ?
+						_wpsf__( 'Unrecognised files are automatically removed' )
+						: _wpsf__( "Unrecognised files aren't automatically removed!" ),
+					'weight'  => 1
+				);
+			}
+
+			$bWpv = $this->isWpvulnEnabled();
+			$aThis[ 'key_opts' ][ 'wpv' ] = array(
+				'name'    => _wpsf__( 'Vulnerability Scan' ),
+				'enabled' => $bWpv,
+				'summary' => $bWpv ?
+					_wpsf__( 'Regularly scanning for known vulnerabilities' )
+					: _wpsf__( "Plugins/Themes never scanned for vulnerabilities!" ),
+				'weight'  => 2
+			);
+			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
+				$aThis[ 'key_opts' ][ 'wpv_repair' ] = array(
+					'name'    => _wpsf__( 'Auto Update' ),
+					'enabled' => $this->isWpvulnAutoupdatesEnabled(),
+					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
+						_wpsf__( 'Vulnerable items are automatically updated' )
+						: _wpsf__( "Vulnerable items aren't automatically updated!" ),
+					'weight'  => 1
+				);
+			}
+
+			$bPtg = $this->isPtgEnabled();
+			$aThis[ 'key_opts' ][ 'ptg' ] = array(
+				'name'    => _wpsf__( 'Plugin/Theme Guard' ),
+				'enabled' => $bPtg,
+				'summary' => $bPtg ?
+					_wpsf__( 'Plugins and Themes are guarded against tampering' )
+					: _wpsf__( "Plugins and Themes are never scanned for tampering!" ),
+				'weight'  => 2
+			);
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;

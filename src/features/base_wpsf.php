@@ -349,10 +349,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	protected function getModDisabledInsight() {
 		return array(
 			'name'    => _wpsf__( 'Module Disabled' ),
-			'enabled' => $this->isModOptEnabled(),
-			'summary' => $this->isModOptEnabled() ?
-				_wpsf__( 'This module is enabled' )
-				: _wpsf__( 'All features of this modules are completely disabled' ),
+			'enabled' => false,
+			'summary' => _wpsf__( 'All features of this module are completely disabled' ),
 			'weight'  => 2
 		);
 	}
