@@ -1774,7 +1774,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * Override this with custom JS vars for your particular module.
 	 */
-	protected function insertCustomJsVars_Admin() {
+	public function insertCustomJsVars_Admin() {
 	}
 
 	/**

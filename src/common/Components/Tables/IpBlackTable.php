@@ -5,6 +5,7 @@ if ( !class_exists( 'BaseIpTable' ) ) {
 }
 
 class IpBlackTable extends IpBaseTable {
+
 	/**
 	 * @return array
 	 */
@@ -13,7 +14,7 @@ class IpBlackTable extends IpBaseTable {
 			'ip'             => 'IP Address',
 			'transgressions' => 'Transgressions',
 			'last_access_at' => 'Last Access',
-			'created_at'     => 'Added',
+			'actions'        => $this->getColumnHeader_Actions(),
 		);
 	}
 }

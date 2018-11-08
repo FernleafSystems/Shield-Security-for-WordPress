@@ -661,7 +661,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		);
 	}
 
-	protected function insertCustomJsVars_Admin() {
+	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(

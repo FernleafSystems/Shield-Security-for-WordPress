@@ -7,6 +7,15 @@ if ( !class_exists( 'ICWP_BaseTable' ) ) {
 class IpBaseTable extends ICWP_BaseTable {
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_actions( $aItem ) {
+		return sprintf( '<a href="#" class="btn btn-sm btn-outline-danger delete" data-id="%s">' .
+						'<span class="dashicons dashicons-dismiss"></span></a>', $aItem[ 'id' ] );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_columns() {
@@ -18,5 +27,12 @@ class IpBaseTable extends ICWP_BaseTable {
 			'last_access_at' => 'Last Access',
 			'created_at'     => 'Date',
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getColumnHeader_Actions() {
+		return '<span class="dashicons dashicons-admin-tools"></span>';
 	}
 }

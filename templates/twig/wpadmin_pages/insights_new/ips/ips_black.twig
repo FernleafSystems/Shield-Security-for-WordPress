@@ -1,9 +1,16 @@
-<div class="row insights_widget" id="SectionTableIpsBlack">
-	<div class="col-12">
-		<div class="icwpAjaxTableContainer" data-list="AB"></div>
-	</div>
-</div>
+{% extends '/wpadmin_pages/insights_new/ips/ips_base.twig' %}
 
+{% block section_form_addip %}{% endblock %}
+
+{% block section_table %}
+	<div class="row insights_widget" id="SectionTableIpsBlack">
+		<div class="col-12">
+			<div class="icwpAjaxTableContainer" data-list="AB"></div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block section_table_js %}
 <script>
 
 	var iCWP_WPSF_TableIps = new function () {
@@ -126,3 +133,4 @@
 	iCWP_WPSF_TableIps.initialise();
 
 </script>
+{% endblock %}

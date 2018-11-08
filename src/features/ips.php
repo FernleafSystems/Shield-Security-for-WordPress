@@ -164,8 +164,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					$aAjaxResponse = $this->ajaxExec_AddIpToWhitelist();
 					break;
 
-				case 'remove_ip':
-					$aAjaxResponse = $this->ajaxExec_RemoveIpFromList();
+				case 'ip_delete':
+					$aAjaxResponse = $this->ajaxExec_IpDelete();
 					break;
 
 				case 'render_table_ip':
@@ -199,6 +199,30 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		return array(
 			'success' => true,
 			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
+		);
+	}
+
+	protected function ajaxExec_IpDelete() {
+		$oReq = $this->loadRequest();
+		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+		$oProcessor = $this->getProcessor();
+
+		$bSuccess = false;
+		$nId = $oReq->post( 'id', -1 );
+		if ( !is_numeric( $nId ) || $nId < 0 ) {
+			$sMessage = _wpsf__( "Invalid entry selected" );
+		}
+		else if ( $oProcessor->getQueryDeleter()->deleteById( $nId ) ) {
+			$sMessage = _wpsf__( "IP address deleted" );
+			$bSuccess = true;
+		}
+		else {
+			$sMessage = _wpsf__( "IP address wasn't deleted from the list" );
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		);
 	}
 
@@ -323,7 +347,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 						 ->filterByList( $aParams[ 'fList' ] )
 						 ->query();
 
-		$oTable = $this->getTableRenderer()
+		$oTable = $this->getTableRenderer( $aParams[ 'fList' ] )
 					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
 					   ->setPerPage( 25 )
 					   ->prepare_items();
@@ -333,14 +357,22 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @param string $sList
 	 * @return IpWhiteTable
 	 */
-	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/IpWhiteTable.php' );
+	protected function getTableRenderer( $sList = self::LIST_MANUAL_WHITE ) {
+		if ( empty( $sList ) || $sList == self::LIST_MANUAL_WHITE ) {
+			$this->requireCommonLib( 'Components/Tables/IpWhiteTable.php' );
+			$sTable = new IpWhiteTable();
+		}
+		else {
+			$this->requireCommonLib( 'Components/Tables/IpBlackTable.php' );
+			$sTable = new IpBlackTable();
+		}
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->loadProcessor();
 		$nCount = $oPro->getQuerySelector()->count();
-		return ( new IpWhiteTable() )->setTotalRecords( $nCount );
+		return $sTable->setTotalRecords( $nCount );
 	}
 
 	protected function doExtraSubmitProcessing() {

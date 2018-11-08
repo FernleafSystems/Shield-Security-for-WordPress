@@ -5,15 +5,17 @@ if ( !class_exists( 'IpBaseTable' ) ) {
 }
 
 class IpWhiteTable extends IpBaseTable {
+
 	/**
 	 * @return array
 	 */
 	public function get_columns() {
 		return array(
-			'ip'             => 'IP Address',
-			'label'          => 'Label',
-			'last_access_at' => 'Last Access',
-			'created_at'     => 'Added',
+			'ip'         => 'IP Address',
+			'label'      => 'Label',
+			//			'last_access_at' => 'Last Access',
+			'created_at' => 'Added',
+			'actions'    => $this->getColumnHeader_Actions(),
 		);
 	}
 }

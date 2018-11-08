@@ -960,3 +960,18 @@ td.cell_delete_note {
 }
 #SectionModuleSummaries table tr.row-key_opt {
 }
+
+/** IPS Insights **/
+th.column-actions,
+td.column-actions {
+	width: 50px;
+}
+td.column-actions a.btn {
+	height: 24px;
+	width: 24px;
+	padding: 3px 2px;
+}
+td.column-actions a > span {
+	font-size: 16px;
+}
+/** END IPS Insights **/

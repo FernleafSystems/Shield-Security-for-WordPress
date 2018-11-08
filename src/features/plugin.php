@@ -739,7 +739,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->prefixOptionKey( $this->getDef( 'db_notes_name' ) );
 	}
 
-	protected function insertCustomJsVars_Admin() {
+	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) ) {
