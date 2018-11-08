@@ -9,6 +9,13 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
 class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
+	 * @return string[]
+	 */
+	public function getUniqueUsernames() {
+		return $this->getUnique( 'wp_username' );
+	}
+
+	/**
 	 * @param string $sContext
 	 * @return $this
 	 */

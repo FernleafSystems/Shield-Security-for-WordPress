@@ -24,6 +24,11 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	protected $bIsCount = false;
 
 	/**
+	 * @var bool
+	 */
+	protected $bIsDistinct = false;
+
+	/**
 	 * @param string $sCol
 	 * @return $this
 	 */
@@ -71,6 +76,9 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
+		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
+			$sSubstitute = sprintf( 'DISTINCT %s', $this->getColumnsToSelect()[ 0 ] );
+		}
 		else if ( $this->hasColumnsToSelect() ) {
 			$sSubstitute = implode( ',', $this->getColumnsToSelect() );
 		}
@@ -114,6 +122,16 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * @param string $sColumn
+	 * @return array
+	 */
+	public function getUnique( $sColumn ) {
+		return $this->addColumnToSelect( $sColumn )
+					->setIsDistinct( true )
+					->query();
+	}
+
+	/**
 	 * @return ICWP_WPSF_BaseEntryVO
 	 */
 	public function getVo() {
@@ -146,14 +164,36 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isDistinct() {
+		return (bool)$this->bIsDistinct;
+	}
+
+	/**
 	 * @return stdClass[]|int
 	 */
 	public function query() {
-		$mData = $this->isCount() ? $this->queryCount() : $this->querySelect();
-
-		if ( !$this->isCount() && $this->isResultsAsVo() ) {
-			foreach ( $mData as $nKey => $oAudit ) {
-				$mData[ $nKey ] = $this->getVo()->setRawData( $oAudit );
+		if ( $this->isCount() ) {
+			$mData = $this->queryCount();
+		}
+		else if ( $this->isDistinct() ) {
+			$mData = $this->queryDistinct();
+			if ( is_array( $mData ) ) {
+				$mData = array_map( function ( $aRecord ) {
+					return array_shift( $aRecord );
+				}, $mData );
+			}
+			else {
+				$mData = array();
+			}
+		}
+		else {
+			$mData = $this->querySelect();
+			if ( $this->isResultsAsVo() ) {
+				foreach ( $mData as $nKey => $oAudit ) {
+					$mData[ $nKey ] = $this->getVo()->setRawData( $oAudit );
+				}
 			}
 		}
 
@@ -173,6 +213,13 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	protected function queryCount() {
 		return $this->loadDbProcessor()->getVar( $this->buildQuery() );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function queryDistinct() {
+		return $this->loadDbProcessor()->selectCustom( $this->buildQuery() );
 	}
 
 	/**
@@ -211,6 +258,15 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	public function setIsCount( $bIsCount ) {
 		$this->bIsCount = $bIsCount;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bIsDistinct
+	 * @return $this
+	 */
+	public function setIsDistinct( $bIsDistinct ) {
+		$this->bIsDistinct = $bIsDistinct;
 		return $this;
 	}
 }
