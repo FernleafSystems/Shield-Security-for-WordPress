@@ -56,7 +56,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'ips':
 				$aData = array(
 					'ajax'    => array(
-						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
+						'render_table' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
+						'add_ip_white' => $oIpMod->getAjaxActionData( 'add_ip_white' ),
 					),
 					'flags'   => array(),
 					'strings' => array(),
@@ -196,7 +197,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
 
-	public function insertCustomJsVars_Admin() {
+	protected function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {

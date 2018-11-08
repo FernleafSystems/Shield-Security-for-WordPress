@@ -40,7 +40,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
 	}
 
-	public function insertCustomJsVars_Admin() {
+	protected function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		wp_localize_script(

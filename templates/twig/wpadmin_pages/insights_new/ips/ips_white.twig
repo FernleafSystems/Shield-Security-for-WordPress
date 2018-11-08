@@ -1,5 +1,26 @@
 <div class="row insights_widget" id="SectionTableIpsWhite">
 	<div class="col-12">
+		<form class="form-inline" id="NewIp" action="#" method="post">
+			{% for name,val in ajax.add_ip_white %}
+				<input type="hidden" name="{{ name }}" value="{{ val }}" />
+			{% endfor %}
+			<label class="sr-only" for="AdminNote">Note</label>
+			<div class="input-group w-100">
+				<div class="input-group-prepend">
+					<div class="input-group-text" style="border-radius: 0">New IP:</div>
+				</div>
+				<input type="text" class="form-control" id="IpAddress" name="ip"
+					   placeholder="123.234.123.234"/>
+				<input type="text" class="form-control" id="Label" name="label"
+					   placeholder="My Label"/>
+				<div class="input-group-append">
+					<button type="submit" class="btn btn-info" style="border-radius: 0;" name="subbutt"
+					>Add &darr;</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="col-12">
 		<div class="icwpAjaxTableContainer" data-list="MW"></div>
 	</div>
 </div>
@@ -47,7 +68,7 @@
 			aTableRequestParams[ 'fList' ] = $oMainContainer.data( 'list' );
 			iCWP_WPSF_BodyOverlay.show();
 
-			var requestData = {{ ajax.render_table_ip|raw }};
+			var requestData = {{ ajax.render_table|raw }};
 
 			jQuery.post( ajaxurl, jQuery.extend( aTableRequestParams, requestData ),
 				function ( oResponse ) {
@@ -115,11 +136,38 @@
 			} );
 		};
 
+		/**
+		 */
+		var submitForm = function ( event ) {
+			iCWP_WPSF_BodyOverlay.show();
+			event.preventDefault();
+
+			jQuery.post( ajaxurl, jQuery( this ).serialize(),
+				function ( oResponse ) {
+					if ( oResponse.success ) {
+						loadTable(); //  this will remove the overlay
+						iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+					}
+					else {
+						var sMessage = 'Communications error with site.';
+						if ( oResponse.data.message !== undefined ) {
+							sMessage = oResponse.data.message;
+						}
+						alert( sMessage );
+						iCWP_WPSF_BodyOverlay.hide();
+					}
+				}
+			).always( function () {
+				}
+			);
+		};
+
 		this.initialise = function () {
 			jQuery( document ).ready( function () {
 				loadTable();
 			} );
 			jQuery( document ).ready( setHandlers );
+			jQuery( document ).on( "submit", "form#NewIp", submitForm );
 		};
 	}();
 

@@ -169,7 +169,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					break;
 
 				case 'render_table_ip':
-					$aAjaxResponse = $this->ajaxExec_BuildTableIps( self::LIST_AUTO_BLACK );
+					$aAjaxResponse = $this->ajaxExec_BuildTableIps();
 					break;
 
 				default:
@@ -207,15 +207,24 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
 
+		$bSuccess = false;
 		$sIp = $oReq->post( 'ip', '' );
-		$sLabel = $oReq->post( 'label', '' );
-		if ( !empty( $sIp ) ) {
-			$oProcessor->addIpToWhiteList( $sIp, $sLabel );
+		if ( empty( $sIp ) ) {
+			$sMessage = _wpsf__( "IP address is empty" );
 		}
-
+		else if ( !$this->loadIpService()->isValidIp( $sIp ) ) {
+			$sMessage = _wpsf__( "IP is not valid" );
+		}
+		else if ( $oProcessor->addIpToWhiteList( $sIp, $oReq->post( 'label', '' ) ) ) {
+			$sMessage = _wpsf__( "IP address added" );
+			$bSuccess = true;
+		}
+		else {
+			$sMessage = _wpsf__( "IP address wasn't added to the list" );
+		}
 		return array(
-			'success' => true,
-			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		);
 	}
 

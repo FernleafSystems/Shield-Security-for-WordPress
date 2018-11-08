@@ -126,7 +126,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars_Admin' ), 100 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 100 );
 
 			if ( $this->isAdminOptionsPage() ) {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
@@ -1767,10 +1767,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpEnqueueJs() {
 	}
 
+	public function onWpEnqueueAdminJs() {
+		$this->insertCustomJsVars_Admin();
+	}
+
 	/**
 	 * Override this with custom JS vars for your particular module.
 	 */
-	public function insertCustomJsVars_Admin() {
+	protected function insertCustomJsVars_Admin() {
 	}
 
 	/**

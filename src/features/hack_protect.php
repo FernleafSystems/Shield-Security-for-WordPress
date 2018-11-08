@@ -554,7 +554,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		);
 	}
 
-	public function insertCustomJsVars_Admin() {
+	protected function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) && $this->isPtgReinstallLinks() ) {
