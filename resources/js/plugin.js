@@ -207,18 +207,18 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 	function initialise() {
 		jQuery( document ).ready( function () {
 			createTableContainer();
-			loadTable();
+			renderTableRequest();
 			setHandlers();
 		} );
 	}
 
+	this.reloadTable = function () {
+		renderTableRequest();
+	};
+
 	var createTableContainer = function () {
 		$oTableContainer = jQuery( '<div />' ).appendTo( $oThis );
 		$oTableContainer.addClass( 'icwpAjaxTableContainer' );
-	};
-
-	var loadTable = function () {
-		renderTableRequest();
 	};
 
 	var refreshTable = function ( event ) {
@@ -297,4 +297,6 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 			}, delay );
 		} );
 	};
+
+	return this;
 };
