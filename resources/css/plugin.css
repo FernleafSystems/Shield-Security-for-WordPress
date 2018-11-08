@@ -867,10 +867,8 @@ td.column-message textarea {
 }
 /** TABLE: TRAFFIC **/
 th.column-visitor {
-	width: 250px;
 }
 th.column-path {
-	width: 100px;
 }
 td.column-path code {
 	color: #4120a2;
@@ -888,6 +886,12 @@ th.column-request_info {
 	width: 100px;
 }
 /** INSIGHTS **/
+
+/* TABLES */
+.tablenav-pages-navspan {
+	box-sizing: content-box;
+}
+
 #odp-BodyContainer .card {
 	box-shadow: none;
 	margin-top: 0;
@@ -950,17 +954,14 @@ td.cell_delete_note {
 	font-size: x-large;
 	padding: 0.5rem;
 }
-
 #odp-BodyMain .card.config {
 	margin-top: 20px;
 }
-
 #SectionModuleSummaries .card-body table {
 	margin-bottom: 0;
 }
 #SectionModuleSummaries table tr.row-key_opt {
 }
-
 /** IPS Insights **/
 #NewIp button.add {
 	padding: 9px 8px 3px 8px;

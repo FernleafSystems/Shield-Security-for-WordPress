@@ -194,3 +194,107 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 	iCWP_WPSF_SecurityAdminCheck.initialise();
 }
+
+jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
+
+	var $oThis = this;
+	var $oTableContainer;
+	var bReqRunning = false;
+	var aOpts = jQuery.extend( {}, aOptions );
+
+	initialise();
+
+	function initialise() {
+		jQuery( document ).ready( function () {
+			createTableContainer();
+			loadTable();
+			setHandlers();
+		} );
+	}
+
+	var createTableContainer = function () {
+		$oTableContainer = jQuery( '<div />' ).appendTo( $oThis );
+		$oTableContainer.addClass( 'icwpAjaxTableContainer' );
+	};
+
+	var loadTable = function () {
+		renderTableRequest();
+	};
+
+	var refreshTable = function ( event ) {
+		event.preventDefault();
+
+		var query = this.search.substring( 1 );
+		var aTableRequestParams = {
+			paged: extractQueryVars( query, 'paged' ) || 1,
+			order: extractQueryVars( query, 'order' ) || 'desc',
+			orderby: extractQueryVars( query, 'orderby' ) || 'created_at',
+			tableaction: jQuery( event.currentTarget ).data( 'tableaction' )
+		};
+
+		renderTableRequest( aTableRequestParams );
+	};
+
+	var extractQueryVars = function ( query, variable ) {
+		var vars = query.split( "&" );
+		for ( var i = 0; i < vars.length; i++ ) {
+			var pair = vars[ i ].split( "=" );
+			if ( pair[ 0 ] === variable ) {
+				return pair[ 1 ];
+			}
+		}
+		return false;
+	};
+
+	var renderTableRequest = function ( aTableRequestParams ) {
+		if ( bReqRunning ) {
+			return false;
+		}
+		bReqRunning = true;
+		iCWP_WPSF_BodyOverlay.show();
+
+		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aTableRequestParams ),
+			function ( oResponse ) {
+				jQuery( 'div[class="icwpAjaxTableContainer"]', $oThis ).html( oResponse.data.html )
+			}
+		).always(
+			function () {
+				// resetHandlers();
+				bReqRunning = false;
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	var setHandlers = function () {
+		$oThis.on( "click", 'a.tableActionRefresh', refreshTable );
+		$oThis.on( 'click', '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a', refreshTable );
+
+		var timer;
+		var delay = 1000;
+		jQuery( document ).on( 'keyup', 'input[name=paged]', function ( event ) {
+			// If user hit enter, we don't want to submit the form
+			// We don't preventDefault() for all keys because it would
+			// also prevent to get the page number!
+			if ( 13 === event.which )
+				event.preventDefault();
+
+			// This time we fetch the variables in inputs
+			var $eThis = jQuery( event.currentTarget );
+			var aTableRequestParams = {
+				paged: isNaN( $eThis.val() ) ? 1 : $eThis.val(),
+				order: jQuery( 'input[name=order]', $eThis ).val() || 'desc',
+				orderby: jQuery( 'input[name=orderby]', $eThis ).val() || 'created_at'
+			};
+			// Now the timer comes to use: we wait a second after
+			// the user stopped typing to actually send the call. If
+			// we don't, the keyup event will trigger instantly and
+			// thus may cause duplicate calls before sending the intended
+			// value
+			window.clearTimeout( timer );
+			timer = window.setTimeout( function () {
+				renderTableRequest( aTableRequestParams );
+			}, delay );
+		} );
+	};
+};

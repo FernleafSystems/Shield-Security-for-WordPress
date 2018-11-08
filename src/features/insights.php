@@ -56,9 +56,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'ips':
 				$aData = array(
 					'ajax'    => array(
-						'render_table' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
-						'add_ip_white' => $oIpMod->getAjaxActionData( 'add_ip_white' ),
-						'ip_delete'    => $oIpMod->getAjaxActionData( 'ip_delete', true ),
+						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
+						'add_ip_white'    => $oIpMod->getAjaxActionData( 'add_ip_white' ),
+						'ip_delete'       => $oIpMod->getAjaxActionData( 'ip_delete', true ),
 					),
 					'flags'   => array(),
 					'strings' => array(),
