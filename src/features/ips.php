@@ -62,48 +62,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @param array $aData
-	 */
-	protected function displayModulePage( $aData = array() ) {
-		add_thickbox();
-		parent::displayModulePage( $this->getIpTableDisplayData() );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		return $this->getIpTableDisplayData();
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getIpTableDisplayData() { // Use new standard AJAX
-		return array(
-			'ajax' => $this->getAjaxDataSets(),
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getFormatedData_WhiteList() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
-		return $this->formatEntriesForDisplay( $oProcessor->getWhitelistIpsData() );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getFormatedData_AutoBlackList() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
-		return $this->formatEntriesForDisplay( $oProcessor->getAutoBlacklistIpsData() );
-	}
-
-	/**
 	 * @param ICWP_WPSF_IpsEntryVO[] $aListData
 	 * @return array
 	 */
@@ -159,10 +117,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'get_ip_list':
-					$aAjaxResponse = $this->ajaxExec_GetIpList();
-					break;
-
 				case 'add_ip_white':
 					$aAjaxResponse = $this->ajaxExec_AddIpToWhitelist();
 					break;
@@ -180,29 +134,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_GetIpList() {
-		return array(
-			'success' => true,
-			'html'    => $this->renderListTable( $this->loadRequest()->post( 'list', '' ) )
-		);
-	}
-
-	public function ajaxExec_RemoveIpFromList() {
-		$oReq = $this->loadRequest();
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getProcessor();
-		$oPro->getQueryDeleter()
-			 ->deleteIpOnList( $oReq->post( 'ip' ), $oReq->post( 'list' ) );
-
-		return array(
-			'success' => true,
-			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
-		);
 	}
 
 	protected function ajaxExec_IpDelete() {
@@ -253,45 +184,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			'success' => $bSuccess,
 			'message' => $sMessage,
 		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getAjaxDataSets() {
-		return array(
-			'glist' => $this->getAjaxActionData( 'get_ip_list', true ),
-			'alist' => $this->getAjaxActionData( 'add_ip_white', true ),
-			'rlist' => $this->getAjaxActionData( 'remove_ip', true ),
-		);
-	}
-
-	protected function renderListTable( $sListToRender ) {
-		$aRenderData = array(
-			'ajax'         => $this->getAjaxDataSets(),
-			'list_id'      => $sListToRender,
-			'bIsWhiteList' => $sListToRender == self::LIST_MANUAL_WHITE,
-			'time_now'     => sprintf( '%s: %s', _wpsf__( 'now' ), $this->loadWp()->getTimeStringForDisplay() ),
-			'sTableId'     => 'IpWhiteTable'.substr( md5( mt_rand() ), 0, 5 )
-		);
-
-		switch ( $sListToRender ) {
-
-			// this is a hard-coded class... need to change this.  It was $oProcessor:: but 5.2 doesn't supprt.
-			case self::LIST_MANUAL_WHITE :
-				$aRenderData[ 'list_data' ] = $this->getFormatedData_WhiteList();
-				break;
-
-			case self::LIST_AUTO_BLACK :
-				$aRenderData[ 'list_data' ] = $this->getFormatedData_AutoBlackList();
-				break;
-
-			default:
-				$aRenderData[ 'list_data' ] = array();
-				break;
-		}
-
-		return $this->renderTemplate( 'snippets/ip_list_table.php', $aRenderData );
 	}
 
 	/**
