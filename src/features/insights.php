@@ -84,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'traffic':
 				$aData = array(
 					'ajax'    => array(
-						'render_table' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
+						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
 					),
 					'flags'   => array(),
 					'strings' => array(
@@ -231,6 +231,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						break;
 
 					case 'audit':
+					case 'traffic':
 						$sAsset = 'shield-tables';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(

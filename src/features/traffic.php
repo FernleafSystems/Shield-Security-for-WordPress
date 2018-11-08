@@ -199,7 +199,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	protected function ajaxExec_BuildTableTraffic() {
-		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(
