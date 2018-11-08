@@ -168,12 +168,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					$aAjaxResponse = $this->ajaxExec_RemoveIpFromList();
 					break;
 
-				case 'render_table_ipblack':
+				case 'render_table_ip':
 					$aAjaxResponse = $this->ajaxExec_BuildTableIps( self::LIST_AUTO_BLACK );
-					break;
-
-				case 'render_table_ipwhite':
-					$aAjaxResponse = $this->ajaxExec_BuildTableIps( self::LIST_MANUAL_WHITE );
 					break;
 
 				default:
@@ -266,7 +262,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @param string $sList
 	 * @return array
 	 */
-	protected function ajaxExec_BuildTableIps( $sList ) {
+	protected function ajaxExec_BuildTableIps() {
 		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
@@ -274,10 +270,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				'paged',
 				'order',
 				'orderby',
+				'fList'
 			) )
 		);
-
-		$aParams[ 'fList' ] = $sList;
 
 		return array(
 			'success' => true,
@@ -302,6 +297,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				'orderby' => 'created_at',
 				'order'   => 'DESC',
 				'paged'   => 1,
+				'fList'   => '',
 			),
 			$aParams
 		);

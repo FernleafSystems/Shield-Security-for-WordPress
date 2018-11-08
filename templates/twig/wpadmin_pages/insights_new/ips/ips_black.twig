@@ -1,6 +1,6 @@
 <div class="row insights_widget" id="SectionTableIpsBlack">
-	<div class="col-6">
-		<div class="icwpAjaxTableContainer"></div>
+	<div class="col-12">
+		<div class="icwpAjaxTableContainer" data-list="AB"></div>
 	</div>
 </div>
 
@@ -9,11 +9,12 @@
 	var iCWP_WPSF_TableIps = new function () {
 
 		var bRequestCurrentlyRunning = false;
+		var $oSection = jQuery( '#SectionTableIpsBlack' );
 
 		/**
 		 */
 		var loadTable = function () {
-			sendTableRequest( jQuery( 'div[class="icwpAjaxTableContainer"]' ), {} );
+			sendTableRequest( jQuery( 'div[class="icwpAjaxTableContainer"]', $oSection ), {} );
 		};
 
 		/**
@@ -22,7 +23,7 @@
 			event.preventDefault();
 
 			var $oThis = jQuery( event.currentTarget );
-			var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]' );
+			var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]', $oSection );
 
 			// var $oForm = jQuery( 'form#AuditFilter' );
 
@@ -43,10 +44,10 @@
 				return false;
 			}
 			bRequestCurrentlyRunning = true;
-
+			aTableRequestParams[ 'fList' ] = $oMainContainer.data( 'list' );
 			iCWP_WPSF_BodyOverlay.show();
 
-			var requestData = {{ ajax.render_table_ipwhite|raw }};
+			var requestData = {{ ajax.render_table_ip|raw }};
 
 			jQuery.post( ajaxurl, jQuery.extend( aTableRequestParams, requestData ),
 				function ( oResponse ) {
@@ -96,7 +97,7 @@
 
 				// This time we fetch the variables in inputs
 				var $oThis = jQuery( event.currentTarget );
-				var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]' );
+				var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]', $oSection );
 				var aTableRequestParams = {
 					paged: parseInt( jQuery( 'input[name=paged]', $oMainContainer ).val() ) || '1',
 					order: jQuery( 'input[name=order]', $oMainContainer ).val() || 'desc',

@@ -61,8 +61,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'ips':
 				$aData = array(
 					'ajax'    => array(
-						'render_table_ipwhite' => $oIpMod->getAjaxActionData( 'render_table_ipwhite', true ),
-						'render_table_ipblack' => $oIpMod->getAjaxActionData( 'render_table_ipblack', true )
+						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
 					),
 					'flags'   => array(),
 					'strings' => array(),
