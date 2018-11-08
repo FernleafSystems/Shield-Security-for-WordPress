@@ -230,6 +230,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						);
 						break;
 
+					case 'audit':
+						$sAsset = 'shield-tables';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							array( $this->prefix( 'plugin' ) ),
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						break;
+
 					case 'ips':
 						$sAsset = 'shield-ips';
 						$sUnique = $this->prefix( $sAsset );

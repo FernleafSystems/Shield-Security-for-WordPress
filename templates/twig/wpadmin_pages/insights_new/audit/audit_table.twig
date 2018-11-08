@@ -55,43 +55,11 @@
 </div>
 
 <script>
-
-	var iCWP_WPSF_AuditFilters = new function () {
-
-		var $oTableAuditTrail;
-		var $oForm;
-
-		var resetFilters = function ( event ) {
-			jQuery( 'input[type=text]', $oForm ).each( function () {
-				jQuery( this ).val( '' );
-			} );
-			jQuery( 'select', $oForm ).each( function () {
-				jQuery( this ).prop( 'selectedIndex', 0 );
-			} );
-			jQuery( 'input[type=checkbox]', $oForm ).each( function () {
-				jQuery( this ).prop( 'checked', false );
-			} );
-			$oTableAuditTrail.renderTableFromForm( $oForm );
-		};
-		var submitFilters = function ( evt ) {
-			evt.preventDefault();
-			$oTableAuditTrail.renderTableFromForm( $oForm );
-			return false;
-		};
-
-		this.initialise = function ( sFormSelector ) {
-			$oTableAuditTrail = jQuery( '#TableAuditTrail' ).icwpWpsfAjaxTable(
-				{
-					'ajax_render':{{ ajax.render_table_audittrail|raw }}
-				}
-			);
-
-			$oForm = jQuery( sFormSelector );
-			$oForm.on( "submit", submitFilters );
-			$oForm.on( "click", 'a#ClearForm', resetFilters );
-		};
-	}();
-
-	iCWP_WPSF_AuditFilters.initialise( 'form#AuditFilter' );
-
+	jQuery( document ).icwpWpsfTableWithFilter(
+		{
+			'selector_table_container': '#TableAuditTrail',
+			'selector_filter_form': 'form#AuditFilter',
+			'ajax_render':{{ ajax.render_table_audittrail|raw }}
+		}
+	);
 </script>
