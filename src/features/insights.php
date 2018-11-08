@@ -12,10 +12,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @param array $aData
 	 */
 	protected function displayModulePage( $aData = array() ) {
-
-		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
+		$oCon = $this->getConn();
 		$aSecNotices = $this->getNotices();
-		$aNotes = $this->getNotes();
 
 		$nNoticesCount = 0;
 		foreach ( $aSecNotices as $aNoticeSection ) {
@@ -25,26 +23,23 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$sSubNavSection = $this->loadRequest()->query( 'subnav' );
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
-		$oTrafficMod = $this->getConn()->getModule( 'traffic' );
+		$oTrafficMod = $oCon->getModule( 'traffic' );
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
-		$oAuditMod = $this->getConn()->getModule( 'audit_trail' );
+		$oAuditMod = $oCon->getModule( 'audit_trail' );
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
-		$oIpMod = $this->getConn()->getModule( 'ips' );
+		$oIpMod = $oCon->getModule( 'ips' );
 
 		switch ( $sSubNavSection ) {
 
 			case 'notes':
 				$aData = array(
-					'vars'  => array(
-						'insight_notes' => $aNotes,
-					),
+					'vars'  => array(),
 					'ajax'  => array(
 						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
 						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
 						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
 					),
 					'flags' => array(
-						'has_notes' => count( $aNotes ) > 0,
 						'can_notes' => $this->isPremium() //not the way to determine
 					)
 				);
@@ -74,15 +69,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'ajax'    => array(
 						'render_table' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
 					),
-					'flags'   => array(
-						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
-					),
+					'flags'   => array(),
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
 					),
 					'vars'    => array(
 						'contexts_for_select' => $oAuditMod->getAllContexts(),
-						'audit_trail_recent'  => $aRecentAuditTrail,
 					),
 				);
 				break;
@@ -108,12 +100,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array(
 					'vars'   => array(
 						'summary'               => $this->getInsightsModsSummary(),
-						'audit_trail_recent'    => $aRecentAuditTrail,
 						'insight_events'        => $this->getRecentEvents(),
 						'insight_notices'       => $aSecNotices,
 						'insight_notices_count' => $nNoticesCount,
 						'insight_stats'         => $this->getStats(),
-						'insight_notes'         => $aNotes,
 					),
 					'inputs' => array(
 						'license_key' => array(
@@ -131,14 +121,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
 					),
 					'flags'  => array(
-						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
-						'show_ads'                => false,
-						'show_standard_options'   => false,
-						'show_alt_content'        => true,
-						'is_pro'                  => $this->isPremium(),
-						'has_notices'             => count( $aSecNotices ) > 0,
-						'has_notes'               => count( $aNotes ) > 0,
-						'can_notes'               => $this->isPremium() //not the way to determine
+						'show_ads'              => false,
+						'show_standard_options' => false,
+						'show_alt_content'      => true,
+						'is_pro'                => $this->isPremium(),
+						'has_notices'           => count( $aSecNotices ) > 0,
 					),
 				);
 				break;
@@ -166,12 +153,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
 					),
 					'flags'  => array(
-						'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
-						'show_ads'                => false,
-						'show_standard_options'   => false,
-						'show_alt_content'        => true,
-						'is_pro'                  => $this->isPremium(),
-						'has_notices'             => count( $aSecNotices ) > 0,
+						'show_ads'              => false,
+						'show_standard_options' => false,
+						'show_alt_content'      => true,
+						'is_pro'                => $this->isPremium(),
+						'has_notices'           => count( $aSecNotices ) > 0,
 					),
 				);
 				break;
@@ -214,14 +200,35 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {
-			wp_localize_script(
-				$this->prefix( 'plugin' ),
-				'icwp_wpsf_vars_insights',
-				array(
-					'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-					'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-				)
-			);
+
+			if ( $this->isThisModulePage() ) {
+				$oConn = $this->getConn();
+
+				switch ( $this->loadRequest()->query( 'subnav' ) ) {
+
+					case 'notes':
+						$sAsset = 'shield-notes';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							array( $this->prefix( 'plugin' ) ),
+							$oConn->getVersion(),
+							true
+						);
+						wp_enqueue_script( $sUnique );
+
+						wp_localize_script(
+							$sUnique,
+							'icwp_wpsf_vars_insights',
+							array(
+								'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+								'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+							)
+						);
+						break;
+				}
+			}
 		}
 	}
 
