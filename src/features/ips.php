@@ -191,7 +191,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableIps() {
-		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(

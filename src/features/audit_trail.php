@@ -38,7 +38,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableAuditTrail() {
-		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(
@@ -77,7 +77,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				'paged'      => 1,
 				'fIp'        => '',
 				'fUsername'  => '',
-				'fContext'   => 'all',
+				'fContext'   => '',
 				'fLoggedIn'  => -1,
 				'fExludeYou' => '',
 			),
@@ -94,6 +94,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 						  ->setResultsAsVo( true );
 		// Filters
 		{
+			$oSelector->filterByContext( $aParams[ 'fContext' ] );
+
 			$oIp = $this->loadIpService();
 			// If an IP is specified, it takes priority
 			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {

@@ -69,7 +69,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'audit':
 				$aData = array(
 					'ajax'    => array(
-						'render_table' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
+						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
 					),
 					'flags'   => array(),
 					'strings' => array(

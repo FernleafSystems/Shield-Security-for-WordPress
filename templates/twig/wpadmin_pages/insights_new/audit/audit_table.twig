@@ -1,19 +1,17 @@
 <div class="row insights_widget" id="SectionAuditTable">
 
-	<div class="col-lg-10 col-md-9 col-sm-8">
-		<div class="icwpAjaxTableContainer"></div>
-	</div>
+	<div class="col-lg-10 col-md-9 col-sm-8" id="TableAuditTrail"></div>
 
 	<div class="col-lg-2 col-md-3 col-sm-4">
 
 		<h6 class="mt-3">{{ strings.title_filter_form }}</h6>
 		<div class="" id="">
-			<form id="AuditFilter">
+			<form id="AuditFilter" autocomplete="off">
 				<div class="form-group">
 					<label for="_fContext">Context</label>
 					<select id="_fContext" name="fContext" class="form-control">
 						{% for context_key,context_name in vars.contexts_for_select %}
-							<option value="{{ context_key }}" selected>{{ context_name }}</option>
+							<option value="{{ context_key }}">{{ context_name }}</option>
 						{% endfor %}
 					</select>
 				</div>
@@ -45,8 +43,9 @@
 					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
 						   class="form-control" />
 				</div>
-				<div class="form-group">
-					<a id="ClearForm" href="#" class="btn btn-outline-danger">Clear Filters</a>
+				<div class="form-group text-right">
+					<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Apply Filters" />
+					<a id="ClearForm" href="#" class="btn btn-link">Clear Filters</a>
 				</div>
 
 			</form>
@@ -57,125 +56,12 @@
 
 <script>
 
-	var iCWP_WPSF_AuditTable = new function () {
-
-		var bRequestCurrentlyRunning = false;
-
-		/**
-		 */
-		var loadTable = function () {
-			sendTableRequest( jQuery( 'div[class="icwpAjaxTableContainer"]' ), {} );
-		};
-
-		/**
-		 */
-		var refreshTable = function ( event ) {
-			event.preventDefault();
-
-			var $oThis = jQuery( event.currentTarget );
-			var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]' );
-
-			var $oForm = jQuery( 'form#AuditFilter' );
-
-			var query = this.search.substring( 1 );
-			var aTableRequestParams = {
-				paged: extractQueryVars( query, 'paged' ) || 1,
-				order: extractQueryVars( query, 'order' ) || 'desc',
-				orderby: extractQueryVars( query, 'orderby' ) || 'created_at',
-				tableaction: $oThis.data( 'tableaction' ),
-				filters: $oForm.serialize()
-			};
-
-			sendTableRequest( $oMainContainer, aTableRequestParams );
-		};
-
-		var sendTableRequest = function ( $oMainContainer, aTableRequestParams ) {
-			if ( bRequestCurrentlyRunning ) {
-				return false;
-			}
-			bRequestCurrentlyRunning = true;
-
-			iCWP_WPSF_BodyOverlay.show();
-
-			var requestData = {{ ajax.render_table|raw }};
-
-			jQuery.post( ajaxurl, jQuery.extend( aTableRequestParams, requestData ),
-				function ( oResponse ) {
-					$oMainContainer.html( oResponse.data.html )
-				}
-			).always(
-				function () {
-					resetHandlers();
-					bRequestCurrentlyRunning = false;
-					iCWP_WPSF_BodyOverlay.hide();
-				}
-			);
-		};
-
-		var extractQueryVars = function ( query, variable ) {
-			var vars = query.split( "&" );
-			for ( var i = 0; i < vars.length; i++ ) {
-				var pair = vars[ i ].split( "=" );
-				if ( pair[ 0 ] === variable ) {
-					return pair[ 1 ];
-				}
-			}
-			return false;
-		};
-
-		var cleanHandlers = function () {
-			jQuery( document ).off( "click", 'a.tableActionRefresh' );
-		};
-
-		var resetHandlers = function () {
-			cleanHandlers();
-			setHandlers();
-		};
-
-		var setHandlers = function () {
-			jQuery( document ).on( "click", 'a.tableActionRefresh', refreshTable );
-			jQuery( document ).on( 'click', '.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a', refreshTable );
-
-			var timer;
-			var delay = 500;
-			jQuery( document ).on( 'keyup', 'input[name=paged]', function ( event ) {
-				// If user hit enter, we don't want to submit the form
-				// We don't preventDefault() for all keys because it would
-				// also prevent to get the page number!
-				if ( 13 === event.which )
-					event.preventDefault();
-
-				// This time we fetch the variables in inputs
-				var $oThis = jQuery( event.currentTarget );
-				var $oMainContainer = $oThis.closest( 'div[class="icwpAjaxTableContainer"]' );
-				var aTableRequestParams = {
-					paged: parseInt( jQuery( 'input[name=paged]', $oMainContainer ).val() ) || '1',
-					order: jQuery( 'input[name=order]', $oMainContainer ).val() || 'desc',
-					orderby: jQuery( 'input[name=orderby]', $oMainContainer ).val() || 'created_at'
-				};
-				// Now the timer comes to use: we wait half a second after
-				// the user stopped typing to actually send the call. If
-				// we don't, the keyup event will trigger instantly and
-				// thus may cause duplicate calls before sending the intended
-				// value
-				window.clearTimeout( timer );
-				timer = window.setTimeout( function () {
-					sendTableRequest( $oMainContainer, aTableRequestParams );
-				}, delay );
-			} );
-		};
-
-		this.initialise = function () {
-			jQuery( document ).ready( function () {
-				loadTable();
-			} );
-			jQuery( document ).ready( setHandlers );
-		};
-	}();
-
 	var iCWP_WPSF_AuditFilters = new function () {
+
+		var $oTableAuditTrail;
+		var $oForm;
+
 		var resetFilters = function ( event ) {
-			var $oForm = jQuery( 'form#AuditFilter' );
 			jQuery( 'input[type=text]', $oForm ).each( function () {
 				jQuery( this ).val( '' );
 			} );
@@ -185,17 +71,27 @@
 			jQuery( 'input[type=checkbox]', $oForm ).each( function () {
 				jQuery( this ).prop( 'checked', false );
 			} );
+			$oTableAuditTrail.renderTableFromForm( $oForm );
 		};
-		var setHandlers = function () {
-			jQuery( document ).on( "click", 'a#ClearForm', resetFilters );
+		var submitFilters = function ( evt ) {
+			evt.preventDefault();
+			$oTableAuditTrail.renderTableFromForm( $oForm );
+			return false;
 		};
-		this.initialise = function () {
-			jQuery( document ).ready( setHandlers );
-			jQuery( document ).ready( resetFilters );
+
+		this.initialise = function ( sFormSelector ) {
+			$oTableAuditTrail = jQuery( '#TableAuditTrail' ).icwpWpsfAjaxTable(
+				{
+					'ajax_render':{{ ajax.render_table_audittrail|raw }}
+				}
+			);
+
+			$oForm = jQuery( sFormSelector );
+			$oForm.on( "submit", submitFilters );
+			$oForm.on( "click", 'a#ClearForm', resetFilters );
 		};
 	}();
 
-	iCWP_WPSF_AuditTable.initialise();
-	iCWP_WPSF_AuditFilters.initialise();
+	iCWP_WPSF_AuditFilters.initialise( 'form#AuditFilter' );
 
 </script>

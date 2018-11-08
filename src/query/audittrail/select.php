@@ -13,7 +13,7 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByContext( $sContext ) {
-		if ( !empty( $sContext ) ) {
+		if ( !empty( $sContext ) && strtolower( $sContext ) != 'all' ) {
 			$this->addWhereEquals( 'context', $sContext );
 		}
 		return $this;

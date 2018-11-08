@@ -246,6 +246,10 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 		return false;
 	};
 
+	this.renderTableFromForm = function ( $oForm ) {
+		renderTableRequest( { 'form_params': $oForm.serialize() } );
+	};
+
 	var renderTableRequest = function ( aTableRequestParams ) {
 		if ( bReqRunning ) {
 			return false;
@@ -255,7 +259,7 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
 		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aTableRequestParams ),
 			function ( oResponse ) {
-				jQuery( 'div[class="icwpAjaxTableContainer"]', $oThis ).html( oResponse.data.html )
+				$oTableContainer.html( oResponse.data.html )
 			}
 		).always(
 			function () {
