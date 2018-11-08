@@ -309,15 +309,16 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		if ( is_array( $aEntries ) ) {
 			$oCon = $this->getConn();
+			$oDP = $this->loadDP();
+			$oWp = $this->loadWp();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();
 
 			$aUsers = array( _wpsf__( 'No' ) );
+			$oCarbon = new \Carbon\Carbon();
 			foreach ( $aEntries as $nKey => $oEntry ) {
 				$sIp = $oEntry->ip;
-
-				$aEntry = $oEntry->getRawDataAsArray();
 
 				list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
 				$sQuery = trim( $sQuery, '?' );
@@ -332,6 +333,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$sCodeType = 'warning';
 				}
 
+
+				$aEntry = $oDP->convertStdClassToArray( $oEntry->getRawData() );
 				$aEntry[ 'path' ] = $sPath;
 				$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
 				$aEntry[ 'trans' ] = sprintf(
@@ -340,7 +343,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
 				);
 				$aEntry[ 'ip' ] = $sIp;
-				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
+				$aEntry[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+										  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+
 				$aEntry[ 'is_you' ] = $sIp == $sYou;
 
 				if ( $oEntry->uid > 0 ) {

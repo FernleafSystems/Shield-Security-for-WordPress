@@ -215,14 +215,17 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	public function formatEntriesForDisplay( $aEntries ) {
-		$oDp = $this->loadDP();
-		$sYou = $this->loadIpService()->getRequestIp();
 		if ( is_array( $aEntries ) ) {
+			$oDp = $this->loadDP();
+			$oWp = $this->loadWp();
+			$sYou = $this->loadIpService()->getRequestIp();
+			$oCarbon = new \Carbon\Carbon();
 			foreach ( $aEntries as $nKey => $oEntry ) {
 				$aE = $oDp->convertStdClassToArray( $oEntry->getRawData() );
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->getEvent() ) );
 				$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->getMessage() ) );
-				$aE[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $oEntry->getCreatedAt() );
+				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
 				if ( $oEntry->getIp() == $sYou ) {
 					$aE[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
 				}

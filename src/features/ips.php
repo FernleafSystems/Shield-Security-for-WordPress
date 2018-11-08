@@ -111,6 +111,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$oWp = $this->loadWp();
 		$oDp = $this->loadDP();
 
+		$oCarbon = new \Carbon\Carbon();
 		foreach ( $aListData as $nKey => $oIp ) {
 			$aItem = $oDp->convertStdClassToArray( $oIp->getRawData() );
 			$sIp = $oIp->getIp();
@@ -124,8 +125,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					),
 					$sIp
 				);
-			$aItem[ 'last_access_at' ] = $oWp->getTimeStringForDisplay( $oIp->getLastAccessAt() );
-			$aItem[ 'created_at' ] = $oWp->getTimeStringForDisplay( $oIp->getCreatedAt() );
+			$aItem[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans()
+										 .'<br/><small>'.$oWp->getTimeStringForDisplay( $oIp->getLastAccessAt() ).'</small>';
+			$aItem[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans()
+									 .'<br/><small>'.$oWp->getTimeStringForDisplay( $oIp->getCreatedAt() ).'</small>';
 
 			$aListData[ $nKey ] = $aItem;
 		}

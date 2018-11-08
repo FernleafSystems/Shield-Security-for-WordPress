@@ -962,6 +962,9 @@ td.cell_delete_note {
 }
 
 /** IPS Insights **/
+#NewIp button.add {
+	padding: 9px 8px 3px 8px;
+}
 th.column-actions,
 td.column-actions {
 	width: 50px;
@@ -969,7 +972,7 @@ td.column-actions {
 td.column-actions a.btn {
 	height: 24px;
 	width: 24px;
-	padding: 3px 2px;
+	padding: 3px 2px 3px 1px;
 }
 td.column-actions a > span {
 	font-size: 16px;

@@ -14,11 +14,7 @@
  * @property int    created_at
  * @property int    deleted_at
  */
-class ICWP_WPSF_TrafficEntryVO {
-
-	use \FernleafSystems\Utilities\Data\Adapter\StdClassAdapter {
-		__get as __parentGet;
-	}
+class ICWP_WPSF_TrafficEntryVO extends ICWP_WPSF_BaseEntryVO {
 
 	/**
 	 * @param string $sProperty
@@ -32,7 +28,7 @@ class ICWP_WPSF_TrafficEntryVO {
 				break;
 
 			default:
-				$mVal = $this->__parentGet( $sProperty );
+				$mVal = parent::__get( $sProperty );
 		}
 		return $mVal;
 	}
@@ -41,6 +37,6 @@ class ICWP_WPSF_TrafficEntryVO {
 	 * @return string
 	 */
 	public function getIp() {
-		return inet_ntop( $this->getParam( 'ip' ) );
+		return inet_ntop( $this->ip );
 	}
 }
