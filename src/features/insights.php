@@ -216,6 +216,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $this->isThisModulePage() ) {
 				$oConn = $this->getConn();
 
+				$aStdDeps = array( $this->prefix( 'plugin' ) );
 				switch ( $this->loadRequest()->query( 'subnav' ) ) {
 
 					case 'notes':
@@ -224,7 +225,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_register_script(
 							$sUnique,
 							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							array( $this->prefix( 'plugin' ) ),
+							$aStdDeps,
 							$oConn->getVersion(),
 							true
 						);
@@ -247,7 +248,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_register_script(
 							$sUnique,
 							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							array( $this->prefix( 'plugin' ) ),
+							$aStdDeps,
 							$oConn->getVersion(),
 							false
 						);
@@ -260,7 +261,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_register_script(
 							$sUnique,
 							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							array( $this->prefix( 'plugin' ) ),
+							$aStdDeps,
 							$oConn->getVersion(),
 							false
 						);

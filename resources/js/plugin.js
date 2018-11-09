@@ -248,7 +248,6 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 			}
 		).always(
 			function () {
-				// resetHandlers();
 				bReqRunning = false;
 				iCWP_WPSF_BodyOverlay.hide();
 			}
@@ -288,9 +287,11 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 	};
 
 	var initialise = function () {
-		createTableContainer();
-		renderTableRequest();
-		setHandlers();
+		jQuery( document ).ready( function () {
+			createTableContainer();
+			renderTableRequest();
+			setHandlers();
+		} );
 	};
 
 	var $oThis = this;
