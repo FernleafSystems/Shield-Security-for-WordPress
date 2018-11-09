@@ -104,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
-			case 'scan':
+			case 'scans':
 				$aData = array();
 				break;
 
@@ -178,12 +178,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aTopNav = array(
 			'insights' => _wpsf__( 'Overview' ),
 			'config'   => _wpsf__( 'Configuration' ),
-			'scan'     => _wpsf__( 'Scan' ),
+			'scans'    => _wpsf__( 'Scan' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
 			'notes'    => _wpsf__( 'Notes' ),
-			'original' => _wpsf__( 'ORIGINAL' ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
 			$sName = array(
@@ -218,6 +217,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 				$aStdDeps = array( $this->prefix( 'plugin' ) );
 				switch ( $this->loadRequest()->query( 'subnav' ) ) {
+
+					case 'scans':
+						$sAsset = 'shield-scans';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						break;
 
 					case 'notes':
 						$sAsset = 'shield-notes';

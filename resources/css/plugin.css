@@ -905,6 +905,12 @@ th.column-request_info {
 	/*border-radius: 2px;*/
 	/*margin-left: 3px;*/
 }
+#odp-BodyHead .nav-link.active {
+	font-weight: bold;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 3px;
+	background-color: rgba(0,0,0,0.04);
+}
 #odp-BodyMain {
 	font-size: 13px;
 }
