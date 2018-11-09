@@ -197,21 +197,6 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
-	var $oThis = this;
-	var $oTableContainer;
-	var bReqRunning = false;
-	var aOpts = jQuery.extend( {}, aOptions );
-
-	initialise();
-
-	function initialise() {
-		jQuery( document ).ready( function () {
-			createTableContainer();
-			renderTableRequest();
-			setHandlers();
-		} );
-	}
-
 	this.reloadTable = function () {
 		renderTableRequest();
 	};
@@ -301,6 +286,18 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 			}, delay );
 		} );
 	};
+
+	var initialise = function () {
+		createTableContainer();
+		renderTableRequest();
+		setHandlers();
+	};
+
+	var $oThis = this;
+	var $oTableContainer;
+	var bReqRunning = false;
+	var aOpts = jQuery.extend( {}, aOptions );
+	initialise();
 
 	return this;
 };

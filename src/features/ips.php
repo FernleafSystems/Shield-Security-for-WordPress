@@ -142,7 +142,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$oProcessor = $this->getProcessor();
 
 		$bSuccess = false;
-		$nId = $oReq->post( 'id', -1 );
+		$nId = $oReq->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = _wpsf__( "Invalid entry selected" );
 		}

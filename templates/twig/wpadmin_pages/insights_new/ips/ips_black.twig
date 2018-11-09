@@ -10,15 +10,18 @@
 
 {% block section_table_js %}
 	<script>
-		jQuery( document ).icwpWpsfTableIps(
+		var $oTableIpsBlack = jQuery( '#TableIpsBlack' ).icwpWpsfAjaxTable(
 			{
-				'id_table_container': '#TableIpsBlack',
-				'id_form_container': '#SectionTableIpsBlack',
 				'ajax_render':{{ ajax.render_table_ip|raw }},
-				'ajax_delete_ip':{{ ajax.ip_delete|raw }},
 				'req_params': {
 					'fList': 'AB'
 				}
+			}
+		);
+		jQuery( '#SectionTableIpsBlack' ).icwpWpsfTableIps(
+			{
+				'table': $oTableIpsBlack,
+				'ajax_delete_ip':{{ ajax.ip_delete|raw }}
 			}
 		);
 	</script>

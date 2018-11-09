@@ -11,7 +11,7 @@ class IpBaseTable extends ICWP_BaseTable {
 	 * @return string
 	 */
 	public function column_actions( $aItem ) {
-		return sprintf( '<a href="#" class="btn btn-sm btn-outline-danger delete" title="%s" data-id="%s">'.
+		return sprintf( '<a href="#" class="btn btn-sm btn-outline-danger delete" title="%s" data-rid="%s">'.
 						'<span class="dashicons dashicons-dismiss"></span></a>', _wpsf__( 'Delete' ), $aItem[ 'id' ] );
 	}
 

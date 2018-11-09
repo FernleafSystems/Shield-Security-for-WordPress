@@ -1,21 +1,10 @@
+/**
+ * Important Params:
+ * 'table': icwpWpsfAjaxTable
+ * @param aOptions
+ * @returns {jQuery}
+ */
 jQuery.fn.icwpWpsfTableIps = function ( aOptions ) {
-
-	var $oThis = this;
-	var aOpts = jQuery.extend( {}, aOptions );
-	/**
-	 * @var icwpWpsfAjaxTable
-	 */
-	var $oTable;
-
-	initialise();
-
-	function initialise() {
-		$oTable = jQuery( aOpts[ 'id_table_container' ] ).icwpWpsfAjaxTable( aOpts );
-		jQuery( document ).ready( function () {
-			$oThis.on( 'submit', 'form', addIpFromFormSubmit );
-			$oTable.on( 'click', 'td.column-actions a.delete', deleteEntry );
-		} );
-	}
 
 	var addIpFromFormSubmit = function ( event ) {
 		event.preventDefault();
@@ -24,7 +13,7 @@ jQuery.fn.icwpWpsfTableIps = function ( aOptions ) {
 		jQuery.post( ajaxurl, jQuery( this ).serialize(),
 			function ( oResponse ) {
 				if ( oResponse.success ) {
-					$oTable.reloadTable();
+					aOpts[ 'table' ].reloadTable();
 					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
 				}
 				else {
@@ -41,17 +30,17 @@ jQuery.fn.icwpWpsfTableIps = function ( aOptions ) {
 		);
 	};
 
-	var deleteEntry = function ( event ) {
-		event.preventDefault();
+	var deleteEntry = function ( evt ) {
+		evt.preventDefault();
 		iCWP_WPSF_BodyOverlay.show();
 
 		var requestData = aOpts[ 'ajax_delete_ip' ];
-		requestData[ 'id' ] = jQuery( this ).data( 'id' );
+		requestData[ 'rid' ] = jQuery( this ).data( 'rid' );
 
 		jQuery.post( ajaxurl, requestData,
 			function ( oResponse ) {
 				if ( oResponse.success ) {
-					$oTable.reloadTable();
+					aOpts[ 'table' ].reloadTable();
 					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
 				}
 				else {
@@ -67,6 +56,17 @@ jQuery.fn.icwpWpsfTableIps = function ( aOptions ) {
 			}
 		);
 	};
+
+	var initialise = function () {
+		jQuery( document ).ready( function () {
+			$oThis.on( 'submit', 'form', addIpFromFormSubmit );
+			aOpts[ 'table' ].on( 'click', 'td.column-actions a.delete', deleteEntry );
+		} );
+	};
+
+	var $oThis = this;
+	var aOpts = jQuery.extend( {}, aOptions );
+	initialise();
 
 	return this;
 };
