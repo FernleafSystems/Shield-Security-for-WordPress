@@ -2,28 +2,41 @@
 	<div class="row insights_widget" id="SectionTableIpsWhite">
 		{% block section_form_addip %}
 			<div class="col-12">
-				<form class="form-inline" id="NewIp" action="#" method="post">
-					{% for name,val in ajax.add_ip_white %}
-						<input type="hidden" name="{{ name }}" value="{{ val }}" />
-					{% endfor %}
-					<label class="sr-only" for="IpAddress">IpAddress</label>
-					<div class="input-group w-100">
-						<div class="input-group-prepend">
-							<div class="input-group-text" style="border-radius: 0">New IP:</div>
-						</div>
-						<input type="text" class="form-control" id="IpAddress" name="ip"
-							   placeholder="enter IP to whitelist" />
-						<input type="text" class="form-control" id="Label" name="label"
-							   placeholder="label for IP" />
-						<div class="input-group-append">
-							<button type="submit" class="btn btn-info add" style="border-radius: 0;" name="subbutt"
-									title="Add IP"><span class="dashicons dashicons-plus"></span></button>
-						</div>
-					</div>
-				</form>
 			</div>
 		{% endblock %}
-		<div class="col-12" id="TableIpsWhite"></div>
+		<div class="col-12">
+
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">White List</h5>
+					<h6 class="card-subtitle mb-2 text-muted">asdf</h6>
+				</div>
+				<div class="card-body pb-2">
+					<form class="form-inline mb-2 mt-3" id="NewIp" action="#" method="post">
+						{% for name,val in ajax.add_ip_white %}
+							<input type="hidden" name="{{ name }}" value="{{ val }}" />
+						{% endfor %}
+						<label class="sr-only" for="IpAddress">IpAddress</label>
+						<div class="input-group w-100">
+							<div class="input-group-prepend">
+								<div class="input-group-text" style="border-radius: 0">New IP:</div>
+							</div>
+							<input type="text" class="form-control" id="IpAddress" name="ip"
+								   placeholder="enter IP to whitelist" />
+							<input type="text" class="form-control" id="Label" name="label"
+								   placeholder="label for IP" />
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-info add" style="border-radius: 0;" name="subbutt"
+										title="Add IP"><span class="dashicons dashicons-plus"></span></button>
+							</div>
+						</div>
+					</form>
+
+					<div id="TableIpsWhite"></div>
+
+				</div>
+			</div>
+		</div>
 	</div>
 {% endblock %}
 
