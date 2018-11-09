@@ -1,56 +1,14 @@
 <div class="row" id="SectionInsightsScans">
 	<div class="col-12">
-
-		<form id="StartScan">
-		<div class="row">
-			<div class="col-xl-10 col-lg-10 col-md-9 insights_widget">
-
-					<div class="row">
-						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-							<div class="scan-select pl-2 text-nowrap">
-								<input type="checkbox" class="form-control text-right" id="chWcf" value="Y" />
-								<label for="chWcf" class="col-form-label">Core Files</label>
-							</div>
-						</div>
-						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-							<div class="scan-select pl-2 text-nowrap">
-								<input type="checkbox" class="form-control text-right" id="chUfc" value="Y" />
-								<label for="chUfc" class="col-form-label">Unrecognised Core Files</label>
-							</div>
-						</div>
-						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-							<div class="scan-select pl-2 text-nowrap">
-								<input type="checkbox" class="form-control text-right" id="chPtg" value="Y" />
-								<label for="chPtg" class="col-form-label">Plugin/Theme Modifications</label>
-							</div>
-						</div>
-						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-							<div class="scan-select pl-2 text-nowrap">
-								<input type="checkbox" class="form-control text-right" id="chPtdev" value="Y" />
-								<label for="chPtdev" class="col-form-label">Plugin Deviance from WP.org</label>
-							</div>
-						</div>
-						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-							<div class="scan-select pl-2 text-nowrap">
-								<input type="checkbox" class="form-control text-right" id="chVuln" value="Y" />
-								<label for="chVuln" class="col-form-label">Plugin Vulnerabilities</label>
-							</div>
-						</div>
-					</div>
-
-			</div>
-			<div class="col-xl-2 col-lg-2 col-md-3">
-				<button class="btn btn-primary" type="submit">Start Scan &rarr;</button>
-			</div>
-		</div>
-		</form>
+		{% include '/wpadmin_pages/insights_new/scans/scan_start_areas.twig' %}
+	</div>
+	<div class="col-12">
+		{% include '/wpadmin_pages/insights_new/scans/scan_start_results.twig' %}
 	</div>
 </div>
 
 <script>
-
 	jQuery( 'form#StartScan' ).icwpWpsfScans( {
 		'selector_section': '#SectionInsightsScans'
 	} );
-
 </script>
