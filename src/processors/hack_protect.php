@@ -98,6 +98,19 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
+	 */
+	public function getSubProcessorScanner() {
+		$oProc = $this->getSubProcessor( 'scanner' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/hackprotect_scanner.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_Scanner( $this->getMod() );
+			$this->aSubProcessors[ 'scanner' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_FileCleanerScan
 	 */
 	public function getSubProcessorFileCleanerScan() {
