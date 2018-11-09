@@ -354,8 +354,8 @@
       "section":     "section_brute_force_login_protection",
       "type":        "array",
       "default":     [
-      	"ihc_login_form",
-      	"createuser"
+      	"form#ihc_login_form",
+      	"form#createuser"
       ],
       "link_info":   "",
       "link_blog":   "",

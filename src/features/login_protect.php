@@ -57,9 +57,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
 		}
 
-		$aIds = $this->getAntiBotFormIds();
+		$aIds = $this->getAntiBotFormSelectors();
 		foreach ( $aIds as $nKey => $sId ) {
-			$sId = preg_replace( '/\s/', '', strip_tags( trim( $sId ) ) );
+			$sId = trim( strip_tags( $sId ) );
 			if ( empty( $sId ) ) {
 				unset( $aIds[ $nKey ] );
 			}
@@ -590,14 +590,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function isEnabledBotJs() {
 		return $this->isPremium() && $this->isOpt( 'enable_antibot_js', 'Y' )
-			   && count( $this->getAntiBotFormIds() ) > 0
+			   && count( $this->getAntiBotFormSelectors() ) > 0
 			   && ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() );
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getAntiBotFormIds() {
+	public function getAntiBotFormSelectors() {
 		$aIds = $this->getOpt( 'antibot_form_ids', array() );
 		return is_array( $aIds ) ? $aIds : array();
 	}
@@ -623,14 +623,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sUnique,
 				'icwp_wpsf_vars_lpantibot',
 				array(
-					'form_ids' => $this->getAntiBotFormIds(),
-					'uniq'     => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-					'cbname'   => $this->getGaspKey(),
-					'strings'  => array(
+					'form_selectors' => implode( ',', $this->getAntiBotFormSelectors() ),
+					'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+					'cbname'         => $this->getGaspKey(),
+					'strings'        => array(
 						'label' => $this->getTextImAHuman(),
 						'alert' => $this->getTextPleaseCheckBox(),
 					),
-					'flags'    => array(
+					'flags'          => array(
 						'gasp'  => $this->isEnabledGaspCheck(),
 						'recap' => $this->isGoogleRecaptchaEnabled(),
 					)
@@ -869,8 +869,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'antibot_form_ids' :
 				$sName = _wpsf__( 'AntiBot Forms' );
-				$sSummary = _wpsf__( 'Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS' );
-				$sDescription = _wpsf__( 'For use with the AntiBot JS option.' );
+				$sSummary = _wpsf__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS' );
+				$sDescription = _wpsf__( 'For use with the AntiBot JS option.' )
+								.' '._wpsf__( 'IDs are prefixed with "#".' )
+								.' '._wpsf__( 'Classes are prefixed with ".".' )
+								.'<br />'._wpsf__( 'IDs are preferred over classes.' );
 				break;
 
 			case 'login_limit_interval' :

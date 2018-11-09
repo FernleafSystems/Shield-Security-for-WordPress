@@ -3,15 +3,14 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 
 		this.initialise = function () {
 			jQuery( document ).ready( function () {
-				jQuery.each( icwp_wpsf_vars_lpantibot.form_ids,
-					function ( _, form_id ) {
-						var form = document.getElementById( form_id );
-						if ( form !== null ) {
+				jQuery( icwp_wpsf_vars_lpantibot.form_selectors ).each(
+					function ( _ ) {
+						if ( this !== null ) {
 							if ( icwp_wpsf_vars_lpantibot.flags.recap ) {
-								insertPlaceHolder_Recap( form );
+								insertPlaceHolder_Recap( this );
 							}
 							if ( icwp_wpsf_vars_lpantibot.flags.gasp ) {
-								insertPlaceHolder_Gasp( form );
+								insertPlaceHolder_Gasp( this );
 							}
 						}
 					}
