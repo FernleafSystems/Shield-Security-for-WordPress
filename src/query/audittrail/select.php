@@ -11,8 +11,15 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	/**
 	 * @return string[]
 	 */
-	public function getUniqueUsernames() {
-		return $this->getUnique( 'wp_username' );
+	public function getDistinctIps() {
+		return array_filter( $this->getUnique( 'ip' ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDistinctUsernames() {
+		return array_filter( $this->getUnique( 'wp_username' ) );
 	}
 
 	/**
@@ -53,7 +60,14 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByIsLoggedIn( $bIsLoggedIn ) {
-		return $this->addWhere( 'wp_username', '', $bIsLoggedIn ? '!=' : '=' );
+		if ( $bIsLoggedIn ) {
+			$this->addWhere( 'wp_username', '', '!=' )
+				 ->addWhere( 'wp_username', 'WP Cron', '!=' ); // special case
+		}
+		else {
+			$this->addWhereEquals( 'wp_username', '' );
+		}
+		return $this;
 	}
 
 	/**

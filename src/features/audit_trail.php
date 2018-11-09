@@ -66,7 +66,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
+			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
 				unset( $aParams[ $sKey ] );
 			}
 		}
@@ -84,7 +84,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aParams
 		);
 		$nPage = (int)$aParams[ 'paged' ];
-
 		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
 		$oPro = $this->loadProcessor();
 		$oSelector = $oPro->getQuerySelector()
@@ -107,10 +106,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
 			if ( !empty( $aParams[ 'fUsername' ] ) ) {
-				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
-				if ( !empty( $oUser ) ) {
-					$oSelector->filterByUsername( $oUser->user_login );
-				}
+				$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
 			}
 			else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
 				$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );

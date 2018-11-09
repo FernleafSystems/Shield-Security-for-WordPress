@@ -26,6 +26,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oTrafficMod = $oCon->getModule( 'traffic' );
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
 		$oAuditMod = $oCon->getModule( 'audit_trail' );
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
+		$oAuditPro = $oAuditMod->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
 
@@ -77,6 +79,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					),
 					'vars'    => array(
 						'contexts_for_select' => $oAuditMod->getAllContexts(),
+						'unique_ips'          => $oAuditPro->getQuerySelector()->getDistinctIps(),
+						'unique_users'        => $oAuditPro->getQuerySelector()->getDistinctUsernames(),
 					),
 				);
 				break;
