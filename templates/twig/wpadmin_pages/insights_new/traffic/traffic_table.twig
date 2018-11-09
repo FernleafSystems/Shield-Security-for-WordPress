@@ -9,8 +9,12 @@
 			<form id="TrafficFilter">
 				<div class="form-group">
 					<label for="_fIp">IP Address</label>
-					<input type="text" id="_fIp" name="fIp" placeholder="IP Address"
-						   class="form-control-plaintext" />
+					<select id="_fIp" name="fIp" class="form-control">
+						<option value="">-- select --</option>
+						{% for unique_ip in vars.unique_ips %}
+							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+						{% endfor %}
+					</select>
 				</div>
 				<div class="form-group">
 					<label for="_fPath">Page/Path Contains...</label>
@@ -19,13 +23,24 @@
 				</div>
 				<div class="form-group">
 					<label for="_fResponse">Response</label>
-					<input type="text" id="_fResponse" name="fResponse" placeholder="e.g. 200"
-						   class="form-control-plaintext" />
+					<select id="_fResponse" name="fResponse" class="form-control">
+						<option value="">-- select --</option>
+						{% for unique_response in vars.unique_responses %}
+							<option value="{{ unique_response }}">{{ unique_response }}</option>
+						{% endfor %}
+					</select>
 				</div>
 				<div class="form-group">
 					<label for="_fUsername">Username (ignores 'Logged-In' filter)</label>
-					<input type="text" id="_fUsername" name="fUsername"
-						   placeholder="" class="form-control-plaintext" />
+					<select id="_fUsername" name="fUsername" class="form-control">
+						<option value="">-- select --</option>
+						{% for uniq_user in vars.unique_users %}
+							<option value="{{ uniq_user }}">{{ uniq_user }}</option>
+						{% endfor %}
+					</select>
+					<small id="fUsernameHelp" class="form-text text-muted">
+						Providing a username will cause the 'logged-in' filter to be ignored.
+					</small>
 				</div>
 				<div class="form-group">
 					<label for="_fLoggedIn">Logged-In?</label>

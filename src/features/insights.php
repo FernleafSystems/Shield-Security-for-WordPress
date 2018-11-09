@@ -24,6 +24,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
+		/** @var ICWP_WPSF_Processor_TrafficLogger $oTrafficPro */
+		$oTrafficPro = $oTrafficMod->getProcessor()->getProcessorLogger();
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
 		$oAuditMod = $oCon->getModule( 'audit_trail' );
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
@@ -94,7 +96,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
 					),
-					'vars'    => array(),
+					'vars'    => array(
+						'unique_ips'       => $oTrafficPro->getQuerySelector()->getDistinctIps(),
+						'unique_responses' => $oTrafficPro->getQuerySelector()->getDistinctCodes(),
+						'unique_users'     => $oTrafficPro->getQuerySelector()->getDistinctUsernames(),
+					),
 				);
 				break;
 
