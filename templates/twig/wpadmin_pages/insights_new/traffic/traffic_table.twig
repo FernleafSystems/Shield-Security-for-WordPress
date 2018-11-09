@@ -76,15 +76,16 @@
 
 </div>
 
-
-
-
 <script>
+	var $oTableTraffic = jQuery( '#TableTraffic' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_traffic|raw }}
+		}
+	);
 	jQuery( document ).icwpWpsfTableWithFilter(
 		{
-			'selector_table_container': '#TableTraffic',
-			'selector_filter_form': 'form#TrafficFilter',
-			'ajax_render':{{ ajax.render_table_traffic|raw }}
+			'table': $oTableTraffic,
+			'selector_filter_form':'form#TrafficFilter'
 		}
 	);
 </script>

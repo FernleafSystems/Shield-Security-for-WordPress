@@ -62,11 +62,15 @@
 </div>
 
 <script>
+	var $oTableAuditTrail = jQuery( '#TableAuditTrail' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_audittrail|raw }}
+		}
+	);
 	jQuery( document ).icwpWpsfTableWithFilter(
 		{
-			'selector_table_container': '#TableAuditTrail',
-			'selector_filter_form': 'form#AuditFilter',
-			'ajax_render':{{ ajax.render_table_audittrail|raw }}
+			'table': $oTableAuditTrail,
+			'selector_filter_form':'form#AuditFilter'
 		}
 	);
 </script>
