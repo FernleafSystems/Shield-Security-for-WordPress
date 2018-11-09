@@ -318,6 +318,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$aUsers = array( _wpsf__( 'No' ) );
 			$oCarbon = new \Carbon\Carbon();
 			foreach ( $aEntries as $nKey => $oEntry ) {
+				var_dump( $oEntry->ip );
 				$sIp = $oEntry->ip;
 
 				list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );

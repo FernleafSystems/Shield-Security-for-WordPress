@@ -12,14 +12,14 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return string[]
 	 */
 	public function getDistinctIps() {
-		return array_filter( $this->getUnique( 'ip' ) );
+		return $this->getDistinct_FilterAndSort( 'ip' );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getDistinctUsernames() {
-		return array_filter( $this->getUnique( 'wp_username' ) );
+		return $this->getDistinct_FilterAndSort( 'wp_username' );
 	}
 
 	/**

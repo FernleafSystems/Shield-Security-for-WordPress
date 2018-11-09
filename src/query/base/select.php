@@ -125,10 +125,20 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 * @param string $sColumn
 	 * @return array
 	 */
-	public function getUnique( $sColumn ) {
+	public function getDistinctForColumn( $sColumn ) {
 		return $this->addColumnToSelect( $sColumn )
 					->setIsDistinct( true )
 					->query();
+	}
+
+	/**
+	 * @param string $sColumn
+	 * @return array
+	 */
+	protected function getDistinct_FilterAndSort( $sColumn ) {
+		$a = array_filter( $this->getDistinctForColumn( $sColumn ) );
+		natcasesort( $a );
+		return $a;
 	}
 
 	/**

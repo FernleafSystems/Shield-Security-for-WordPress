@@ -19,7 +19,7 @@ class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
 			function ( $sIp ) {
 				return inet_ntop( $sIp );
 			},
-			$this->getUnique( 'ip' )
+			$this->getDistinctForColumn( 'ip' )
 		) );
 		asort( $aIps );
 		return $aIps;
@@ -29,14 +29,14 @@ class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return string[]
 	 */
 	public function getDistinctCodes() {
-		return array_filter( $this->getUnique( 'code' ) );
+		return $this->getDistinct_FilterAndSort( 'code' );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getDistinctUserIds() {
-		return array_filter( $this->getUnique( 'uid' ) );
+		return $this->getDistinct_FilterAndSort( 'uid' );
 	}
 
 	/**

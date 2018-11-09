@@ -24,19 +24,12 @@ class ICWP_WPSF_TrafficEntryVO extends ICWP_WPSF_BaseEntryVO {
 		switch ( $sProperty ) {
 
 			case 'ip':
-				$mVal = $this->getIp();
+				$mVal = inet_ntop( parent::__get( $sProperty ) );
 				break;
 
 			default:
 				$mVal = parent::__get( $sProperty );
 		}
 		return $mVal;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getIp() {
-		return inet_ntop( $this->ip );
 	}
 }
