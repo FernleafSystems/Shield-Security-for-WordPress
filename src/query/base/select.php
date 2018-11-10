@@ -29,6 +29,16 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	protected $bIsDistinct = false;
 
 	/**
+	 * @var bool
+	 */
+	protected $bResultsAsVo;
+
+	/**
+	 * @var string
+	 */
+	protected $sResultFormat;
+
+	/**
 	 * @param string $sCol
 	 * @return $this
 	 */
@@ -142,6 +152,19 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getSelectResultsFormat() {
+		if ( $this->isResultsAsVo() ) {
+			$sForm = ARRAY_A;
+		}
+		else {
+			$sForm = in_array( $this->sResultFormat, array( OBJECT_K, ARRAY_A ) ) ? $this->sResultFormat : OBJECT_K;
+		}
+		return $sForm;
+	}
+
+	/**
 	 * @return ICWP_WPSF_BaseEntryVO
 	 */
 	public function getVo() {
@@ -181,7 +204,15 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return stdClass[]|int
+	 * @return bool
+	 */
+	public function isResultsAsVo() {
+		return (bool)$this->bResultsAsVo;
+	}
+
+	/**
+	 * Handle COUNT, DISTINCT, & normal SELECT
+	 * @return int|string[]|array[]
 	 */
 	public function query() {
 		if ( $this->isCount() ) {
@@ -211,11 +242,11 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return stdClass[]
+	 * @return array[]
 	 */
 	protected function querySelect() {
 		return $this->loadDbProcessor()
-					->selectCustom( $this->buildQuery(), OBJECT_K );
+					->selectCustom( $this->buildQuery(), $this->getSelectResultsFormat() );
 	}
 
 	/**
@@ -277,6 +308,24 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	public function setIsDistinct( $bIsDistinct ) {
 		$this->bIsDistinct = $bIsDistinct;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bResultsAsVo
+	 * @return $this
+	 */
+	public function setResultsAsVo( $bResultsAsVo ) {
+		$this->bResultsAsVo = $bResultsAsVo;
+		return $this;
+	}
+
+	/**
+	 * @param string $sFormat
+	 * @return $this
+	 */
+	public function setSelectResultsFormat( $sFormat ) {
+		$this->sResultFormat = $sFormat;
 		return $this;
 	}
 }

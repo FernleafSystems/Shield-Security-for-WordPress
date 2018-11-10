@@ -9,15 +9,15 @@
 class ICWP_WPSF_BaseEntryVO {
 
 	/**
-	 * @var stdClass
+	 * @var array
 	 */
-	protected $oRowData;
+	protected $aRecord;
 
 	/**
-	 * @param stdClass $oRowData
+	 * @param array $oRowData
 	 */
 	public function __construct( $oRowData = null ) {
-		$this->oRowData = ( $oRowData instanceof stdClass ) ? $oRowData : new stdClass();
+		$this->aRecord = is_array( $oRowData ) ? $oRowData : array();
 	}
 
 	/**
@@ -42,18 +42,21 @@ class ICWP_WPSF_BaseEntryVO {
 	}
 
 	/**
-	 * @return stdClass
+	 * @return array
 	 */
 	public function getRawData() {
-		return $this->oRowData;
+		if ( !is_array( $this->aRecord ) ) {
+			$this->aRecord = array();
+		}
+		return $this->aRecord;
 	}
 
 	/**
-	 * @param stdClass $oRowData
+	 * @param array $aRow
 	 * @return $this
 	 */
-	public function setRawData( $oRowData ) {
-		$this->oRowData = $oRowData;
+	public function setRawData( $aRow ) {
+		$this->aRecord = $aRow;
 		return $this;
 	}
 
@@ -70,7 +73,8 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return bool
 	 */
 	public function __isset( $sKey ) {
-		return isset( $this->getRawData()->{$sKey} );
+		$aR = $this->getRawData();
+		return isset( $aR[ $sKey ] );
 	}
 
 	/**
@@ -79,8 +83,9 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return $this
 	 */
 	public function __set( $sKey, $mValue ) {
-		$this->getRawData()->{$sKey} = $mValue;
-		return $this;
+		$aR = $this->getRawData();
+		$aR[ $sKey ] = $mValue;
+		return $this->setRawData( $aR );
 	}
 
 	/**
@@ -89,7 +94,7 @@ class ICWP_WPSF_BaseEntryVO {
 	 * @return mixed|null
 	 */
 	protected function getRawKey( $sKey ) {
-		$oD = $this->getRawData();
-		return isset( $oD->{$sKey} ) ? $oD->{$sKey} : null;
+		$aR = $this->getRawData();
+		return isset( $aR[ $sKey ] ) ? $aR[ $sKey ] : null;
 	}
 }

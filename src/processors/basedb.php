@@ -104,6 +104,16 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	abstract protected function getQueryDeleter();
 
 	/**
+	 * @return ICWP_WPSF_Query_BaseInsert
+	 */
+	abstract protected function getQueryInserter();
+
+	/**
+	 * @return ICWP_WPSF_Query_BaseSelect
+	 */
+	abstract protected function getQuerySelector();
+
+	/**
 	 * @return string
 	 */
 	abstract protected function getCreateTableSql();

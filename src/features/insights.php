@@ -448,12 +448,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aParsed = array();
 
 		$oIpService = $this->loadIpService();
-		$oDp = $this->loadDP();
 		$oCarbon = new \Carbon\Carbon();
 		foreach ( $aList as $oIp ) {
 
 			$nTrans = $oIp->getTransgressions();
-			$aIp = $oDp->convertStdClassToArray( $oIp->getRawData() );
+			$aIp = $oIp->getRawData();
 			$aIp[ 'trans' ] = sprintf( _n( '%s offence', '%s offences', $nTrans, 'wp-simple-firewall' ), $nTrans );
 			$aIp[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans();
 			$aIp[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans();

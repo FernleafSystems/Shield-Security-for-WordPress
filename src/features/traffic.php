@@ -309,7 +309,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		if ( is_array( $aEntries ) ) {
 			$oCon = $this->getConn();
-			$oDP = $this->loadDP();
 			$oWp = $this->loadWp();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
@@ -318,7 +317,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$aUsers = array( _wpsf__( 'No' ) );
 			$oCarbon = new \Carbon\Carbon();
 			foreach ( $aEntries as $nKey => $oEntry ) {
-				var_dump( $oEntry->ip );
 				$sIp = $oEntry->ip;
 
 				list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
@@ -335,7 +333,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				}
 
 
-				$aEntry = $oDP->convertStdClassToArray( $oEntry->getRawData() );
+				$aEntry = $oEntry->getRawData();
 				$aEntry[ 'path' ] = $sPath;
 				$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
 				$aEntry[ 'trans' ] = sprintf(

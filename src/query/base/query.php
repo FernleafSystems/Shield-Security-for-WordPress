@@ -7,11 +7,6 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseQuery', false ) ) {
 abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 
 	/**
-	 * @var bool
-	 */
-	protected $bResultsAsVo;
-
-	/**
 	 * @var array
 	 */
 	protected $aWheres;
@@ -247,13 +242,6 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isResultsAsVo() {
-		return $this->bResultsAsVo;
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function reset() {
@@ -306,15 +294,6 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool $bResultsAsVo
-	 * @return $this
-	 */
-	public function setResultsAsVo( $bResultsAsVo ) {
-		$this->bResultsAsVo = $bResultsAsVo;
-		return $this;
-	}
-
-	/**
 	 * @param string $sTable
 	 * @return $this
 	 */
@@ -337,7 +316,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function setWheresFromVo( $oVo ) {
-		foreach ( $this->loadDP()->convertStdClassToArray( $oVo->getRawData() ) as $sCol => $mVal ) {
+		foreach ( $oVo->getRawData() as $sCol => $mVal ) {
 			$this->addWhereEquals( $sCol, $mVal );
 		}
 		return $this;

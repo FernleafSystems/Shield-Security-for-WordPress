@@ -89,7 +89,7 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return int|stdClass[]|ICWP_WPSF_AuditTrailEntryVO[]
+	 * @return int|array[]|ICWP_WPSF_AuditTrailEntryVO[]
 	 */
 	public function query() {
 		return parent::query();

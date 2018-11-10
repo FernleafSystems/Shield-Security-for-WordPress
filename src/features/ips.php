@@ -67,11 +67,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function formatEntriesForDisplay( $aListData ) {
 		$oWp = $this->loadWp();
-		$oDp = $this->loadDP();
 
 		$oCarbon = new \Carbon\Carbon();
 		foreach ( $aListData as $nKey => $oIp ) {
-			$aItem = $oDp->convertStdClassToArray( $oIp->getRawData() );
+			$aItem = $oIp->getRawData();
 			$sIp = $oIp->getIp();
 
 			$aItem[ 'ip_link' ] =
