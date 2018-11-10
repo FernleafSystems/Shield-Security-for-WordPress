@@ -36,4 +36,46 @@ class ResultsSet extends Base\BaseResultsSet {
 			$this->getItems()
 		) ) );
 	}
+
+	/**
+	 * @return int
+	 */
+	public function countChecksumFailed() {
+		return count( $this->getChecksumFailed() );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function countMissing() {
+		return count( $this->getMissing() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasChecksumFailed() {
+		return $this->countChecksumFailed() > 0;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasMissing() {
+		return $this->countMissing() > 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function countResults() {
+		return count( $this->getItems() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasResults() {
+		return $this->countResults() > 0;
+	}
 }

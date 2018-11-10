@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @param bool $bAutoRepair
-	 * @return array
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore\ResultsSet
 	 */
 	public function runChecksumScanManual( $bAutoRepair ) {
 		return $this->getSubProcessorChecksumScan()
