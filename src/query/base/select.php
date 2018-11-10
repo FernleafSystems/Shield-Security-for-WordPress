@@ -154,7 +154,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	/**
 	 * @return string
 	 */
-	public function getSelectResultsFormat() {
+	protected function getSelectDataFormat() {
 		if ( $this->isResultsAsVo() ) {
 			$sForm = ARRAY_A;
 		}
@@ -246,7 +246,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	protected function querySelect() {
 		return $this->loadDbProcessor()
-					->selectCustom( $this->buildQuery(), $this->getSelectResultsFormat() );
+					->selectCustom( $this->buildQuery(), $this->getSelectDataFormat() );
 	}
 
 	/**

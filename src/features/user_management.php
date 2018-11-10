@@ -26,11 +26,11 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oWp = $this->loadWp();
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as $oSession ) {
-			$aSession = $oSession->getRawData();
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLoggedInAt() );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLastActivityAt() );
-			$aSession[ 'is_secadmin' ] = ( $oSession->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+		foreach ( $aActiveSessions as $oSess ) {
+			$aSession = $oSess->getRawData();
+			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSess->getLoggedInAt() );
+			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSess->getLastActivityAt() );
+			$aSession[ 'is_secadmin' ] = ( $oSess->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
 			$aFormatted[] = $aSession;
 		}
 
