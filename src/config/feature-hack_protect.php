@@ -478,6 +478,19 @@
   "definitions": {
     "plugin_vulnerabilities_data_source":   "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name":              "plugin-vulnerabilities-notification",
+    "table_columns_scanner": [
+      "id",
+      "hash",
+      "data",
+      "scan",
+      "description",
+      "severity",
+      "discovered_at",
+      "ignored_at",
+      "repaired_at",
+      "created_at",
+      "deleted_at"
+    ],
     "wpvulnscan_cron_name":                 "wpvulnscan-notification",
     "corechecksum_cron_name":               "core-checksum-notification",
     "unrecognisedscan_cron_name":           "unrecognised-scan-notification",

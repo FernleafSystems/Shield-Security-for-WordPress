@@ -59,11 +59,10 @@ class ICWP_WPSF_BaseEntryVO {
 
 	/**
 	 * @param string $sKey
-	 * @return mixed
+	 * @return mixed|null
 	 */
 	public function __get( $sKey ) {
-		$oD = $this->getRawData();
-		return isset( $oD->{$sKey} ) ? $oD->{$sKey} : null;
+		return $this->getRawKey( $sKey );
 	}
 
 	/**
@@ -82,5 +81,15 @@ class ICWP_WPSF_BaseEntryVO {
 	public function __set( $sKey, $mValue ) {
 		$this->getRawData()->{$sKey} = $mValue;
 		return $this;
+	}
+
+	/**
+	 * Use this to by-pass __get() to prevent infinite loops.
+	 * @param string $sKey
+	 * @return mixed|null
+	 */
+	protected function getRawKey( $sKey ) {
+		$oD = $this->getRawData();
+		return isset( $oD->{$sKey} ) ? $oD->{$sKey} : null;
 	}
 }
