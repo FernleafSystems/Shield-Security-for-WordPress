@@ -9,6 +9,13 @@ require_once( dirname( __FILE__ ).'/basedb.php' );
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
+	 * @param ICWP_WPSF_FeatureHandler_HackProtect $oModCon
+	 */
+	public function __construct( ICWP_WPSF_FeatureHandler_HackProtect $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getDef( 'table_name_scanner' ) );
+	}
+
+	/**
 	 */
 	public function run() {
 	}
@@ -63,15 +70,13 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	protected function getCreateTableSql() {
 		$sSqlTables = "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			rid varchar(10) NOT NULL DEFAULT '',
-			ip varchar(40) NOT NULL DEFAULT 0,
-			wp_username varchar(255) NOT NULL DEFAULT 'none',
-			context varchar(32) NOT NULL DEFAULT 'none',
-			event varchar(50) NOT NULL DEFAULT 'none',
-			category int(3) UNSIGNED NOT NULL DEFAULT 0,
-			message text,
-			immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			hash varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash',
+			data text COMMENT 'Relevant Item Data',
+			description text COMMENT 'Human Description',
+			scan varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type',
+			severity int(3) NOT NULL DEFAULT 1 COMMENT 'Severity',
+			repaired_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Repaired',
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Discovered',
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";

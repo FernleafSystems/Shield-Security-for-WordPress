@@ -478,6 +478,7 @@
   "definitions": {
     "plugin_vulnerabilities_data_source":   "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name":              "plugin-vulnerabilities-notification",
+    "table_name_scanner": "scanner",
     "table_columns_scanner": [
       "id",
       "hash",

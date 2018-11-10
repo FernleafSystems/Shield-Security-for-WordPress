@@ -9,7 +9,6 @@ require_once( __DIR__.'/ICWP_WPSF_BaseEntryVO.php' );
  * @property string scan
  * @property string description
  * @property int    severity
- * @property int    discovered_at
  * @property int    ignored_at
  * @property int    repaired_at
  */

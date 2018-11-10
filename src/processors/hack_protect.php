@@ -23,6 +23,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		// not probably necessary any longer since it's patched in the Core
 		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
+		$this->runScanner();
+
 		if ( $oFO->isWcfScanEnabled() ) {
 			$this->runChecksumScan();
 		}
@@ -46,6 +48,12 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		require_once( dirname( __FILE__ ).'/hackprotect_pluginvulnerabilities.php' );
 		$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getMod() );
 		$oPv->run();
+	}
+
+	/**
+	 */
+	protected function runScanner() {
+		$this->getSubProcessorScanner()->run();
 	}
 
 	/**

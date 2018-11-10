@@ -14,6 +14,13 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	protected $oAuditor;
 
 	/**
+	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
+	 */
+	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getAuditTrailTableName() );
+	}
+
+	/**
 	 * @return ICWP_WPSF_AuditTrail_Auditor_Base
 	 */
 	public function getBaseAuditor() {
@@ -22,13 +29,6 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			$this->oAuditor = new ICWP_WPSF_AuditTrail_Auditor_Base();
 		}
 		return $this->oAuditor;
-	}
-
-	/**
-	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getAuditTrailTableName() );
 	}
 
 	public function onModuleShutdown() {
