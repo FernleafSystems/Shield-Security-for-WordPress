@@ -29,6 +29,7 @@
   },
   "autoload":     {
     "psr-4": {
+      "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src"
     }
   }
 }

@@ -6,11 +6,14 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) )
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use \FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
+
 class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
 	public function run() {
+		$this->loadAutoload();
 		$this->setupChecksumCron();
 //		$this->cron_dailyChecksumScan();
 
@@ -24,7 +27,8 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					$sMd5FilePath = urldecode( esc_url( $sPath ) );
 					if ( !empty( $sMd5FilePath ) ) {
 						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
-							$this->getMod()->setFlashAdminNotice( _wpsf__( 'File was successfully replaced with an original from WordPress.org' ) );
+							$this->getMod()
+								 ->setFlashAdminNotice( _wpsf__( 'File was successfully replaced with an original from WordPress.org' ) );
 						}
 						else {
 							$this->getMod()->setFlashAdminNotice( _wpsf__( 'File was not replaced' ), true );
@@ -82,32 +86,41 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$sMissingOnlyExclusionsPattern = '#('.implode( '|', $this->getMissingOnlyExclusions() ).')#i';
 
 		$bProblemFound = false;
-		$oFS = $this->loadFS();
+
+		$oResultSet = new WpCore\ResultsSet();
 		foreach ( $aChecksumData as $sMd5FilePath => $sWpOrgChecksum ) {
+
 			if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
 				continue;
 			}
 
-			$bRepairThis = false;
-			$sFullPath = $this->convertMd5FilePathToActual( $sMd5FilePath );
+			$oResItem = new WpCore\ResultItem();
+			$oResItem->md5_file_wp = $sWpOrgChecksum;
+			$oResItem->path_fragment = $sMd5FilePath;
+			$oResItem->path_full = $this->convertMd5FilePathToActual( $sMd5FilePath );
 
-			if ( $oFS->isFile( $sFullPath ) ) {
-				if ( $this->compareFileChecksums( $sWpOrgChecksum, $sFullPath ) ) {
+			$bRepairThis = false;
+
+			if ( $oResItem->isFileMissing() && !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
+				// If the file is missing and it's not in the missing-only exclusions
+				$bProblemFound = true;
+				$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
+				$oResultSet->addItem( $oResItem );
+				$bRepairThis = $bAutoRepair;
+			}
+			else if ( $oResItem->fileExists() ) {
+
+				if ( $oResItem->isChecksumFail() ) {
 					$bProblemFound = true;
 					if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
 						$bRepairThis = true;
 					}
 					else {
 						$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sMd5FilePath;
+						$oResultSet->addItem( $oResItem );
 						$bRepairThis = $bAutoRepair;
 					}
 				}
-			}
-			else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
-				// If the file is missing and it's not in the missing-only exclusions
-				$bProblemFound = true;
-				$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
-				$bRepairThis = $bAutoRepair;
 			}
 
 			if ( $bRepairThis ) {
