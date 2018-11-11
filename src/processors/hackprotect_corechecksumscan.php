@@ -15,9 +15,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	public function run() {
 		$this->loadAutoload();
 		$this->setupChecksumCron();
-		if ( isset($_GET['test'] )) {
-			$this->cron_dailyChecksumScan();
-		}
+//		if ( isset($_GET['test'] )) {
+//			$this->cron_dailyChecksumScan();
+//		}
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
@@ -161,7 +161,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadRequest()->query( 'checksum_repair' ) == 1 );
 
 		$oResult = $this->doChecksumScan( $bOptionRepair );
-		if ( $oResult->hasResults() ) {
+		if ( $oResult->hasItems() ) {
 			$this->emailResults( $oResult );
 		}
 	}
@@ -323,13 +323,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 
 		if ( $oResult->hasChecksumFailed() ) {
 			$aContent[] = _wpsf__( "The contents of the core files listed below don't match official WordPress files:" );
-			foreach ( $oResult->getChecksumFailed() as $sFile ) {
+			foreach ( $oResult->getChecksumFailedPaths() as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}
 		if ( $oResult->hasMissing() ) {
 			$aContent[] = _wpsf__( 'The WordPress Core Files listed below are missing:' );
-			foreach ( $oResult->getMissing() as $sFile ) {
+			foreach ( $oResult->getMissingPaths() as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}

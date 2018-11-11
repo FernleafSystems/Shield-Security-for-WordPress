@@ -12,43 +12,69 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class ResultsSet extends Base\BaseResultsSet {
 
 	/**
-	 * @return array
+	 * @return ResultItem[]
 	 */
-	public function getMissing() {
-		return array_values( array_filter( array_map(
+	public function getMissingItems() {
+		return array_values( array_filter(
+			$this->getItems(),
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
-				return $oItem->isFileMissing() ? $oItem->path_fragment : null;
-			},
-			$this->getItems()
-		) ) );
+				return $oItem->isFileMissing();
+			}
+		) );
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getChecksumFailed() {
-		return array_values( array_filter( array_map(
+	public function getMissingPaths() {
+		return array_map(
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
-				return $oItem->isChecksumFail() ? $oItem->path_fragment : null;
+				return $oItem->path_fragment;
 			},
-			$this->getItems()
-		) ) );
+			$this->getMissingItems()
+		);
+	}
+
+	/**
+	 * @return ResultItem[]
+	 */
+	public function getChecksumFailedItems() {
+		return array_values( array_filter(
+			$this->getItems(),
+			function ( $oItem ) {
+				/** @var ResultItem $oItem */
+				return $oItem->isChecksumFail();
+			}
+		) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getChecksumFailedPaths() {
+		return array_map(
+			function ( $oItem ) {
+				/** @var ResultItem $oItem */
+				return $oItem->path_fragment;
+			},
+			$this->getChecksumFailedItems()
+		);
 	}
 
 	/**
 	 * @return int
 	 */
 	public function countChecksumFailed() {
-		return count( $this->getChecksumFailed() );
+		return count( $this->getChecksumFailedItems() );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function countMissing() {
-		return count( $this->getMissing() );
+		return count( $this->getMissingItems() );
 	}
 
 	/**
@@ -63,19 +89,5 @@ class ResultsSet extends Base\BaseResultsSet {
 	 */
 	public function hasMissing() {
 		return $this->countMissing() > 0;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function countResults() {
-		return count( $this->getItems() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasResults() {
-		return $this->countResults() > 0;
 	}
 }

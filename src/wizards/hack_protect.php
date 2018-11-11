@@ -453,17 +453,17 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(
-							'count'    => $oResult->countResults(),
-							'has'      => $oResult->hasResults(),
+							'count'    => $oResult->countItems(),
+							'has'      => $oResult->hasItems(),
 							'checksum' => array(
 								'count' => $oResult->countChecksumFailed(),
 								'has'   => $oResult->hasChecksumFailed(),
-								'list'  => $oResult->getChecksumFailed(),
+								'list'  => $oResult->getChecksumFailedPaths(),
 							),
 							'missing'  => array(
 								'count' => $oResult->countMissing(),
 								'has'   => $oResult->hasMissing(),
-								'list'  => $oResult->getMissing(),
+								'list'  => $oResult->getMissingPaths(),
 							)
 						)
 					);

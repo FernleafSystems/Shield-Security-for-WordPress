@@ -33,4 +33,18 @@ class BaseResultsSet {
 		}
 		return $this->items;
 	}
+
+	/**
+	 * @return int
+	 */
+	public function countItems() {
+		return count( $this->getItems() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasItems() {
+		return $this->countItems() > 0;
+	}
 }
