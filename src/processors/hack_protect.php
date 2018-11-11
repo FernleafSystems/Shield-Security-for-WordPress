@@ -98,7 +98,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function getSubProcessorChecksumScan() {
 		$oProc = $this->getSubProcessor( 'checksum' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_corechecksumscan.php' );
+			require_once( dirname( __FILE__ ).'/hackprotect_scanwpcore.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getMod() );
 			$this->aSubProcessors[ 'checksum' ] = $oProc;
 		}
@@ -124,7 +124,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function getSubProcessorFileCleanerScan() {
 		$oProc = $this->getSubProcessor( 'cleaner' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_filecleanerscan.php' );
+			require_once( dirname( __FILE__ ).'/hackprotect_scanunrecognisedcore.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getMod() );
 			$this->aSubProcessors[ 'cleaner' ] = $oProc;
 		}

@@ -19,11 +19,12 @@
     }
   },
   "require":      {
-    "fernleafsystems/utilities": "^1.0",
-    "nesbot/carbon":             "^1.32.0",
-    "twig/twig":                 "^1.0",
-    "bjeavons/zxcvbn-php":       "^0.3",
-    "geoip2/geoip2":             "^2.0"
+    "fernleafsystems/wordpress-services": "dev-develop",
+    "fernleafsystems/utilities":          "^1.0",
+    "nesbot/carbon":                      "^1.34.0",
+    "twig/twig":                          "^1.0",
+    "bjeavons/zxcvbn-php":                "^0.3",
+    "geoip2/geoip2":                      "^2.0"
   },
   "require-dev":  {
   },

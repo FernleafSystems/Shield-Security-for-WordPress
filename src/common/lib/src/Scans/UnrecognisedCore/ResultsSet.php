@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * Class ResultsSet
  * @property ResultItem[] items
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore
  */
 class ResultsSet extends Base\BaseResultsSet {
 
@@ -19,7 +19,7 @@ class ResultsSet extends Base\BaseResultsSet {
 			$this->getItems(),
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
-				return $oItem->is_missing;
+				return $oItem->isFileMissing();
 			}
 		) );
 	}
@@ -45,7 +45,7 @@ class ResultsSet extends Base\BaseResultsSet {
 			$this->getItems(),
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
-				return $oItem->is_checksumfail;
+				return $oItem->isChecksumFail();
 			}
 		) );
 	}
@@ -60,20 +60,6 @@ class ResultsSet extends Base\BaseResultsSet {
 				return $oItem->path_fragment;
 			},
 			$this->getChecksumFailedItems()
-		);
-	}
-
-	/**
-	 * @param ResultItem[] $aItems
-	 * @return ResultItem[]
-	 */
-	public function filterItemsForPaths( $aItems ) {
-		return array_map(
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->path_fragment;
-			},
-			$aItems
 		);
 	}
 
