@@ -70,6 +70,11 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		);
 		$nPage = (int)$aParams[ 'paged' ];
 
+		// first clean out the expired sessions before display
+		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getProcessorSessions()->cleanExpiredSessions();
+
 		/** @var ICWP_WPSF_Processor_Sessions $oPro */
 		$oPro = $this->getSessionsProcessor();
 		$oSelector = $oPro->getQuerySelector()
@@ -133,48 +138,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		return $this->getUserSessionsData();
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getUserSessionsData() {
-		$aActiveSessions = $this->getActiveSessionsData();
-
-		$aFormatted = array();
-
-		$oWp = $this->loadWp();
-		$sTimeFormat = $oWp->getTimeFormat();
-		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as $oSess ) {
-			$aSession = $oSess->getRawData();
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSess->getLoggedInAt() );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSess->getLastActivityAt() );
-			$aSession[ 'is_secadmin' ] = ( $oSess->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
-			$aFormatted[] = $aSession;
-		}
-
-		$oTable = $this->getTableRenderer()
-					   ->setItemEntries( $aFormatted )
-					   ->setPerPage( 5 )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		$sUserSessionsTable = ob_get_clean();
-
-		return array(
-			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadRequest()
-																												  ->ts() ) ),
-			'sUserSessionsTable' => $sUserSessionsTable
-		);
-	}
-
-	/**
 	 * @return SessionsTable
 	 */
 	protected function getTableRenderer() {
@@ -185,20 +148,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$oTable = new SessionsTable();
 		return $oTable->setTotalRecords( 25 );
-	}
-
-	/**
-	 * @param bool $bCleanFirst
-	 * @return ICWP_WPSF_SessionVO[]
-	 */
-	public function getActiveSessionsData( $bCleanFirst = true ) {
-		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
-		$oPro = $this->getProcessor();
-		$oSessions = $oPro->getProcessorSessions();
-		if ( $bCleanFirst ) {
-			$oSessions->cleanExpiredSessions();
-		}
-		return $oSessions->getActiveSessions();
 	}
 
 	/**
