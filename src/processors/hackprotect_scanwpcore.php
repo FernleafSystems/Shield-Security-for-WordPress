@@ -6,7 +6,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) )
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
-use \FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
+use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -15,9 +15,15 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	public function run() {
 		$this->loadAutoload();
 		$this->setupChecksumCron();
-//		if ( isset($_GET['test'] )) {
-//			$this->cron_dailyChecksumScan();
+//		if ( isset( $_GET[ 'test' ] ) ) {
+//			$oRes = $this->doChecksumScan();
+//			var_dump( $oRes->filterItemsForPaths( $oRes->getItems() ) );
+//			die();
 //		}
+//		$a = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\WpCoreHashes() )
+//			->getHashes();
+//		var_dump( $a );
+//		die();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
@@ -61,74 +67,32 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
+	 * @return Scans\WpCore\ResultsSet
+	 */
+	public function doScan() {
+		return ( new Scans\WpCore\Scanner() )
+			->setExclusions( $this->getFullExclusions() )
+			->setMissingExclusions( $this->getMissingOnlyExclusions() )
+			->run();
+	}
+
+	/**
 	 * @param bool $bAutoRepair
-	 * @return WpCore\ResultsSet
+	 * @return Scans\WpCore\ResultsSet
 	 */
 	public function doChecksumScan( $bAutoRepair = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$oResultSet = new WpCore\ResultsSet();
 
-		$aChecksumData = $this->loadWp()->getCoreChecksums();
+		$oResultSet = $this->doScan();
 
-		if ( empty( $aChecksumData ) ) {
-			return $oResultSet;
-		}
-
-		$aDiscoveredFiles = array(
-			'checksum_mismatch' => array(),
-			'missing'           => array(),
-		);
-
-		$aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
-		if ( empty( $aAutoFixIndexFiles ) ) {
-			$aAutoFixIndexFiles = array();
-		}
-
-		$sFullExclusionsPattern = '#('.implode( '|', $this->getFullExclusions() ).')#i';
-		$sMissingOnlyExclusionsPattern = '#('.implode( '|', $this->getMissingOnlyExclusions() ).')#i';
-
-		$bProblemFound = false;
-
-		foreach ( $aChecksumData as $sMd5FilePath => $sWpOrgChecksum ) {
-
-			if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
-				continue;
-			}
-
-			$oResItem = new WpCore\ResultItem();
-			$oResItem->md5_file_wp = $sWpOrgChecksum;
-			$oResItem->path_fragment = $sMd5FilePath;
-			$oResItem->path_full = $this->convertMd5FilePathToActual( $sMd5FilePath );
-
-			$bRepairThis = false;
-
-			if ( $oResItem->isFileMissing() && !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
-				// If the file is missing and it's not in the missing-only exclusions
-				$bProblemFound = true;
-				$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
-				$oResultSet->addItem( $oResItem );
-				$bRepairThis = $bAutoRepair;
-			}
-			else if ( $oResItem->fileExists() ) {
-
-				if ( $oResItem->isChecksumFail() ) {
-					$bProblemFound = true;
-					if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
-						$bRepairThis = true;
-					}
-					else {
-						$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sMd5FilePath;
-						$oResultSet->addItem( $oResItem );
-						$bRepairThis = $bAutoRepair;
-					}
-				}
-			}
-
-			if ( $bRepairThis ) {
-				$this->repairCoreFile( $sMd5FilePath );
-			}
-		}
+		/**
+		 * TODO:
+		 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
+		 * if ( empty( $aAutoFixIndexFiles ) ) {
+		 * $aAutoFixIndexFiles = array();
+		 */
+		$bProblemFound = $oResultSet->countItems() > 0;
 
 		( $bProblemFound && !$bAutoRepair ) ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
 		$oFO->setLastScanAt( 'wcf' );
@@ -171,19 +135,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	protected function getFullExclusions() {
 		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions' );
-		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = array();
-		}
-		foreach ( $aExclusions as $nKey => $sExclusion ) {
-			$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
-		}
+		$aExclusions = is_array( $aExclusions ) ? $aExclusions : array();
 
 		// Flywheel specific mods
 		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
 			$aExclusions[] = 'wp-settings.php';
 			$aExclusions[] = 'wp-admin/includes/upgrade.php';
 		}
-
 		return $aExclusions;
 	}
 
@@ -192,13 +150,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	protected function getMissingOnlyExclusions() {
 		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions_missing_only' );
-		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = array();
-		}
-		foreach ( $aExclusions as $nKey => $sExclusion ) {
-			$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
-		}
-		return $aExclusions;
+		return is_array( $aExclusions ) ? $aExclusions : array();
 	}
 
 	/**
@@ -246,7 +198,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param WpCore\ResultsSet $oResults
+	 * @param Scans\WpCore\ResultsSet $oResults
 	 */
 	protected function emailResults( $oResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -266,7 +218,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param WpCore\ResultsSet $oResults
+	 * @param Scans\WpCore\ResultsSet $oResults
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
@@ -315,7 +267,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param WpCore\ResultsSet $oResult
+	 * @param Scans\WpCore\ResultsSet $oResult
 	 * @return array
 	 */
 	private function buildListOfFilesForEmail( $oResult ) {
