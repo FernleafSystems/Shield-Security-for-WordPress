@@ -9,6 +9,130 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
+
+				case 'render_table_sessions':
+					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	protected function ajaxExec_BuildTableTraffic() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fIp',
+				'fUsername',
+			) )
+		);
+		return array(
+			'success' => true,
+			'html'    => $this->renderTable( $aParams )
+		);
+	}
+
+	/**
+	 * @param array $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams = array() ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._:-]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby'   => 'created_at',
+				'order'     => 'DESC',
+				'paged'     => 1,
+				'fIp'       => '',
+				'fUsername' => '',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+
+		/** @var ICWP_WPSF_Processor_Sessions $oPro */
+		$oPro = $this->getSessionsProcessor();
+		$oSelector = $oPro->getQuerySelector()
+						  ->setPage( $nPage )
+						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						  ->setLimit( 25 )
+						  ->setResultsAsVo( true );
+		// Filters
+		{
+			$oIp = $this->loadIpService();
+			// If an IP is specified, it takes priority
+			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
+				$oSelector->filterByIp( $aParams[ 'fIp' ] );
+			}
+
+			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
+			if ( !empty( $aParams[ 'fUsername' ] ) ) {
+				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
+				if ( !empty( $oUser ) ) {
+					$oSelector->filterByUsername( $oUser->user_login );
+				}
+			}
+		}
+
+		/** @var ICWP_WPSF_SessionVO[] $aEntries */
+		$aEntries = $oSelector->query();
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( 25 )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * Move to table
+	 * @param ICWP_WPSF_SessionVO[] $aEntries
+	 * @return array
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$sYou = $this->loadIpService()->getRequestIp();
+			$oCarbon = new \Carbon\Carbon();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$aE = $oEntry->getRawData();
+				$aE[ 'is_secadmin' ] = ( $oEntry->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+				$aE[ 'last_activity_at' ] = $oCarbon->setTimestamp( $oEntry->getLastActivityAt() )->diffForHumans()
+											.'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getLastActivityAt() ).'</small>';
+				$aE[ 'logged_in_at' ] = $oCarbon->setTimestamp( $oEntry->getLoggedInAt() )->diffForHumans()
+										.'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getLoggedInAt() ).'</small>';
+				if ( $oEntry->getIp() == $sYou ) {
+					$aE[ 'ip' ] .= '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
+				}
+				$aEntries[ $nKey ] = $aE;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getContentCustomActionsData() {
@@ -34,7 +158,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$aFormatted[] = $aSession;
 		}
 
-		$oTable = $this->getTableRendererForSessions()
+		$oTable = $this->getTableRenderer()
 					   ->setItemEntries( $aFormatted )
 					   ->setPerPage( 5 )
 					   ->prepare_items();
@@ -53,14 +177,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return SessionsTable
 	 */
-	protected function getTableRendererForSessions() {
+	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/SessionsTable.php' );
 		/** @var ICWP_WPSF_Processor_UserManagement $oProc */
 		$oProc = $this->loadProcessor();
 //		$nCount = $oProc->countAuditEntriesForContext( $sContext );
 
 		$oTable = new SessionsTable();
-		return $oTable->setTotalRecords( 10 );
+		return $oTable->setTotalRecords( 25 );
 	}
 
 	/**

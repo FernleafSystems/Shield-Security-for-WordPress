@@ -32,6 +32,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oAuditPro = $oAuditMod->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oModSessions */
+		$oModSessions = $oCon->getModule( 'sessions' );
+		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
+		$oProSessions = $oModSessions->getProcessor();
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
+		$oModUsers = $oCon->getModule( 'user_management' );
 
 		switch ( $sSubNavSection ) {
 
@@ -108,6 +114,22 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array();
 				break;
 
+			case 'users':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true )
+					),
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
+					),
+					'vars'    => array(
+						'unique_ips'       => $oProSessions->getQuerySelector()->getDistinctIps(),
+						'unique_users'     => $oProSessions->getQuerySelector()->getDistinctUsernames(),
+					),
+				);
+				break;
+
 			case 'original':
 				$aData = array(
 					'vars'   => array(
@@ -178,10 +200,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aTopNav = array(
 			'insights' => _wpsf__( 'Overview' ),
 			'config'   => _wpsf__( 'Configuration' ),
-			'scans'    => _wpsf__( 'Scan' ),
+//			'scans'    => _wpsf__( 'Scan' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
+			'users'    => _wpsf__( 'Users' ),
 			'notes'    => _wpsf__( 'Notes' ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
@@ -255,6 +278,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 					case 'audit':
 					case 'traffic':
+					case 'users':
 						$sAsset = 'shield-tables';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(

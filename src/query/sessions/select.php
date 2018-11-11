@@ -9,6 +9,31 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
 class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
+	 * @return string[]
+	 */
+	public function getDistinctIps() {
+		return $this->getDistinct_FilterAndSort( 'ip' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDistinctUsernames() {
+		return $this->getDistinct_FilterAndSort( 'wp_username' );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return $this
+	 */
+	public function filterByIp( $sIp ) {
+		if ( $this->loadIpService()->isValidIp( $sIp ) ) {
+			$this->addWhereEquals( 'ip', trim( $sIp ) );
+		}
+		return $this;
+	}
+
+	/**
 	 * @return ICWP_WPSF_SessionVO[]|stdClass[]
 	 */
 	public function all() {
