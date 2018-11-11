@@ -127,9 +127,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $this->loadRequest()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorChecksumScan()->doChecksumScan( true );
+			$oProc->getSubProcessorChecksumScan()->doScanAndFullRepair();
 
-			$sMessage = 'The scanner will have restore these files if your filesystem permissions allowed it.';
+			$sMessage = 'The scanner will have restored these files if your filesystem permissions allowed it.';
 		}
 		else {
 			$sMessage = 'No attempt was made to restore the files since the checkbox was not checked.';
@@ -449,7 +449,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			switch ( $sStep ) {
 				case 'scanresult':
-					$oResult = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
+					$oResult = $oProc->getSubProcessorChecksumScan()->doScan();
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(

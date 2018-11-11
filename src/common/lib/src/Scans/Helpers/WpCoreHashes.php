@@ -27,7 +27,7 @@ class WpCoreHashes {
 	}
 
 	/**
-	 * @param $sFile
+	 * @param string $sFile
 	 * @return string|null
 	 */
 	public function getFileHash( $sFile ) {

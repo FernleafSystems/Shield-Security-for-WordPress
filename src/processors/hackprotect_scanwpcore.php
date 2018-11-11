@@ -67,52 +67,36 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
+	 * TODO:
+	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
+	 * if ( empty( $aAutoFixIndexFiles ) ) {
+	 * $aAutoFixIndexFiles = array();
+	 */
+	/**
 	 * @return Scans\WpCore\ResultsSet
 	 */
 	public function doScan() {
-		return ( new Scans\WpCore\Scanner() )
-			->setExclusions( $this->getFullExclusions() )
-			->setMissingExclusions( $this->getMissingOnlyExclusions() )
-			->run();
-	}
-
-	/**
-	 * @param bool $bAutoRepair
-	 * @return Scans\WpCore\ResultsSet
-	 */
-	public function doChecksumScan( $bAutoRepair = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$oResultSet = $this->doScan();
+		$oResults = ( new Scans\WpCore\Scanner() )
+			->setExclusions( $this->getFullExclusions() )
+			->setMissingExclusions( $this->getMissingOnlyExclusions() )
+			->run();
 
-		/**
-		 * TODO:
-		 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
-		 * if ( empty( $aAutoFixIndexFiles ) ) {
-		 * $aAutoFixIndexFiles = array();
-		 */
-		$bProblemFound = $oResultSet->countItems() > 0;
-
-		( $bProblemFound && !$bAutoRepair ) ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
 		$oFO->setLastScanAt( 'wcf' );
+		$oResults->hasItems() ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
 
-		return $oResultSet;
+		return $oResults;
 	}
 
 	/**
-	 * @param string $sWpOrgChecksum
-	 * @param string $sFullPath
-	 * @return bool true if a difference is found, false otherwise
+	 * @return Scans\WpCore\ResultsSet
 	 */
-	protected function compareFileChecksums( $sWpOrgChecksum, $sFullPath ) {
-
-		$bDifferenceFound = $sWpOrgChecksum != md5_file( $sFullPath );
-		if ( $bDifferenceFound && strpos( $sFullPath, '.php' ) > 0 ) {
-			$sUnixConversion = str_replace( array( "\r\n", "\r" ), "\n", file_get_contents( $sFullPath ) );
-			$bDifferenceFound = $sWpOrgChecksum != md5( $sUnixConversion );
-		}
-		return $bDifferenceFound;
+	public function doScanAndFullRepair() {
+		$oResultSet = $this->doScan();
+		( new Scans\WpCore\Repair() )->repairResultsSet( $oResultSet );
+		return $oResultSet;
 	}
 
 	public function cron_dailyChecksumScan() {
@@ -121,10 +105,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		}
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-
 		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadRequest()->query( 'checksum_repair' ) == 1 );
 
-		$oResult = $this->doChecksumScan( $bOptionRepair );
+		$oResult = $bOptionRepair ? $this->doScanAndFullRepair() : $this->doScan();
 		if ( $oResult->hasItems() ) {
 			$this->emailResults( $oResult );
 		}
@@ -154,47 +137,20 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param string $sPath
-	 * @param bool   $bUseLocale
-	 * @return string
-	 */
-	protected function retrieveCoreFileContent( $sPath, $bUseLocale = true ) {
-		$sLocale = $this->loadWp()->getLocale( true );
-		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
-		if ( $bUseInternational ) {
-			$sRootUrl = $this->getMod()->getDef( 'url_wordress_core_svn_il8n' ).$sLocale;
-		}
-		else {
-			$sRootUrl = $this->getMod()->getDef( 'url_wordress_core_svn' );
-		}
-		$sFileUrl = sprintf(
-			'%s/tags/%s/%s',
-			$sRootUrl,
-			$this->loadWp()->getVersion(),
-			( $bUseInternational ? 'dist/' : '' ).$sPath
-		);
-
-		$sContent = (string)$this->loadFS()->getUrlContent( $sFileUrl );
-		if ( $bUseInternational && empty( $sContent ) ) {
-			$sContent = $this->retrieveCoreFileContent( $sPath, false );
-		} // we'll try international retrieval and if it fails, we resort to en_US.
-		return $sContent;
-	}
-
-	/**
 	 * @param string $sMd5FilePath
 	 * @return bool
 	 */
 	protected function repairCoreFile( $sMd5FilePath ) {
-		$this->doStatIncrement( 'file.corechecksum.replaced' );
-
-		$sMd5FilePath = ltrim( $sMd5FilePath, '/' ); // ltrim() ensures we haven't received an absolute path. e.g. replace file
-		$sOfficialContent = $this->retrieveCoreFileContent( $sMd5FilePath );
-		if ( !empty( $sOfficialContent ) ) {
-			return $this->loadFS()
-						->putFileContent( $this->convertMd5FilePathToActual( $sMd5FilePath ), $sOfficialContent );
+		try {
+			$oItem = new Scans\WpCore\ResultItem();
+			$oItem->path_fragment = $sMd5FilePath;
+			( new Scans\WpCore\Repair() )->repairItem( $oItem );
+			$this->doStatIncrement( 'file.corechecksum.replaced' );
 		}
-		return false;
+		catch ( Exception $oE ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
