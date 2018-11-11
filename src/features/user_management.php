@@ -9,6 +9,130 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( $this->loadRequest()->request( 'exec' ) ) {
+
+				case 'render_table_sessions':
+					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
+					break;
+
+				default:
+					break;
+			}
+		}
+		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	protected function ajaxExec_BuildTableTraffic() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fIp',
+				'fUsername',
+			) )
+		);
+		return array(
+			'success' => true,
+			'html'    => $this->renderTable( $aParams )
+		);
+	}
+
+	/**
+	 * @param array $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams = array() ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._:-]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby'   => 'created_at',
+				'order'     => 'DESC',
+				'paged'     => 1,
+				'fIp'       => '',
+				'fUsername' => '',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+
+		/** @var ICWP_WPSF_Processor_Sessions $oPro */
+		$oPro = $this->getSessionsProcessor();
+		$oSelector = $oPro->getQuerySelector()
+						  ->setPage( $nPage )
+						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						  ->setLimit( 25 )
+						  ->setResultsAsVo( true );
+		// Filters
+		{
+			$oIp = $this->loadIpService();
+			// If an IP is specified, it takes priority
+			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
+				$oSelector->filterByIp( $aParams[ 'fIp' ] );
+			}
+
+			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
+			if ( !empty( $aParams[ 'fUsername' ] ) ) {
+				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
+				if ( !empty( $oUser ) ) {
+					$oSelector->filterByUsername( $oUser->user_login );
+				}
+			}
+		}
+
+		/** @var ICWP_WPSF_SessionVO[] $aEntries */
+		$aEntries = $oSelector->query();
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( 25 )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * Move to table
+	 * @param ICWP_WPSF_SessionVO[] $aEntries
+	 * @return array
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$sYou = $this->loadIpService()->getRequestIp();
+			$oCarbon = new \Carbon\Carbon();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$aE = $oEntry->getRawData();
+				$aE[ 'is_secadmin' ] = ( $oEntry->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+				$aE[ 'last_activity_at' ] = $oCarbon->setTimestamp( $oEntry->getLastActivityAt() )->diffForHumans()
+											.'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getLastActivityAt() ).'</small>';
+				$aE[ 'logged_in_at' ] = $oCarbon->setTimestamp( $oEntry->getLoggedInAt() )->diffForHumans()
+										.'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getLoggedInAt() ).'</small>';
+				if ( $oEntry->getIp() == $sYou ) {
+					$aE[ 'ip' ] .= '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
+				}
+				$aEntries[ $nKey ] = $aE;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getContentCustomActionsData() {
@@ -26,15 +150,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oWp = $this->loadWp();
 		$sTimeFormat = $oWp->getTimeFormat();
 		$sDateFormat = $oWp->getDateFormat();
-		foreach ( $aActiveSessions as $oSession ) {
-			$aSession = (array)$oSession->getRawData();
-			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLoggedInAt() );
-			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSession->getLastActivityAt() );
-			$aSession[ 'is_secadmin' ] = ( $oSession->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+		foreach ( $aActiveSessions as $oSess ) {
+			$aSession = $oSess->getRawData();
+			$aSession[ 'logged_in_at' ] = $oWp->getTimeStringForDisplay( $oSess->getLoggedInAt() );
+			$aSession[ 'last_activity_at' ] = $oWp->getTimeStringForDisplay( $oSess->getLastActivityAt() );
+			$aSession[ 'is_secadmin' ] = ( $oSess->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
 			$aFormatted[] = $aSession;
 		}
 
-		$oTable = $this->getTableRendererForSessions()
+		$oTable = $this->getTableRenderer()
 					   ->setItemEntries( $aFormatted )
 					   ->setPerPage( 5 )
 					   ->prepare_items();
@@ -44,7 +168,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		return array(
 			'strings'            => $this->getDisplayStrings(),
-			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadRequest()->ts() ) ),
+			'time_now'           => sprintf( _wpsf__( 'now: %s' ), date_i18n( $sTimeFormat.' '.$sDateFormat, $this->loadRequest()
+																												  ->ts() ) ),
 			'sUserSessionsTable' => $sUserSessionsTable
 		);
 	}
@@ -52,14 +177,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return SessionsTable
 	 */
-	protected function getTableRendererForSessions() {
+	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/SessionsTable.php' );
 		/** @var ICWP_WPSF_Processor_UserManagement $oProc */
 		$oProc = $this->loadProcessor();
 //		$nCount = $oProc->countAuditEntriesForContext( $sContext );
 
 		$oTable = new SessionsTable();
-		return $oTable->setTotalRecords( 10 );
+		return $oTable->setTotalRecords( 25 );
 	}
 
 	/**
@@ -87,7 +212,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return int
 	 */
-	public function getSessionIdleTimeoutInterval() {
+	public function getIdleTimeoutInterval() {
 		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
 	}
 
@@ -102,7 +227,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function hasSessionIdleTimeout() {
-		return $this->isModuleEnabled() && ( $this->getSessionIdleTimeoutInterval() > 0 );
+		return $this->isModuleEnabled() && ( $this->getIdleTimeoutInterval() > 0 );
 	}
 
 	/**
@@ -113,7 +238,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doPrePluginOptionsSave() {
-		if ( $this->getSessionIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
+		if ( $this->getIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
 			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
 		}
 	}
@@ -173,6 +298,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
 		}
 		return ( $this->loadRequest()->ts() - $nStartedAt ) < 20;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLockToIp() {
+		return $this->isOpt( 'session_lock_location', 'Y' );
 	}
 
 	/**
@@ -283,7 +415,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$aNotices[ 'messages' ][ 'password' ] = array(
 					'title'   => 'Password Policies',
 					'message' => _wpsf__( "Strong password policies are not enforced." ),
-					'href'    => $this->getUrl_AdminPage(),
+					'href'    => $this->getUrl_AdminPage().'#pills-section_passwords',
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Password policies should be turned-on.' )
 				);
@@ -294,6 +426,74 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$aAllNotices[ 'users' ] = $aNotices;
 		return $aAllNotices;
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
+				'title' => _wpsf__( 'User Management' ),
+				'sub'   => _wpsf__( 'Sessions Control & Password Policies' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bHasIdle = $this->hasSessionIdleTimeout();
+			$aThis[ 'key_opts' ][ 'idle' ] = array(
+				'name'    => _wpsf__( 'Idle Users' ),
+				'enabled' => $bHasIdle,
+				'summary' => $bHasIdle ?
+					sprintf( _wpsf__( 'Idle sessions are terminated after %s hours' ), $this->getOpt( 'session_idle_timeout_interval' ) )
+					: _wpsf__( 'Idle sessions wont be terminated' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
+			);
+
+			$bLocked = $this->isLockToIp();
+			$aThis[ 'key_opts' ][ 'lock' ] = array(
+				'name'    => _wpsf__( 'Lock To IP' ),
+				'enabled' => $bLocked,
+				'summary' => $bLocked ?
+					_wpsf__( 'Sessions are locked to IP address' )
+					: _wpsf__( "Sessions aren't locked to IP address" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'session_lock_location' ),
+			);
+
+			$bPolicies = $this->isPasswordPoliciesEnabled();
+
+			$bPwned = $bPolicies && $this->isPassPreventPwned();
+			$aThis[ 'key_opts' ][ 'pwned' ] = array(
+				'name'    => _wpsf__( 'Pwned Passwords' ),
+				'enabled' => $bPwned,
+				'summary' => $bPwned ?
+					_wpsf__( 'Pwned passwords are blocked on this site' )
+					: _wpsf__( 'Pwned passwords are allowed on this site' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
+			);
+
+			$bIndepthPolices = $bPolicies && $this->isPremium();
+			$aThis[ 'key_opts' ][ 'policies' ] = array(
+				'name'    => _wpsf__( 'Password Policies' ),
+				'enabled' => $bIndepthPolices,
+				'summary' => $bIndepthPolices ?
+					_wpsf__( 'Several password policies are active' )
+					: _wpsf__( 'Limited or no password polices are active' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
 	}
 
 	/**
@@ -467,5 +667,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$aOptionsParams[ 'summary' ] = $sSummary;
 		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
+	}
+
+	/**
+	 * @deprecated
+	 * @return int
+	 */
+	public function getSessionIdleTimeoutInterval() {
+		return $this->getIdleTimeoutInterval();
 	}
 }

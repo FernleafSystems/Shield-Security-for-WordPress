@@ -238,6 +238,7 @@ class ICWP_WPSF_Foundation {
 			self::setService( $sKey, $oR );
 		}
 
+		/** @var ICWP_WPSF_Render $oR */
 		$oR = self::getService( $sKey );
 		if ( !empty( $sTemplatePath ) ) {
 			$oR->setTemplateRoot( $sTemplatePath );
@@ -321,6 +322,7 @@ class ICWP_WPSF_Foundation {
 	 */
 	static public function loadAutoload() {
 		self::requireCommonLib( 'lib/vendor/autoload.php' );
+		\FernleafSystems\Wordpress\Services\Services::GetInstance();
 	}
 
 	/**

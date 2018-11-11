@@ -23,6 +23,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		// not probably necessary any longer since it's patched in the Core
 		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
+		$this->runScanner();
+
 		if ( $oFO->isWcfScanEnabled() ) {
 			$this->runChecksumScan();
 		}
@@ -50,6 +52,12 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
+	protected function runScanner() {
+		$this->getSubProcessorScanner()->run();
+	}
+
+	/**
+	 */
 	protected function runChecksumScan() {
 		$this->getSubProcessorChecksumScan()
 			 ->run();
@@ -57,7 +65,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @param bool $bAutoRepair
-	 * @return array
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore\ResultsSet
 	 */
 	public function runChecksumScanManual( $bAutoRepair ) {
 		return $this->getSubProcessorChecksumScan()
@@ -90,9 +98,22 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function getSubProcessorChecksumScan() {
 		$oProc = $this->getSubProcessor( 'checksum' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_corechecksumscan.php' );
+			require_once( dirname( __FILE__ ).'/hackprotect_scanwpcore.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_CoreChecksumScan( $this->getMod() );
 			$this->aSubProcessors[ 'checksum' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
+	 */
+	public function getSubProcessorScanner() {
+		$oProc = $this->getSubProcessor( 'scanner' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/hackprotect_scanner.php' );
+			$oProc = new ICWP_WPSF_Processor_HackProtect_Scanner( $this->getMod() );
+			$this->aSubProcessors[ 'scanner' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -103,7 +124,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function getSubProcessorFileCleanerScan() {
 		$oProc = $this->getSubProcessor( 'cleaner' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_filecleanerscan.php' );
+			require_once( dirname( __FILE__ ).'/hackprotect_scanunrecognisedcore.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_FileCleanerScan( $this->getMod() );
 			$this->aSubProcessors[ 'cleaner' ] = $oProc;
 		}

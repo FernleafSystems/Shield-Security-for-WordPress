@@ -55,6 +55,57 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isIgnoreAdmin() {
+		return $this->isOpt( 'whitelist_admins', 'Y' );
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
+				'title' => _wpsf__( 'Firewall' ),
+				'sub'   => _wpsf__( 'Block Malicious Requests' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Firewall' ),
+				'enabled' => $this->isModOptEnabled(),
+				'summary' => $this->isModOptEnabled() ?
+					_wpsf__( 'Your site is protected against malicious requests' )
+					: _wpsf__( 'Your site is not protected against malicious requests' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
+			);
+
+			//ignoring admin isn't a good idea
+			$bAdminIncluded = !$this->isIgnoreAdmin();
+			$aThis[ 'key_opts' ][ 'admin' ] = array(
+				'name'    => _wpsf__( 'Ignore Admins' ),
+				'enabled' => $bAdminIncluded,
+				'summary' => $bAdminIncluded ?
+					_wpsf__( "Firewall rules are also applied to admins" )
+					: _wpsf__( "Firewall rules aren't applied to admins" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'whitelist_admins' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception
@@ -205,6 +256,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sDescription = _wpsf__( 'Authenticated administrator users will not be processed by the firewall rules.' );
 				break;
 
+			/** removed */
 			case 'ignore_search_engines' :
 				$sName = sprintf( _wpsf__( 'Ignore %s' ), _wpsf__( 'Search Engines' ) );
 				$sSummary = _wpsf__( 'Ignore Search Engine Bot Traffic' );

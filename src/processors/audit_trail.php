@@ -14,6 +14,13 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	protected $oAuditor;
 
 	/**
+	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
+	 */
+	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
+		parent::__construct( $oModCon, $oModCon->getAuditTrailTableName() );
+	}
+
+	/**
 	 * @return ICWP_WPSF_AuditTrail_Auditor_Base
 	 */
 	public function getBaseAuditor() {
@@ -22,13 +29,6 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			$this->oAuditor = new ICWP_WPSF_AuditTrail_Auditor_Base();
 		}
 		return $this->oAuditor;
-	}
-
-	/**
-	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getAuditTrailTableName() );
 	}
 
 	public function onModuleShutdown() {
@@ -63,46 +63,46 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		if ( !$this->isReadyToRun() ) {
 			return;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isOpt( 'enable_audit_context_users', 'Y' ) ) {
+		if ( $oFO->isAuditUsers() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_users.php' );
 			$oUsers = new ICWP_WPSF_Processor_AuditTrail_Users();
 			$oUsers->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_audit_context_plugins', 'Y' ) ) {
+		if ( $oFO->isAuditPlugins() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_plugins.php' );
 			$oPlugins = new ICWP_WPSF_Processor_AuditTrail_Plugins();
 			$oPlugins->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_audit_context_themes', 'Y' ) ) {
+		if ( $oFO->isAuditThemes() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_themes.php' );
 			$oThemes = new ICWP_WPSF_Processor_AuditTrail_Themes();
 			$oThemes->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_audit_context_wordpress', 'Y' ) ) {
+		if ( $oFO->isAuditWp() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_wordpress.php' );
 			$oWp = new ICWP_WPSF_Processor_AuditTrail_Wordpress();
 			$oWp->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_audit_context_posts', 'Y' ) ) {
+		if ( $oFO->isAuditPosts() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_posts.php' );
 			$oPosts = new ICWP_WPSF_Processor_AuditTrail_Posts();
 			$oPosts->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_audit_context_emails', 'Y' ) ) {
+		if ( $oFO->isAuditEmails() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_emails.php' );
 			$oEmails = new ICWP_WPSF_Processor_AuditTrail_Emails();
 			$oEmails->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_audit_context_wpsf', 'Y' ) ) {
+		if ( $oFO->isAuditShield() ) {
 			require_once( dirname( __FILE__ ).'/audit_trail_wpsf.php' );
 			$oWpsf = new ICWP_WPSF_Processor_AuditTrail_Wpsf();
 			$oWpsf->run();
@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sContext
 	 * @return array|bool
 	 */
-	public function countAuditEntriesForContext( $sContext ) {
+	public function countAuditEntriesForContext( $sContext = 'all' ) {
 		$oCounter = $this->getQuerySelector();
 		if ( $sContext != 'all' ) {
 			$oCounter->filterByContext( $sContext );
@@ -130,7 +130,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param int    $nLimit
 	 * @return ICWP_WPSF_AuditTrailEntryVO[]
 	 */
-	public function getAuditEntriesForContext( $sContext, $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
+	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
 		$oSelect = $this->getQuerySelector()
 						->setResultsAsVo( true )
 						->setOrderBy( $sOrderBy, $sOrder )

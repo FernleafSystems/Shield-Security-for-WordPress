@@ -319,9 +319,9 @@ tr.icwp-plugin-vulnerability dd {
 .icwpAjaxTableContainer table th.column-created_at {
 }
 .icwpAjaxTableContainer table th.column-ip {
+	white-space: pre;
 }
 .icwpAjaxTableContainer table th.column-wp_username {
-	width: 130px;
 }
 .icwpAjaxTableContainer table th.column-event {
 	width: 110px;

@@ -18,8 +18,22 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return bool
 	 */
-	public function isRestApiAnonymousAccessAllowed() {
-		return $this->isOpt( 'disable_anonymous_restapi', 'N' );
+	public function isFileEditingDisabled() {
+		return $this->isOpt( 'disable_file_editing', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestApiAnonymousAccessDisabled() {
+		return $this->isOpt( 'disable_anonymous_restapi', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isXmlrpcDisabled() {
+		return $this->isOpt( 'disable_xmlrpc', 'Y' );
 	}
 
 	/**
@@ -69,6 +83,61 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aAllNotices[ 'lockdown' ] = $aNotices;
 		return $aAllNotices;
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings' => array(
+				'title' => _wpsf__( 'WordPress Lockdown' ),
+				'sub'   => _wpsf__( 'Restrict WP Functionality e.g. XMLRPC & REST API' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bEditing = $this->isFileEditingDisabled();
+			$aThis[ 'key_opts' ][ 'editing' ] = array(
+				'name'    => _wpsf__( 'WP File Editing' ),
+				'enabled' => $bEditing,
+				'summary' => $bEditing ?
+					_wpsf__( 'File editing is disabled' )
+					: _wpsf__( "File editing is permitted through WP admin" ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
+			);
+
+			$bXml = $this->isXmlrpcDisabled();
+			$aThis[ 'key_opts' ][ 'xml' ] = array(
+				'name'    => _wpsf__( 'XML-RPC' ),
+				'enabled' => $bXml,
+				'summary' => $bXml ?
+					_wpsf__( 'XML-RPC is disabled' )
+					: _wpsf__( "XML-RPC is not blocked" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'disable_xmlrpc' ),
+			);
+
+			$bApi = $this->isRestApiAnonymousAccessDisabled();
+			$aThis[ 'key_opts' ][ 'api' ] = array(
+				'name'    => _wpsf__( 'REST API' ),
+				'enabled' => $bApi,
+				'summary' => $bApi ?
+					_wpsf__( 'Anonymous REST API access is disabled' )
+					: _wpsf__( "Anonymous REST API access is allowed" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'disable_anonymous_restapi' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
 	}
 
 	/**

@@ -179,20 +179,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		return array(
-			'sYourIp'           => $this->loadIpService()->getRequestIp(),
-			'sLiveTrafficTable' => $this->renderLiveTrafficTable(),
-			'sTitle'            => _wpsf__( 'Traffic Watch Viewer' ),
-			'ajax'              => array(
-				'render_table' => $this->getAjaxActionData( 'render_traffic_table', true )
-			)
-		);
-	}
-
-	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
@@ -201,8 +187,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'render_traffic_table':
-					$aAjaxResponse = $this->ajaxExec_RenderTrafficTable();
+				case 'render_table_traffic':
+					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
 					break;
 
 				default:
@@ -212,8 +198,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_RenderTrafficTable() {
-		parse_str( $this->loadRequest()->post( 'filters', '' ), $aFilters );
+	protected function ajaxExec_BuildTableTraffic() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(
@@ -231,16 +217,15 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		);
 		return array(
 			'success' => true,
-			'html'    => $this->renderLiveTrafficTable( $aParams )
+			'html'    => $this->renderTable( $aParams )
 		);
 	}
 
 	/**
-	 * @param string $sContext
-	 * @param array  $aParams
+	 * @param array $aParams
 	 * @return string
 	 */
-	protected function renderLiveTrafficTable( $aParams = array() ) {
+	protected function renderTable( $aParams = array() ) {
 
 		// clean any params of nonsense
 		foreach ( $aParams as $sKey => $sValue ) {
@@ -265,14 +250,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		);
 		$nPage = (int)$aParams[ 'paged' ];
 
-		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
-		$oTrafficPro = $this->loadProcessor();
-		$oSelector = $oTrafficPro->getProcessorLogger()
-								 ->getQuerySelector()
-								 ->setPage( $nPage )
-								 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-								 ->setLimit( $this->getDefaultPerPage() )
-								 ->setResultsAsVo( true );
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->loadProcessor();
+		$oSelector = $oPro->getProcessorLogger()
+						  ->getQuerySelector()
+						  ->setPage( $nPage )
+						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						  ->setLimit( $this->getDefaultPerPage() )
+						  ->setResultsAsVo( true );
 		// Filters
 		{
 			$oIp = $this->loadIpService();
@@ -303,6 +288,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
 		}
 
+		/** @var ICWP_WPSF_TrafficEntryVO[] $aEntries */
 		$aEntries = $oSelector->query();
 
 		$oTable = $this->getTableRenderer()
@@ -322,16 +308,16 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function formatEntriesForDisplay( $aEntries ) {
 
 		if ( is_array( $aEntries ) ) {
-			$oCon = $this->getController();
+			$oCon = $this->getConn();
+			$oWp = $this->loadWp();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();
 
 			$aUsers = array( _wpsf__( 'No' ) );
+			$oCarbon = new \Carbon\Carbon();
 			foreach ( $aEntries as $nKey => $oEntry ) {
 				$sIp = $oEntry->ip;
-
-				$aEntry = $oEntry->getRawDataAsArray();
 
 				list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
 				$sQuery = trim( $sQuery, '?' );
@@ -346,6 +332,8 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$sCodeType = 'warning';
 				}
 
+
+				$aEntry = $oEntry->getRawData();
 				$aEntry[ 'path' ] = $sPath;
 				$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
 				$aEntry[ 'trans' ] = sprintf(
@@ -354,7 +342,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
 				);
 				$aEntry[ 'ip' ] = $sIp;
-				$aEntry[ 'created_at' ] = $this->loadWp()->getTimeStampForDisplay( $aEntry[ 'created_at' ] );
+				$aEntry[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+										  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+
 				$aEntry[ 'is_you' ] = $sIp == $sYou;
 
 				if ( $oEntry->uid > 0 ) {
@@ -412,11 +402,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/LiveTrafficTable.php' );
-		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
-		$oTrafficPro = $this->loadProcessor();
-		$nCount = $oTrafficPro->getProcessorLogger()
-							  ->getQuerySelector()
-							  ->count();
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->loadProcessor();
+		$nCount = $oPro->getProcessorLogger()
+					   ->getQuerySelector()
+					   ->count();
 		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
 	}
 

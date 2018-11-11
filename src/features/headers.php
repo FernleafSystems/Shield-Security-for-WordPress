@@ -23,6 +23,27 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledXFrame() {
+		return in_array( $this->getOpt( 'x_frame' ), array( 'on_sameorigin', 'on_deny' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledXssProtection() {
+		return $this->isOpt( 'x_xss_protect', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledContentTypeHeader() {
+		return $this->isOpt( 'x_content_type', 'Y' );
+	}
+
+	/**
 	 * Using this function without first checking isReferrerPolicyEnabled() will result in empty
 	 * referrer policy header in the case of "disabled"
 	 * @return string
@@ -104,6 +125,50 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$aValidDomains = array_unique( $aValidDomains );
 			$this->setOpt( 'xcsp_hosts', $aValidDomains );
 		}
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
+				'title' => _wpsf__( 'HTTP Security Headers' ),
+				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bAllEnabled = $this->isEnabledXFrame() && $this->isEnabledXssProtection()
+						   && $this->isEnabledContentTypeHeader() && $this->isReferrerPolicyEnabled();
+			$aThis[ 'key_opts' ][ 'all' ] = array(
+				'name'    => _wpsf__( 'HTTP Headers' ),
+				'enabled' => $bAllEnabled,
+				'summary' => $bAllEnabled ?
+					_wpsf__( 'All important security Headers have been set' )
+					: _wpsf__( "At least one of the HTTP Headers hasn't been set" ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_security_headers' ),
+			);
+			$bCsp = $this->isContentSecurityPolicyEnabled();
+			$aThis[ 'key_opts' ][ 'csp' ] = array(
+				'name'    => _wpsf__( 'Content Security Policies' ),
+				'enabled' => $bCsp,
+				'summary' => $bCsp ?
+					_wpsf__( 'Content Security Policy is turned on' )
+					: _wpsf__( "Content Security Policies aren't active" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
 	}
 
 	/**

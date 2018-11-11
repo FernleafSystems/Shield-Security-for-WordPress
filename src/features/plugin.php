@@ -763,6 +763,58 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
+				'title' => _wpsf__( 'General Settings' ),
+				'sub'   => _wpsf__( 'General Shield Security Settings' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( $this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'editing' ] = array(
+				'name'    => _wpsf__( 'Visitor IP' ),
+				'enabled' => true,
+				'summary' => sprintf( _wpsf__( 'Visitor IP address source is: %s' ), $this->getVisitorAddressSource() ),
+				'weight'  => 0,
+				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
+			);
+
+			$bHasSupportEmail = $this->loadDP()->validEmail( $this->supplyPluginReportEmail() );
+			$aThis[ 'key_opts' ][ 'reports' ] = array(
+				'name'    => _wpsf__( 'Reporting Email' ),
+				'enabled' => $bHasSupportEmail,
+				'summary' => $bHasSupportEmail ?
+					sprintf( _wpsf__( 'Email address for reports set to: %s' ), $this->supplyPluginReportEmail() )
+					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), $this->loadWp()->getSiteAdminEmail() ),
+				'weight'  => 0,
+				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+			);
+
+			$bRecap = $this->isGoogleRecaptchaReady();
+			$aThis[ 'key_opts' ][ 'recap' ] = array(
+				'name'    => _wpsf__( 'reCAPTCHA' ),
+				'enabled' => $bRecap,
+				'summary' => $bRecap ?
+					_wpsf__( 'Google reCAPTCHA keys have been provided' )
+					: _wpsf__( "Google reCAPTCHA keys haven't been provided" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

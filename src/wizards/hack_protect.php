@@ -449,23 +449,21 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			switch ( $sStep ) {
 				case 'scanresult':
-					$aFiles = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
-					$aChecksum = $this->cleanAbsPath( $aFiles[ 'checksum_mismatch' ] );
-					$aMissing = $this->cleanAbsPath( $aFiles[ 'missing' ] );
+					$oResult = $oProc->getSubProcessorChecksumScan()->doChecksumScan( false );
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(
-							'count'    => count( $aChecksum ) + count( $aMissing ),
-							'has'      => !empty( $aChecksum ) || !empty( $aMissing ),
+							'count'    => $oResult->countItems(),
+							'has'      => $oResult->hasItems(),
 							'checksum' => array(
-								'count' => count( $aChecksum ),
-								'has'   => !empty( $aChecksum ),
-								'list'  => $aChecksum,
+								'count' => $oResult->countChecksumFailed(),
+								'has'   => $oResult->hasChecksumFailed(),
+								'list'  => $oResult->getChecksumFailedPaths(),
 							),
 							'missing'  => array(
-								'count' => count( $aMissing ),
-								'has'   => !empty( $aMissing ),
-								'list'  => $aMissing,
+								'count' => $oResult->countMissing(),
+								'has'   => $oResult->hasMissing(),
+								'list'  => $oResult->getMissingPaths(),
 							)
 						)
 					);

@@ -6,13 +6,24 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) )
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
+
 class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
 	public function run() {
+		$this->loadAutoload();
 		$this->setupChecksumCron();
-//		$this->cron_dailyChecksumScan();
+//		if ( isset( $_GET[ 'test' ] ) ) {
+//			$oRes = $this->doChecksumScan();
+//			var_dump( $oRes->filterItemsForPaths( $oRes->getItems() ) );
+//			die();
+//		}
+//		$a = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\WpCoreHashes() )
+//			->getHashes();
+//		var_dump( $a );
+//		die();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
@@ -24,7 +35,8 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					$sMd5FilePath = urldecode( esc_url( $sPath ) );
 					if ( !empty( $sMd5FilePath ) ) {
 						if ( $this->repairCoreFile( $sMd5FilePath ) ) {
-							$this->getMod()->setFlashAdminNotice( _wpsf__( 'File was successfully replaced with an original from WordPress.org' ) );
+							$this->getMod()
+								 ->setFlashAdminNotice( _wpsf__( 'File was successfully replaced with an original from WordPress.org' ) );
 						}
 						else {
 							$this->getMod()->setFlashAdminNotice( _wpsf__( 'File was not replaced' ), true );
@@ -55,70 +67,37 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
+	 * @return Scans\WpCore\ResultsSet
+	 */
+	public function doScan() {
+		return ( new Scans\WpCore\Scanner() )
+			->setExclusions( $this->getFullExclusions() )
+			->setMissingExclusions( $this->getMissingOnlyExclusions() )
+			->run();
+	}
+
+	/**
 	 * @param bool $bAutoRepair
-	 * @return array
+	 * @return Scans\WpCore\ResultsSet
 	 */
 	public function doChecksumScan( $bAutoRepair = false ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$aChecksumData = $this->loadWp()->getCoreChecksums();
+		$oResultSet = $this->doScan();
 
-		if ( empty( $aChecksumData ) ) {
-			return array();
-		}
-
-		$aDiscoveredFiles = array(
-			'checksum_mismatch' => array(),
-			'missing'           => array(),
-		);
-
-		$aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
-		if ( empty( $aAutoFixIndexFiles ) ) {
-			$aAutoFixIndexFiles = array();
-		}
-
-		$sFullExclusionsPattern = '#('.implode( '|', $this->getFullExclusions() ).')#i';
-		$sMissingOnlyExclusionsPattern = '#('.implode( '|', $this->getMissingOnlyExclusions() ).')#i';
-
-		$bProblemFound = false;
-		$oFS = $this->loadFS();
-		foreach ( $aChecksumData as $sMd5FilePath => $sWpOrgChecksum ) {
-			if ( preg_match( $sFullExclusionsPattern, $sMd5FilePath ) ) {
-				continue;
-			}
-
-			$bRepairThis = false;
-			$sFullPath = $this->convertMd5FilePathToActual( $sMd5FilePath );
-
-			if ( $oFS->isFile( $sFullPath ) ) {
-				if ( $this->compareFileChecksums( $sWpOrgChecksum, $sFullPath ) ) {
-					$bProblemFound = true;
-					if ( in_array( $sMd5FilePath, $aAutoFixIndexFiles ) ) {
-						$bRepairThis = true;
-					}
-					else {
-						$aDiscoveredFiles[ 'checksum_mismatch' ][] = $sMd5FilePath;
-						$bRepairThis = $bAutoRepair;
-					}
-				}
-			}
-			else if ( !preg_match( $sMissingOnlyExclusionsPattern, $sMd5FilePath ) ) {
-				// If the file is missing and it's not in the missing-only exclusions
-				$bProblemFound = true;
-				$aDiscoveredFiles[ 'missing' ][] = $sMd5FilePath;
-				$bRepairThis = $bAutoRepair;
-			}
-
-			if ( $bRepairThis ) {
-				$this->repairCoreFile( $sMd5FilePath );
-			}
-		}
+		/**
+		 * TODO:
+		 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
+		 * if ( empty( $aAutoFixIndexFiles ) ) {
+		 * $aAutoFixIndexFiles = array();
+		 */
+		$bProblemFound = $oResultSet->countItems() > 0;
 
 		( $bProblemFound && !$bAutoRepair ) ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
 		$oFO->setLastScanAt( 'wcf' );
 
-		return $aDiscoveredFiles;
+		return $oResultSet;
 	}
 
 	/**
@@ -145,9 +124,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 
 		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadRequest()->query( 'checksum_repair' ) == 1 );
 
-		$aFiles = $this->doChecksumScan( $bOptionRepair );
-		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) || !empty( $aFiles[ 'missing' ] ) ) {
-			$this->emailResults( $aFiles );
+		$oResult = $this->doChecksumScan( $bOptionRepair );
+		if ( $oResult->hasItems() ) {
+			$this->emailResults( $oResult );
 		}
 	}
 
@@ -156,19 +135,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	protected function getFullExclusions() {
 		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions' );
-		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = array();
-		}
-		foreach ( $aExclusions as $nKey => $sExclusion ) {
-			$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
-		}
+		$aExclusions = is_array( $aExclusions ) ? $aExclusions : array();
 
 		// Flywheel specific mods
 		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
 			$aExclusions[] = 'wp-settings.php';
 			$aExclusions[] = 'wp-admin/includes/upgrade.php';
 		}
-
 		return $aExclusions;
 	}
 
@@ -177,13 +150,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 */
 	protected function getMissingOnlyExclusions() {
 		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions_missing_only' );
-		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = array();
-		}
-		foreach ( $aExclusions as $nKey => $sExclusion ) {
-			$aExclusions[ $nKey ] = preg_quote( $sExclusion, '#' );
-		}
-		return $aExclusions;
+		return is_array( $aExclusions ) ? $aExclusions : array();
 	}
 
 	/**
@@ -231,9 +198,9 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param array[][] $aFiles
+	 * @param Scans\WpCore\ResultsSet $oResults
 	 */
-	protected function emailResults( $aFiles ) {
+	protected function emailResults( $oResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
@@ -242,7 +209,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 			 ->sendEmailWithWrap(
 				 $sTo,
 				 sprintf( '[%s] %s', _wpsf__( 'Warning' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
-				 $this->buildEmailBodyFromFiles( $aFiles )
+				 $this->buildEmailBodyFromFiles( $oResults )
 			 );
 
 		$this->addToAuditEntry(
@@ -251,10 +218,10 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param array $aFiles
+	 * @param Scans\WpCore\ResultsSet $oResults
 	 * @return array
 	 */
-	private function buildEmailBodyFromFiles( $aFiles ) {
+	private function buildEmailBodyFromFiles( $oResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getController()->getHumanName();
@@ -267,7 +234,7 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 		);
 
 		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
-			$aContent = $this->buildListOfFilesForEmail( $aFiles );
+			$aContent = $this->buildListOfFilesForEmail( $oResults );
 			$aContent[] = '';
 
 			if ( $oFO->isWcfScanAutoRepair() ) {
@@ -300,38 +267,21 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @param array $aFiles
+	 * @param Scans\WpCore\ResultsSet $oResult
 	 * @return array
 	 */
-	private function buildEmailBody_Legacy( $aFiles ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$sName = $this->getController()->getHumanName();
-
-		$aContent = $this->buildListOfFilesForEmail( $aFiles );
-		$aContent[] = '';
-
-		$aContent[] = '';
-
-		return $aContent;
-	}
-
-	/**
-	 * @param array $aFiles
-	 * @return array
-	 */
-	private function buildListOfFilesForEmail( $aFiles ) {
+	private function buildListOfFilesForEmail( $oResult ) {
 		$aContent = array();
 
-		if ( !empty( $aFiles[ 'checksum_mismatch' ] ) ) {
+		if ( $oResult->hasChecksumFailed() ) {
 			$aContent[] = _wpsf__( "The contents of the core files listed below don't match official WordPress files:" );
-			foreach ( $aFiles[ 'checksum_mismatch' ] as $sFile ) {
+			foreach ( $oResult->getChecksumFailedPaths() as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}
-		if ( !empty( $aFiles[ 'missing' ] ) ) {
+		if ( $oResult->hasMissing() ) {
 			$aContent[] = _wpsf__( 'The WordPress Core Files listed below are missing:' );
-			foreach ( $aFiles[ 'missing' ] as $sFile ) {
+			foreach ( $oResult->getMissingPaths() as $sFile ) {
 				$aContent[] = ' - '.$sFile.$this->getFileRepairLink( $sFile );
 			}
 		}

@@ -24,6 +24,21 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	protected $bIsCount = false;
 
 	/**
+	 * @var bool
+	 */
+	protected $bIsDistinct = false;
+
+	/**
+	 * @var bool
+	 */
+	protected $bResultsAsVo;
+
+	/**
+	 * @var string
+	 */
+	protected $sResultFormat;
+
+	/**
 	 * @param string $sCol
 	 * @return $this
 	 */
@@ -71,6 +86,9 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
+		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
+			$sSubstitute = sprintf( 'DISTINCT %s', $this->getColumnsToSelect()[ 0 ] );
+		}
 		else if ( $this->hasColumnsToSelect() ) {
 			$sSubstitute = implode( ',', $this->getColumnsToSelect() );
 		}
@@ -114,6 +132,39 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
+	 * @param string $sColumn
+	 * @return array
+	 */
+	public function getDistinctForColumn( $sColumn ) {
+		return $this->addColumnToSelect( $sColumn )
+					->setIsDistinct( true )
+					->query();
+	}
+
+	/**
+	 * @param string $sColumn
+	 * @return array
+	 */
+	protected function getDistinct_FilterAndSort( $sColumn ) {
+		$a = array_filter( $this->getDistinctForColumn( $sColumn ) );
+		natcasesort( $a );
+		return $a;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getSelectDataFormat() {
+		if ( $this->isResultsAsVo() ) {
+			$sForm = ARRAY_A;
+		}
+		else {
+			$sForm = in_array( $this->sResultFormat, array( OBJECT_K, ARRAY_A ) ) ? $this->sResultFormat : OBJECT_K;
+		}
+		return $sForm;
+	}
+
+	/**
 	 * @return ICWP_WPSF_BaseEntryVO
 	 */
 	public function getVo() {
@@ -146,14 +197,44 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return stdClass[]|int
+	 * @return bool
+	 */
+	public function isDistinct() {
+		return (bool)$this->bIsDistinct;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isResultsAsVo() {
+		return (bool)$this->bResultsAsVo;
+	}
+
+	/**
+	 * Handle COUNT, DISTINCT, & normal SELECT
+	 * @return int|string[]|array[]
 	 */
 	public function query() {
-		$mData = $this->isCount() ? $this->queryCount() : $this->querySelect();
-
-		if ( !$this->isCount() && $this->isResultsAsVo() ) {
-			foreach ( $mData as $nKey => $oAudit ) {
-				$mData[ $nKey ] = $this->getVo()->setRawData( $oAudit );
+		if ( $this->isCount() ) {
+			$mData = $this->queryCount();
+		}
+		else if ( $this->isDistinct() ) {
+			$mData = $this->queryDistinct();
+			if ( is_array( $mData ) ) {
+				$mData = array_map( function ( $aRecord ) {
+					return array_shift( $aRecord );
+				}, $mData );
+			}
+			else {
+				$mData = array();
+			}
+		}
+		else {
+			$mData = $this->querySelect();
+			if ( $this->isResultsAsVo() ) {
+				foreach ( $mData as $nKey => $oAudit ) {
+					$mData[ $nKey ] = $this->getVo()->setRawData( $oAudit );
+				}
 			}
 		}
 
@@ -161,11 +242,11 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return stdClass[]
+	 * @return array[]
 	 */
 	protected function querySelect() {
 		return $this->loadDbProcessor()
-					->selectCustom( $this->buildQuery(), OBJECT_K );
+					->selectCustom( $this->buildQuery(), $this->getSelectDataFormat() );
 	}
 
 	/**
@@ -173,6 +254,13 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	protected function queryCount() {
 		return $this->loadDbProcessor()->getVar( $this->buildQuery() );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function queryDistinct() {
+		return $this->loadDbProcessor()->selectCustom( $this->buildQuery() );
 	}
 
 	/**
@@ -211,6 +299,33 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	public function setIsCount( $bIsCount ) {
 		$this->bIsCount = $bIsCount;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bIsDistinct
+	 * @return $this
+	 */
+	public function setIsDistinct( $bIsDistinct ) {
+		$this->bIsDistinct = $bIsDistinct;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bResultsAsVo
+	 * @return $this
+	 */
+	public function setResultsAsVo( $bResultsAsVo ) {
+		$this->bResultsAsVo = $bResultsAsVo;
+		return $this;
+	}
+
+	/**
+	 * @param string $sFormat
+	 * @return $this
+	 */
+	public function setSelectResultsFormat( $sFormat ) {
+		$this->sResultFormat = $sFormat;
 		return $this;
 	}
 }

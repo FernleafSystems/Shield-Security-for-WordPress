@@ -75,7 +75,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function initializeTable() {
 		if ( $this->getTableExists() ) {
 			if ( !$this->isTableStructureValid() ) {
-				$this->createTable(); // First attempt the delta
 				if ( !$this->isTableStructureValid( true ) ) {
 					$this->recreateTable();
 				}
@@ -103,6 +102,16 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Query_BaseDelete
 	 */
 	abstract protected function getQueryDeleter();
+
+	/**
+	 * @return ICWP_WPSF_Query_BaseInsert
+	 */
+	abstract protected function getQueryInserter();
+
+	/**
+	 * @return ICWP_WPSF_Query_BaseSelect
+	 */
+	abstract protected function getQuerySelector();
 
 	/**
 	 * @return string
@@ -148,6 +157,9 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	private function setTableName( $sTableName = '' ) {
 		if ( empty( $sTableName ) ) {
 			throw new Exception( 'Database Table Name is EMPTY' );
+		}
+		if ( strpos( $sTableName, $this->prefix( '', '_' ) ) !== 0 ) {
+			$sTableName = $this->prefix( $sTableName, '_' );
 		}
 		$this->sFullTableName = $this->loadDbProcessor()->getPrefix().esc_sql( $sTableName );
 		return $this->sFullTableName;

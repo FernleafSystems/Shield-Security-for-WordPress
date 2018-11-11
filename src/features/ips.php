@@ -62,57 +62,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @param array $aData
-	 */
-	protected function displayModulePage( $aData = array() ) {
-		add_thickbox();
-		parent::displayModulePage( $this->getIpTableDisplayData() );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		return $this->getIpTableDisplayData();
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getIpTableDisplayData() { // Use new standard AJAX
-		return array(
-			'ajax' => $this->getAjaxDataSets(),
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getFormatedData_WhiteList() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getWhitelistIpsData() );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getFormatedData_AutoBlackList() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
-		return $this->formatIpListData( $oProcessor->getAutoBlacklistIpsData() );
-	}
-
-	/**
 	 * @param ICWP_WPSF_IpsEntryVO[] $aListData
 	 * @return array
 	 */
-	protected function formatIpListData( $aListData ) {
+	protected function formatEntriesForDisplay( $aListData ) {
 		$oWp = $this->loadWp();
-		$oDp = $this->loadDP();
 
+		$oCarbon = new \Carbon\Carbon();
 		foreach ( $aListData as $nKey => $oIp ) {
-			$aItem = $oDp->convertStdClassToArray( $oIp->getRawData() );
+			$aItem = $oIp->getRawData();
 			$sIp = $oIp->getIp();
 
 			$aItem[ 'ip_link' ] =
@@ -124,8 +82,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					),
 					$sIp
 				);
-			$aItem[ 'last_access_at' ] = $oWp->getTimeStringForDisplay( $oIp->getLastAccessAt() );
-			$aItem[ 'created_at' ] = $oWp->getTimeStringForDisplay( $oIp->getCreatedAt() );
+			$aItem[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans()
+										 .'<br/><small>'.$oWp->getTimeStringForDisplay( $oIp->getLastAccessAt() ).'</small>';
+			$aItem[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans()
+									 .'<br/><small>'.$oWp->getTimeStringForDisplay( $oIp->getCreatedAt() ).'</small>';
 
 			$aListData[ $nKey ] = $aItem;
 		}
@@ -156,16 +116,16 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'get_ip_list':
-					$aAjaxResponse = $this->ajaxExec_GetIpList();
-					break;
-
 				case 'add_ip_white':
 					$aAjaxResponse = $this->ajaxExec_AddIpToWhitelist();
 					break;
 
-				case 'remove_ip':
-					$aAjaxResponse = $this->ajaxExec_RemoveIpFromList();
+				case 'ip_delete':
+					$aAjaxResponse = $this->ajaxExec_IpDelete();
+					break;
+
+				case 'render_table_ip':
+					$aAjaxResponse = $this->ajaxExec_BuildTableIps();
 					break;
 
 				default:
@@ -175,26 +135,27 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_GetIpList() {
-		return array(
-			'success' => true,
-			'html'    => $this->renderListTable( $this->loadRequest()->post( 'list', '' ) )
-		);
-	}
-
-	public function ajaxExec_RemoveIpFromList() {
+	protected function ajaxExec_IpDelete() {
 		$oReq = $this->loadRequest();
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getProcessor();
-		$oPro->getQueryDeleter()
-			 ->deleteIpOnList( $oReq->post( 'ip' ), $oReq->post( 'list' ) );
+		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
+		$oProcessor = $this->getProcessor();
+
+		$bSuccess = false;
+		$nId = $oReq->post( 'rid', -1 );
+		if ( !is_numeric( $nId ) || $nId < 0 ) {
+			$sMessage = _wpsf__( "Invalid entry selected" );
+		}
+		else if ( $oProcessor->getQueryDeleter()->deleteById( $nId ) ) {
+			$sMessage = _wpsf__( "IP address deleted" );
+			$bSuccess = true;
+		}
+		else {
+			$sMessage = _wpsf__( "IP address wasn't deleted from the list" );
+		}
 
 		return array(
-			'success' => true,
-			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		);
 	}
 
@@ -203,55 +164,109 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
 
+		$bSuccess = false;
 		$sIp = $oReq->post( 'ip', '' );
-		$sLabel = $oReq->post( 'label', '' );
-		if ( !empty( $sIp ) ) {
-			$oProcessor->addIpToWhiteList( $sIp, $sLabel );
+		if ( empty( $sIp ) ) {
+			$sMessage = _wpsf__( "IP address is empty" );
 		}
-
+		else if ( !$this->loadIpService()->isValidIp( $sIp ) ) {
+			$sMessage = _wpsf__( "IP is not valid" );
+		}
+		else if ( $oProcessor->addIpToWhiteList( $sIp, $oReq->post( 'label', '' ) ) ) {
+			$sMessage = _wpsf__( "IP address added" );
+			$bSuccess = true;
+		}
+		else {
+			$sMessage = _wpsf__( "IP address wasn't added to the list" );
+		}
 		return array(
-			'success' => true,
-			'html'    => $this->renderListTable( $oReq->post( 'list', '' ) ),
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		);
 	}
 
 	/**
+	 * @param string $sList
 	 * @return array
 	 */
-	protected function getAjaxDataSets() {
+	protected function ajaxExec_BuildTableIps() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fList'
+			) )
+		);
+
 		return array(
-			'glist' => $this->getAjaxActionData( 'get_ip_list', true ),
-			'alist' => $this->getAjaxActionData( 'add_ip_white', true ),
-			'rlist' => $this->getAjaxActionData( 'remove_ip', true ),
+			'success' => true,
+			'html'    => $this->renderTable( $aParams )
 		);
 	}
 
-	protected function renderListTable( $sListToRender ) {
-		$aRenderData = array(
-			'ajax'         => $this->getAjaxDataSets(),
-			'list_id'      => $sListToRender,
-			'bIsWhiteList' => $sListToRender == self::LIST_MANUAL_WHITE,
-			'time_now'     => sprintf( '%s: %s', _wpsf__( 'now' ), $this->loadWp()->getTimeStringForDisplay() ),
-			'sTableId'     => 'IpTable'.substr( md5( mt_rand() ), 0, 5 )
-		);
+	/**
+	 * @param array $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams = array() ) {
 
-		switch ( $sListToRender ) {
-
-			// this is a hard-coded class... need to change this.  It was $oProcessor:: but 5.2 doesn't supprt.
-			case self::LIST_MANUAL_WHITE :
-				$aRenderData[ 'list_data' ] = $this->getFormatedData_WhiteList();
-				break;
-
-			case self::LIST_AUTO_BLACK :
-				$aRenderData[ 'list_data' ] = $this->getFormatedData_AutoBlackList();
-				break;
-
-			default:
-				$aRenderData[ 'list_data' ] = array();
-				break;
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
 		}
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+				'fList'   => '',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
 
-		return $this->renderTemplate( 'snippets/ip_list_table.php', $aRenderData );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->loadProcessor();
+		/** @var ICWP_WPSF_IpsEntryVO[] $aEntries */
+		$aEntries = $oPro->getQuerySelector()
+						 ->setPage( $nPage )
+						 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						 ->setLimit( 25 )
+						 ->setResultsAsVo( true )
+						 ->filterByList( $aParams[ 'fList' ] )
+						 ->query();
+
+		$oTable = $this->getTableRenderer( $aParams[ 'fList' ] )
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( 25 )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * @param string $sList
+	 * @return IpWhiteTable
+	 */
+	protected function getTableRenderer( $sList = self::LIST_MANUAL_WHITE ) {
+		if ( empty( $sList ) || $sList == self::LIST_MANUAL_WHITE ) {
+			$this->requireCommonLib( 'Components/Tables/IpWhiteTable.php' );
+			$sTable = new IpWhiteTable();
+		}
+		else {
+			$this->requireCommonLib( 'Components/Tables/IpBlackTable.php' );
+			$sTable = new IpBlackTable();
+		}
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->loadProcessor();
+		$nCount = $oPro->getQuerySelector()->count();
+		return $sTable->setTotalRecords( $nCount );
 	}
 
 	protected function doExtraSubmitProcessing() {

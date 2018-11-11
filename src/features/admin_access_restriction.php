@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return $this->hasAccessKey() && parent::isReadyToExecute();
+		return $this->isEnabledSecurityAdmin() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -269,7 +269,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
 		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->getSecAdminAt() );
+			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()
+																					   ->getSecAdminAt() );
 		}
 		return max( 0, $nLeft );
 	}
@@ -279,6 +280,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function isSecAdminSessionValid() {
 		return ( $this->getSecAdminTimeLeft() > 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledSecurityAdmin() {
+		return $this->isModOptEnabled() && $this->hasAccessKey() && ( $this->getSecAdminTimeout() > 0 );
 	}
 
 	/**
@@ -410,6 +418,60 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
+				'title' => _wpsf__( 'Security Admin' ),
+				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( !$this->isEnabledForUiSummary() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Security Admin' ),
+				'enabled' => $this->isEnabledForUiSummary(),
+				'summary' => $this->isEnabledForUiSummary() ?
+					_wpsf__( 'Security plugin is protected against tampering' )
+					: _wpsf__( 'Security plugin is vulnerable to tampering' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_key' ),
+			);
+
+			$bWpOpts = $this->getAdminAccessArea_Options();
+			$aThis[ 'key_opts' ][ 'wpopts' ] = array(
+				'name'    => _wpsf__( 'Important Options' ),
+				'enabled' => $bWpOpts,
+				'summary' => $bWpOpts ?
+					_wpsf__( 'Important WP options are protected against tampering' )
+					: _wpsf__( "Important WP options aren't protected against tampering" ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
+			);
+
+			$bUsers = $this->isAdminAccessAdminUsersEnabled();
+			$aThis[ 'key_opts' ][ 'adminusers' ] = array(
+				'name'    => _wpsf__( 'WP Admins' ),
+				'enabled' => $bUsers,
+				'summary' => $bUsers ?
+					_wpsf__( 'Admin users are protected against tampering' )
+					: _wpsf__( "Admin users aren't protected against tampering" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
@@ -421,7 +483,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		);
 
 		{//sec admin
-			if ( !( $this->isModuleEnabled() && $this->hasAccessKey() ) ) {
+			if ( !$this->isEnabledSecurityAdmin() ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
@@ -445,7 +507,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
+		return parent::isEnabledForUiSummary() && $this->isEnabledSecurityAdmin();
 	}
 
 	/**

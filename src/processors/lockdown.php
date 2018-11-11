@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isOpt( 'disable_file_editing', 'Y' ) ) {
+		if ( $oFO->isFileEditingDisabled() ) {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 		}
 
-		if ( $oFO->isOpt( 'disable_xmlrpc', 'Y' ) ) {
+		if ( $oFO->isXmlrpcDisabled() ) {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}
@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function isRestApiAccessAllowed() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
-		return $oFO->isRestApiAnonymousAccessAllowed()
+		return !$oFO->isRestApiAnonymousAccessDisabled()
 			   || $this->loadWpUsers()->isUserLoggedIn()
 			   || in_array( $this->loadWp()->getRestNamespace(), $oFO->getRestApiAnonymousExclusions() );
 	}

@@ -113,13 +113,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 			}
 
-			$nMenuPriority = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-			add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPriority );
-			add_filter( $this->prefix( 'collect_module_summary_data' ), array(
-				$this,
-				'addModuleSummaryData'
-			), $nMenuPriority );
+			$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
+			add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPri );
+			add_filter( $this->prefix( 'collect_mod_summary' ), array( $this, 'addModuleSummaryData' ), $nMenuPri );
 			add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
+			add_filter( $this->prefix( 'collect_summary' ), array( $this, 'addInsightsConfigData' ), $nRunPriority );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
 			add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
@@ -128,7 +126,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'insertCustomJsVars_Admin' ), 100 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 100 );
 
 			if ( $this->isAdminOptionsPage() ) {
 //				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
@@ -465,6 +463,31 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sOptKey
+	 * @return string
+	 */
+	protected function getUrl_DirectLinkToOption( $sOptKey ) {
+		$sUrl = $this->getUrl_AdminPage();
+		$aDef = $this->getOptionsVo()->getOptDefinition( $sOptKey );
+		if ( !empty( $aDef[ 'section' ] ) ) {
+			$sUrl = $this->getUrl_DirectLinkToSection( $aDef[ 'section' ] );
+		}
+		return $sUrl;
+	}
+
+	/**
+	 * @param string $sSection
+	 * @return string
+	 */
+	protected function getUrl_DirectLinkToSection( $sSection ) {
+		if ( $sSection == 'primary' ) {
+			$aSec = $this->getOptionsVo()->getPrimarySection();
+			$sSection = $aSec[ 'slug' ];
+		}
+		return $this->getUrl_AdminPage().'#pills-'.$sSection;
+	}
+
+	/**
 	 * TODO: Get rid of this crap and/or handle the Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
 	 */
@@ -496,9 +519,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function isModuleEnabled() {
 		$oOpts = $this->getOptionsVo();
 
-		$bEnabled = $this->isOpt( 'enable_'.$this->getSlug(), 'Y' )
-					|| $this->isOpt( 'enable_'.$this->getSlug(), true, true );
-
 		if ( $this->isAutoEnabled() ) {
 			$bEnabled = true;
 		}
@@ -511,8 +531,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
+		else {
+			$bEnabled = $this->isModOptEnabled();
+		}
 
 		return $bEnabled;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isModOptEnabled() {
+		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
+			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getEnableModOptKey() {
+		return 'enable_'.$this->getSlug();
 	}
 
 	/**
@@ -638,6 +676,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
 		return $aAllNotices;
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		return $aAllData;
 	}
 
 	/**
@@ -1593,7 +1639,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array[]
 	 */
 	protected function getModulesSummaryData() {
-		return apply_filters( $this->prefix( 'collect_module_summary_data' ), array() );
+		return apply_filters( $this->prefix( 'collect_mod_summary' ), array() );
 	}
 
 	/**
@@ -1721,6 +1767,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function onWpEnqueueJs() {
 	}
 
+	public function onWpEnqueueAdminJs() {
+		$this->insertCustomJsVars_Admin();
+	}
+
 	/**
 	 * Override this with custom JS vars for your particular module.
 	 */
@@ -1804,14 +1854,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_Plugin_Controller
-	 */
-	static public function getController() {
-		return self::getConn();
-	}
-
-	/**
 	 * @param array $aTransferableOptions
 	 * @return array
 	 */
@@ -1866,11 +1908,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $aData;
 	}
 
+	/** Help Video options */
+
 	/**
 	 * @return array
 	 */
-
-	/** Help Video options */
 
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', array() );
@@ -2056,5 +2098,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		return implode( '--SEP--', $aToJoin );
+	}
+
+	/**
+	 * @deprecated v7
+	 * @return ICWP_WPSF_Plugin_Controller
+	 */
+	static public function getController() {
+		return self::getConn();
 	}
 }

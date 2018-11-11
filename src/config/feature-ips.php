@@ -9,7 +9,6 @@
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    true,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
     "order":                 100

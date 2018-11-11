@@ -62,9 +62,8 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return array|null
 	 */
-	protected function setXFrameHeader() {
-		$sXFrame = $this->getOption( 'x_frame' );
-		switch ( $sXFrame ) {
+	protected function getXFrameHeader() {
+		switch ( $this->getOption( 'x_frame' ) ) {
 			case 'on_sameorigin':
 				$sXFrameOption = 'SAMEORIGIN';
 				break;
@@ -79,30 +78,26 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return array|null
+	 * @return array
 	 */
-	protected function setXssProtectionHeader() {
-		return $this->getMod()->isOpt( 'x_xss_protect', 'Y' ) ? array( 'X-XSS-Protection' => '1; mode=block' ) : null;
+	protected function getXssProtectionHeader() {
+		return array( 'X-XSS-Protection' => '1; mode=block' );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getContentTypeOptionHeader() {
+		return array( 'X-Content-Type-Options' => 'nosniff' );
 	}
 
 	/**
 	 * @return array|null
 	 */
-	protected function setContentTypeOptionHeader() {
-		return $this->getMod()->isOpt( 'x_content_type', 'Y' ) ? array( 'X-Content-Type-Options' => 'nosniff' ) : null;
-	}
-
-	/**
-	 * @return array|null
-	 */
-	protected function setReferrerPolicyHeader() {
+	protected function getReferrerPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
-		$sValue = null;
-		if ( $oFO->isReferrerPolicyEnabled() ) {
-			$sValue = $oFO->getReferrerPolicyValue();
-		}
-		return is_string( $sValue ) ? array( 'Referrer-Policy' => $sValue ) : null;
+		return array( 'Referrer-Policy' => $oFO->getReferrerPolicyValue() );
 	}
 
 	/**
@@ -149,10 +144,18 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
 
-		$this->addHeader( $this->setReferrerPolicyHeader() );
-		$this->addHeader( $this->setXFrameHeader() );
-		$this->addHeader( $this->setXssProtectionHeader() );
-		$this->addHeader( $this->setContentTypeOptionHeader() );
+		if ( $oFO->isReferrerPolicyEnabled() ) {
+			$this->addHeader( $this->getReferrerPolicyHeader() );
+		}
+		if ( $oFO->isEnabledXFrame() ) {
+			$this->addHeader( $this->getXFrameHeader() );
+		}
+		if ( $oFO->isEnabledXssProtection() ) {
+			$this->addHeader( $this->getXssProtectionHeader() );
+		}
+		if ( $oFO->isEnabledContentTypeHeader() ) {
+			$this->addHeader( $this->getContentTypeOptionHeader() );
+		}
 		if ( $oFO->isContentSecurityPolicyEnabled() ) {
 			$this->addHeader( $this->setContentSecurityPolicyHeader() );
 		}

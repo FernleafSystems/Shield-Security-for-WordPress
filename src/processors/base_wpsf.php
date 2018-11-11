@@ -278,7 +278,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 					$sWpUsername = 'WP Cron';
 				}
 				else {
-					$sWpUsername = empty( $oUser ) ? 'unidentified' : $oUser->user_login;
+					$sWpUsername = empty( $oUser ) ? '' : $oUser->user_login;
 				}
 			}
 

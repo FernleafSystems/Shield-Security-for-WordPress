@@ -256,7 +256,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
-			$oMeta = $this->getController()->getUserMeta( $oUser );
+			$oMeta = $this->getConn()->getUserMeta( $oUser );
 			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
 		}
 		return $bCanSkip;
@@ -279,7 +279,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getMfaLoginHashes( $oUser ) {
-		$oMeta = $this->getController()->getUserMeta( $oUser );
+		$oMeta = $this->getConn()->getUserMeta( $oUser );
 		$aHashes = $oMeta->hash_loginmfa;
 		if ( !is_array( $aHashes ) ) {
 			$aHashes = array();
@@ -470,7 +470,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->isOpt( 'enable_login_gasp_check', 'Y' );
+		return $this->isModOptEnabled() && $this->isOpt( 'enable_login_gasp_check', 'Y' );
 	}
 
 	/**
@@ -535,7 +535,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return bool
 	 */
-	protected function isYubikeyConfigReady() {
+	private function isYubikeyConfigReady() {
 		$sAppId = $this->getOpt( 'yubikey_app_id' );
 		$sApiKey = $this->getOpt( 'yubikey_api_key' );
 		return !empty( $sAppId ) && !empty( $sApiKey );
@@ -674,6 +674,73 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		);
 		wp_enqueue_script( 'jquery-ui-dialog' );
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'  => array(
+				'title' => _wpsf__( 'Login Guard' ),
+				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
+			),
+			'key_opts' => array()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bHasBotCheck = $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
+
+			$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
+			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
+			$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
+			$aThis[ 'key_opts' ][ 'bot_login' ] = array(
+				'name'    => _wpsf__( 'Brute Force Login' ),
+				'enabled' => $bBotLogin,
+				'summary' => $bBotLogin ?
+					_wpsf__( 'Login forms are protected against bot attacks' )
+					: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
+			);
+			$aThis[ 'key_opts' ][ 'bot_register' ] = array(
+				'name'    => _wpsf__( 'Bot User Register' ),
+				'enabled' => $bBotRegister,
+				'summary' => $bBotRegister ?
+					_wpsf__( 'Registration forms are protected against bot attacks' )
+					: _wpsf__( 'Registration forms are not protected against automated bots' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
+			);
+			$aThis[ 'key_opts' ][ 'bot_password' ] = array(
+				'name'    => _wpsf__( 'Brute Force Lost Password' ),
+				'enabled' => $bBotPassword,
+				'summary' => $bBotPassword ?
+					_wpsf__( 'Lost Password forms are protected against bot attacks' )
+					: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
+			);
+
+			$bHas2Fa = $this->isEmailAuthenticationActive()
+					   || $this->isEnabledGoogleAuthenticator() || $this->isYubikeyActive();
+			$aThis[ 'key_opts' ][ '2fa' ] = array(
+				'name'    => _wpsf__( 'Identity Verification' ),
+				'enabled' => $bHas2Fa,
+				'summary' => $bHas2Fa ?
+					_wpsf__( 'At least 1 2FA option is enabled' )
+					: _wpsf__( 'No 2FA options, such as Google Authenticator, are active' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_2fa_email' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
 	}
 
 	/**

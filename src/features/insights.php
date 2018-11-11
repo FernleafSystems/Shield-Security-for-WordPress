@@ -12,68 +12,299 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @param array $aData
 	 */
 	protected function displayModulePage( $aData = array() ) {
-
-		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
+		$oCon = $this->getConn();
 		$aSecNotices = $this->getNotices();
-		$aNotes = $this->getNotes();
 
 		$nNoticesCount = 0;
 		foreach ( $aSecNotices as $aNoticeSection ) {
 			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
 		}
 
-		$aData = array(
-			'vars'    => array(
-				'summary'               => $this->getInsightsModsSummary(),
-				'audit_trail_recent'    => $aRecentAuditTrail,
-				'insight_events'        => $this->getRecentEvents(),
-				'insight_notices'       => $aSecNotices,
-				'insight_notices_count' => $nNoticesCount,
-				'insight_stats'         => $this->getStats(),
-				'insight_notes'         => $aNotes,
-			),
-			'inputs'  => array(
-				'license_key' => array(
-					'name'      => $this->prefixOptionKey( 'license_key' ),
-					'maxlength' => $this->getDef( 'license_key_length' ),
-				)
-			),
-			'ajax'    => array(
-				'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
-				'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-				'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-			),
-			'hrefs'   => array(
-				'shield_pro_url'           => 'https://icwp.io/shieldpro',
-				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
-			),
-			'flags'   => array(
-				'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
-				'show_ads'                => false,
-				'show_standard_options'   => false,
-				'show_alt_content'        => true,
-				'is_pro'                  => $this->isPremium(),
-				'has_notices'             => count( $aSecNotices ) > 0,
-				'has_notes'               => count( $aNotes ) > 0,
-				'can_notes'               => $this->isPremium() //not the way to determine
-			),
-			'strings' => $this->getDisplayStrings(),
+		$sSubNavSection = $this->loadRequest()->query( 'subnav' );
+
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
+		$oTrafficMod = $oCon->getModule( 'traffic' );
+		/** @var ICWP_WPSF_Processor_TrafficLogger $oTrafficPro */
+		$oTrafficPro = $oTrafficMod->getProcessor()->getProcessorLogger();
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
+		$oAuditMod = $oCon->getModule( 'audit_trail' );
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
+		$oAuditPro = $oAuditMod->getProcessor();
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
+		$oIpMod = $oCon->getModule( 'ips' );
+		/** @var ICWP_WPSF_FeatureHandler_Sessions $oModSessions */
+		$oModSessions = $oCon->getModule( 'sessions' );
+		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
+		$oProSessions = $oModSessions->getProcessor();
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
+		$oModUsers = $oCon->getModule( 'user_management' );
+
+		switch ( $sSubNavSection ) {
+
+			case 'notes':
+				$aData = array(
+					'vars'  => array(),
+					'ajax'  => array(
+						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
+						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+					),
+					'flags' => array(
+						'can_notes' => $this->isPremium() //not the way to determine
+					)
+				);
+				break;
+
+			case 'config':
+				$aData = array(
+					'vars' => array(
+						'config_cards' => $this->getConfigCardsData()
+					)
+				);
+				break;
+
+			case 'ips':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
+						'add_ip_white'    => $oIpMod->getAjaxActionData( 'add_ip_white' ),
+						'ip_delete'       => $oIpMod->getAjaxActionData( 'ip_delete', true ),
+					),
+					'flags'   => array(),
+					'strings' => array(),
+					'vars'    => array(),
+				);
+				break;
+
+			case 'audit':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
+					),
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
+					),
+					'vars'    => array(
+						'contexts_for_select' => $oAuditMod->getAllContexts(),
+						'unique_ips'          => $oAuditPro->getQuerySelector()->getDistinctIps(),
+						'unique_users'        => $oAuditPro->getQuerySelector()->getDistinctUsernames(),
+					),
+				);
+				break;
+
+			case 'traffic':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
+					),
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
+					),
+					'vars'    => array(
+						'unique_ips'       => $oTrafficPro->getQuerySelector()->getDistinctIps(),
+						'unique_responses' => $oTrafficPro->getQuerySelector()->getDistinctCodes(),
+						'unique_users'     => $oTrafficPro->getQuerySelector()->getDistinctUsernames(),
+					),
+				);
+				break;
+
+			case 'scans':
+				$aData = array();
+				break;
+
+			case 'users':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true )
+					),
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
+					),
+					'vars'    => array(
+						'unique_ips'       => $oProSessions->getQuerySelector()->getDistinctIps(),
+						'unique_users'     => $oProSessions->getQuerySelector()->getDistinctUsernames(),
+					),
+				);
+				break;
+
+			case 'original':
+				$aData = array(
+					'vars'   => array(
+						'summary'               => $this->getInsightsModsSummary(),
+						'insight_events'        => $this->getRecentEvents(),
+						'insight_notices'       => $aSecNotices,
+						'insight_notices_count' => $nNoticesCount,
+						'insight_stats'         => $this->getStats(),
+					),
+					'inputs' => array(
+						'license_key' => array(
+							'name'      => $this->prefixOptionKey( 'license_key' ),
+							'maxlength' => $this->getDef( 'license_key_length' ),
+						)
+					),
+					'ajax'   => array(
+						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
+						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+					),
+					'hrefs'  => array(
+						'shield_pro_url'           => 'https://icwp.io/shieldpro',
+						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
+					),
+					'flags'  => array(
+						'show_ads'              => false,
+						'show_standard_options' => false,
+						'show_alt_content'      => true,
+						'is_pro'                => $this->isPremium(),
+						'has_notices'           => count( $aSecNotices ) > 0,
+					),
+				);
+				break;
+			case 'insights':
+			case 'index':
+			default:
+				$sSubNavSection = 'insights';
+				$aData = array(
+					'vars'   => array(
+						'summary'               => $this->getInsightsModsSummary(),
+						'insight_events'        => $this->getRecentEvents(),
+						'insight_notices'       => $aSecNotices,
+						'insight_notices_count' => $nNoticesCount,
+						'insight_stats'         => $this->getStats(),
+					),
+					'inputs' => array(
+						'license_key' => array(
+							'name'      => $this->prefixOptionKey( 'license_key' ),
+							'maxlength' => $this->getDef( 'license_key_length' ),
+						)
+					),
+					'ajax'   => array(),
+					'hrefs'  => array(
+						'shield_pro_url'           => 'https://icwp.io/shieldpro',
+						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
+					),
+					'flags'  => array(
+						'show_ads'              => false,
+						'show_standard_options' => false,
+						'show_alt_content'      => true,
+						'is_pro'                => $this->isPremium(),
+						'has_notices'           => count( $aSecNotices ) > 0,
+					),
+				);
+				break;
+		}
+
+		$aTopNav = array(
+			'insights' => _wpsf__( 'Overview' ),
+			'config'   => _wpsf__( 'Configuration' ),
+//			'scans'    => _wpsf__( 'Scan' ),
+			'ips'      => _wpsf__( 'IP Lists' ),
+			'audit'    => _wpsf__( 'Audit Trail' ),
+			'traffic'  => _wpsf__( 'Traffic' ),
+			'users'    => _wpsf__( 'Users' ),
+			'notes'    => _wpsf__( 'Notes' ),
 		);
-		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
+		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
+			$sName = array(
+				'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
+				'name'   => $sName,
+				'active' => $sKey === $sSubNavSection
+			);
+		} );
+
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive(
+						  array(
+							  'hrefs'   => array(
+								  'nav_home' => $this->getUrl_AdminPage(),
+								  'top_nav'  => $aTopNav,
+							  ),
+							  'strings' => $this->getDisplayStrings(),
+						  ),
+						  $aData
+					  );
+
+		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
 
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {
-			wp_localize_script(
-				$this->prefix( 'plugin' ),
-				'icwp_wpsf_vars_insights',
-				array(
-					'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-					'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-				)
-			);
+
+			if ( $this->isThisModulePage() ) {
+				$oConn = $this->getConn();
+
+				$aStdDeps = array( $this->prefix( 'plugin' ) );
+				switch ( $this->loadRequest()->query( 'subnav' ) ) {
+
+					case 'scans':
+						$sAsset = 'shield-scans';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						break;
+
+					case 'notes':
+						$sAsset = 'shield-notes';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							true
+						);
+						wp_enqueue_script( $sUnique );
+
+						wp_localize_script(
+							$sUnique,
+							'icwp_wpsf_vars_insights',
+							array(
+								'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
+								'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+							)
+						);
+						break;
+
+					case 'audit':
+					case 'traffic':
+					case 'users':
+						$sAsset = 'shield-tables';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						break;
+
+					case 'ips':
+						$sAsset = 'shield-ips';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						break;
+				}
+			}
 		}
 	}
 
@@ -161,7 +392,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function ajaxExec_AdminNotesRender() {
 		$aNotes = $this->getNotes();
 		$sHtml = $this->renderTemplate(
-			'/wpadmin_pages/insights/admin_notes_table.twig',
+			'/wpadmin_pages/insights_new/notes/admin_notes_table.twig',
 			array(
 				'vars'  => array(
 					'insight_notes' => $aNotes,
@@ -214,8 +445,67 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return array[]
 	 */
-	protected function getNotices() {
+	protected function getIps() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getConn()
+					 ->getModule( 'ips' );
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $oMod->getProcessor();
 
+		$aData = array(
+			'white' => $this->parseIpList( $oPro->getWhitelistIpsData() ),
+			'black' => $this->parseIpList( $oPro->getAutoBlacklistIpsData() ),
+		);
+		$aData[ 'has_white' ] = !empty( $aData[ 'white' ] );
+		$aData[ 'has_black' ] = !empty( $aData[ 'black' ] );
+		return $aData;
+	}
+
+	/**
+	 * @param ICWP_WPSF_IpsEntryVO[] $aList
+	 * @return array[]
+	 */
+	private function parseIpList( $aList ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getConn()
+					 ->getModule( 'ips' );
+		$aParsed = array();
+
+		$oIpService = $this->loadIpService();
+		$oCarbon = new \Carbon\Carbon();
+		foreach ( $aList as $oIp ) {
+
+			$nTrans = $oIp->getTransgressions();
+			$aIp = $oIp->getRawData();
+			$aIp[ 'trans' ] = sprintf( _n( '%s offence', '%s offences', $nTrans, 'wp-simple-firewall' ), $nTrans );
+			$aIp[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans();
+			$aIp[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans();
+			$aIp[ 'blocked' ] = $nTrans >= $oMod->getOptTransgressionLimit();
+			try {
+				$aIp[ 'is_you' ] = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
+			}
+			catch ( Exception $oE ) {
+				$aIp[ 'is_you' ] = false;
+			}
+
+			$aIp[ 'is_you' ] ? array_unshift( $aParsed, $aIp ) : array_push( $aParsed, $aIp );
+		}
+		return $aParsed;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getConfigCardsData() {
+		$aAll = apply_filters( $this->prefix( 'collect_summary' ), array() );
+
+		return $aAll;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getNotices() {
 		$aAll = apply_filters(
 			$this->prefix( 'collect_notices' ),
 			array(
@@ -477,16 +767,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aStats = $oStats->getInsightsStats();
 		return array(
-			'transgressions' => array(
-				'title'   => _wpsf__( 'Transgressions' ),
-				'val'     => $aStats[ 'ip.transgression.incremented' ],
-				'tooltip' => _wpsf__( 'Total transgression against the site.' )
-			),
-			'ip_blocks'      => array(
-				'title'   => _wpsf__( 'IP Blocks' ),
-				'val'     => $aStats[ 'ip.connection.killed' ],
-				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
-			),
 			'login'          => array(
 				'title'   => _wpsf__( 'Login Blocks' ),
 				'val'     => $aStats[ 'login.blocked.all' ],
@@ -502,10 +782,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'val'     => $aStats[ 'comments.blocked.all' ],
 				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
 			),
-			'sessions'       => array(
-				'title'   => _wpsf__( 'Active Sessions' ),
-				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
-				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+			//			'sessions'       => array(
+			//				'title'   => _wpsf__( 'Active Sessions' ),
+			//				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
+			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+			//			),
+			'transgressions' => array(
+				'title'   => _wpsf__( 'Transgressions' ),
+				'val'     => $aStats[ 'ip.transgression.incremented' ],
+				'tooltip' => _wpsf__( 'Total transgression against the site.' )
+			),
+			'ip_blocks'      => array(
+				'title'   => _wpsf__( 'IP Blocks' ),
+				'val'     => $aStats[ 'ip.connection.killed' ],
+				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
@@ -514,11 +804,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  ->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
-			'pro'            => array(
-				'title'   => _wpsf__( 'Pro' ),
-				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
-			),
+			//			'pro'            => array(
+			//				'title'   => _wpsf__( 'Pro' ),
+			//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
+			//				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
+			//			),
 		);
 	}
 

@@ -1,0 +1,41 @@
+{% extends '/wpadmin_pages/insights_new/ips/ips_base.twig' %}
+
+{% block section_form_addip %}{% endblock %}
+
+{% block section_table %}
+	<div class="row insights_widget" id="SectionTableIpsBlack">
+		<div class="col-12">
+
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">Black List</h5>
+					<h6 class="card-subtitle mb-2 text-muted">asdf</h6>
+				</div>
+				<div class="card-body pb-2">
+
+					<div id="TableIpsBlack"></div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block section_table_js %}
+	<script>
+		var $oTableIpsBlack = jQuery( '#TableIpsBlack' ).icwpWpsfAjaxTable(
+			{
+				'ajax_render':{{ ajax.render_table_ip|raw }},
+				'req_params': {
+					'fList': 'AB'
+				}
+			}
+		);
+		jQuery( '#SectionTableIpsBlack' ).icwpWpsfTableIps(
+			{
+				'table': $oTableIpsBlack,
+				'ajax_delete_ip':{{ ajax.ip_delete|raw }}
+			}
+		);
+	</script>
+{% endblock %}

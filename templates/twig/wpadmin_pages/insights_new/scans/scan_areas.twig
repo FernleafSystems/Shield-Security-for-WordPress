@@ -1,0 +1,71 @@
+<form id="StartScan">
+	<div class="card">
+		<div class="card-header">
+			<h5 class="card-title">Scan Areas</h5>
+			<h6 class="card-subtitle mb-2 text-muted">Select which areas of your site to scan</h6>
+		</div>
+		<div class="card-body pb-2">
+
+			<div class="row">
+				<div class="col-xl-10 col-lg-10 col-md-9 insights_widget">
+					<div class="row">
+
+						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="chWcf" class="col-form-label">
+									<input type="checkbox" class="form-control text-right" id="chWcf" value="Y" />
+									WordPress Core Files
+								</label>
+							</div>
+						</div>
+
+						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="chUfc" class="col-form-label">
+									<input type="checkbox" class="form-control text-right" id="chUfc" value="Y" />
+									Unrecognised Core Files
+								</label>
+							</div>
+						</div>
+
+						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="chPtg" class="col-form-label">
+									<input type="checkbox" class="form-control text-right" id="chPtg" value="Y" />
+									Plugin/Theme Modifications
+								</label>
+							</div>
+						</div>
+
+						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="chVuln" class="col-form-label">
+									<input type="checkbox" class="form-control text-right" id="chVuln" value="Y" />
+									Plugin Vulnerabilities
+								</label>
+							</div>
+						</div>
+
+						<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="chPtdev" class="col-form-label">
+									<input type="checkbox" class="form-control text-right" id="chPtdev" value="Y" />
+									Plugin Deviance from WP.org
+								</label>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="col-xl-2 col-lg-2 col-md-3">
+					<button class="btn btn-primary" type="submit">Start Scan &rarr;</button>
+				</div>
+
+			</div>
+		</div>
+		<div class="card-footer">
+			The more items that are selected, the longer the scan may take
+		</div>
+	</div>
+</form>

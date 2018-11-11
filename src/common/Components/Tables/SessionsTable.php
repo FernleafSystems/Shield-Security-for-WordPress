@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_BaseTable.php' ) ) {
+if ( !class_exists( 'ICWP_BaseTable' ) ) {
 	require_once( dirname( __FILE__ ).'/ICWP_BaseTable.php' );
 }
 

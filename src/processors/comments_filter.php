@@ -29,13 +29,13 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$oBotSpamProcessor->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) && $this->loadWpComments()->isCommentPost() ) {
+		if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
 			require_once( dirname( __FILE__ ).'/commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
 		}
 
-		if ( $oFO->isGoogleRecaptchaEnabled() && $oFO->isGoogleRecaptchaReady() ) {
+		if ( $oFO->isGoogleRecaptchaEnabled() ) {
 			require_once( dirname( __FILE__ ).'/commentsfilter_googlerecaptcha.php' );
 			$oReCap = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
 			$oReCap->run();
@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		// We only warn when the human spam filter is running
-		if ( $oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) && $oFO->getConn()->isValidAdminArea() ) {
+		if ( $oFO->isEnabledHumanCheck() && $oFO->getConn()->isValidAdminArea() ) {
 
 			$oWpPlugins = $this->loadWpPlugins();
 			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );

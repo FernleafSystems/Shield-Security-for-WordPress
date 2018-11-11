@@ -34,7 +34,12 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	protected $sTemplatePath;
+	protected $sTemplateRootMain;
+
+	/**
+	 * @var string
+	 */
+	protected $aTemplateRoots;
 
 	/**
 	 * @var string
@@ -89,7 +94,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 */
 	private function renderHtml() {
 		ob_start();
-		@include( $this->getTemplateRoot().ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR ) );
+		@include( $this->getTemplateRootMain().ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR ) );
 		return ob_get_clean();
 	}
 
@@ -101,7 +106,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 			extract( $this->getRenderVars() );
 		}
 
-		$sTemplate = $this->getTemplateRoot().ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR );
+		$sTemplate = $this->getTemplateRootMain().ltrim( $this->getTemplate(), DIRECTORY_SEPARATOR );
 		if ( $this->loadFS()->isFile( $sTemplate ) ) {
 			ob_start();
 			include( $sTemplate );
@@ -119,8 +124,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	private function renderTwig() {
-		$oTwig = $this->getTwigEnvironment();
-		return $oTwig->render( $this->getTemplate(), $this->getRenderVars() );
+		return $this->getTwigEnvironment()->render( $this->getTemplate(), $this->getRenderVars() );
 	}
 
 	/**
@@ -150,24 +154,22 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @return Twig_Environment
 	 */
 	protected function getTwigEnvironment() {
-		if ( !isset( $this->oTwigEnv ) ) {
-			self::loadAutoload();
-			$this->oTwigEnv = new Twig_Environment( $this->getTwigLoader(),
-				array(
-					'debug' => true,
-					'strict_variables' => true,
-				)
-			);
-		}
-		return $this->oTwigEnv;
+		self::loadAutoload();
+		return new Twig_Environment( $this->getTwigLoader(),
+			array(
+				'debug'            => true,
+				'strict_variables' => true,
+			)
+		);
 	}
 
 	/**
 	 * @return Twig_Loader_Filesystem
 	 */
 	protected function getTwigLoader() {
+		self::loadAutoload();
 		if ( !isset( $this->oTwigLoader ) ) {
-			$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplateRoot() );
+			$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplateRootMain() );
 		}
 		return $this->oTwigLoader;
 	}
@@ -214,19 +216,31 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 			$sTemplate = $this->getTemplate();
 		}
 		$sTemplate = $this->loadDP()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
-		return path_join( $this->getTemplateRoot(), $sTemplate );
+		return path_join( $this->getTemplateRootMain(), $sTemplate );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getTemplateRoot() {
-		$sPath = rtrim( $this->sTemplatePath, DIRECTORY_SEPARATOR );
+	public function getTemplateRootMain() {
+		$sPath = rtrim( $this->sTemplateRootMain, DIRECTORY_SEPARATOR );
 		$sStub = $this->getEngineStub();
 		if ( !preg_match( sprintf( '#%s$#', $sStub ), $sPath ) ) {
 			$sPath = $sPath.DIRECTORY_SEPARATOR.$sStub;
 		}
 		return $sPath.DIRECTORY_SEPARATOR;
+	}
+
+	/**
+	 * For use with Twig
+	 * @return array
+	 */
+	public function getTemplateRoots() {
+		if ( !is_array( $this->aTemplateRoots ) ) {
+			$this->aTemplateRoots = array();
+		}
+		array_unshift( $this->aTemplateRoots, $this->getTemplateRootMain() );
+		return array_unique( array_filter( $this->aTemplateRoots ) );
 	}
 
 	/**
@@ -300,8 +314,19 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @param string $sPath
 	 * @return $this
 	 */
+	public function addTemplateRoot( $sPath ) {
+		$aRoots = $this->getTemplateRoots();
+		$aRoots[] = $sPath;
+		$this->aTemplateRoots = $aRoots;
+		return $this;
+	}
+
+	/**
+	 * @param string $sPath
+	 * @return $this
+	 */
 	public function setTemplateRoot( $sPath ) {
-		$this->sTemplatePath = $sPath;
+		$this->sTemplateRootMain = $sPath;
 		return $this;
 	}
 
