@@ -32,10 +32,10 @@ class Scanner {
 			return $oResultSet;
 		}
 
-		$sExclusions = $this->getExclusionsRegex();
-		$sMissingExclusions = $this->getMissingExclusionsRegex();
-		$bHasExclusions = !empty( $sExclusions );
-		$bHasMissingExclusions = !empty( $sMissingExclusions );
+		$sRegExclusions = $this->getExclusionsRegex();
+		$sRegMissingExcl = $this->getMissingExclusionsRegex();
+		$bHasExclusions = !empty( $sRegExclusions );
+		$bHasMissingExclusions = !empty( $sRegMissingExcl );
 		foreach ( $oHashes->getHashes() as $sFragment => $sMd5HashWp ) {
 
 			$oRes = new ResultItem();
@@ -44,8 +44,8 @@ class Scanner {
 			$oRes->path_full = $oHashes->getAbsolutePathFromFragment( $oRes->path_fragment );
 			$oRes->is_missing = !Services::WpFs()->exists( $oRes->path_full );
 			$oRes->is_checksumfail = !$oRes->is_missing && $this->isChecksumFail( $oRes );
-			$oRes->is_excluded = ( $bHasExclusions && preg_match( $sExclusions, $oRes->path_fragment ) )
-								 || ( $bHasMissingExclusions && $oRes->is_missing );
+			$oRes->is_excluded = ( $bHasExclusions && preg_match( $sRegExclusions, $oRes->path_fragment ) )
+								 || ( $bHasMissingExclusions && preg_match( $sRegMissingExcl, $oRes->path_fragment ) );
 
 			if ( $oRes->is_missing || $oRes->is_checksumfail ) {
 				$oResultSet->addItem( $oRes );
@@ -68,7 +68,6 @@ class Scanner {
 														->convertLineEndingsDosToLinux( $oRes->path_full ) );
 		}
 		return $bFail;
-
 	}
 
 	/**
