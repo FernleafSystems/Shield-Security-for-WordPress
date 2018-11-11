@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property string md5_file_wp
  * @property bool   is_checksumfail
  * @property bool   is_missing
+ * @property bool   is_repaired
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
  */
 class ResultItem extends Base\BaseResultItem {

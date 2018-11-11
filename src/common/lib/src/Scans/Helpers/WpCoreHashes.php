@@ -66,7 +66,7 @@ class WpCoreHashes {
 	 * @return bool
 	 */
 	public function isCoreFile( $sFile ) {
-		return in_array( $this->getFileFragment( $sFile ), $this->getHashes() );
+		return array_key_exists( $this->getFileFragment( $sFile ), $this->getHashes() );
 	}
 
 	/**

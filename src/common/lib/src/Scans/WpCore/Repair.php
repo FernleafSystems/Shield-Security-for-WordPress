@@ -10,17 +10,31 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class RepairItem
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore#
  */
-class RepairItem {
+class Repair {
+
+	/**
+	 * @param ResultsSet $oResults
+	 */
+	public function repairResultsSet( $oResults ) {
+		foreach ( $oResults->getItems() as $oItem ) {
+			try {
+				/** @var ResultItem $oItem */
+				$this->repairItem( $oItem );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+	}
 
 	/**
 	 * @param ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function run( $oItem ) {
+	public function repairItem( $oItem ) {
 		$bSuccess = false;
 
-		$sPath = trim( '/', wp_normalize_path( $oItem->path_fragment ) );
+		$sPath = trim( wp_normalize_path( $oItem->path_fragment ), '/' );
 		$oCoreHashes = new WpCoreHashes();
 		if ( !$oCoreHashes->isCoreFile( $sPath ) ) {
 			throw new \Exception( sprintf( 'Core file "%s" is not an official WordPress core file.', $sPath ) );
@@ -31,6 +45,7 @@ class RepairItem {
 		if ( !empty( $sContent ) && Services::WpFs()->putFileContent( $sFullPath, $sContent ) ) {
 			clearstatcache();
 			$bSuccess = ( $oCoreHashes->getFileHash( $sPath ) === md5_file( $sFullPath ) );
+			$oItem->is_repaired = $bSuccess;
 		}
 
 		return $bSuccess;
