@@ -60,10 +60,15 @@ class Scanner {
 	 * @return bool
 	 */
 	protected function isChecksumFail( $oRes ) {
-		return !$oRes->is_missing && ( $oRes->md5_file_wp != md5_file( $oRes->path_full ) )
-			   && ( strpos( $oRes->path_full, '.php' ) > 0 )
-			   && ( $oRes->md5_file_wp != Services::DataManipulation()
-												  ->convertLineEndingsDosToLinux( $oRes->path_full ) );
+		$bFail = false;
+		if ( !$oRes->is_missing ) {
+			$bFail = ( $oRes->md5_file_wp != md5_file( $oRes->path_full ) )
+					 && ( strpos( $oRes->path_full, '.php' ) > 0 )
+					 && ( $oRes->md5_file_wp != Services::DataManipulation()
+														->convertLineEndingsDosToLinux( $oRes->path_full ) );
+		}
+		return $bFail;
+
 	}
 
 	/**
