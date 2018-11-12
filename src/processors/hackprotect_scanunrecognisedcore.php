@@ -4,21 +4,15 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_FileCleanerScan', false ) ) 
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
 use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processor_BaseWpsf {
-
-	/**
-	 * @var string[]
-	 */
-	protected $aCoreFiles;
+class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 */
 	public function run() {
-		$this->setupChecksumCron();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
@@ -29,26 +23,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 					break;
 			}
 		}
-	}
-
-	protected function setupChecksumCron() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$this->loadWpCronProcessor()
-			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getScanFrequency() ) ) )
-			 ->createCronJob(
-				 $oFO->getUfcCronName(),
-				 array( $this, 'cron_dailyFileCleanerScan' )
-			 );
-		add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	/**
-	 */
-	public function deleteCron() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$this->loadWpCronProcessor()->deleteCronJob( $oFO->getUfcCronName() );
 	}
 
 	/**
@@ -177,5 +151,21 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		return $aContent;
+	}
+
+	/**
+	 * @return callable
+	 */
+	protected function getCronCallback() {
+		return array( $this, 'cron_dailyFileCleanerScan' );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->getUfcCronName();
 	}
 }

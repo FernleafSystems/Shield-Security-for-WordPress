@@ -4,26 +4,16 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) )
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
 use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 */
 	public function run() {
-		$this->loadAutoload();
-		$this->setupChecksumCron();
-//		if ( isset( $_GET[ 'test' ] ) ) {
-//			$oRes = $this->doChecksumScan();
-//			var_dump( $oRes->filterItemsForPaths( $oRes->getItems() ) );
-//			die();
-//		}
-//		$a = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\WpCoreHashes() )
-//			->getHashes();
-//		var_dump( $a );
-//		die();
+		parent::run();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
@@ -44,26 +34,6 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 					}
 			}
 		}
-	}
-
-	protected function setupChecksumCron() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$this->loadWpCronProcessor()
-			 ->setRecurrence( $this->prefix( sprintf( 'per-day-%s', $oFO->getScanFrequency() ) ) )
-			 ->createCronJob(
-				 $oFO->getWcfCronName(),
-				 array( $this, 'cron_dailyChecksumScan' )
-			 );
-		add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	/**
-	 */
-	public function deleteCron() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$this->loadWpCronProcessor()->deleteCronJob( $oFO->getWcfCronName() );
 	}
 
 	/**
@@ -270,20 +240,18 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	}
 
 	/**
+	 * @return callable
+	 */
+	protected function getCronCallback() {
+		return array( $this, 'cron_dailyChecksumScan' );
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDef( 'corechecksum_cron_name' ) );
-	}
-
-	private function convertMd5FilePathToActual( $sMd5FilePath ) {
-		if ( strpos( $sMd5FilePath, 'wp-content/' ) === 0 ) {
-			$sFullPath = path_join( WP_CONTENT_DIR, str_replace( 'wp-content/', '', $sMd5FilePath ) );
-		}
-		else {
-			$sFullPath = ABSPATH.$sMd5FilePath;
-		}
-		return $sFullPath;
+		return $oFO->getWcfCronName();
 	}
 }
