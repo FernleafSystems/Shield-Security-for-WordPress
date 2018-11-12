@@ -35,6 +35,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 
 		/** @var Scans\Base\BaseResultsSet $oResults */
 		$oResults = $this->getScanner()->run();
+		$this->updateScanResultsStore( $oResults );
 
 		$oFO->setLastScanAt( static::SCAN_SLUG );
 		$oResults->hasItems() ?
@@ -75,8 +76,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 		$oExisting = $this->readScanResultsFromDb();
 		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
 		$this->deleteResultsSet( $oItemsToDelete );
-		$this->storeScanResults( $oNewResults );
-		$this->updateScanResults( $oExisting );
+		$this->storeNewScanResults( $oNewResults );
+		$this->updateExistingScanResults( $oExisting );
 	}
 
 	/**
@@ -103,7 +104,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	/**
 	 * @param Scans\Base\BaseResultsSet $oResults
 	 */
-	protected function storeScanResults( $oResults ) {
+	protected function storeNewScanResults( $oResults ) {
 		$oInsert = $this->getScannerDb()->getQueryInserter();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
@@ -113,7 +114,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	/**
 	 * @param Scans\Base\BaseResultsSet $oResults
 	 */
-	protected function updateScanResults( $oResults ) {
+	protected function updateExistingScanResults( $oResults ) {
 		$oUp = $this->getScannerDb()->getQueryUpdater();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oUp->reset()

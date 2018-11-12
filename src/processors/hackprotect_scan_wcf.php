@@ -17,12 +17,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	public function run() {
 		parent::run();
 
-		if ( isset( $_GET[ 'test' ] ) ) {
-			$this->updateScanResultsStore( $this->doScan() );
-//			$this->readScanResultsFromDb();
-			die();
-		}
-
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
 

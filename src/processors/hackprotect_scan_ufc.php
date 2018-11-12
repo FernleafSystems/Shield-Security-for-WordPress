@@ -29,6 +29,22 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param Scans\UnrecognisedCore\ResultsSet $oResults
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function convertResultsToVos( $oResults ) {
+		return ( new Scans\UnrecognisedCore\ConvertResultsToVos() )->convert( $oResults );
+	}
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @return Scans\UnrecognisedCore\ResultsSet
+	 */
+	protected function convertVosToResults( $aVos ) {
+		return ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convert( $aVos );
+	}
+
+	/**
 	 * @return Scans\UnrecognisedCore\Repair
 	 */
 	protected function getRepairer() {
