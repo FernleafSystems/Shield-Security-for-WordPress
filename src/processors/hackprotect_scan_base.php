@@ -6,7 +6,11 @@ if ( class_exists( 'ICWP_WPSF_Processor_ScanBase', false ) ) {
 
 require_once( dirname( __FILE__ ).'/cronbase.php' );
 
+use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
+
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase {
+
+	const SCAN_SLUG = 'base';
 
 	/**
 	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
@@ -23,6 +27,29 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
+	 * @return Scans\Base\BaseResultsSet
+	 */
+	public function doScan() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		/** @var Scans\Base\BaseResultsSet $oResults */
+		$oResults = $this->getScanner()->run();
+
+		$oFO->setLastScanAt( static::SCAN_SLUG );
+		$oResults->hasItems() ?
+			$oFO->setLastScanProblemAt( static::SCAN_SLUG )
+			: $oFO->clearLastScanProblemAt( static::SCAN_SLUG );
+
+		return $oResults;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	abstract protected function getScanner();
+
+	/**
 	 * @return int
 	 */
 	protected function getCronFrequency() {
@@ -34,7 +61,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
-	public function getScanner() {
+	public function getScannerDb() {
 		return $this->oScanner;
 	}
 
@@ -42,7 +69,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @param ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
 	 * @return $this
 	 */
-	public function setScanner( $oScanner ) {
+	public function setScannerDb( $oScanner ) {
 		$this->oScanner = $oScanner;
 		return $this;
 	}

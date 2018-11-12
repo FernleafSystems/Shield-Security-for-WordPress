@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_FileCleanerScan', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ufc', false ) ) {
 	return;
 }
 
@@ -8,11 +8,14 @@ require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
 use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processor_ScanBase {
+class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
+
+	const SCAN_SLUG = 'ufc';
 
 	/**
 	 */
 	public function run() {
+		parent::run();
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
@@ -26,9 +29,9 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	/**
-	 * @return Scans\UnrecognisedCore\ResultsSet
+	 * @return Scans\UnrecognisedCore\Scanner
 	 */
-	public function doScan() {
+	protected function getScanner() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
@@ -49,27 +52,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 						 );
 			}
 		}
-		$oResults = $oScanner->run();
-
-		$oFO->setLastScanAt( 'ufc' );
-		$oResults->hasItems() ? $oFO->setLastScanProblemAt( 'ufc' ) : $oFO->clearLastScanProblemAt( 'ufc' );
-
-		return $oResults;
-	}
-
-
-	public function cron_dailyFileCleanerScan() {
-		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
-			return;
-		}
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isUfcEnabled() ) {
-			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
-			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
-				$this->emailResults( $oRes->getItemsPathsFull() );
-			}
-		}
+		return $oScanner;
 	}
 
 	/**
@@ -84,6 +67,20 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		$oFO->clearLastScanProblemAt( 'ufc' );
 
 		return $oResultSet;
+	}
+
+	public function cron_dailyFileCleanerScan() {
+		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
+			return;
+		}
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		if ( $oFO->isUfcEnabled() ) {
+			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
+			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
+				$this->emailResults( $oRes->getItemsPathsFull() );
+			}
+		}
 	}
 
 	/**

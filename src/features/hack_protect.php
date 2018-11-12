@@ -542,7 +542,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $this->getProcessor();
 			$bActivate = $oP->getSubProcessorGuard()
-							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_PTGuard::CONTEXT_PLUGINS )
+							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_Ptg::CONTEXT_PLUGINS )
 						 && $bActivate;
 		}
 		if ( $bActivate ) {

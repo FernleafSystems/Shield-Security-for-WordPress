@@ -1,12 +1,14 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_PTGuard' ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ptg' ) ) {
 	return;
 }
 
 require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
-class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_ScanBase {
+class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
+
+	const SCAN_SLUG = 'ptg';
 
 	const CONTEXT_PLUGINS = 'plugins';
 	const CONTEXT_THEMES = 'themes';
@@ -35,6 +37,15 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_ScanBa
 			add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
 			add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
 		}
+	}
+
+	/**
+	 * @return Scans\WpCore\Scanner
+	 */
+	protected function getScanner() {
+//		return ( new Scans\WpCore\Scanner() )
+//			->setExclusions( $this->getFullExclusions() )
+//			->setMissingExclusions( $this->getMissingOnlyExclusions() );
 	}
 
 	/**

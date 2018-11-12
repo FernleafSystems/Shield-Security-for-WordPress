@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_CoreChecksumScan', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wcf', false ) ) {
 	return;
 }
 
@@ -8,7 +8,9 @@ require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
 use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Processor_ScanBase {
+class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
+
+	const SCAN_SLUG = 'wcf';
 
 	/**
 	 */
@@ -42,22 +44,14 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * if ( empty( $aAutoFixIndexFiles ) ) {
 	 * $aAutoFixIndexFiles = array();
 	 */
+
 	/**
-	 * @return Scans\WpCore\ResultsSet
+	 * @return Scans\WpCore\Scanner
 	 */
-	public function doScan() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oResults = ( new Scans\WpCore\Scanner() )
+	protected function getScanner() {
+		return ( new Scans\WpCore\Scanner() )
 			->setExclusions( $this->getFullExclusions() )
-			->setMissingExclusions( $this->getMissingOnlyExclusions() )
-			->run();
-
-		$oFO->setLastScanAt( 'wcf' );
-		$oResults->hasItems() ? $oFO->setLastScanProblemAt( 'wcf' ) : $oFO->clearLastScanProblemAt( 'wcf' );
-
-		return $oResults;
+			->setMissingExclusions( $this->getMissingOnlyExclusions() );
 	}
 
 	/**

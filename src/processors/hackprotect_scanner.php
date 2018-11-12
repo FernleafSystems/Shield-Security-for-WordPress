@@ -9,9 +9,10 @@ require_once( dirname( __FILE__ ).'/basedb.php' );
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_HackProtect $oModCon
+	 * ICWP_WPSF_Processor_HackProtect_Scanner constructor.
+	 * @param $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_HackProtect $oModCon ) {
+	public function __construct( $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDef( 'table_name_scanner' ) );
 	}
 
@@ -21,10 +22,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return ICWP_WPSF_AuditTrailEntryVO
+	 * @return ICWP_WPSF_ScannerEntryVO
 	 */
 	protected function getEntryVo() {
-		/** @var ICWP_WPSF_AuditTrailEntryVO $oVo */
+		/** @var ICWP_WPSF_ScannerEntryVO $oVo */
 		$oVo = $this->getQuerySelector()
 					->getVo();
 		return $oVo;
