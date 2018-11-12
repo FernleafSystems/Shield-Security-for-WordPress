@@ -95,7 +95,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorUfc()->doScanAndFullRepair();
+			$oProc->getSubProcessorScanner()
+				  ->getSubProcessorUfc()
+				  ->doScanAndFullRepair();
 
 			$sMessage = 'If your filesystem permissions allowed it, the scanner will have deleted these files.';
 		}
@@ -118,7 +120,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $this->loadRequest()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorWcf()->doScanAndFullRepair();
+			$oProc->getSubProcessorScanner()
+				  ->getSubProcessorWcf()
+				  ->doScanAndFullRepair();
 
 			$sMessage = 'The scanner will have restored these files if your filesystem permissions allowed it.';
 		}
@@ -266,7 +270,8 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oFO->getProcessor();
-		$oGuard = $oP->getSubProcessorPtg();
+		$oGuard = $oP->getSubProcessorScanner()
+					 ->getSubProcessorPtg();
 
 		$bSuccess = false;
 		$sMessage = '';
@@ -425,7 +430,11 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'scanresult':
-					$aFiles = $oProc->getSubProcessorUfc()->doScan()->getItemsPathsFragments();
+					/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore\ResultsSet $oRes */
+					$oRes = $oProc->getSubProcessorScanner()
+								  ->getSubProcessorUfc()
+								  ->doScan();
+					$aFiles = $oRes->getItemsPathsFragments();
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(
@@ -441,7 +450,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			switch ( $sStep ) {
 				case 'scanresult':
-					$oResult = $oProc->getSubProcessorWcf()->doScan();
+					$oResult = $oProc->getSubProcessorScanner()
+									 ->getSubProcessorWcf()
+									 ->doScan();
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(
@@ -483,7 +494,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function getPtgScanResults( $sContext ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $this->getModCon()->getProcessor();
-		$oP = $oProc->getSubProcessorPtg();
+		$oP = $oProc->getSubProcessorScanner()->getSubProcessorPtg();
 		if ( $sContext == 'plugins' ) {
 			$aResults = $oP->scanPlugins();
 		}
