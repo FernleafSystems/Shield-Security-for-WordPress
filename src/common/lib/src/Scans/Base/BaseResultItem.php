@@ -28,4 +28,11 @@ class BaseResultItem {
 	public function generateHash() {
 		return md5( json_encode( $this->getRawDataAsArray() ) );
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getData() {
+		return isset( $this->data ) ? $this->data : $this->getRawDataAsArray();
+	}
 }

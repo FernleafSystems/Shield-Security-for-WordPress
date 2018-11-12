@@ -16,6 +16,17 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
+	 * @param string $sHash
+	 * @return $this
+	 */
+	public function filterByHash( $sHash ) {
+		if ( !empty( $sHash ) ) {
+			$this->addWhereEquals( 'hash', $sHash );
+		}
+		return $this;
+	}
+
+	/**
 	 * @param string $sScan
 	 * @return $this
 	 */

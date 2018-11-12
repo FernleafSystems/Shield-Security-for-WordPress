@@ -33,6 +33,22 @@ class BaseResultsSet {
 	}
 
 	/**
+	 * @param string $sHash
+	 * @return BaseResultItem|null
+	 */
+	public function getItemByHash( $sHash ) {
+		return $this->getItemExists( $sHash ) ? $this->getAllItems()[ $sHash ] : null;
+	}
+
+	/**
+	 * @param string $sHash
+	 * @return bool
+	 */
+	public function getItemExists( $sHash ) {
+		return isset( $this->getAllItems()[ $sHash ] );
+	}
+
+	/**
 	 * Ignores the "is_excluded" property on the items
 	 * @return BaseResultItem[]
 	 */
@@ -89,6 +105,19 @@ class BaseResultsSet {
 	 */
 	public function isFilterExcludedItems() {
 		return (bool)$this->bFilterExcluded;
+	}
+
+	/**
+	 * @param string $sHash
+	 * @return $this
+	 */
+	public function removeItem( $sHash ) {
+		if ( $this->getItemExists( $sHash ) ) {
+			$aItems = $this->getAllItems();
+			unset( $aItems[ $sHash ] );
+			$this->aItems = $aItems;
+		}
+		return $this;
 	}
 
 	/**

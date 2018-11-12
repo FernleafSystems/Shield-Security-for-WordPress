@@ -17,6 +17,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	public function run() {
 		parent::run();
 
+		if ( isset( $_GET[ 'test' ] ) ) {
+			$this->updateScanResultsStore( $this->doScan() );
+//			$this->readScanResultsFromDb();
+		}
+
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
 			$oReq = $this->loadRequest();
 
@@ -41,9 +46,29 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Scans\WpCore\ResultsSet $oNewResults
 	 */
-	protected function storeScanResults( $oNewResults ) {
+	protected function updateScanResultsStore( $oNewResults ) {
+		$oExisting = $this->readScanResultsFromDb();
+		( new Scans\WpCore\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
+		$this->deleteScanResults();
+		$this->storeScanResults( $oExisting );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function deleteScanResults() {
+		return $this
+			->getScannerDb()
+			->getQueryDeleter()
+			->forScan( static::SCAN_SLUG );
+	}
+
+	/**
+	 * @param Scans\WpCore\ResultsSet $oResults
+	 */
+	protected function storeScanResults( $oResults ) {
 		$oInsert = $this->getScannerDb()->getQueryInserter();
-		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oNewResults ) as $oVo ) {
+		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
 		}
 	}
