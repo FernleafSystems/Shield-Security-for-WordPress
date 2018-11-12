@@ -78,9 +78,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oFO = $this->getModCon();
 		$oFO->setUfcFileExclusions( explode( "\n", $this->loadRequest()->post( 'exclusions' ) ) );
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
-						 ->setMessageText( 'File exclusions list has been updated.' );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( true )
+			->setMessageText( 'File exclusions list has been updated.' );
 	}
 
 	/**
@@ -91,7 +91,8 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oFO = $this->getModCon();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
-		if ( $this->loadRequest()->post( 'DeleteFiles' ) === 'Y' ) {
+		$bIsDelete = $this->loadRequest()->post( 'DeleteFiles' ) === 'Y';
+		if ( $bIsDelete ) {
 
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
@@ -105,7 +106,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = 'No attempt was made to delete any files since the checkbox was not checked.';
 		}
 
-		return $oResponse->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bIsDelete )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -126,9 +129,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = 'No attempt was made to restore the files since the checkbox was not checked.';
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( true )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -151,9 +154,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = 'There was a problem with saving this option. You may need to reload.';
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -181,9 +184,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = 'There was a problem with saving this option. You may need to reload.';
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -234,9 +237,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = 'Scanner automation is unchanged because of failed request.';
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -269,6 +272,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oGuard = $oP->getSubProcessorPtg();
 
 		$bSuccess = false;
+		$sMessage = '';
 		if ( empty( $mAsset ) && $sItemAction != 'ignore' ) { // we can only ignore "empty"/missing assets
 			$sMessage = 'Item could not be found.';
 		}
@@ -309,9 +313,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		//_wpsf__( 'Success.' )
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
