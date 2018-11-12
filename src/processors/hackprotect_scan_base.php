@@ -69,6 +69,78 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	abstract protected function getScanner();
 
 	/**
+	 * @param Scans\Base\BaseResultsSet $oNewResults
+	 */
+	protected function updateScanResultsStore( $oNewResults ) {
+		$oExisting = $this->readScanResultsFromDb();
+		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
+		$this->deleteResultsSet( $oItemsToDelete );
+		$this->storeScanResults( $oNewResults );
+		$this->updateScanResults( $oExisting );
+	}
+
+	/**
+	 * @param Scans\Base\BaseResultsSet $oToDelete
+	 */
+	protected function deleteResultsSet( $oToDelete ) {
+		$oDeleter = $this->getScannerDb()->getQueryDeleter();
+		foreach ( $oToDelete->getAllItems() as $oItem ) {
+			$oDeleter->reset()
+					 ->filterByScan( static::SCAN_SLUG )
+					 ->filterByHash( $oItem->hash )
+					 ->query();
+		}
+	}
+
+	/**
+	 * @return Scans\Base\BaseResultsSet
+	 */
+	protected function readScanResultsFromDb() {
+		$oSelector = $this->getScannerDb()->getQuerySelector();
+		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
+	}
+
+	/**
+	 * @param Scans\Base\BaseResultsSet $oResults
+	 */
+	protected function storeScanResults( $oResults ) {
+		$oInsert = $this->getScannerDb()->getQueryInserter();
+		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
+			$oInsert->insert( $oVo );
+		}
+	}
+
+	/**
+	 * @param Scans\Base\BaseResultsSet $oResults
+	 */
+	protected function updateScanResults( $oResults ) {
+		$oUp = $this->getScannerDb()->getQueryUpdater();
+		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
+			$oUp->reset()
+				->setUpdateData( $oVo->getRawData() )
+				->setUpdateWheres(
+					[
+						'scan' => static::SCAN_SLUG,
+						'hash' => $oVo->hash,
+					]
+				)
+				->query();
+		}
+	}
+
+	/**
+	 * @param Scans\Base\BaseResultsSet $oResults
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO[] $aVos
+	 */
+	abstract protected function convertResultsToVos( $oResults );
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO[] $aVos
+	 * @return Scans\Base\BaseResultsSet
+	 */
+	abstract protected function convertVosToResults( $aVos );
+
+	/**
 	 * @return int
 	 */
 	protected function getCronFrequency() {

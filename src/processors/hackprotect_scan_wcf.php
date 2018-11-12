@@ -45,64 +45,19 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oNewResults
-	 */
-	protected function updateScanResultsStore( $oNewResults ) {
-		$oExisting = $this->readScanResultsFromDb();
-		$oItemsToDelete = ( new Scans\WpCore\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
-		$this->deleteResultsSet( $oItemsToDelete );
-		$this->storeScanResults( $oNewResults );
-		$this->updateScanResults( $oExisting );
-	}
-
-	/**
-	 * @param Scans\WpCore\ResultsSet $oToDelete
-	 */
-	protected function deleteResultsSet( $oToDelete ) {
-		$oDeleter = $this->getScannerDb()->getQueryDeleter();
-		foreach ( $oToDelete->getAllItems() as $oItem ) {
-			$oDeleter->reset()
-					 ->filterByScan( static::SCAN_SLUG )
-					 ->filterByHash( $oItem->hash )
-					 ->query();
-		}
-	}
-
-	/**
 	 * @param Scans\WpCore\ResultsSet $oResults
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
 	 */
-	protected function storeScanResults( $oResults ) {
-		$oInsert = $this->getScannerDb()->getQueryInserter();
-		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults ) as $oVo ) {
-			$oInsert->insert( $oVo );
-		}
+	protected function convertResultsToVos( $oResults ) {
+		return ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oResults
-	 */
-	protected function updateScanResults( $oResults ) {
-		$oUp = $this->getScannerDb()->getQueryUpdater();
-		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults ) as $oVo ) {
-			$oUp->reset()
-				->setUpdateData( $oVo->getRawData() )
-				->setUpdateWheres(
-					[
-						'scan' => static::SCAN_SLUG,
-						'hash' => $oVo->hash,
-					]
-				)
-				->query();
-		}
-	}
-
-	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Scans\WpCore\ResultsSet
 	 */
-	protected function readScanResultsFromDb() {
-		$oSelector = $this->getScannerDb()->getQuerySelector();
-		return ( new Scans\WpCore\ConvertVosToResults() )
-			->convert( $oSelector->forScan( static::SCAN_SLUG ) );
+	protected function convertVosToResults( $aVos ) {
+		return ( new Scans\WpCore\ConvertVosToResults() )->convert( $aVos );
 	}
 
 	/**
