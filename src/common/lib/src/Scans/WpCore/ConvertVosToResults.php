@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+
 /**
  * Class ConvertVosToResults
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
@@ -11,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 
 	/**
-	 * @param \ICWP_WPSF_ScannerEntryVO[] $oVos
+	 * @param Scanner\EntryVO[] $oVos
 	 * @return ResultsSet
 	 */
 	public function convert( $oVos ) {
@@ -23,7 +25,7 @@ class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 	}
 
 	/**
-	 * @param \ICWP_WPSF_ScannerEntryVO $oVo
+	 * @param Scanner\EntryVO $oVo
 	 * @return ResultItem
 	 */
 	public function convertItem( $oVo ) {

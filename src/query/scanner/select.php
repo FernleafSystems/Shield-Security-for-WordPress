@@ -28,7 +28,7 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
 	 * @param string $sScan
-	 * @return ICWP_WPSF_ScannerEntryVO[]|stdClass[]
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]|stdClass[]
 	 */
 	public function forScan( $sScan ) {
 		return $this->reset()
@@ -37,7 +37,7 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return int|stdClass[]|ICWP_WPSF_ScannerEntryVO[]
+	 * @return int|stdClass[]|\FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
 	 */
 	public function query() {
 		return parent::query();

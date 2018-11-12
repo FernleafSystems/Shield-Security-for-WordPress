@@ -110,13 +110,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return ICWP_WPSF_ScannerEntryVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO
 	 */
 	protected function getEntryVo() {
-		/** @var ICWP_WPSF_ScannerEntryVO $oVo */
-		$oVo = $this->getQuerySelector()
-					->getVo();
-		return $oVo;
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO();
 	}
 
 	/**
