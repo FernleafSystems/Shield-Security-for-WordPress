@@ -18,6 +18,11 @@ class Scanner {
 	/**
 	 * @var array
 	 */
+	protected $aDirFileTypes;
+
+	/**
+	 * @var array
+	 */
 	protected $aScanDirectories;
 
 	/**
@@ -34,23 +39,34 @@ class Scanner {
 		foreach ( $this->getScanDirectories() as $sDir ) {
 
 			try {
-				$oRecursiveIterator = new \RecursiveIteratorIterator(
-					new ScannerRecursiveFilterIterator( new \RecursiveDirectoryIterator( $sDir ) )
-				);
+				/**
+				 * The filter handles the bulk of the file inclusions and exclusions
+				 * We can set the types (extensions) of the files to include
+				 * useful for the upload directory where we're only interested in JS and PHP
+				 *
+				 * The filter will also be responsible (in this case) for filtering out
+				 * WP Core files from the collection of files to be assessed
+				 */
+				$oFilter = new ScannerRecursiveFilterIterator( new \RecursiveDirectoryIterator( $sDir ) );
+				$aFileTypes = $this->getFileTypesForDir( $sDir );
+				if ( !empty( $aFileTypes ) ) {
+					$oFilter->setFileExts( $aFileTypes );
+				}
+				$oRecursiveIterator = new \RecursiveIteratorIterator( $oFilter );
 			}
 			catch ( \Exception $oE ) {
+				continue;
 			}
 
 			foreach ( $oRecursiveIterator as $oFsItem ) {
 				/** @var \SplFileInfo $oFsItem */
 				$sFullPath = $oFsItem->getPathname();
-				if ( !$oHashes->isCoreFile( $sFullPath ) ) {
-					$oResultItem = new ResultItem();
-					$oResultItem->path_full = wp_normalize_path( $sFullPath );
-					$oResultItem->path_fragment = $oHashes->getFileFragment( $sFullPath );
-					$oResultItem->is_excluded = $this->isExcluded( $sFullPath );
-					$oResultSet->addItem( $oResultItem );
-				}
+
+				$oResultItem = new ResultItem();
+				$oResultItem->path_full = wp_normalize_path( $sFullPath );
+				$oResultItem->path_fragment = $oHashes->getFileFragment( $sFullPath );
+				$oResultItem->is_excluded = $this->isExcluded( $sFullPath );
+				$oResultSet->addItem( $oResultItem );
 			}
 		}
 
@@ -69,23 +85,46 @@ class Scanner {
 		$bExcluded = false;
 
 		foreach ( $this->getExclusions() as $sExclusion ) {
-			$sExclusion = wp_normalize_path( $sExclusion );
 
-			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
+			if ( preg_match( '/^#(.+)#[a-z]*$/i', $sExclusion, $aMatches ) ) { // it's regex
 				$bExcluded = @preg_match( stripslashes( $sExclusion ), $sFilePath );
 			}
-			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
-				$bExcluded = ( $sFileName == $sExclusion );
-			}
 			else {
-				$bExcluded = strpos( $sFilePath, $sExclusion );
+				$sExclusion = wp_normalize_path( $sExclusion );
+				if ( strpos( $sExclusion, '/' ) === false ) { // filename only
+					$bExcluded = ( $sFileName == $sExclusion );
+				}
+				else {
+					$bExcluded = strpos( $sFilePath, $sExclusion );
+				}
 			}
 
 			if ( $bExcluded ) {
 				break;
 			}
 		}
-		return $bExcluded;
+		return (bool)$bExcluded;
+	}
+
+	/**
+	 * @param string $sDir
+	 * @return $this
+	 */
+	public function addScanDirector( $sDir ) {
+		$aDirs = $this->getScanDirectories();
+		$aDirs[] = $sDir;
+		$this->aScanDirectories = $aDirs;
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getDirFileTypes() {
+		if ( !is_array( $this->aDirFileTypes ) ) {
+			$this->aDirFileTypes = array();
+		}
+		return $this->aDirFileTypes;
 	}
 
 	/**
@@ -96,16 +135,37 @@ class Scanner {
 	}
 
 	/**
+	 * @param string $sDir
+	 * @return array
+	 */
+	public function getFileTypesForDir( $sDir ) {
+		$aEx = $this->getDirFileTypes();
+		return isset( $aEx[ $sDir ] ) ? $aEx[ $sDir ] : array();
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getScanDirectories() {
 		if ( empty( $this->aScanDirectories ) ) {
-			$this->aScanDirectories = array();
+			$this->aScanDirectories = [
+				path_join( ABSPATH, 'wp-admin' ),
+				path_join( ABSPATH, 'wp-includes' )
+			];
 		}
-		return array_merge(
-			[ path_join( ABSPATH, 'wp-admin' ), path_join( ABSPATH, 'wp-includes' ) ],
-			$this->aScanDirectories
-		);
+		return $this->aScanDirectories;
+	}
+
+	/**
+	 * @param string $sDir
+	 * @param array  $aTypes
+	 * @return $this
+	 */
+	public function addDirSpecificFileTypes( $sDir, $aTypes ) {
+		$aEx = $this->getDirFileTypes();
+		$aEx[ $sDir ] = $aTypes;
+		$this->aDirFileTypes = $aEx;
+		return $this;
 	}
 
 	/**
@@ -114,15 +174,6 @@ class Scanner {
 	 */
 	public function setExclusions( $aExclusions ) {
 		$this->aExclusions = $aExclusions;
-		return $this;
-	}
-
-	/**
-	 * @param array $aScanDirectories
-	 * @return $this
-	 */
-	public function setScanDirectories( $aScanDirectories ) {
-		$this->aScanDirectories = $aScanDirectories;
 		return $this;
 	}
 }

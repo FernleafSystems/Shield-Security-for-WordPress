@@ -64,9 +64,24 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$oResults = ( new Scans\UnrecognisedCore\Scanner() )
-			->setExclusions( array() )
-			->run();
+		$oScanner = ( new Scans\UnrecognisedCore\Scanner() )
+			->setExclusions( $oFO->getUfcFileExclusions() );
+
+		if ( $oFO->isUfsScanUploads() ) {
+			$sUploadsDir = $this->loadWp()->getDirUploads();
+			if ( !empty( $sUploadsDir ) ) {
+				$oScanner->addScanDirector( $sUploadsDir )
+						 ->addDirSpecificFileTypes(
+							 $sUploadsDir,
+							 [
+								 'php',
+								 'php5',
+								 'js',
+							 ]
+					);
+			}
+		}
+		$oResults = $oScanner->run();
 
 		$oFO->setLastScanAt( 'ufc' );
 		$oResults->hasItems() ? $oFO->setLastScanProblemAt( 'ufc' ) : $oFO->clearLastScanProblemAt( 'ufc' );
