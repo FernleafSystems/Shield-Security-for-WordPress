@@ -139,8 +139,9 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	 */
 	public function getQuerySelector() {
 		$this->queryRequireLib( 'select.php' );
-		$oQ = new ICWP_WPSF_Query_Scanner_Select();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new ICWP_WPSF_Query_Scanner_Select() )
+			->setResultsAsVo( true )
+			->setTable( $this->getTableName() );
 	}
 
 	/**

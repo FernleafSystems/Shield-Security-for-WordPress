@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class ConvertVosToResults
@@ -29,5 +30,8 @@ class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 	 * @return ResultItem
 	 */
 	public function convertItem( $oVo ) {
+		$oItem = new ResultItem();
+		$oItem->setRawData( Services::DataManipulation()->convertArrayToStdClass( $oVo->getRawData() ) );
+		return $oItem;
 	}
 }

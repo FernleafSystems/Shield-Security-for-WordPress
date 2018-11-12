@@ -39,16 +39,22 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oResults
+	 * @param Scans\WpCore\ResultsSet $oNewResults
 	 */
-	protected function storeScanResults( $oResults ) {
-
+	protected function storeScanResults( $oNewResults ) {
 		$oInsert = $this->getScannerDb()->getQueryInserter();
-		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults ) as $oVo ) {
+		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oNewResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
 		}
+	}
 
-		die();
+	/**
+	 * @return Scans\WpCore\ResultsSet
+	 */
+	protected function readScanResultsFromDb() {
+		$oSelector = $this->getScannerDb()->getQuerySelector();
+		return ( new Scans\WpCore\ConvertVosToResults() )
+			->convert( $oSelector->forScan( static::SCAN_SLUG ) );
 	}
 
 	/**

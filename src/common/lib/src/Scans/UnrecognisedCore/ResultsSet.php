@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * Class ResultsSet
- * @property ResultItem[] items
+ * @property ResultItem[] $aItems
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore
  */
 class ResultsSet extends Base\BaseResultsSet {

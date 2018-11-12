@@ -2,16 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
-
 /**
  * Class ResultsSet
- * @property BaseResultItem[] items
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
  */
 class BaseResultsSet {
 
-	use StdClassAdapter;
+	/**
+	 * @var BaseResultItem[]
+	 */
+	protected $aItems = true;
 
 	/**
 	 * @var bool
@@ -24,8 +24,11 @@ class BaseResultsSet {
 	 */
 	public function addItem( $oItem ) {
 		$aI = $this->getItems();
-		$aI[] = $oItem;
-		$this->items = $aI;
+		if ( !isset( $oItem->hash ) ) {
+			$oItem->hash = $oItem->generateHash();
+		}
+		$aI[ $oItem->hash ] = $oItem;
+		$this->aItems = $aI;
 		return $this;
 	}
 
@@ -34,10 +37,10 @@ class BaseResultsSet {
 	 * @return BaseResultItem[]
 	 */
 	public function getAllItems() {
-		if ( !is_array( $this->items ) ) {
-			$this->items = array();
+		if ( !is_array( $this->aItems ) ) {
+			$this->aItems = array();
 		}
-		return $this->items;
+		return $this->aItems;
 	}
 
 	/**
