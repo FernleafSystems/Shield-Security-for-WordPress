@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_FileCleanerScan', false ) ) 
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
+
 class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -50,6 +52,29 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	/**
+	 * TODO:
+	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
+	 * if ( empty( $aAutoFixIndexFiles ) ) {
+	 * $aAutoFixIndexFiles = array();
+	 */
+	/**
+	 * @return Scans\UnrecognisedCore\ResultsSet
+	 */
+	public function doScan() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		$oResults = ( new Scans\UnrecognisedCore\Scanner() )
+			->setExclusions( array() )
+			->run();
+
+		$oFO->setLastScanAt( 'ufc' );
+		$oResults->hasItems() ? $oFO->setLastScanProblemAt( 'ufc' ) : $oFO->clearLastScanProblemAt( 'ufc' );
+
+		return $oResults;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function scanCore() {
@@ -57,7 +82,10 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		// Check that we can get the core files since if it's empty, we'd delete everything
 		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 as a basic sanity check
 			foreach ( array( 'wp-admin', 'wp-includes' ) as $sMainFolder ) {
-				$aOutOfPlaceFiles = array_merge( $aOutOfPlaceFiles, $this->scanCoreDir( path_join( ABSPATH, $sMainFolder ) ) );
+				$aOutOfPlaceFiles = array_merge(
+					$aOutOfPlaceFiles,
+					$this->scanCoreDir( path_join( ABSPATH, $sMainFolder ) )
+				);
 			}
 		}
 		return $aOutOfPlaceFiles;

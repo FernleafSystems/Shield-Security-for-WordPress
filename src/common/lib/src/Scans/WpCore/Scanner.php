@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\WpCoreHashes;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -27,7 +26,7 @@ class Scanner {
 	public function run() {
 
 		$oResultSet = new ResultsSet();
-		$oHashes = new WpCoreHashes();
+		$oHashes = Services::CoreFileHashes();
 		if ( !$oHashes->isReady() ) {
 			return $oResultSet;
 		}

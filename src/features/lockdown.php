@@ -284,7 +284,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			return false;
 		}
 
-		$sWpConfigPath = $oWpFs->exists( ABSPATH.'wp-config.php' ) ? ABSPATH.'wp-config.php' : ABSPATH.'..'.DIRECTORY_SEPARATOR.'wp-config.php';
+		$sWpConfigPath = $oWpFs->exists( ABSPATH.'wp-config.php' ) ? ABSPATH.'wp-config.php' : ABSPATH.'../wp-config.php';
 
 		if ( !$oWpFs->exists( $sWpConfigPath ) ) {
 			return false;
