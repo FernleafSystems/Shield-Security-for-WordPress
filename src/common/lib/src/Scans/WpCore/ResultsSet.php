@@ -12,28 +12,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class ResultsSet extends Base\BaseResultsSet {
 
 	/**
-	 * @return ResultItem[]
+	 * @param ResultItem[] $aItems
+	 * @return string[]
 	 */
-	public function getMissingItems() {
-		return array_values( array_filter(
-			$this->getItems(),
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->is_missing;
-			}
-		) );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getMissingPaths() {
+	public function filterItemsForPaths( $aItems ) {
 		return array_map(
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
 				return $oItem->path_fragment;
 			},
-			$this->getMissingItems()
+			$aItems
 		);
 	}
 
@@ -51,30 +39,30 @@ class ResultsSet extends Base\BaseResultsSet {
 	}
 
 	/**
-	 * @return array
+	 * @return string[]
 	 */
 	public function getChecksumFailedPaths() {
-		return array_map(
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->path_fragment;
-			},
-			$this->getChecksumFailedItems()
-		);
+		return $this->filterItemsForPaths( $this->getChecksumFailedItems() );
 	}
 
 	/**
-	 * @param ResultItem[] $aItems
 	 * @return ResultItem[]
 	 */
-	public function filterItemsForPaths( $aItems ) {
-		return array_map(
+	public function getMissingItems() {
+		return array_values( array_filter(
+			$this->getItems(),
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
-				return $oItem->path_fragment;
-			},
-			$aItems
-		);
+				return $oItem->is_missing;
+			}
+		) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getMissingPaths() {
+		return $this->filterItemsForPaths( $this->getMissingItems() );
 	}
 
 	/**

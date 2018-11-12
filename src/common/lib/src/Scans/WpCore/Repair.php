@@ -2,28 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\WpCoreFileDownload;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class RepairItem
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore#
  */
-class Repair {
-
-	/**
-	 * @param ResultsSet $oResults
-	 */
-	public function repairResultsSet( $oResults ) {
-		foreach ( $oResults->getItems() as $oItem ) {
-			try {
-				/** @var ResultItem $oItem */
-				$this->repairItem( $oItem );
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-	}
+class Repair extends Scans\Base\BaseRepair {
 
 	/**
 	 * @param ResultItem $oItem
@@ -40,7 +26,7 @@ class Repair {
 		}
 
 		$sFullPath = $oHashes->getAbsolutePathFromFragment( $sPath );
-		$sContent = ( new WpCoreFileDownload() )->run( $sPath, true );
+		$sContent = ( new Scans\Helpers\WpCoreFileDownload() )->run( $sPath, true );
 		if ( !empty( $sContent ) && Services::WpFs()->putFileContent( $sFullPath, $sContent ) ) {
 			clearstatcache();
 			$bSuccess = ( $oHashes->getFileHash( $sPath ) === md5_file( $sFullPath ) );

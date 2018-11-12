@@ -52,12 +52,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 	}
 
 	/**
-	 * TODO:
-	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
-	 * if ( empty( $aAutoFixIndexFiles ) ) {
-	 * $aAutoFixIndexFiles = array();
-	 */
-	/**
 	 * @return Scans\UnrecognisedCore\ResultsSet
 	 */
 	public function doScan() {
@@ -78,7 +72,7 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 								 'php5',
 								 'js',
 							 ]
-					);
+						 );
 			}
 		}
 		$oResults = $oScanner->run();
@@ -89,126 +83,6 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		return $oResults;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function scanCore() {
-		$aOutOfPlaceFiles = array();
-		// Check that we can get the core files since if it's empty, we'd delete everything
-		if ( count( $this->getCoreFiles() ) > 1000 ) { // 1000 as a basic sanity check
-			foreach ( array( 'wp-admin', 'wp-includes' ) as $sMainFolder ) {
-				$aOutOfPlaceFiles = array_merge(
-					$aOutOfPlaceFiles,
-					$this->scanCoreDir( path_join( ABSPATH, $sMainFolder ) )
-				);
-			}
-		}
-		return $aOutOfPlaceFiles;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function scanUploads() {
-		$aOddFiles = array();
-
-		$sUploadsDir = $this->loadWp()->getDirUploads();
-		if ( !empty( $sUploadsDir ) ) {
-			$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sUploadsDir ) );
-			$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
-
-			$sBadExtensionsReg = '#^'.implode( '|', array( 'js', 'php', 'php5' ) ).'$#i';
-			foreach ( $oRecursiveIterator as $oFsItem ) {
-				/** @var SplFileInfo $oFsItem */
-
-				if ( !$oFsItem->isDir() && !$this->isExcluded( $oFsItem ) ) {
-					if ( preg_match( $sBadExtensionsReg, $oFsItem->getExtension() ) ) {
-						$aOddFiles[] = $oFsItem->getPathname();
-					}
-				}
-			}
-		}
-		return $aOddFiles;
-	}
-
-	/**
-	 * @param string[] $aFilesToDelete
-	 */
-	protected function deleteFiles( $aFilesToDelete ) {
-		foreach ( $aFilesToDelete as $sFilePath ) {
-			$this->loadFS()->deleteFile( $sFilePath );
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$oFO->clearLastScanProblemAt( 'ufc' );
-	}
-
-	/**
-	 * @param string $sRootDir
-	 * @return string[]
-	 */
-	protected function scanCoreDir( $sRootDir ) {
-		$aOddFiles = array();
-
-		$oFilter = new CleanerRecursiveFilterIterator( new RecursiveDirectoryIterator( $sRootDir ) );
-		$oRecursiveIterator = new RecursiveIteratorIterator( $oFilter );
-		foreach ( $oRecursiveIterator as $oFsItem ) {
-			/** @var SplFileInfo $oFsItem */
-
-			if ( $oFsItem->isFile() && !$this->isExcluded( $oFsItem ) ) {
-				if ( !$this->isCoreFile( $oFsItem ) ) {
-					$aOddFiles[] = $oFsItem->getPathname();
-				}
-			}
-		}
-
-		return $aOddFiles;
-	}
-
-	/**
-	 * @param SplFileInfo $oFsItem
-	 * @return bool
-	 */
-	protected function isCoreFile( $oFsItem ) {
-		// We rtrim the '/' to prevent mixup with windows and deal only in SYSTEM-generated paths first.
-		$sPathNoAbs = ltrim( str_replace( rtrim( ABSPATH, '/' ), '', $oFsItem->getPathname() ), "\/" );
-		return in_array( $this->loadFS()->normalizeFilePathDS( $sPathNoAbs ), $this->getCoreFiles() );
-	}
-
-	/**
-	 * @param SplFileInfo $oFile
-	 * @return bool
-	 */
-	protected function isExcluded( $oFile ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$oFS = $this->loadFS();
-
-		$sFileName = $oFile->getFilename();
-		$sFilePath = $oFS->normalizeFilePathDS( $oFile->getPathname() );
-
-		$bExcluded = false;
-
-		foreach ( $oFO->getUfcFileExclusions() as $sExclusion ) {
-			$sExclusion = $oFS->normalizeFilePathDS( $sExclusion );
-
-			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
-				$bExcluded = @preg_match( stripslashes( $sExclusion ), $sFilePath );
-			}
-			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
-				$bExcluded = ( $sFileName == $sExclusion );
-			}
-			else {
-				$bExcluded = strpos( $sFilePath, $sExclusion );
-			}
-
-			if ( $bExcluded ) {
-				break;
-			}
-		}
-		return $bExcluded;
-	}
 
 	public function cron_dailyFileCleanerScan() {
 		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
@@ -217,48 +91,25 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isUfcEnabled() ) {
-			try {
-				$this->runScan(); // The file scanning part can exception with permission & exists
-			}
-			catch ( Exception $oE ) {
-				// TODO
+			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
+			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
+				$this->emailResults( $oRes->getItemsPathsFull() );
 			}
 		}
 	}
 
 	/**
+	 * @return Scans\UnrecognisedCore\ResultsSet
 	 */
-	public function runScan() {
+	public function doScanAndFullRepair() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$aDiscoveredFiles = $this->discoverFiles();
-		if ( !empty( $aDiscoveredFiles ) ) {
-			if ( $oFO->isUfcDeleteFiles() ) {
-				$this->deleteFiles( $aDiscoveredFiles );
-			}
-			if ( $oFO->isUfsSendReport() ) {
-				$this->emailResults( $aDiscoveredFiles );
-			}
-		}
-	}
+		$oResultSet = $this->doScan();
+		( new Scans\UnrecognisedCore\Repair() )->repairResultsSet( $oResultSet );
+		$oFO->clearLastScanProblemAt( 'ufc' );
 
-	/**
-	 * @return array
-	 */
-	public function discoverFiles() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$aDiscovered = $this->scanCore();
-		if ( $oFO->isUfsScanUploads() ) {
-			$aDiscovered = array_merge( $aDiscovered, $this->scanUploads() );
-		}
-
-		empty( $aDiscovered ) ? $oFO->clearLastScanProblemAt( 'ufc' ) : $oFO->setLastScanProblemAt( 'ufc' );
-		$oFO->setLastScanAt( 'ufc' );
-
-		return $aDiscovered;
+		return $oResultSet;
 	}
 
 	/**
@@ -326,52 +177,5 @@ class ICWP_WPSF_Processor_HackProtect_FileCleanerScan extends ICWP_WPSF_Processo
 		}
 
 		return $aContent;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getCoreFiles() {
-		if ( empty( $this->aCoreFiles ) ) {
-			$this->aCoreFiles = array_keys( $this->loadWp()->getCoreChecksums() );
-		}
-		return $this->aCoreFiles;
-	}
-
-	/**
-	 * TODO
-	 * @param string $sFile
-	 * @return string
-	 */
-	protected function getFileDeleteLink( $sFile ) {
-		return sprintf( ' ( <a href="%s">%s</a> / <a href="%s">%s</a> )',
-			add_query_arg(
-				array(
-					'shield_action'    => 'repair_file',
-					'repair_file_path' => urlencode( $sFile )
-				),
-				$this->loadWp()->getUrl_WpAdmin()
-			),
-			_wpsf__( 'Repair file now' ),
-			$this->getMod()->getDef( 'url_wordress_core_svn' )
-			.'tags/'.$this->loadWp()->getVersion().'/'.$sFile,
-			_wpsf__( 'WordPress.org source file' )
-		);
-	}
-}
-
-class CleanerRecursiveFilterIterator extends RecursiveFilterIterator {
-
-	public function accept() {
-		/** @var SplFileInfo $oCurrent */
-		$oCurrent = $this->current();
-
-		$bRecurse = true; // I.e. consume the file.
-
-		if ( in_array( $oCurrent->getFilename(), array( '.', '..' ) ) ) {
-			$bRecurse = false;
-		}
-
-		return $bRecurse;
 	}
 }

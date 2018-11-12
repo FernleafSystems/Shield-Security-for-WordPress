@@ -94,8 +94,13 @@ class ICWP_WPSF_Processor_HackProtect_CoreChecksumScan extends ICWP_WPSF_Process
 	 * @return Scans\WpCore\ResultsSet
 	 */
 	public function doScanAndFullRepair() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
 		$oResultSet = $this->doScan();
 		( new Scans\WpCore\Repair() )->repairResultsSet( $oResultSet );
+		$oFO->clearLastScanProblemAt( 'ufc' );
+
 		return $oResultSet;
 	}
 

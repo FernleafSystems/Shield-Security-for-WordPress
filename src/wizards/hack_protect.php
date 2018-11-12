@@ -92,19 +92,10 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		if ( $this->loadRequest()->post( 'DeleteFiles' ) === 'Y' ) {
-			// First get the current setting and if necessary, modify it and then reset it.
-			$sDesiredOption = 'enabled_delete_only';
-			$sCurrentOption = $oFO->getUnrecognisedFileScannerOption();
-			if ( $sCurrentOption != $sDesiredOption ) {
-				$oFO->setUfcOption( $sDesiredOption );
-			}
 
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorFileCleanerScan()
-				  ->runScan();
-			$oFO->setUfcOption( $sCurrentOption )
-				->savePluginOptions();
+			$oProc->getSubProcessorFileCleanerScan()->doScanAndFullRepair();
 
 			$oResponse->setSuccessful( true );
 			$sMessage = 'If your filesystem permissions allowed it, the scanner will have deleted these files.';
@@ -433,7 +424,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'scanresult':
-					$aFiles = $this->cleanAbsPath( $oProc->getSubProcessorFileCleanerScan()->discoverFiles() );
+					$aFiles = $oProc->getSubProcessorFileCleanerScan()->doScan()->getItemsPathsFragments();
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(

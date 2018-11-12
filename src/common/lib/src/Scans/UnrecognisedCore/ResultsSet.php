@@ -12,82 +12,28 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class ResultsSet extends Base\BaseResultsSet {
 
 	/**
-	 * @return ResultItem[]
+	 * @return string[]
 	 */
-	public function getMissingItems() {
-		return array_values( array_filter(
-			$this->getItems(),
+	public function getItemsPathsFull() {
+		return array_map(
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
-				return $oItem->isFileMissing();
-			}
-		) );
+				return $oItem->path_full;
+			},
+			$this->getItems()
+		);
 	}
 
 	/**
-	 * @return array
+	 * @return string[]
 	 */
-	public function getMissingPaths() {
+	public function getItemsPathsFragments() {
 		return array_map(
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
 				return $oItem->path_fragment;
 			},
-			$this->getMissingItems()
+			$this->getItems()
 		);
-	}
-
-	/**
-	 * @return ResultItem[]
-	 */
-	public function getChecksumFailedItems() {
-		return array_values( array_filter(
-			$this->getItems(),
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->isChecksumFail();
-			}
-		) );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getChecksumFailedPaths() {
-		return array_map(
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->path_fragment;
-			},
-			$this->getChecksumFailedItems()
-		);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function countChecksumFailed() {
-		return count( $this->getChecksumFailedItems() );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function countMissing() {
-		return count( $this->getMissingItems() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasChecksumFailed() {
-		return $this->countChecksumFailed() > 0;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasMissing() {
-		return $this->countMissing() > 0;
 	}
 }
