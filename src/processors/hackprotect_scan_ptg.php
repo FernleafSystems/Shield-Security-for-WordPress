@@ -4,9 +4,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_PTGuard' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/cronbase.php' );
+require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
-class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBase {
+class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_ScanBase {
 
 	const CONTEXT_PLUGINS = 'plugins';
 	const CONTEXT_THEMES = 'themes';
@@ -648,15 +648,6 @@ class ICWP_WPSF_Processor_HackProtect_PTGuard extends ICWP_WPSF_Processor_CronBa
 	 */
 	protected function getCronCallback() {
 		return array( $this, 'cron_runGuardScan' );
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getCronFrequency() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getScanFrequency();
 	}
 
 	/**
