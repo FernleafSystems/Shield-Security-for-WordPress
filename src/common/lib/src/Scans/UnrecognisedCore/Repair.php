@@ -30,7 +30,7 @@ class Repair extends Scans\Base\BaseRepair {
 			$bSuccess = !$oFs->exists( $oItem->path_full );
 		}
 
-		$oItem->is_repaired = $bSuccess;
+		$oItem->repaired_at = $bSuccess ? Services::Request()->ts() : 0;
 		return $bSuccess;
 	}
 }

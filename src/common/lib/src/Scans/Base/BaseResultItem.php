@@ -7,6 +7,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class BaseResultItem
  * @property bool is_excluded
+ * @property int  repaired_at
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
  */
 class BaseResultItem {
@@ -18,5 +19,12 @@ class BaseResultItem {
 	 */
 	public function isReady() {
 		return false;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function generateHash() {
+		return md5( json_encode( $this->getRawDataAsArray() ) );
 	}
 }

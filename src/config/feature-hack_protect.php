@@ -486,8 +486,7 @@
       "scan",
       "description",
       "severity",
-      "discovered_at",
-      "ignored_at",
+      "ignore_until",
       "repaired_at",
       "created_at",
       "deleted_at"

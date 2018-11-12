@@ -9,7 +9,8 @@ require_once( __DIR__.'/ICWP_WPSF_BaseEntryVO.php' );
  * @property string scan
  * @property string description
  * @property int    severity
- * @property int    ignored_at
+ * @property int    discovered_at
+ * @property int    ignored_until
  * @property int    repaired_at
  */
 class ICWP_WPSF_ScannerEntryVO extends ICWP_WPSF_BaseEntryVO {
@@ -19,15 +20,38 @@ class ICWP_WPSF_ScannerEntryVO extends ICWP_WPSF_BaseEntryVO {
 	 * @return mixed
 	 */
 	public function __get( $sKey ) {
-		$mVal = null;
+		$mVal = parent::__get( $sKey );
+
 		switch ( $sKey ) {
 			case 'data':
-				$mVal = json_decode( parent::__get( $sKey ), true );
+				if ( is_string( $mVal ) && strpos( $mVal, '{' ) === 0 ) {
+					$mVal = json_decode( $mVal, true );
+				}
 				break;
 			default:
-				$mVal = parent::__get( $sKey );
 				break;
 		}
+
 		return $mVal;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	public function __set( $sKey, $mValue ) {
+		switch ( $sKey ) {
+			case 'data':
+				if ( !is_string( $mValue ) || strpos( $mValue, '{' ) === false ) {
+					$mValue = json_encode( $mValue );
+				}
+				break;
+			default:
+				break;
+		}
+
+		parent::__set( $sKey, $mValue );
+		return $this;
 	}
 }
