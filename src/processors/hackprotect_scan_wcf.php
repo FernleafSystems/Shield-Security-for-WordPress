@@ -49,8 +49,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function updateScanResultsStore( $oNewResults ) {
 		$oExisting = $this->readScanResultsFromDb();
-		$oDelete = ( new Scans\WpCore\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
-		$this->deleteResultsSet( $oDelete );
+		$oItemsToDelete = ( new Scans\WpCore\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
+		$this->deleteResultsSet( $oItemsToDelete );
 		$this->storeScanResults( $oNewResults );
 		$this->updateScanResults( $oExisting );
 	}
@@ -61,7 +61,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	protected function deleteResultsSet( $oToDelete ) {
 		$oDeleter = $this->getScannerDb()->getQueryDeleter();
 		foreach ( $oToDelete->getAllItems() as $oItem ) {
-			$oDeleter->filterByScan( static::SCAN_SLUG )
+			$oDeleter->reset()
+					 ->filterByScan( static::SCAN_SLUG )
 					 ->filterByHash( $oItem->hash )
 					 ->query();
 		}

@@ -21,6 +21,11 @@ class Scanner {
 	protected $aMissingExclusions;
 
 	/**
+	 * @var bool
+	 */
+	protected $bHardExcludePluginsThemes;
+
+	/**
 	 * @return ResultsSet
 	 */
 	public function run() {
@@ -36,6 +41,11 @@ class Scanner {
 		$bHasExclusions = !empty( $sRegExclusions );
 		$bHasMissingExclusions = !empty( $sRegMissingExcl );
 		foreach ( $oHashes->getHashes() as $sFragment => $sMd5HashWp ) {
+
+			if ( $this->isHardExcludePluginsThemes() && strpos( $sFragment, 'wp-content/' ) === 0 ) {
+				// To reduce noise, we exclude plugins and themes (by default)
+				continue;
+			}
 
 			$oRes = new ResultItem();
 			$oRes->md5_file_wp = $sMd5HashWp;
@@ -104,11 +114,27 @@ class Scanner {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isHardExcludePluginsThemes() {
+		return (bool)( isset( $this->bHardExcludePluginsThemes ) ? $this->bHardExcludePluginsThemes : true );
+	}
+
+	/**
 	 * @param array $aExclusions
 	 * @return $this
 	 */
 	public function setExclusions( $aExclusions ) {
 		$this->aExclusions = $aExclusions;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bHardExcludePluginsThemes
+	 * @return Scanner
+	 */
+	public function setIsHardExcludePluginsThemes( $bHardExcludePluginsThemes ) {
+		$this->bHardExcludePluginsThemes = $bHardExcludePluginsThemes;
 		return $this;
 	}
 

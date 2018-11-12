@@ -11,7 +11,7 @@ class BaseResultsSet {
 	/**
 	 * @var BaseResultItem[]
 	 */
-	protected $aItems = true;
+	protected $aItems;
 
 	/**
 	 * @var bool
@@ -23,7 +23,7 @@ class BaseResultsSet {
 	 * @return $this
 	 */
 	public function addItem( $oItem ) {
-		$aI = $this->getItems();
+		$aI = $this->getAllItems();
 		if ( !isset( $oItem->hash ) ) {
 			$oItem->hash = $oItem->generateHash();
 		}
