@@ -35,11 +35,14 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @param array $aInsertData
+	 * @param array $aData
 	 * @return $this
 	 */
-	public function setInsertData( $aInsertData ) {
-		$this->aInsertData = $aInsertData;
+	public function setInsertData( $aData ) {
+		if ( !isset( $aData[ 'updated_at' ] ) && $this->hasCol( 'updated_at' ) ) {
+			$aData[ 'updated_at' ] = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
+		}
+		$this->aInsertData = $aData;
 		return $this;
 	}
 

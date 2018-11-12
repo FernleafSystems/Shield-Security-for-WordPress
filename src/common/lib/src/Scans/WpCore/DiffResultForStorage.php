@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class DiffResultForStorage
@@ -12,37 +14,31 @@ class DiffResultForStorage {
 
 	/**
 	 * The Existing set will be updated to reflect the new current status of the scan
-	 * @param ResultsSet $oExistingRes
-	 * @param ResultsSet $oNewRes
+	 * @param ResultsSet $oExistingRes - will be updated with all items to DB Update
+	 * @param ResultsSet $oNewResults - will be adjusted with all item to DB Insert
 	 * @return ResultsSet - A results set of all out-of-date records that need to be deleted.
 	 */
-	public function diff( $oExistingRes, $oNewRes ) {
+	public function diff( $oExistingRes, $oNewResults ) {
 
 		$oToDelete = new ResultsSet();
 		$oMerger = new Scans\Base\BaseMergeItems();
 
 		// 1 Remove items in EXISTING that are not in NEW
 		foreach ( $oExistingRes->getAllItems() as $oExistItem ) {
-			if ( !$oNewRes->getItemExists( $oExistItem->hash ) ) {
+			if ( !$oNewResults->getItemExists( $oExistItem->hash ) ) {
 				$oExistingRes->removeItem( $oExistItem->hash );
 				$oToDelete->addItem( $oExistItem );
 			}
 		}
 
-		// 2 Add items to EXISTING that are only in NEW
-		foreach ( $oNewRes->getAllItems() as $oNew ) {
-			if ( !$oExistingRes->getItemExists( $oNew->hash ) ) {
-				$oExistingRes->addItem( $oNew );
-				$oNewRes->removeItem( $oNew->hash );
+		// 2 Merge NEW items into Existing items
+		foreach ( $oNewResults->getAllItems() as $oNewItem ) {
+			if ( $oExistingRes->getItemExists( $oNewItem->hash ) ) {
+				$oMerger->mergeItemTo( $oExistingRes->getItemByHash( $oNewItem->hash ), $oNewItem );
+				$oNewResults->removeItem( $oNewItem->hash );
 			}
 		}
 
-		// 3 Merge NEW items into Existing
-		foreach ( $oNewRes->getAllItems() as $oNew ) {
-			$oMerger->mergeItemTo( $oExistingRes->getItemByHash( $oNew->hash ), $oNew );
-			$oNewRes->removeItem( $oNew->hash );
-		}
-
-		return $oExistingRes;
+		return $oToDelete;
 	}
 }

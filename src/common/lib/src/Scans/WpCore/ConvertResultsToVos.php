@@ -17,12 +17,10 @@ class ConvertResultsToVos extends Scans\Base\BaseConvertResultsToVos {
 	 */
 	public function convertItem( $oIt ) {
 		$oVo = new Scanner\EntryVO();
-		$oVo->hash = $oIt->generateHash();
+		$oVo->hash = $oIt->hash;
 		$oVo->data = $oIt->getData();
 		$oVo->description = 'WordPress core file discovered to be modified from original';
 		$oVo->scan = $oIt::SCAN_RESULT_TYPE;
-		$oVo->repaired_at = (int)$oIt->repaired_at;
-		$oVo->ignore_until = 0;
 		return $oVo;
 	}
 }

@@ -36,6 +36,11 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 */
 	protected $sTable;
 
+	/**
+	 * @var array
+	 */
+	protected $aColumns;
+
 	public function __construct() {
 		$this->customInit();
 	}
@@ -218,6 +223,25 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 */
 	public function getPage() {
 		return max( (int)$this->nPage, 1 );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getColumns() {
+		if ( !isset( $this->aColumns ) ) {
+			$aCols = $this->loadDbProcessor()->getColumnsForTable( $this->getTable(), 'strtolower' );
+			$this->aColumns = is_array( $aCols ) ? $aCols : array();
+		}
+		return $this->aColumns;
+	}
+
+	/**
+	 * @param string $sColumn
+	 * @return bool
+	 */
+	public function hasCol( $sColumn ) {
+		return in_array( $sColumn, $this->getColumns() );
 	}
 
 	/**

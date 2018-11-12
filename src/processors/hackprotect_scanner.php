@@ -133,7 +133,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		$oQ = new ICWP_WPSF_Query_Scanner_Insert();
 		return $oQ->setTable( $this->getTableName() );
 	}
-
 	/**
 	 * @return ICWP_WPSF_Query_Scanner_Select
 	 */
@@ -142,6 +141,15 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		return ( new ICWP_WPSF_Query_Scanner_Select() )
 			->setResultsAsVo( true )
 			->setTable( $this->getTableName() );
+	}
+
+
+	/**
+	 * @return ICWP_WPSF_Query_Scanner_Update
+	 */
+	public function getQueryUpdater() {
+		$this->queryRequireLib( 'update.php' );
+		return ( new ICWP_WPSF_Query_Scanner_Update() )->setTable( $this->getTableName() );
 	}
 
 	/**
@@ -165,6 +173,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			ignore_until int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignore Expires',
 			repaired_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Repaired',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Discovered',
+			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Last Scan',
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";

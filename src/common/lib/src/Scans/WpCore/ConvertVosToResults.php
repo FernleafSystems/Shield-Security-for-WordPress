@@ -30,8 +30,6 @@ class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 	 * @return ResultItem
 	 */
 	public function convertItem( $oVo ) {
-		$oItem = new ResultItem();
-		$oItem->setRawData( Services::DataManipulation()->convertArrayToStdClass( $oVo->getRawData() ) );
-		return $oItem;
+		return ( new ResultItem() )->applyFromArray( $oVo->data );
 	}
 }

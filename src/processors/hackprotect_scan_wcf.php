@@ -20,6 +20,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		if ( isset( $_GET[ 'test' ] ) ) {
 			$this->updateScanResultsStore( $this->doScan() );
 //			$this->readScanResultsFromDb();
+			die();
 		}
 
 		if ( $this->loadWpUsers()->isUserAdmin() ) {
@@ -48,19 +49,22 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function updateScanResultsStore( $oNewResults ) {
 		$oExisting = $this->readScanResultsFromDb();
-		( new Scans\WpCore\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
-		$this->deleteScanResults();
-		$this->storeScanResults( $oExisting );
+		$oDelete = ( new Scans\WpCore\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
+		$this->deleteResultsSet( $oDelete );
+		$this->storeScanResults( $oNewResults );
+		$this->updateScanResults( $oExisting );
 	}
 
 	/**
-	 * @return bool
+	 * @param Scans\WpCore\ResultsSet $oToDelete
 	 */
-	protected function deleteScanResults() {
-		return $this
-			->getScannerDb()
-			->getQueryDeleter()
-			->forScan( static::SCAN_SLUG );
+	protected function deleteResultsSet( $oToDelete ) {
+		$oDeleter = $this->getScannerDb()->getQueryDeleter();
+		foreach ( $oToDelete->getAllItems() as $oItem ) {
+			$oDeleter->filterByScan( static::SCAN_SLUG )
+					 ->filterByHash( $oItem->hash )
+					 ->query();
+		}
 	}
 
 	/**
@@ -70,6 +74,24 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		$oInsert = $this->getScannerDb()->getQueryInserter();
 		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
+		}
+	}
+
+	/**
+	 * @param Scans\WpCore\ResultsSet $oResults
+	 */
+	protected function updateScanResults( $oResults ) {
+		$oUp = $this->getScannerDb()->getQueryUpdater();
+		foreach ( ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults ) as $oVo ) {
+			$oUp->reset()
+				->setUpdateData( $oVo->getRawData() )
+				->setUpdateWheres(
+					[
+						'scan' => static::SCAN_SLUG,
+						'hash' => $oVo->hash,
+					]
+				)
+				->query();
 		}
 	}
 

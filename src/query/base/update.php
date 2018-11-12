@@ -59,20 +59,30 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 	 * @return bool
 	 */
 	public function updateEntry( $oEntry, $aUpdateData = array() ) {
-		$bSuccess = false;
+		$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
+		// TODO: run through update data and determine if anything actually needs updating
+		if ( $bSuccess ) {
+			foreach ( $aUpdateData as $sCol => $mVal ) {
+				$oEntry->{$sCol} = $mVal;
+			}
+		}
+		return $bSuccess;
+	}
 
-		if ( !empty( $aUpdateData ) && $oEntry instanceof ICWP_WPSF_BaseEntryVO ) {
+	/**
+	 * @param int   $nId
+	 * @param array $aUpdateData
+	 * @return bool true is success or no update necessary
+	 */
+	public function updateById( $nId, $aUpdateData = array() ) {
+		$bSuccess = true;
+
+		if ( !empty( $aUpdateData ) ) {
 			$mResult = $this
-				->setUpdateId( $oEntry->getId() )
+				->setUpdateId( $nId )
 				->setUpdateData( $aUpdateData )
 				->query();
-
-			if ( $mResult === 1 ) {
-				$bSuccess = true;
-				foreach ( $aUpdateData as $sCol => $mVal ) {
-					$oEntry->{$sCol} = $mVal;
-				}
-			}
+			$bSuccess = $mResult === 1;
 		}
 		return $bSuccess;
 	}
