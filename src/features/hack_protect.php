@@ -45,7 +45,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $this->getProcessor();
-			$oP->getSubProcessorGuard()
+			$oP->getSubProcessorPtg()
 			   ->deleteStores();
 			$this->setPtgLastBuildAt( 0 );
 		}
@@ -541,7 +541,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( $bReinstall ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $this->getProcessor();
-			$bActivate = $oP->getSubProcessorGuard()
+			$bActivate = $oP->getSubProcessorPtg()
 							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_Ptg::CONTEXT_PLUGINS )
 						 && $bActivate;
 		}

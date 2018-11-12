@@ -29,6 +29,13 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Scans\UnrecognisedCore\Repair
+	 */
+	protected function getRepairer() {
+		return new Scans\UnrecognisedCore\Repair();
+	}
+
+	/**
 	 * @return Scans\UnrecognisedCore\Scanner
 	 */
 	protected function getScanner() {
@@ -53,20 +60,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 		return $oScanner;
-	}
-
-	/**
-	 * @return Scans\UnrecognisedCore\ResultsSet
-	 */
-	public function doScanAndFullRepair() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oResultSet = $this->doScan();
-		( new Scans\UnrecognisedCore\Repair() )->repairResultsSet( $oResultSet );
-		$oFO->clearLastScanProblemAt( 'ufc' );
-
-		return $oResultSet;
 	}
 
 	public function cron_dailyFileCleanerScan() {

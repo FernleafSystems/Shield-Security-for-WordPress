@@ -59,14 +59,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	protected function runChecksumScan() {
-		$this->getSubProcessorChecksumScan()
+		$this->getSubProcessorWcf()
 			 ->run();
 	}
 
 	/**
 	 */
 	protected function runFileCleanerScan() {
-		$this->getSubProcessorFileCleanerScan()
+		$this->getSubProcessorUfc()
 			 ->run();
 	}
 
@@ -80,32 +80,32 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	protected function runPTGuard() {
-		$this->getSubProcessorGuard()->run();
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Wcf
-	 */
-	public function getSubProcessorChecksumScan() {
-		$oProc = $this->getSubProcessor( 'wcf' );
-		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_scan_wcf.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_Wcf( $this->getMod() );
-			$oProc->setScannerDb( $this->getSubProcessorScanner() );
-			$this->aSubProcessors[ 'wcf' ] = $oProc;
-		}
-		return $oProc;
+		$this->getSubProcessorPtg()->run();
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
 	public function getSubProcessorScanner() {
-		$oProc = $this->getSubProcessor( 'scanner' );
+		$oProc = $this->getSubPro( 'scanner' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_scanner.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_Scanner( $this->getMod() );
-			$this->aSubProcessors[ 'scanner' ] = $oProc;
+			$this->aSubPros[ 'scanner' ] = $oProc;
+		}
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Wcf
+	 */
+	public function getSubProcessorWcf() {
+		$oProc = $this->getSubPro( 'wcf' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/hackprotect_scan_wcf.php' );
+			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Wcf( $this->getMod() ) )
+				->setScannerDb( $this->getSubProcessorScanner() );
+			$this->aSubPros[ 'wcf' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -113,14 +113,29 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Ufc
 	 */
-	public function getSubProcessorFileCleanerScan() {
-		$oProc = $this->getSubProcessor( 'ufc' );
+	public function getSubProcessorUfc() {
+		$oProc = $this->getSubPro( 'ufc' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_scan_ufc.php' );
-			$this->aSubProcessors[ 'ufc' ] = ( new ICWP_WPSF_Processor_HackProtect_Ufc( $this->getMod() ) )
+			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Ufc( $this->getMod() ) )
 				->setScannerDb( $this->getSubProcessorScanner() );
+			$this->aSubPros[ 'ufc' ] = $oProc;
 		}
-		return $this->aSubProcessors[ 'ufc' ];
+		return $oProc;
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Ptg
+	 */
+	public function getSubProcessorPtg() {
+		$oProc = $this->getSubPro( 'ptg' );
+		if ( is_null( $oProc ) ) {
+			require_once( dirname( __FILE__ ).'/hackprotect_scan_ptg.php' );
+			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Ptg( $this->getMod() ) )
+				->setScannerDb( $this->getSubProcessorScanner() );
+			$this->aSubPros[ 'ptg' ] = $oProc;
+		}
+		return $oProc;
 	}
 
 	/**
@@ -133,27 +148,15 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Ptg
-	 */
-	public function getSubProcessorGuard() {
-		$oProc = $this->getSubProcessor( 'ptg' );
-		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_scan_ptg.php' );
-			$this->aSubProcessors[ 'ptg' ] = ( new ICWP_WPSF_Processor_HackProtect_Ptg( $this->getMod() ) )
-				->setScannerDb( $this->getSubProcessorScanner() );
-		}
-		return $this->aSubProcessors[ 'ptg' ];
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_WpVulnScan
 	 */
 	protected function getSubProcessorWpVulnScan() {
-		$oProc = $this->getSubProcessor( 'vuln' );
+		$oProc = $this->getSubPro( 'vuln' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/hackprotect_wpvulnscan.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getMod() );
-			$this->aSubProcessors[ 'vuln' ] = $oProc;
+			$oProc = ( new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getMod() ) );
+//				->setScannerDb( $this->getSubProcessorScanner() );
+			$this->aSubPros[ 'vuln' ] = $oProc;
 		}
 		return $oProc;
 	}

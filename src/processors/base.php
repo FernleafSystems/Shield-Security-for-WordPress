@@ -19,7 +19,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var ICWP_WPSF_Processor_Base[]
 	 */
-	protected $aSubProcessors;
+	protected $aSubPros;
 
 	/**
 	 * @var bool
@@ -254,7 +254,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sKey
 	 * @return ICWP_WPSF_Processor_Base|null
 	 */
-	protected function getSubProcessor( $sKey ) {
+	protected function getSubPro( $sKey ) {
 		$aProcessors = $this->getSubProcessors();
 		return isset( $aProcessors[ $sKey ] ) ? $aProcessors[ $sKey ] : null;
 	}
@@ -263,10 +263,10 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Base[]
 	 */
 	protected function getSubProcessors() {
-		if ( !isset( $this->aSubProcessors ) ) {
-			$this->aSubProcessors = array();
+		if ( !isset( $this->aSubPros ) ) {
+			$this->aSubPros = array();
 		}
-		return $this->aSubProcessors;
+		return $this->aSubPros;
 	}
 
 	/**

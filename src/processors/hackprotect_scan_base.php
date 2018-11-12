@@ -45,6 +45,25 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
+	 * @return Scans\Base\BaseResultsSet
+	 */
+	public function doScanAndFullRepair() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		$oResultSet = $this->doScan();
+		$this->getRepairer()->repairResultsSet( $oResultSet );
+		$oFO->clearLastScanProblemAt( static::SCAN_SLUG );
+
+		return $oResultSet;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	abstract protected function getRepairer();
+
+	/**
 	 * @return mixed
 	 */
 	abstract protected function getScanner();

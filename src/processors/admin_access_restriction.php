@@ -77,11 +77,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel
 	 */
 	protected function getSubProcessorWhitelabel() {
-		$oProc = $this->getSubProcessor( 'wl' );
+		$oProc = $this->getSubPro( 'wl' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/adminaccess_whitelabel.php' );
 			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getMod() );
-			$this->aSubProcessors[ 'wl' ] = $oProc;
+			$this->aSubPros[ 'wl' ] = $oProc;
 		}
 		return $oProc;
 	}

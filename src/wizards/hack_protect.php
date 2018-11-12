@@ -95,7 +95,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorFileCleanerScan()->doScanAndFullRepair();
+			$oProc->getSubProcessorUfc()->doScanAndFullRepair();
 
 			$oResponse->setSuccessful( true );
 			$sMessage = 'If your filesystem permissions allowed it, the scanner will have deleted these files.';
@@ -118,7 +118,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $this->loadRequest()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorChecksumScan()->doScanAndFullRepair();
+			$oProc->getSubProcessorWcf()->doScanAndFullRepair();
 
 			$sMessage = 'The scanner will have restored these files if your filesystem permissions allowed it.';
 		}
@@ -266,7 +266,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oFO->getProcessor();
-		$oGuard = $oP->getSubProcessorGuard();
+		$oGuard = $oP->getSubProcessorPtg();
 
 		$bSuccess = false;
 		if ( empty( $mAsset ) && $sItemAction != 'ignore' ) { // we can only ignore "empty"/missing assets
@@ -424,7 +424,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'scanresult':
-					$aFiles = $oProc->getSubProcessorFileCleanerScan()->doScan()->getItemsPathsFragments();
+					$aFiles = $oProc->getSubProcessorUfc()->doScan()->getItemsPathsFragments();
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(
@@ -440,7 +440,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			switch ( $sStep ) {
 				case 'scanresult':
-					$oResult = $oProc->getSubProcessorChecksumScan()->doScan();
+					$oResult = $oProc->getSubProcessorWcf()->doScan();
 
 					$aAdditional[ 'data' ] = array(
 						'files' => array(
@@ -482,7 +482,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function getPtgScanResults( $sContext ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $this->getModCon()->getProcessor();
-		$oP = $oProc->getSubProcessorGuard();
+		$oP = $oProc->getSubProcessorPtg();
 		if ( $sContext == 'plugins' ) {
 			$aResults = $oP->scanPlugins();
 		}

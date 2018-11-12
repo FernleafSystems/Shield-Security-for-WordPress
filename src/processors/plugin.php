@@ -92,11 +92,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
 	 */
 	public function getSubProcessorImportExport() {
-		$oProc = $this->getSubProcessor( 'importexport' );
+		$oProc = $this->getSubPro( 'importexport' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_importexport.php' );
 			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getMod() );
-			$this->aSubProcessors[ 'importexport' ] = $oProc;
+			$this->aSubPros[ 'importexport' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -105,13 +105,13 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @return ICWP_WPSF_Processor_Plugin_Notes
 	 */
 	public function getSubProcessorNotes() {
-		$oProc = $this->getSubProcessor( 'notes' );
+		$oProc = $this->getSubPro( 'notes' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 			$oMod = $this->getMod();
 			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $oMod );
-			$this->aSubProcessors[ 'notes' ] = $oProc;
+			$this->aSubPros[ 'notes' ] = $oProc;
 		}
 		return $oProc;
 	}

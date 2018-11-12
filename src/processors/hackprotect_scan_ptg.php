@@ -40,6 +40,13 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Scans\WpCore\Repair|mixed
+	 */
+	protected function getRepairer() {
+//		return new Scans\WpCore\Repair();
+	}
+
+	/**
 	 * @return Scans\WpCore\Scanner
 	 */
 	protected function getScanner() {

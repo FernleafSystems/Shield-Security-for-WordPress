@@ -255,11 +255,11 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_UserManagement_Passwords
 	 */
 	protected function getProcessorPasswords() {
-		$oProc = $this->getSubProcessor( 'passwords' );
+		$oProc = $this->getSubPro( 'passwords' );
 		if ( is_null( $oProc ) ) {
 			require_once( dirname( __FILE__ ).'/usermanagement_passwords.php' );
 			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getMod() );
-			$this->aSubProcessors[ 'passwords' ] = $oProc;
+			$this->aSubPros[ 'passwords' ] = $oProc;
 		}
 		return $oProc;
 	}

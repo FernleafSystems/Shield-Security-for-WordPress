@@ -39,6 +39,13 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Scans\WpCore\Repair|mixed
+	 */
+	protected function getRepairer() {
+		return new Scans\WpCore\Repair();
+	}
+
+	/**
 	 * TODO:
 	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
 	 * if ( empty( $aAutoFixIndexFiles ) ) {
@@ -52,20 +59,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		return ( new Scans\WpCore\Scanner() )
 			->setExclusions( $this->getFullExclusions() )
 			->setMissingExclusions( $this->getMissingOnlyExclusions() );
-	}
-
-	/**
-	 * @return Scans\WpCore\ResultsSet
-	 */
-	public function doScanAndFullRepair() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oResultSet = $this->doScan();
-		( new Scans\WpCore\Repair() )->repairResultsSet( $oResultSet );
-		$oFO->clearLastScanProblemAt( 'ufc' );
-
-		return $oResultSet;
 	}
 
 	public function cron_dailyChecksumScan() {
