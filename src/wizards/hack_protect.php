@@ -90,7 +90,6 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
 		$bIsDelete = $this->loadRequest()->post( 'DeleteFiles' ) === 'Y';
 		if ( $bIsDelete ) {
 
@@ -98,11 +97,9 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oProc = $oFO->getProcessor();
 			$oProc->getSubProcessorUfc()->doScanAndFullRepair();
 
-			$oResponse->setSuccessful( true );
 			$sMessage = 'If your filesystem permissions allowed it, the scanner will have deleted these files.';
 		}
 		else {
-			$oResponse->setSuccessful( false );
 			$sMessage = 'No attempt was made to delete any files since the checkbox was not checked.';
 		}
 
