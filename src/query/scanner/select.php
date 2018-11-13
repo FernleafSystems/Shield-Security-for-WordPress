@@ -32,7 +32,7 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 	 */
 	public function filterByScan( $sScan ) {
 		if ( !empty( $sScan ) ) {
-			$this->addWhereEquals( 'scan', $sScan );
+			$this->addWhereEquals( 'scan', strtolower( $sScan ) );
 		}
 		return $this;
 	}

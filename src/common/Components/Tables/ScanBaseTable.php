@@ -25,7 +25,6 @@ class ScanBaseTable extends ICWP_BaseTable {
 			'path_fragment' => 'File',
 			'status'        => 'Status',
 			'ignored'       => 'Ignored',
-			'updated_at'    => 'Last Scan At',
 			'created_at'    => 'Discovered',
 		);
 	}

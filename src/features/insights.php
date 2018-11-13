@@ -115,7 +115,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'scans':
 				$aData = array(
 					'ajax' => array(
-						'render_table_scan_wcf' => $oModHack->getAjaxActionData( 'render_table_scan_wcf', true )
+						'render_table_scan' => $oModHack->getAjaxActionData( 'render_table_scan', true )
 					),
 				);
 				break;

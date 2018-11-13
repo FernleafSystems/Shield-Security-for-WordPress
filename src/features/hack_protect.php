@@ -27,8 +27,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
 					break;
 
-				case 'render_table_scan_wcf':
-					$aAjaxResponse = $this->ajaxExec_BuildTableScanWcf();
+				case 'render_table_scan':
+					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;
 
 				default:
@@ -632,7 +632,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_BuildTableScanWcf() {
+	protected function ajaxExec_BuildTableScan() {
 		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
@@ -640,6 +640,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'paged',
 				'order',
 				'orderby',
+				'fScan',
 			) )
 		);
 
@@ -666,6 +667,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'orderby' => 'created_at',
 				'order'   => 'DESC',
 				'paged'   => 1,
+				'fScan'   => 'wcf',
 			),
 			$aParams
 		);
@@ -673,13 +675,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->loadProcessor();
 		$oScanPro = $oPro->getSubProcessorScanner();
-		$oScanPro->getSubProcessorWcf()->doScan();
 		$oSelector = $oScanPro->getQuerySelector()
-						  ->filterByScan( 'wcf' )
-						  ->setPage( $nPage )
-						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-						  ->setLimit( 25 )
-						  ->setResultsAsVo( true );
+							  ->setPage( $nPage )
+							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+							  ->setLimit( 25 )
+							  ->setResultsAsVo( true );
+		// Filters
+		{
+			if ( empty( $aParams[ 'scan' ] ) ) {
+				$aParams[ 'scan' ] = 'wcf';
+			}
+			$oSelector->filterByScan( $aParams[ 'scan' ] );
+		}
 		$aEntries = $oSelector->query();
 
 		$oTable = $this->getTableRenderer()
