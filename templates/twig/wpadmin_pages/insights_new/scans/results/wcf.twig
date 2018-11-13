@@ -1,0 +1,26 @@
+<div class="row insights_widget" id="SectionScanResultsWcf">
+	<div class="col-12">
+		<div class="card mt-4">
+			<div class="card-header">
+				<h5 class="card-title">WordPress Core File Scan results</h5>
+				<h6 class="card-subtitle mb-2 text-muted">
+					Files listed below are either missing or have been modified in some way
+					when compared with officially distributed files from WordPress.org
+				</h6>
+			</div>
+			<div class="card-body pb-2">
+				<div id="TableScanWcf"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	var $oTableScanWcf = jQuery( '#TableScanWcf' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'wcf'
+			}
+		}
+	);
+</script>

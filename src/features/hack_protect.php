@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
@@ -23,6 +25,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 				case 'plugin_reinstall':
 					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
+					break;
+
+				case 'render_table_scan':
+					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;
 
 				default:
@@ -621,6 +627,118 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $nTime );
 		}
 		return $aNotices;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_BuildTableScan() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fScan',
+			) )
+		);
+
+		return array(
+			'success' => true,
+			'html'    => $this->renderTable( $aParams )
+		);
+	}
+
+	/**
+	 * @param $aParams
+	 * @return false|string
+	 */
+	protected function renderTable( $aParams ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+				'fScan'   => 'wcf',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->loadProcessor();
+		$oScanPro = $oPro->getSubProcessorScanner();
+		$oSelector = $oScanPro->getQuerySelector()
+							  ->setPage( $nPage )
+							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+							  ->setLimit( 25 )
+							  ->setResultsAsVo( true );
+		// Filters
+		{
+			if ( empty( $aParams[ 'scan' ] ) ) {
+				$aParams[ 'scan' ] = 'wcf';
+			}
+			$oSelector->filterByScan( $aParams[ 'scan' ] );
+		}
+		$aEntries = $oSelector->query();
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( 25 )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$oCarbon = new \Carbon\Carbon();
+
+			$nTs = $this->loadRequest()->ts();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$aE = $oEntry->getRawData();
+				$aE[ 'path_fragment' ] = $oIt->path_fragment;
+				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
+				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+				$aE[ 'updated_at' ] = $oCarbon->setTimestamp( $oEntry->updated_at )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->updated_at ).'</small>';
+				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+				$aEntries[ $nKey ] = $aE;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
+	 * @return ScanBaseTable
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanBaseTable.php' );
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->loadProcessor();
+//		$nCount = $oPro->countAuditEntriesForContext();
+		$nCount = 10;
+		$oTable = new ScanBaseTable();
+		return $oTable->setTotalRecords( $nCount );
 	}
 
 	/**

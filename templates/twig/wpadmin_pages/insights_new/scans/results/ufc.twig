@@ -1,0 +1,26 @@
+<div class="row insights_widget" id="SectionScanResultsUfc">
+	<div class="col-12">
+		<div class="card mt-4">
+			<div class="card-header">
+				<h5 class="card-title">Unrecognised Core Files</h5>
+				<h6 class="card-subtitle mb-2 text-muted">
+					Files listed below have been found in the WordPress core files directories
+					but are not part of the officially distributed files from WordPress.org
+				</h6>
+			</div>
+			<div class="card-body pb-2">
+				<div id="TableScanUfc"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	var $oTableScanUfc = jQuery( '#TableScanUfc' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'ufc'
+			}
+		}
+	);
+</script>

@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			$this->getSubProcessorVuln()->run();
 		}
 		if ( $oFO->isPtgEnabled() ) {
-			$this->getSubProcessorPtg()->run();
+//			$this->getSubProcessorPtg()->run();
 		}
 		if ( $oFO->isIcEnabled() ) {
 //			$this->getSubProcessorIntegrity()->run();
@@ -171,7 +171,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			scan varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type',
 			severity int(3) NOT NULL DEFAULT 1 COMMENT 'Severity',
 			ignore_until int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignore Expires',
-			repaired_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Repaired',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Discovered',
 			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Last Scan',
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
