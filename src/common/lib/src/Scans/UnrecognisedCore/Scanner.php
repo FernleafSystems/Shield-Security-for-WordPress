@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -43,22 +44,16 @@ class Scanner {
 				 * The filter handles the bulk of the file inclusions and exclusions
 				 * We can set the types (extensions) of the files to include
 				 * useful for the upload directory where we're only interested in JS and PHP
-				 *
 				 * The filter will also be responsible (in this case) for filtering out
 				 * WP Core files from the collection of files to be assessed
 				 */
-				$oFilter = new ScannerRecursiveFilterIterator( new \RecursiveDirectoryIterator( $sDir ) );
-				$aFileTypes = $this->getFileTypesForDir( $sDir );
-				if ( !empty( $aFileTypes ) ) {
-					$oFilter->setFileExts( $aFileTypes );
-				}
-				$oRecursiveIterator = new \RecursiveIteratorIterator( $oFilter );
+				$oDirIt = StandardDirectoryIterator::create( $sDir, 0, $this->getFileTypesForDir( $sDir ), true );
 			}
 			catch ( \Exception $oE ) {
 				continue;
 			}
 
-			foreach ( $oRecursiveIterator as $oFsItem ) {
+			foreach ( $oDirIt as $oFsItem ) {
 				/** @var \SplFileInfo $oFsItem */
 				$sFullPath = $oFsItem->getPathname();
 

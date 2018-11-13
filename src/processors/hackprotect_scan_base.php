@@ -33,8 +33,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		/** @var Scans\Base\BaseResultsSet $oResults */
-		$oResults = $this->getScanner()->run();
+		$oResults = $this->getScannerResults();
 		$this->updateScanResultsStore( $oResults );
 
 		$oFO->setLastScanAt( static::SCAN_SLUG );
@@ -43,6 +42,14 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 			: $oFO->clearLastScanProblemAt( static::SCAN_SLUG );
 
 		return $oResults;
+	}
+
+	/**
+	 * @return Scans\Base\BaseResultsSet
+	 */
+	protected function getScannerResults() {
+		/** @var Scans\Base\BaseResultsSet $oResults */
+		return $this->getScanner()->run();
 	}
 
 	/**
@@ -73,10 +80,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @param Scans\Base\BaseResultsSet $oNewResults
 	 */
 	protected function updateScanResultsStore( $oNewResults ) {
+		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
 		$oExisting = $this->readScanResultsFromDb();
-		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
+		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
 		$this->deleteResultsSet( $oItemsToDelete );
-		$this->storeNewScanResults( $oNewResults );
+		$this->storeNewScanResults( $oNewCopy );
 		$this->updateExistingScanResults( $oExisting );
 	}
 

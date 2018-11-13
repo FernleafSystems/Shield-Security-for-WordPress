@@ -6,10 +6,11 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ptg' ) ) {
 
 require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'ptg';
-
 	const CONTEXT_PLUGINS = 'plugins';
 	const CONTEXT_THEMES = 'themes';
 
@@ -17,6 +18,19 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	public function run() {
 		parent::run();
+
+		if ( isset( $_GET[ 'test' ] ) ) {
+
+			var_dump( $this->doScan() );
+			die();
+
+			var_dump( $this->hashPluginFiles( 'worpit-admin-dashboard-plugin/worpit.php' ) );
+			var_dump( $this->hashPluginFiles2( 'worpit-admin-dashboard-plugin/worpit.php' ) );
+
+//			$aRes = $this->scanPlugins();
+//			var_dump( $aRes );
+			die();
+		}
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
@@ -40,6 +54,31 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Scans\Base\BaseResultsSet|Scans\PTGuard\ResultsSet
+	 */
+	protected function getScannerResults() {
+		$oResults = $this->scanPlugins();
+		( new Scans\Helpers\CopyResultsSets() )->copyTo( $oResults, $this->scanThemes() );
+		return $oResults;
+	}
+
+	/**
+	 * @param Scans\PTGuard\ResultsSet $oResults
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function convertResultsToVos( $oResults ) {
+		return ( new Scans\PTGuard\ConvertResultsToVos() )->convert( $oResults );
+	}
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @return Scans\PTGuard\ResultsSet
+	 */
+	protected function convertVosToResults( $aVos ) {
+		return ( new Scans\PTGuard\ConvertVosToResults() )->convert( $aVos );
+	}
+
+	/**
 	 * @return Scans\WpCore\Repair|mixed
 	 */
 	protected function getRepairer() {
@@ -47,12 +86,21 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Scans\WpCore\Scanner
+	 * Shouldn't really be used in this case as it'll only scan the plugins
+	 * @return Scans\PTGuard\ScannerPlugins
 	 */
 	protected function getScanner() {
-//		return ( new Scans\WpCore\Scanner() )
-//			->setExclusions( $this->getFullExclusions() )
-//			->setMissingExclusions( $this->getMissingOnlyExclusions() );
+		return $this->getContextScanner();
+	}
+
+	/**
+	 * @param string $sContext
+	 * @return Scans\PTGuard\ScannerPlugins|Scans\PTGuard\ScannerThemes|mixed
+	 */
+	protected function getContextScanner( $sContext = self::CONTEXT_PLUGINS ) {
+		return ( $sContext == self::CONTEXT_PLUGINS ) ?
+			new Scans\PTGuard\ScannerPlugins()
+			: new Scans\PTGuard\ScannerThemes();
 	}
 
 	/**
@@ -378,7 +426,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @return string[]
 	 */
 	protected function hashPluginFiles( $sSlugBaseName ) {
-		return $this->hashFilesInDir( $this->loadWpPlugins()->getInstallationDir( $sSlugBaseName ) );
+		return $this->getContextScanner( self::CONTEXT_PLUGINS )
+					->hashAssetFiles( $sSlugBaseName );
 	}
 
 	/**
@@ -386,10 +435,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @return string[]
 	 */
 	protected function hashThemeFiles( $sSlugStylesheet ) {
-		$sDir = $this->loadWpThemes()
-					 ->getTheme( $sSlugStylesheet )
-					 ->get_stylesheet_directory();
-		return $this->hashFilesInDir( $sDir );
+		return $this->getContextScanner( self::CONTEXT_THEMES )
+					->hashAssetFiles( $sSlugStylesheet );
 	}
 
 	/**
@@ -412,33 +459,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 				return array();
 				break;
 		}
-	}
-
-	/**
-	 * @param string $sDir
-	 * @return string[]
-	 */
-	private function hashFilesInDir( $sDir ) {
-		$aSnaps = array();
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$nDepth = $oFO->getPtgDepth();
-		foreach ( $this->loadFS()->getFilesInDir( $sDir, $nDepth, $this->getIterator( $sDir ) ) as $oFile ) {
-			$aSnaps[ $oFile->getRealPath() ] = md5_file( $oFile->getPathname() );
-		}
-		return $aSnaps;
-	}
-
-	/**
-	 * @param string $sDir
-	 * @return GuardRecursiveFilterIterator
-	 */
-	private function getIterator( $sDir ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$oIt = new GuardRecursiveFilterIterator( new RecursiveDirectoryIterator( $sDir ) );
-		return $oIt->setExtensions( $oFO->getPtgFileExtensions() );
 	}
 
 	/**
@@ -585,31 +605,82 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return array[][]
+	 * @return Scans\PTGuard\ResultsSet
 	 */
 	public function scanPlugins() {
 		return $this->runSnapshotScan( self::CONTEXT_PLUGINS );
 	}
 
 	/**
-	 * @return array[][]
+	 * @return Scans\PTGuard\ResultsSet
 	 */
 	public function scanThemes() {
 		return $this->runSnapshotScan( self::CONTEXT_THEMES );
 	}
 
 	/**
+	 * @param Scans\PTGuard\ResultsSet $oResults
+	 * @return array[]
+	 */
+	protected function organiseScanDataForDisplay( $oResults ) {
+
+		$aResults = array();
+		foreach ( $oResults->getUniqueSlugs() as $sSlug ) {
+			$aItemResults = array();
+
+			$oResSlug = $oResults->getResultsSetForSlug( $sSlug );
+			if ( $oResSlug->countDifferent() > 0 ) {
+				$aItemResults[ 'different' ] = array_map(
+					function ( $sPath ) {
+						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+					},
+					$oResSlug->filterItemsForPaths( $oResSlug->getDifferentItems() )
+				);
+			}
+
+			if ( $oResSlug->countUnrecognised() > 0 ) {
+				$aItemResults[ 'unrecognised' ] = array_map(
+					function ( $sPath ) {
+						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+					},
+					$oResSlug->filterItemsForPaths( $oResSlug->getUnrecognisedItems() )
+				);
+			}
+
+			if ( $oResSlug->countDifferent() > 0 ) {
+				$aItemResults[ 'missing' ] = array_map(
+					function ( $sPath ) {
+						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+					},
+					$oResSlug->filterItemsForPaths( $oResSlug->getMissingItems() )
+				);
+			}
+			$aResults[ $sSlug ] = $aItemResults;
+		}
+		return $aResults;
+	}
+
+	/**
 	 * @param string $sContext
-	 * @return array[][] - keys are slugs
+	 * @return Scans\PTGuard\ResultsSet
 	 */
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$bProblemDiscovered = false;
-		$aResults = array();
-		foreach ( $this->loadSnapshotData( $sContext ) as $sBaseName => $aSnap ) {
+		$aSnaps = array_map(
+			function ( $aSnap ) {
+				return $aSnap[ 'hashes' ];
+			},
+			$this->loadSnapshotData( $sContext )
+		);
 
+		return $this->getContextScanner( $sContext )
+					->setDepth( $oFO->getPtgDepth() )
+					->setFileExts( $oFO->getPtgFileExtensions() )
+					->run( $aSnaps );
+
+		foreach ( $this->loadSnapshotData( $sContext ) as $sBaseName => $aSnap ) {
 			$aItemResults = array();
 
 			// First grab all the current hashes.

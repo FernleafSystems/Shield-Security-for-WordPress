@@ -496,15 +496,15 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oProc = $this->getModCon()->getProcessor();
 		$oP = $oProc->getSubProcessorScanner()->getSubProcessorPtg();
 		if ( $sContext == 'plugins' ) {
-			$aResults = $oP->scanPlugins();
+			$oResults = $oP->scanPlugins();
 		}
 		else {
-			$aResults = $oP->scanThemes();
+			$oResults = $oP->scanThemes();
 		}
 
 		$oWpPlugins = $this->loadWpPlugins();
 		$oWpThemes = $this->loadWpThemes();
-		foreach ( $aResults as $sSlug => $aItem ) {
+		foreach ( $oResults->getUniqueSlugs() as $sSlug ) {
 
 			if ( $sContext == 'plugins' ) {
 				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
@@ -526,7 +526,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 
 			if ( empty( $sName ) ) {
-				$sName = isset( $aItem[ 'meta' ][ 'name' ] ) ? $aItem[ 'meta' ][ 'name' ] : 'Unknown: '.$sSlug;
+				$sName = $sSlug;
 			}
 
 			$aResults[ $sName ] = $this->stripPaths( $aItem );
@@ -561,24 +561,16 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @param array[] $aLists
-	 * @return array[]
+	 * @param string[] $aPaths
+	 * @return string[]
 	 */
-	private function stripPaths( $aLists ) {
-		foreach ( $aLists as $sKey => $aList ) {
-			if ( is_array( $aList ) ) {
-				$aLists[ $sKey ] = array_map(
-					function ( $sPath ) {
-						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
-					},
-					$aList
-				);
-			}
-			else {
-				$aLists[ $sKey ] = $aList;
-			}
-		}
-		return $aLists;
+	private function stripPaths( $aPaths ) {
+		return array_map(
+			function ( $sPath ) {
+				return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
+			},
+			$aPaths
+		);
 	}
 
 	/**
