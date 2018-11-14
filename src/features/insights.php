@@ -244,8 +244,46 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								 ->query();
 		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ConvertVosToResults() )
 			->convert( $aPtgResults );
-		$aPluginSlugs = array_keys( $oFullResults->getAllResultsSetsForPluginsContext() );
-		$aThemeSlugs = array_keys( $oFullResults->getAllResultsSetsForThemesContext() );
+
+		// Process Plugins
+		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
+		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		foreach ( $aPlugins as $sSlug => $oItemRS ) {
+			$aItems = $oItemRS->getAllItems();
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
+			$oIT = array_pop( $aItems );
+			$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
+
+			$aProfile = array(
+				'name'           => _wpsf__( 'unknown' ),
+				'version'        => _wpsf__( 'unknown' ),
+				'root_dir'       => _wpsf__( 'unknown' ),
+				'is_wporg'       => false,
+				'can_reinstall'  => false,
+				'can_deactivate' => false,
+			);
+			if ( $oWpPlugins->isInstalled( $oIT->slug ) ) {
+				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
+				$aProfile = array(
+					'name'           => $oP->Name,
+					'version'        => $oP->Version,
+					'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),
+					'is_wporg'       => $bIsWpOrg,
+					'can_reinstall'  => $bIsWpOrg,
+					'can_deactivate' => true,
+				);
+			}
+			$aProfile[ 'count_files' ] = $oItemRS->countItems();
+			$aProfile[ 'date_snapshot' ] = 'TODODODO';
+			$aPlugins[ $sSlug ] = $aProfile;
+		}
+
+		// Process Themes
+		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
+		$oWpThemes = $this->loadWpThemes();
+		foreach ( $aThemes as $oItemRS ) {
+
+		}
 
 		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
@@ -269,12 +307,25 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						),
 					),
 					'ptg' => array(
-						'count'        => $oSelector->countForScan( 'ptg' ),
-						'last_scan_at' => sprintf(
+						'count'          => $oSelector->countForScan( 'ptg' ),
+						'last_scan_at'   => sprintf(
 							_wpsf__( 'Last Scan Time: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 						),
-						'slugs'        => array_merge( $aPluginSlugs, $aThemeSlugs ),
+						'flags'          => array(
+							'has_plugins' => !empty( $aPlugins ),
+							'has_themes'  => !empty( $aThemes ),
+						),
+						'assets_plugins' => $aPlugins,
+						'assets_themes'  => $aThemes,
+						'strings'        => array(
+							'files_with_problems' => _wpsf__( 'Files with problems' ),
+							'root_dir'            => _wpsf__( 'Root directory' ),
+							'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
+							'reinstall'           => _wpsf__( 'Re-Install' ),
+							'deactivate'          => __( 'Deactivate' ),
+							'ignore'              => _wpsf__( 'Ignore' ),
+						)
 					),
 				),
 			),

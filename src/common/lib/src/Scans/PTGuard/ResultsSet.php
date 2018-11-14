@@ -82,7 +82,10 @@ class ResultsSet extends Base\BaseResultsSet {
 	public function getAllResultsSetsForUniqueSlugs() {
 		$aCollection = array();
 		foreach ( $this->getUniqueSlugs() as $sSlug ) {
-			$aCollection[ $sSlug ] = $this->getResultsSetForSlug( $sSlug );
+			$oRS = $this->getResultsSetForSlug( $sSlug );
+			if ( $oRS->hasItems() ) {
+				$aCollection[ $sSlug ] = $oRS;
+			}
 		}
 		ksort( $aCollection, SORT_NATURAL );
 		return $aCollection;
