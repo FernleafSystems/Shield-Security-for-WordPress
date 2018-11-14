@@ -197,14 +197,20 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 							  ->setResultsAsVo( true );
 		$aEntries = $oSelector->query();
 
-		$oTable = $this->getTableRenderer()
-					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-					   ->setPerPage( 25 )
-					   ->setTotalRecords( 10 ) // TODO
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
+		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
+			$sRendered = '<div class="alert alert-success m-0">No items discovered</div>';
+		}
+		else {
+			$oTable = $this->getTableRenderer()
+						   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+						   ->setPerPage( 25 )
+						   ->setTotalRecords( 10 )// TODO
+						   ->prepare_items();
+			ob_start();
+			$oTable->display();
+			$sRendered = ob_get_clean();
+		}
+		return $sRendered;
 	}
 
 	/**

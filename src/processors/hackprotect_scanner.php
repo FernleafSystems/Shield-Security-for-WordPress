@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			$this->getSubProcessorVuln()->run();
 		}
 		if ( $oFO->isPtgEnabled() ) {
-//			$this->getSubProcessorPtg()->run();
+			$this->getSubProcessorPtg()->run();
 		}
 		if ( $oFO->isIcEnabled() ) {
 //			$this->getSubProcessorIntegrity()->run();

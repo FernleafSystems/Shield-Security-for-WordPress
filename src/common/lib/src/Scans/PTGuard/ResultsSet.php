@@ -75,6 +75,56 @@ class ResultsSet extends Base\BaseResultsSet {
 	}
 
 	/**
+	 * Provides an array of Results Sets for each unique slug. Array keys are the slugs.
+	 * @return ResultsSet[]
+	 */
+	public function getAllResultsSetsForUniqueSlugs() {
+		$aCollection = array();
+		array_map(
+			function ( $sSlug ) use ( $aCollection ) {
+				/** @var ResultItem $oItem */
+				$aCollection[ $sSlug ] = $this->getResultsSetForSlug( $sSlug );
+			},
+			$this->getUniqueSlugs()
+		);
+		ksort( $aCollection, SORT_NATURAL );
+		return $aCollection;
+	}
+
+	/**
+	 * Provides a collection of ResultsSets for Plugins.
+	 * @return ResultsSet[]
+	 */
+	public function getAllResultsSetsForPluginsContext() {
+		return $this->getAllResultsSetsForContext( ScannerPlugins::CONTEXT );
+	}
+
+	/**
+	 * Provides a collection of ResultsSets for Themes.
+	 * @return ResultsSet[]
+	 */
+	public function getAllResultsSetsForThemesContext() {
+		return $this->getAllResultsSetsForContext( ScannerThemes::CONTEXT );
+	}
+
+	/**
+	 * Provides a collection of ResultsSets for a particular context.
+	 * @param string $sContext
+	 * @return ResultsSet[]
+	 */
+	public function getAllResultsSetsForContext( $sContext ) {
+		$aCollection = array();
+		array_values( array_filter(
+			$this->getAllResultsSetsForUniqueSlugs(),
+			function ( $oResultSet ) use ( $sContext ) {
+				/** @var ResultsSet $oResultSet */
+				return ( $oResultSet->getItems()[ 0 ]->context == $sContext );
+			}
+		) );
+		return $aCollection;
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getUniqueSlugs() {

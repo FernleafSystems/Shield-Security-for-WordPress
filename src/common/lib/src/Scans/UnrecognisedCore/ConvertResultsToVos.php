@@ -19,7 +19,7 @@ class ConvertResultsToVos extends Scans\Base\BaseConvertResultsToVos {
 		$oVo = new EntryVO();
 		$oVo->hash = $oIt->hash;
 		$oVo->data = $oIt->getData();
-		$oVo->description = 'WordPress core file discovered to be modified from original';
+		$oVo->description = 'File discovered that is not part of official WordPress distribution';
 		$oVo->scan = $oIt::SCAN_RESULT_TYPE;
 		return $oVo;
 	}
