@@ -194,26 +194,32 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 		$oSelector = $oScanPro->getQuerySelector()
 							  ->setPage( $nPage )
 							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-							  ->setLimit( 25 )
 							  ->filterByScan( static::SCAN_SLUG )
 							  ->setResultsAsVo( true );
-		$aEntries = $oSelector->query();
+		$aEntries = $this->postSelectEntriesFilter( $oSelector->query(), $aParams );
 
-		var_dump( $aParams[ 'fSlug' ] );
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 			$sRendered = '<div class="alert alert-success m-0">No items discovered</div>';
 		}
 		else {
 			$oTable = $this->getTableRenderer()
 						   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-						   ->setPerPage( 25 )
-						   ->setTotalRecords( 10 )// TODO
+						   ->setTotalRecords( count( $aEntries ) )
 						   ->prepare_items();
 			ob_start();
 			$oTable->display();
 			$sRendered = ob_get_clean();
 		}
 		return $sRendered;
+	}
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @param array                                                                $aParams
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function postSelectEntriesFilter( $aEntries, $aParams ) {
+		return $aEntries;
 	}
 
 	/**

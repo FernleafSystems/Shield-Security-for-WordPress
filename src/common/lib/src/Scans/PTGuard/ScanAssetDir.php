@@ -22,7 +22,7 @@ class ScanAssetDir {
 
 	/**
 	 * @param string $sRootDir
-	 * @param array $aExistingHashes
+	 * @param array  $aExistingHashes
 	 * @return ResultsSet
 	 */
 	public function run( $sRootDir, $aExistingHashes ) {
@@ -33,8 +33,18 @@ class ScanAssetDir {
 			->setDepth( $this->nDepth )
 			->build( $sRootDir );
 
-		// 2 Compare new hashes with existing hashes.
-		return ( new DiffHashes() )->diff( $aExistingHashes, $aNewHashes );
+		// 2 Compare new hashes with existing hashes to build scan results
+		$oResultsSet = ( new DiffHashes() )->diff( $aExistingHashes, $aNewHashes );
+
+		// 3 Add the path_fragment to each result item in the set
+		// So as to include the plugin or theme part
+		$sPrefixToChop = wp_normalize_path( $sRootDir );
+		foreach ( $oResultsSet->getAllItems() as $oItem ) {
+			/** @var ResultItem $oItem */
+			$oItem->path_fragment = str_replace( $sPrefixToChop, '', wp_normalize_path( $oItem->path_full ) );
+		}
+
+		return $oResultsSet;
 	}
 
 	/**

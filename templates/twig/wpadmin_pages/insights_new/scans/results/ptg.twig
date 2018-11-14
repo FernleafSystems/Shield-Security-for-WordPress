@@ -7,11 +7,16 @@
 					Tracks changes to important files within active Plugins and Themes
 				</h6>
 			</div>
-			<div class="card-body ">
+			<div class="card-body">
 				{% for slug in scanvars.slugs %}
 					<div class="row">
-						<div class="offset-1 col-10">
-							<h5>{{ slug }}</h5>
+						<div class="col-4">
+							<div class="ptg-asset-summary">
+								<p><strong>{{ slug }}</strong></p>
+								Stats etc.
+							</div>
+						</div>
+						<div class="col-8">
 							<div class="scan-table-for-slug" data-slug="{{ slug }}"></div>
 						</div>
 					</div>

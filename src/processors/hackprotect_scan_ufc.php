@@ -110,7 +110,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			foreach ( $aEntries as $nKey => $oEntry ) {
 				$oIt = ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oEntry );
 				$aE = $oEntry->getRawData();
-				$aE[ 'path_fragment' ] = $oIt->path_fragment;
+				$aE[ 'path' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = 'Unrecognised File';
 				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()

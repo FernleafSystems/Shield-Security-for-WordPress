@@ -148,8 +148,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			foreach ( $aEntries as $nKey => $oEntry ) {
 				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
 				$aE = $oEntry->getRawData();
-				$aE[ 'path_fragment' ] = $oIt->path_fragment;
-				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
+				$aE[ 'path' ] = $oIt->path_fragment;
+				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unknown' );
 				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';

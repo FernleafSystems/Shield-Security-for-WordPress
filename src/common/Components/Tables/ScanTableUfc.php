@@ -13,9 +13,9 @@ class ScanTableUfc extends ScanTableBase {
 	 */
 	public function get_columns() {
 		return array(
-			'path_fragment' => 'File',
-			'status'        => 'Status',
-			'created_at'    => 'Discovered',
+			'path'       => 'File',
+			'status'     => 'Status',
+			'created_at' => 'Discovered',
 		);
 	}
 }

@@ -110,6 +110,27 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @param array                                                                $aParams
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function postSelectEntriesFilter( $aEntries, $aParams ) {
+		if ( !empty( $aParams[ 'fSlug' ] ) ) {
+			$oSlugResults = ( new Scans\PTGuard\ConvertVosToResults() )
+				->convert( $aEntries )
+				->getResultsSetForSlug( $aParams[ 'fSlug' ] );
+			foreach ( $oSlugResults->getAllItems() as $oItem ) {
+				foreach ( $aEntries as $key => $oEntry ) {
+					if ( $oItem->hash !== $oEntry->hash ) {
+						unset( $aEntries[ $key ] );
+					}
+				}
+			}
+		}
+		return array_values( $aEntries );
+	}
+
+	/**
 	 * Move to table
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
 	 * @return array
@@ -121,21 +142,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		$oWp = $this->loadWp();
 		$oCarbon = new \Carbon\Carbon();
 
-		$oFullResults = ( new Scans\PTGuard\ConvertVosToResults() )->convert( $aEntries );
-		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
-		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-
-		foreach ( $aPlugins as $oPluginRS ) {
-		}
-
-
-
+		$oResults = ( new Scans\PTGuard\ConvertVosToResults() )->convert( $aEntries );
 		$nTs = $this->loadRequest()->ts();
 		foreach ( $aEntries as $nKey => $oEntry ) {
-			$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
+			/** @var Scans\PTGuard\ResultItem $oIt */
+			$oIt = $oResults->getItemByHash( $oEntry->hash );
 			$aE = $oEntry->getRawData();
-			$aE[ 'path_fragment' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
+			$aE[ 'path' ] = $oIt->path_fragment;
+			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ($oIt->is_missing ? 'Missing' : 'Unrecognised');
 			$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';

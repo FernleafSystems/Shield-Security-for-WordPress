@@ -48,7 +48,8 @@ class DiffHashes {
 	 */
 	private function getNewItem( $sFile ) {
 		$oItem = new ResultItem();
-		$oItem->path_full = $sFile;
+		$oItem->path_full = wp_normalize_path( $sFile );
+		$oItem->path_fragment = wp_normalize_path( $sFile ); // will eventually be overwritten
 		$oItem->is_unrecognised = false;
 		$oItem->is_different = false;
 		$oItem->is_missing = false;
