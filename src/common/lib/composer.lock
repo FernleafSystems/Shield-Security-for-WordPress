@@ -147,12 +147,12 @@
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/FernleafSystems/wordpress-services.git",
-                "reference": "2d955d719bb53c01f026602378f63c2cc797b1df"
+                "reference": "85221d4db1171249e141890dcf4a2030422885ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/2d955d719bb53c01f026602378f63c2cc797b1df.zip",
-                "reference": "2d955d719bb53c01f026602378f63c2cc797b1df",
+                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/85221d4db1171249e141890dcf4a2030422885ce.zip",
+                "reference": "85221d4db1171249e141890dcf4a2030422885ce",
                 "shasum": ""
             },
             "require": {
@@ -178,7 +178,7 @@
                 }
             ],
             "homepage": "https://bitbucket.org/FernleafSystems/wordpress-services",
-            "time": "2018-11-13T09:50:14+00:00"
+            "time": "2018-11-14T17:54:06+00:00"
         },
         {
             "name": "geoip2/geoip2",
@@ -381,16 +381,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.34.4",
+            "version": "1.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "b9a444d829c9a16735aceca1b173e765745bcc0c"
+                "reference": "3c0342ed6cb7c770d0c33595c51c286716552f65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/b9a444d829c9a16735aceca1b173e765745bcc0c",
-                "reference": "b9a444d829c9a16735aceca1b173e765745bcc0c",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/3c0342ed6cb7c770d0c33595c51c286716552f65",
+                "reference": "3c0342ed6cb7c770d0c33595c51c286716552f65",
                 "shasum": ""
             },
             "require": {
@@ -435,7 +435,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-11-13T08:26:10+00:00"
+            "time": "2018-11-14T12:39:51+00:00"
         },
         {
             "name": "pimple/pimple",

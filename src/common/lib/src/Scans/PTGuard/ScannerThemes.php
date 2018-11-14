@@ -18,8 +18,6 @@ class ScannerThemes extends ScannerBase {
 	 * @return string
 	 */
 	protected function getDirFromItemSlug( $sSlug ) {
-		return Services::WpThemes()
-					   ->getTheme( $sSlug )
-					   ->get_stylesheet_directory();
+		return Services::WpThemes()->getInstallationDir( $sSlug );
 	}
 }

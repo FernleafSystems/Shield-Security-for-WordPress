@@ -233,12 +233,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	private function buildVars_Scans() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getConn()->getModule( 'hack_protect' );
+
+		$oCarbon = new \Carbon\Carbon();
+
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
 		$oScanPro = $oPro->getSubProcessorScanner();
-
 		$oSelector = $oScanPro->getQuerySelector();
-
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();
@@ -252,40 +253,60 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
 			$oIT = array_pop( $aItems );
-			$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
 
+			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
+			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
+			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
 			$aProfile = array(
 				'name'           => _wpsf__( 'unknown' ),
 				'version'        => _wpsf__( 'unknown' ),
 				'root_dir'       => _wpsf__( 'unknown' ),
-				'is_wporg'       => false,
-				'can_reinstall'  => false,
-				'can_deactivate' => false,
+				'is_wporg'       => $bIsWpOrg,
+				'can_reinstall'  => $bIsWpOrg,
+				'can_deactivate' => $bInstalled,
+				'has_update'     => $bHasUpdate,
+				'count_files'    => $oItemRS->countItems(),
+				'date_snapshot'  => 'TODODODO',
 			);
-			if ( $oWpPlugins->isInstalled( $oIT->slug ) ) {
-				$bIsWpOrg = $oWpPlugins->isWpOrg( $sSlug );
-				$aProfile = array(
-					'name'           => $oP->Name,
-					'version'        => $oP->Version,
-					'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),
-					'is_wporg'       => $bIsWpOrg,
-					'can_reinstall'  => $bIsWpOrg,
-					'can_deactivate' => true,
-				);
+			if ( $bInstalled ) {
+				$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
+				$aProfile[ 'name' ] = $oP->Name;
+				$aProfile[ 'version' ] = $oP->Version;
+				$aProfile[ 'root_dir' ] = $oWpPlugins->getInstallationDir( $oIT->slug );
 			}
-			$aProfile[ 'count_files' ] = $oItemRS->countItems();
-			$aProfile[ 'date_snapshot' ] = 'TODODODO';
 			$aPlugins[ $sSlug ] = $aProfile;
 		}
 
 		// Process Themes
 		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = $this->loadWpThemes();
-		foreach ( $aThemes as $oItemRS ) {
+		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();;
+		foreach ( $aThemes as $sSlug => $oItemRS ) {
+			$aItems = $oItemRS->getAllItems();
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
+			$oIT = array_pop( $aItems );
 
+			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
+			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
+			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
+			$aProfile = array(
+				'name'          => _wpsf__( 'unknown' ),
+				'version'       => _wpsf__( 'unknown' ),
+				'root_dir'      => _wpsf__( 'unknown' ),
+				'is_wporg'      => $bIsWpOrg,
+				'can_reinstall' => $bIsWpOrg,
+				'has_update'    => $bHasUpdate,
+				'count_files'   => $oItemRS->countItems(),
+				'date_snapshot' => 'TODODODO',
+			);
+			if ( $bInstalled ) {
+				$oT = $oWpThemes->getTheme( $oIT->slug );
+				$aProfile[ 'name' ] = $oT->get( 'Name' );
+				$aProfile[ 'version' ] = $oT->get( 'Version' );
+				$aProfile[ 'root_dir' ] = $oWpThemes->getInstallationDir( $oIT->slug );
+			}
+			$aPlugins[ $sSlug ] = $aProfile;
 		}
 
-		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
 			'ajax' => array(
 				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true )
@@ -325,6 +346,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							'reinstall'           => _wpsf__( 'Re-Install' ),
 							'deactivate'          => __( 'Deactivate' ),
 							'ignore'              => _wpsf__( 'Ignore' ),
+							'update'              => _wpsf__( 'Upgrade' ),
 						)
 					),
 				),

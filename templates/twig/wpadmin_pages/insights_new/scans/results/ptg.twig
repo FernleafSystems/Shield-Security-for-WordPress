@@ -24,7 +24,13 @@
 											{% else %}
 												disabled="disabled"
 											{% endif %}
-									>{{ scanvars.strings.reinstall }}</button>
+									>
+										{% if asset_data.has_update %}
+											{{ scanvars.strings.update }}
+										{% else %}
+											{{ scanvars.strings.reinstall }}
+										{% endif %}
+									</button>
 
 									<button class="btn btn-sm btn-warning"
 											{% if asset_data.can_deactivate %}
@@ -43,19 +49,37 @@
 						</div>
 					</div>
 				{% endfor %}
+
+
 				{% for asset_slug,asset_data in scanvars.assets_themes %}
 					<div class="row">
-						<div class="col-4">
+						<div class="col-md-4">
 							<div class="ptg-asset-summary">
-								<p><strong>{{ asset_slug }}</strong></p>
-								Stats etc.
+								<p><strong>{{ asset_data.name }}</strong> <small>(v{{ asset_data.version }})</small></p>
+								<ul>
+									<li>{{ scanvars.strings.files_with_problems }}: {{ asset_data.count_files }}</li>
+									<li>{{ scanvars.strings.root_dir }}: <code>{{ asset_data.root_dir }}</code></li>
+									<li>{{ scanvars.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
+								</ul>
+								<div>
+									<button class="btn btn-sm btn-primary"
+											{% if asset_data.can_reinstall %}
+											{% else %}
+												disabled="disabled"
+											{% endif %}
+									>{{ scanvars.strings.reinstall }}</button>
+
+									<button class="btn btn-sm btn-danger"
+									>{{ scanvars.strings.ignore }}</button>
+								</div>
 							</div>
 						</div>
-						<div class="col-8">
+						<div class="col-md-8">
 							<div class="scan-table-for-slug" data-slug="{{ asset_slug }}"></div>
 						</div>
 					</div>
 				{% endfor %}
+
 			</div>
 			<div class="card-footer">
 				{{ scanvars.last_scan_at }}
