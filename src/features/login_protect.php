@@ -160,7 +160,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aRoles = $this->getOptEmailTwoFactorRolesDefaults();
 			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
 		}
-		return $aRoles;
+		if ( $this->isPremium() ) {
+			$aRoles = apply_filters( 'odp-shield-2fa_email_user_roles', $aRoles );
+		}
+		return is_array( $aRoles ) ? $aRoles : $this->getOptEmailTwoFactorRolesDefaults();
 	}
 
 	/**
