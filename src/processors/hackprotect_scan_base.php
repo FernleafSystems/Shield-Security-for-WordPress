@@ -161,6 +161,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 				'order',
 				'orderby',
 				'fScan',
+				'fSlug',
 			) )
 		);
 		return $this->renderTable( $aParams );
@@ -184,6 +185,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 				'order'   => 'DESC',
 				'paged'   => 1,
 				'fScan'   => 'wcf',
+				'fSlug'   => '',
 			),
 			$aParams
 		);
@@ -197,6 +199,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 							  ->setResultsAsVo( true );
 		$aEntries = $oSelector->query();
 
+		var_dump( $aParams[ 'fSlug' ] );
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 			$sRendered = '<div class="alert alert-success m-0">No items discovered</div>';
 		}

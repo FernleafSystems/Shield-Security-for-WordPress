@@ -8,7 +8,14 @@
 				</h6>
 			</div>
 			<div class="card-body ">
-				<div id="TableScanPtg"></div>
+				{% for slug in scanvars.slugs %}
+					<div class="row">
+						<div class="offset-1 col-10">
+							<h5>{{ slug }}</h5>
+							<div class="scan-table-for-slug" data-slug="{{ slug }}"></div>
+						</div>
+					</div>
+				{% endfor %}
 			</div>
 			<div class="card-footer">
 				{{ scanvars.last_scan_at }}
@@ -17,12 +24,16 @@
 	</div>
 </div>
 <script>
-	var $oTableScanPtg = jQuery( '#TableScanPtg' ).icwpWpsfAjaxTable(
-		{
-			'ajax_render':{{ ajax.render_table_scan|raw }},
-			'req_params': {
-				'fScan': 'ptg'
+	jQuery( 'div.scan-table-for-slug' ).each( function () {
+		var $oDiv = jQuery( this );
+		$oDiv.icwpWpsfAjaxTable(
+			{
+				'ajax_render':{{ ajax.render_table_scan|raw }},
+				'req_params': {
+					'fScan': 'ptg',
+					'fSlug': $oDiv.data( 'slug' )
+				}
 			}
-		}
-	);
+		);
+	} );
 </script>

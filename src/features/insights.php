@@ -245,7 +245,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ConvertVosToResults() )
 			->convert( $aPtgResults );
 		$aPluginSlugs = array_keys( $oFullResults->getAllResultsSetsForPluginsContext() );
-		$aThemeSlugs = array_keys( $oFullResults->getAllResultsSetsForPluginsContext() );
+		$aThemeSlugs = array_keys( $oFullResults->getAllResultsSetsForThemesContext() );
 
 		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
@@ -269,13 +269,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						),
 					),
 					'ptg' => array(
-						'count'         => $oSelector->countForScan( 'ptg' ),
-						'last_scan_at'  => sprintf(
+						'count'        => $oSelector->countForScan( 'ptg' ),
+						'last_scan_at' => sprintf(
 							_wpsf__( 'Last Scan Time: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 						),
-						'slugs_plugins' => $aPluginSlugs,
-						'slugs_themes'  => $aThemeSlugs,
+						'slugs'        => array_merge( $aPluginSlugs, $aThemeSlugs ),
 					),
 				),
 			),

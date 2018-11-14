@@ -75,18 +75,15 @@ class ResultsSet extends Base\BaseResultsSet {
 	}
 
 	/**
+	 * Tried using array_map() but this DID NOT work
 	 * Provides an array of Results Sets for each unique slug. Array keys are the slugs.
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForUniqueSlugs() {
 		$aCollection = array();
-		array_map(
-			function ( $sSlug ) use ( $aCollection ) {
-				/** @var ResultItem $oItem */
-				$aCollection[ $sSlug ] = $this->getResultsSetForSlug( $sSlug );
-			},
-			$this->getUniqueSlugs()
-		);
+		foreach ( $this->getUniqueSlugs() as $sSlug ) {
+			$aCollection[ $sSlug ] = $this->getResultsSetForSlug( $sSlug );
+		}
 		ksort( $aCollection, SORT_NATURAL );
 		return $aCollection;
 	}
@@ -108,19 +105,18 @@ class ResultsSet extends Base\BaseResultsSet {
 	}
 
 	/**
+	 * Tried using array_filter() but this DID NOT work
 	 * Provides a collection of ResultsSets for a particular context.
 	 * @param string $sContext
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForContext( $sContext ) {
 		$aCollection = array();
-		array_values( array_filter(
-			$this->getAllResultsSetsForUniqueSlugs(),
-			function ( $oResultSet ) use ( $sContext ) {
-				/** @var ResultsSet $oResultSet */
-				return ( $oResultSet->getItems()[ 0 ]->context == $sContext );
+		foreach ( $this->getAllResultsSetsForUniqueSlugs() as $sSlug => $oRS ) {
+			if ( $oRS->getItems()[ 0 ]->context == $sContext ) {
+				$aCollection[ $sSlug ] = $oRS->setContext( $sContext );
 			}
-		) );
+		}
 		return $aCollection;
 	}
 
