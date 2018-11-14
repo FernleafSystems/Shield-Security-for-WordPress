@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 		if ( isset( $_GET[ 'test' ] ) ) {
 
-			var_dump( $this->doScan() );
+			var_dump( $this->getScannerResults() );
 			die();
 
 			var_dump( $this->hashPluginFiles( 'worpit-admin-dashboard-plugin/worpit.php' ) );

@@ -13,19 +13,18 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	/**
 	 * @var string[]
 	 */
-	protected $aFileExts;
+	static protected $aFileExts;
 
 	/**
 	 * @var bool
 	 */
-	protected $bFilterWpCoreFiles;
+	static protected $bFilterWpCoreFiles;
 
 	public function accept() {
 		/** @var \SplFileInfo $oCurr */
 		$oCurr = $this->current();
 
 		$bRecurse = true; // I.e. consume the file.
-
 		// i.e. exclude core files, hidden system dirs, and files that don't have extensions we're looking for
 		if ( in_array( $oCurr->getFilename(), array( '.', '..' ) )
 			 || ( $this->isFilterOutCoreFiles() && $this->isWpCoreFile() )
@@ -41,7 +40,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	 * @return string[]
 	 */
 	private function getFileExts() {
-		return is_array( $this->aFileExts ) ? $this->aFileExts : array();
+		return is_array( self::$aFileExts ) ? self::$aFileExts : array();
 	}
 
 	/**
@@ -55,7 +54,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	 * @return bool
 	 */
 	protected function isFilterOutCoreFiles() {
-		return isset( $this->bFilterWpCoreFiles ) ? (bool)$this->bFilterWpCoreFiles : false;
+		return (bool)self::$bFilterWpCoreFiles;
 	}
 
 	/**
@@ -63,7 +62,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	 * @return $this
 	 */
 	public function setFileExts( $aTypes ) {
-		$this->aFileExts = is_array( $aTypes ) ? $aTypes : [];
+		self::$aFileExts = is_array( $aTypes ) ? $aTypes : [];
 		return $this;
 	}
 
@@ -72,7 +71,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	 * @return $this
 	 */
 	public function setIsFilterOutWpCoreFiles( $bFilter ) {
-		$this->bFilterWpCoreFiles = $bFilter;
+		self::$bFilterWpCoreFiles = $bFilter;
 		return $this;
 	}
 

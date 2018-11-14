@@ -718,8 +718,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aE[ 'path_fragment' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
 				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
-				$aE[ 'updated_at' ] = $oCarbon->setTimestamp( $oEntry->updated_at )->diffForHumans()
-									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->updated_at ).'</small>';
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
 				$aEntries[ $nKey ] = $aE;

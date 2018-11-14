@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 
 	/**
-	 * @param Scanner\EntryVO[] $oVos
+	 * @param EntryVO[] $oVos
 	 * @return ResultsSet
 	 */
 	public function convert( $oVos ) {
@@ -24,7 +24,7 @@ class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 	}
 
 	/**
-	 * @param Scanner\EntryVO $oVo
+	 * @param EntryVO $oVo
 	 * @return ResultItem
 	 */
 	public function convertItem( $oVo ) {

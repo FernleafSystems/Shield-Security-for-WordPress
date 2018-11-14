@@ -488,7 +488,6 @@
       "severity",
       "ignore_until",
       "created_at",
-      "updated_at",
       "deleted_at"
     ],
     "wpvulnscan_cron_name":                 "wpvulnscan-notification",

@@ -172,7 +172,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			severity int(3) NOT NULL DEFAULT 1 COMMENT 'Severity',
 			ignore_until int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignore Expires',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Discovered',
-			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Last Scan',
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";
