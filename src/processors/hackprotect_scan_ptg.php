@@ -131,21 +131,28 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * 'ignored'       => 'Ignored',
 	 */
 	public function formatEntriesForDisplay( $aEntries ) {
-		if ( is_array( $aEntries ) ) {
-			$oWp = $this->loadWp();
-			$oCarbon = new \Carbon\Carbon();
+		$oWp = $this->loadWp();
+		$oCarbon = new \Carbon\Carbon();
 
-			$nTs = $this->loadRequest()->ts();
-			foreach ( $aEntries as $nKey => $oEntry ) {
-				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
-				$aE = $oEntry->getRawData();
-				$aE[ 'path_fragment' ] = $oIt->path_fragment;
-				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
-				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
-				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-				$aEntries[ $nKey ] = $aE;
-			}
+		$oFullResults = ( new Scans\PTGuard\ConvertVosToResults() )->convert( $aEntries );
+		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
+		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
+
+		foreach ( $aPlugins as $oPluginRS ) {
+		}
+
+
+
+		$nTs = $this->loadRequest()->ts();
+		foreach ( $aEntries as $nKey => $oEntry ) {
+			$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
+			$aE = $oEntry->getRawData();
+			$aE[ 'path_fragment' ] = $oIt->path_fragment;
+			$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
+			$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+			$aEntries[ $nKey ] = $aE;
 		}
 		return $aEntries;
 	}

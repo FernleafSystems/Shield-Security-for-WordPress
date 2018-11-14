@@ -986,6 +986,15 @@ td.column-actions a > span {
 /** END IPS Insights **/
 
 /** TABLES SCANS **/
+.card.card-scan_results {
+	background-color: transparent;
+	border: 0 none;
+}
+.card.card-scan_results .card-header {
+	background-color: transparent;
+	border: 0 none;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
 table.odp-table.scan-table {
 	border-bottom: 0 none;
 	border-top: 0 none;
