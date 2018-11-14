@@ -38,10 +38,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProSessions = $oModSessions->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oModHack */
-		$oModHack = $oCon->getModule( 'hack_protect' );
 
-		$oCarbon = new \Carbon\Carbon();
 		switch ( $sSubNavSection ) {
 
 			case 'notes':
@@ -114,33 +111,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'scans':
-				$aData = array(
-					'ajax' => array(
-						'render_table_scan' => $oModHack->getAjaxActionData( 'render_table_scan', true )
-					),
-					'vars' => array(
-						'scanvars' => array(
-							'wcf'          => array(
-								'last_scan_at' => sprintf(
-									_wpsf__( 'Last Scan Time: %s' ),
-									$oCarbon->setTimestamp( $oModHack->getLastScanAt( 'wcf' ) )->diffForHumans()
-								),
-							),
-							'ufc'          => array(
-								'last_scan_at' => sprintf(
-									_wpsf__( 'Last Scan Time: %s' ),
-									$oCarbon->setTimestamp( $oModHack->getLastScanAt( 'ufc' ) )->diffForHumans()
-								),
-							),
-							'ptg'          => array(
-								'last_scan_at' => sprintf(
-									_wpsf__( 'Last Scan Time: %s' ),
-									$oCarbon->setTimestamp( $oModHack->getLastScanAt( 'ptg' ) )->diffForHumans()
-								),
-							),
-						),
-					),
-				);
+				$aData = $this->buildVars_Scans();
 				break;
 
 			case 'users':
@@ -257,6 +228,60 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  );
 
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
+	}
+
+	private function buildVars_Scans() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getConn()->getModule( 'hack_protect' );
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $oMod->getProcessor();
+		$oScanPro = $oPro->getSubProcessorScanner();
+
+		$oSelector = $oScanPro->getQuerySelector();
+
+		$aPtgResults = $oSelector->filterByNotIgnored()
+								 ->filterByScan( 'ptg' )
+								 ->query();
+		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ConvertVosToResults() )
+			->convert( $aPtgResults );
+		$aPluginSlugs = array_keys( $oFullResults->getAllResultsSetsForPluginsContext() );
+		$aThemeSlugs = array_keys( $oFullResults->getAllResultsSetsForPluginsContext() );
+
+		$oCarbon = new \Carbon\Carbon();
+		$aData = array(
+			'ajax' => array(
+				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true )
+			),
+			'vars' => array(
+				'scanvars' => array(
+					'wcf' => array(
+						'count'        => $oSelector->countForScan( 'wcf' ),
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan Time: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
+						),
+					),
+					'ufc' => array(
+						'count'        => $oSelector->countForScan( 'ufc' ),
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan Time: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
+						),
+					),
+					'ptg' => array(
+						'count'         => $oSelector->countForScan( 'ptg' ),
+						'last_scan_at'  => sprintf(
+							_wpsf__( 'Last Scan Time: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
+						),
+						'slugs_plugins' => $aPluginSlugs,
+						'slugs_themes'  => $aThemeSlugs,
+					),
+				),
+			),
+		);
+
+		return $aData;
 	}
 
 	public function insertCustomJsVars_Admin() {
