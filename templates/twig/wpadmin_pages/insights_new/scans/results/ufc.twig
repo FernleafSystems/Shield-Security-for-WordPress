@@ -3,13 +3,16 @@
 		<div class="card mt-4">
 			<div class="card-header">
 				<h5 class="card-title">Unrecognised Core Files</h5>
-				<h6 class="card-subtitle mb-2 text-muted">
-					Files have been found in the WordPress core files directories
+				<h6 class="card-subtitle text-muted">
+					Files found in the WordPress core files directories
 					but are not part of the official distribution from WordPress.org
 				</h6>
 			</div>
-			<div class="card-body pb-2">
+			<div class="card-body">
 				<div id="TableScanUfc"></div>
+			</div>
+			<div class="card-footer">
+				{{ scanvars.last_scan_at }}
 			</div>
 		</div>
 	</div>

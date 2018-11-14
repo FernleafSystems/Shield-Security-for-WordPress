@@ -8,6 +8,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class ScanTableBase extends ICWP_BaseTable {
 
+	protected function extra_tablenav( $which ) {
+		echo '';
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function get_table_classes() {
+		return array_merge( parent::get_table_classes(), [ 'scan-table' ] );
+	}
+
 	/**
 	 * @return array
 	 */

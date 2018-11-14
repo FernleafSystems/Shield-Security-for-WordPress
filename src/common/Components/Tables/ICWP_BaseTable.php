@@ -49,6 +49,13 @@ class ICWP_BaseTable extends WP_List_Table {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	protected function get_table_classes() {
+		return array_merge( parent::get_table_classes(), [ 'odp-table' ] );
+	}
+
+	/**
 	 * @return $this
 	 */
 	public function prepare_items() {

@@ -891,7 +891,6 @@ th.column-request_info {
 .tablenav-pages-navspan {
 	box-sizing: content-box;
 }
-
 #odp-BodyContainer .card {
 	box-shadow: none;
 	margin-top: 0;
@@ -907,9 +906,9 @@ th.column-request_info {
 }
 #odp-BodyHead .nav-link.active {
 	font-weight: bold;
-	border: 1px solid rgba(0,0,0,0.1);
+	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 3px;
-	background-color: rgba(0,0,0,0.04);
+	background-color: rgba(0, 0, 0, 0.04);
 }
 #odp-BodyMain {
 	font-size: 13px;
@@ -985,3 +984,13 @@ td.column-actions a > span {
 	font-size: 16px;
 }
 /** END IPS Insights **/
+
+/** TABLES SCANS **/
+table.odp-table.scan-table {
+	border-bottom: 0 none;
+	border-top: 0 none;
+}
+.tablenav.top, .tablenav.bottom {
+	display: none;
+}
+/** END TABLES SCANS **/

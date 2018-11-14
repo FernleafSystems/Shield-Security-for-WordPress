@@ -1,15 +1,14 @@
-<div class="row insights_widget" id="SectionScanResultsWcf">
+<div class="row insights_widget" id="SectionScanResultsPtg">
 	<div class="col-12">
 		<div class="card mt-4">
 			<div class="card-header">
-				<h5 class="card-title">WordPress Core File Scan results</h5>
+				<h5 class="card-title">Plugin / Theme Guard</h5>
 				<h6 class="card-subtitle mb-2 text-muted">
-					Files are either missing or have been modified in some way
-					when compared with the official distribution from WordPress.org
+					Tracks changes to important files within active Plugins and Themes
 				</h6>
 			</div>
 			<div class="card-body">
-				<div id="TableScanWcf"></div>
+				<div id="TableScanPtg"></div>
 			</div>
 			<div class="card-footer">
 				{{ scanvars.last_scan_at }}
@@ -18,11 +17,11 @@
 	</div>
 </div>
 <script>
-	var $oTableScanWcf = jQuery( '#TableScanWcf' ).icwpWpsfAjaxTable(
+	var $oTableScanPtg = jQuery( '#TableScanPtg' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_scan|raw }},
 			'req_params': {
-				'fScan': 'wcf'
+				'fScan': 'ptg'
 			}
 		}
 	);

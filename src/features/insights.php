@@ -38,9 +38,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProSessions = $oModSessions->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oModUsers */
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oModHack */
 		$oModHack = $oCon->getModule( 'hack_protect' );
 
+		$oCarbon = new \Carbon\Carbon();
 		switch ( $sSubNavSection ) {
 
 			case 'notes':
@@ -116,6 +117,28 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array(
 					'ajax' => array(
 						'render_table_scan' => $oModHack->getAjaxActionData( 'render_table_scan', true )
+					),
+					'vars' => array(
+						'scanvars' => array(
+							'wcf'          => array(
+								'last_scan_at' => sprintf(
+									_wpsf__( 'Last Scan Time: %s' ),
+									$oCarbon->setTimestamp( $oModHack->getLastScanAt( 'wcf' ) )->diffForHumans()
+								),
+							),
+							'ufc'          => array(
+								'last_scan_at' => sprintf(
+									_wpsf__( 'Last Scan Time: %s' ),
+									$oCarbon->setTimestamp( $oModHack->getLastScanAt( 'ufc' ) )->diffForHumans()
+								),
+							),
+							'ptg'          => array(
+								'last_scan_at' => sprintf(
+									_wpsf__( 'Last Scan Time: %s' ),
+									$oCarbon->setTimestamp( $oModHack->getLastScanAt( 'ptg' ) )->diffForHumans()
+								),
+							),
+						),
 					),
 				);
 				break;
