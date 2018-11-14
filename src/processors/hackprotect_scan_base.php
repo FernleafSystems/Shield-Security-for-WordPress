@@ -150,6 +150,82 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	abstract protected function convertVosToResults( $aVos );
 
 	/**
+	 * @return string
+	 */
+	public function buildTableScanResults() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fScan',
+			) )
+		);
+		return $this->renderTable( $aParams );
+	}
+
+	/**
+	 * @param $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+				'fScan'   => 'wcf',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+		$oScanPro = $this->getScannerDb();
+		$oSelector = $oScanPro->getQuerySelector()
+							  ->setPage( $nPage )
+							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+							  ->setLimit( 25 )
+							  ->filterByScan( static::SCAN_SLUG )
+							  ->setResultsAsVo( true );
+		$aEntries = $oSelector->query();
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+					   ->setPerPage( 25 )
+					   ->setTotalRecords( 10 ) // TODO
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
+	}
+
+	/**
+	 * @return ScanTableBase
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanTableBase.php' );
+		return new ScanTableBase();
+	}
+
+	/**
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
+	 */
+	abstract protected function formatEntriesForDisplay( $aEntries );
+
+	/**
 	 * @return int
 	 */
 	protected function getCronFrequency() {

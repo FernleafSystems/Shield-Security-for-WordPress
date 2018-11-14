@@ -132,6 +132,42 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$oCarbon = new \Carbon\Carbon();
+
+			$nTs = $this->loadRequest()->ts();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$aE = $oEntry->getRawData();
+				$aE[ 'path_fragment' ] = $oIt->path_fragment;
+				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
+				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+				$aEntries[ $nKey ] = $aE;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
+	 * @return ScanTableWcf
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanTableWcf.php' );
+		return new ScanTableWcf();
+	}
+
+	/**
 	 * @param Scans\WpCore\ResultsSet $oResults
 	 */
 	protected function emailResults( $oResults ) {

@@ -633,20 +633,27 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableScan() {
-		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-				'fScan',
-			) )
-		);
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->loadProcessor();
+		$oScanPro = $oPro->getSubProcessorScanner();
+		switch ( $this->loadRequest()->post( 'fScan' ) ) {
+			case 'ptg':
+				$oTablePro = $oScanPro->getSubProcessorPtg();
+				break;
+
+			case 'ufc':
+				$oTablePro = $oScanPro->getSubProcessorUfc();
+				break;
+
+			case 'wcf':
+			default:
+				$oTablePro = $oScanPro->getSubProcessorWcf();
+				break;
+		}
 
 		return array(
 			'success' => true,
-			'html'    => $this->renderTable( $aParams )
+			'html'    => $oTablePro->buildTableScanResults()
 		);
 	}
 
@@ -727,7 +734,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return ScanBaseTable
+	 * @return ScanTableBase
 	 */
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/ScanBaseTable.php' );
@@ -735,7 +742,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oPro = $this->loadProcessor();
 //		$nCount = $oPro->countAuditEntriesForContext();
 		$nCount = 10;
-		$oTable = new ScanBaseTable();
+		$oTable = new ScanTableBase();
 		return $oTable->setTotalRecords( $nCount );
 	}
 

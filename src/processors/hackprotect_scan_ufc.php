@@ -85,11 +85,48 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isUfcEnabled() ) {
+			/** @var Scans\UnrecognisedCore\ResultsSet $oRes */
 			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
 			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
 				$this->emailResults( $oRes->getItemsPathsFull() );
 			}
 		}
+	}
+
+	/**
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$oCarbon = new \Carbon\Carbon();
+
+			$nTs = $this->loadRequest()->ts();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$oIt = ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$aE = $oEntry->getRawData();
+				$aE[ 'path_fragment' ] = $oIt->path_fragment;
+				$aE[ 'status' ] = 'Unrecognised File';
+				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+				$aEntries[ $nKey ] = $aE;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
+	 * @return ScanTableUfc
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanTableUfc.php' );
+		return new ScanTableUfc();
 	}
 
 	/**

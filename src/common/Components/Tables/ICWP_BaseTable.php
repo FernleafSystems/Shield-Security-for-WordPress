@@ -122,4 +122,20 @@ class ICWP_BaseTable extends WP_List_Table {
 		$this->nTotalRecords = $nTotalRecords;
 		return $this;
 	}
+
+	/**
+	 * @return string
+	 */
+	protected function getColumnHeader_Actions() {
+		return '<span class="dashicons dashicons-admin-tools"></span>';
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButtonDelete( $nId ) {
+		return sprintf( '<a href="#" class="btn btn-sm btn-outline-danger delete" title="%s" data-rid="%s">'.
+						'<span class="dashicons dashicons-dismiss"></span></a>', _wpsf__( 'Delete' ), $nId );
+	}
 }
