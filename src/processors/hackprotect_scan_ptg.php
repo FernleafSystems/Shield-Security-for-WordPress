@@ -19,19 +19,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	public function run() {
 		parent::run();
 
-		if ( isset( $_GET[ 'test' ] ) ) {
-
-			var_dump( $this->getScannerResults() );
-			die();
-
-			var_dump( $this->hashPluginFiles( 'worpit-admin-dashboard-plugin/worpit.php' ) );
-			var_dump( $this->hashPluginFiles2( 'worpit-admin-dashboard-plugin/worpit.php' ) );
-
-//			$aRes = $this->scanPlugins();
-//			var_dump( $aRes );
-			die();
-		}
-
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPtgReadyToScan() ) {
