@@ -19,11 +19,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	public function run() {
 		parent::run();
 
-		if ( isset( $_GET[ 'test' ] ) ) {
-			$this->doScan();
-			die();
-		}
-
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPtgReadyToScan() ) {
@@ -177,7 +172,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			$aE = $oEntry->getRawData();
 			$aE[ 'path' ] = $oIt->path_fragment;
 			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unrecognised' );
-			$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
 			$aEntries[ $nKey ] = $aE;

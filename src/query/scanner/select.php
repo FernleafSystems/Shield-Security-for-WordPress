@@ -31,11 +31,15 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 	/**
 	 * @return $this
 	 */
+	public function filterByIgnored() {
+		return $this->addWhereNewerThan( 0, 'ignored_at' );
+	}
+
+	/**
+	 * @return $this
+	 */
 	public function filterByNotIgnored() {
-		if ( !empty( $sHash ) ) {
-			$this->addWhereOlderThan( Services::Request()->ts(), 'ignore_until' );
-		}
-		return $this;
+		return $this->addWhereEquals( 'ignored_at', 0 );
 	}
 
 	/**

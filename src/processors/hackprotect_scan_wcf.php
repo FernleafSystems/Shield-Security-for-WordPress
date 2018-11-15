@@ -123,21 +123,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultItem $oItem
-	 * @return bool
-	 */
-	protected function repairCoreFile( $oItem ) {
-		try {
-			( new Scans\WpCore\Repair() )->repairItem( $oItem );
-			$this->doStatIncrement( 'file.corechecksum.replaced' );
-		}
-		catch ( Exception $oE ) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * Move to table
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
 	 * @return array
@@ -156,7 +141,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 				$aE = $oEntry->getRawData();
 				$aE[ 'path' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unknown' );
-				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
 				$aEntries[ $nKey ] = $aE;
@@ -174,12 +159,36 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function ignoreItem( $sItemId ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found to configure ignore.' );
+		}
+
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$bSuccess = $this->getScannerDb()
+						 ->getQueryUpdater()
+						 ->setIgnored( $oEntry );
+		if ( !$bSuccess ) {
+			throw new Exception( 'Item could not be ignored at this time.' );
+		}
+
+		return $bSuccess;
+	}
+
+	/**
 	 * @param $sItemId - database row ID
 	 * @return bool
 	 * @throws Exception
 	 */
 	protected function repairItem( $sItemId ) {
-
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
 					   ->getQuerySelector()
@@ -188,7 +197,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			throw new Exception( 'Item could not be found for repair.' );
 		}
 		$oItem = $this->convertVoToResultItem( $oEntry );
-		return $this->repairCoreFile( $oItem );
+
+		( new Scans\WpCore\Repair() )->repairItem( $oItem );
+		$this->doStatIncrement( 'file.corechecksum.replaced' );
+
+		return true;
 	}
 
 	/**

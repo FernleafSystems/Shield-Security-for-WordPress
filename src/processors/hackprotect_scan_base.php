@@ -187,11 +187,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 		}
 		$aParams = array_merge(
 			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
-				'fScan'   => 'wcf',
-				'fSlug'   => '',
+				'orderby'  => 'created_at',
+				'order'    => 'DESC',
+				'paged'    => 1,
+				'fScan'    => 'wcf',
+				'fSlug'    => '',
+				'fIgnored' => 'N',
 			),
 			$aParams
 		);
@@ -202,6 +203,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
 							  ->filterByScan( static::SCAN_SLUG )
 							  ->setResultsAsVo( true );
+		{//FILTERS
+			if ( $aParams[ 'fIgnored' ] !== 'Y' ) {
+				$oSelector->filterByNotIgnored();
+			}
+		}
 		$aEntries = $this->postSelectEntriesFilter( $oSelector->query(), $aParams );
 
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {

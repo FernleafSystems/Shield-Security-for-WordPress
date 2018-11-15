@@ -120,7 +120,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 				$aE = $oEntry->getRawData();
 				$aE[ 'path' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = 'Unrecognised File';
-				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
+				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
 				$aEntries[ $nKey ] = $aE;
@@ -135,6 +135,27 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/ScanTableUfc.php' );
 		return new ScanTableUfc();
+	}
+
+	/**
+	 * @param $sItemId - database row ID
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found for repair.' );
+		}
+		$oItem = $this->convertVoToResultItem( $oEntry );
+
+		( new Scans\UnrecognisedCore\Repair() )->repairItem( $oItem );
+		$this->doStatIncrement( 'file.corechecksum.replaced' );
+
+		return true;
 	}
 
 	/**
