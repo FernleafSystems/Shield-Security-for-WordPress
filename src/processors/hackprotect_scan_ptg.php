@@ -188,6 +188,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		return new ScanTablePtg();
 	}
 
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function ignoreItem( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
 	public function printPluginReinstallDialogs() {
 		$aRenderData = array(
 			'strings'     => array(

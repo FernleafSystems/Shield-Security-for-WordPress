@@ -138,6 +138,15 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deleteItem( $sItemId ) {
+		return $this->repairItem( $sItemId );
+	}
+
+	/**
 	 * @param $sItemId - database row ID
 	 * @return bool
 	 * @throws Exception

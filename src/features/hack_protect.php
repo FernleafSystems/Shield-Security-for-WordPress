@@ -708,7 +708,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			try {
 				$bSuccess = $oTablePro->executeItemAction( $sItemId, $sAction );
 				if ( $bSuccess ) {
-//					$oTablePro->doScan();
+					$oTablePro->doScan();
 				}
 				$sMessage = 'Success';
 			}

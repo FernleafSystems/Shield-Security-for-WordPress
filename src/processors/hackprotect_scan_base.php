@@ -268,7 +268,23 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @throws Exception
 	 */
 	protected function ignoreItem( $sItemId ) {
-		throw new Exception( 'Unsupported Action' );
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found to configure ignore.' );
+		}
+
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$bSuccess = $this->getScannerDb()
+						 ->getQueryUpdater()
+						 ->setIgnored( $oEntry );
+		if ( !$bSuccess ) {
+			throw new Exception( 'Item could not be ignored at this time.' );
+		}
+
+		return $bSuccess;
 	}
 
 	/**

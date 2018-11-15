@@ -60,8 +60,9 @@ class Scanner {
 				$oResultItem = new ResultItem();
 				$oResultItem->path_full = wp_normalize_path( $sFullPath );
 				$oResultItem->path_fragment = $oHashes->getFileFragment( $sFullPath );
-				$oResultItem->is_excluded = $this->isExcluded( $sFullPath );
-				$oResultSet->addItem( $oResultItem );
+				if ( !$this->isExcluded( $sFullPath ) ) {
+					$oResultSet->addItem( $oResultItem );
+				};
 			}
 		}
 

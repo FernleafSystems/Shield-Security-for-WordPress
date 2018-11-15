@@ -159,31 +159,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function ignoreItem( $sItemId ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getQuerySelector()
-					   ->byId( $sItemId );
-		if ( empty( $oEntry ) ) {
-			throw new Exception( 'Item could not be found to configure ignore.' );
-		}
-
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
-		$bSuccess = $this->getScannerDb()
-						 ->getQueryUpdater()
-						 ->setIgnored( $oEntry );
-		if ( !$bSuccess ) {
-			throw new Exception( 'Item could not be ignored at this time.' );
-		}
-
-		return $bSuccess;
-	}
-
-	/**
 	 * @param $sItemId - database row ID
 	 * @return bool
 	 * @throws Exception
