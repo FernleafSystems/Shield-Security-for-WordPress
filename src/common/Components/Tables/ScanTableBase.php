@@ -34,8 +34,8 @@ class ScanTableBase extends ICWP_BaseTable {
 		return array(
 			'path'       => 'File',
 			'status'     => 'Status',
-			'ignored'    => 'Ignored',
 			'created_at' => 'Discovered',
+			'actions'    => $this->getColumnHeader_Actions(),
 		);
 	}
 }

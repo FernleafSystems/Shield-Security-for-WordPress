@@ -11,7 +11,7 @@ class IpBaseTable extends ICWP_BaseTable {
 	 * @return string
 	 */
 	public function column_actions( $aItem ) {
-		return $this->getActionButtonDelete( $aItem[ 'id' ] );
+		return $this->getActionButton_Delete( $aItem[ 'id' ] );
 	}
 
 	/**

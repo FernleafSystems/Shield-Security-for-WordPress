@@ -9,13 +9,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanTableWcf extends ScanTableBase {
 
 	/**
-	 * @return array
+	 * @param array $aItem
+	 * @return string
 	 */
-	public function get_columns() {
-		return array(
-			'path'       => 'File',
-			'status'     => 'Status',
-			'created_at' => 'Discovered',
-		);
+	public function column_actions( $aItem ) {
+		return $this->getActionButton_Repair( $aItem[ 'id' ] )
+			   .$this->getActionButton_Ignore( $aItem[ 'id' ] );
 	}
 }

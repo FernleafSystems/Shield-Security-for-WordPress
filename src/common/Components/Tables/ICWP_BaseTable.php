@@ -141,8 +141,26 @@ class ICWP_BaseTable extends WP_List_Table {
 	 * @param int $nId
 	 * @return string
 	 */
-	protected function getActionButtonDelete( $nId ) {
-		return sprintf( '<a href="#" class="btn btn-sm btn-outline-danger delete" title="%s" data-rid="%s">'.
+	protected function getActionButton_Delete( $nId ) {
+		return sprintf( '<a href="javascript:void(0)" class="btn btn-sm btn-outline-danger delete" title="%s" data-rid="%s">'.
 						'<span class="dashicons dashicons-dismiss"></span></a>', _wpsf__( 'Delete' ), $nId );
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButton_Repair( $nId ) {
+		return sprintf( '<a href="javascript:void(0)" class="btn btn-sm btn-outline-success repair" title="%s" data-rid="%s">'.
+						'<span class="dashicons dashicons-image-rotate"></span></a>', _wpsf__( 'Repair' ), $nId );
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButton_Ignore( $nId ) {
+		return sprintf( '<a href="javascript:void(0)" class="btn btn-sm btn-outline-info ignore" title="%s" data-rid="%s">'.
+						'<span class="dashicons dashicons-hidden"></span></a>', _wpsf__( 'Ignore' ), $nId );
 	}
 }

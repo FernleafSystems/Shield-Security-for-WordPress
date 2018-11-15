@@ -19,6 +19,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	public function run() {
 		parent::run();
 
+		if ( isset( $_GET[ 'test' ] ) ) {
+			$this->doScan();
+			die();
+		}
+
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPtgReadyToScan() ) {

@@ -973,9 +973,11 @@ td.cell_delete_note {
 }
 th.column-actions,
 td.column-actions {
-	width: 50px;
+	text-align: center;
+	width: 100px;
 }
 td.column-actions a.btn {
+	margin: 0 3px;
 	height: 24px;
 	width: 24px;
 	padding: 3px 2px 3px 1px;
@@ -986,6 +988,14 @@ td.column-actions a > span {
 /** END IPS Insights **/
 
 /** TABLES SCANS **/
+@media (max-width: 782px) {
+	table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary~td:not(.check-column) {
+		display: block;
+	}
+}
+table.scan-table.wp-list-table button.toggle-row {
+	display: none;
+}
 .card.card-scan_results {
 	background-color: transparent;
 	border: 0 none;

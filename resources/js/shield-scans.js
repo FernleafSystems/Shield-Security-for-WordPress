@@ -3,6 +3,74 @@
  * @param aOptions
  * @returns {jQuery}
  */
+jQuery.fn.icwpWpsfScanResults = function ( aOptions ) {
+
+	var deleteEntry = function ( evt ) {
+		evt.preventDefault();
+		iCWP_WPSF_BodyOverlay.show();
+		var requestData = aOpts[ 'ajax_item_delete' ];
+		requestData[ 'rid' ] = jQuery( this ).data( 'rid' );
+		sendReq( requestData );
+	};
+
+	var ignoreEntry = function ( evt ) {
+		evt.preventDefault();
+		iCWP_WPSF_BodyOverlay.show();
+		var requestData = aOpts[ 'ajax_item_ignore' ];
+		requestData[ 'rid' ] = jQuery( this ).data( 'rid' );
+		sendReq( requestData );
+	};
+
+	var repairEntry = function ( evt ) {
+		evt.preventDefault();
+		var requestData = aOpts[ 'ajax_item_repair' ];
+		requestData[ 'rid' ] = jQuery( this ).data( 'rid' );
+		sendReq( requestData );
+	};
+
+	var sendReq = function ( requestData ) {
+		iCWP_WPSF_BodyOverlay.show();
+
+		jQuery.post( ajaxurl, jQuery.extend( requestData, aOpts[ 'req_params' ] ),
+			function ( oResponse ) {
+				if ( oResponse.success ) {
+					aOpts[ 'table' ].reloadTable();
+					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+				}
+				else {
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
+					iCWP_WPSF_BodyOverlay.hide();
+				}
+			}
+		).always( function () {
+			}
+		);
+	};
+
+	var initialise = function () {
+		jQuery( document ).ready( function () {
+			aOpts[ 'table' ].on( 'click', 'td.column-actions a.delete', deleteEntry );
+			aOpts[ 'table' ].on( 'click', 'td.column-actions a.ignore', ignoreEntry );
+			aOpts[ 'table' ].on( 'click', 'td.column-actions a.repair', repairEntry );
+		} );
+	};
+
+	var $oThis = this;
+	var aOpts = jQuery.extend( aOptions );
+	initialise();
+
+	return this;
+};
+
+/**
+ * Important Params:
+ * @param aOptions
+ * @returns {jQuery}
+ */
 jQuery.fn.icwpWpsfScans = function ( aOptions ) {
 
 	var startScan = function ( evt ) {
