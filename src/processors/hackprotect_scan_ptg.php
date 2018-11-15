@@ -85,9 +85,13 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Scans\PTGuard\ScannerPlugins|Scans\PTGuard\ScannerThemes|mixed
 	 */
 	protected function getContextScanner( $sContext = self::CONTEXT_PLUGINS ) {
-		return ( $sContext == self::CONTEXT_PLUGINS ) ?
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		$oScanner = ( $sContext == self::CONTEXT_PLUGINS ) ?
 			new Scans\PTGuard\ScannerPlugins()
 			: new Scans\PTGuard\ScannerThemes();
+		return $oScanner->setDepth( $oFO->getPtgDepth() )
+						->setFileExts( $oFO->getPtgFileExtensions() );
 	}
 
 	/**
@@ -151,7 +155,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			$oIt = $oResults->getItemByHash( $oEntry->hash );
 			$aE = $oEntry->getRawData();
 			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ($oIt->is_missing ? 'Missing' : 'Unrecognised');
+			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unrecognised' );
 			$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
@@ -711,9 +715,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Scans\PTGuard\ResultsSet
 	 */
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
 		$aSnaps = array_map(
 			function ( $aSnap ) {
 				return $aSnap[ 'hashes' ];
@@ -721,10 +722,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			$this->loadSnapshotData( $sContext )
 		);
 
-		return $this->getContextScanner( $sContext )
-					->setDepth( $oFO->getPtgDepth() )
-					->setFileExts( $oFO->getPtgFileExtensions() )
-					->run( $aSnaps );
+		return $this->getContextScanner( $sContext )->run( $aSnaps );
 
 		foreach ( $this->loadSnapshotData( $sContext ) as $sBaseName => $aSnap ) {
 			$aItemResults = array();
