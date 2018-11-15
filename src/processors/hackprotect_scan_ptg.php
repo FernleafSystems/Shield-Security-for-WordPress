@@ -6,7 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ptg' ) ) {
 
 require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans,
+	FernleafSystems\Wordpress\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
@@ -205,18 +206,65 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		$sContext = $this->getContextFromSlug( $sItemId );
+		if ( empty( $sContext ) ) {
+			throw new Exception( 'Could not find the item for processing.' );
+		}
+		$oService = $this->getServiceFromContext( $sContext );
+		if ( !$oService->isActive( $sItemId ) ) {
+			throw new Exception( 'Could not find the item for processing.' );
+		}
+		if ( !$this->reinstall( $sItemId, $sContext ) ) {
+			throw new Exception( 'The re-install process has reported as failed.' );
+		}
+		return true;
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deleteItem( $sItemId ) {
+		$sContext = $this->getContextFromSlug( $sItemId );
+		if ( $sContext !== self::CONTEXT_PLUGINS ) {
+			throw new Exception( 'Could not find the item for processing.' );
+		}
+		$oService = $this->getServiceFromContext( $sContext );
+		if ( !$oService->isActive( $sItemId ) ) {
+			throw new Exception( 'Could not find the item for processing.' );
+		}
+
+		$oService->deactivate( $sItemId );
+		return true;
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return null|string
 	 */
 	private function getContextFromSlug( $sSlug ) {
 		$sContext = null;
-		if ( \FernleafSystems\Wordpress\Services\Services::WpPlugins()->isActive( $sSlug ) ) {
+		if ( Services\Services::WpPlugins()->isActive( $sSlug ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
 		}
-		else if ( \FernleafSystems\Wordpress\Services\Services::WpThemes()->isActive( $sSlug ) ) {
+		else if ( Services\Services::WpThemes()->isActive( $sSlug ) ) {
 			$sContext = self::CONTEXT_THEMES;
 		}
 		return $sContext;
+	}
+
+	/**
+	 * @param string $sContext
+	 * @return Services\Core\Plugins|Services\Core\Themes
+	 */
+	private function getServiceFromContext( $sContext ) {
+		return ( $sContext == self::CONTEXT_THEMES ) ? Services\Services::WpThemes() : Services\Services::WpPlugins();
 	}
 
 	public function printPluginReinstallDialogs() {
@@ -265,13 +313,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			$oExecutor = $this->loadWpThemes();
 		}
 
-		$bSuccess = $oExecutor->reinstall( $sBaseName, false );
-
-		if ( $bSuccess ) {
-			$this->updateItemInSnapshot( $sBaseName, $sContext );
-		}
-
-		return $bSuccess;
+		return $oExecutor->reinstall( $sBaseName, false )
+			   && $this->updateItemInSnapshot( $sBaseName, $sContext );
 	}
 
 	/**

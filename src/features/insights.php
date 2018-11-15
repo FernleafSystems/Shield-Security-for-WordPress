@@ -326,21 +326,21 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'wcf' => array(
 						'count'        => $oSelector->countForScan( 'wcf' ),
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan Time: %s' ),
+							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
 						),
 					),
 					'ufc' => array(
 						'count'        => $oSelector->countForScan( 'ufc' ),
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan Time: %s' ),
+							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
 						),
 					),
 					'ptg' => array(
 						'count'        => $oSelector->countForScan( 'ptg' ),
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan Time: %s' ),
+							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 						),
 						'flags'        => array(
