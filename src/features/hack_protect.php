@@ -23,6 +23,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
+				case 'item_delete':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'delete' );
+					break;
+
+				case 'item_ignore':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'ignore' );
+					break;
+
+				case 'item_repair':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'repair' );
+					break;
+
 				case 'plugin_reinstall':
 					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
 					break;
@@ -654,6 +666,60 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return array(
 			'success' => true,
 			'html'    => $oTablePro->buildTableScanResults()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_ScanItemAction( $sAction ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oReq = $this->loadRequest();
+
+		$oScanPro = $oP->getSubProcessorScanner();
+		switch ( $oReq->post( 'fScan' ) ) {
+			case 'ptg':
+				$oTablePro = $oScanPro->getSubProcessorPtg();
+				break;
+
+			case 'ufc':
+				$oTablePro = $oScanPro->getSubProcessorUfc();
+				break;
+
+			case 'wcf':
+				$oTablePro = $oScanPro->getSubProcessorWcf();
+				break;
+
+			default:
+				$oTablePro = null;
+				break;
+		}
+
+		$bSuccess = false;
+		$sItemId = $oReq->post( 'rid' );
+		if ( empty( $oTablePro ) ) {
+			$sMessage = _wpsf__( 'Unsupported action' );
+		}
+		else if ( empty( $sItemId ) ) {
+			$sMessage = _wpsf__( 'Unsupported item selected' );
+		}
+		else {
+			try {
+				$bSuccess = $oTablePro->executeItemAction( $sItemId, $sAction );
+				if ( $bSuccess ) {
+//					$oTablePro->doScan();
+				}
+				$sMessage = 'Success';
+			}
+			catch ( Exception $oE ) {
+				$sMessage = $oE->getMessage();
+			}
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		);
 	}
 

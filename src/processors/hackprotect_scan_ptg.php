@@ -79,6 +79,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Scans\PTGuard\ResultItem
+	 */
+	protected function convertVoToResultItem( $oVo ) {
+		return ( new Scans\PTGuard\ConvertVosToResults() )->convertItem( $oVo );
+	}
+
+	/**
 	 * @return Scans\WpCore\Repair|mixed
 	 */
 	protected function getRepairer() {

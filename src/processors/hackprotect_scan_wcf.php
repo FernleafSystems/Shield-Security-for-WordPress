@@ -55,6 +55,14 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Scans\WpCore\ResultItem
+	 */
+	protected function convertVoToResultItem( $oVo ) {
+		return ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oVo );
+	}
+
+	/**
 	 * @return Scans\WpCore\Repair|mixed
 	 */
 	protected function getRepairer() {
@@ -115,13 +123,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sMd5FilePath
+	 * @param Scans\WpCore\ResultItem $oItem
 	 * @return bool
 	 */
-	protected function repairCoreFile( $sMd5FilePath ) {
+	protected function repairCoreFile( $oItem ) {
 		try {
-			$oItem = new Scans\WpCore\ResultItem();
-			$oItem->path_fragment = $sMd5FilePath;
 			( new Scans\WpCore\Repair() )->repairItem( $oItem );
 			$this->doStatIncrement( 'file.corechecksum.replaced' );
 		}
@@ -165,6 +171,24 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/ScanTableWcf.php' );
 		return new ScanTableWcf();
+	}
+
+	/**
+	 * @param $sItemId - database row ID
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found for repair.' );
+		}
+		$oItem = $this->convertVoToResultItem( $oEntry );
+		return $this->repairCoreFile( $oItem );
 	}
 
 	/**

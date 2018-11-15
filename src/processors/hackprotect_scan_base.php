@@ -144,10 +144,16 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	abstract protected function convertResultsToVos( $oResults );
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO[] $aVos
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Scans\Base\BaseResultsSet
 	 */
 	abstract protected function convertVosToResults( $aVos );
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Scans\Base\BaseResultItem
+	 */
+	abstract protected function convertVoToResultItem( $oVo );
 
 	/**
 	 * @return string
@@ -211,6 +217,61 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 			$sRendered = ob_get_clean();
 		}
 		return $sRendered;
+	}
+
+	/**
+	 * @param int|string $sItemId
+	 * @param string     $sAction
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function executeItemAction( $sItemId, $sAction ) {
+		switch ( $sAction ) {
+			case 'delete':
+				$bSuccess = $this->deleteItem( $sItemId );
+				break;
+
+			case 'ignore':
+				$bSuccess = $this->ignoreItem( $sItemId );
+				break;
+
+			case 'repair':
+				$bSuccess = $this->repairItem( $sItemId );
+				break;
+
+			default:
+				$bSuccess = false;
+				break;
+		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deleteItem( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function ignoreItem( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
 	}
 
 	/**

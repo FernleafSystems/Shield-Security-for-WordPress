@@ -22,6 +22,7 @@ jQuery.fn.icwpWpsfScanResults = function ( aOptions ) {
 	};
 
 	var repairEntry = function ( evt ) {
+		alert( 'here1' );
 		evt.preventDefault();
 		var requestData = aOpts[ 'ajax_item_repair' ];
 		requestData[ 'rid' ] = jQuery( this ).data( 'rid' );
@@ -53,6 +54,7 @@ jQuery.fn.icwpWpsfScanResults = function ( aOptions ) {
 
 	var initialise = function () {
 		jQuery( document ).ready( function () {
+			console.log( aOpts[ 'table' ] );
 			aOpts[ 'table' ].on( 'click', 'td.column-actions a.delete', deleteEntry );
 			aOpts[ 'table' ].on( 'click', 'td.column-actions a.ignore', ignoreEntry );
 			aOpts[ 'table' ].on( 'click', 'td.column-actions a.repair', repairEntry );
