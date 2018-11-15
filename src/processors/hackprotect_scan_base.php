@@ -21,6 +21,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 */
 	public function run() {
 		parent::run();
+
+		if ( isset( $_GET[ 'test' ] ) ) {
+			$this->doScan();
+		}
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$this->loadAutoload();
