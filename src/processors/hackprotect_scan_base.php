@@ -215,7 +215,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 		$aEntries = $this->postSelectEntriesFilter( $oSelector->query(), $aParams );
 
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
-			$sRendered = '<div class="alert alert-success m-0">No items discovered</div>';
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
 		}
 		else {
 			$oTable = $this->getTableRenderer()

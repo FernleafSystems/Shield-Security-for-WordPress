@@ -8,6 +8,11 @@
 				</h6>
 			</div>
 			<div class="card-body">
+
+				{% if not scanvars.flags.has_items %}
+					<div class="alert alert-info m-0">No items discovered</div>
+				{% else %}
+
 				<table class="table table-hover">
 
 				{% for asset_slug,asset_data in scanvars.assets %}
@@ -58,6 +63,8 @@
 				{% endfor %}
 				</table>
 
+				{% endif %}
+
 			</div>
 			<div class="card-footer">
 				{{ scanvars.last_scan_at }}
@@ -86,7 +93,7 @@
 			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
 			'ajax_item_repair':{{ ajax.item_repair|raw }},
 			'req_params': {
-				'fScan': 'ufc'
+				'fScan': 'ptg'
 			}
 		}
 	);

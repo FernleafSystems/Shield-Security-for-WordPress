@@ -189,12 +189,34 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId
-	 * @return bool
+	 * @param $sItemId - plugin/theme slug
+	 * @return true
 	 * @throws Exception
 	 */
 	protected function ignoreItem( $sItemId ) {
-		throw new Exception( 'Unsupported Action' );
+		$sContext = $this->getContextFromSlug( $sItemId );
+		if ( empty( $sContext ) ) {
+			throw new Exception( 'Could not find the item for processing.' );
+		}
+
+		$this->updateItemInSnapshot( $sItemId, $sContext );
+
+		return true;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return null|string
+	 */
+	private function getContextFromSlug( $sSlug ) {
+		$sContext = null;
+		if ( \FernleafSystems\Wordpress\Services\Services::WpPlugins()->isActive( $sSlug ) ) {
+			$sContext = self::CONTEXT_PLUGINS;
+		}
+		else if ( \FernleafSystems\Wordpress\Services\Services::WpThemes()->isActive( $sSlug ) ) {
+			$sContext = self::CONTEXT_THEMES;
+		}
+		return $sContext;
 	}
 
 	public function printPluginReinstallDialogs() {

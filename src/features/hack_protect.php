@@ -676,10 +676,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $this->getProcessor();
 		$oReq = $this->loadRequest();
-
 		$oScanPro = $oP->getSubProcessorScanner();
+
+		$bSuccess = false;
+		$bReloadPage = false;
 		switch ( $oReq->post( 'fScan' ) ) {
 			case 'ptg':
+				$bReloadPage = true;
 				$oTablePro = $oScanPro->getSubProcessorPtg();
 				break;
 
@@ -696,7 +699,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 		}
 
-		$bSuccess = false;
 		$sItemId = $oReq->post( 'rid' );
 		if ( empty( $oTablePro ) ) {
 			$sMessage = _wpsf__( 'Unsupported action' );
@@ -718,8 +720,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return array(
-			'success' => $bSuccess,
-			'message' => $sMessage,
+			'success'     => $bSuccess,
+			'page_reload' => $bReloadPage,
+			'message'     => $sMessage,
 		);
 	}
 

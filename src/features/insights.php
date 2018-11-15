@@ -344,6 +344,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 						),
 						'flags'        => array(
+							'has_items'   => $oFullResults->hasItems(),
 							'has_plugins' => !empty( $aPlugins ),
 							'has_themes'  => !empty( $aThemes ),
 						),

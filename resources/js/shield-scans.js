@@ -93,6 +93,7 @@
 					function ( oResponse ) {
 
 						if ( oResponse.success ) {
+							console.log( oResponse.data );
 							iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
 							if ( oResponse.data.page_reload ) {
 								location.reload( true );
