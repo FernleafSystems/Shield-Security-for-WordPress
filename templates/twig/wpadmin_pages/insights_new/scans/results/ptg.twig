@@ -32,15 +32,15 @@
 										{% endif %}
 									</button>
 
+									<button class="btn btn-sm btn-info"
+									>{{ scanvars.strings.accept }}</button>
+
 									<button class="btn btn-sm btn-warning"
 											{% if asset_data.can_deactivate %}
 											{% else %}
 												disabled="disabled"
 											{% endif %}
 									>{{ scanvars.strings.deactivate }}</button>
-
-									<button class="btn btn-sm btn-danger"
-									>{{ scanvars.strings.ignore }}</button>
 								</div>
 							</div>
 						</div>
@@ -69,8 +69,8 @@
 											{% endif %}
 									>{{ scanvars.strings.reinstall }}</button>
 
-									<button class="btn btn-sm btn-danger"
-									>{{ scanvars.strings.ignore }}</button>
+									<button class="btn btn-sm btn-info"
+									>{{ scanvars.strings.accept }}</button>
 								</div>
 							</div>
 						</div>

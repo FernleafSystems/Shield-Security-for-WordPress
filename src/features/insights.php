@@ -346,8 +346,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							'root_dir'            => _wpsf__( 'Root directory' ),
 							'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
 							'reinstall'           => _wpsf__( 'Re-Install' ),
-							'deactivate'          => __( 'Deactivate' ),
-							'ignore'              => _wpsf__( 'Ignore' ),
+							'deactivate'          => __( 'Deactivate and Ignore' ),
+							'accept'              => _wpsf__( 'Accept' ),
 							'update'              => _wpsf__( 'Upgrade' ),
 						)
 					),
