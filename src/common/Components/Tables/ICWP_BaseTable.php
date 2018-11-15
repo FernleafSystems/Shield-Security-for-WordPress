@@ -142,8 +142,10 @@ class ICWP_BaseTable extends WP_List_Table {
 	 * @return string
 	 */
 	protected function getActionButton_Delete( $nId ) {
-		return sprintf( '<a href="javascript:void(0)" class="btn btn-sm btn-danger delete" title="%s" data-rid="%s">'.
-						'<span class="dashicons dashicons-dismiss"></span></a>', _wpsf__( 'Delete' ), $nId );
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-danger action delete" data-rid="%s">'.
+						'<span class="dashicons dashicons-dismiss"></span></button>',
+			_wpsf__( 'Delete' ), $nId );
 	}
 
 	/**
@@ -151,8 +153,10 @@ class ICWP_BaseTable extends WP_List_Table {
 	 * @return string
 	 */
 	protected function getActionButton_Repair( $nId ) {
-		return sprintf( '<a href="javascript:void(0)" class="btn btn-sm btn-success repair" title="%s" data-rid="%s">'.
-						'<span class="dashicons dashicons-image-rotate"></span></a>', _wpsf__( 'Repair' ), $nId );
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-success action repair" data-rid="%s">'.
+						'<span class="dashicons dashicons-image-rotate"></span></button>',
+			_wpsf__( 'Repair' ), $nId );
 	}
 
 	/**
@@ -160,7 +164,9 @@ class ICWP_BaseTable extends WP_List_Table {
 	 * @return string
 	 */
 	protected function getActionButton_Ignore( $nId ) {
-		return sprintf( '<a href="javascript:void(0)" class="btn btn-sm btn-info ignore" title="%s" data-rid="%s">'.
-						'<span class="dashicons dashicons-hidden"></span></a>', _wpsf__( 'Ignore' ), $nId );
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-info action ignore" data-rid="%s">'.
+						'<span class="dashicons dashicons-hidden"></span></button>',
+			_wpsf__( 'Ignore' ), $nId );
 	}
 }

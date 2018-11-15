@@ -976,14 +976,14 @@ td.column-actions {
 	text-align: center;
 	width: 100px;
 }
-td.column-actions a.btn {
+td.column-actions button.btn {
 	margin: 0 3px;
-	height: 24px;
-	width: 24px;
+	height: 32px;
+	width: 32px;
 	padding: 3px 2px 3px 1px;
 }
-td.column-actions a > span {
-	font-size: 16px;
+td.column-actions button > span {
+	font-size: 20px;
 }
 /** END IPS Insights **/
 

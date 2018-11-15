@@ -60,7 +60,7 @@ jQuery.fn.icwpWpsfTableIps = function ( aOptions ) {
 	var initialise = function () {
 		jQuery( document ).ready( function () {
 			$oThis.on( 'submit', 'form', addIpFromFormSubmit );
-			aOpts[ 'table' ].on( 'click', 'td.column-actions a.delete', deleteEntry );
+			aOpts[ 'table' ].on( 'click', 'td.column-actions button.action.delete', deleteEntry );
 		} );
 	};
 

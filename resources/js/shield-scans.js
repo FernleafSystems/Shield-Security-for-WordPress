@@ -1,4 +1,5 @@
 /**
+ * Add ajax actions to table buttons, and automatically refreshes the table.
  */
 ;(function ( $, window, document, undefined ) {
 
@@ -8,7 +9,6 @@
 		this.element = element;
 		this._name = pluginName;
 		this._defaults = $.fn.icwpWpsfScanResults.defaults;
-
 		this.options = $.extend( {}, this._defaults, options );
 		this.init();
 	}
@@ -32,7 +32,7 @@
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
-					'td.column-actions a.delete',
+					'button.action.delete',
 					function ( evt ) {
 						evt.preventDefault();
 						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
@@ -42,7 +42,7 @@
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
-					'td.column-actions a.ignore',
+					'button.action.ignore',
 					function ( evt ) {
 						evt.preventDefault();
 						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
@@ -52,7 +52,7 @@
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
-					'td.column-actions a.repair',
+					'button.action.repair',
 					function ( evt ) {
 						evt.preventDefault();
 						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
@@ -91,9 +91,16 @@
 
 				$.post( ajaxurl, $.extend( aRequestData, plugin.options[ 'req_params' ] ),
 					function ( oResponse ) {
+
 						if ( oResponse.success ) {
-							plugin.options[ 'table' ].reloadTable();
 							iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+							if ( oResponse.data.page_reload ) {
+								location.reload( true );
+							}
+							else {
+								plugin.options[ 'table' ].reloadTable();
+								iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+							}
 						}
 						else {
 							var sMessage = 'Communications error with site.';
@@ -109,18 +116,6 @@
 				);
 			},
 			callback: function () {
-				// // Cache onComplete option
-				// var onComplete = this.options.onComplete;
-				//
-				// if ( typeof onComplete === 'function' ) {
-				// 	/*
-				// 		Use the "call" method so that inside of the onComplete
-				// 		callback function the "this" keyword refers to the
-				// 		specific DOM node that called the plugin.
-				//
-				// 		More:
-				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call */
-				// onComplete.call( this.element ); }
 			}
 		}
 	);

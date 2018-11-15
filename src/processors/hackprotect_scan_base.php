@@ -277,7 +277,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 					   ->getQuerySelector()
 					   ->byId( $sItemId );
 		if ( empty( $oEntry ) ) {
-			throw new Exception( 'Item could not be found to configure ignore.' );
+			throw new Exception( 'Item could not be found to ignore.' );
 		}
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */

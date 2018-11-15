@@ -21,9 +21,10 @@
 									<li>{{ scanvars.strings.root_dir }}: <code>{{ asset_data.root_dir }}</code></li>
 									<li>{{ scanvars.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
 								</ul>
-								<div>
-									<button class="btn btn-sm btn-primary"
+								<div class="actions-group">
+									<button class="btn btn-sm btn-primary action repair"
 											{% if asset_data.can_reinstall %}
+												data-rid="{{ asset_data.slug }}"
 											{% else %}
 												disabled="disabled"
 											{% endif %}
@@ -35,11 +36,13 @@
 										{% endif %}
 									</button>
 
-									<button class="btn btn-sm btn-info"
+									<button class="btn btn-sm btn-info action ignore"
+											data-rid="{{ asset_data.slug }}"
 									>{{ scanvars.strings.accept }}</button>
 
-									<button class="btn btn-sm btn-warning"
+									<button class="btn btn-sm btn-warning action delete"
 											{% if asset_data.can_deactivate %}
+												data-rid="{{ asset_data.slug }}"
 											{% else %}
 												disabled="disabled"
 											{% endif %}
@@ -75,4 +78,16 @@
 			}
 		);
 	} );
+
+	jQuery( '#SectionScanResultsPtg' ).icwpWpsfScanResults(
+		{
+			'table': '',
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'ajax_item_repair':{{ ajax.item_repair|raw }},
+			'req_params': {
+				'fScan': 'ufc'
+			}
+		}
+	);
 </script>
