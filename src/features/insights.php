@@ -274,6 +274,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aProfile[ 'version' ] = $oP->Version;
 				$aProfile[ 'root_dir' ] = $oWpPlugins->getInstallationDir( $oIT->slug );
 			}
+			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Plugin' ), $aProfile[ 'name' ] );
+
 			$aPlugins[ $sSlug ] = $aProfile;
 		}
 
@@ -305,6 +307,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aProfile[ 'version' ] = $oT->get( 'Version' );
 				$aProfile[ 'root_dir' ] = $oWpThemes->getInstallationDir( $oIT->slug );
 			}
+			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Theme' ), $aProfile[ 'name' ] );
 
 			$aThemes[ $sSlug ] = $aProfile;
 		}
@@ -333,18 +336,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						),
 					),
 					'ptg' => array(
-						'count'          => $oSelector->countForScan( 'ptg' ),
-						'last_scan_at'   => sprintf(
+						'count'        => $oSelector->countForScan( 'ptg' ),
+						'last_scan_at' => sprintf(
 							_wpsf__( 'Last Scan Time: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 						),
-						'flags'          => array(
+						'flags'        => array(
 							'has_plugins' => !empty( $aPlugins ),
 							'has_themes'  => !empty( $aThemes ),
 						),
-						'assets_plugins' => $aPlugins,
-						'assets_themes'  => $aThemes,
-						'strings'        => array(
+						'assets'       => array_merge( $aPlugins, $aThemes ),
+						'strings'      => array(
 							'files_with_problems' => _wpsf__( 'Files with problems' ),
 							'root_dir'            => _wpsf__( 'Root directory' ),
 							'date_snapshot'       => _wpsf__( 'Snapshot taken' ),

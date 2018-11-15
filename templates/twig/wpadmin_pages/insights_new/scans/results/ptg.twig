@@ -8,7 +8,10 @@
 				</h6>
 			</div>
 			<div class="card-body">
-				{% for asset_slug,asset_data in scanvars.assets_plugins %}
+				<table class="table table-hover">
+
+				{% for asset_slug,asset_data in scanvars.assets %}
+					<tr><td>
 					<div class="row">
 						<div class="col-md-4">
 							<div class="ptg-asset-summary">
@@ -48,37 +51,9 @@
 							<div class="scan-table-for-slug" data-slug="{{ asset_slug }}"></div>
 						</div>
 					</div>
+							</td></tr>
 				{% endfor %}
-
-
-				{% for asset_slug,asset_data in scanvars.assets_themes %}
-					<div class="row">
-						<div class="col-md-4">
-							<div class="ptg-asset-summary">
-								<p><strong>{{ asset_data.name }}</strong> <small>(v{{ asset_data.version }})</small></p>
-								<ul>
-									<li>{{ scanvars.strings.files_with_problems }}: {{ asset_data.count_files }}</li>
-									<li>{{ scanvars.strings.root_dir }}: <code>{{ asset_data.root_dir }}</code></li>
-									<li>{{ scanvars.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
-								</ul>
-								<div>
-									<button class="btn btn-sm btn-primary"
-											{% if asset_data.can_reinstall %}
-											{% else %}
-												disabled="disabled"
-											{% endif %}
-									>{{ scanvars.strings.reinstall }}</button>
-
-									<button class="btn btn-sm btn-info"
-									>{{ scanvars.strings.accept }}</button>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-8">
-							<div class="scan-table-for-slug" data-slug="{{ asset_slug }}"></div>
-						</div>
-					</div>
-				{% endfor %}
+				</table>
 
 			</div>
 			<div class="card-footer">

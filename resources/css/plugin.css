@@ -997,8 +997,8 @@ table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
 .card.card-scan_results {
-	background-color: transparent;
-	border: 0 none;
+	/*background-color: transparent;*/
+	/*border: 0 none;*/
 }
 .card.card-scan_results .card-header {
 	background-color: transparent;
