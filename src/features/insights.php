@@ -289,14 +289,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
 			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
 			$aProfile = array(
-				'name'          => _wpsf__( 'unknown' ),
-				'version'       => _wpsf__( 'unknown' ),
-				'root_dir'      => _wpsf__( 'unknown' ),
-				'is_wporg'      => $bIsWpOrg,
-				'can_reinstall' => $bIsWpOrg,
-				'has_update'    => $bHasUpdate,
-				'count_files'   => $oItemRS->countItems(),
-				'date_snapshot' => 'TODODODO',
+				'name'           => _wpsf__( 'unknown' ),
+				'version'        => _wpsf__( 'unknown' ),
+				'root_dir'       => _wpsf__( 'unknown' ),
+				'is_wporg'       => $bIsWpOrg,
+				'can_reinstall'  => $bIsWpOrg,
+				'can_deactivate' => false,
+				'has_update'     => $bHasUpdate,
+				'count_files'    => $oItemRS->countItems(),
+				'date_snapshot'  => 'TODODODO',
 			);
 			if ( $bInstalled ) {
 				$oT = $oWpThemes->getTheme( $oIT->slug );
@@ -304,7 +305,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aProfile[ 'version' ] = $oT->get( 'Version' );
 				$aProfile[ 'root_dir' ] = $oWpThemes->getInstallationDir( $oIT->slug );
 			}
-			$aPlugins[ $sSlug ] = $aProfile;
+
+			$aThemes[ $sSlug ] = $aProfile;
 		}
 
 		$aData = array(

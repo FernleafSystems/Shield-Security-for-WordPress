@@ -11,12 +11,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 class CopyResultsSets {
 
 	/**
-	 * @param BaseResultsSet $oRS1
-	 * @param BaseResultsSet $oRS2
+	 * @param BaseResultsSet $oFromRS1
+	 * @param BaseResultsSet $oToRS2
 	 */
-	public function copyTo( $oRS1, $oRS2 ) {
-		foreach ( $oRS1->getAllItems() as $oIt ) {
-			$oRS2->addItem( $oIt );
+	public function copyTo( $oFromRS1, $oToRS2 ) {
+		foreach ( $oFromRS1->getAllItems() as $oIt ) {
+			$oToRS2->addItem( $oIt );
 		}
 	}
 }

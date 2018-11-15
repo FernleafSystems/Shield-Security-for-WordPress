@@ -22,6 +22,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPtgReadyToScan() ) {
+
+			if ( !$this->storeExists( self::CONTEXT_PLUGINS ) ) {
+				$this->snapshotPlugins();
+			}
+			if ( !$this->storeExists( self::CONTEXT_THEMES ) ) {
+				$this->snapshotThemes();
+			}
+
 			add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
 			add_action( 'activated_plugin', array( $this, 'onActivatePlugin' ), 10 );
 			add_action( 'deactivated_plugin', array( $this, 'onDeactivatePlugin' ), 10 );
@@ -45,7 +53,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getScannerResults() {
 		$oResults = $this->scanPlugins();
-		( new Scans\Helpers\CopyResultsSets() )->copyTo( $oResults, $this->scanThemes() );
+		( new Scans\Helpers\CopyResultsSets() )->copyTo( $this->scanThemes(), $oResults );
 		return $oResults;
 	}
 
