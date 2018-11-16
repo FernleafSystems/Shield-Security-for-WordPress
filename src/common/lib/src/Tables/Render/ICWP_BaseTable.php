@@ -1,10 +1,12 @@
 <?php
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
+
 if ( !class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php' );
 }
 
-class ICWP_BaseTable extends WP_List_Table {
+class ICWP_BaseTable extends \WP_List_Table {
 
 	const DEFAULT_PER_PAGE = 25;
 

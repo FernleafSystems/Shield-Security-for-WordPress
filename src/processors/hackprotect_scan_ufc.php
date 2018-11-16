@@ -6,7 +6,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ufc', false ) ) {
 
 require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
-use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use \FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
@@ -29,44 +29,44 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\UnrecognisedCore\ResultsSet $oResults
+	 * @param Shield\Scans\UnrecognisedCore\ResultsSet $oResults
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
-		return ( new Scans\UnrecognisedCore\ConvertResultsToVos() )->convert( $oResults );
+		return ( new Shield\Scans\UnrecognisedCore\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Scans\UnrecognisedCore\ResultsSet
+	 * @return Shield\Scans\UnrecognisedCore\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
-		return ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convert( $aVos );
+		return ( new Shield\Scans\UnrecognisedCore\ConvertVosToResults() )->convert( $aVos );
 	}
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Scans\UnrecognisedCore\ResultItem
+	 * @return Shield\Scans\UnrecognisedCore\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
-		return ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oVo );
+		return ( new Shield\Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oVo );
 	}
 
 	/**
-	 * @return Scans\UnrecognisedCore\Repair
+	 * @return Shield\Scans\UnrecognisedCore\Repair
 	 */
 	protected function getRepairer() {
-		return new Scans\UnrecognisedCore\Repair();
+		return new Shield\Scans\UnrecognisedCore\Repair();
 	}
 
 	/**
-	 * @return Scans\UnrecognisedCore\Scanner
+	 * @return Shield\Scans\UnrecognisedCore\Scanner
 	 */
 	protected function getScanner() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		$oScanner = ( new Scans\UnrecognisedCore\Scanner() )
+		$oScanner = ( new Shield\Scans\UnrecognisedCore\Scanner() )
 			->setExclusions( $oFO->getUfcFileExclusions() );
 
 		if ( $oFO->isUfsScanUploads() ) {
@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isUfcEnabled() ) {
-			/** @var Scans\UnrecognisedCore\ResultsSet $oRes */
+			/** @var Shield\Scans\UnrecognisedCore\ResultsSet $oRes */
 			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
 			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
 				$this->emailResults( $oRes->getItemsPathsFull() );
@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
 			$nTs = $this->loadRequest()->ts();
 			foreach ( $aEntries as $nKey => $oEntry ) {
-				$oIt = ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$oIt = ( new Shield\Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oEntry );
 				$aE = $oEntry->getRawData();
 				$aE[ 'path' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = 'Unrecognised File';
@@ -127,11 +127,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return ScanTableUfc
+	 * @return Shield\Tables\Render\ScanTableUfc
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/ScanTableUfc.php' );
-		return new ScanTableUfc();
+		return new Shield\Tables\Render\ScanTableUfc();
 	}
 
 	/**
@@ -158,7 +157,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		}
 		$oItem = $this->convertVoToResultItem( $oEntry );
 
-		( new Scans\UnrecognisedCore\Repair() )->repairItem( $oItem );
+		( new Shield\Scans\UnrecognisedCore\Repair() )->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' );
 
 		return true;

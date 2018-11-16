@@ -1,8 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_BaseTable' ) ) {
-	require_once( __DIR__.'/ScanTableBase.php' );
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 

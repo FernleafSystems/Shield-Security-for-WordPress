@@ -6,7 +6,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wcf', false ) ) {
 
 require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
-use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use \FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 
@@ -39,34 +39,34 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oResults
+	 * @param Shield\Scans\WpCore\ResultsSet $oResults
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
-		return ( new Scans\WpCore\ConvertResultsToVos() )->convert( $oResults );
+		return ( new Shield\Scans\WpCore\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Scans\WpCore\ResultsSet
+	 * @return Shield\Scans\WpCore\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
-		return ( new Scans\WpCore\ConvertVosToResults() )->convert( $aVos );
+		return ( new Shield\Scans\WpCore\ConvertVosToResults() )->convert( $aVos );
 	}
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Scans\WpCore\ResultItem
+	 * @return Shield\Scans\WpCore\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
-		return ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oVo );
+		return ( new Shield\Scans\WpCore\ConvertVosToResults() )->convertItem( $oVo );
 	}
 
 	/**
-	 * @return Scans\WpCore\Repair|mixed
+	 * @return Shield\Scans\WpCore\Repair|mixed
 	 */
 	protected function getRepairer() {
-		return new Scans\WpCore\Repair();
+		return new Shield\Scans\WpCore\Repair();
 	}
 
 	/**
@@ -77,10 +77,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 
 	/**
-	 * @return Scans\WpCore\Scanner
+	 * @return Shield\Scans\WpCore\Scanner
 	 */
 	protected function getScanner() {
-		return ( new Scans\WpCore\Scanner() )
+		return ( new Shield\Scans\WpCore\Scanner() )
 			->setExclusions( $this->getFullExclusions() )
 			->setMissingExclusions( $this->getMissingOnlyExclusions() );
 	}
@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 
 			$nTs = $this->loadRequest()->ts();
 			foreach ( $aEntries as $nKey => $oEntry ) {
-				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$oIt = ( new Shield\Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
 				$aE = $oEntry->getRawData();
 				$aE[ 'path' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unknown' );
@@ -148,11 +148,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return ScanTableWcf
+	 * @return Shield\Tables\Render\ScanTableWcf
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/ScanTableWcf.php' );
-		return new ScanTableWcf();
+		return new Shield\Tables\Render\ScanTableWcf();
 	}
 
 	/**
@@ -170,14 +169,14 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		}
 		$oItem = $this->convertVoToResultItem( $oEntry );
 
-		( new Scans\WpCore\Repair() )->repairItem( $oItem );
+		( new Shield\Scans\WpCore\Repair() )->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' );
 
 		return true;
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oResults
+	 * @param Shield\Scans\WpCore\ResultsSet $oResults
 	 */
 	protected function emailResults( $oResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -197,7 +196,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oResults
+	 * @param Shield\Scans\WpCore\ResultsSet $oResults
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
@@ -246,7 +245,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Scans\WpCore\ResultsSet $oResult
+	 * @param Shield\Scans\WpCore\ResultsSet $oResult
 	 * @return array
 	 */
 	private function buildListOfFilesForEmail( $oResult ) {

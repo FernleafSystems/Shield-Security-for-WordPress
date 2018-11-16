@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_UserManagement', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -171,16 +173,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return SessionsTable
+	 * @return Shield\Tables\Render\SessionsTable
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/SessionsTable.php' );
-		/** @var ICWP_WPSF_Processor_UserManagement $oProc */
-		$oProc = $this->loadProcessor();
-//		$nCount = $oProc->countAuditEntriesForContext( $sContext );
-
-		$oTable = new SessionsTable();
-		return $oTable->setTotalRecords( 25 );
+		return new Shield\Tables\Render\SessionsTable();
 	}
 
 	/**

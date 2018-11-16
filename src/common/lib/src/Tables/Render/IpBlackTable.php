@@ -1,8 +1,6 @@
 <?php
 
-if ( !class_exists( 'BaseIpTable' ) ) {
-	require_once( dirname( __FILE__ ).'/IpBaseTable.php' );
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 class IpBlackTable extends IpBaseTable {
 

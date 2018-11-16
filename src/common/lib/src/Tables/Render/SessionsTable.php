@@ -1,8 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_BaseTable' ) ) {
-	require_once( dirname( __FILE__ ).'/ICWP_BaseTable.php' );
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 class SessionsTable extends ICWP_BaseTable {
 

@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Traffic', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
@@ -398,16 +400,15 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return LiveTrafficTable
+	 * @return Shield\Tables\Render\LiveTrafficTable
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/LiveTrafficTable.php' );
 		/** @var ICWP_WPSF_Processor_Traffic $oPro */
 		$oPro = $this->loadProcessor();
 		$nCount = $oPro->getProcessorLogger()
 					   ->getQuerySelector()
 					   ->count();
-		return ( new LiveTrafficTable() )->setTotalRecords( $nCount );
+		return ( new Shield\Tables\Render\LiveTrafficTable() )->setTotalRecords( $nCount );
 	}
 
 	/**

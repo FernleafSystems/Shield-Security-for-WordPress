@@ -5,6 +5,8 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -125,16 +127,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return AuditTrailTable
+	 * @return Shield\Tables\Render\AuditTrailTable
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
-		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
-		$oPro = $this->loadProcessor();
-		$nCount = $oPro->countAuditEntriesForContext();
-
-		$oTable = new AuditTrailTable();
-		return $oTable->setTotalRecords( $nCount );
+		return new Shield\Tables\Render\AuditTrailTable();
 	}
 
 	/**

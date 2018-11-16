@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Plugin', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
@@ -401,11 +403,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return AdminNotesTable
+	 * @return Shield\Tables\Render\AdminNotesTable
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/AdminNotesTable.php' );
-		return new AdminNotesTable();
+		return new Shield\Tables\Render\AdminNotesTable();
 	}
 
 	/**

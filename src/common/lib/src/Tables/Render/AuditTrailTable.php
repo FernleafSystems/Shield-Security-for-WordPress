@@ -1,8 +1,6 @@
 <?php
 
-if ( !class_exists( 'ICWP_BaseTable.php' ) ) {
-	require_once( dirname( __FILE__ ).'/ICWP_BaseTable.php' );
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 class AuditTrailTable extends ICWP_BaseTable {
 

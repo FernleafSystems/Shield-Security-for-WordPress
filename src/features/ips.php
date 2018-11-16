@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Ips', false ) ) {
 
 require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	const LIST_MANUAL_WHITE = 'MW';
@@ -239,16 +241,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @param string $sList
-	 * @return IpWhiteTable
+	 * @return Shield\Tables\Render\IpWhiteTable
 	 */
 	protected function getTableRenderer( $sList = self::LIST_MANUAL_WHITE ) {
 		if ( empty( $sList ) || $sList == self::LIST_MANUAL_WHITE ) {
-			$this->requireCommonLib( 'Components/Tables/IpWhiteTable.php' );
-			$sTable = new IpWhiteTable();
+			$sTable = new Shield\Tables\Render\IpWhiteTable();
 		}
 		else {
-			$this->requireCommonLib( 'Components/Tables/IpBlackTable.php' );
-			$sTable = new IpBlackTable();
+			$sTable = new Shield\Tables\Render\IpBlackTable();
 		}
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->loadProcessor();

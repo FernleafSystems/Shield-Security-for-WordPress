@@ -6,7 +6,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ptg' ) ) {
 
 require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans,
+use FernleafSystems\Wordpress\Plugin\Shield,
 	FernleafSystems\Wordpress\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
@@ -50,40 +50,40 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet|Scans\PTGuard\ResultsSet
+	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
 	protected function getScannerResults() {
 		$oResults = $this->scanPlugins();
-		( new Scans\Helpers\CopyResultsSets() )->copyTo( $this->scanThemes(), $oResults );
+		( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $this->scanThemes(), $oResults );
 		return $oResults;
 	}
 
 	/**
-	 * @param Scans\PTGuard\ResultsSet $oResults
+	 * @param Shield\Scans\PTGuard\ResultsSet $oResults
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
-		return ( new Scans\PTGuard\ConvertResultsToVos() )->convert( $oResults );
+		return ( new Shield\Scans\PTGuard\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Scans\PTGuard\ResultsSet
+	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
-		return ( new Scans\PTGuard\ConvertVosToResults() )->convert( $aVos );
+		return ( new Shield\Scans\PTGuard\ConvertVosToResults() )->convert( $aVos );
 	}
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Scans\PTGuard\ResultItem
+	 * @return Shield\Scans\PTGuard\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
-		return ( new Scans\PTGuard\ConvertVosToResults() )->convertItem( $oVo );
+		return ( new Shield\Scans\PTGuard\ConvertVosToResults() )->convertItem( $oVo );
 	}
 
 	/**
-	 * @return Scans\WpCore\Repair|mixed
+	 * @return Shield\Scans\WpCore\Repair|mixed
 	 */
 	protected function getRepairer() {
 //		return new Scans\WpCore\Repair();
@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * Shouldn't really be used in this case as it'll only scan the plugins
-	 * @return Scans\PTGuard\ScannerPlugins
+	 * @return Shield\Scans\PTGuard\ScannerPlugins
 	 */
 	protected function getScanner() {
 		return $this->getContextScanner();
@@ -99,14 +99,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param string $sContext
-	 * @return Scans\PTGuard\ScannerPlugins|Scans\PTGuard\ScannerThemes|mixed
+	 * @return Shield\Scans\PTGuard\ScannerPlugins|Shield\Scans\PTGuard\ScannerThemes
 	 */
 	protected function getContextScanner( $sContext = self::CONTEXT_PLUGINS ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$oScanner = ( $sContext == self::CONTEXT_PLUGINS ) ?
-			new Scans\PTGuard\ScannerPlugins()
-			: new Scans\PTGuard\ScannerThemes();
+			new Shield\Scans\PTGuard\ScannerPlugins()
+			: new Shield\Scans\PTGuard\ScannerThemes();
 		return $oScanner->setDepth( $oFO->getPtgDepth() )
 						->setFileExts( $oFO->getPtgFileExtensions() );
 	}
@@ -139,9 +139,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function postSelectEntriesFilter( $aEntries, $aParams ) {
 		if ( !empty( $aParams[ 'fSlug' ] ) ) {
-			$oSlugResults = ( new Scans\PTGuard\ConvertVosToResults() )
-				->convert( $aEntries )
-				->getResultsSetForSlug( $aParams[ 'fSlug' ] );
+			$oSlugResults = $this->convertVosToResults( $aEntries )->getResultsSetForSlug( $aParams[ 'fSlug' ] );
 			foreach ( $oSlugResults->getAllItems() as $oItem ) {
 				foreach ( $aEntries as $key => $oEntry ) {
 					if ( $oItem->hash !== $oEntry->hash ) {
@@ -162,10 +160,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		$oWp = $this->loadWp();
 		$oCarbon = new \Carbon\Carbon();
 
-		$oResults = ( new Scans\PTGuard\ConvertVosToResults() )->convert( $aEntries );
+		$oResults = $this->convertVosToResults( $aEntries );
 		$nTs = $this->loadRequest()->ts();
 		foreach ( $aEntries as $nKey => $oEntry ) {
-			/** @var Scans\PTGuard\ResultItem $oIt */
+			/** @var Shield\Scans\PTGuard\ResultItem $oIt */
 			$oIt = $oResults->getItemByHash( $oEntry->hash );
 			$aE = $oEntry->getRawData();
 			$aE[ 'path' ] = $oIt->path_fragment;
@@ -179,11 +177,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return ScanTablePtg
+	 * @return Shield\Tables\Render\ScanTablePtg
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/ScanTablePtg.php' );
-		return new ScanTablePtg();
+		return new Shield\Tables\Render\ScanTablePtg();
 	}
 
 	/**
@@ -742,21 +739,21 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Scans\PTGuard\ResultsSet
+	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
 	public function scanPlugins() {
 		return $this->runSnapshotScan( self::CONTEXT_PLUGINS );
 	}
 
 	/**
-	 * @return Scans\PTGuard\ResultsSet
+	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
 	public function scanThemes() {
 		return $this->runSnapshotScan( self::CONTEXT_THEMES );
 	}
 
 	/**
-	 * @param Scans\PTGuard\ResultsSet $oResults
+	 * @param Shield\Scans\PTGuard\ResultsSet $oResults
 	 * @return array[]
 	 */
 	protected function organiseScanDataForDisplay( $oResults ) {
@@ -799,7 +796,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param string $sContext
-	 * @return Scans\PTGuard\ResultsSet
+	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
 	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 		$aSnaps = array_map(
