@@ -147,12 +147,12 @@
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/FernleafSystems/wordpress-services.git",
-                "reference": "e07167a158d0016b6c6fdb6da3dfe8905c325630"
+                "reference": "85221d4db1171249e141890dcf4a2030422885ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/e07167a158d0016b6c6fdb6da3dfe8905c325630.zip",
-                "reference": "e07167a158d0016b6c6fdb6da3dfe8905c325630",
+                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/85221d4db1171249e141890dcf4a2030422885ce.zip",
+                "reference": "85221d4db1171249e141890dcf4a2030422885ce",
                 "shasum": ""
             },
             "require": {
@@ -178,7 +178,7 @@
                 }
             ],
             "homepage": "https://bitbucket.org/FernleafSystems/wordpress-services",
-            "time": "2018-11-12T09:56:01+00:00"
+            "time": "2018-11-14T17:54:06+00:00"
         },
         {
             "name": "geoip2/geoip2",
@@ -381,16 +381,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.34.1",
+            "version": "1.35.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "19201b87f7dba2a7cbf1cccdf0e1da13c04ee9c9"
+                "reference": "5c05a2be472b22f63291d192410df9f0e0de3b19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/19201b87f7dba2a7cbf1cccdf0e1da13c04ee9c9",
-                "reference": "19201b87f7dba2a7cbf1cccdf0e1da13c04ee9c9",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/5c05a2be472b22f63291d192410df9f0e0de3b19",
+                "reference": "5c05a2be472b22f63291d192410df9f0e0de3b19",
                 "shasum": ""
             },
             "require": {
@@ -398,8 +398,11 @@
                 "symfony/translation": "~2.6 || ~3.0 || ~4.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "~2",
                 "phpunit/phpunit": "^4.8.35 || ^5.7"
+            },
+            "suggest": {
+                "friendsofphp/php-cs-fixer": "Needed for the `composer phpcs` command. Allow to automatically fix code style.",
+                "phpstan/phpstan": "Needed for the `composer phpstan` command. Allow to detect potential errors."
             },
             "type": "library",
             "extra": {
@@ -432,7 +435,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-11-08T13:33:47+00:00"
+            "time": "2018-11-14T21:55:58+00:00"
         },
         {
             "name": "pimple/pimple",

@@ -55,6 +55,14 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Scans\WpCore\ResultItem
+	 */
+	protected function convertVoToResultItem( $oVo ) {
+		return ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oVo );
+	}
+
+	/**
 	 * @return Scans\WpCore\Repair|mixed
 	 */
 	protected function getRepairer() {
@@ -115,19 +123,59 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sMd5FilePath
-	 * @return bool
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
 	 */
-	protected function repairCoreFile( $sMd5FilePath ) {
-		try {
-			$oItem = new Scans\WpCore\ResultItem();
-			$oItem->path_fragment = $sMd5FilePath;
-			( new Scans\WpCore\Repair() )->repairItem( $oItem );
-			$this->doStatIncrement( 'file.corechecksum.replaced' );
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$oCarbon = new \Carbon\Carbon();
+
+			$nTs = $this->loadRequest()->ts();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$aE = $oEntry->getRawData();
+				$aE[ 'path' ] = $oIt->path_fragment;
+				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unknown' );
+				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+				$aEntries[ $nKey ] = $aE;
+			}
 		}
-		catch ( Exception $oE ) {
-			return false;
+		return $aEntries;
+	}
+
+	/**
+	 * @return ScanTableWcf
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanTableWcf.php' );
+		return new ScanTableWcf();
+	}
+
+	/**
+	 * @param $sItemId - database row ID
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found for repair.' );
 		}
+		$oItem = $this->convertVoToResultItem( $oEntry );
+
+		( new Scans\WpCore\Repair() )->repairItem( $oItem );
+		$this->doStatIncrement( 'file.corechecksum.replaced' );
+
 		return true;
 	}
 

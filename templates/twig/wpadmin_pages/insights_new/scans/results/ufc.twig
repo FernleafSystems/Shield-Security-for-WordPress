@@ -1,15 +1,18 @@
 <div class="row insights_widget" id="SectionScanResultsUfc">
 	<div class="col-12">
-		<div class="card mt-4">
+		<div class="card card-scan_results mt-4">
 			<div class="card-header">
-				<h5 class="card-title">Unrecognised Core Files</h5>
-				<h6 class="card-subtitle mb-2 text-muted">
-					Files listed below have been found in the WordPress core files directories
-					but are not part of the officially distributed files from WordPress.org
+				<h5 class="card-title">Unrecognised Core Files [ {{ scanvars.count }} ]</h5>
+				<h6 class="card-subtitle text-muted">
+					Files found in the WordPress core files directories
+					but are not part of the official distribution from WordPress.org
 				</h6>
 			</div>
-			<div class="card-body pb-2">
+			<div class="card-body">
 				<div id="TableScanUfc"></div>
+			</div>
+			<div class="card-footer">
+				{{ scanvars.last_scan_at }}
 			</div>
 		</div>
 	</div>
@@ -18,6 +21,17 @@
 	var $oTableScanUfc = jQuery( '#TableScanUfc' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'ufc'
+			}
+		}
+	);
+	jQuery( '#SectionScanResultsUfc' ).icwpWpsfScanResults(
+		{
+			'table': $oTableScanUfc,
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'ajax_item_repair':{{ ajax.item_repair|raw }},
 			'req_params': {
 				'fScan': 'ufc'
 			}

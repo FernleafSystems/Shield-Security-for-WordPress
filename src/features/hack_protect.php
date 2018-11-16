@@ -23,6 +23,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
+				case 'item_delete':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'delete' );
+					break;
+
+				case 'item_ignore':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'ignore' );
+					break;
+
+				case 'item_repair':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'repair' );
+					break;
+
 				case 'plugin_reinstall':
 					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
 					break;
@@ -633,20 +645,84 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableScan() {
-		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-				'fScan',
-			) )
-		);
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->loadProcessor();
+		$oScanPro = $oPro->getSubProcessorScanner();
+		switch ( $this->loadRequest()->post( 'fScan' ) ) {
+			case 'ptg':
+				$oTablePro = $oScanPro->getSubProcessorPtg();
+				break;
+
+			case 'ufc':
+				$oTablePro = $oScanPro->getSubProcessorUfc();
+				break;
+
+			case 'wcf':
+			default:
+				$oTablePro = $oScanPro->getSubProcessorWcf();
+				break;
+		}
 
 		return array(
 			'success' => true,
-			'html'    => $this->renderTable( $aParams )
+			'html'    => $oTablePro->buildTableScanResults()
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_ScanItemAction( $sAction ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oReq = $this->loadRequest();
+		$oScanPro = $oP->getSubProcessorScanner();
+
+		$bSuccess = false;
+		$bReloadPage = false;
+		switch ( $oReq->post( 'fScan' ) ) {
+			case 'ptg':
+				$bReloadPage = true;
+				$oTablePro = $oScanPro->getSubProcessorPtg();
+				break;
+
+			case 'ufc':
+				$oTablePro = $oScanPro->getSubProcessorUfc();
+				break;
+
+			case 'wcf':
+				$oTablePro = $oScanPro->getSubProcessorWcf();
+				break;
+
+			default:
+				$oTablePro = null;
+				break;
+		}
+
+		$sItemId = $oReq->post( 'rid' );
+		if ( empty( $oTablePro ) ) {
+			$sMessage = _wpsf__( 'Unsupported action' );
+		}
+		else if ( empty( $sItemId ) ) {
+			$sMessage = _wpsf__( 'Unsupported item selected' );
+		}
+		else {
+			try {
+				$bSuccess = $oTablePro->executeItemAction( $sItemId, $sAction );
+				if ( $bSuccess ) {
+					$oTablePro->doScan();
+				}
+				$sMessage = 'Success';
+			}
+			catch ( Exception $oE ) {
+				$sMessage = $oE->getMessage();
+			}
+		}
+
+		return array(
+			'success'     => $bSuccess,
+			'page_reload' => $bReloadPage,
+			'message'     => $sMessage,
 		);
 	}
 
@@ -717,9 +793,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aE = $oEntry->getRawData();
 				$aE[ 'path_fragment' ] = $oIt->path_fragment;
 				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
-				$aE[ 'ignored' ] = $nTs < $oEntry->ignore_until ? 'Yes' : 'No';
-				$aE[ 'updated_at' ] = $oCarbon->setTimestamp( $oEntry->updated_at )->diffForHumans()
-									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->updated_at ).'</small>';
+				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
 				$aEntries[ $nKey ] = $aE;
@@ -729,7 +803,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return ScanBaseTable
+	 * @return ScanTableBase
 	 */
 	protected function getTableRenderer() {
 		$this->requireCommonLib( 'Components/Tables/ScanBaseTable.php' );
@@ -737,7 +811,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oPro = $this->loadProcessor();
 //		$nCount = $oPro->countAuditEntriesForContext();
 		$nCount = 10;
-		$oTable = new ScanBaseTable();
+		$oTable = new ScanTableBase();
 		return $oTable->setTotalRecords( $nCount );
 	}
 

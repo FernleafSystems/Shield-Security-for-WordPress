@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Query_Scanner_Select', false ) ) {
 
 require_once( dirname( __DIR__ ).'/base/select.php' );
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
@@ -27,6 +29,20 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function filterByIgnored() {
+		return $this->addWhereNewerThan( 0, 'ignored_at' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByNotIgnored() {
+		return $this->addWhereEquals( 'ignored_at', 0 );
+	}
+
+	/**
 	 * @param string $sScan
 	 * @return $this
 	 */
@@ -35,6 +51,17 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 			$this->addWhereEquals( 'scan', strtolower( $sScan ) );
 		}
 		return $this;
+	}
+
+	/**
+	 * @param string $sScan
+	 * @return int
+	 */
+	public function countForScan( $sScan ) {
+		return $this->reset()
+					->filterByNotIgnored()
+					->filterByScan( $sScan )
+					->count();
 	}
 
 	/**

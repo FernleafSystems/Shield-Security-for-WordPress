@@ -1,3 +1,4 @@
 
-{% include '/wpadmin_pages/insights_new/scans/results/wcf.twig' %}
-{% include '/wpadmin_pages/insights_new/scans/results/ufc.twig' %}
+{% for scankey, scanvars in vars.scanvars %}
+	{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'.twig' %}
+{% endfor %}

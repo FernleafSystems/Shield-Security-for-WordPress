@@ -201,9 +201,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aAjaxResponse ) ) {
 			$aAjaxResponse = array_merge(
 				array(
-					'success' => false,
-					'message' => 'Unknown',
-					'html'    => '',
+					'success'     => false,
+					'page_reload' => false,
+					'message'     => 'Unknown',
+					'html'        => '',
 				),
 				$aAjaxResponse
 			);

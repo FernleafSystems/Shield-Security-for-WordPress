@@ -33,8 +33,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		/** @var Scans\Base\BaseResultsSet $oResults */
-		$oResults = $this->getScanner()->run();
+		$oResults = $this->getScannerResults();
 		$this->updateScanResultsStore( $oResults );
 
 		$oFO->setLastScanAt( static::SCAN_SLUG );
@@ -43,6 +42,14 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 			: $oFO->clearLastScanProblemAt( static::SCAN_SLUG );
 
 		return $oResults;
+	}
+
+	/**
+	 * @return Scans\Base\BaseResultsSet
+	 */
+	protected function getScannerResults() {
+		/** @var Scans\Base\BaseResultsSet $oResults */
+		return $this->getScanner()->run();
 	}
 
 	/**
@@ -73,10 +80,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @param Scans\Base\BaseResultsSet $oNewResults
 	 */
 	protected function updateScanResultsStore( $oNewResults ) {
+		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
 		$oExisting = $this->readScanResultsFromDb();
-		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewResults );
+		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
 		$this->deleteResultsSet( $oItemsToDelete );
-		$this->storeNewScanResults( $oNewResults );
+		$this->storeNewScanResults( $oNewCopy );
 		$this->updateExistingScanResults( $oExisting );
 	}
 
@@ -136,10 +144,184 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	abstract protected function convertResultsToVos( $oResults );
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO[] $aVos
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Scans\Base\BaseResultsSet
 	 */
 	abstract protected function convertVosToResults( $aVos );
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Scans\Base\BaseResultItem
+	 */
+	abstract protected function convertVoToResultItem( $oVo );
+
+	/**
+	 * @return string
+	 */
+	public function buildTableScanResults() {
+		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+				'fScan',
+				'fSlug',
+			) )
+		);
+		return $this->renderTable( $aParams );
+	}
+
+	/**
+	 * @param $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams ) {
+
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby'  => 'created_at',
+				'order'    => 'DESC',
+				'paged'    => 1,
+				'fScan'    => 'wcf',
+				'fSlug'    => '',
+				'fIgnored' => 'N',
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+		$oScanPro = $this->getScannerDb();
+		$oSelector = $oScanPro->getQuerySelector()
+							  ->setPage( $nPage )
+							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+							  ->filterByScan( static::SCAN_SLUG )
+							  ->setResultsAsVo( true );
+		{//FILTERS
+			if ( $aParams[ 'fIgnored' ] !== 'Y' ) {
+				$oSelector->filterByNotIgnored();
+			}
+		}
+		$aEntries = $this->postSelectEntriesFilter( $oSelector->query(), $aParams );
+
+		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
+		}
+		else {
+			$oTable = $this->getTableRenderer()
+						   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+						   ->setTotalRecords( count( $aEntries ) )
+						   ->prepare_items();
+			ob_start();
+			$oTable->display();
+			$sRendered = ob_get_clean();
+		}
+		return $sRendered;
+	}
+
+	/**
+	 * @param int|string $sItemId
+	 * @param string     $sAction
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function executeItemAction( $sItemId, $sAction ) {
+		switch ( $sAction ) {
+			case 'delete':
+				$bSuccess = $this->deleteItem( $sItemId );
+				break;
+
+			case 'ignore':
+				$bSuccess = $this->ignoreItem( $sItemId );
+				break;
+
+			case 'repair':
+				$bSuccess = $this->repairItem( $sItemId );
+				break;
+
+			default:
+				$bSuccess = false;
+				break;
+		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deleteItem( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function ignoreItem( $sItemId ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found to ignore.' );
+		}
+
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$bSuccess = $this->getScannerDb()
+						 ->getQueryUpdater()
+						 ->setIgnored( $oEntry );
+		if ( !$bSuccess ) {
+			throw new Exception( 'Item could not be ignored at this time.' );
+		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @param array                                                                $aParams
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function postSelectEntriesFilter( $aEntries, $aParams ) {
+		return $aEntries;
+	}
+
+	/**
+	 * @return ScanTableBase
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanTableBase.php' );
+		return new ScanTableBase();
+	}
+
+	/**
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
+	 */
+	abstract protected function formatEntriesForDisplay( $aEntries );
 
 	/**
 	 * @return int

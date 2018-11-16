@@ -11,8 +11,7 @@ class IpBaseTable extends ICWP_BaseTable {
 	 * @return string
 	 */
 	public function column_actions( $aItem ) {
-		return sprintf( '<a href="#" class="btn btn-sm btn-outline-danger delete" title="%s" data-rid="%s">'.
-						'<span class="dashicons dashicons-dismiss"></span></a>', _wpsf__( 'Delete' ), $aItem[ 'id' ] );
+		return $this->getActionButton_Delete( $aItem[ 'id' ] );
 	}
 
 	/**
@@ -27,12 +26,5 @@ class IpBaseTable extends ICWP_BaseTable {
 			'last_access_at' => 'Last Access',
 			'created_at'     => 'Date',
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getColumnHeader_Actions() {
-		return '<span class="dashicons dashicons-admin-tools"></span>';
 	}
 }

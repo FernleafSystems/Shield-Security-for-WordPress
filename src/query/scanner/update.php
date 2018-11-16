@@ -6,30 +6,25 @@ if ( class_exists( 'ICWP_WPSF_Query_Scanner_Update', false ) ) {
 
 require_once( dirname( dirname( __FILE__ ) ).'/base/update.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
+
 class ICWP_WPSF_Query_Scanner_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
-	 * @param string $sHash
-	 * @return $this
+	 * Also updates last access at
+	 * @param EntryVO $oEntry
+	 * @return bool
 	 */
-	public function filterByHashAndScan( $sHash, $sScan ) {
-		$aWhere = array();
-
-		return $this->setUpdateWheres(
-			array(
-
-			)
-		);
+	public function setIgnored( $oEntry ) {
+		return $this->updateEntry( $oEntry, array( 'ignored_at' => $this->loadRequest()->ts() ) );
 	}
 
 	/**
-	 * @param string $sScan
-	 * @return $this
+	 * Also updates last access at
+	 * @param EntryVO $oEntry
+	 * @return bool
 	 */
-	public function filterByScan(  ) {
-		if ( !empty( $sScan ) ) {
-			$this->addWhereEquals( 'scan', $sScan );
-		}
-		return $this;
+	public function setNotIgnored( $oEntry ) {
+		return $this->updateEntry( $oEntry, array( 'ignored_at' => 0 ) );
 	}
 }

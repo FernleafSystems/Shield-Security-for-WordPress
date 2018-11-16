@@ -1,0 +1,100 @@
+<div class="row insights_widget" id="SectionScanResultsPtg">
+	<div class="col-12">
+		<div class="card card-scan_results mt-4">
+			<div class="card-header">
+				<h5 class="card-title">Plugin / Theme Guard [ {{ scanvars.count }} ]</h5>
+				<h6 class="card-subtitle mb-2 text-muted">
+					Tracks changes to important files within active Plugins and Themes
+				</h6>
+			</div>
+			<div class="card-body">
+
+				{% if not scanvars.flags.has_items %}
+					<div class="alert alert-info m-0">No items discovered</div>
+				{% else %}
+
+				<table class="table table-hover">
+
+				{% for asset_slug,asset_data in scanvars.assets %}
+					<tr><td>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="ptg-asset-summary">
+								<p><strong>{{ asset_data.name }}</strong> <small>(v{{ asset_data.version }})</small></p>
+								<ul>
+									<li>{{ scanvars.strings.files_with_problems }}: {{ asset_data.count_files }}</li>
+									<li>{{ scanvars.strings.root_dir }}: <code>{{ asset_data.root_dir }}</code></li>
+									<li>{{ scanvars.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
+								</ul>
+								<div class="actions-group">
+									<button class="btn btn-sm btn-primary action repair"
+											{% if asset_data.can_reinstall %}
+												data-rid="{{ asset_data.slug }}"
+											{% else %}
+												disabled="disabled"
+											{% endif %}
+									>
+										{% if asset_data.has_update %}
+											{{ scanvars.strings.update }}
+										{% else %}
+											{{ scanvars.strings.reinstall }}
+										{% endif %}
+									</button>
+
+									<button class="btn btn-sm btn-info action ignore"
+											data-rid="{{ asset_data.slug }}"
+									>{{ scanvars.strings.accept }}</button>
+
+									<button class="btn btn-sm btn-warning action delete"
+											{% if asset_data.can_deactivate %}
+												data-rid="{{ asset_data.slug }}"
+											{% else %}
+												disabled="disabled"
+											{% endif %}
+									>{{ scanvars.strings.deactivate }}</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-8">
+							<div class="scan-table-for-slug" data-slug="{{ asset_slug }}"></div>
+						</div>
+					</div>
+							</td></tr>
+				{% endfor %}
+				</table>
+
+				{% endif %}
+
+			</div>
+			<div class="card-footer">
+				{{ scanvars.last_scan_at }}
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	jQuery( 'div.scan-table-for-slug' ).each( function () {
+		var $oDiv = jQuery( this );
+		$oDiv.icwpWpsfAjaxTable(
+			{
+				'ajax_render':{{ ajax.render_table_scan|raw }},
+				'req_params': {
+					'fScan': 'ptg',
+					'fSlug': $oDiv.data( 'slug' )
+				}
+			}
+		);
+	} );
+
+	jQuery( '#SectionScanResultsPtg' ).icwpWpsfScanResults(
+		{
+			'table': '',
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'ajax_item_repair':{{ ajax.item_repair|raw }},
+			'req_params': {
+				'fScan': 'ptg'
+			}
+		}
+	);
+</script>

@@ -891,7 +891,6 @@ th.column-request_info {
 .tablenav-pages-navspan {
 	box-sizing: content-box;
 }
-
 #odp-BodyContainer .card {
 	box-shadow: none;
 	margin-top: 0;
@@ -907,9 +906,9 @@ th.column-request_info {
 }
 #odp-BodyHead .nav-link.active {
 	font-weight: bold;
-	border: 1px solid rgba(0,0,0,0.1);
+	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 3px;
-	background-color: rgba(0,0,0,0.04);
+	background-color: rgba(0, 0, 0, 0.04);
 }
 #odp-BodyMain {
 	font-size: 13px;
@@ -974,14 +973,49 @@ td.cell_delete_note {
 }
 th.column-actions,
 td.column-actions {
-	width: 50px;
+	text-align: center;
+	width: 100px;
 }
-td.column-actions a.btn {
-	height: 24px;
-	width: 24px;
+td.column-actions button.btn {
+	margin: 0 3px;
+	height: 32px;
+	width: 32px;
 	padding: 3px 2px 3px 1px;
 }
-td.column-actions a > span {
-	font-size: 16px;
+td.column-actions button > span {
+	font-size: 20px;
 }
 /** END IPS Insights **/
+
+/** TABLES SCANS **/
+@media (max-width: 782px) {
+	table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary~td:not(.check-column) {
+		display: block;
+	}
+}
+table.scan-table.wp-list-table button.toggle-row {
+	display: none;
+}
+.card.card-scan_results {
+	/*background-color: transparent;*/
+	/*border: 0 none;*/
+}
+.card.card-scan_results .card-header {
+	background-color: transparent;
+	border: 0 none;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+.card.card-scan_results .card-body .ptg-asset-summary {
+	padding: 1.25rem;
+}
+table.odp-table.scan-table {
+	border-bottom: 0 none;
+	border-top: 0 none;
+}
+table.odp-table.scan-table td.column-path code {
+	font-size: 0.7rem;
+}
+.tablenav.top, .tablenav.bottom {
+	display: none;
+}
+/** END TABLES SCANS **/

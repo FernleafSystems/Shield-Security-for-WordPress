@@ -49,6 +49,13 @@ class ICWP_BaseTable extends WP_List_Table {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	protected function get_table_classes() {
+		return array_merge( parent::get_table_classes(), [ 'odp-table' ] );
+	}
+
+	/**
 	 * @return $this
 	 */
 	public function prepare_items() {
@@ -121,5 +128,45 @@ class ICWP_BaseTable extends WP_List_Table {
 	public function setTotalRecords( $nTotalRecords ) {
 		$this->nTotalRecords = $nTotalRecords;
 		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getColumnHeader_Actions() {
+		return '<span class="dashicons dashicons-admin-tools"></span>';
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButton_Delete( $nId ) {
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-danger action delete" data-rid="%s">'.
+						'<span class="dashicons dashicons-dismiss"></span></button>',
+			_wpsf__( 'Delete' ), $nId );
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButton_Repair( $nId ) {
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-success action repair" data-rid="%s">'.
+						'<span class="dashicons dashicons-image-rotate"></span></button>',
+			_wpsf__( 'Repair' ), $nId );
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButton_Ignore( $nId ) {
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-info action ignore" data-rid="%s">'.
+						'<span class="dashicons dashicons-hidden"></span></button>',
+			_wpsf__( 'Ignore' ), $nId );
 	}
 }

@@ -45,6 +45,14 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Scans\UnrecognisedCore\ResultItem
+	 */
+	protected function convertVoToResultItem( $oVo ) {
+		return ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oVo );
+	}
+
+	/**
 	 * @return Scans\UnrecognisedCore\Repair
 	 */
 	protected function getRepairer() {
@@ -85,11 +93,78 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isUfcEnabled() ) {
+			/** @var Scans\UnrecognisedCore\ResultsSet $oRes */
 			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
 			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
 				$this->emailResults( $oRes->getItemsPathsFull() );
 			}
 		}
+	}
+
+	/**
+	 * Move to table
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
+	 * @return array
+	 * 'path_fragment' => 'File',
+	 * 'status'        => 'Status',
+	 * 'ignored'       => 'Ignored',
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		if ( is_array( $aEntries ) ) {
+			$oWp = $this->loadWp();
+			$oCarbon = new \Carbon\Carbon();
+
+			$nTs = $this->loadRequest()->ts();
+			foreach ( $aEntries as $nKey => $oEntry ) {
+				$oIt = ( new Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oEntry );
+				$aE = $oEntry->getRawData();
+				$aE[ 'path' ] = $oIt->path_fragment;
+				$aE[ 'status' ] = 'Unrecognised File';
+				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+				$aEntries[ $nKey ] = $aE;
+			}
+		}
+		return $aEntries;
+	}
+
+	/**
+	 * @return ScanTableUfc
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/ScanTableUfc.php' );
+		return new ScanTableUfc();
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deleteItem( $sItemId ) {
+		return $this->repairItem( $sItemId );
+	}
+
+	/**
+	 * @param $sItemId - database row ID
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		if ( empty( $oEntry ) ) {
+			throw new Exception( 'Item could not be found for repair.' );
+		}
+		$oItem = $this->convertVoToResultItem( $oEntry );
+
+		( new Scans\UnrecognisedCore\Repair() )->repairItem( $oItem );
+		$this->doStatIncrement( 'file.corechecksum.replaced' );
+
+		return true;
 	}
 
 	/**
