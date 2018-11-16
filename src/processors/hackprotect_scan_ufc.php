@@ -86,21 +86,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		return $oScanner;
 	}
 
-	public function cron_dailyFileCleanerScan() {
-		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
-			return;
-		}
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isUfcEnabled() ) {
-			/** @var Shield\Scans\UnrecognisedCore\ResultsSet $oRes */
-			$oRes = $oFO->isUfcDeleteFiles() ? $this->doScanAndFullRepair() : $this->doScan();
-			if ( $oRes->hasItems() && $oFO->isUfsSendReport() ) {
-				$this->emailResults( $oRes->getItemsPathsFull() );
-			}
-		}
-	}
-
 	/**
 	 * Move to table
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
@@ -158,9 +143,27 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$oItem = $this->convertVoToResultItem( $oEntry );
 
 		( new Shield\Scans\UnrecognisedCore\Repair() )->repairItem( $oItem );
-		$this->doStatIncrement( 'file.corechecksum.replaced' );
+		$this->doStatIncrement( 'file.corechecksum.replaced' ); //TODO
 
 		return true;
+	}
+
+	/**
+	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
+	 */
+	protected function handleScanResults( $aRes ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		$oRes = $this->convertVosToResults( $aRes );
+
+		if ( $oFO->isUfcDeleteFiles() ) {
+			$this->getRepairer()->repairResultsSet( $oRes );
+		}
+
+		if ( $oFO->isUfcSendReport() ) {
+			$this->emailResults( $oRes->getItemsPathsFull() );
+		}
 	}
 
 	/**
@@ -228,13 +231,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		}
 
 		return $aContent;
-	}
-
-	/**
-	 * @return callable
-	 */
-	protected function getCronCallback() {
-		return array( $this, 'cron_dailyFileCleanerScan' );
 	}
 
 	/**

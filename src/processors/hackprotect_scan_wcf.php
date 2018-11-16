@@ -85,20 +85,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			->setMissingExclusions( $this->getMissingOnlyExclusions() );
 	}
 
-	public function cron_dailyChecksumScan() {
-		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
-			return;
-		}
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$bOptionRepair = $oFO->isWcfScanAutoRepair() || ( $this->loadRequest()->query( 'checksum_repair' ) == 1 );
-
-		$oResult = $bOptionRepair ? $this->doScanAndFullRepair() : $this->doScan();
-		if ( $oResult->hasItems() ) {
-			$this->emailResults( $oResult );
-		}
-	}
-
 	/**
 	 * @return array
 	 */
@@ -173,6 +159,24 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		$this->doStatIncrement( 'file.corechecksum.replaced' );
 
 		return true;
+	}
+
+	/**
+	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
+	 */
+	protected function handleScanResults( $aRes ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		$oRes = $this->convertVosToResults( $aRes );
+
+		if ( $oFO->isWcfScanAutoRepair() ) {
+			$this->getRepairer()->repairResultsSet( $oRes );
+		}
+
+		if ( $oFO->isUfcSendReport() ) {
+			$this->emailResults( $oRes );
+		}
 	}
 
 	/**
@@ -284,13 +288,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			.'tags/'.$this->loadWp()->getVersion().'/'.$sFile,
 			_wpsf__( 'WordPress.org source file' )
 		);
-	}
-
-	/**
-	 * @return callable
-	 */
-	protected function getCronCallback() {
-		return array( $this, 'cron_dailyChecksumScan' );
 	}
 
 	/**

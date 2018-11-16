@@ -300,7 +300,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return string
 	 */
-	public function isUfsSendReport() {
+	public function isUfcSendReport() {
 		return in_array( $this->getUnrecognisedFileScannerOption(), array(
 			'enabled_report_only',
 			'enabled_delete_report'

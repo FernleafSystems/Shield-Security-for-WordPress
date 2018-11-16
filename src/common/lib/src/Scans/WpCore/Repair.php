@@ -30,7 +30,6 @@ class Repair extends Scans\Base\BaseRepair {
 		if ( !empty( $sContent ) && Services::WpFs()->putFileContent( $sFullPath, $sContent ) ) {
 			clearstatcache();
 			$bSuccess = ( $oHashes->getFileHash( $sPath ) === md5_file( $sFullPath ) );
-			$oItem->repaired_at = $bSuccess ? Services::Request()->ts() : 0;
 		}
 
 		return $bSuccess;

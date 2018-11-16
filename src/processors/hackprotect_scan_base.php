@@ -6,7 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_ScanBase', false ) ) {
 
 require_once( dirname( __FILE__ ).'/cronbase.php' );
 
-use \FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield,
+	FernleafSystems\Wordpress\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase {
 
@@ -25,7 +26,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScan() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -43,15 +44,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function getScannerResults() {
-		/** @var Scans\Base\BaseResultsSet $oResults */
+		/** @var Shield\Scans\Base\BaseResultsSet $oResults */
 		return $this->getScanner()->run();
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScanAndFullRepair() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -75,19 +76,19 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	abstract protected function getScanner();
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oNewResults
+	 * @param Shield\Scans\Base\BaseResultsSet $oNewResults
 	 */
 	protected function updateScanResultsStore( $oNewResults ) {
 		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
 		$oExisting = $this->readScanResultsFromDb();
-		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
+		$oItemsToDelete = ( new Shield\Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
 		$this->deleteResultsSet( $oItemsToDelete );
 		$this->storeNewScanResults( $oNewCopy );
 		$this->updateExistingScanResults( $oExisting );
 	}
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oToDelete
+	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
 		$oDeleter = $this->getScannerDb()->getQueryDeleter();
@@ -100,7 +101,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @return Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function readScanResultsFromDb() {
 		$oSelector = $this->getScannerDb()->getQuerySelector();
@@ -108,7 +109,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oResults
+	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function storeNewScanResults( $oResults ) {
 		$oInsert = $this->getScannerDb()->getQueryInserter();
@@ -118,7 +119,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oResults
+	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function updateExistingScanResults( $oResults ) {
 		$oUp = $this->getScannerDb()->getQueryUpdater();
@@ -136,20 +137,20 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oResults
+	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO[] $aVos
 	 */
 	abstract protected function convertResultsToVos( $oResults );
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	abstract protected function convertVosToResults( $aVos );
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Scans\Base\BaseResultItem
+	 * @return Shield\Scans\Base\BaseResultItem
 	 */
 	abstract protected function convertVoToResultItem( $oVo );
 
@@ -304,11 +305,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @return ScanTableBase
+	 * @return Shield\Tables\Render\ScanBase
 	 */
 	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/ScanTableBase.php' );
-		return new ScanTableBase();
+		return new Shield\Tables\Render\ScanBase();
 	}
 
 	/**
@@ -320,6 +320,36 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * 'ignored'       => 'Ignored',
 	 */
 	abstract protected function formatEntriesForDisplay( $aEntries );
+
+	/**
+	 * @return callable
+	 */
+	protected function getCronCallback() {
+		return array( $this, 'cronScan' );
+	}
+
+	public function cronScan() {
+		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
+			return;
+		}
+
+		$this->doScan();
+
+		$aRes = $this->getScannerDb()
+					 ->getQuerySelector()
+					 ->filterByNotIgnored()
+					 ->filterByScan( static::SCAN_SLUG )
+					 ->query();
+		if ( !empty( $aRes ) ) {
+			$this->handleScanResults( $aRes );
+		}
+	}
+
+	/**
+	 * @param Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function handleScanResults( $aRes ) {
+	}
 
 	/**
 	 * @return int

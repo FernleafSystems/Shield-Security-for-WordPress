@@ -596,6 +596,19 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function handleScanResults( $aRes ) {
+		return; // TODO
+		if ( $this->canSendResults( $aRes ) ) {
+			$this->emailResults( $aRes );
+		}
+		else {
+			$this->addToAuditEntry( _wpsf__( 'Silenced repeated email alert from Plugin/Theme Scan Guard' ) );
+		}
+	}
+
+	/**
 	 * Cron callback
 	 */
 	public function cron_runGuardScan() {
@@ -858,13 +871,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		$oFO->setLastScanAt( 'ptg' );
 
 		return $aResults;
-	}
-
-	/**
-	 * @return callable
-	 */
-	protected function getCronCallback() {
-		return array( $this, 'cron_runGuardScan' );
 	}
 
 	/**
