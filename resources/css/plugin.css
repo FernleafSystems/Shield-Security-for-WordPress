@@ -967,6 +967,16 @@ td.cell_delete_note {
 }
 #SectionModuleSummaries table tr.row-key_opt {
 }
+/** TABLES **/
+th.column-created_at,
+th.column-logged_in_at,
+th.column-last_activity_at {
+	max-width: 160px;
+	width: 160px;
+}
+/** END TABLES **/
+
+
 /** Sessions Table **/
 th.column-is_secadmin {
 	width: 80px;

@@ -219,8 +219,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->getMessage() ) );
 				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
 									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+
 				if ( $oEntry->getIp() == $sYou ) {
-					$aE[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
+					$aE[ 'your_ip' ] = '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
+				}
+				else {
+					$aE[ 'your_ip' ] = '';
 				}
 				$aEntries[ $nKey ] = $aE;
 			}

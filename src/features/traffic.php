@@ -312,6 +312,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( is_array( $aEntries ) ) {
 			$oCon = $this->getConn();
 			$oWp = $this->loadWp();
+			$oIp = $this->loadIpService();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();

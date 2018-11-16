@@ -131,6 +131,14 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sIp
+	 * @return string
+	 */
+	public function getIpWhoisLookup( $sIp ) {
+		return sprintf( 'https://apps.db.ripe.net/db-web-ui/#/query?bflag&searchtext=%s#resultsSection', $sIp );
+	}
+
+	/**
 	 * @param boolean $bAsHuman
 	 * @return int|string|bool - visitor IP Address as IP2Long
 	 */

@@ -16,15 +16,26 @@ class AuditTrail extends Base {
 	}
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_details( $aItem ) {
+		return sprintf( '%s<br />%s%s',
+			$aItem[ 'wp_username' ],
+			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
+			$aItem[ 'your_ip' ]
+		);
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_columns() {
 		return array(
-			'event'       => 'Event',
-			'message'     => 'Message',
-			'wp_username' => 'Username',
-			'ip'          => 'IP Address',
-			'created_at'  => 'Date',
+			'details'    => 'Details',
+			'message'    => 'Message',
+			'event'      => 'Event',
+			'created_at' => 'Date',
 			//			'context'     => 'Context',
 		);
 	}

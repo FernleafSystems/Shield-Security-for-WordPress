@@ -44,17 +44,17 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$bSuccess = false;
 		$nId = $oReq->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = _wpsf__( "Invalid entry selected" );
+			$sMessage = _wpsf__( 'Invalid session selected' );
 		}
 		else if ( $this->getSession()->id === $nId ) {
-			$sMessage = _wpsf__( "Please logout if you wish to delete your own session." );
+			$sMessage = _wpsf__( 'Please logout if you want to delete your own session.' );
 		}
 		else if ( $oProcessor->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = _wpsf__( "User Session deleted" );
+			$sMessage = _wpsf__( 'User session deleted' );
 			$bSuccess = true;
 		}
 		else {
-			$sMessage = _wpsf__( "User Session wasn't deleted" );
+			$sMessage = _wpsf__( "User session wasn't deleted" );
 		}
 
 		return array(
@@ -164,7 +164,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$aE[ 'logged_in_at' ] = $oCarbon->setTimestamp( $oEntry->getLoggedInAt() )->diffForHumans()
 										.'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getLoggedInAt() ).'</small>';
 				if ( $oEntry->getIp() == $sYou ) {
-					$aE[ 'ip' ] .= '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
+					$aE[ 'your_ip' ] = '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
+				}
+				else {
+					$aE[ 'your_ip' ] = '';
 				}
 				$aEntries[ $nKey ] = $aE;
 			}

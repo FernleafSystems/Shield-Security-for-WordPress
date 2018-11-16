@@ -147,7 +147,6 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * TODO: maybe create audit Entry VO at the time of registering entries
 	 */
 	protected function commitAuditTrial() {
-		$oDp = $this->loadDP();
 
 		$aEntries = apply_filters(
 			$this->getMod()->prefix( 'collect_audit_trail' ),
@@ -161,7 +160,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			$oSelector = $this->getQuerySelector();
 			foreach ( $aEntries as $aE ) {
 				/** @var ICWP_WPSF_AuditTrailEntryVO $oEntry */
-				$oEntry = $oSelector->getVo()->setRawData( $oDp->convertArrayToStdClass( $aE ) );
+				$oEntry = $oSelector->getVo()->setRawData( $aE );
 				$oEntry->rid = $sReqId;
 				$oInsert->insert( $oEntry );
 			}

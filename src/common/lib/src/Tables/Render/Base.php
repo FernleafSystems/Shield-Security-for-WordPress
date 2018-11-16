@@ -180,4 +180,16 @@ class Base extends \WP_List_Table {
 						'<span class="dashicons dashicons-hidden"></span></button>',
 			_wpsf__( 'Ignore' ), $nId );
 	}
+
+	/**
+	 * TODO Put this into SErvice IPs and grab it from there
+	 * @param string $sIp
+	 * @return string
+	 */
+	protected function getIpWhoisLookupLink( $sIp ) {
+		return sprintf( '<a href="%s" target="_blank">%s</a>',
+			sprintf( 'https://apps.db.ripe.net/db-web-ui/#/query?bflag&searchtext=%s#resultsSection', $sIp ),
+			$sIp
+		);
+	}
 }
