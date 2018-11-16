@@ -295,7 +295,9 @@
         "redirect_to",
         "jetpack_sso_original_request",
         "jetpack_sso_redirect_to",
-        "/^wordpress_logged_in_[0-9a-f]+$/"
+        "/^wordpress_logged_in_[0-9a-f]+$/",
+        "edd_action",
+        "edd_redirect"
       ]
     },
     "firewall_patterns": {

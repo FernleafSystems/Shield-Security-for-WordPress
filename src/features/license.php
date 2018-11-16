@@ -280,6 +280,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$bCanSend = $nNow - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
 
 		if ( $bCanSend ) {
+			$this->setOptAt( 'last_warning_email_sent_at' )->savePluginOptions();
 			$aMessage = array(
 				_wpsf__( 'Attempts to verify Shield Pro license has just failed.' ),
 				sprintf( _wpsf__( 'Please check your license on-site: %s' ), $this->getUrl_AdminPage() ),
