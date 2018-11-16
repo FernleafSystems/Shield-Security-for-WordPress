@@ -5,9 +5,6 @@
 	</div>
 	<div class="card-body">
 		<form class="form-inline" id="NewAdminNote" action="#" method="post">
-			{% for name,val in ajax.admin_note_new %}
-				<input type="hidden" name="{{ name }}" value="{{ val }}" />
-			{% endfor %}
 			<label class="sr-only" for="AdminNote">Note</label>
 			<div class="input-group w-100">
 				<div class="input-group-prepend">
@@ -17,7 +14,7 @@
 						  placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
 				></textarea>
 				<div class="input-group-append">
-					<button type="submit" class="btn btn-info" style="border-radius: 0;" name="subbutt"
+					<button type="button" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
 							{% if not flags.can_notes %}disabled="disabled"{% endif %}
 					>Add Note</button>
 				</div>
@@ -37,7 +34,11 @@
 	jQuery( '#SectionAdminNotes' ).icwpWpsfTableActions(
 		{
 			'table': $oTableAdminNotes,
-			'ajax_item_delete':{{ ajax.item_delete|raw }}
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_insert':{{ ajax.item_insert|raw }},
+			'forms': {
+				'insert': jQuery( 'form#NewAdminNote' )
+			}
 		}
 	);
 </script>

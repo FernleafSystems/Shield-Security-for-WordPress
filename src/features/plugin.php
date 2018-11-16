@@ -206,6 +206,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_AdminNotesDelete();
 					break;
 
+				case 'note_insert':
+					$aAjaxResponse = $this->ajaxExec_AdminNotesInsert();
+					break;
+
 				default:
 					break;
 			}
@@ -301,6 +305,34 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		return array(
 			'success' => true,
+			'message' => $sMessage
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_AdminNotesInsert() {
+		$bSuccess = false;
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFormParams );
+		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
+
+		if ( !$this->getCanAdminNotes() ) {
+			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
+		}
+		else if ( empty( $sNote ) ) {
+			$sMessage = _wpsf__( 'Sorry, but it appears your note was empty.' );
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $this->getProcessor();
+			$bSuccess = $oP->getSubProcessorNotes()
+						   ->getQueryInserter()
+						   ->create( $sNote );
+			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
+		}
+		return array(
+			'success' => $bSuccess,
 			'message' => $sMessage
 		);
 	}
@@ -860,7 +892,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getCanAdminNotes() {
-		return $this->isPremium();
+		return $this->isPremium() && $this->loadWpUsers()->isUserAdmin();
 	}
 
 	/**

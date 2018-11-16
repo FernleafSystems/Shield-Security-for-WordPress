@@ -89,6 +89,15 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
+					'button.action.insert',
+					function ( evt ) {
+						evt.preventDefault();
+						plugin.insertEntry.call( plugin );
+					}
+				);
+
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
 					'button.action.repair',
 					function ( evt ) {
 						evt.preventDefault();
@@ -113,6 +122,12 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			ignoreEntry: function () {
 				var aRequestData = this.options[ 'ajax_item_ignore' ];
 				this.sendReq( aRequestData );
+			},
+
+			insertEntry: function () {
+				var requestData = this.options[ 'ajax_item_insert' ];
+				requestData[ 'form_params' ] = this.options[ 'forms' ][ 'insert' ].serialize();
+				this.sendReq( requestData );
 			},
 
 			repairEntry: function () {

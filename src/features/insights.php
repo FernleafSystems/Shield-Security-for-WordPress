@@ -91,9 +91,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'ajax'  => array(
 						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
 						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
-						'admin_note_new'          => $this->getAjaxActionData( 'admin_note_new' ),
-						'admin_notes_render'      => $this->getAjaxActionData( 'admin_notes_render' ),
-						'admin_notes_delete'      => $this->getAjaxActionData( 'admin_notes_delete' ),
+						'item_insert'             => $oModPlugin->getAjaxActionData( 'note_insert', true ),
 					),
 					'flags' => array(
 						'can_notes' => $this->isPremium() //not the way to determine
@@ -142,39 +140,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
-			case 'original':
-				$aData = array(
-					'vars'   => array(
-						'summary'               => $this->getInsightsModsSummary(),
-						'insight_events'        => $this->getRecentEvents(),
-						'insight_notices'       => $aSecNotices,
-						'insight_notices_count' => $nNoticesCount,
-						'insight_stats'         => $this->getStats(),
-					),
-					'inputs' => array(
-						'license_key' => array(
-							'name'      => $this->prefixOptionKey( 'license_key' ),
-							'maxlength' => $this->getDef( 'license_key_length' ),
-						)
-					),
-					'ajax'   => array(
-						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
-						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-					),
-					'hrefs'  => array(
-						'shield_pro_url'           => 'https://icwp.io/shieldpro',
-						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
-					),
-					'flags'  => array(
-						'show_ads'              => false,
-						'show_standard_options' => false,
-						'show_alt_content'      => true,
-						'is_pro'                => $this->isPremium(),
-						'has_notices'           => count( $aSecNotices ) > 0,
-					),
-				);
-				break;
 			case 'insights':
 			case 'index':
 			default:
@@ -217,8 +182,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
 			'users'    => _wpsf__( 'Users' ),
-			'license'  => _wpsf__( 'Pro' ),
 			'notes'    => _wpsf__( 'Notes' ),
+			'license'  => _wpsf__( 'Pro' ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
 			$sName = array(
@@ -267,28 +232,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 						break;
 
-					case 'notes1':
-						$sAsset = 'shield-notes';
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							$aStdDeps,
-							$oConn->getVersion(),
-							true
-						);
-						wp_enqueue_script( $sUnique );
-
-						wp_localize_script(
-							$sUnique,
-							'icwp_wpsf_vars_insights',
-							array(
-								'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-								'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-							)
-						);
-						break;
-
 					case 'notes':
 					case 'audit':
 					case 'traffic':
@@ -320,89 +263,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				}
 			}
 		}
-	}
-
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
-
-				case 'admin_note_new':
-					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
-					break;
-
-				case 'admin_notes_delete':
-					$aAjaxResponse = $this->ajaxExec_AdminNotesDelete();
-					break;
-
-				case 'admin_notes_render':
-					$aAjaxResponse = $this->ajaxExec_AdminNotesRender();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNoteNew() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getConn()->getModule( 'plugin' );
-		$sNote = $this->loadRequest()->post( 'admin_note', '' );
-		$bSuccess = false;
-		if ( !$oMod->getCanAdminNotes() ) {
-			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
-		}
-		else if ( empty( $sNote ) ) {
-			$sMessage = _wpsf__( 'Sorry, but it appears your note was empty.' );
-		}
-		else {
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
-			$bSuccess = $oP->getSubProcessorNotes()
-						   ->getQueryInserter()
-						   ->create( $sNote ) !== false;
-
-			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
-		}
-		return array(
-			'success' => $bSuccess,
-			'message' => $sMessage
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNotesRender() {
-		$aNotes = $this->getNotes();
-		$sHtml = $this->renderTemplate(
-			'/wpadmin_pages/insights_new/notes/admin_notes_table.twig',
-			array(
-				'vars'  => array(
-					'insight_notes' => $aNotes,
-				),
-				'flags' => array(
-					'has_notes' => count( $aNotes ) > 0,
-					'can_notes' => $this->isPremium() //not the way to determine
-				),
-			),
-			true
-		);
-
-		$bSuccess = true;
-		return array(
-			'success' => $bSuccess,
-			'html'    => $sHtml
-		);
 	}
 
 	/**
