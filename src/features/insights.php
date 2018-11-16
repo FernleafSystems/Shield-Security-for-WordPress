@@ -76,8 +76,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = array(
 					'ajax'    => array(
 						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
-						'add_ip_white'    => $oIpMod->getAjaxActionData( 'add_ip_white' ),
-						'ip_delete'       => $oIpMod->getAjaxActionData( 'ip_delete', true ),
+						'item_insert'     => $oIpMod->getAjaxActionData( 'ip_insert', true ),
+						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
 					),
 					'flags'   => array(),
 					'strings' => array(),
@@ -234,24 +234,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 						break;
 
-					case 'notes':
 					case 'audit':
+					case 'ips':
+					case 'notes':
 					case 'traffic':
 					case 'users':
 						$sAsset = 'shield-tables';
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							$aStdDeps,
-							$oConn->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
-						break;
-
-					case 'ips':
-						$sAsset = 'shield-ips';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,

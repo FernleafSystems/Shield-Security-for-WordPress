@@ -46,7 +46,15 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 		this.element = element;
 		this._name = pluginName;
 		this._defaults = $.fn.icwpWpsfTableActions.defaults;
-		this.options = $.extend( {}, this._defaults, options );
+		this.options = $.extend(
+			{
+				'forms': {
+					'insert': ''
+				}
+			},
+			this._defaults,
+			options
+		);
 		this.init();
 	}
 
@@ -63,6 +71,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			},
 			buildCache: function () {
 				this.$element = $( this.element );
+				this.$oFormInsert = this.options[ 'forms' ][ 'insert' ];
 			},
 			bindEvents: function () {
 				var plugin = this;
@@ -87,9 +96,8 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					}
 				);
 
-				plugin.$element.on(
-					'click' + '.' + plugin._name,
-					'button.action.insert',
+				this.$oFormInsert.on(
+					'submit' + '.' + plugin._name,
 					function ( evt ) {
 						evt.preventDefault();
 						plugin.insertEntry.call( plugin );
@@ -126,7 +134,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 
 			insertEntry: function () {
 				var requestData = this.options[ 'ajax_item_insert' ];
-				requestData[ 'form_params' ] = this.options[ 'forms' ][ 'insert' ].serialize();
+				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
 				this.sendReq( requestData );
 			},
 

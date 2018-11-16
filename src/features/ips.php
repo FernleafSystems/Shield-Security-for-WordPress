@@ -105,8 +105,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'add_ip_white':
-					$aAjaxResponse = $this->ajaxExec_AddIpToWhitelist();
+				case 'ip_insert':
+					$aAjaxResponse = $this->ajaxExec_AddIp();
 					break;
 
 				case 'ip_delete':
@@ -148,26 +148,47 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		);
 	}
 
-	protected function ajaxExec_AddIpToWhitelist() {
-		$oReq = $this->loadRequest();
+	protected function ajaxExec_AddIp() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
 
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFormParams );
+
 		$bSuccess = false;
-		$sIp = $oReq->post( 'ip', '' );
+		$sIp = isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '';
+		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 		if ( empty( $sIp ) ) {
-			$sMessage = _wpsf__( "IP address is empty" );
+			$sMessage = _wpsf__( "IP address not provided" );
+		}
+		else if ( empty( $sList ) ) {
+			$sMessage = _wpsf__( "IP list not provided" );
 		}
 		else if ( !$this->loadIpService()->isValidIp( $sIp ) ) {
-			$sMessage = _wpsf__( "IP is not valid" );
-		}
-		else if ( $oProcessor->addIpToWhiteList( $sIp, $oReq->post( 'label', '' ) ) ) {
-			$sMessage = _wpsf__( "IP address added" );
-			$bSuccess = true;
+			$sMessage = _wpsf__( "IP address isn't valid" );
 		}
 		else {
-			$sMessage = _wpsf__( "IP address wasn't added to the list" );
+			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
+			switch ( $sList ) {
+				case self::LIST_MANUAL_WHITE:
+					$oIp = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
+					break;
+				case self::LIST_MANUAL_BLACK:
+					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
+					break;
+				default:
+					$oIp = null;
+					break;
+			}
+
+			if ( !empty( $oIp ) ) {
+				$sMessage = _wpsf__( 'IP address added successfully' );
+				$bSuccess = true;
+			}
+			else {
+				$sMessage = _wpsf__( "IP address wasn't added to the list" );
+			}
 		}
+
 		return array(
 			'success' => $bSuccess,
 			'message' => $sMessage,
@@ -175,7 +196,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @param string $sList
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableIps() {

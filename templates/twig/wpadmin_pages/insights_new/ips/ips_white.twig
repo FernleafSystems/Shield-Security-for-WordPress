@@ -1,5 +1,5 @@
 {% block section_table %}
-	<div class="row insights_widget" id="SectionTableIpsWhite">
+	<div class="row insights_widget" id="SectionIpsWhite">
 		{% block section_form_addip %}
 			<div class="col-12">
 			</div>
@@ -13,9 +13,7 @@
 				</div>
 				<div class="card-body pb-2">
 					<form class="form-inline mb-2 mt-3" id="NewIp" action="#" method="post">
-						{% for name,val in ajax.add_ip_white %}
-							<input type="hidden" name="{{ name }}" value="{{ val }}" />
-						{% endfor %}
+						<input type="hidden" name="list" value="MW" />
 						<label class="sr-only" for="IpAddress">IpAddress</label>
 						<div class="input-group w-100">
 							<div class="input-group-prepend">
@@ -50,10 +48,14 @@
 				}
 			}
 		);
-		jQuery( '#SectionTableIpsWhite' ).icwpWpsfTableIps(
+		jQuery( '#SectionIpsWhite' ).icwpWpsfTableActions(
 			{
 				'table': $oTableIpsWhite,
-				'ajax_delete_ip':{{ ajax.ip_delete|raw }}
+				'ajax_item_delete':{{ ajax.item_delete|raw }},
+				'ajax_item_insert':{{ ajax.item_insert|raw }},
+				'forms': {
+					'insert': jQuery( 'form#NewIp' )
+				}
 			}
 		);
 	</script>

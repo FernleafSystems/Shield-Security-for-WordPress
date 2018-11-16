@@ -29,7 +29,7 @@ class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 	 * @return bool
 	 */
 	public function updateLabel( $oIp, $sLabel ) {
-		return $this->updateIp( $oIp, array( 'label' => $sLabel ) );
+		return $this->updateIp( $oIp, array( 'label' => trim( $sLabel ) ) );
 	}
 
 	/**

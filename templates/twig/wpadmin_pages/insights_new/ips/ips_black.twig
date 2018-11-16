@@ -3,7 +3,7 @@
 {% block section_form_addip %}{% endblock %}
 
 {% block section_table %}
-	<div class="row insights_widget" id="SectionTableIpsBlack">
+	<div class="row insights_widget" id="SectionIpsBlack">
 		<div class="col-12">
 
 			<div class="card">
@@ -31,10 +31,14 @@
 				}
 			}
 		);
-		jQuery( '#SectionTableIpsBlack' ).icwpWpsfTableIps(
+		jQuery( '#SectionIpsBlack' ).icwpWpsfTableActions(
 			{
 				'table': $oTableIpsBlack,
-				'ajax_delete_ip':{{ ajax.ip_delete|raw }}
+				'ajax_item_delete':{{ ajax.item_delete|raw }},
+				'ajax_item_insert':{{ ajax.item_insert|raw }},
+				'forms': {
+					'insert': jQuery( 'form#NewIp' )
+				}
 			}
 		);
 	</script>
