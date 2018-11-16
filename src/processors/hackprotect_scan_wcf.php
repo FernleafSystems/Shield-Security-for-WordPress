@@ -126,9 +126,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * Move to table
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
 	 * @return array
-	 * 'path_fragment' => 'File',
-	 * 'status'        => 'Status',
-	 * 'ignored'       => 'Ignored',
 	 */
 	public function formatEntriesForDisplay( $aEntries ) {
 		if ( is_array( $aEntries ) ) {

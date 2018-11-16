@@ -42,20 +42,25 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
 		$oModLicense = $oCon->getModule( 'license' );
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
+		$oModPlugin = $oCon->getModule( 'plugin' );
 
 		switch ( $sSubNavSection ) {
 
-			case 'notes':
+			case 'audit':
 				$aData = array(
-					'vars'  => array(),
-					'ajax'  => array(
-						'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
-						'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-						'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
+					'ajax'    => array(
+						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
 					),
-					'flags' => array(
-						'can_notes' => $this->isPremium() //not the way to determine
-					)
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
+					),
+					'vars'    => array(
+						'contexts_for_select' => $oAuditMod->getAllContexts(),
+						'unique_ips'          => $oAuditPro->getQuerySelector()->getDistinctIps(),
+						'unique_users'        => $oAuditPro->getQuerySelector()->getDistinctUsernames(),
+					),
 				);
 				break;
 
@@ -80,20 +85,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
-			case 'audit':
+			case 'notes':
 				$aData = array(
-					'ajax'    => array(
-						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
+					'vars'  => array(),
+					'ajax'  => array(
+						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
+						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
+						'admin_note_new'          => $this->getAjaxActionData( 'admin_note_new' ),
+						'admin_notes_render'      => $this->getAjaxActionData( 'admin_notes_render' ),
+						'admin_notes_delete'      => $this->getAjaxActionData( 'admin_notes_delete' ),
 					),
-					'flags'   => array(),
-					'strings' => array(
-						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
-					),
-					'vars'    => array(
-						'contexts_for_select' => $oAuditMod->getAllContexts(),
-						'unique_ips'          => $oAuditPro->getQuerySelector()->getDistinctIps(),
-						'unique_users'        => $oAuditPro->getQuerySelector()->getDistinctUsernames(),
-					),
+					'flags' => array(
+						'can_notes' => $this->isPremium() //not the way to determine
+					)
 				);
 				break;
 
@@ -263,7 +267,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 						break;
 
-					case 'notes':
+					case 'notes1':
 						$sAsset = 'shield-notes';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
@@ -285,6 +289,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						);
 						break;
 
+					case 'notes':
 					case 'audit':
 					case 'traffic':
 					case 'users':
@@ -371,27 +376,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return array(
 			'success' => $bSuccess,
 			'message' => $sMessage
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNotesDelete() {
-
-		$nNoteId = (int)$this->loadRequest()->post( 'note_id', 0 );
-		if ( $nNoteId >= 0 ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-			$oMod = $this->getConn()->getModule( 'plugin' );
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
-			$oP->getSubProcessorNotes()
-			   ->getQueryDeleter()
-			   ->deleteById( $nNoteId );
-		}
-
-		return array(
-			'success' => true
 		);
 	}
 

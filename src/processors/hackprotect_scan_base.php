@@ -174,7 +174,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @param $aParams
+	 * @param array $aParams
 	 * @return string
 	 */
 	protected function renderTable( $aParams ) {

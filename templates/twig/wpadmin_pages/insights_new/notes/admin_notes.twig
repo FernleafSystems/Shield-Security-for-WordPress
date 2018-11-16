@@ -24,7 +24,20 @@
 			</div>
 		</form>
 
-		<div id="AdminNotesContainer" class="p-0"></div>
+		<div id="TableAdminNotes" class="p-0"></div>
 
 	</div>
 </div>
+<script>
+	var $oTableAdminNotes = jQuery( '#TableAdminNotes' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_adminnotes|raw }}
+		}
+	);
+	jQuery( '#SectionAdminNotes' ).icwpWpsfTableActions(
+		{
+			'table': $oTableAdminNotes,
+			'ajax_item_delete':{{ ajax.item_delete|raw }}
+		}
+	);
+</script>

@@ -198,6 +198,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_DeleteForceOff();
 					break;
 
+				case 'render_table_adminnotes':
+					$aAjaxResponse = $this->ajaxExec_RenderTableAdminNotes();
+					break;
+
+				case 'note_delete':
+					$aAjaxResponse = $this->ajaxExec_AdminNotesDelete();
+					break;
+
 				default:
 					break;
 			}
@@ -260,6 +268,129 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$this->setFlashAdminNotice( _wpsf__( 'File could not be automatically removed.' ), true );
 		}
 		return array( 'success' => !$bStillActive );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_AdminNotesDelete() {
+
+		$sItemId = $this->loadRequest()->post( 'rid' );
+		if ( empty( $sItemId ) ) {
+			$sMessage = _wpsf__( 'Note not found.' );
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_Plugin $oPro */
+			$oPro = $this->getProcessor();
+			try {
+				$bSuccess = $oPro->getSubProcessorNotes()
+								 ->getQueryDeleter()
+								 ->deleteById( $sItemId );
+
+				if ( $bSuccess ) {
+					$sMessage = 'Note deleted';
+				}
+				else {
+					$sMessage = "Note couldn't be deleted";
+				}
+			}
+			catch ( Exception $oE ) {
+				$sMessage = $oE->getMessage();
+			}
+		}
+
+		return array(
+			'success' => true,
+			'message' => $sMessage
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_RenderTableAdminNotes() {
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
+		$aParams = array_intersect_key(
+			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
+			array_flip( array(
+				'paged',
+				'order',
+				'orderby',
+			) )
+		);
+		return array(
+			'success' => true,
+			'html'    => $this->renderTable( $aParams )
+		);
+	}
+
+	/**
+	 * @param $aParams
+	 * @return string
+	 */
+	protected function renderTable( $aParams ) {
+		// clean any params of nonsense
+		foreach ( $aParams as $sKey => $sValue ) {
+			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
+				unset( $aParams[ $sKey ] );
+			}
+		}
+		$aParams = array_merge(
+			array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+				'paged'   => 1,
+			),
+			$aParams
+		);
+		$nPage = (int)$aParams[ 'paged' ];
+		/** @var ICWP_WPSF_Processor_Plugin $oPro */
+		$oPro = $this->getProcessor();
+		$aEntries = $oPro->getSubProcessorNotes()
+						 ->getQuerySelector()
+						 ->setPage( $nPage )
+						 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
+						 ->setResultsAsVo( true )
+						 ->query();
+
+		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
+		}
+		else {
+			$oTable = $this->getTableRenderer()
+						   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
+						   ->setTotalRecords( count( $aEntries ) )
+						   ->prepare_items();
+			ob_start();
+			$oTable->display();
+			$sRendered = ob_get_clean();
+		}
+		return $sRendered;
+	}
+
+	/**
+	 * @return AdminNotesTable
+	 */
+	protected function getTableRenderer() {
+		$this->requireCommonLib( 'Components/Tables/AdminNotesTable.php' );
+		return new AdminNotesTable();
+	}
+
+	/**
+	 * Move to table
+	 * @param ICWP_WPSF_NoteVO[] $aEntries
+	 * @return array
+	 */
+	public function formatEntriesForDisplay( $aEntries ) {
+		$oWp = $this->loadWp();
+		$oCarbon = new \Carbon\Carbon();
+		foreach ( $aEntries as $nKey => $oEntry ) {
+			$aE = $oEntry->getRawData();
+			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
+								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
+			$aEntries[ $nKey ] = $aE;
+		}
+		return $aEntries;
 	}
 
 	/**
@@ -793,7 +924,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'enabled' => $bHasSupportEmail,
 				'summary' => $bHasSupportEmail ?
 					sprintf( _wpsf__( 'Email address for reports set to: %s' ), $this->supplyPluginReportEmail() )
-					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), $this->loadWp()->getSiteAdminEmail() ),
+					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), $this->loadWp()
+																						  ->getSiteAdminEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			);
