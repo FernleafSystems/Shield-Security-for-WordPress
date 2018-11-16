@@ -885,6 +885,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * temporary
+	 * @return bool
+	 */
+	public function hasWizard() {
+		return false;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
