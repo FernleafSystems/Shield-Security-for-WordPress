@@ -19,11 +19,6 @@ class ConvertResultsToVos extends Scans\Base\BaseConvertResultsToVos {
 		$oVo = new EntryVO();
 		$oVo->hash = $oIt->hash;
 		$oVo->data = $oIt->getData();
-		$oVo->description = sprintf(
-			'%s file discovered to be %s',
-			ucfirst( $oIt->context ),
-			$oIt->is_missing ? 'missing' : ( $oIt->is_different ? 'modified' : 'unrecognised' )
-		);
 		$oVo->scan = $oIt::SCAN_RESULT_TYPE;
 		return $oVo;
 	}

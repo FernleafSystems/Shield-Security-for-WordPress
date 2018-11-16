@@ -93,7 +93,6 @@
 					function ( oResponse ) {
 
 						if ( oResponse.success ) {
-							console.log( oResponse.data );
 							iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
 							if ( oResponse.data.page_reload ) {
 								location.reload( true );
@@ -136,52 +135,55 @@
 })( jQuery );
 
 /**
- * Important Params:
- * @param aOptions
- * @returns {jQuery}
  */
-jQuery.fn.icwpWpsfScans = function ( aOptions ) {
+jQuery.fn.icwpWpsfStartScans = function ( aOptions ) {
 
-	var startScan = function ( evt ) {
+	var startScans = function ( evt ) {
 		evt.preventDefault();
-		// init scan
-		// init poll
-		poll();
+		sendReq( { 'form_params': $oThis.serialize() } );
 		return false;
 	};
 
-	var poll = function () {
-		setTimeout( function () {
+	var sendReq = function ( aParams ) {
+		iCWP_WPSF_BodyOverlay.show();
 
-			jQuery.post( ajaxurl, {},
-				function ( oResponse ) {
-					if ( oResponse.data.success ) {
-						// process poll results
-						poll();
+		var aReqData = aOpts[ 'ajax_start_scans' ];
+		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
+			function ( oResponse ) {
+
+				if ( oResponse.success ) {
+					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+					if ( oResponse.data.page_reload ) {
+						location.reload( true );
 					}
 					else {
+						plugin.options[ 'table' ].reloadTable();
+						iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
 					}
+				}
+				else {
+					var sMessage = 'Communications error with site.';
+					if ( oResponse.data.message !== undefined ) {
+						sMessage = oResponse.data.message;
+					}
+					alert( sMessage );
+					iCWP_WPSF_BodyOverlay.hide();
+				}
 
-				}
-			).always( function () {
-				}
-			);
-		}, aOpts[ 'poll_interval' ] );
+			}
+		).always( function () {
+			}
+		);
 	};
 
 	var initialise = function () {
 		jQuery( document ).ready( function () {
-			$oThis.on( 'submit', startScan );
+			$oThis.on( 'submit', startScans );
 		} );
 	};
 
 	var $oThis = this;
-	var aOpts = jQuery.extend(
-		{
-			'poll_interval': 10000
-		},
-		aOptions
-	);
+	var aOpts = jQuery.extend( {}, aOptions );
 	initialise();
 
 	return this;

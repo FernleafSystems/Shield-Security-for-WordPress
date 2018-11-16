@@ -38,7 +38,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableAuditTrail() {
-		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(

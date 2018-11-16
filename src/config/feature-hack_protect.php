@@ -484,7 +484,6 @@
       "hash",
       "data",
       "scan",
-      "description",
       "severity",
       "ignored_at",
       "created_at",

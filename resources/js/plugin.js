@@ -232,7 +232,7 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 	};
 
 	this.renderTableFromForm = function ( $oForm ) {
-		renderTableRequest( { 'filter_params': $oForm.serialize() } );
+		renderTableRequest( { 'form_params': $oForm.serialize() } );
 	};
 
 	var renderTableRequest = function ( aTableRequestParams ) {

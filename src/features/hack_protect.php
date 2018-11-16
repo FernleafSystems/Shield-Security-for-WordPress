@@ -23,6 +23,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
+				case 'start_scans':
+					$aAjaxResponse = $this->ajaxExec_StartScans();
+					break;
+
 				case 'item_delete':
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'delete' );
 					break;
@@ -669,7 +673,56 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		);
 	}
 
+	public function ajaxExec_StartScans() {
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oReq = $this->loadRequest();
+		$oScanPro = $oP->getSubProcessorScanner();
+
+		parse_str( $oReq->post( 'form_params', '' ), $aFormParams );
+
+		if ( empty( $aFormParams ) ) {
+			$bSuccess = false;
+			$bPageReload = false;
+			$sMessage = _wpsf__( 'No scans were selected' );
+		}
+		else {
+			foreach ( array_keys( $aFormParams ) as $sScan ) {
+				switch ( $sScan ) {
+					case 'ptg':
+						$oTablePro = $oScanPro->getSubProcessorPtg();
+						break;
+
+					case 'ufc':
+						$oTablePro = $oScanPro->getSubProcessorUfc();
+						break;
+
+					case 'wcf':
+						$oTablePro = $oScanPro->getSubProcessorWcf();
+						break;
+
+					default:
+						$oTablePro = null;
+						break;
+				}
+				if ( !empty( $oTablePro ) ) {
+					$oTablePro->doScan();
+				}
+			}
+			$bSuccess = true;
+			$bPageReload = true;
+			$sMessage = _wpsf__( 'Scans completed.' ).' '._wpsf__( 'Reloading page' ).'...';
+		}
+
+		return array(
+			'success'     => $bSuccess,
+			'page_reload' => $bPageReload,
+			'message'     => $sMessage,
+		);
+	}
+
 	/**
+	 * @param string $sAction
 	 * @return array
 	 */
 	public function ajaxExec_ScanItemAction( $sAction ) {

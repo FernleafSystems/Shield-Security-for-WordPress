@@ -167,7 +167,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			hash varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash',
 			data text COMMENT 'Relevant Item Data',
-			description text COMMENT 'Human Description',
 			scan varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type',
 			severity int(3) NOT NULL DEFAULT 1 COMMENT 'Severity',
 			ignored_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignored',

@@ -316,6 +316,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aData = array(
 			'ajax' => array(
+				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
 				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),

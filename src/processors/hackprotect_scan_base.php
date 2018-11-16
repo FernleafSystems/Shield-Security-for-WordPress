@@ -159,7 +159,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @return string
 	 */
 	public function buildTableScanResults() {
-		parse_str( $this->loadRequest()->post( 'filter_params', '' ), $aFilters );
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
 		$aParams = array_intersect_key(
 			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
 			array_flip( array(
