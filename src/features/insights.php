@@ -127,7 +127,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'users':
 				$aData = array(
 					'ajax'    => array(
-						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true )
+						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true ),
+						'item_delete'           => $oModUsers->getAjaxActionData( 'session_delete', true ),
+
 					),
 					'flags'   => array(),
 					'strings' => array(

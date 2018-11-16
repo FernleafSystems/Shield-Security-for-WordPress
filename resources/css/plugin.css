@@ -967,6 +967,11 @@ td.cell_delete_note {
 }
 #SectionModuleSummaries table tr.row-key_opt {
 }
+/** Sessions Table **/
+th.column-is_secadmin {
+	width: 80px;
+}
+/** End Sessions Table **/
 /** IPS Insights **/
 #NewIp button.add {
 	padding: 9px 8px 3px 8px;
@@ -989,7 +994,7 @@ td.column-actions button > span {
 
 /** TABLES SCANS **/
 @media (max-width: 782px) {
-	table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary~td:not(.check-column) {
+	table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
 		display: block;
 	}
 }

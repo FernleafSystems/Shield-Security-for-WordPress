@@ -21,11 +21,44 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
 					break;
 
+				case 'session_delete':
+					$aAjaxResponse = $this->ajaxExec_SessionDelete();
+					break;
+
 				default:
 					break;
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_SessionDelete() {
+		$oReq = $this->loadRequest();
+		$oProcessor = $this->getSessionsProcessor();
+
+		$bSuccess = false;
+		$nId = $oReq->post( 'rid', -1 );
+		if ( !is_numeric( $nId ) || $nId < 0 ) {
+			$sMessage = _wpsf__( "Invalid entry selected" );
+		}
+		else if ( $this->getSession()->id === $nId ) {
+			$sMessage = _wpsf__( "Please logout if you wish to delete your own session." );
+		}
+		else if ( $oProcessor->getQueryDeleter()->deleteById( $nId ) ) {
+			$sMessage = _wpsf__( "User Session deleted" );
+			$bSuccess = true;
+		}
+		else {
+			$sMessage = _wpsf__( "User Session wasn't deleted" );
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
+		);
 	}
 
 	protected function ajaxExec_BuildTableTraffic() {

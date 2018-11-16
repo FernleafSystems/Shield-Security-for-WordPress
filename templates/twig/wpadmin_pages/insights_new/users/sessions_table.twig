@@ -1,4 +1,4 @@
-<div class="row insights_widget" id="SectionAuditTable">
+<div class="row insights_widget" id="SectionUserSessions">
 
 	<div class="col-lg-10 col-md-9 col-sm-8">
 		<div class="card">
@@ -52,6 +52,12 @@
 	var $oTableSessions = jQuery( '#TableSessions' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_sessions|raw }}
+		}
+	);
+	jQuery( '#SectionUserSessions' ).icwpWpsfTableActions(
+		{
+			'table': $oTableSessions,
+			'ajax_item_delete':{{ ajax.item_delete|raw }}
 		}
 	);
 	jQuery( document ).icwpWpsfTableWithFilter(
