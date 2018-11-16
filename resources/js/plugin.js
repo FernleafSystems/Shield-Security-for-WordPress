@@ -279,10 +279,7 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 			// we don't, the keyup event will trigger instantly and
 			// thus may cause duplicate calls before sending the intended
 			// value
-			window.clearTimeout( timer );
-			timer = window.setTimeout( function () {
-				renderTableRequest( aTableRequestParams );
-			}, delay );
+			renderTableRequest( aTableRequestParams );
 		} );
 	};
 
