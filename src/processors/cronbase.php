@@ -16,12 +16,15 @@ abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	protected function setupCron() {
 		try {
-			$this->loadWpCronProcessor()
-				 ->setRecurrence( $this->getCronRecurrence() )
-				 ->createCronJob(
-					 $this->getCronName(),
-					 $this->getCronCallback()
-				 );
+			$sRecurrence = $this->getCronRecurrence();
+			$oCrons = $this->loadWpCronProcessor()
+						   ->setRecurrence( $sRecurrence );
+			if ( strpos( $sRecurrence, 'per-day' ) > 0 ) {
+				// It's a custom schedule so we need to set the next run time more specifically
+				$nNext = $this->loadRequest()->ts() + ( DAY_IN_SECONDS/$this->getCronFrequency() );
+				$oCrons->setNextRun( $nNext );
+			}
+			$oCrons->createCronJob( $this->getCronName(), $this->getCronCallback() );
 		}
 		catch ( Exception $oE ) {
 		}
