@@ -262,8 +262,10 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'autoupdate_plugin_self' :
 				$sName = _wpsf__( 'Auto Update Plugin' );
 				$sSummary = _wpsf__( 'Always Automatically Update This Plugin' );
-				$sDescription = sprintf( _wpsf__( 'Regardless of any component settings below, automatically update the "%s" plugin.' ), self::getConn()
-																																			 ->getHumanName() );
+				$sDescription = sprintf(
+					_wpsf__( 'Regardless of any other settings, automatically update the "%s" plugin.' ),
+					$sPlugName
+				);
 				break;
 
 			case 'autoupdate_core' :
