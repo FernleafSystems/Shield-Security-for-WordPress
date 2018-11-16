@@ -25,6 +25,15 @@ class Base extends \WP_List_Table {
 	 */
 	protected $aItemEntries;
 
+	/**
+	 * It seems rendering a WP Table on an AJAX request upsets the balance of the universe
+	 * an attempt to get rid of the error:  PHP Notice:  Undefined index: hook_suffix in wp-admin/includes/class-wp-screen.php on line 209
+	 * @param array $aArgs
+	 */
+	public function __construct( $aArgs = array() ) {
+		parent::__construct( array_merge( [ 'screen' => 'odp-ajax' ], $aArgs ) );
+	}
+
 	protected function extra_tablenav( $which ) {
 		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
 	}
