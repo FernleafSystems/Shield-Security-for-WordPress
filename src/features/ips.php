@@ -241,14 +241,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @param string $sList
-	 * @return Shield\Tables\Render\IpWhiteTable
+	 * @return Shield\Tables\Render\IpWhite
 	 */
 	protected function getTableRenderer( $sList = self::LIST_MANUAL_WHITE ) {
 		if ( empty( $sList ) || $sList == self::LIST_MANUAL_WHITE ) {
-			$sTable = new Shield\Tables\Render\IpWhiteTable();
+			$sTable = new Shield\Tables\Render\IpWhite();
 		}
 		else {
-			$sTable = new Shield\Tables\Render\IpBlackTable();
+			$sTable = new Shield\Tables\Render\IpBlack();
 		}
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->loadProcessor();

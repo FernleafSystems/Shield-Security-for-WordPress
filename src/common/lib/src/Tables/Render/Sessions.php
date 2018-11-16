@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
-class SessionsTable extends ICWP_BaseTable {
+class Sessions extends Base {
 
 	/**
 	 * @param array $aItem

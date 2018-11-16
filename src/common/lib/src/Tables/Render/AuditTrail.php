@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
-class AuditTrailTable extends ICWP_BaseTable {
+class AuditTrail extends Base {
 
 	/**
 	 * @param array $aItem

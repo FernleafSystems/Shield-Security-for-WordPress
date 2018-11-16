@@ -127,10 +127,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return Shield\Tables\Render\AuditTrailTable
+	 * @return Shield\Tables\Render\AuditTrail
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\AuditTrailTable();
+		return new Shield\Tables\Render\AuditTrail();
 	}
 
 	/**

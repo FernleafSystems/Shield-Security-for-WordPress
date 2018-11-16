@@ -127,10 +127,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanTableUfc
+	 * @return Shield\Tables\Render\ScanUfc
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanTableUfc();
+		return new Shield\Tables\Render\ScanUfc();
 	}
 
 	/**

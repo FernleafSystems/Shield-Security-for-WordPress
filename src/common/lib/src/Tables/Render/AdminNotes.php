@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
-class IpBaseTable extends ICWP_BaseTable {
+class AdminNotes extends Base {
 
 	/**
 	 * @param array $aItem
@@ -17,12 +17,10 @@ class IpBaseTable extends ICWP_BaseTable {
 	 */
 	public function get_columns() {
 		return array(
-			'ip'             => 'IP Address',
-			'label'          => 'Label',
-			'transgressions' => 'Transgressions',
-			'list'           => 'List',
-			'last_access_at' => 'Last Access',
-			'created_at'     => 'Date',
+			'note'        => 'Note',
+			'wp_username' => 'Username',
+			'created_at'  => 'Date',
+			'actions'     => $this->getColumnHeader_Actions(),
 		);
 	}
 }

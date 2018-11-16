@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ScanTableBase extends ICWP_BaseTable {
+class ScanBase extends Base {
 
 	/**
 	 * @param array $aItem

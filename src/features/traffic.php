@@ -400,7 +400,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Tables\Render\LiveTrafficTable
+	 * @return Shield\Tables\Render\LiveTraffic
 	 */
 	protected function getTableRenderer() {
 		/** @var ICWP_WPSF_Processor_Traffic $oPro */
@@ -408,7 +408,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$nCount = $oPro->getProcessorLogger()
 					   ->getQuerySelector()
 					   ->count();
-		return ( new Shield\Tables\Render\LiveTrafficTable() )->setTotalRecords( $nCount );
+		return ( new Shield\Tables\Render\LiveTraffic() )->setTotalRecords( $nCount );
 	}
 
 	/**

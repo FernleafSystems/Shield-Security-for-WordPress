@@ -148,10 +148,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanTableWcf
+	 * @return Shield\Tables\Render\ScanWcf
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanTableWcf();
+		return new Shield\Tables\Render\ScanWcf();
 	}
 
 	/**

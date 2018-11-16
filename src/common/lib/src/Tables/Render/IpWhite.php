@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
-class IpWhiteTable extends IpBaseTable {
+class IpWhite extends IpBase {
 
 	/**
 	 * @return array

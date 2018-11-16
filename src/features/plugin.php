@@ -403,10 +403,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return Shield\Tables\Render\AdminNotesTable
+	 * @return Shield\Tables\Render\AdminNotes
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\AdminNotesTable();
+		return new Shield\Tables\Render\AdminNotes();
 	}
 
 	/**

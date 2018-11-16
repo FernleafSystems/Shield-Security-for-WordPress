@@ -173,10 +173,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return Shield\Tables\Render\SessionsTable
+	 * @return Shield\Tables\Render\Sessions
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\SessionsTable();
+		return new Shield\Tables\Render\Sessions();
 	}
 
 	/**

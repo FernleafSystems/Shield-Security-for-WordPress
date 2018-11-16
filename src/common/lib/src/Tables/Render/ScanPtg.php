@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ScanTablePtg extends ScanTableBase {
+class ScanPtg extends ScanBase {
 
 	/**
 	 * @return array
