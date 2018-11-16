@@ -42,15 +42,6 @@
 
 							<a class="btn btn-outline-info icwp-carousel-2" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_help' ]; ?></a>
-
-							<?php if ( $flags[ 'show_content_actions' ] ) : ?>
-								<a class="btn btn-outline-secondary icwp-carousel-3" href="javascript:void(0)">
-									<?php echo $strings[ 'btn_actions' ]; ?></a>
-							<?php else : ?>
-								<a class="btn btn-outline-secondary disabled" href="javascript:void(0)">
-									<?php echo $strings[ 'btn_actions' ]; ?></a>
-							<?php endif; ?>
-
 						</div>
 					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>

@@ -418,19 +418,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
-			parent::getDisplayStrings(),
-			array(
-				'btn_actions'         => _wpsf__( 'Traffic Watch Log' ),
-				'btn_actions_summary' => _wpsf__( 'Review Site Traffic Logs ' ),
-			)
-		);
-	}
-
-	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

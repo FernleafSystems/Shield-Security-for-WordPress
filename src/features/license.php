@@ -9,7 +9,10 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_filter( $this->getConn()->getPremiumLicenseFilterName(), array( $this, 'hasValidWorkingLicense' ), PHP_INT_MAX );
+		add_filter( $this->getConn()->getPremiumLicenseFilterName(), array(
+			$this,
+			'hasValidWorkingLicense'
+		), PHP_INT_MAX );
 	}
 
 	public function action_doFeatureShutdown() {
@@ -91,9 +94,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
-				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
-				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
-
 				'product_name'    => _wpsf__( 'Name' ),
 				'license_active'  => _wpsf__( 'Active' ),
 				'license_status'  => _wpsf__( 'Status' ),
@@ -672,6 +672,75 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function isEnabledForUiSummary() {
 		return $this->hasValidWorkingLicense();
+	}
+
+	public function buildInsightsVars() {
+		$oWp = $this->loadWp();
+		$oCarbon = new \Carbon\Carbon();
+
+		$oCurrent = $this->loadLicense();
+
+		$nExpiresAt = $oCurrent->getExpiresAt();
+		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
+			$sExpiresAt = $oCarbon->setTimestamp( $nExpiresAt )->diffForHumans()
+						.sprintf( '<br/><small>%s</small>', $oWp->getTimeStampForDisplay( $nExpiresAt ) );
+		}
+		else {
+			$sExpiresAt = 'n/a';
+		}
+
+		$nLastReqAt = $oCurrent->getLastRequestAt();
+		if ( empty( $nLastReqAt ) ) {
+			$sChecked = _wpsf__( 'Never' );
+		}
+		else {
+			$sChecked = $oCarbon->setTimestamp( $nLastReqAt )->diffForHumans()
+						.sprintf( '<br/><small>%s</small>', $oWp->getTimeStampForDisplay( $nLastReqAt ) );
+		}
+		$aLicenseTableVars = array(
+			'product_name'    => $this->getLicenseItemName(),
+			'license_active'  => $this->hasValidWorkingLicense() ? _wpsf__( 'Yes' ) : _wpsf__( 'Not Active' ),
+			'license_expires' => $sExpiresAt,
+			'license_email'   => $oCurrent->getCustomerEmail(),
+			'last_checked'    => $sChecked,
+			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
+		);
+		if ( !$this->isKeyless() ) {
+			$aLicenseTableVars[ 'license_key' ] = $this->hasLicenseKey() ? $this->getLicenseKey() : 'n/a';
+		}
+		$aData = array(
+			'vars'    => array(
+				'license_table'  => $aLicenseTableVars,
+				'activation_url' => $oWp->getHomeUrl()
+			),
+			'inputs'  => array(
+				'license_key' => array(
+					'name'      => $this->prefixOptionKey( 'license_key' ),
+					'maxlength' => $this->getDef( 'license_key_length' ),
+				)
+			),
+			'ajax'    => array(
+				'license_handling' => $this->getAjaxActionData( 'license_handling' ),
+				'connection_debug' => $this->getAjaxActionData( 'connection_debug' )
+			),
+			'aHrefs'  => array(
+				'shield_pro_url'           => 'https://icwp.io/shieldpro',
+				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
+				'iframe_url'               => $this->getDef( 'landing_page_url' ),
+				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
+			),
+			'flags'   => array(
+				'show_key'              => !$this->isKeyless(),
+				'has_license_key'       => $this->isLicenseKeyValidFormat(),
+				'show_ads'              => false,
+				'button_enabled_check'  => true,
+				'button_enabled_remove' => $this->isLicenseKeyValidFormat(),
+				'show_standard_options' => false,
+				'show_alt_content'      => true,
+			),
+			'strings' => $this->getDisplayStrings(),
+		);
+		return $aData;
 	}
 
 	/**

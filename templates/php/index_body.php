@@ -1,4 +1,4 @@
-<div class="row no-gutters" id="ModulePageTopRow">
+ <div class="row no-gutters" id="ModulePageTopRow">
 
     <div class="col-2 modules smoothwidth" id="ColumnModules">
 		<div id="TopPluginIcon" class="img-fluid">&nbsp;</div>

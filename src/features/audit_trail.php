@@ -255,9 +255,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
-				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
-				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
-
 				'at_users'            => _wpsf__( 'Users' ),
 				'at_plugins'          => _wpsf__( 'Plugins' ),
 				'at_themes'           => _wpsf__( 'Themes' ),

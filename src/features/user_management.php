@@ -223,9 +223,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
-				'btn_actions'         => _wpsf__( 'User Sessions' ),
-				'btn_actions_summary' => _wpsf__( 'Review user sessions' ),
-
 				'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
 				'um_username'                       => _wpsf__( 'Username' ),
 				'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),

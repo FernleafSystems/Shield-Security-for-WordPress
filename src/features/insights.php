@@ -38,6 +38,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProSessions = $oModSessions->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
+		/** @var ICWP_WPSF_Processor_HackProtect $oProHp */
+		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
+		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
+		$oModLicense = $oCon->getModule( 'license' );
 
 		switch ( $sSubNavSection ) {
 
@@ -110,8 +114,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
+			case 'license':
+				$aData = $oModLicense->buildInsightsVars();
+				break;
+
 			case 'scans':
-				$aData = $this->buildVars_Scans();
+				$aData = $oProHp->buildInsightsVars();
 				break;
 
 			case 'users':
@@ -205,6 +213,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
 			'users'    => _wpsf__( 'Users' ),
+			'license'  => _wpsf__( 'Pro' ),
 			'notes'    => _wpsf__( 'Notes' ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
@@ -228,143 +237,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					  );
 
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
-	}
-
-	private function buildVars_Scans() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getConn()->getModule( 'hack_protect' );
-
-		$oCarbon = new \Carbon\Carbon();
-
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $oMod->getProcessor();
-		$oScanPro = $oPro->getSubProcessorScanner();
-		$oSelector = $oScanPro->getQuerySelector();
-		$aPtgResults = $oSelector->filterByNotIgnored()
-								 ->filterByScan( 'ptg' )
-								 ->query();
-		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ConvertVosToResults() )
-			->convert( $aPtgResults );
-
-		// Process Plugins
-		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
-		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
-		foreach ( $aPlugins as $sSlug => $oItemRS ) {
-			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
-			$oIT = array_pop( $aItems );
-
-			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
-			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
-			$aProfile = array(
-				'name'           => _wpsf__( 'unknown' ),
-				'version'        => _wpsf__( 'unknown' ),
-				'root_dir'       => _wpsf__( 'unknown' ),
-				'slug'           => $sSlug,
-				'is_wporg'       => $bIsWpOrg,
-				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => $bInstalled,
-				'has_update'     => $bHasUpdate,
-				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => 'TODODODO',
-			);
-			if ( $bInstalled ) {
-				$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
-				$aProfile[ 'name' ] = $oP->Name;
-				$aProfile[ 'version' ] = $oP->Version;
-				$aProfile[ 'root_dir' ] = $oWpPlugins->getInstallationDir( $oIT->slug );
-			}
-			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Plugin' ), $aProfile[ 'name' ] );
-
-			$aPlugins[ $sSlug ] = $aProfile;
-		}
-
-		// Process Themes
-		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();;
-		foreach ( $aThemes as $sSlug => $oItemRS ) {
-			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
-			$oIT = array_pop( $aItems );
-
-			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
-			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
-			$aProfile = array(
-				'name'           => _wpsf__( 'unknown' ),
-				'version'        => _wpsf__( 'unknown' ),
-				'root_dir'       => _wpsf__( 'unknown' ),
-				'slug'           => $sSlug,
-				'is_wporg'       => $bIsWpOrg,
-				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => false,
-				'has_update'     => $bHasUpdate,
-				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => 'TODODODO',
-			);
-			if ( $bInstalled ) {
-				$oT = $oWpThemes->getTheme( $oIT->slug );
-				$aProfile[ 'name' ] = $oT->get( 'Name' );
-				$aProfile[ 'version' ] = $oT->get( 'Version' );
-				$aProfile[ 'root_dir' ] = $oWpThemes->getInstallationDir( $oIT->slug );
-			}
-			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Theme' ), $aProfile[ 'name' ] );
-
-			$aThemes[ $sSlug ] = $aProfile;
-		}
-
-		$aData = array(
-			'ajax' => array(
-				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
-				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
-				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
-				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
-				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
-			),
-			'vars' => array(
-				'scanvars' => array(
-					'wcf' => array(
-						'count'        => $oSelector->countForScan( 'wcf' ),
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
-						),
-					),
-					'ufc' => array(
-						'count'        => $oSelector->countForScan( 'ufc' ),
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
-						),
-					),
-					'ptg' => array(
-						'count'        => $oSelector->countForScan( 'ptg' ),
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
-						),
-						'flags'        => array(
-							'has_items'   => $oFullResults->hasItems(),
-							'has_plugins' => !empty( $aPlugins ),
-							'has_themes'  => !empty( $aThemes ),
-						),
-						'assets'       => array_merge( $aPlugins, $aThemes ),
-						'strings'      => array(
-							'files_with_problems' => _wpsf__( 'Files with problems' ),
-							'root_dir'            => _wpsf__( 'Root directory' ),
-							'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
-							'reinstall'           => _wpsf__( 'Re-Install' ),
-							'deactivate'          => __( 'Deactivate and Ignore' ),
-							'accept'              => _wpsf__( 'Accept' ),
-							'update'              => _wpsf__( 'Upgrade' ),
-						)
-					),
-				),
-			),
-		);
-
-		return $aData;
 	}
 
 	public function insertCustomJsVars_Admin() {

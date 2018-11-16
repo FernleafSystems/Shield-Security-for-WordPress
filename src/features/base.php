@@ -1526,7 +1526,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_ads'              => $this->getIsShowMarketing(),
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
-				'show_content_actions'  => $this->hasCustomActions(),
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
 				'can_wizard'            => $this->canRunWizards(),
@@ -1575,7 +1574,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'btn_save'          => __( 'Save Options' ),
 			'btn_options'       => __( 'Options' ),
 			'btn_help'          => __( 'Help' ),
-			'btn_actions'       => $this->hasCustomActions() ? __( 'Actions' ) : __( 'No Actions' ),
 			'btn_wizards'       => $this->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
 		);
 	}
