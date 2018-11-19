@@ -3,6 +3,7 @@
     "slug":                  "plugin",
     "name":                  "General",
     "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "plugin",
     "tagline":               "General Plugin Settings",
     "auto_enabled":          true,

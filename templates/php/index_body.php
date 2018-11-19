@@ -1,4 +1,13 @@
- <div class="row no-gutters" id="ModulePageTopRow">
+<div class="row" id="BackToInsights">
+	<div class="col">
+		<a class="btn btn-block btn-outline-dark font-weight-bold"
+		   href="<?php echo $hrefs[ 'back_to_dashboard' ]; ?>">
+			&larr; Back To Dashboard
+		</a>
+	</div>
+</div>
+
+<div class="row no-gutters" id="ModulePageTopRow">
 
     <div class="col-2 modules smoothwidth" id="ColumnModules">
 		<div id="TopPluginIcon" class="img-fluid">&nbsp;</div>
@@ -8,7 +17,7 @@
 			   id="tab-<?php echo $aSummary[ 'slug' ]; ?>"
 			   href="<?php echo $aSummary[ 'href' ]; ?>" role="tab">
 				<div class="module-name">
-					<?php if ( $aSummary['enabled'] ) : ?>
+					<?php if ( $aSummary[ 'enabled' ] ) : ?>
 						<div class="dashicons dashicons-yes"
 							 title="Module Active"></div>
 					<?php else : ?>

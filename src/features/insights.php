@@ -177,15 +177,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aTopNav = array(
-			'insights' => _wpsf__( 'Overview' ),
-			'config'   => _wpsf__( 'Settings Summary' ),
+			'insights' => _wpsf__( 'At A Glance' ),
+			'config'   => _wpsf__( 'Settings' ),
 			'scans'    => _wpsf__( 'Scan' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
 			'users'    => _wpsf__( 'Users' ),
 			'notes'    => _wpsf__( 'Notes' ),
-			'options'  => _wpsf__( 'Full Options' ),
 			'license'  => _wpsf__( 'Pro' ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
@@ -195,6 +194,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'active' => $sKey === $sSubNavSection
 			);
 		} );
+
+		$aTopNav[ 'full_options' ] = array(
+			'href'   => $this->getConn()->loadCorePluginFeatureHandler()->getUrl_AdminPage(),
+			'name'   => _wpsf__( 'Full Options' ),
+			'active' => false
+		);
 
 		$aData = $this->loadDP()
 					  ->mergeArraysRecursive(

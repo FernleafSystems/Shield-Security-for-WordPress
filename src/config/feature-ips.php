@@ -4,6 +4,7 @@
     "slug":                  "ips",
     "name":                  "IP Manager",
     "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "ips",
     "tagline":               "Manage Visitor IP Address",
     "show_central":          true,

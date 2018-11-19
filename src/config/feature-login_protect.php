@@ -4,6 +4,7 @@
     "slug":                   "login_protect",
     "name":                   "Login Guard",
     "show_module_menu_item":  false,
+    "show_module_options":    true,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central":           true,

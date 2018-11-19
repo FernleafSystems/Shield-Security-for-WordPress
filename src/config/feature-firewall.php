@@ -4,6 +4,7 @@
     "slug":                  "firewall",
     "name":                  "Firewall",
     "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "firewall",
     "tagline":               "Automatically block malicious URLs and data sent to your site",
     "show_central":          true,

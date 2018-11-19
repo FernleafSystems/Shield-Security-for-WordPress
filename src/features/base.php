@@ -738,7 +738,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function getIfShowModuleLink() {
-		return $this->getIfShowModuleMenuItem();
+		return (bool)$this->getOptionsVo()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
@@ -1540,10 +1540,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'           => array(
-				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
-				'goprofooter'    => 'https://icwp.io/goprofooter',
-				'wizard_link'    => $this->getUrl_WizardLanding(),
-				'wizard_landing' => $this->getUrl_WizardLanding()
+				'back_to_dashboard' => $this->getConn()->getModule( 'insights' )->getUrl_AdminPage(),
+				'go_pro'            => 'https://icwp.io/shieldgoprofeature',
+				'goprofooter'       => 'https://icwp.io/goprofooter',
+				'wizard_link'       => $this->getUrl_WizardLanding(),
+				'wizard_landing'    => $this->getUrl_WizardLanding()
 			),
 			'content'         => array(
 				'options_form'   => '',

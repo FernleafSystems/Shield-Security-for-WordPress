@@ -4,6 +4,7 @@
     "slug":                   "hack_protect",
     "name":                   "Hack Guard",
     "show_module_menu_item":  false,
+    "show_module_options":    true,
     "storage_key":            "hack_protect",
     "tagline": "Automatically detect and repair vulnerable and suspicious items",
     "show_central":           true,

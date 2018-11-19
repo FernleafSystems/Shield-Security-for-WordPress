@@ -4,6 +4,7 @@
     "slug":                  "traffic",
     "name":                  "Traffic Watch",
     "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "traffic",
     "tagline":               "Watch All Requests To Your Site",
     "show_central":          true,

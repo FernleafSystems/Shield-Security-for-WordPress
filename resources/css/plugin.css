@@ -1041,3 +1041,10 @@ table.odp-table.scan-table td.column-path code {
 	display: none;
 }
 /** END TABLES SCANS **/
+.insights_section.keys .alert {
+	margin-bottom: 0;
+}
+#BackToInsights a {
+	border-radius: 0;
+	border-width: 2px 0;
+}
