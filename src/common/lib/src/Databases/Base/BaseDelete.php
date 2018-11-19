@@ -18,13 +18,21 @@ abstract class BaseDelete extends BaseQuery {
 
 	/**
 	 * @param int $nId
-	 * @return bool|int
+	 * @return bool
 	 */
 	public function deleteById( $nId ) {
 		return $this->reset()
 					->addWhereEquals( 'id', (int)$nId )
 					->setLimit( 1 )//perhaps an unnecessary precaution
 					->query();
+	}
+
+	/**
+	 * @param BaseEntryVO $oEntry
+	 * @return bool
+	 */
+	public function deleteEntry( $oEntry ) {
+		return $this->deleteById( $oEntry->id );
 	}
 
 	/**

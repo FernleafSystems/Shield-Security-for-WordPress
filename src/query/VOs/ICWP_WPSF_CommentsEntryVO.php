@@ -7,6 +7,7 @@ require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
  * @property int    post_id
  * @property string unique_token
  * @property string ip
+ * @deprecated
  */
 class ICWP_WPSF_CommentsEntryVO extends ICWP_WPSF_BaseEntryVO {
 

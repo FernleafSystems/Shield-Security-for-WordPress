@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_Comments_Delete', false ) ) {
 
 require_once( dirname( dirname( __FILE__ ) ).'/base/delete.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_Comments_Delete extends ICWP_WPSF_Query_BaseDelete {
 
 	/**

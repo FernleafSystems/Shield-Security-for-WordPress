@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_Comments_Select', false ) ) {
 
 require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_Comments_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**

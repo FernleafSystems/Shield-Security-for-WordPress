@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam' ) ) {
 
 require_once( dirname( __FILE__ ).'/basedb.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
+
 class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -145,7 +147,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 	public function printGaspFormItems() {
 		$oToken = $this->initCommentFormToken();
-		if ( $oToken instanceof ICWP_WPSF_CommentsEntryVO ) {
+		if ( $oToken instanceof Comments\EntryVO ) {
 			echo $this->getGaspCommentsHookHtml( $oToken );
 			echo $this->getGaspCommentsHtml();
 		}
@@ -166,10 +168,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @return ICWP_WPSF_CommentsEntryVO|null
+	 * @return Comments\EntryVO|null
 	 */
 	protected function initCommentFormToken() {
-		/** @var ICWP_WPSF_CommentsEntryVO $oToken */
+		/** @var Comments\EntryVO $oToken */
 		$oToken = $this->getQuerySelector()->getVo();
 		$oToken->post_id = $this->loadWp()->getCurrentPostId();
 		$oToken->unique_token = md5( $this->getController()->getUniqueRequestId( false ) );
@@ -177,14 +179,15 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @param ICWP_WPSF_CommentsEntryVO $oToken
+	 * @param Comments\EntryVO $oToken
 	 * @return string
 	 */
 	protected function getGaspCommentsHookHtml( $oToken ) {
 		$aHtml = array(
 			'<p id="'.$this->getUniqueFormId().'"></p>', // we use this unique <p> to hook onto using javascript
 			'<input type="hidden" id="_sugar_sweet_email" name="sugar_sweet_email" value="" />',
-			sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />', $oToken->getToken() )
+			sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />',
+				$oToken->unique_token )
 		);
 		return implode( '', $aHtml );
 	}
@@ -317,7 +320,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$bValidToken = false;
 
 		$oToken = $this->getPostCommentToken( $sToken, $sPostId );
-		if ( $oToken instanceof ICWP_WPSF_CommentsEntryVO ) {
+		if ( $oToken instanceof Comments\EntryVO ) {
 			// Did sufficient time pass and is it not-expired?
 			$nAge = $this->time() - $oToken->getCreatedAt();
 			$nExpires = $oFO->getTokenExpireInterval();
@@ -336,7 +339,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 * @param string $sCommentToken
 	 * @param int    $sPostId
-	 * @return ICWP_WPSF_CommentsEntryVO|null
+	 * @return Comments\EntryVO|null
 	 */
 	private function getPostCommentToken( $sCommentToken, $sPostId ) {
 		return $this->getQuerySelector()
@@ -402,31 +405,28 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Comments_Delete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		$oQ = new ICWP_WPSF_Query_Comments_Delete();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Delete() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Comments_Insert
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Insert
 	 */
 	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		$oQ = new ICWP_WPSF_Query_Comments_Insert();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Insert() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Comments_Select
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		$oQ = new ICWP_WPSF_Query_Comments_Select();
-		return $oQ->setTable( $this->getTableName() )
-				  ->setResultsAsVo( true );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Select() )
+			->setTable( $this->getTableName() )
+			->setResultsAsVo( true );
 	}
 
 	/**
