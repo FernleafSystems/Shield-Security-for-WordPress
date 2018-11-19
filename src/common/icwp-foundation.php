@@ -295,18 +295,6 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_GeoIp2
-	 */
-	static protected function loadGeoIp2() {
-		$sKey = 'icwp-geoip2';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			self::setService( $sKey, ICWP_WPSF_GeoIp2::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Edd
 	 */
 	static public function loadEdd() {
