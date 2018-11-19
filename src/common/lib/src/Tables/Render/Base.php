@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 if ( !class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php' );
 }
@@ -27,7 +29,8 @@ class Base extends \WP_List_Table {
 
 	/**
 	 * It seems rendering a WP Table on an AJAX request upsets the balance of the universe
-	 * an attempt to get rid of the error:  PHP Notice:  Undefined index: hook_suffix in wp-admin/includes/class-wp-screen.php on line 209
+	 * an attempt to get rid of the error:  PHP Notice:  Undefined index: hook_suffix in
+	 * wp-admin/includes/class-wp-screen.php on line 209
 	 * @param array $aArgs
 	 */
 	public function __construct( $aArgs = array() ) {
@@ -188,7 +191,7 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getIpWhoisLookupLink( $sIp ) {
 		return sprintf( '<a href="%s" target="_blank">%s</a>',
-			sprintf( 'https://apps.db.ripe.net/db-web-ui/#/query?bflag&searchtext=%s#resultsSection', $sIp ),
+			Services::IP()->getIpWhoisLookup( $sIp ),
 			$sIp
 		);
 	}

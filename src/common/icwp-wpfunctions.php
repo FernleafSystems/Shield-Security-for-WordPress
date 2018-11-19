@@ -498,7 +498,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param bool   $bWpmsOnly
 	 * @return string
 	 */
-	public function getAdminUrl( $sPath, $bWpmsOnly = false ) {
+	public function getAdminUrl( $sPath = '', $bWpmsOnly = false ) {
 		return $bWpmsOnly ? network_admin_url( $sPath ) : admin_url( $sPath );
 	}
 

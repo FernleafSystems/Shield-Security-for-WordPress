@@ -2,7 +2,6 @@
 
 /**
  * Class ICWP_WPSF_LiveTrafficEntryVO
- * @property string id
  * @property string rid
  * @property int    uid
  * @property string ip
@@ -11,8 +10,6 @@
  * @property string ua
  * @property string verb
  * @property bool   trans
- * @property int    created_at
- * @property int    deleted_at
  */
 class ICWP_WPSF_TrafficEntryVO extends ICWP_WPSF_BaseEntryVO {
 

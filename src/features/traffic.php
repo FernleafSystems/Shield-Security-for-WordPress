@@ -200,223 +200,24 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	protected function ajaxExec_BuildTableTraffic() {
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-				'fIp',
-				'fPath',
-				'fResponse',
-				'fUsername',
-				'fLoggedIn',
-				'fTransgression',
-				'fExludeYou'
-			) )
-		);
+	private function ajaxExec_BuildTableTraffic() {
+		/** @var ICWP_WPSF_Processor_Traffic $oPro */
+		$oPro = $this->getProcessor();
+
+		if ( $oPro->getProcessorLogger()->getQuerySelector()->count() > 0 ) {
+			$sRendered = ( new Shield\Tables\Build\LiveTraffic() )
+				->setQuerySelector( $oPro->getProcessorLogger()->getQuerySelector() )
+				->setGeoIpDbSource( $this->getConn()->getPath_Assets( 'db/GeoIp2/GeoLite2-Country.mmdb' ) )
+				->buildTable();
+		}
+		else {
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
+		}
+
 		return array(
 			'success' => true,
-			'html'    => $this->renderTable( $aParams )
+			'html'    => $sRendered
 		);
-	}
-
-	/**
-	 * @param array $aParams
-	 * @return string
-	 */
-	protected function renderTable( $aParams = array() ) {
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-		$aParams = array_merge(
-			array(
-				'orderby'        => 'created_at',
-				'order'          => 'DESC',
-				'paged'          => 1,
-				'fIp'            => '',
-				'fUsername'      => '',
-				'fLoggedIn'      => -1,
-				'fPath'          => '',
-				'fTransgression' => -1,
-				'fResponse'      => '',
-				'fExludeYou'     => '',
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
-
-		/** @var ICWP_WPSF_Processor_Traffic $oPro */
-		$oPro = $this->loadProcessor();
-		$oSelector = $oPro->getProcessorLogger()
-						  ->getQuerySelector()
-						  ->setPage( $nPage )
-						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-						  ->setLimit( $this->getDefaultPerPage() )
-						  ->setResultsAsVo( true );
-		// Filters
-		{
-			$oIp = $this->loadIpService();
-			// If an IP is specified, it takes priority
-			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
-				$oSelector->filterByIp( inet_pton( $aParams[ 'fIp' ] ) );
-			}
-			else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
-				$oSelector->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
-			}
-
-			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-			if ( !empty( $aParams[ 'fUsername' ] ) ) {
-				$oUser = $this->loadWpUsers()->getUserByUsername( $aParams[ 'fUsername' ] );
-				if ( !empty( $oUser ) ) {
-					$oSelector->filterByUserId( $oUser->ID );
-				}
-			}
-			else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-				$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
-			}
-
-			if ( $aParams[ 'fTransgression' ] >= 0 ) {
-				$oSelector->filterByIsTransgression( $aParams[ 'fTransgression' ] );
-			}
-
-			$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
-			$oSelector->filterByResponseCode( $aParams[ 'fResponse' ] );
-		}
-
-		/** @var ICWP_WPSF_TrafficEntryVO[] $aEntries */
-		$aEntries = $oSelector->query();
-
-		$oTable = $this->getTableRenderer()
-					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-					   ->setPerPage( $this->getDefaultPerPage() )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
-	}
-
-	/**
-	 * Move to table
-	 * @param ICWP_WPSF_TrafficEntryVO[] $aEntries
-	 * @return array
-	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-
-		if ( is_array( $aEntries ) ) {
-			$oCon = $this->getConn();
-			$oWp = $this->loadWp();
-			$oIp = $this->loadIpService();
-			$oWpUsers = $this->loadWpUsers();
-			$oGeo = $this->loadGeoIp2();
-			$sYou = $this->loadIpService()->getRequestIp();
-
-			$aUsers = array( _wpsf__( 'No' ) );
-			$oCarbon = new \Carbon\Carbon();
-			foreach ( $aEntries as $nKey => $oEntry ) {
-				$sIp = $oEntry->ip;
-
-				list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
-				$sQuery = trim( $sQuery, '?' );
-				$sPath = strtoupper( $oEntry->verb ).': <code>'.$sPreQuery
-						 .( empty( $sQuery ) ? '' : '?<br/>'.$sQuery ).'</code>';
-
-				$sCodeType = 'success';
-				if ( $oEntry->code >= 400 ) {
-					$sCodeType = 'danger';
-				}
-				else if ( $oEntry->code >= 300 ) {
-					$sCodeType = 'warning';
-				}
-
-
-				$aEntry = $oEntry->getRawData();
-				$aEntry[ 'path' ] = $sPath;
-				$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
-				$aEntry[ 'trans' ] = sprintf(
-					'<span class="badge badge-%s">%s</span>',
-					$oEntry->trans ? 'danger' : 'info',
-					$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
-				);
-				$aEntry[ 'ip' ] = $sIp;
-				$aEntry[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-										  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-
-				$aEntry[ 'is_you' ] = $sIp == $sYou;
-
-				if ( $oEntry->uid > 0 ) {
-					if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
-						$oUser = $oWpUsers->getUserById( $oEntry->uid );
-						$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) :
-							sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-								$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
-					}
-				}
-
-				$sCountry = $oGeo->countryName( $sIp );
-				if ( empty( $sCountry ) ) {
-					$sCountry = _wpsf__( 'Unknown' );
-				}
-				else {
-					$sFlag = $oCon->getPluginUrl_Image( 'flags/'.strtolower( $oGeo->countryIso( $sIp ) ).'.png' );
-					$sCountry = sprintf( '<img class="icon-flag" src="%s"/> %s', $sFlag, $sCountry );
-				}
-
-				$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
-					$this->getIpWhoisLookup( $sIp ), $sIp,
-					$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('._wpsf__( 'You' ).')</span>' : ''
-				);
-
-				$aDetails = array(
-					sprintf( '%s: %s', _wpsf__( 'IP' ), $sIpLink ),
-					sprintf( '%s: %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
-					sprintf( '%s: %s', _wpsf__( 'Location' ), $sCountry ),
-					esc_html( esc_js( sprintf( '%s - %s', _wpsf__( 'User Agent' ), $oEntry->ua ) ) )
-				);
-				$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
-
-				$aInfo = array(
-					sprintf( '%s: %s', _wpsf__( 'Response' ), $aEntry[ 'code' ] ),
-					sprintf( '%s: %s', _wpsf__( 'Transgression' ), $aEntry[ 'trans' ] ),
-				);
-				$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
-				$aEntries[ $nKey ] = $aEntry;
-			}
-		}
-		return $aEntries;
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return string
-	 */
-	protected function getIpWhoisLookup( $sIp ) {
-		return sprintf( 'https://apps.db.ripe.net/db-web-ui/#/query?bflag&searchtext=%s#resultsSection', $sIp );
-	}
-
-	/**
-	 * @return Shield\Tables\Render\LiveTraffic
-	 */
-	protected function getTableRenderer() {
-		/** @var ICWP_WPSF_Processor_Traffic $oPro */
-		$oPro = $this->loadProcessor();
-		$nCount = $oPro->getProcessorLogger()
-					   ->getQuerySelector()
-					   ->count();
-		return ( new Shield\Tables\Render\LiveTraffic() )->setTotalRecords( $nCount );
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getDefaultPerPage() {
-		return $this->getDef( 'default_per_page' );
 	}
 
 	/**
