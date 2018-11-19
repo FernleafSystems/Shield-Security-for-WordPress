@@ -99,17 +99,17 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_BaseDelete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete
 	 */
 	abstract protected function getQueryDeleter();
 
 	/**
-	 * @return ICWP_WPSF_Query_BaseInsert
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert
 	 */
 	abstract protected function getQueryInserter();
 
 	/**
-	 * @return ICWP_WPSF_Query_BaseSelect
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect
 	 */
 	abstract protected function getQuerySelector();
 

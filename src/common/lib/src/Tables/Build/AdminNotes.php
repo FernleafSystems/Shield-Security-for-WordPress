@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
  * Class AdminNotes
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class AdminNotes extends Base {
+class AdminNotes extends BaseBuild {
 
 	/**
 	 * @return array[]

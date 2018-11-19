@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
  * Class Ip
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class Ip extends Base {
+class Ip extends BaseBuild {
 
 	/**
 	 * Override this to apply table-specific query filters.

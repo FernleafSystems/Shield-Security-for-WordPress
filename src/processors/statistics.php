@@ -219,10 +219,10 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_TallyVO[]
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\EntryVO[]
 	 */
 	protected function getAllTallys() {
-		/** @var ICWP_WPSF_TallyVO[] $aRes */
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\EntryVO[] $aRes */
 		$aRes = $this->getTallyProcessor()
 					 ->getQuerySelector()
 					 ->setColumnsToSelect( array( 'stat_key', 'tally' ) )

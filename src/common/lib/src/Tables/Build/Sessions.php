@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class Sessions
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class Sessions extends Base {
+class Sessions extends BaseBuild {
 
 	/**
 	 * Override this to apply table-specific query filters.

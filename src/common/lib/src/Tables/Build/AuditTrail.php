@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class AuditTrail
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class AuditTrail extends Base {
+class AuditTrail extends BaseBuild {
 
 	/**
 	 * Override this to apply table-specific query filters.

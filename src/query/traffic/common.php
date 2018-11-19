@@ -86,6 +86,6 @@ trait ICWP_WPSF_Query_TrafficEntry_Common {
 	 * @return string
 	 */
 	protected function getVoName() {
-		return 'ICWP_WPSF_TallyVO';
+		return 'ICWP_WPSF_TrafficEntryVO';
 	}
 }

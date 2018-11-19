@@ -2,13 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
-class Base {
+class BaseBuild {
 
 	/**
-	 * @var \ICWP_WPSF_Query_BaseSelect
+	 * @var Databases\Base\BaseSelect
 	 */
 	protected $oQuerySelector;
 
@@ -147,14 +148,14 @@ class Base {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Query_BaseSelect
+	 * @return Databases\Base\BaseSelect
 	 */
 	public function getQuerySelector() {
 		return $this->oQuerySelector;
 	}
 
 	/**
-	 * @param \ICWP_WPSF_Query_BaseSelect $oQuerySelector
+	 * @param Databases\Base\BaseSelect $oQuerySelector
 	 * @return $this
 	 */
 	public function setQuerySelector( $oQuerySelector ) {

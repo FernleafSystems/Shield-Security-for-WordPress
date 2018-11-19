@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
  * Class ScanBase
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class ScanBase extends Base {
+class ScanBase extends BaseBuild {
 
 	/**
 	 * Override this to apply table-specific query filters.

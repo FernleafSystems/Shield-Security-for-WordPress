@@ -1,18 +1,13 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Tally_Insert', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
-require_once( dirname( __DIR__ ).'/base/insert.php' );
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Tally_Insert extends ICWP_WPSF_Query_BaseInsert {
+class Insert extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert {
 
 	/**
-	 * @param ICWP_WPSF_TallyVO $oTally
+	 * @param EntryVO $oTally
 	 * @return bool
 	 */
 	public function insert( $oTally ) {
@@ -36,7 +31,7 @@ class ICWP_WPSF_Query_Tally_Insert extends ICWP_WPSF_Query_BaseInsert {
 			return false;
 		}
 
-		$nTimeStamp = $this->loadRequest()->ts();
+		$nTimeStamp = Services::Request()->ts();
 		$aData = array(
 			'stat_key'        => $sStatKey,
 			'parent_stat_key' => $sParent,

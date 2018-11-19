@@ -9,6 +9,7 @@ require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
  * @property string parent_stat_key
  * @property int    tally
  * @property int    modified_at
+ * @deprecated
  */
 class ICWP_WPSF_TallyVO extends ICWP_WPSF_BaseEntryVO {
 }

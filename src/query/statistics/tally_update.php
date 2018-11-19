@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_Tally_Update', false ) ) {
 
 require_once( dirname( __DIR__ ).'/base/update.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_Tally_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**

@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_Statistics_Tally', false ) ) {
 
 require_once( dirname( __FILE__ ).'/basedb.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
+
 class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -19,38 +21,37 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Tally_Delete
+	 * @return Tally\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'tally_delete.php' );
-		return ( new ICWP_WPSF_Query_Tally_Delete() )->setTable( $this->getTableName() );
+		return ( new Tally\Delete() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Tally_Insert
+	 * @return Tally\Insert
 	 */
 	public function getQueryInserter() {
-		$this->queryRequireLib( 'tally_insert.php' );
-		return ( new ICWP_WPSF_Query_Tally_Insert() )->setTable( $this->getTableName() );
+		return ( new Tally\Insert() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Tally_Select
+	 * @return Tally\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'tally_select.php' );
-		return ( new ICWP_WPSF_Query_Tally_Select() )
+		return ( new Tally\Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true )
 			->setColumnsDefinition( $this->getTableColumnsByDefinition() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Tally_Update
+	 * @return Tally\Update
 	 */
 	public function getUpdater() {
-		$this->queryRequireLib( 'tally_update.php' );
-		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
+		return ( new Tally\Update() )
+			->setTable( $this->getTableName() );
 	}
 
 	public function onModuleShutdown() {
@@ -76,7 +77,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
-		/** @var ICWP_WPSF_TallyVO $oStat */
+		/** @var Tally\EntryVO $oStat */
 		$oSel = $this->getQuerySelector();
 		foreach ( $aEntries as $aCollection ) {
 			foreach ( $aCollection as $sStatKey => $nTally ) {
@@ -130,9 +131,8 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * Will consolidate multiple rows with the same stat_key into 1 row
 	 */
 	protected function consolidateDuplicateKeys() {
-		/** @var ICWP_WPSF_TallyVO[] $aAll */
-		$aAll = $this->getQuerySelector()
-					 ->all();
+		/** @var Tally\EntryVO[] $aAll */
+		$aAll = $this->getQuerySelector()->all();
 
 		$aKeys = array();
 		foreach ( $aAll as $oTally ) {
@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 		) );
 
 		foreach ( $aKeys as $sKey ) {
-			/** @var ICWP_WPSF_TallyVO[] $aAll */
+			/** @var Tally\EntryVO[] $aAll */
 			$aAll = $this->getQuerySelector()
 						 ->filterByStatKey( $sKey )
 						 ->query();
@@ -159,7 +159,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			$nAdditionalTally = 0;
 			foreach ( $aAll as $oTally ) {
 				$nAdditionalTally += $oTally->tally;
-				$this->getQueryDeleter()->deleteById( $oTally->id );
+				$this->getQueryDeleter()->deleteEntry( $oTally );
 			}
 
 			$this->getUpdater()->incrementTally( $oPrimary, $nAdditionalTally );

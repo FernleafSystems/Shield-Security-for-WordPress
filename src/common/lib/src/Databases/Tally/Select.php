@@ -1,15 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Tally_Select', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
-require_once( dirname( __DIR__ ).'/base/select.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Tally_Select extends ICWP_WPSF_Query_BaseSelect {
+class Select extends BaseSelect {
 
 	/**
 	 * @param string $sKey
@@ -30,7 +25,7 @@ class ICWP_WPSF_Query_Tally_Select extends ICWP_WPSF_Query_BaseSelect {
 	/**
 	 * @param string $sStatKey
 	 * @param string $sParentStatKey
-	 * @return ICWP_WPSF_TallyVO|stdClass|null
+	 * @return EntryVO|\stdClass|null
 	 */
 	public function retrieveStat( $sStatKey, $sParentStatKey = '' ) {
 		if ( !empty( $sParentStatKey ) ) {
@@ -43,9 +38,9 @@ class ICWP_WPSF_Query_Tally_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return string
+	 * @return EntryVO
 	 */
-	protected function getVoName() {
-		return 'ICWP_WPSF_TallyVO';
+	public function getVo() {
+		return Handler::getVo();
 	}
 }
