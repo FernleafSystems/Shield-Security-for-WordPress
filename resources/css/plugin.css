@@ -971,8 +971,10 @@ th.column-last_activity_at {
 	max-width: 160px;
 	width: 160px;
 }
+td .timestamp-small {
+	font-size: smaller;
+}
 /** END TABLES **/
-
 
 /** Sessions Table **/
 th.column-is_secadmin {

@@ -51,37 +51,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @param ICWP_WPSF_IpsEntryVO[] $aListData
-	 * @return array
-	 */
-	protected function formatEntriesForDisplay( $aListData ) {
-		$oWp = $this->loadWp();
-
-		$oCarbon = new \Carbon\Carbon();
-		foreach ( $aListData as $nKey => $oIp ) {
-			$aItem = $oIp->getRawData();
-			$sIp = $oIp->getIp();
-
-			$aItem[ 'ip_link' ] =
-				sprintf( '<a href="%s" target="_blank">%s</a>',
-					(
-					( $this->loadIpService()->getIpVersion( $sIp ) == 4 ) ?
-						'http://whois.domaintools.com/'.$sIp
-						: sprintf( 'http://whois.arin.net/rest/nets;q=%s?showDetails=true', $sIp )
-					),
-					$sIp
-				);
-			$aItem[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans()
-										 .'<br/><small>'.$oWp->getTimeStringForDisplay( $oIp->getLastAccessAt() ).'</small>';
-			$aItem[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans()
-									 .'<br/><small>'.$oWp->getTimeStringForDisplay( $oIp->getCreatedAt() ).'</small>';
-
-			$aListData[ $nKey ] = $aItem;
-		}
-		return $aListData;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getIpListsTableName() {
@@ -199,81 +168,22 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableIps() {
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-				'fList'
-			) )
-		);
+		/** @var ICWP_WPSF_Processor_Ips $oPro */
+		$oPro = $this->getProcessor();
+
+		if ( $oPro->getQuerySelector()->count() > 0 ) {
+			$sRendered = ( new Shield\Tables\Build\Ip() )
+				->setQuerySelector( $oPro->getQuerySelector() )
+				->buildTable();
+		}
+		else {
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
+		}
 
 		return array(
 			'success' => true,
-			'html'    => $this->renderTable( $aParams )
+			'html'    => $sRendered
 		);
-	}
-
-	/**
-	 * @param array $aParams
-	 * @return string
-	 */
-	protected function renderTable( $aParams = array() ) {
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9._-]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-		$aParams = array_merge(
-			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
-				'fList'   => '',
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
-
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->loadProcessor();
-		/** @var ICWP_WPSF_IpsEntryVO[] $aEntries */
-		$aEntries = $oPro->getQuerySelector()
-						 ->setPage( $nPage )
-						 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-						 ->setLimit( 25 )
-						 ->setResultsAsVo( true )
-						 ->filterByList( $aParams[ 'fList' ] )
-						 ->query();
-
-		$oTable = $this->getTableRenderer( $aParams[ 'fList' ] )
-					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-					   ->setPerPage( 25 )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
-	}
-
-	/**
-	 * @param string $sList
-	 * @return Shield\Tables\Render\IpWhite
-	 */
-	protected function getTableRenderer( $sList = self::LIST_MANUAL_WHITE ) {
-		if ( empty( $sList ) || $sList == self::LIST_MANUAL_WHITE ) {
-			$sTable = new Shield\Tables\Render\IpWhite();
-		}
-		else {
-			$sTable = new Shield\Tables\Render\IpBlack();
-		}
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->loadProcessor();
-		$nCount = $oPro->getQuerySelector()->count();
-		return $sTable->setTotalRecords( $nCount );
 	}
 
 	protected function doExtraSubmitProcessing() {

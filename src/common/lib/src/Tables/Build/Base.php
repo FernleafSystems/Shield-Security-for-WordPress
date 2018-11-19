@@ -43,8 +43,8 @@ class Base {
 	 */
 	protected function formatTimestampField( $nTimestamp ) {
 		return ( new \Carbon\Carbon() )->setTimestamp( $nTimestamp )->diffForHumans()
-			   .'<br/><span class="timestamp-small">'.Services::WpGeneral()
-															  ->getTimeStringForDisplay( $nTimestamp ).'</span>';
+			   .'<br/><span class="timestamp-small">'
+			   .Services::WpGeneral()->getTimeStringForDisplay( $nTimestamp ).'</span>';
 	}
 
 	/**

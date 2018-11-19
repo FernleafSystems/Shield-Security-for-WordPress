@@ -66,7 +66,6 @@ class AuditTrail extends Base {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var \ICWP_WPSF_AuditTrailEntryVO $oEntry */
 			$aE = $oEntry->getRawData();
-			var_dump( $oEntry->message );
 			$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 			$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->message ) );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );

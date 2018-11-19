@@ -118,11 +118,11 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param array $aAuditEntries
+	 * @param array $aEntries
 	 * @return $this
 	 */
-	public function setItemEntries( $aAuditEntries ) {
-		$this->aItemEntries = $aAuditEntries;
+	public function setItemEntries( $aEntries ) {
+		$this->aItemEntries = $aEntries;
 		return $this;
 	}
 
