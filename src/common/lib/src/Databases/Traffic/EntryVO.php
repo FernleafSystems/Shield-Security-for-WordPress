@@ -1,9 +1,11 @@
 <?php
 
-require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 
 /**
- * Class ICWP_WPSF_LiveTrafficEntryVO
+ * Class EntryVO
  * @property string rid
  * @property int    uid
  * @property string ip
@@ -12,9 +14,8 @@ require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
  * @property string ua
  * @property string verb
  * @property bool   trans
- * @deprecated
  */
-class ICWP_WPSF_TrafficEntryVO extends ICWP_WPSF_BaseEntryVO {
+class EntryVO extends Databases\Base\BaseEntryVO {
 
 	/**
 	 * @param string $sProperty

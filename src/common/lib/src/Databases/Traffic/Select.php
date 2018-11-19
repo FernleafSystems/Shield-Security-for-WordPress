@@ -1,18 +1,13 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_TrafficEntry_Select', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
-require_once( __DIR__.'/common.php' );
-require_once( dirname( __DIR__ ).'/base/select.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
+class Select extends BaseSelect {
 
-	use ICWP_WPSF_Query_TrafficEntry_Common;
+	use BaseTraffic;
 
 	/**
 	 * @return string[]
@@ -48,8 +43,8 @@ class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
 	public function getDistinctUsernames() {
 		$a = array_filter( array_map(
 			function ( $nId ) {
-				$oUser = $this->loadWpUsers()->getUserById( $nId );
-				return ( $oUser instanceof WP_User ) ? $oUser->user_login : null;
+				$oUser = Services::WpUsers()->getUserById( $nId );
+				return ( $oUser instanceof \WP_User ) ? $oUser->user_login : null;
 			},
 			$this->getDistinctUserIds()
 		) );
@@ -58,9 +53,9 @@ class ICWP_WPSF_Query_TrafficEntry_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return string
+	 * @return EntryVO
 	 */
-	protected function getVoName() {
-		return 'ICWP_WPSF_TrafficEntryVO';
+	public function getVo() {
+		return Handler::getVo();
 	}
 }

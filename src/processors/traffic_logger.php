@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_TrafficLogger', false ) ) {
 
 require_once( dirname( __FILE__ ).'/basedb.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
+
 class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -129,7 +131,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		// For multisites that are separated by sub-domains we also show the host.
 		$sLeadingPath = $this->loadWp()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
 
-		/** @var ICWP_WPSF_TrafficEntryVO $oEntry */
 		$oEntry = $this->getQuerySelector()->getVo();
 		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
@@ -137,34 +138,33 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->verb = $oReq->getMethod();
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
-		$oEntry->ua = (string)$oReq->server( 'HTTP_USER_AGENT' );
+		$oEntry->ua = $oReq->getUserAgent();
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
 		$this->getQueryInserter()->insert( $oEntry );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_TrafficEntry_Delete
+	 * @return Traffic\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		return ( new ICWP_WPSF_Query_TrafficEntry_Delete() )->setTable( $this->getTableName() );
+		return ( new Traffic\Delete() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_TrafficEntry_Insert
+	 * @return Traffic\Insert
 	 */
 	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		return ( new ICWP_WPSF_Query_TrafficEntry_Insert() )->setTable( $this->getTableName() );
+		return ( new Traffic\Insert() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_TrafficEntry_Select
+	 * @return Traffic\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		return ( new ICWP_WPSF_Query_TrafficEntry_Select() )
+		return ( new Traffic\Select() )
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );
 	}
