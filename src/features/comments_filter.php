@@ -136,11 +136,12 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings'  => array(
+			'strings'      => array(
 				'title' => _wpsf__( 'SPAM Blocking' ),
 				'sub'   => _wpsf__( 'Block Bot & Human Comment SPAM' ),
 			),
-			'key_opts' => array()
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
 		);
 
 		if ( !$this->isModOptEnabled() ) {
@@ -151,7 +152,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				'name'    => _wpsf__( 'Bot SPAM' ),
 				'enabled' => $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled(),
 				'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
-					_wpsf__( 'Bot SPAM comments are being blocked' )
+					_wpsf__( 'Bot SPAM comments are blocked' )
 					: _wpsf__( 'There is no protection against Bot SPAM comments' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_bot_comment_spam_protection_filter' ),
@@ -160,8 +161,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				'name'    => _wpsf__( 'Human SPAM' ),
 				'enabled' => $this->isEnabledHumanCheck(),
 				'summary' => $this->isEnabledHumanCheck() ?
-					_wpsf__( 'Comments by humans are being checked for SPAM' )
-					: _wpsf__( 'Comments by humans are not being checked for SPAM' ),
+					_wpsf__( 'Comments posted by humans are checked for SPAM' )
+					: _wpsf__( "Comments posted by humans aren't checked for SPAM" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_human_spam_filter' ),
 			);

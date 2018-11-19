@@ -276,7 +276,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bDoAutoUpdate = true;
 		}
 		else if ( $sFile === $this->getController()->getPluginBaseFile() ) {
-			$sAuto = $oFO->getOpt( 'autoupdate_plugin_self' );
+			$sAuto = $oFO->getSelfAutoUpdateOpt();
 			if ( $sAuto === 'immediate' ) {
 				$bDoAutoUpdate = true;
 			}

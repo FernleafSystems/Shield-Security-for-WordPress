@@ -91,11 +91,12 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings' => array(
+			'strings'      => array(
 				'title' => _wpsf__( 'WordPress Lockdown' ),
 				'sub'   => _wpsf__( 'Restrict WP Functionality e.g. XMLRPC & REST API' ),
 			),
-			'key_opts' => array()
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
 		);
 
 		if ( !$this->isModOptEnabled() ) {
@@ -129,8 +130,8 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'name'    => _wpsf__( 'REST API' ),
 				'enabled' => $bApi,
 				'summary' => $bApi ?
-					_wpsf__( 'Anonymous REST API access is disabled' )
-					: _wpsf__( "Anonymous REST API access is allowed" ),
+					_wpsf__( 'Anonymous REST API is disabled' )
+					: _wpsf__( "Anonymous REST API is allowed" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'disable_anonymous_restapi' ),
 			);

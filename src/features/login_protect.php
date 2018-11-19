@@ -685,11 +685,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings'  => array(
+			'strings'      => array(
 				'title' => _wpsf__( 'Login Guard' ),
 				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
 			),
-			'key_opts' => array()
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
 		);
 
 		if ( !$this->isModOptEnabled() ) {

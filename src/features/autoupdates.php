@@ -162,6 +162,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getSelfAutoUpdateOpt() {
+		return $this->getOpt( 'autoupdate_plugin_self' );
+	}
+
+	/**
 	 * @param string $sPluginFile
 	 * @return $this
 	 */
@@ -185,11 +192,12 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings'  => array(
+			'strings'      => array(
 				'title' => _wpsf__( 'Automatic Updates' ),
 				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
 			),
-			'key_opts' => array()
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
 		);
 
 		if ( !$this->isModOptEnabled() ) {
@@ -231,6 +239,19 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( 'Automatic updates are applied immediately' ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToOption( 'update_delay' ),
+				);
+
+				$sName = $this->getConn()->getHumanName();
+				$bSelfAuto = $this->isModOptEnabled()
+							 && in_array( $this->getSelfAutoUpdateOpt(), [ 'auto', 'immediate' ] );
+				$aThis[ 'key_opts' ][ 'self' ] = array(
+					'name'    => _wpsf__( 'Self Auto-Update' ),
+					'enabled' => $bSelfAuto,
+					'summary' => $bSelfAuto ?
+						sprintf( _wpsf__( '%s is automatically updated' ), $sName )
+						: sprintf( _wpsf__( "%s isn't automatically updated" ), $sName ),
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_plugin_self' ),
 				);
 			}
 		}

@@ -1012,11 +1012,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings'  => array(
+			'strings'      => array(
 				'title' => _wpsf__( 'Hack Guard' ),
 				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
 			),
-			'key_opts' => array()
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
 		);
 
 		if ( !$this->isModOptEnabled() ) {
@@ -1039,7 +1040,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'name'    => _wpsf__( 'WP Core File Scan' ),
 				'enabled' => $bCore,
 				'summary' => $bCore ?
-					_wpsf__( 'Regularly scanning of Core files are for hacks' )
+					_wpsf__( 'Core files scanned regularly for hacks' )
 					: _wpsf__( "Core files are never scanned for hacks!" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
@@ -1061,7 +1062,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'name'    => _wpsf__( 'Unrecognised Files' ),
 				'enabled' => $bUcf,
 				'summary' => $bUcf ?
-					_wpsf__( 'Regularly scanning for unrecognised files' )
+					_wpsf__( 'Core directories scanned regularly for unrecognised files' )
 					: _wpsf__( "WP Core is never scanned for unrecognised files!" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),

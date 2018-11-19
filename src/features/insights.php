@@ -349,9 +349,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getConfigCardsData() {
-		$aAll = apply_filters( $this->prefix( 'collect_summary' ), array() );
-
-		return $aAll;
+		return apply_filters( $this->prefix( 'collect_summary' ), array() );
 	}
 
 	/**

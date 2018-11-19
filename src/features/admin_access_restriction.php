@@ -427,7 +427,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'title' => _wpsf__( 'Security Admin' ),
 				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
 			),
-			'key_opts' => array()
+			'key_opts' => array(),
+			'href_options' => $this->getUrl_AdminPage()
 		);
 
 		if ( !$this->isEnabledForUiSummary() ) {
