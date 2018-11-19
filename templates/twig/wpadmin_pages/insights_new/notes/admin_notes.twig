@@ -14,7 +14,7 @@
 						  placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
 				></textarea>
 				<div class="input-group-append">
-					<button type="button" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
+					<button type="submit" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
 							{% if not flags.can_notes %}disabled="disabled"{% endif %}
 					>Add Note</button>
 				</div>
