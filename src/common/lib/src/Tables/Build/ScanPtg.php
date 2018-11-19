@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class ScanPtg
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class ScanPtg extends Base {
+class ScanPtg extends ScanBase {
 
 	/**
 	 * @return array[]

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class ScanBase
@@ -38,36 +37,5 @@ class ScanBase extends Base {
 			'fSlug'    => '',
 			'fIgnored' => 'N',
 		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getEntriesFormatted() {
-		$aEntries = array();
-
-		$sYou = Services::IP()->getRequestIp();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var \ICWP_WPSF_AuditTrailEntryVO $oEntry */
-			$aE = $oEntry->getRawData();
-			$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
-			$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->message ) );
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			if ( $oEntry->getIp() == $sYou ) {
-				$aE[ 'your_ip' ] = '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
-			}
-			else {
-				$aE[ 'your_ip' ] = '';
-			}
-			$aEntries[ $nKey ] = $aE;
-		}
-		return $aEntries;
-	}
-
-	/**
-	 * @return Tables\Render\AuditTrail
-	 */
-	protected function getTableRenderer() {
-		return new Tables\Render\AuditTrail();
 	}
 }
