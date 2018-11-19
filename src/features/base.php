@@ -731,7 +731,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function getIfShowModuleMenuItem() {
-		return $this->getOptionsVo()->getFeatureProperty( 'show_module_menu_item' );
+		return (bool)$this->getOptionsVo()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
 	/**

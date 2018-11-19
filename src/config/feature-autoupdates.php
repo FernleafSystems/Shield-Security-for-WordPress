@@ -3,7 +3,7 @@
   "properties":  {
     "slug":                  "autoupdates",
     "name":                  "Automatic Updates",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":           "autoupdates",
     "tagline":               "Take back full control of WordPress automatic updates",
     "show_central":          true,

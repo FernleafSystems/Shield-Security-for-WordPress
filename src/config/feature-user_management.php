@@ -2,7 +2,7 @@
   "slug":        "user_management",
   "properties":  {
     "name":                  "User Management",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":           "user_management",
     "tagline":               "Control user sessions, duration, timeouts and account sharing",
     "show_central":          true,

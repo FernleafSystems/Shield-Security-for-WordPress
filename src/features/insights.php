@@ -178,13 +178,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aTopNav = array(
 			'insights' => _wpsf__( 'Overview' ),
-			'config'   => _wpsf__( 'Configuration' ),
+			'config'   => _wpsf__( 'Settings Summary' ),
 			'scans'    => _wpsf__( 'Scan' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
 			'users'    => _wpsf__( 'Users' ),
 			'notes'    => _wpsf__( 'Notes' ),
+			'options'  => _wpsf__( 'Full Options' ),
 			'license'  => _wpsf__( 'Pro' ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
@@ -198,6 +199,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aData = $this->loadDP()
 					  ->mergeArraysRecursive(
 						  array(
+							  'classes' => array(
+								  'page_container' => 'page-insights page-'.$sSubNavSection
+							  ),
 							  'hrefs'   => array(
 								  'nav_home' => $this->getUrl_AdminPage(),
 								  'top_nav'  => $aTopNav,

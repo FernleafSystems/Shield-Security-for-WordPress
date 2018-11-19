@@ -896,6 +896,14 @@ th.column-request_info {
 }
 #odp-BodyHead {
 }
+.page-insights #odp-BodyHead {
+	position: sticky;
+	top: 40px;
+	z-index: 3;
+}
+#odp-BodyHead .navbar {
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
 #odp-BodyHead .nav-link {
 	/*border: 1px solid rgba(0, 0, 0, 0.1);*/
 	/*border-radius: 2px;*/
@@ -968,8 +976,8 @@ td.cell_delete_note {
 th.column-created_at,
 th.column-logged_in_at,
 th.column-last_activity_at {
-	max-width: 160px;
-	width: 160px;
+	max-width: 165px;
+	width: 165px;
 }
 td .timestamp-small {
 	font-size: smaller;

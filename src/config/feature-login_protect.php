@@ -3,7 +3,7 @@
   "properties":    {
     "slug":                   "login_protect",
     "name":                   "Login Guard",
-    "show_module_menu_item":  true,
+    "show_module_menu_item":  false,
     "storage_key":            "loginprotect",
     "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
     "show_central":           true,

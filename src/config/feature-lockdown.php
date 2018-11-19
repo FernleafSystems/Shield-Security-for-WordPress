@@ -3,7 +3,7 @@
   "properties": {
     "slug":                  "lockdown",
     "name":                  "Lockdown",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":           "lockdown",
     "tagline":               "Harden the more loosely controlled settings of your site",
     "show_central":          true,

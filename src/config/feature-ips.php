@@ -3,7 +3,7 @@
   "properties":    {
     "slug":                  "ips",
     "name":                  "IP Manager",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":           "ips",
     "tagline":               "Manage Visitor IP Address",
     "show_central":          true,

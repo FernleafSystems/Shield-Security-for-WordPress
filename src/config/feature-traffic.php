@@ -3,7 +3,7 @@
   "properties":   {
     "slug":                  "traffic",
     "name":                  "Traffic Watch",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "storage_key":           "traffic",
     "tagline":               "Watch All Requests To Your Site",
     "show_central":          true,
