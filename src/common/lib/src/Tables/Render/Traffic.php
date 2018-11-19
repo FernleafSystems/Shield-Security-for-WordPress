@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
-class LiveTraffic extends Base {
+class Traffic extends Base {
 
 	/**
 	 * @return array

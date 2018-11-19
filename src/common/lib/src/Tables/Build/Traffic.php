@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class LiveTraffic
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class LiveTraffic extends Base {
+class Traffic extends Base {
 
 	/**
 	 * @var string
@@ -152,10 +152,10 @@ class LiveTraffic extends Base {
 	}
 
 	/**
-	 * @return Tables\Render\LiveTraffic
+	 * @return Tables\Render\Traffic
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\LiveTraffic();
+		return new Tables\Render\Traffic();
 	}
 
 	/**
