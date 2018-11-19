@@ -1,10 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseQuery', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
+use FernleafSystems\Wordpress\Services\Services;
+
+abstract class BaseQuery {
 
 	/**
 	 * @var array
@@ -183,7 +183,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function query() {
-		$mResult = $this->loadDbProcessor()->doSql( $this->buildQuery() );
+		$mResult = Services::WpDb()->doSql( $this->buildQuery() );
 		return ( $mResult === false ) ? false : $mResult > 0;
 	}
 
@@ -230,7 +230,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 */
 	public function getColumns() {
 		if ( !isset( $this->aColumns ) ) {
-			$aCols = $this->loadDbProcessor()->getColumnsForTable( $this->getTable(), 'strtolower' );
+			$aCols = Services::WpDb()->getColumnsForTable( $this->getTable(), 'strtolower' );
 			$this->aColumns = is_array( $aCols ) ? $aCols : array();
 		}
 		return $this->aColumns;
@@ -336,7 +336,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param ICWP_WPSF_BaseEntryVO $oVo
+	 * @param BaseEntryVO $oVo
 	 * @return $this
 	 */
 	public function setWheresFromVo( $oVo ) {

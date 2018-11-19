@@ -45,6 +45,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
 		$oModPlugin = $oCon->getModule( 'plugin' );
 
+		$nPluginName = $oCon->getHumanName();
 		switch ( $sSubNavSection ) {
 
 			case 'audit':
@@ -80,7 +81,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
 					),
 					'flags'   => array(),
-					'strings' => array(),
+					'strings' => array(
+						'title_whitelist'   => _wpsf__( 'IP Whitelist' ),
+						'title_blacklist'   => _wpsf__( 'IP Blacklist' ),
+						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
+						'summary_blacklist' => sprintf( _wpsf__( 'IP addresses that have tripped %s defenses.' ), $nPluginName ),
+					),
 					'vars'    => array(),
 				);
 				break;

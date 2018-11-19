@@ -5,6 +5,7 @@
     "name":                  "Dashboard",
     "menu_priority":         "5",
     "show_module_menu_item": true,
+    "show_module_options":   true,
     "auto_enabled":          true,
     "storage_key":           "insights",
     "show_central":          false,
