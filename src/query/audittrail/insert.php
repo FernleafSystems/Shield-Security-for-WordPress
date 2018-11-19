@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Insert', false ) ) {
 
 require_once( dirname( dirname( __FILE__ ) ).'/base/insert.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_AuditTrail_Insert extends ICWP_WPSF_Query_BaseInsert {
 
 	/**

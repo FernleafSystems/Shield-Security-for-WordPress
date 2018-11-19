@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Insert extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert {
+class Insert extends BaseInsert {
 
 	/**
 	 * Requires IP and List to be set on VO.

@@ -212,40 +212,27 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_AuditTrailEntryVO
-	 */
-	protected function getEntryVo() {
-		/** @var ICWP_WPSF_AuditTrailEntryVO $oVo */
-		$oVo = $this->getQuerySelector()
-					->getVo();
-		return $oVo;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_AuditTrail_Delete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		$oQ = new ICWP_WPSF_Query_AuditTrail_Delete();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Delete() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_AuditTrail_Insert
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Insert
 	 */
 	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		$oQ = new ICWP_WPSF_Query_AuditTrail_Insert();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Insert() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_AuditTrail_Select
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		$oQ = new ICWP_WPSF_Query_AuditTrail_Select();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 /**
@@ -39,7 +40,7 @@ class Ip extends Base {
 	protected function getEntriesFormatted() {
 		$aEntries = array();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var \ICWP_WPSF_IpsEntryVO $oEntry */
+			/** @var EntryVO $oEntry */
 			$aE = $oEntry->getRawData();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );

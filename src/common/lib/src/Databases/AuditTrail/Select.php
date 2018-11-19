@@ -1,15 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Select', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
-require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
+class Select extends BaseSelect {
 
 	/**
 	 * @return string[]
@@ -41,7 +37,7 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByIp( $sIp ) {
-		if ( $this->loadIpService()->isValidIp( $sIp ) ) {
+		if ( Services::IP()->isValidIp( $sIp ) ) {
 			$this->addWhereEquals( 'ip', trim( $sIp ) );
 		}
 		return $this;
@@ -52,7 +48,7 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByNotIp( $sIp ) {
-		if ( $this->loadIpService()->isValidIp( $sIp ) ) {
+		if ( Services::IP()->isValidIp( $sIp ) ) {
 			$this->addWhere( 'ip', trim( $sIp ), '!=' );
 		}
 		return $this;
@@ -83,7 +79,7 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
 	 * @param string $sContext
-	 * @return ICWP_WPSF_AuditTrailEntryVO[]|stdClass[]
+	 * @return EntryVO[]
 	 */
 	public function forContext( $sContext ) {
 		return $this->reset()
@@ -92,16 +88,16 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return int|array[]|ICWP_WPSF_AuditTrailEntryVO[]
+	 * @return EntryVO[]
 	 */
 	public function query() {
 		return parent::query();
 	}
 
 	/**
-	 * @return string
+	 * @return EntryVO
 	 */
-	protected function getVoName() {
-		return 'ICWP_WPSF_AuditTrailEntryVO';
+	public function getVo() {
+		return Handler::getVo();
 	}
 }

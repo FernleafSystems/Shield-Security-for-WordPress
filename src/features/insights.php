@@ -303,57 +303,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return array[]
 	 */
-	protected function getIps() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getConn()
-					 ->getModule( 'ips' );
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $oMod->getProcessor();
-
-		$aData = array(
-			'white' => $this->parseIpList( $oPro->getWhitelistIpsData() ),
-			'black' => $this->parseIpList( $oPro->getAutoBlacklistIpsData() ),
-		);
-		$aData[ 'has_white' ] = !empty( $aData[ 'white' ] );
-		$aData[ 'has_black' ] = !empty( $aData[ 'black' ] );
-		return $aData;
-	}
-
-	/**
-	 * @param ICWP_WPSF_IpsEntryVO[] $aList
-	 * @return array[]
-	 */
-	private function parseIpList( $aList ) {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getConn()
-					 ->getModule( 'ips' );
-		$aParsed = array();
-
-		$oIpService = $this->loadIpService();
-		$oCarbon = new \Carbon\Carbon();
-		foreach ( $aList as $oIp ) {
-
-			$nTrans = $oIp->getTransgressions();
-			$aIp = $oIp->getRawData();
-			$aIp[ 'trans' ] = sprintf( _n( '%s offence', '%s offences', $nTrans, 'wp-simple-firewall' ), $nTrans );
-			$aIp[ 'last_access_at' ] = $oCarbon->setTimestamp( $oIp->getLastAccessAt() )->diffForHumans();
-			$aIp[ 'created_at' ] = $oCarbon->setTimestamp( $oIp->getCreatedAt() )->diffForHumans();
-			$aIp[ 'blocked' ] = $nTrans >= $oMod->getOptTransgressionLimit();
-			try {
-				$aIp[ 'is_you' ] = $oIpService->checkIp( $oIpService->getRequestIp(), $oIp->getIp() );
-			}
-			catch ( Exception $oE ) {
-				$aIp[ 'is_you' ] = false;
-			}
-
-			$aIp[ 'is_you' ] ? array_unshift( $aParsed, $aIp ) : array_push( $aParsed, $aIp );
-		}
-		return $aParsed;
-	}
-
-	/**
-	 * @return array[]
-	 */
 	protected function getConfigCardsData() {
 		return apply_filters( $this->prefix( 'collect_summary' ), array() );
 	}

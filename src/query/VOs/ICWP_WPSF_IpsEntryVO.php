@@ -10,6 +10,7 @@ require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
  * @property string list
  * @property int    last_access_at
  * @property int    transgressions
+ * @deprecated 
  */
 class ICWP_WPSF_IpsEntryVO extends ICWP_WPSF_BaseEntryVO {
 

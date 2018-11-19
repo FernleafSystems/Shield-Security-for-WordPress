@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 
 	/**
 	 * ICWP_WPSF_Processor_HackProtect_Scanner constructor.
-	 * @param $oModCon
+	 * @param ICWP_WPSF_FeatureHandler_HackProtect $oModCon
 	 */
 	public function __construct( $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDef( 'table_name_scanner' ) );
@@ -107,13 +107,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			$this->aSubPros[ 'vuln' ] = $oProc;
 		}
 		return $oProc;
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO
-	 */
-	protected function getEntryVo() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO();
 	}
 
 	/**

@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_Ips_Update', false ) ) {
 
 require_once( dirname( dirname( __FILE__ ) ).'/base/update.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_Ips_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
