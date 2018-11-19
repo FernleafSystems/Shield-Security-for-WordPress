@@ -40,104 +40,22 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableAuditTrail() {
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-				'fIp',
-				'fContext',
-				'fUsername',
-				'fLoggedIn',
-				'fExludeYou'
-			) )
-		);
+		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
+		$oPro = $this->getProcessor();
+
+		if ( $oPro->getQuerySelector()->count() > 0 ) {
+			$sRendered = ( new Shield\Tables\Build\AuditTrail() )
+				->setQuerySelector( $oPro->getQuerySelector() )
+				->buildTable();
+		}
+		else {
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
+		}
+
 		return array(
 			'success' => true,
-			'html'    => $this->renderTable( $aParams )
+			'html'    => $sRendered
 		);
-	}
-
-	/**
-	 * @param $aParams
-	 * @return false|string
-	 */
-	protected function renderTable( $aParams ) {
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-		$aParams = array_merge(
-			array(
-				'orderby'    => 'created_at',
-				'order'      => 'DESC',
-				'paged'      => 1,
-				'fIp'        => '',
-				'fUsername'  => '',
-				'fContext'   => '',
-				'fLoggedIn'  => -1,
-				'fExludeYou' => '',
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
-		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
-		$oPro = $this->loadProcessor();
-		$oSelector = $oPro->getQuerySelector()
-						  ->setPage( $nPage )
-						  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-						  ->setLimit( $this->getDefaultPerPage() )
-						  ->setResultsAsVo( true );
-		// Filters
-		{
-			$oSelector->filterByContext( $aParams[ 'fContext' ] );
-
-			$oIp = $this->loadIpService();
-			// If an IP is specified, it takes priority
-			if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
-				$oSelector->filterByIp( $aParams[ 'fIp' ] );
-			}
-			else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
-				$oSelector->filterByNotIp( $oIp->getRequestIp() );
-			}
-
-			// if username is provided, this takes priority over "logged-in" (even if it's invalid)
-			if ( !empty( $aParams[ 'fUsername' ] ) ) {
-				$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
-			}
-			else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
-				$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
-			}
-		}
-
-		$aEntries = $oSelector->query();
-
-		$oTable = $this->getTableRenderer()
-					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-					   ->setPerPage( $this->getDefaultPerPage() )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
-	}
-
-	/**
-	 * @return Shield\Tables\Render\AuditTrail
-	 */
-	protected function getTableRenderer() {
-		return new Shield\Tables\Render\AuditTrail();
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getDefaultPerPage() {
-		return $this->getDef( 'audit_trail_default_per_page' );
 	}
 
 	/**
@@ -201,35 +119,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function isAuditWp() {
 		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
-	}
-
-	/**
-	 * Move to table
-	 * @param ICWP_WPSF_AuditTrailEntryVO[] $aEntries
-	 * @return array
-	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-		if ( is_array( $aEntries ) ) {
-			$oWp = $this->loadWp();
-			$sYou = $this->loadIpService()->getRequestIp();
-			$oCarbon = new \Carbon\Carbon();
-			foreach ( $aEntries as $nKey => $oEntry ) {
-				$aE = $oEntry->getRawData();
-				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->getEvent() ) );
-				$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->getMessage() ) );
-				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-
-				if ( $oEntry->getIp() == $sYou ) {
-					$aE[ 'your_ip' ] = '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
-				}
-				else {
-					$aE[ 'your_ip' ] = '';
-				}
-				$aEntries[ $nKey ] = $aE;
-			}
-		}
-		return $aEntries;
 	}
 
 	/**

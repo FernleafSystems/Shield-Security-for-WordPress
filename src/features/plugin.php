@@ -363,23 +363,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * Move to table
-	 * @param ICWP_WPSF_NoteVO[] $aEntries
-	 * @return array
-	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-		$oWp = $this->loadWp();
-		$oCarbon = new \Carbon\Carbon();
-		foreach ( $aEntries as $nKey => $oEntry ) {
-			$aE = $oEntry->getRawData();
-			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-			$aEntries[ $nKey ] = $aE;
-		}
-		return $aEntries;
-	}
-
-	/**
 	 * @param bool $bOnOrOff
 	 * @return $this
 	 */
