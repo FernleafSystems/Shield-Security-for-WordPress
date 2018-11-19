@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseUpdate', false ) ) {
 
 require_once( dirname( __FILE__ ).'/insert.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 
 	/**

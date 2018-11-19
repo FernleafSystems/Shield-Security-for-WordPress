@@ -533,40 +533,36 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Ips_Delete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Delete();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Delete() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Ips_Insert
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Insert
 	 */
 	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Insert();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Insert() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Ips_Select
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Select();
-		return $oQ->setTable( $this->getTableName() )
-				  ->setResultsAsVo( true );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select() )
+			->setTable( $this->getTableName() )
+			->setResultsAsVo( true );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Ips_Update
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Update
 	 */
 	public function getQueryUpdater() {
-		$this->queryRequireLib( 'update.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Update();
-		return $oQ->setTable( $this->getTableName() );
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Update() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**

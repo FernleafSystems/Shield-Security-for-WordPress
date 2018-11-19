@@ -166,18 +166,7 @@ class BaseSelect extends BaseQuery {
 	 * @return BaseEntryVO
 	 */
 	public function getVo() {
-		$sClass = $this->getVoName();
-		if ( !class_exists( $sClass ) ) {
-			require_once( dirname( dirname( __FILE__ ) ).'/VOs/'.$sClass.'.php' );
-		}
-		return new $sClass();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getVoName() {
-		return 'ICWP_WPSF_BaseEntryVO';
+		return new BaseEntryVO();
 	}
 
 	/**

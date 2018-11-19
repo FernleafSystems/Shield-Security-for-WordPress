@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseInsert', false ) ) {
 
 require_once( dirname( __FILE__ ).'/query.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 
 	/**

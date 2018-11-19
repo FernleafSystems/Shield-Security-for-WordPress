@@ -6,7 +6,10 @@ if ( class_exists( 'ICWP_WPSF_Query_BaseDelete', false ) ) {
 
 require_once( dirname( __FILE__ ).'/query.php' );
 
-abstract class BaseUpdate extends BaseQ {
+/**
+ * @deprecated
+ */
+abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
 	 * @return ICWP_WPSF_Query_BaseSelect
