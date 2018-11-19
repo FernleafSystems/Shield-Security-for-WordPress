@@ -1,15 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Scanner_Delete', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-require_once( dirname( __DIR__ ).'/base/delete.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Scanner_Delete extends ICWP_WPSF_Query_BaseDelete {
+class Delete extends BaseDelete {
 
 	/**
 	 * @param string $sHash
@@ -44,11 +39,9 @@ class ICWP_WPSF_Query_Scanner_Delete extends ICWP_WPSF_Query_BaseDelete {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Scanner_Select
+	 * @return Select
 	 */
 	protected function getSelector() {
-		require_once( dirname( __FILE__ ).'/select.php' );
-		$oCounter = new ICWP_WPSF_Query_Scanner_Select();
-		return $oCounter->setTable( $this->getTable() );
+		return ( new Select() )->setTable( $this->getTable() );
 	}
 }

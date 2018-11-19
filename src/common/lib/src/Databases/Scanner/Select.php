@@ -1,12 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Scanner_Select', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-require_once( dirname( __DIR__ ).'/base/select.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
 
-class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
+class Select extends BaseSelect {
 
 	/**
 	 * @return string[]
@@ -64,7 +62,7 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
 	 * @param string $sScan
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]|stdClass[]
+	 * @return EntryVO[]
 	 */
 	public function forScan( $sScan ) {
 		return $this->reset()
@@ -73,16 +71,9 @@ class ICWP_WPSF_Query_Scanner_Select extends ICWP_WPSF_Query_BaseSelect {
 	}
 
 	/**
-	 * @return int|stdClass[]|\FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 * @return EntryVO
 	 */
-	public function query() {
-		return parent::query();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getVoName() {
-		return 'ICWP_WPSF_ScannerEntryVO';
+	public function getVo() {
+		return Handler::getVo();
 	}
 }

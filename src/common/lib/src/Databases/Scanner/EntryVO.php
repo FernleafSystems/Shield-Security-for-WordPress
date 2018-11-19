@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO;
 
 /**
- * Class ICWP_WPSF_ScannerEntryVO
+ * Class EntryVO
  * @property string hash
  * @property array  data
  * @property string scan

@@ -1,15 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Scanner_Insert', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-require_once( dirname( __DIR__ ).'/base/insert.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Scanner_Insert extends ICWP_WPSF_Query_BaseInsert {
+class Insert extends BaseInsert {
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry

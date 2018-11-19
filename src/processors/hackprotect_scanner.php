@@ -6,6 +6,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Scanner', false ) ) {
 
 require_once( dirname( __FILE__ ).'/basedb.php' );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -110,39 +112,36 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Scanner_Delete
+	 * @return Scanner\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		$oQ = new ICWP_WPSF_Query_Scanner_Delete();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Scanner_Insert
-	 */
-	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		$oQ = new ICWP_WPSF_Query_Scanner_Insert();
-		return $oQ->setTable( $this->getTableName() );
-	}
-	/**
-	 * @return ICWP_WPSF_Query_Scanner_Select
-	 */
-	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		return ( new ICWP_WPSF_Query_Scanner_Select() )
-			->setResultsAsVo( true )
+		return ( new Scanner\Delete() )
 			->setTable( $this->getTableName() );
 	}
 
+	/**
+	 * @return Scanner\Insert
+	 */
+	public function getQueryInserter() {
+		return ( new Scanner\Insert() )
+			->setTable( $this->getTableName() );
+	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Scanner_Update
+	 * @return Scanner\Select
+	 */
+	public function getQuerySelector() {
+		return ( new Scanner\Select() )
+			->setTable( $this->getTableName() )
+			->setResultsAsVo( true );
+	}
+
+	/**
+	 * @return Scanner\Update
 	 */
 	public function getQueryUpdater() {
-		$this->queryRequireLib( 'update.php' );
-		return ( new ICWP_WPSF_Query_Scanner_Update() )->setTable( $this->getTableName() );
+		return ( new Scanner\Update() )
+			->setTable( $this->getTableName() );
 	}
 
 	/**

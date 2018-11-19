@@ -8,6 +8,9 @@ require_once( dirname( dirname( __FILE__ ) ).'/base/update.php' );
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_Scanner_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**

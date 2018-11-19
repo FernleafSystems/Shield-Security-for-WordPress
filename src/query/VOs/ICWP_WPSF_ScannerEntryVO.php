@@ -11,6 +11,7 @@ require_once( __DIR__.'/ICWP_WPSF_BaseEntryVO.php' );
  * @property int    severity
  * @property int    discovered_at
  * @property int    ignored_until
+ * @deprecated
  */
 class ICWP_WPSF_ScannerEntryVO extends ICWP_WPSF_BaseEntryVO {
 
