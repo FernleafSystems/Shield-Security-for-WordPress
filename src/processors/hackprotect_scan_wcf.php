@@ -109,38 +109,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * Move to table
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
-	 * @return array
-	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-		if ( is_array( $aEntries ) ) {
-			$oWp = $this->loadWp();
-			$oCarbon = new \Carbon\Carbon();
-
-			$nTs = $this->loadRequest()->ts();
-			foreach ( $aEntries as $nKey => $oEntry ) {
-				$oIt = ( new Shield\Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
-				$aE = $oEntry->getRawData();
-				$aE[ 'path' ] = $oIt->path_fragment;
-				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unknown' );
-				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
-				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-				$aEntries[ $nKey ] = $aE;
-			}
-		}
-		return $aEntries;
-	}
-
-	/**
-	 * @return Shield\Tables\Render\ScanWcf
-	 */
-	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanWcf();
-	}
-
-	/**
 	 * @param $sItemId - database row ID
 	 * @return bool
 	 * @throws Exception

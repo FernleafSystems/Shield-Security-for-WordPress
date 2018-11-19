@@ -6,8 +6,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_ScanBase', false ) ) {
 
 require_once( dirname( __FILE__ ).'/cronbase.php' );
 
-use FernleafSystems\Wordpress\Plugin\Shield,
-	FernleafSystems\Wordpress\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase {
 
@@ -155,76 +154,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	abstract protected function convertVoToResultItem( $oVo );
 
 	/**
-	 * @return string
-	 */
-	public function buildTableScanResults() {
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-				'fScan',
-				'fSlug',
-			) )
-		);
-		return $this->renderTable( $aParams );
-	}
-
-	/**
-	 * @param array $aParams
-	 * @return string
-	 */
-	protected function renderTable( $aParams ) {
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._\s-]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-		$aParams = array_merge(
-			array(
-				'orderby'  => 'created_at',
-				'order'    => 'DESC',
-				'paged'    => 1,
-				'fScan'    => 'wcf',
-				'fSlug'    => '',
-				'fIgnored' => 'N',
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
-		$oScanPro = $this->getScannerDb();
-		$oSelector = $oScanPro->getQuerySelector()
-							  ->setPage( $nPage )
-							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-							  ->filterByScan( static::SCAN_SLUG )
-							  ->setResultsAsVo( true );
-		{//FILTERS
-			if ( $aParams[ 'fIgnored' ] !== 'Y' ) {
-				$oSelector->filterByNotIgnored();
-			}
-		}
-		$aEntries = $this->postSelectEntriesFilter( $oSelector->query(), $aParams );
-
-		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
-			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
-		}
-		else {
-			$oTable = $this->getTableRenderer()
-						   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-						   ->setTotalRecords( count( $aEntries ) )
-						   ->prepare_items();
-			ob_start();
-			$oTable->display();
-			$sRendered = ob_get_clean();
-		}
-		return $sRendered;
-	}
-
-	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
@@ -294,32 +223,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	protected function repairItem( $sItemId ) {
 		throw new Exception( 'Unsupported Action' );
 	}
-
-	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
-	 * @param array                                                                $aParams
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function postSelectEntriesFilter( $aEntries, $aParams ) {
-		return $aEntries;
-	}
-
-	/**
-	 * @return Shield\Tables\Render\ScanBase
-	 */
-	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanBase();
-	}
-
-	/**
-	 * Move to table
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
-	 * @return array
-	 * 'path_fragment' => 'File',
-	 * 'status'        => 'Status',
-	 * 'ignored'       => 'Ignored',
-	 */
-	abstract protected function formatEntriesForDisplay( $aEntries );
 
 	/**
 	 * @return callable

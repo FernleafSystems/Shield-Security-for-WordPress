@@ -131,59 +131,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * Since we can't select items by slug directly from the scan results database
-	 * we have to post-filter the results.
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
-	 * @param array                                                                $aParams
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function postSelectEntriesFilter( $aEntries, $aParams ) {
-		if ( !empty( $aParams[ 'fSlug' ] ) ) {
-			$oSlugResults = $this->convertVosToResults( $aEntries )->getResultsSetForSlug( $aParams[ 'fSlug' ] );
-			foreach ( $oSlugResults->getAllItems() as $oItem ) {
-				foreach ( $aEntries as $key => $oEntry ) {
-					if ( $oItem->hash !== $oEntry->hash ) {
-						unset( $aEntries[ $key ] );
-					}
-				}
-			}
-		}
-		return array_values( $aEntries );
-	}
-
-	/**
-	 * Move to table
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
-	 * @return array
-	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-		$oWp = $this->loadWp();
-		$oCarbon = new \Carbon\Carbon();
-
-		$oResults = $this->convertVosToResults( $aEntries );
-		$nTs = $this->loadRequest()->ts();
-		foreach ( $aEntries as $nKey => $oEntry ) {
-			/** @var Shield\Scans\PTGuard\ResultItem $oIt */
-			$oIt = $oResults->getItemByHash( $oEntry->hash );
-			$aE = $oEntry->getRawData();
-			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unrecognised' );
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
-			$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-								  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-			$aEntries[ $nKey ] = $aE;
-		}
-		return $aEntries;
-	}
-
-	/**
-	 * @return Shield\Tables\Render\ScanPtg
-	 */
-	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanPtg();
-	}
-
-	/**
 	 * @param $sItemId - plugin/theme slug
 	 * @return true
 	 * @throws Exception

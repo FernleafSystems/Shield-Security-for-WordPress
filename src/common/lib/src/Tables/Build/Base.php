@@ -51,10 +51,20 @@ class Base {
 	 * @return array[]|int|string[]|\ICWP_WPSF_BaseEntryVO[]
 	 */
 	protected function getEntriesRaw() {
-		return $this->applyDefaultParameters()
-					->applyQueryFilters()
-					->getQuerySelector()
-					->query();
+		$aEntries = $this->applyDefaultParameters()
+						 ->applyQueryFilters()
+						 ->getQuerySelector()
+						 ->query();
+		return $this->postSelectEntriesFilter( $aEntries );
+	}
+
+	/**
+	 * Override this to filter entries that cannot be filtered using SQL WHERE
+	 * @param array[] $aEntries
+	 * @return array[]
+	 */
+	protected function postSelectEntriesFilter( $aEntries ) {
+		return $aEntries;
 	}
 
 	/**

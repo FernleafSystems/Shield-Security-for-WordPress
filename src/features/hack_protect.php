@@ -652,24 +652,40 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->loadProcessor();
 		$oScanPro = $oPro->getSubProcessorScanner();
-		switch ( $this->loadRequest()->post( 'fScan' ) ) {
-			case 'ptg':
-				$oTablePro = $oScanPro->getSubProcessorPtg();
-				break;
 
-			case 'ufc':
-				$oTablePro = $oScanPro->getSubProcessorUfc();
-				break;
+		$sScan = $this->loadRequest()->post( 'fScan' );
 
-			case 'wcf':
-			default:
-				$oTablePro = $oScanPro->getSubProcessorWcf();
-				break;
+		$nCount = $oScanPro->getQuerySelector()
+						   ->filterByScan( $sScan )
+						   ->count();
+		if ( $nCount ) {
+
+			switch ( $sScan ) {
+				case 'ptg':
+					$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanPtg();
+					break;
+
+				case 'ufc':
+					$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanUfc();
+					break;
+
+				case 'wcf':
+				default:
+					$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
+					break;
+			}
+
+			$sRendered = $oTableBuilder
+				->setQuerySelector( $oScanPro->getQuerySelector() )
+				->buildTable();
+		}
+		else {
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
 		}
 
 		return array(
 			'success' => true,
-			'html'    => $oTablePro->buildTableScanResults()
+			'html'    => $sRendered
 		);
 	}
 
