@@ -96,13 +96,15 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					}
 				);
 
-				this.$oFormInsert.on(
-					'submit' + '.' + plugin._name,
-					function ( evt ) {
-						evt.preventDefault();
-						plugin.insertEntry.call( plugin );
-					}
-				);
+				if ( typeof this.$oFormInsert !== 'undefined' && this.$oFormInsert.length ) {
+					this.$oFormInsert.on(
+						'submit' + '.' + plugin._name,
+						function ( evt ) {
+							evt.preventDefault();
+							plugin.insertEntry.call( plugin );
+						}
+					);
+				}
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
